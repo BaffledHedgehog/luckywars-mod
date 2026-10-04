@@ -1,0 +1,46 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:acacia_hanging_sign",
+            "components": {
+                "minecraft:item_model": "lbc:lucky_block"
+            }
+        },
+        "title": "Lucky Block",
+        "description": {
+            "translate": "lbc.adv.root.desc"
+        },
+        "frame": "task",
+        "background": "minecraft:block/lucky_block_nigger",
+        "show_toast": true,
+        "announce_to_chat": false,
+        "hidden": false
+    },
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "nbt": "{playerGameType:3}"
+                            }
+                        }
+                    }
+                ],
+                "items": [
+                    {
+                        "items": "minecraft:red_mushroom_block",
+                        "components": {
+                            "minecraft:item_model": "lbc:lucky_block"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

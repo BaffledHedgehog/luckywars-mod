@@ -1,0 +1,34 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_steampunk_full"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_techno_full"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_paladin_full"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_mage_full"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_phantom_full"
+                }
+            ]
+        }
+    ]
+}

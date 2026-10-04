@@ -1,0 +1,96 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:leather_chestplate",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:item_model": "lbc:armors/phantom_chestplate",
+                                "minecraft:tooltip_style":"lbc:tier_c",
+                                "minecraft:max_damage": 600,
+                                "minecraft:equippable":{"slot":"chest","asset_id":"lbc:phantom"},
+                                "minecraft:attribute_modifiers": [
+                                        {
+                                            "type": "minecraft:armor",
+                                            "slot": "chest",
+                                            "id": "genhgjbykjbnhkgnarmor",
+                                            "amount": 6,
+                                            "operation": "add_value"
+                                        }
+                                    ]
+                                
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": {
+                                "translate": "phantom_chestplate",
+                                "color": "red",
+                                "italic": false
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "chestplate",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "set_bonus",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "phantom_set_bonus.1",
+                                    "italic": false,
+                                    "color": "aqua"
+                                },
+                                {
+                                    "translate": "phantom_set_bonus.2",
+                                    "italic": false,
+                                    "color": "aqua"
+                                },
+                                {
+                                    "translate": "phantom_set_bonus.3",
+                                    "italic": false,
+                                    "color": "aqua"
+                                },
+                                {
+                                    "translate": "phantom_set_bonus.4",
+                                    "italic": false,
+                                    "color": "aqua"
+                                },
+                                {
+                                    "translate": "craft_with_mage_chestplate",
+                                    "italic": false,
+                                    "color": "yellow"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,transformable:1,chestplate:1,phantom:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

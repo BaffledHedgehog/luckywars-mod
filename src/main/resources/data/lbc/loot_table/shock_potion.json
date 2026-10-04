@@ -1,0 +1,95 @@
+    {
+        "pools": [
+            {
+                "rolls": 1,
+                "entries": [
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:lingering_potion",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": 1
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:tooltip_style": "lbc:tier_b",
+                                    "minecraft:item_model": "lbc:shock_potion",
+                                    "minecraft:potion_contents": {
+                                        "custom_color": 50175,
+                                        "custom_effects": [
+                                            {
+                                                "id": "minecraft:raid_omen",
+                                                "amplifier": 126,
+                                                "duration": 10,
+                                                "show_particles": false,
+                                                "show_icon": false
+                                            }
+                                        ]
+                                    },
+                                    "potion_duration_scale": 1.0,
+                                    "minecraft:tooltip_display": {
+                                        "hidden_components": [
+                                            "minecraft:potion_contents"
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "shock_potion",
+                                        "italic": false
+                                    }
+                                ]
+                            },
+                            {
+                                "function": "minecraft:set_lore",
+                                "mode": "replace_all",
+                                "lore": [
+                                    [
+                                        {
+                                            "translate": "type",
+                                            "italic": false,
+                                            "color": "aqua"
+                                        },
+                                        {
+                                            "translate": "potion.lbc",
+                                            "italic": false,
+                                            "color": "aqua"
+                                        }
+                                    ],
+                                    {
+                                        "translate": "shock_potion.lore.1",
+                                        "italic": false,
+                                        "color": "white"
+                                    },
+                                    {
+                                        "translate": "shock_potion.lore.2",
+                                        "italic": false,
+                                        "color": "white"
+                                    },
+                                    {
+                                        "translate": "shock_potion.lore.3",
+                                        "italic": false,
+                                        "color": "white"
+                                    },
+                                    {
+                                        "translate": "shock_potion.lore.4",
+                                        "italic": false,
+                                        "color": "white"
+                                    }
+                                ]
+                            },
+                            {
+                                "function": "minecraft:set_custom_data",
+                                "tag": "{transformable:1,potion:1}"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }

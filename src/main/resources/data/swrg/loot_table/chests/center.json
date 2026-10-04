@@ -1,0 +1,50 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "swrg:chests/center_0"
+                }
+            ],
+            "conditions": [
+                {
+                    "condition": "minecraft:value_check",
+                    "value": {
+                        "type": "minecraft:score",
+                        "target": {
+                            "type": "minecraft:fixed",
+                            "name": "#gamemode"
+                        },
+                        "score": "swrg.math"
+                    },
+                    "range": 1
+                }
+            ]
+        },
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "swrg:chests/center_lb"
+                }
+            ],
+            "conditions": [
+                {
+                    "condition": "minecraft:value_check",
+                    "value": {
+                        "type": "minecraft:score",
+                        "target": {
+                            "type": "minecraft:fixed",
+                            "name": "#gamemode"
+                        },
+                        "score": "swrg.math"
+                    },
+                    "range": 2
+                }
+            ]
+        }
+    ]
+}

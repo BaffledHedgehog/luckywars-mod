@@ -1,0 +1,45 @@
+[
+    {
+        "function": "minecraft:set_attributes",
+        "modifiers": [
+            {
+                "attribute": "minecraft:armor",
+                "amount": {
+                    "type": "minecraft:score",
+                    "target": {
+                        "type": "minecraft:fixed",
+                        "name": "#tmp4"
+                    },
+                    "score": "lbc.math",
+                    "scale": 0.0009
+                },
+                "operation": "add_value",
+                "id": "minecraft:71eaf780-80f9-4861-8a64-49ab1247121b",
+                "slot": "head"
+            },
+            {
+                "attribute": "minecraft:armor_toughness",
+                "amount": {
+                    "type": "minecraft:score",
+                    "target": {
+                        "type": "minecraft:fixed",
+                        "name": "#tmp4"
+                    },
+                    "score": "lbc.math",
+                    "scale": 0.0009
+                },
+                "operation": "add_value",
+                "id": "minecraft:bafd952e-692a-41ed-9b61-c7d604d107c9",
+                "slot": "head"
+            }
+        ]
+    },
+    {
+        "function": "minecraft:set_components",
+        "components": {}
+    },
+    {
+        "function": "minecraft:set_custom_data",
+        "tag": "{tanner_upgraded:1}"
+    }
+]

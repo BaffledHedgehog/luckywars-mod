@@ -1,0 +1,73 @@
+{
+    "pools": [
+        {
+            "rolls": {
+                "min": 3,
+                "max": 6
+            },
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:item_model": "lbc:banana",
+                                "minecraft:food": {
+                                    "nutrition": 4,
+                                    "saturation": 6
+                                },
+                                "minecraft:consumable": {
+                                    "animation": "eat",
+                                    "has_consume_particles": true,
+                                    "consume_seconds": 0.3
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "banana",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "lbckit.23.lore.4",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "lbckit.23.lore.5",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "lbckit.23.lore.6",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "lbckit.23.lore.7",
+                                    "italic": false,
+                                    "color": "white"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{eat_banana:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,31 @@
+{
+    "replace": false,
+    "values": [
+        "minecraft:andesite",
+        "minecraft:andesite_slab",
+        "minecraft:andesite_stairs",
+        "minecraft:andesite_wall",
+        "minecraft:polished_andesite",
+        "minecraft:polished_andesite_slab",
+        "minecraft:polished_andesite_stairs",
+        "minecraft:packed_mud",
+        "minecraft:mud_brick_slab",
+        "minecraft:mud_brick_stairs",
+        "minecraft:mud_brick_wall",
+        "minecraft:mud_bricks",
+        "minecraft:exposed_copper",
+        "minecraft:exposed_cut_copper",
+        "minecraft:exposed_cut_copper_slab",
+        "minecraft:exposed_cut_copper_stairs",
+        "minecraft:waxed_exposed_copper",
+        "minecraft:waxed_exposed_cut_copper_slab",
+        "minecraft:waxed_exposed_cut_copper_stairs",
+        "minecraft:waxed_exposed_cut_copper",
+        "minecraft:clay",
+        "minecraft:gravel",
+        "minecraft:jungle_leaves",
+        "minecraft:melon",
+        "minecraft:vine",
+        "leaf_litter"
+    ]
+}

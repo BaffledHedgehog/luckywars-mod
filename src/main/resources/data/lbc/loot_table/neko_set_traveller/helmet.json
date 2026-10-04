@@ -1,0 +1,71 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:leather_helmet",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:item_model": "lbc:armors/traveller_helmet",
+                                "minecraft:tooltip_style":"lbc:tier_c",
+                                "minecraft:max_damage": 400,
+                                "minecraft:equippable":{"slot":"head","asset_id":"lbc:traveller"}
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "travel_helmet",
+                                    "color": "green",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "helmet",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "travel_helmet.lore",
+                                    "color": "#FFBFBF",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "set_bonus",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "set_bonus_traveller",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,helmet:1,jumpboost:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

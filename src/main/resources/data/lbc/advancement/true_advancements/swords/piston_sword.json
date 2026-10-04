@@ -1,0 +1,52 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:carrot_on_a_stick",
+            "components": {
+                "minecraft:item_model": "lbc:piston_sword"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.sword.piston_sword"
+        },
+        "description": {
+            "translate": "lbc.adv.sword.piston_sword.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/swords/anal_whip",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:player_killed_entity",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:entity_properties",
+                        "entity": "this",
+                        "predicate": {
+                            "equipment": {
+                                "mainhand": {
+                                    "predicates": {
+                                        "minecraft:custom_data": "{transformable: 1,sword: 1,piston_sword: 1}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "entity": [
+                    {
+                        "condition": "minecraft:entity_properties",
+                        "entity": "this",
+                        "predicate": {
+                            "type": "minecraft:player"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,56 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:crossbow",
+            "components": {
+                "minecraft:item_model": "lbc:dildomet/dildomet",
+                "charged_projectiles": [
+                    {
+                        "id": "arrow",
+                        "count": 1
+                    }
+                ]
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.bow.penis_gun"
+        },
+        "description": {
+            "translate": "lbc.adv.bow.penis_gun.lore"
+        },
+        "frame": "challenge",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/bows/ghast",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "nbt": "{playerGameType:3}"
+                            }
+                        }
+                    }
+                ],
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{transformable:1,bow:1,penisgun:1}"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "rewards": {
+        "function": "lbc:swrg_kit_integration/gain/trinket"
+    }
+}

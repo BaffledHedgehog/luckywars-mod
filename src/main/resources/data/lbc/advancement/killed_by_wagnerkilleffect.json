@@ -1,0 +1,31 @@
+{
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:entity_killed_player",
+            "conditions": {
+                "entity": [
+                    {
+                        "condition": "minecraft:entity_properties",
+                        "entity": "this",
+                        "predicate": {
+                            "type": "minecraft:player"
+                        }
+                    },
+                    {
+                        "condition": "minecraft:value_check",
+                        "range": 2,
+                        "value": {
+                            "type": "score",
+                            "score": "swrg.kill_effect",
+                            "target": "this",
+                            "scale": 1
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "rewards": {
+        "function": "lbc:swrg_kit_integration/kill_effects/wagnerhammer"
+    }
+}

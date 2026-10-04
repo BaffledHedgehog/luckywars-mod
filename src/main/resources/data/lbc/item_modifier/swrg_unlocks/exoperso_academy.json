@@ -1,0 +1,29 @@
+[
+    {
+        "function": "minecraft:set_name",
+        "entity": "this",
+        "name": [
+            {
+                "translate": "gui.locked",
+                "color": "red",
+                "bold": true,
+                "italic": false
+            }
+        ]
+    },
+    {
+        "function": "minecraft:set_lore",
+        "mode": "replace_all",
+        "entity": "this",
+        "lore": [
+            {
+                "translate": "gui.for_open",
+                "color": "red"
+            },
+            {
+                "translate": "lbc.adv.upgraded_staff.exoperso",
+                "color": "red"
+            }
+        ]
+    }
+]

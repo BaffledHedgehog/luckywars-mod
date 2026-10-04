@@ -1,0 +1,846 @@
+    {
+    "pools": [
+        {
+            "rolls": {
+                "min": 3,
+                "max": 9,
+                "type": "minecraft:uniform"
+            },
+            "bonus_rolls": {
+                "min": 0,
+                "max": 9,
+                "type": "minecraft:uniform"
+            },
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": 1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:speed",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": -1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:slowness",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": 1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:haste",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": -1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:mining_fatigue",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": 1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:strength",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": 1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:instant_health",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": -1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:instant_damage",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": 1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:jump_boost",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": -1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:nausea",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": 1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:regeneration",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": 1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:resistance",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": 1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:fire_resistance",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": 1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:water_breathing",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": 1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:invisibility",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": -1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:blindness",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": 1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:night_vision",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": -1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:hunger",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": -1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:weakness",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": -1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:poison",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": -1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:wither",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": 1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:health_boost",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": 1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:absorption",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": 1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:saturation",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": -1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:glowing",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": -1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:levitation",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": 1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:slow_falling",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": 1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:luck",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": -1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:unluck",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": -1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:darkness",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": -1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:infested",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": -1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:oozing",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": -1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:bad_omen",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": -1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:trial_omen",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": -1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:weaving",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": -1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:wind_charged",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "quality": -1,
+                    "name": "minecraft:suspicious_stew",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:suspicious_stew_effects": [
+                                    {
+                                        "id": "minecraft:breath_of_the_nautilus",
+                                        "duration": 600
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

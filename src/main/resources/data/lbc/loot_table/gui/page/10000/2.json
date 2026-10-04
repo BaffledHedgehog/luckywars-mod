@@ -1,0 +1,120 @@
+    {
+        "type": "minecraft:empty","pools": [
+            {
+                "rolls": 1,
+                "entries": [
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:carrot_on_a_stick",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:item_model": "lbc:loopa"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "entity": "this",
+                                "name": {
+                                    "translate": "lbcskill.2",
+                                    "italic": false,
+                                    "color": "white"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_lore",
+                                "mode": "replace_all",
+                                "entity": "this",
+                                "lore": [
+                                    {
+                                        "translate": "lore.lbcskill.2.0",
+                                        "italic": false,
+                                        "color": "gray"
+                                    },
+                                    {
+                                        "translate": "lore.lbcskill.2.1",
+                                        "italic": false,
+                                        "color": "gray"
+                                    },
+                                    {
+                                        "translate": "lore.lbcskill.2.2",
+                                        "italic": false,
+                                        "color": "gray"
+                                    },
+                                    {
+                                        "translate": "lore.lbcskill.2.3",
+                                        "italic": false,
+                                        "color": "gray"
+                                    },
+                                    {
+                                        "translate": "lore.lbcskill.2.4",
+                                        "italic": false,
+                                        "color": "gray"
+                                    },
+                                    {
+                                        "translate": "lore.lbcskill.2.5",
+                                        "italic": false,
+                                        "color": "gray"
+                                    },
+                                    {
+                                        "translate": "lore.lbcskill.2.6",
+                                        "italic": false,
+                                        "color": "gray"
+                                    },
+                                    [
+                                        {
+                                            "translate": "pick_rate",
+                                            "italic": false,
+                                            "color": "gold"
+                                        },
+                                        {
+                                            "storage": "stats:stats",
+                                            "nbt": "pick_rate_skill[2]",
+                                            "italic": false,
+                                            "color": "yellow"
+                                        },
+                                        {
+                                            "translate": "pick_count",
+                                            "italic": false,
+                                            "color": "gold"
+                                        },
+                                        {
+                                            "storage": "stats:stats",
+                                            "nbt": "pick_count_skill[2]",
+                                            "italic": false,
+                                            "color": "yellow"
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "translate": "win_rate",
+                                            "italic": false,
+                                            "color": "gold"
+                                        },
+                                        {
+                                            "storage": "stats:stats",
+                                            "nbt": "win_rate_skill[2]",
+                                            "italic": false,
+                                            "color": "yellow"
+                                        },
+                                        {
+                                            "translate": "win_count",
+                                            "italic": false,
+                                            "color": "gold"
+                                        },
+                                        {
+                                            "storage": "stats:stats",
+                                            "nbt": "win_count_skill[2]",
+                                            "italic": false,
+                                            "color": "yellow"
+                                        }
+                                    ]
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }

@@ -1,0 +1,165 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:mace",
+            "components": {
+                "item_model": "lbc:soulcorruptwand"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.event.soulcorrupt_wand"
+        },
+        "description": {
+            "translate": "lbc.adv.event.soulcorrupt_wand.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/event/pumpkin_sword",
+    "criteria": {
+        "meta_1": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "nbt": "{playerGameType:3}"
+                            }
+                        }
+                    }
+                ],
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{metasola:1,type:1}"
+                        }
+                    }
+                ]
+            }
+        },"meta_2": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "nbt": "{playerGameType:3}"
+                            }
+                        }
+                    }
+                ],
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{metasola:1,type:2}"
+                        }
+                    }
+                ]
+            }
+        },"meta_3": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "nbt": "{playerGameType:3}"
+                            }
+                        }
+                    }
+                ],
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{metasola:1,type:3}"
+                        }
+                    }
+                ]
+            }
+        },"meta_4": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "nbt": "{playerGameType:3}"
+                            }
+                        }
+                    }
+                ],
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{metasola:1,type:4}"
+                        }
+                    }
+                ]
+            }
+        },"meta_5": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "nbt": "{playerGameType:3}"
+                            }
+                        }
+                    }
+                ],
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{metasola:1,type:5}"
+                        }
+                    }
+                ]
+            }
+        },"meta_6": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "nbt": "{playerGameType:3}"
+                            }
+                        }
+                    }
+                ],
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{metasola:1,type:6}"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "rewards": {
+        "function": "lbc:swrg_kit_integration/gain/default_skill"
+    }
+}

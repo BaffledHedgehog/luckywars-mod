@@ -1,0 +1,48 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:wooden_sword",
+            "components": {
+                "minecraft:item_model": "lbc:steaksword"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.sword.steak"
+        },
+        "description": {
+            "translate": "lbc.adv.sword.steak.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/swords/epic",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:item_durability_changed",
+            "conditions": {
+                "durability": {
+                    "max": 0
+                },
+                "player": [
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "nbt": "{playerGameType:3}"
+                            }
+                        }
+                    }
+                ],
+                "item": {
+                    "predicates": {
+                        "minecraft:custom_data": "{transformable:1,sword:1,feeding:1}"
+                    }
+                }
+            }
+        }
+    }
+}

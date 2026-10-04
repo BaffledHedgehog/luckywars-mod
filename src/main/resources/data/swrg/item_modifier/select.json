@@ -1,0 +1,22 @@
+[
+    {
+        "function": "minecraft:set_lore",
+        "entity": "this",
+        "lore": [
+            {
+                "nbt": "gui.select",
+                "storage": "swrg:lang",
+                "interpret": true,
+                "source": "storage",
+                "type": "nbt"
+            }
+        ],
+        "mode": "insert"
+    },
+    {
+        "function": "minecraft:set_components",
+        "components": {
+            "minecraft:enchantment_glint_override": true
+        }
+    }
+]

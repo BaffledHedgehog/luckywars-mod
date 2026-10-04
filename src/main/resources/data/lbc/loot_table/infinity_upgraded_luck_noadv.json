@@ -1,0 +1,19 @@
+    {
+    "pools": [
+        {
+            "rolls": 26,
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:luckyblock",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 64
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

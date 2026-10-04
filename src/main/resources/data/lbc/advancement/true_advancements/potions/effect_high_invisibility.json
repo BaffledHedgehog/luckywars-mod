@@ -1,0 +1,47 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:repeating_command_block",
+            "components": {
+                "minecraft:item_model": "lbc:advancement_icon/invisibility"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.potion.effect_high_invisibility"
+        },
+        "description": {
+            "translate": "lbc.adv.potion.effect_high_invisibility.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": false,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/potions",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:effects_changed",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "nbt": "{playerGameType:3}"
+                            }
+                        }
+                    }
+                ],
+                "effects": {
+                    "minecraft:invisibility": {
+                        "amplifier": {
+                            "min": 1
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

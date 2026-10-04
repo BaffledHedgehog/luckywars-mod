@@ -1,0 +1,87 @@
+[
+    {
+        "function": "minecraft:set_lore",
+        "mode": "replace_all",
+        "lore": [
+            [
+                {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                },
+                {
+                    "translate": "sword",
+                    "italic": false,
+                    "color": "aqua"
+                }
+            ],
+            {
+                "translate": "fartus_nadristailo_evolved.lore.1",
+                "italic": false,
+                "color": "white"
+            },
+            {
+                "translate": "fartus_nadristailo_evolved.lore.2",
+                "italic": false,
+                "color": "aqua"
+            },
+            {
+                "translate": "fartus_nadristailo_evolved.lore.3",
+                "italic": false,
+                "color": "aqua"
+            },
+            {
+                "translate": "fartus_nadristailo_evolved.lore.4",
+                "italic": false,
+                "color": "yellow"
+            },
+            [
+                {
+                    "text": "Tinkist00",
+                    "color": "green",
+                    "italic": false,
+                    "type": "text"
+                },
+                {
+                    "text": " Halloween 2025 Legendary Drop Request",
+                    "color": "dark_gray",
+                    "italic": false,
+                    "type": "text"
+                }
+            ]
+        ]
+    },
+    {
+        "function": "set_attributes",
+        "replace": true,
+        "modifiers": [
+            {
+                "attribute": "minecraft:attack_damage",
+                "id": "minecraft:base_attack_damage",
+                "amount": 19,
+                "operation": "add_value",
+                "slot": "mainhand"
+            },
+            {
+                "attribute": "minecraft:attack_speed",
+                "id": "minecraft:base_attack_speed",
+                "amount": -3.5,
+                "operation": "add_value",
+                "slot": "mainhand"
+            },
+            {
+                "attribute": "minecraft:entity_interaction_range",
+                "id": "a8uvy89ryvmg89dmybv8gdfrgg",
+                "amount": 10,
+                "operation": "add_value",
+                "slot": "mainhand"
+            }
+        ]
+    },
+    {
+        "function": "set_components",
+        "components": {
+            "item_model": "lbc:palma"
+        }
+    }
+]

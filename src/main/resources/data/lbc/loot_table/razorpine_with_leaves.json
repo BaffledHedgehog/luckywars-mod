@@ -1,0 +1,94 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "quality": 0,
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_a",
+                                "minecraft:item_model": "lbc:razorpine"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "razorpine",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "shooter",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "razorpine.lore.2",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "razorpine.lore.3",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "razorpine.lore.4",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "razorpine.lore.1",
+                                    "color": "gold",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,transformable:1,shooter:1,magicwand:1,razorpine:1}"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "item",
+                    "name": "wheat_seeds",
+                    "functions": [
+                        {
+                            "function": "set_count",
+                            "count": 16
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

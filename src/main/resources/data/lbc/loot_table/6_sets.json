@@ -1,0 +1,99 @@
+    {
+    "pools": [
+        {
+            "rolls": 6,
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_shulker_full"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_berserk_full"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_traveller_full"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_steampunk_full"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_chaos_full"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_techno_full"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_shitty_full"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_mage_full"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_assasin_full"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_phantom_full"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_paladin_full"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_glass_full"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_flesh_full"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_erosion_full"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_nanobots_full"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_overload_full"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_technomk2_full"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_femboy_full"
+                }
+            ]
+        }
+    ]
+}

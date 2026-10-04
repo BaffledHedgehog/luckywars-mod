@@ -1,0 +1,18 @@
+{
+    "replace": false,
+    "values": [
+        "minecraft:bricks",
+        "minecraft:brick_slab",
+        "minecraft:brick_stairs",
+        "minecraft:brick_wall",
+        "minecraft:netherrack",
+        "minecraft:red_nether_brick_slab",
+        "minecraft:red_nether_brick_stairs",
+        "minecraft:red_nether_brick_wall",
+        "minecraft:red_nether_bricks",
+        "minecraft:nether_gold_ore",
+        "minecraft:redstone_block",
+        "#minecraft:red",
+        "minecraft:mangrove_leaves"
+    ]
+}

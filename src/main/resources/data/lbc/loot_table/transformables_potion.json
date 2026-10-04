@@ -1,0 +1,1167 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "quality": 5,
+                    "name": "minecraft:lingering_potion",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_c",
+                                "minecraft:potion_contents": {
+                                    "custom_effects": [
+                                        {
+                                            "id": "minecraft:instant_damage",
+                                            "amplifier": 1
+                                        },
+                                        {
+                                            "id": "minecraft:nausea",
+                                            "amplifier": 5,
+                                            "duration": 880
+                                        },
+                                        {
+                                            "id": "minecraft:regeneration",
+                                            "amplifier": 5,
+                                            "duration": 240
+                                        },
+                                        {
+                                            "id": "minecraft:invisibility",
+                                            "amplifier": 5,
+                                            "duration": 880
+                                        },
+                                        {
+                                            "id": "minecraft:night_vision",
+                                            "amplifier": 5,
+                                            "duration": 880
+                                        },
+                                        {
+                                            "id": "minecraft:hunger",
+                                            "amplifier": 5,
+                                            "duration": 880
+                                        },
+                                        {
+                                            "id": "minecraft:poison",
+                                            "amplifier": 5,
+                                            "duration": 880
+                                        },
+                                        {
+                                            "id": "minecraft:health_boost",
+                                            "amplifier": 5,
+                                            "duration": 240
+                                        },
+                                        {
+                                            "id": "minecraft:glowing",
+                                            "amplifier": 5,
+                                            "duration": 880
+                                        },
+                                        {
+                                            "id": "minecraft:levitation",
+                                            "amplifier": 6,
+                                            "duration": 240
+                                        },
+                                        {
+                                            "id": "minecraft:luck",
+                                            "amplifier": 5,
+                                            "duration": 880
+                                        },
+                                        {
+                                            "id": "minecraft:unluck",
+                                            "amplifier": 6,
+                                            "duration": 880
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "gvozd_potion",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "potion.lbc",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ]
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,potion:1,gvozd:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "quality": 10,
+                    "name": "minecraft:potion",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_a",
+                                "minecraft:item_model": "lbc:oppotion",
+                                "minecraft:potion_contents": {
+                                    "custom_color": 16777215,
+                                    "custom_effects": [
+                                        {
+                                            "id": "minecraft:speed",
+                                            "amplifier": 3,
+                                            "duration": 400
+                                        },
+                                        {
+                                            "id": "minecraft:haste",
+                                            "amplifier": 3,
+                                            "duration": 400
+                                        },
+                                        {
+                                            "id": "minecraft:strength",
+                                            "amplifier": 2,
+                                            "duration": 300
+                                        },
+                                        {
+                                            "id": "minecraft:instant_health",
+                                            "amplifier": 2,
+                                            "duration": 20
+                                        },
+                                        {
+                                            "id": "minecraft:regeneration",
+                                            "amplifier": 2,
+                                            "duration": 200
+                                        },
+                                        {
+                                            "id": "minecraft:resistance",
+                                            "amplifier": 2,
+                                            "duration": 400
+                                        },
+                                        {
+                                            "id": "minecraft:fire_resistance",
+                                            "amplifier": 0,
+                                            "duration": 2000
+                                        },
+                                        {
+                                            "id": "minecraft:fire_resistance",
+                                            "amplifier": 1,
+                                            "duration": 1000
+                                        },
+                                        {
+                                            "id": "minecraft:night_vision",
+                                            "amplifier": 1,
+                                            "duration": 8000
+                                        },
+                                        {
+                                            "id": "minecraft:absorption",
+                                            "amplifier": 4,
+                                            "duration": 600
+                                        },
+                                        {
+                                            "id": "minecraft:saturation",
+                                            "amplifier": 20,
+                                            "duration": 20
+                                        },
+                                        {
+                                            "id": "minecraft:slow_falling",
+                                            "amplifier": 1,
+                                            "duration": 1800
+                                        },
+                                        {
+                                            "id": "minecraft:night_vision",
+                                            "amplifier": 61,
+                                            "duration": 400
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "op_potion",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "potion.lbc",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ]
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,potion:1,op:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "quality": 5,
+                    "name": "minecraft:splash_potion",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_d",
+                                "minecraft:tooltip_display": {
+                                    "hidden_components": [
+                                        "minecraft:potion_contents"
+                                    ]
+                                },
+                                "minecraft:potion_contents": {
+                                    "custom_effects": [
+                                        {
+                                            "id": "minecraft:raid_omen",
+                                            "amplifier": 40,
+                                            "duration": 300,
+                                            "show_particles": false
+                                        }
+                                    ],
+                                    "custom_color": 16753151
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "chaotic_potion",
+                                    "color": "light_purple",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "potion.lbc",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "chaotic_potion.lore.1",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "chaotic_potion.lore.2",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,potion:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "quality": 0,
+                    "name": "minecraft:potion",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_f",
+                                "minecraft:item_model": "lbc:snus",
+                                "minecraft:tooltip_display": {
+                                    "hidden_components": [
+                                        "minecraft:potion_contents"
+                                    ]
+                                },
+                                "minecraft:potion_contents": {
+                                    "custom_effects": [
+                                        {
+                                            "id": "minecraft:raid_omen",
+                                            "amplifier": 74,
+                                            "duration": 1
+                                        }
+                                    ],
+                                    "custom_color": 5731155
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "text": "SNUS",
+                                    "color": "gold",
+                                    "bold": true,
+                                    "italic": false,
+                                    "type": "text"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "potion.lbc",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "snus.lore",
+                                    "color": "yellow",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,potion:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "quality": 8,
+                    "value": "lbc:succubus_potion"
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "name": "minecraft:potion",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_c",
+                                "minecraft:tooltip_display": {
+                                    "hidden_components": [
+                                        "minecraft:potion_contents"
+                                    ]
+                                },
+                                "minecraft:potion_contents": {
+                                    "custom_effects": [
+                                        {
+                                            "id": "minecraft:raid_omen",
+                                            "amplifier": 16,
+                                            "duration": 4800,
+                                            "show_particles": false
+                                        }
+                                    ],
+                                    "custom_color": 11380991
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "mana_potion",
+                                    "color": "light_purple",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "potion.lbc",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "mana_potion.lore",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,potion:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "name": "minecraft:splash_potion",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_b",
+                                "minecraft:tooltip_display": {
+                                    "hidden_components": [
+                                        "minecraft:potion_contents"
+                                    ]
+                                },
+                                "minecraft:potion_contents": {
+                                    "custom_effects": [
+                                        {
+                                            "id": "minecraft:raid_omen",
+                                            "amplifier": 43,
+                                            "duration": 100,
+                                            "show_particles": false
+                                        }
+                                    ],
+                                    "custom_color": 16777215
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "purification_potion",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "potion.lbc",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "purification_potion.lore",
+                                    "italic": false,
+                                    "color": "white"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,potion:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "quality": 5,
+                    "value": "lbc:unstable_reactive"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "quality": 5,
+                    "value": "lbc:shock_potion"
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "name": "minecraft:potion",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_b",
+                                "minecraft:tooltip_display": {
+                                    "hidden_components": [
+                                        "minecraft:potion_contents"
+                                    ]
+                                },
+                                "minecraft:potion_contents": {
+                                    "custom_effects": [
+                                        {
+                                            "id": "minecraft:raid_omen",
+                                            "amplifier": 17,
+                                            "duration": 1,
+                                            "show_particles": false
+                                        }
+                                    ],
+                                    "custom_color": 328482
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "max_mana_potion",
+                                    "color": "light_purple",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "potion.lbc",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "max_mana_potion.lore",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,potion:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "name": "minecraft:potion",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_a",
+                                "minecraft:tooltip_display": {
+                                    "hidden_components": [
+                                        "minecraft:potion_contents"
+                                    ]
+                                },
+                                "minecraft:potion_contents": {
+                                    "custom_effects": [
+                                        {
+                                            "id": "minecraft:raid_omen",
+                                            "amplifier": 18,
+                                            "duration": 1,
+                                            "show_particles": false
+                                        }
+                                    ],
+                                    "custom_color": 4495590
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "regen_mana_potion",
+                                    "color": "light_purple",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "potion.lbc",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "regen_mana_potion.lore",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,potion:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "name": "minecraft:potion",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_b",
+                                "minecraft:tooltip_display": {
+                                    "hidden_components": [
+                                        "minecraft:potion_contents"
+                                    ]
+                                },
+                                "minecraft:potion_contents": {
+                                    "custom_effects": [
+                                        {
+                                            "id": "minecraft:raid_omen",
+                                            "amplifier": 19,
+                                            "duration": 1,
+                                            "show_particles": false
+                                        }
+                                    ],
+                                    "custom_color": 1114367
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "add_mana_potion",
+                                    "color": "light_purple",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "potion.lbc",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "add_mana_potion.lore",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,potion:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "name": "minecraft:lingering_potion",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_a",
+                                "minecraft:tooltip_display": {
+                                    "hidden_components": [
+                                        "minecraft:potion_contents"
+                                    ]
+                                },
+                                "minecraft:potion_contents": {
+                                    "custom_effects": [
+                                        {
+                                            "id": "minecraft:raid_omen",
+                                            "amplifier": 20,
+                                            "duration": 20,
+                                            "show_particles": false
+                                        }
+                                    ],
+                                    "custom_color": 16056821
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "remove_mana_potion",
+                                    "color": "light_purple",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "potion.lbc",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "remove_mana_potion.lore",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,potion:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1000,
+                    "name": "minecraft:potion",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_c",
+                                "minecraft:tooltip_display": {
+                                    "hidden_components": [
+                                        "minecraft:potion_contents"
+                                    ]
+                                },
+                                "minecraft:potion_contents": {
+                                    "custom_effects": [
+                                        {
+                                            "id": "minecraft:raid_omen",
+                                            "amplifier": 16,
+                                            "duration": 4800,
+                                            "show_particles": false
+                                        }
+                                    ],
+                                    "custom_color": 11380991
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "mana_potion",
+                                    "color": "light_purple",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "potion.lbc",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "mana_potion.lore",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,potion:1}"
+                        }
+                    ],
+                    "conditions": [
+                        {
+                            "condition": "minecraft:value_check",
+                            "value": {
+                                "type": "minecraft:score",
+                                "target": {
+                                    "type": "minecraft:fixed",
+                                    "name": "final_luck_modifier"
+                                },
+                                "score": "lbc.math",
+                                "scale": 1
+                            },
+                            "range": 10
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1000,
+                    "name": "minecraft:potion",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_b",
+                                "minecraft:tooltip_display": {
+                                    "hidden_components": [
+                                        "minecraft:potion_contents"
+                                    ]
+                                },
+                                "minecraft:potion_contents": {
+                                    "custom_effects": [
+                                        {
+                                            "id": "minecraft:raid_omen",
+                                            "amplifier": 19,
+                                            "duration": 1,
+                                            "show_particles": false
+                                        }
+                                    ],
+                                    "custom_color": 1114367
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "add_mana_potion",
+                                    "color": "light_purple",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "potion.lbc",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "add_mana_potion.lore",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,potion:1}"
+                        }
+                    ],
+                    "conditions": [
+                        {
+                            "condition": "minecraft:value_check",
+                            "value": {
+                                "type": "minecraft:score",
+                                "target": {
+                                    "type": "minecraft:fixed",
+                                    "name": "final_luck_modifier"
+                                },
+                                "score": "lbc.math",
+                                "scale": 1
+                            },
+                            "range": 10
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1000,
+                    "name": "minecraft:potion",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_a",
+                                "minecraft:tooltip_display": {
+                                    "hidden_components": [
+                                        "minecraft:potion_contents"
+                                    ]
+                                },
+                                "minecraft:potion_contents": {
+                                    "custom_effects": [
+                                        {
+                                            "id": "minecraft:raid_omen",
+                                            "amplifier": 18,
+                                            "duration": 1,
+                                            "show_particles": false
+                                        }
+                                    ],
+                                    "custom_color": 4495590
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "regen_mana_potion",
+                                    "color": "light_purple",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "potion.lbc",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "regen_mana_potion.lore",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,potion:1}"
+                        }
+                    ],
+                    "conditions": [
+                        {
+                            "condition": "minecraft:value_check",
+                            "value": {
+                                "type": "minecraft:score",
+                                "target": {
+                                    "type": "minecraft:fixed",
+                                    "name": "final_luck_modifier"
+                                },
+                                "score": "lbc.math",
+                                "scale": 1
+                            },
+                            "range": 10
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 1000,
+                    "name": "minecraft:potion",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_b",
+                                "minecraft:tooltip_display": {
+                                    "hidden_components": [
+                                        "minecraft:potion_contents"
+                                    ]
+                                },
+                                "minecraft:potion_contents": {
+                                    "custom_effects": [
+                                        {
+                                            "id": "minecraft:raid_omen",
+                                            "amplifier": 17,
+                                            "duration": 1,
+                                            "show_particles": false
+                                        }
+                                    ],
+                                    "custom_color": 328482
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "max_mana_potion",
+                                    "color": "light_purple",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "potion.lbc",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "max_mana_potion.lore",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,potion:1}"
+                        }
+                    ],
+                    "conditions": [
+                        {
+                            "condition": "minecraft:value_check",
+                            "value": {
+                                "type": "minecraft:score",
+                                "target": {
+                                    "type": "minecraft:fixed",
+                                    "name": "final_luck_modifier"
+                                },
+                                "score": "lbc.math",
+                                "scale": 1
+                            },
+                            "range": 10
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

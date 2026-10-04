@@ -1,0 +1,29 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:repeating_command_block",
+            "components": {
+                "minecraft:item_model": "lbc:gaara"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.accessories.sand_amulet"
+        },
+        "description": {
+            "translate": "lbc.adv.accessories.sand_amulet.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/accesories/save_platform",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:impossible"
+        }
+    },
+    "rewards": {
+        "function": "lbc:swrg_kit_integration/gain/kit"
+    }
+}

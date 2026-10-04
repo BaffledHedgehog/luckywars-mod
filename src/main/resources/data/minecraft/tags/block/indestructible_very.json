@@ -1,0 +1,21 @@
+{
+    "replace": false,
+    "values": [
+        "minecraft:bedrock",
+        "minecraft:reinforced_deepslate",
+        "minecraft:command_block",
+        "minecraft:repeating_command_block",
+        "minecraft:chain_command_block",
+        "minecraft:barrier",
+        "minecraft:end_gateway",
+        "minecraft:dragon_egg",
+        "minecraft:end_portal",
+        "minecraft:end_portal_frame",
+        "minecraft:nether_portal",
+        "minecraft:jigsaw",
+        "minecraft:structure_block",
+        "minecraft:vault",
+        "minecraft:sculk_shrieker",
+        "#needs_diamond_tool"
+    ]
+}

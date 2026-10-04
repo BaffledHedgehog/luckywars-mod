@@ -1,0 +1,85 @@
+{
+    "type": "minecraft:empty",
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:leather_leggings",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_name",
+                            "entity": "this",
+                            "name": {
+                                "translate": "lbclevelup.43",
+                                "italic": false,
+                                "color": "white"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "entity": "this",
+                            "lore": [
+                                {
+                                    "translate": "lbclevelup.43.lore",
+                                    "italic": false,
+                                    "color": "gray"
+                                },
+                                [
+                                    {
+                                        "translate": "pick_rate",
+                                        "italic": false,
+                                        "color": "gold"
+                                    },
+                                    {
+                                        "storage": "stats:stats",
+                                        "nbt": "pick_rate_levelup[43]",
+                                        "italic": false,
+                                        "color": "yellow"
+                                    },
+                                    {
+                                        "translate": "pick_count",
+                                        "italic": false,
+                                        "color": "gold"
+                                    },
+                                    {
+                                        "storage": "stats:stats",
+                                        "nbt": "pick_count_levelup[43]",
+                                        "italic": false,
+                                        "color": "yellow"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "win_rate",
+                                        "italic": false,
+                                        "color": "gold"
+                                    },
+                                    {
+                                        "storage": "stats:stats",
+                                        "nbt": "win_rate_levelup[43]",
+                                        "italic": false,
+                                        "color": "yellow"
+                                    },
+                                    {
+                                        "translate": "win_count",
+                                        "italic": false,
+                                        "color": "gold"
+                                    },
+                                    {
+                                        "storage": "stats:stats",
+                                        "nbt": "win_count_levelup[43]",
+                                        "italic": false,
+                                        "color": "yellow"
+                                    }
+                                ]
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

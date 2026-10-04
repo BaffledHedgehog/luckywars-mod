@@ -1,0 +1,90 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:leather_chestplate",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_c",
+                                "minecraft:item_model": "lbc:armors/tnt_chestplate",
+                                "minecraft:max_damage": 1200,
+                                "minecraft:enchantments": {
+                                    "minecraft:blast_protection": 255
+                                },
+                                "minecraft:equippable": {
+                                    "slot": "chest",
+                                    "asset_id": "lbc:tnt"
+                                },
+                                "minecraft:attribute_modifiers": [
+                                    {
+                                        "type": "minecraft:armor",
+                                        "slot": "chest",
+                                        "id": "gendybnjmynjfhgor",
+                                        "amount": 15,
+                                        "operation": "add_value"
+                                    },
+                                    {
+                                        "type": "minecraft:knockback_resistance",
+                                        "slot": "chest",
+                                        "id": "genejyumkcdghfnce",
+                                        "amount": 15,
+                                        "operation": "add_value"
+                                    },
+                                    {
+                                        "type": "minecraft:armor_toughness",
+                                        "slot": "chest",
+                                        "id": "htuhnykiyfgthxdfghness",
+                                        "amount": 15,
+                                        "operation": "add_value"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "tnt_jacket",
+                                    "color": "dark_red",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "chestplate",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "tnt_jacket.lore",
+                                    "color": "red",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,chestplate:1,dynamite:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

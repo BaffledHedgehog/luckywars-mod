@@ -1,0 +1,52 @@
+    {
+        "type": "minecraft:empty",
+        "pools": [
+            {
+                "rolls": 1,
+                "entries": [
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:repeating_command_block",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:item_model": "lbc:reroll_machine"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "entity": "this",
+                                "name": {
+                                    "translate": "lbckit.24",
+                                    "italic": false,
+                                    "color": "white"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_lore",
+                                "mode": "replace_all",
+                                "entity": "this",
+                                "lore": [
+                                    {
+                                        "translate": "lbckit.24.lore.1",
+                                        "italic": false,
+                                        "color": "gray"
+                                    },
+                                    {
+                                        "translate": "lbckit.24.lore.2",
+                                        "italic": false,
+                                        "color": "gray"
+                                    }
+                                ]
+                            },
+                            {
+                                "function": "minecraft:set_custom_data",
+                                "tag": "{reroll_machine:1,craftusable:1}"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }

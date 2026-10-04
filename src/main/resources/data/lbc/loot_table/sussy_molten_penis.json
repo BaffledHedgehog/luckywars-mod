@@ -1,0 +1,153 @@
+    {
+    "pools": [
+        {
+            "rolls": 8,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "quality": 5,
+                    "name": "minecraft:dried_kelp",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_u",
+                                "minecraft:item_model": "lbc:sussy_penis_health"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "penis_health",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "penis_health.lore.1",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "penis_health.lore.2",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{random_health:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "quality": 10,
+                    "name": "minecraft:poisonous_potato",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_u",
+                                "minecraft:item_model": "lbc:sussy_penis_damage"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "penis_damage",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "penis_damage.lore.1",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "penis_damage.lore.2",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{random_damage:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "quality": 10,
+                    "name": "minecraft:golden_apple",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_u",
+                                "minecraft:item_model": "lbc:sussy_penis_speed"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "penis_speed",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "penis_speed.lore.1",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "penis_speed.lore.2",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{random_speed:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

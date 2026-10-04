@@ -1,0 +1,17 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:lapis_lazuli"
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:cornflower"
+                }
+            ]
+        }
+    ]
+}

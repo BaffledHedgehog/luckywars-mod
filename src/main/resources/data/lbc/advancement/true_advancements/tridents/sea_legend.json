@@ -1,0 +1,45 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:trident",
+            "components": {
+                "minecraft:enchantment_glint_override": true
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.trident.sea_legend"
+        },
+        "description": {
+            "translate": "lbc.adv.trident.sea_legend.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/tridents",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:using_item",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "nbt": "{playerGameType:3}"
+                            }
+                        }
+                    }
+                ],
+                "item": {
+                    "predicates": {
+                        "minecraft:custom_data": "{transformable:1,trident:1,sea_legend:1}"
+                    }
+                }
+            }
+        }
+    }
+}

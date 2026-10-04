@@ -1,0 +1,553 @@
+    {
+        "pools": [
+            {
+                "rolls": 1,
+                "entries": [
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 10,
+                        "quality": 0,
+                        "value": "lbc:lightning_bolt_egg"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 10,
+                        "quality": 5,
+                        "value": "lbc:weapons"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 10,
+                        "quality": 10,
+                        "value": "lbc:nuke",
+                        "conditions": [
+                            {
+                                "condition": "minecraft:inverted",
+                                "term": {
+                                    "condition": "minecraft:value_check",
+                                    "value": {
+                                        "type": "minecraft:score",
+                                        "target": {
+                                            "type": "minecraft:fixed",
+                                            "name": "ranked"
+                                        },
+                                        "score": "lbc.event",
+                                        "scale": 1
+                                    },
+                                    "range": 1
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 10,
+                        "quality": 10,
+                        "value": "lbc:spells",
+                        "conditions": [
+                            {
+                                "condition": "minecraft:inverted",
+                                "term": {
+                                    "condition": "minecraft:value_check",
+                                    "value": {
+                                        "type": "minecraft:score",
+                                        "target": {
+                                            "type": "minecraft:fixed",
+                                            "name": "final_luck_modifier"
+                                        },
+                                        "score": "lbc.math",
+                                        "scale": 1
+                                    },
+                                    "range": 5
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 10,
+                        "quality": 7,
+                        "value": "lbc:slabs"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 10,
+                        "quality": 10,
+                        "value": "lbc:knifes"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 10,
+                        "quality": 10,
+                        "value": "lbc:rasengan",
+                        "conditions": [
+                            {
+                                "condition": "minecraft:inverted",
+                                "term": {
+                                    "condition": "minecraft:value_check",
+                                    "value": {
+                                        "type": "minecraft:score",
+                                        "target": {
+                                            "type": "minecraft:fixed",
+                                            "name": "final_luck_modifier"
+                                        },
+                                        "score": "lbc.math",
+                                        "scale": 1
+                                    },
+                                    "range": 4
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 10000,
+                        "quality": 10,
+                        "value": "lbc:rasengan",
+                        "conditions": [
+                            {
+                                "condition": "minecraft:value_check",
+                                "value": {
+                                    "type": "minecraft:score",
+                                    "target": {
+                                        "type": "minecraft:fixed",
+                                        "name": "final_luck_modifier"
+                                    },
+                                    "score": "lbc.math",
+                                    "scale": 1
+                                },
+                                "range": 4
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 10,
+                        "quality": 9,
+                        "value": "lbc:swapper"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 10,
+                        "quality": 8,
+                        "value": "lbc:island_teleporter"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 10,
+                        "value": "lbc:inf_shulker"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 10,
+                        "quality": 10,
+                        "value": "lbc:inf_steak"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 10,
+                        "quality": 10,
+                        "value": "lbc:imitator"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 10,
+                        "quality": 10,
+                        "value": "lbc:badapple"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 10,
+                        "quality": 10,
+                        "value": "lbc:shadowglove"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 10,
+                        "quality": 10,
+                        "value": "lbc:lucky_grenades"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 10,
+                        "quality": 0,
+                        "value": "lbc:purifypotion",
+                        "conditions": [
+                            {
+                                "condition": "minecraft:inverted",
+                                "term": {
+                                    "condition": "minecraft:value_check",
+                                    "value": {
+                                        "type": "minecraft:score",
+                                        "target": {
+                                            "type": "minecraft:fixed",
+                                            "name": "final_luck_modifier"
+                                        },
+                                        "score": "lbc.math",
+                                        "scale": 1
+                                    },
+                                    "range": 5
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 10,
+                        "quality": 0,
+                        "value": "lbc:explosivepotion",
+                        "conditions": [
+                            {
+                                "condition": "minecraft:inverted",
+                                "term": {
+                                    "condition": "minecraft:value_check",
+                                    "value": {
+                                        "type": "minecraft:score",
+                                        "target": {
+                                            "type": "minecraft:fixed",
+                                            "name": "final_luck_modifier"
+                                        },
+                                        "score": "lbc.math",
+                                        "scale": 1
+                                    },
+                                    "range": 5
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 110,
+                        "value": "lbc:transformables_accessory",
+                        "conditions": [
+                            {
+                                "condition": "minecraft:inverted",
+                                "term": {
+                                    "condition": "minecraft:value_check",
+                                    "value": {
+                                        "type": "minecraft:score",
+                                        "target": {
+                                            "type": "minecraft:fixed",
+                                            "name": "final_luck_modifier"
+                                        },
+                                        "score": "lbc.math",
+                                        "scale": 1
+                                    },
+                                    "range": 5
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 910,
+                        "value": "lbc:transformables_accessory",
+                        "conditions": [
+                            {
+                                "condition": "minecraft:value_check",
+                                "value": {
+                                    "type": "minecraft:score",
+                                    "target": {
+                                        "type": "minecraft:fixed",
+                                        "name": "final_luck_modifier"
+                                    },
+                                    "score": "lbc.math",
+                                    "scale": 1
+                                },
+                                "range": 6
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 40,
+                        "value": "lbc:transformables_axe"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 50,
+                        "value": "lbc:transformables_bow",
+                        "conditions": [
+                            {
+                                "condition": "minecraft:inverted",
+                                "term": {
+                                    "condition": "minecraft:value_check",
+                                    "value": {
+                                        "type": "minecraft:score",
+                                        "target": {
+                                            "type": "minecraft:fixed",
+                                            "name": "final_luck_modifier"
+                                        },
+                                        "score": "lbc.math",
+                                        "scale": 1
+                                    },
+                                    "range": 4
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 10000,
+                        "value": "lbc:transformables_bow",
+                        "conditions": [
+                            {
+                                "condition": "minecraft:value_check",
+                                "value": {
+                                    "type": "minecraft:score",
+                                    "target": {
+                                        "type": "minecraft:fixed",
+                                        "name": "final_luck_modifier"
+                                    },
+                                    "score": "lbc.math",
+                                    "scale": 1
+                                },
+                                "range": 4
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 20,
+                        "value": "lbc:transformables_hoe"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 20,
+                        "value": "lbc:transformables_pickaxe"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 120,
+                        "value": "lbc:transformables_potion",
+                        "conditions": [
+                            {
+                                "condition": "minecraft:inverted",
+                                "term": {
+                                    "condition": "minecraft:value_check",
+                                    "value": {
+                                        "type": "minecraft:score",
+                                        "target": {
+                                            "type": "minecraft:fixed",
+                                            "name": "final_luck_modifier"
+                                        },
+                                        "score": "lbc.math",
+                                        "scale": 1
+                                    },
+                                    "range": 5
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 1200,
+                        "value": "lbc:transformables_potion",
+                        "conditions": [
+                            {
+                                "condition": "minecraft:value_check",
+                                "value": {
+                                    "type": "minecraft:score",
+                                    "target": {
+                                        "type": "minecraft:fixed",
+                                        "name": "final_luck_modifier"
+                                    },
+                                    "score": "lbc.math",
+                                    "scale": 1
+                                },
+                                "range": 10
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 30,
+                        "value": "lbc:transformables_shield"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 70,
+                        "value": "lbc:transformables_shooter"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 510,
+                        "value": "lbc:transformables_shooter",
+                        "conditions": [
+                            {
+                                "condition": "minecraft:value_check",
+                                "value": {
+                                    "type": "minecraft:score",
+                                    "target": {
+                                        "type": "minecraft:fixed",
+                                        "name": "final_luck_modifier"
+                                    },
+                                    "score": "lbc.math",
+                                    "scale": 1
+                                },
+                                "range": 7
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 30,
+                        "value": "lbc:transformables_shovel"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 240,
+                        "value": "lbc:transformables_staff",
+                        "conditions": [
+                            {
+                                "condition": "minecraft:inverted",
+                                "term": {
+                                    "condition": "minecraft:value_check",
+                                    "value": {
+                                        "type": "minecraft:score",
+                                        "target": {
+                                            "type": "minecraft:fixed",
+                                            "name": "final_luck_modifier"
+                                        },
+                                        "score": "lbc.math",
+                                        "scale": 1
+                                    },
+                                    "range": 5
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 80,
+                        "value": "lbc:transformables_summons",
+                        "conditions": [
+                            {
+                                "condition": "minecraft:inverted",
+                                "term": {
+                                    "condition": "minecraft:value_check",
+                                    "value": {
+                                        "type": "minecraft:score",
+                                        "target": {
+                                            "type": "minecraft:fixed",
+                                            "name": "final_luck_modifier"
+                                        },
+                                        "score": "lbc.math",
+                                        "scale": 1
+                                    },
+                                    "range": 5
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 180,
+                        "value": "lbc:transformables_sword"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 150000,
+                        "value": "lbc:transformables_sword",
+                        "conditions": [
+                            {
+                                "condition": "minecraft:value_check",
+                                "value": {
+                                    "type": "minecraft:score",
+                                    "target": {
+                                        "type": "minecraft:fixed",
+                                        "name": "final_luck_modifier"
+                                    },
+                                    "score": "lbc.math",
+                                    "scale": 1
+                                },
+                                "range": 8
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 20,
+                        "value": "lbc:transformables_totem"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 20,
+                        "value": "lbc:transformables_trident"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 60,
+                        "value": "lbc:transformables_arcanum",
+                        "conditions": [
+                            {
+                                "condition": "minecraft:inverted",
+                                "term": {
+                                    "condition": "minecraft:value_check",
+                                    "value": {
+                                        "type": "minecraft:score",
+                                        "target": {
+                                            "type": "minecraft:fixed",
+                                            "name": "final_luck_modifier"
+                                        },
+                                        "score": "lbc.math",
+                                        "scale": 1
+                                    },
+                                    "range": 5
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 10,
+                        "value": "lbc:lightarrow"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 10,
+                        "value": "lbc:kiuaskivi_arrow",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": 4
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 10,
+                        "value": "lbc:evoker_arrow",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": 5
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 10,
+                        "quality": 7,
+                        "value": "lbc:troll_box"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 10,
+                        "quality": 8,
+                        "value": "lbc:witch_gens"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 400,
+                        "value": "lbc:luckyblock_imba"
+                    },
+                    {
+                        "type": "minecraft:loot_table",
+                        "weight": 100,
+                        "value": "lbc:barriersnottraps"
+                    }
+                ]
+            }
+        ]
+    }

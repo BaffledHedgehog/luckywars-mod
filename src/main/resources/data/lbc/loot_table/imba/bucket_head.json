@@ -1,0 +1,71 @@
+    {
+        "pools": [
+            {
+                "rolls": 1,
+                "entries": [
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:leather_helmet",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:tooltip_style": "lbc:tier_f",
+                                    "minecraft:item_model": "lbc:bucket_reversed",
+                                    "minecraft:max_damage": 200,
+                                    "minecraft:equippable": {
+                                        "slot": "head",
+                                        "asset_id": "lbc:bucket"
+                                    },
+                                    "attribute_modifiers": [
+                                        {
+                                            "id": "bhijfidjijgigjifhi",
+                                            "amount": 3,
+                                            "operation": "add_value",
+                                            "type": "minecraft:armor",
+                                            "slot": "head"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": {
+                                    "translate": "bucket",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_lore",
+                                "mode": "replace_all",
+                                "lore": [
+                                    [
+                                        {
+                                            "translate": "type",
+                                            "italic": false,
+                                            "color": "aqua"
+                                        },
+                                        {
+                                            "translate": "helmet",
+                                            "italic": false,
+                                            "color": "aqua"
+                                        }
+                                    ],
+                                    {
+                                        "translate": "imba_version",
+                                        "color": "dark_purple",
+                                        "italic": false
+                                    }
+                                ]
+                            },
+                            {
+                                "function": "minecraft:set_custom_data",
+                                "tag": "{transformable:1,helmet:1,bucket_head:1,imba:1}"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }

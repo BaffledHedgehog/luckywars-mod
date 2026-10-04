@@ -1,0 +1,52 @@
+{
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:player_hurt_entity",
+            "conditions": {
+                "damage": {
+                    "blocked": false,
+                    "type": {
+                        "tags": [
+                            {
+                                "id": "minecraft:is_player_attack",
+                                "expected": true
+                            }
+                        ]
+                    }
+                },
+                "entity": {
+                    "type": "minecraft:player"
+                },
+                "player": [
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "location": {
+                                    "dimension": "minecraft:nexus"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "location": {
+                                    "dimension": "minecraft:imprinted"
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "rewards": {
+        "function": "lbc:items/player_hit_player_melee"
+    }
+}

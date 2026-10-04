@@ -1,0 +1,17 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:ink_sac"
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:wither_rose"
+                }
+            ]
+        }
+    ]
+}

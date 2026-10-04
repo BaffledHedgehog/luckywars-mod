@@ -1,0 +1,37 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "name": "minecraft:zombie_spawn_egg",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:entity_data": {
+                                    "id": "minecraft:zombie",
+                                    "equipment": {
+                                        "head": {
+                                            "id": "minecraft:iron_helmet",
+                                            "count": 1
+                                        }
+                                    },
+                                    "drop_chances": {
+                                        "head": 0.0
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

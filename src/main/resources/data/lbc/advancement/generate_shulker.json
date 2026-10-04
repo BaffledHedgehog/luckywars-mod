@@ -1,0 +1,49 @@
+{
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:player_generates_container_loot",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "nbt": "{playerGameType:3}"
+                            }
+                        }
+                    },
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "location": {
+                                    "dimension": "minecraft:nexus"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "location": {
+                                    "dimension": "minecraft:imprinted"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "loot_table": "lbc:infinity_upgraded_luck"
+            }
+        }
+    },
+    "rewards": {
+        "function": "lbc:other/give_shulker"
+    }
+}

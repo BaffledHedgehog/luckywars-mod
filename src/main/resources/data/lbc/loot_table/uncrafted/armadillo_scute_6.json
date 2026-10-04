@@ -1,0 +1,13 @@
+    {
+    "pools": [
+        {
+            "rolls": 6,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:armadillo_scute"
+                }
+            ]
+        }
+    ]
+}

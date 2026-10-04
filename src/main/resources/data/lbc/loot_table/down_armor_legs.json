@@ -1,0 +1,99 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:leather_leggings",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style":"lbc:tier_b",
+                                "minecraft:item_model": "lbc:armors/glass_leggings",
+                                "minecraft:max_damage": 150,
+                                "minecraft:equippable":{"slot":"legs","asset_id":"lbc:glass"}
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": {
+                                "translate": "glass_leggings",
+                                "color": "white",
+                                "italic": false
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "leggings",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "glass.lore",
+                                    "italic": false,
+                                    "color": "aqua"
+                                },
+                                {
+                                    "translate": "glass.lore.2",
+                                    "italic": false,
+                                    "color": "aqua"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_attributes",
+                            "modifiers": [
+                                {
+                                    "attribute": "minecraft:armor",
+                                    "amount": {
+                                        "type": "minecraft:score",
+                                        "target": {
+                                            "type": "minecraft:fixed",
+                                            "name": "#tmp1"
+                                        },
+                                        "score": "lbc.math",
+                                        "scale": 0.00095
+                                    },
+                                    "operation": "add_value",
+                                    "id": "minecraft:71eaf780-80f9-4861-8a4-49ab1247121b",
+                                    "slot": "legs"
+                                },
+                                {
+                                    "attribute": "minecraft:armor_toughness",
+                                    "amount": {
+                                        "type": "minecraft:score",
+                                        "target": {
+                                            "type": "minecraft:fixed",
+                                            "name": "#tmp1"
+                                        },
+                                        "score": "lbc.math",
+                                        "scale": 0.00095
+                                    },
+                                    "operation": "add_value",
+                                    "id": "minecraft:7eaf780-80f9-4861-8a64-49ab1247121b",
+                                    "slot": "legs"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,leggings:1,glass:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

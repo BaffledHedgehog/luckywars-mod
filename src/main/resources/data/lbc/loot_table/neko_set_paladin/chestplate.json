@@ -1,0 +1,98 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:leather_chestplate",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:item_model": "lbc:armors/paladin_chestplate",
+                                "minecraft:tooltip_style":"lbc:tier_a",
+                                "minecraft:max_damage": 4000,
+                                "minecraft:enchantments": {
+                                    "minecraft:blast_protection": 255,
+                                    "minecraft:protection": 3
+                                },
+                                "minecraft:equippable": {
+                                    "slot": "chest",
+                                    "asset_id": "lbc:paladin"
+                                },
+                                "minecraft:attribute_modifiers": [
+                                    {
+                                        "type": "minecraft:armor",
+                                        "slot": "chest",
+                                        "id": "gegbrtvhjygj",
+                                        "amount": 15,
+                                        "operation": "add_value"
+                                    },
+                                    {
+                                        "type": "minecraft:armor_toughness",
+                                        "slot": "chest",
+                                        "id": "gxdrdhthnghjghness",
+                                        "amount": 15,
+                                        "operation": "add_value"
+                                    },
+                                    {
+                                        "type": "minecraft:max_health",
+                                        "slot": "chest",
+                                        "id": "genemlilgvfyhkhh",
+                                        "amount": -0.3,
+                                        "operation": "add_multiplied_base"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": {
+                                "translate": "paladin_chestplate",
+                                "color": "red",
+                                "italic": false
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "chestplate",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "set_bonus",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "paladin_set_bonus",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ]
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,chestplate:1,paladin:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

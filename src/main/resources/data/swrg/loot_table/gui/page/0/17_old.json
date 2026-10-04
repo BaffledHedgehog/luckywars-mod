@@ -1,0 +1,32 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_name",
+                            "entity": "this",
+                            "name": {
+                                "nbt": "page0.s17.Name",
+                                "storage": "swrg:lang",
+                                "interpret": true,
+                                "source": "storage",
+                                "type": "nbt"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:item_model": "comparator"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

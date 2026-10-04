@@ -1,0 +1,237 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_name",
+                            "name": {
+                                "text": "\uE186",
+                                "color":"#4E5C24",
+                                "italic": false
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{rewardtype:suffix,reward:17}"
+                        },
+                        {
+                            "function": "set_components",
+                            "components": {
+                                "item_model": "lbc:runes_rare"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "entity": "this",
+                            "lore": [
+                                {
+                                    "nbt": "rare.b",
+                                    "storage": "swrg:lang",
+                                    "interpret": true,
+                                    "source": "storage",
+                                    "type": "nbt"
+                                }
+                            ],
+                            "mode": "replace_all"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_name",
+                            "name": {
+                                "text": "\uE187",
+                                "color":"#4E5C24",
+                                "italic": false
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{rewardtype:suffix,reward:18}"
+                        },
+                        {
+                            "function": "set_components",
+                            "components": {
+                                "item_model": "lbc:runes_rare"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "entity": "this",
+                            "lore": [
+                                {
+                                    "nbt": "rare.b",
+                                    "storage": "swrg:lang",
+                                    "interpret": true,
+                                    "source": "storage",
+                                    "type": "nbt"
+                                }
+                            ],
+                            "mode": "replace_all"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_name",
+                            "name": {
+                                "text": "\uE188",
+                                "color":"#4E5C24",
+                                "italic": false
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{rewardtype:suffix,reward:19}"
+                        },
+                        {
+                            "function": "set_components",
+                            "components": {
+                                "item_model": "lbc:runes_rare"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "entity": "this",
+                            "lore": [
+                                {
+                                    "nbt": "rare.b",
+                                    "storage": "swrg:lang",
+                                    "interpret": true,
+                                    "source": "storage",
+                                    "type": "nbt"
+                                }
+                            ],
+                            "mode": "replace_all"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_name",
+                            "name": {
+                                "text": "\uE189",
+                                "color":"#4E5C24",
+                                "italic": false
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{rewardtype:suffix,reward:20}"
+                        },
+                        {
+                            "function": "set_components",
+                            "components": {
+                                "item_model": "lbc:runes_rare"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "entity": "this",
+                            "lore": [
+                                {
+                                    "nbt": "rare.b",
+                                    "storage": "swrg:lang",
+                                    "interpret": true,
+                                    "source": "storage",
+                                    "type": "nbt"
+                                }
+                            ],
+                            "mode": "replace_all"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_name",
+                            "name": {
+                                "text": "\uE190",
+                                "color":"#4E5C24",
+                                "italic": false
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{rewardtype:suffix,reward:21}"
+                        },
+                        {
+                            "function": "set_components",
+                            "components": {
+                                "item_model": "lbc:runes_rare"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "entity": "this",
+                            "lore": [
+                                {
+                                    "nbt": "rare.b",
+                                    "storage": "swrg:lang",
+                                    "interpret": true,
+                                    "source": "storage",
+                                    "type": "nbt"
+                                }
+                            ],
+                            "mode": "replace_all"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_name",
+                            "name": {
+                                "text": "\uE191",
+                                "color":"#4E5C24",
+                                "italic": false
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{rewardtype:suffix,reward:22}"
+                        },
+                        {
+                            "function": "set_components",
+                            "components": {
+                                "item_model": "lbc:runes_rare"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "entity": "this",
+                            "lore": [
+                                {
+                                    "nbt": "rare.b",
+                                    "storage": "swrg:lang",
+                                    "interpret": true,
+                                    "source": "storage",
+                                    "type": "nbt"
+                                }
+                            ],
+                            "mode": "replace_all"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

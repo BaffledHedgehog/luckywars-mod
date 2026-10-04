@@ -1,0 +1,10 @@
+{
+    "values": [
+        "#mobs",
+        "#projectiles",
+        "end_crystal",
+        "minecart",
+        "#boat",
+        "#tag_replacements:chest_boat"
+    ]
+}

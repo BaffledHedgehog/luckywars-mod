@@ -1,0 +1,37 @@
+[
+    {
+        "function": "minecraft:set_attributes",
+        "modifiers": [
+            {
+                "attribute": "minecraft:armor",
+                "amount": {
+                    "type": "minecraft:constant",
+                    "value": 8
+                },
+                "operation": "add_value",
+                "id": "minecraft:46e426d6-c51a-4703-b10e-b18a85e03659",
+                "slot": "chest"
+            },
+            {
+                "attribute": "minecraft:armor_toughness",
+                "amount": {
+                    "type": "minecraft:constant",
+                    "value": 3
+                },
+                "operation": "add_value",
+                "id": "minecraft:b03ad1b6-0e49-49f3-8d61-b9b26cd19b81",
+                "slot": "chest"
+            },
+            {
+                "attribute": "minecraft:knockback_resistance",
+                "amount": {
+                    "type": "minecraft:constant",
+                    "value": 0.1
+                },
+                "operation": "add_value",
+                "id": "minecraft:eaba3110-4e04-4223-b39d-e17ca30451a8",
+                "slot": "chest"
+            }
+        ]
+    }
+]

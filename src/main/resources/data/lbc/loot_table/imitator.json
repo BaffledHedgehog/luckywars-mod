@@ -1,0 +1,87 @@
+    {
+    "pools": [
+        {
+            "rolls": {
+                "min": 1,
+                "max": 3,
+                "type": "minecraft:uniform"
+            },
+            "bonus_rolls": {
+                "min": 0,
+                "max": 3,
+                "type": "minecraft:uniform"
+            },
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "name": "minecraft:repeating_command_block",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style":"lbc:tier_s",
+                                "minecraft:item_model": "lbc:imitator"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "imitator",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_attributes",
+                            "modifiers": [
+                                {
+                                    "attribute": "minecraft:spawn_reinforcements",
+                                    "id": "minecraft:1oefkj90juvc9",
+                                    "amount": {
+                                        "min": 1,
+                                        "max": 10000,
+                                        "type": "minecraft:uniform"
+                                    },
+                                    "operation": "add_value",
+                                    "slot": "mainhand"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:toggle_tooltips",
+                            "toggles": {
+                                "minecraft:attribute_modifiers": false
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "imitator.lore.1",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "imitator.lore.2",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{copypaster:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

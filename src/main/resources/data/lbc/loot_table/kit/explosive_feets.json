@@ -1,0 +1,72 @@
+{
+    "random_sequence": "minecraft:pools",
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:chainmail_boots",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:item_model": "lbc:armors/rocket_boots",
+                                "minecraft:equippable": {
+                                    "slot": "feet",
+                                    "asset_id": "lbc:rocket"
+                                },
+                                "minecraft:max_damage": 280,
+                                "minecraft:attribute_modifiers": [
+                                    {
+                                        "id": "fisjgihgs784xgerksghdr8igdrhfh",
+                                        "amount": 2,
+                                        "operation": "add_value",
+                                        "type": "minecraft:armor",
+                                        "slot": "feet"
+                                    }
+                                ],
+                                "glider": {}
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "entity": "this",
+                            "name": {
+                                "translate": "lbckit.21",
+                                "italic": false,
+                                "color": "white"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "entity": "this",
+                            "lore": [
+                                {
+                                    "translate": "lbckit.21.lore.2",
+                                    "italic": false,
+                                    "color": "gray"
+                                },
+                                {
+                                    "translate": "lbckit.21.lore.3",
+                                    "italic": false,
+                                    "color": "gray"
+                                },
+                                {
+                                    "translate": "lbckit.21.lore.4",
+                                    "italic": false,
+                                    "color": "gray"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{explosive_feets:1,craftusable:1,PublicBukkitValues:{\"lws:item\":{\"lws:additionals\":[\"rocket_armor\"]}}}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

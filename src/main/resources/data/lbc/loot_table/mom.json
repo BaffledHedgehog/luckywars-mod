@@ -1,0 +1,48 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style":"lbc:tier_f",
+                                "minecraft:item_model": "lbc:mum"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "entity": "this",
+                            "name": [
+                                {
+                                    "text": "Daeris_: ",
+                                    "italic": false,
+                                    "color": "dark_gray",
+                                    "type": "text"
+                                },
+                                {
+                                    "translate": "mom",
+                                    "italic": false,
+                                    "color": "#FF8F8F"
+                                },
+                                {
+                                    "selector": "@p[gamemode=!spectator]",
+                                    "italic": false,
+                                    "type": "selector"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

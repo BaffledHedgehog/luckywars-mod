@@ -1,0 +1,21 @@
+{
+    "type": "minecraft:imprinted",
+    "generator": {
+        "type": "minecraft:flat",
+        "settings": {
+            "biome": "minecraft:imprinted",
+            "lakes": false,
+            "features": false,
+            "layers": [
+                {
+                    "height": 4,
+                    "block": "minecraft:bedrock"
+                },
+                {
+                    "height": 1,
+                    "block": "minecraft:air"
+                }
+            ]
+        }
+    }
+}

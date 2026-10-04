@@ -1,0 +1,28 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:potion",
+            "components": {
+                "minecraft:potion_contents": {
+                    "custom_color": 4495590
+                }
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.potion.mana_regen"
+        },
+        "description": {
+            "translate": "lbc.adv.potion.mana_regen.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/potions/max_mana",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:impossible"
+        }
+    }
+}

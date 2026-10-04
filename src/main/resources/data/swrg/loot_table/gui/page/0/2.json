@@ -1,0 +1,27 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:map",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_name",
+                            "entity": "this",
+                            
+                            "name": {
+                                "nbt": "page0.s2.Name",
+                                "storage": "swrg:lang",
+                                "interpret": true,
+                                "source": "storage",
+                                "type": "nbt"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

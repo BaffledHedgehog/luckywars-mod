@@ -1,0 +1,36 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:random_glack_1",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": {
+                                "min": 1,
+                                "max": 64,
+                                "type": "minecraft:uniform"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:max_stack_size": 99,
+                                "!minecraft:max_damage": {}
+                            }
+                        },
+                        {
+                            "function": "minecraft:limit_count",
+                            "limit": {
+                                "max": 99
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

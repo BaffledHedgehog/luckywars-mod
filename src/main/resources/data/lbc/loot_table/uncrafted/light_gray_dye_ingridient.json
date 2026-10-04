@@ -1,0 +1,21 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:oxeye_daisy"
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:azure_bluet"
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:white_tulip"
+                }
+            ]
+        }
+    ]
+}

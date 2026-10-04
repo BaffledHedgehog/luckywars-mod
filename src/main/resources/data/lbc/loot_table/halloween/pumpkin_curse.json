@@ -1,0 +1,52 @@
+    {
+        "pools": [
+            {
+                "rolls": 1,
+                "entries": [
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:repeating_command_block",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:tooltip_style": "lbc:tier_ff",
+                                    "item_model": "minecraft:carved_pumpkin"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "pumpkin_curse",
+                                        "color": "dark_red",
+                                        "italic": false
+                                    }
+                                ]
+                            },
+                            {
+                                "function": "minecraft:set_lore",
+                                "mode": "replace_all",
+                                "lore": [
+                                    {
+                                        "translate": "pumpkin_curse.lore",
+                                        "italic": false,
+                                        "color": "dark_red"
+                                    },
+                                    {
+                                        "translate": "halloween.lore",
+                                        "color": "#ff670f",
+                                        "italic": false
+                                    }
+                                ]
+                            },
+                            {
+                                "function": "minecraft:set_custom_data",
+                                "tag": "{pumpkin_curse:1,storage:[]}"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }

@@ -1,0 +1,78 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:item_model": "lbc:blazefire_sword",
+                                "minecraft:max_damage": 600,
+                                "minecraft:attribute_modifiers": [
+                                        {
+                                            "type": "minecraft:attack_damage",
+                                            "slot": "mainhand",
+                                            "id": "minecraft:base_attack_damage",
+                                            "amount": 6,
+                                            "operation": "add_value"
+                                        },
+                                        {
+                                            "type": "minecraft:attack_speed",
+                                            "slot": "mainhand",
+                                            "id": "minecraft:base_attack_speed",
+                                            "amount": -2.4,
+                                            "operation": "add_value"
+                                        }
+                                    ]
+                                
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "lbckit.18",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "lbckit.18.lore.1",
+                                    "italic": true,
+                                    "color": "#A6F0E6"
+                                },
+                                {
+                                    "translate": "lbckit.18.lore.2",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "lbckit.18.lore.3",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "lbckit.18.lore.4",
+                                    "italic": false,
+                                    "color": "white"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{swordwithability:1,blazefire_sword:1,magicwand:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

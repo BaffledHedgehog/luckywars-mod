@@ -1,0 +1,89 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:leather_helmet",
+            "components": {
+                "minecraft:item_model": "lbc:armors/shulker_helmet",
+                "minecraft:enchantment_glint_override": true
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.armor.shulker_full"
+        },
+        "description": {
+            "translate": "lbc.adv.armor.shulker_full.lore"
+        },
+        "frame": "challenge",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/armor/shulker",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "nbt": "{playerGameType:3}"
+                            }
+                        }
+                    },
+                    {
+                        "condition": "minecraft:entity_properties",
+                        "entity": "this",
+                        "predicate": {
+                            "equipment": {
+                                "head": {
+                                    "predicates": {
+                                        "minecraft:custom_data": "{shulkshell: 1}"
+                                    }
+                                },
+                                "chest": {
+                                    "predicates": {
+                                        "minecraft:custom_data": "{shulkshell: 1}"
+                                    }
+                                },
+                                "legs": {
+                                    "predicates": {
+                                        "minecraft:custom_data": "{shulkshell: 1}"
+                                    }
+                                },
+                                "feet": {
+                                    "predicates": {
+                                        "minecraft:custom_data": "{shulkshell: 1}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{transformable: 1,sword: 1,ender: 1}"
+                        }
+                    },
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{transformable: 1,bow: 1,shulker_new: 1}"
+                        }
+                    },
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{transformable: 1,staff: 1,enderset: 1}"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "rewards": {
+        "function": "lbc:swrg_kit_integration/gain/skill"
+    }
+}

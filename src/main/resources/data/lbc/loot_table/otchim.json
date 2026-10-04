@@ -1,0 +1,48 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:repeating_command_block",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style":"lbc:tier_ff",
+                                "minecraft:item_model": "lbc:otchim"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "entity": "this",
+                            "name": [
+                                {
+                                    "text": "DraumLord: ",
+                                    "italic": false,
+                                    "color": "dark_gray",
+                                    "type": "text"
+                                },
+                                {
+                                    "translate": "otchim",
+                                    "italic": false,
+                                    "color": "#FF8F8F"
+                                },
+                                {
+                                    "selector": "@p[gamemode=!spectator]",
+                                    "italic": false,
+                                    "type": "selector"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

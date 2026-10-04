@@ -1,0 +1,868 @@
+    {
+        "pools": [
+            {
+                "rolls": 1,
+                "entries": [
+                    {
+                        "type": "minecraft:loot_table",
+                        "value": "lbc:end_of_everything"
+                    }
+                ]
+            },
+            {
+                "rolls": 3,
+                "entries": [
+                    {
+                        "type": "minecraft:item",
+                        "weight": 1,
+                        "name": "minecraft:iron_axe",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": 1
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:unbreakable": {},
+                                    "minecraft:tooltip_style": "lbc:tier_b",
+                                    "minecraft:enchantments": {
+                                        "minecraft:sharpness": 5,
+                                        "minecraft:smite": 5,
+                                        "minecraft:bane_of_arthropods": 5,
+                                        "minecraft:efficiency": 255,
+                                        "minecraft:fortune": 3
+                                    }
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "aimbob_axe",
+                                        "italic": false
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "weight": 1,
+                        "name": "minecraft:iron_hoe",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": 1
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:unbreakable": {},
+                                    "minecraft:tooltip_style": "lbc:tier_a",
+                                    "minecraft:enchantments": {
+                                        "minecraft:efficiency": 255,
+                                        "minecraft:fortune": 50
+                                    }
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "aimbob_hoe",
+                                        "italic": false
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "weight": 1,
+                        "name": "minecraft:iron_boots",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": 1
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:unbreakable": {},
+                                    "minecraft:tooltip_style": "lbc:tier_b",
+                                    "minecraft:enchantments": {
+                                        "minecraft:protection": 4,
+                                        "minecraft:fire_protection": 4,
+                                        "minecraft:feather_falling": 4,
+                                        "minecraft:blast_protection": 4,
+                                        "minecraft:projectile_protection": 4,
+                                        "minecraft:thorns": 3,
+                                        "minecraft:depth_strider": 3,
+                                        "minecraft:frost_walker": 2,
+                                        "minecraft:soul_speed": 3
+                                    },
+                                    "minecraft:attribute_modifiers": [
+                                        {
+                                            "type": "minecraft:knockback_resistance",
+                                            "slot": "feet",
+                                            "id": "aimbob_boots",
+                                            "amount": 1000,
+                                            "operation": "add_value"
+                                        },
+                                        {
+                                            "type": "minecraft:explosion_knockback_resistance",
+                                            "slot": "feet",
+                                            "id": "aimbob_boot2s",
+                                            "amount": 1000,
+                                            "operation": "add_value"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "aimbob_boots",
+                                        "italic": false
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "weight": 1,
+                        "name": "minecraft:iron_sword",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": 1
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:unbreakable": {},
+                                    "minecraft:tooltip_style": "lbc:tier_b",
+                                    "minecraft:enchantments": {
+                                        "minecraft:sharpness": 5,
+                                        "minecraft:smite": 5,
+                                        "minecraft:bane_of_arthropods": 5,
+                                        "minecraft:knockback": 2,
+                                        "minecraft:fire_aspect": 2,
+                                        "minecraft:looting": 3,
+                                        "minecraft:sweeping_edge": 3
+                                    },
+                                    "minecraft:attribute_modifiers": [
+                                        {
+                                            "type": "minecraft:attack_speed",
+                                            "slot": "mainhand",
+                                            "id": "minecraft:base_attack_speed",
+                                            "amount": 1000,
+                                            "operation": "add_value"
+                                        },
+                                        {
+                                            "type": "minecraft:attack_damage",
+                                            "slot": "mainhand",
+                                            "id": "minecraft:base_attack_damage",
+                                            "amount": 5,
+                                            "operation": "add_value"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "aimbob_sword",
+                                        "italic": false
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "weight": 1,
+                        "name": "minecraft:iron_helmet",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": 1
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:unbreakable": {},
+                                    "minecraft:tooltip_style": "lbc:tier_b",
+                                    "minecraft:enchantments": {
+                                        "minecraft:protection": 4,
+                                        "minecraft:fire_protection": 4,
+                                        "minecraft:blast_protection": 4,
+                                        "minecraft:projectile_protection": 4,
+                                        "minecraft:respiration": 3,
+                                        "minecraft:aqua_affinity": 1,
+                                        "minecraft:thorns": 3
+                                    }
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "aimbob_helmet",
+                                        "italic": false
+                                    }
+                                ]
+                            },
+                            {
+                                "function": "minecraft:set_custom_data",
+                                "tag": "{night_vision:1}"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "weight": 1,
+                        "name": "minecraft:iron_shovel",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": 1
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:unbreakable": {},
+                                    "minecraft:tooltip_style": "lbc:tier_d",
+                                    "minecraft:enchantments": {
+                                        "minecraft:efficiency": 255,
+                                        "minecraft:fortune": 3
+                                    }
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "aimbob_shovel",
+                                        "italic": false
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "weight": 1,
+                        "name": "minecraft:iron_pickaxe",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": 1
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:unbreakable": {},
+                                    "minecraft:tooltip_style": "lbc:tier_b",
+                                    "minecraft:enchantments": {
+                                        "minecraft:efficiency": 255,
+                                        "minecraft:fortune": 10
+                                    }
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "aimbob_pickaxe",
+                                        "italic": false
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "weight": 1,
+                        "name": "minecraft:iron_leggings",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": 1
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:unbreakable": {},
+                                    "minecraft:tooltip_style": "lbc:tier_b",
+                                    "minecraft:enchantments": {
+                                        "minecraft:protection": 4,
+                                        "minecraft:fire_protection": 4,
+                                        "minecraft:blast_protection": 4,
+                                        "minecraft:projectile_protection": 4,
+                                        "minecraft:thorns": 3
+                                    },
+                                    "minecraft:attribute_modifiers": [
+                                        {
+                                            "type": "minecraft:movement_speed",
+                                            "slot": "legs",
+                                            "id": "aimbob_legs",
+                                            "amount": 1,
+                                            "operation": "add_multiplied_base"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "aimbob_leggings",
+                                        "italic": false
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "weight": 1,
+                        "name": "minecraft:iron_chestplate",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": 1
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:unbreakable": {},
+                                    "minecraft:tooltip_style": "lbc:tier_a",
+                                    "minecraft:enchantments": {
+                                        "minecraft:protection": 4,
+                                        "minecraft:fire_protection": 4,
+                                        "minecraft:blast_protection": 4,
+                                        "minecraft:projectile_protection": 4,
+                                        "minecraft:thorns": 3
+                                    },
+                                    "minecraft:attribute_modifiers": [
+                                        {
+                                            "type": "minecraft:max_health",
+                                            "slot": "chest",
+                                            "id": "aimbob_chest",
+                                            "amount": 20,
+                                            "operation": "add_value"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "aimbob_chestplate",
+                                        "italic": false
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "weight": 1,
+                        "name": "minecraft:bow",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": 1
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:unbreakable": {},
+                                    "minecraft:tooltip_style": "lbc:tier_s",
+                                    "minecraft:enchantments": {
+                                        "minecraft:power": 2,
+                                        "minecraft:punch": 2,
+                                        "minecraft:flame": 1,
+                                        "minecraft:infinity": 1,
+                                        "multishot": 5
+                                    }
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "aimbob_bow",
+                                        "italic": false
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "weight": 1,
+                        "name": "minecraft:crossbow",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": 1
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:unbreakable": {},
+                                    "minecraft:tooltip_style": "lbc:tier_s",
+                                    "minecraft:enchantments": {
+                                        "minecraft:multishot": 1,
+                                        "minecraft:piercing": 5,
+                                        "power": 2,
+                                        "flame": 1,
+                                        "quick_charge": 5,
+                                        "punch": 1,
+                                        "infinity": 1
+                                    }
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "aimbob_crossbow",
+                                        "italic": false
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "weight": 1,
+                        "name": "minecraft:trident",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": 1
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:unbreakable": {},
+                                    "minecraft:tooltip_style": "lbc:tier_b",
+                                    "minecraft:enchantments": {
+                                        "minecraft:sharpness": 5,
+                                        "minecraft:smite": 5,
+                                        "minecraft:bane_of_arthropods": 5,
+                                        "minecraft:knockback": 2,
+                                        "minecraft:fire_aspect": 2,
+                                        "minecraft:sweeping_edge": 3,
+                                        "minecraft:riptide": 15
+                                    }
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "aimbob_trident",
+                                        "italic": false
+                                    }
+                                ]
+                            },
+                            {
+                                "function": "minecraft:set_custom_data",
+                                "tag": "{slow_falling:1}"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "weight": 1,
+                        "name": "minecraft:shield",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": 1
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:unbreakable": {},
+                                    "minecraft:tooltip_style": "lbc:tier_a",
+                                    "minecraft:enchantments": {
+                                        "minecraft:knockback": 10
+                                    },
+                                    "minecraft:attribute_modifiers": [
+                                        {
+                                            "type": "minecraft:knockback_resistance",
+                                            "slot": "offhand",
+                                            "id": "aimbob_shield",
+                                            "amount": 1,
+                                            "operation": "add_multiplied_base"
+                                        },
+                                        {
+                                            "type": "minecraft:knockback_resistance",
+                                            "slot": "mainhand",
+                                            "id": "aimbob_shield1",
+                                            "amount": 1,
+                                            "operation": "add_multiplied_base"
+                                        },
+                                        {
+                                            "type": "minecraft:armor",
+                                            "slot": "mainhand",
+                                            "id": "aimbob_shield5",
+                                            "amount": 10,
+                                            "operation": "add_value"
+                                        },
+                                        {
+                                            "type": "minecraft:armor",
+                                            "slot": "offhand",
+                                            "id": "aimbob_shield2",
+                                            "amount": 10,
+                                            "operation": "add_value"
+                                        },
+                                        {
+                                            "type": "minecraft:armor_toughness",
+                                            "slot": "mainhand",
+                                            "id": "aimbob_shield3",
+                                            "amount": 10,
+                                            "operation": "add_value"
+                                        },
+                                        {
+                                            "type": "minecraft:armor_toughness",
+                                            "slot": "offhand",
+                                            "id": "aimbob_shield4",
+                                            "amount": 10,
+                                            "operation": "add_value"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "aimbob_shield",
+                                        "italic": false
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "weight": 1,
+                        "name": "minecraft:flint_and_steel",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": 1
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:unbreakable": {},
+                                    "minecraft:tooltip_style": "lbc:tier_d",
+                                    "minecraft:enchantments": {
+                                        "minecraft:fire_aspect": 255
+                                    }
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "aimbob_flint",
+                                        "italic": false
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "weight": 1,
+                        "name": "minecraft:fishing_rod",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": 1
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:unbreakable": {},
+                                    "minecraft:tooltip_style": "lbc:tier_b",
+                                    "minecraft:enchantments": {
+                                        "minecraft:luck_of_the_sea": 5,
+                                        "minecraft:lure": 5
+                                    },
+                                    "minecraft:attribute_modifiers": [
+                                        {
+                                            "type": "minecraft:luck",
+                                            "slot": "mainhand",
+                                            "id": "aimbob_rod",
+                                            "amount": 3,
+                                            "operation": "add_value"
+                                        },
+                                        {
+                                            "type": "minecraft:luck",
+                                            "slot": "offhand",
+                                            "id": "aimbob_rod1",
+                                            "amount": 3,
+                                            "operation": "add_value"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "aimbob_rod",
+                                        "italic": false
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "weight": 1,
+                        "name": "minecraft:shears",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": 1
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:unbreakable": {},
+                                    "minecraft:tooltip_style": "lbc:tier_d",
+                                    "minecraft:enchantments": {
+                                        "minecraft:efficiency": 255
+                                    },
+                                    "minecraft:attribute_modifiers": [
+                                        {
+                                            "type": "minecraft:attack_damage",
+                                            "slot": "mainhand",
+                                            "id": "minecraft:base_attack_damage",
+                                            "amount": 6,
+                                            "operation": "add_value"
+                                        },
+                                        {
+                                            "type": "minecraft:attack_speed",
+                                            "slot": "mainhand",
+                                            "id": "minecraft:base_attack_speed",
+                                            "amount": 32767,
+                                            "operation": "add_value"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "aimbob_shears",
+                                        "italic": false
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "weight": 1,
+                        "name": "minecraft:golden_apple",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": 2
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:item_model": "lbc:aimbobapple",
+                                    "minecraft:tooltip_style": "lbc:tier_a"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "aimbob_apple",
+                                        "italic": false
+                                    }
+                                ]
+                            },
+                            {
+                                "function": "minecraft:set_custom_data",
+                                "tag": "{aimbobapple:1}"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "weight": 1,
+                        "name": "minecraft:iron_spear",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": 1
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:unbreakable": {},
+                                    "minecraft:tooltip_style": "lbc:tier_a",
+                                    "minecraft:enchantments": {
+                                        "minecraft:sharpness": 5,
+                                        "minecraft:smite": 5,
+                                        "minecraft:bane_of_arthropods": 5,
+                                        "minecraft:looting": 3,
+                                        "minecraft:knockback": 2,
+                                        "minecraft:fire_aspect": 2,
+                                        "minecraft:lunge": 3
+                                    },
+                                    "minecraft:attribute_modifiers": [
+                                        {
+                                            "type": "minecraft:attack_damage",
+                                            "slot": "mainhand",
+                                            "id": "minecraft:base_attack_damage",
+                                            "amount": 2,
+                                            "operation": "add_value"
+                                        },
+                                        {
+                                            "type": "minecraft:attack_speed",
+                                            "slot": "mainhand",
+                                            "id": "minecraft:base_attack_speed",
+                                            "amount": -3,
+                                            "operation": "add_value"
+                                        },
+                                        {
+                                            "type": "minecraft:gravity",
+                                            "slot": "hand",
+                                            "id": "dfjkj6k6kygkykk",
+                                            "amount": -0.7,
+                                            "operation": "add_multiplied_total"
+                                        },
+                                        {
+                                            "type": "minecraft:safe_fall_distance",
+                                            "slot": "hand",
+                                            "id": "dfjkj6k6kygkykk",
+                                            "amount": 10,
+                                            "operation": "add_multiplied_total"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "aimbob_spear",
+                                        "italic": false
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "weight": 1,
+                        "name": "minecraft:elytra",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": 1
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:unbreakable": {},
+                                    "minecraft:tooltip_style": "lbc:tier_ss",
+                                    "minecraft:enchantments": {
+                                        "minecraft:protection": 4,
+                                        "minecraft:fire_protection": 4,
+                                        "minecraft:blast_protection": 4,
+                                        "minecraft:projectile_protection": 4,
+                                        "minecraft:thorns": 3
+                                    },
+                                    "minecraft:attribute_modifiers": [
+                                        {
+                                            "type": "minecraft:armor",
+                                            "slot": "chest",
+                                            "id": "gasgh4h4ha4h",
+                                            "amount": 5,
+                                            "operation": "add_value"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "aimbob_elytra",
+                                        "italic": false
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "weight": 1,
+                        "name": "minecraft:mace",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": 1
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:unbreakable": {},
+                                    "minecraft:tooltip_style": "lbc:tier_s",
+                                    "minecraft:enchantments": {
+                                        "minecraft:density": 1,
+                                        "minecraft:breach": 1,
+                                        "minecraft:wind_burst": 15,
+                                        "minecraft:smite": 5,
+                                        "minecraft:bane_of_arthropods": 5,
+                                        "minecraft:fire_aspect": 2
+                                    },
+                                    "minecraft:attribute_modifiers": [
+                                        {
+                                            "type": "minecraft:safe_fall_distance",
+                                            "slot": "hand",
+                                            "id": "dfjkj6k6kygkykk",
+                                            "amount": 100,
+                                            "operation": "add_multiplied_total"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "aimbob_mace",
+                                        "italic": false
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }

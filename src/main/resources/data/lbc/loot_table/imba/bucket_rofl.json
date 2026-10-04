@@ -1,0 +1,51 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:snowball",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_b",
+                                "minecraft:item_model": "minecraft:bucket"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "bucket",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "bucket.lore",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "dark_purple"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{bucket:1,projegadget:1,imba:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

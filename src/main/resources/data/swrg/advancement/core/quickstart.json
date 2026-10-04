@@ -1,0 +1,16 @@
+{
+    "criteria": {
+        "quickstart": {
+            "trigger": "minecraft:player_interacted_with_entity",
+            "conditions": {
+                "entity": {
+                    "type": "minecraft:interaction",
+                    "nbt": "{Tags:[\"swrg.quickstart\"]}"
+                }
+            }
+        }
+    },
+    "rewards": {
+        "function": "swrg:game/quickstart/0"
+    }
+}

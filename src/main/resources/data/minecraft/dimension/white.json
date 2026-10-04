@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:white",
+  "generator": {
+    "type": "minecraft:flat",
+    "settings": {
+      "biome": "minecraft:white",
+      "lakes": false,
+      "features": false,
+      "layers": [
+        {
+          "height": 0,
+          "block": "minecraft:air"
+        }
+      ]
+    }
+  }
+}

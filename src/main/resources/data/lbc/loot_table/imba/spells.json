@@ -1,0 +1,17 @@
+    {
+    "pools": [
+        {
+            "rolls": {
+                "min": 1,
+                "max": 7,
+                "type": "minecraft:uniform"
+            },
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:imba/transformables_spells"
+                }
+            ]
+        }
+    ]
+}

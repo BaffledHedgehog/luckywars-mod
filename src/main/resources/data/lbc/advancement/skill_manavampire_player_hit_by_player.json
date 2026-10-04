@@ -1,0 +1,62 @@
+{
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:entity_hurt_player",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "nbt": "{playerGameType:3}"
+                            }
+                        }
+                    },
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "location": {
+                                    "dimension": "minecraft:nexus"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "location": {
+                                    "dimension": "minecraft:imprinted"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "damage": {
+                    "blocked": false,
+                    "type": {
+                        "tags": [
+                            {
+                                "id": "minecraft:acceptable_for_manavampirism",
+                                "expected": true
+                            }
+                        ]
+                    },
+                    "source_entity": {
+                        "nbt": "{Tags:[manavampire]}"
+                    }
+                }
+            }
+        }
+    },
+    "rewards": {
+        "function": "lbc:swrg_kit_integration/game/skills/manavampire/damaged_by_manavampire"
+    }
+}

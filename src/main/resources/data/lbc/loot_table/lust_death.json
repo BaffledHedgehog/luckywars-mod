@@ -1,0 +1,51 @@
+    {
+        "pools": [
+            {
+                "rolls": 1,
+                "entries": [
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:repeating_command_block",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": 1
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:tooltip_style":"lbc:tier_ff",
+                                    "minecraft:item_model": "lbc:drop_trap"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "trap_died_from_cum",
+                                        "italic": false,
+                                        "color": "yellow"
+                                    }
+                                ]
+                            },
+                            {
+                                "function": "minecraft:set_lore",
+                                "mode": "replace_all",
+                                "lore": [
+                                    {
+                                        "translate": "trap_desc",
+                                        "italic": false,
+                                        "color": "white"
+                                    }
+                                ]
+                            },
+                            {
+                                "function": "minecraft:set_custom_data",
+                                "tag": "{death_from_lust:1,drop:1}"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }

@@ -1,0 +1,77 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:leather_boots",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:item_model": "lbc:armors/flying_boots",
+                                "minecraft:tooltip_style":"lbc:tier_a",
+                                "minecraft:max_damage": 900,
+                                "minecraft:custom_name": {
+                                    "bold": true,
+                                    "color": "green",
+                                    "italic": false,
+                                    "translate": "flying_boots"
+                                },
+                                "minecraft:lore": [
+                                    [
+                                        {
+                                            "translate": "type",
+                                            "italic": false,
+                                            "color": "aqua"
+                                        },
+                                        {
+                                            "translate": "boots",
+                                            "italic": false,
+                                            "color": "aqua"
+                                        }
+                                    ],
+                                    {
+                                        "translate": "flying_boots.lore.1",
+                                        "color": "white",
+                                        "italic": false
+                                    },
+                                    {
+                                        "translate": "flying_boots.lore.2",
+                                        "color": "white",
+                                        "italic": false
+                                    }
+                                ],
+                                "minecraft:equippable": {
+                                    "slot": "feet",
+                                    "asset_id": "lbc:spectral"
+                                },
+                                "minecraft:attribute_modifiers": [
+                                    {
+                                        "type": "minecraft:movement_speed",
+                                        "slot": "feet",
+                                        "id": "genhtjhbthj5h5hgjghjd",
+                                        "amount": 0.75,
+                                        "operation": "add_multiplied_base"
+                                    },
+                                    {
+                                        "type": "minecraft:armor",
+                                        "slot": "feet",
+                                        "id": "gjgjgjjx5g5h5htjk7",
+                                        "amount": 6,
+                                        "operation": "add_value"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{jumpboost:1,reactive:1,boots:1,transformable:1,craftusable:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

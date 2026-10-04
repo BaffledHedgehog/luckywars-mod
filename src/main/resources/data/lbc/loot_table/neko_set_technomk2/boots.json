@@ -1,0 +1,137 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:leather_boots",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:item_model": "lbc:armors/technomk2_boots",
+                                "minecraft:tooltip_style":"lbc:tier_ss",
+                                "minecraft:max_damage": 9000,
+                                "minecraft:equippable":{"slot":"feet","asset_id":"lbc:technomk2"},
+                                "minecraft:attribute_modifiers": [
+                                        {
+                                            "type": "minecraft:armor",
+                                            "slot": "feet",
+                                            "id": "jdgjdgjnyrcgfhjgfjgjg",
+                                            "amount": 5,
+                                            "operation": "add_value"
+                                        },
+                                        {
+                                            "type": "minecraft:armor_toughness",
+                                            "slot": "feet",
+                                            "id": "jdgjdgjntertrgfdhgfhjgfjgjg",
+                                            "amount": 3,
+                                            "operation": "add_value"
+                                        },
+                                        {
+                                            "type": "minecraft:fall_damage_multiplier",
+                                            "slot": "feet",
+                                            "id": "jdgjdgyvb6kij7fkgyhkfjgjg",
+                                            "amount": -1,
+                                            "operation": "add_multiplied_total"
+                                        }
+                                    ]
+                                
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "technomk2_boots",
+                                    "color": "yellow",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "boots",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "technomk2_boots.lore.1",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "technomk2_boots.lore.2",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "technomk2_boots.lore.3",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                [
+                                    {
+                                        "translate": "set_bonus",
+                                        "color": "white",
+                                        "italic": false
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "set_bonus_technomk2.1",
+                                        "color": "white",
+                                        "italic": false
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "set_bonus_technomk2.2",
+                                        "color": "white",
+                                        "italic": false
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "set_bonus_technomk2.3",
+                                        "color": "white",
+                                        "italic": false
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "can_set_techno",
+                                        "color": "aqua",
+                                        "italic": false
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "can_set_steampunk",
+                                        "color": "yellow",
+                                        "italic": false
+                                    }
+                                ]
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,boots:1,technomk2:1,techno:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

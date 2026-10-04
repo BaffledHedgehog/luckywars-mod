@@ -1,0 +1,30 @@
+{
+    "values": [
+        "minecraft:stone",
+        "minecraft:stone_brick_slab",
+        "minecraft:stone_brick_stairs",
+        "minecraft:stone_brick_wall",
+        "minecraft:stone_bricks",
+        "minecraft:stone_button",
+        "minecraft:stone_pressure_plate",
+        "minecraft:stone_slab",
+        "minecraft:stone_stairs",
+        "minecraft:cobblestone",
+        "minecraft:cobblestone_slab",
+        "minecraft:cobblestone_stairs",
+        "minecraft:cobblestone_wall",
+        "minecraft:infested_cobblestone",
+        "minecraft:infested_stone",
+        "minecraft:infested_stone_bricks",
+        "minecraft:infested_chiseled_stone_bricks",
+        "minecraft:infested_cracked_stone_bricks",
+        "minecraft:cracked_stone_bricks",
+        "minecraft:chiseled_stone_bricks",
+        "minecraft:dripstone_block",
+        "minecraft:pointed_dripstone",
+        "minecraft:grindstone",
+        "minecraft:redstone_lamp",
+        "minecraft:glowstone",
+        "tall_dry_grass"
+    ]
+}

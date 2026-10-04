@@ -1,0 +1,31 @@
+{
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:entity_killed_player",
+            "conditions": {
+                "entity": [
+                    {
+                        "condition": "minecraft:entity_properties",
+                        "entity": "this",
+                        "predicate": {
+                            "type": "minecraft:player"
+                        }
+                    },
+                    {
+                        "condition": "minecraft:value_check",
+                        "range": 2,
+                        "value": {
+                            "type": "score",
+                            "score": "lbc.skill",
+                            "target": "this",
+                            "scale": 35
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "rewards": {
+        "function": "lbc:swrg_kit_integration/game/skills/absolute_cinema/pozdman_spawn_dog"
+    }
+}

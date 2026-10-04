@@ -1,0 +1,138 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "name": "minecraft:bow",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style":"lbc:tier_a",
+                                "minecraft:item_model": "lbc:madoka_bow"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "madoka_bow",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "bow.lbc",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "madoka_bow.lore.1",
+                                    "color": "yellow",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "madoka_bow.lore.2",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "madoka_bow.lore.3",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "madoka_bow.lore.4",
+                                    "color": "yellow",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "madoka_bow.lore.5",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "madoka_bow.lore.6",
+                                    "color": "dark_gray",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "madoka_bow.lore.7",
+                                    "color": "dark_gray",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "madoka_bow.lore.8",
+                                    "color": "dark_gray",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "madoka_bow.lore.9",
+                                    "color": "dark_gray",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "madoka_bow.lore.10",
+                                    "color": "dark_gray",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "madoka_bow.lore.11",
+                                    "color": "dark_gray",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "madoka_bow.lore.12",
+                                    "color": "dark_gray",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "madoka_bow.lore.13",
+                                    "color": "dark_gray",
+                                    "italic": false
+                                },
+                                [
+                                    {
+                                        "text": "Harus",
+                                        "color": "green",
+                                        "italic": false,
+                                        "type": "text"
+                                    },
+                                    {
+                                        "text": " GeoGuesser event | 06.11.2024",
+                                        "color": "dark_gray",
+                                        "italic": false,
+                                        "type": "text"
+                                    }
+                                ]
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,bow:1,madoka_bow:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

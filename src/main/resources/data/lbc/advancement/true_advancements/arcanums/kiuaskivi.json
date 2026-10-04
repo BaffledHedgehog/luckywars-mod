@@ -1,0 +1,65 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:repeating_command_block",
+            "components": {
+                "minecraft:item_model": "lbc:kiuaskivi"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.arcanums.kiuaskivi"
+        },
+        "description": {
+            "translate": "lbc.adv.arcanums.kiuaskivi.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/arcanums/heal",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:changed_dimension",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "nbt": "{playerGameType:3}"
+                            }
+                        }
+                    },
+                    {
+                        "condition": "minecraft:entity_properties",
+                        "entity": "this",
+                        "predicate": {
+                            "location": {
+                                "dimension": "minecraft:the_nether"
+                            }
+                        }
+                    },
+                    {
+                        "condition": "minecraft:entity_properties",
+                        "entity": "this",
+                        "predicate": {
+                            "equipment": {
+                                "mainhand": {
+                                    "predicates": {
+                                        "minecraft:custom_data": "{transformable:1,arcanum:1,kiuaskivi:1}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "rewards": {
+        "function": "lbc:swrg_kit_integration/gain/kit"
+    }
+}

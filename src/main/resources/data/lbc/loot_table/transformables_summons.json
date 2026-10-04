@@ -1,0 +1,950 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "quality": 8,
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_b",
+                                "minecraft:item_model": "lbc:summonskeleton"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "skeleton_soul",
+                                    "color": "gold",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "entity": "this",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "summoner",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "2 ",
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "translate": "summon_damage",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "2 ",
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "translate": "summon_health",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "20 ",
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "translate": "summon_count",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "score": {
+                                            "name": "skeleton_soul_mana_use",
+                                            "objective": "lbc.math"
+                                        },
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "score"
+                                    },
+                                    {
+                                        "translate": "mana_on_activate",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "skeleton_soul.lore",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "summoners.all.lore.2",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,summoner:1,summonerwand:1,summonerskeletons:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "quality": 8,
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_b",
+                                "minecraft:item_model": "lbc:summonravager"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "ravager_soul",
+                                    "color": "gold",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "entity": "this",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "summoner",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "12 ",
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "translate": "summon_damage",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "20 ",
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "translate": "summon_health",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "1 ",
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "translate": "summon_count",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "score": {
+                                            "name": "ravager_soul_mana_use",
+                                            "objective": "lbc.math"
+                                        },
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "score"
+                                    },
+                                    {
+                                        "translate": "mana_on_activate",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "ravager_soul.lore",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "summoners.all.lore.1",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,summoner:1,summonerwand:1,summonerrazoritel:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "quality": 8,
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_a",
+                                "minecraft:item_model": "lbc:summonvex"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "vex_soul",
+                                    "color": "gold",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "entity": "this",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "summoner",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "9 ",
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "translate": "summon_damage",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "20 ",
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "translate": "summon_health",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "4 ",
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "translate": "summon_count",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "score": {
+                                            "name": "vex_soul_mana_use",
+                                            "objective": "lbc.math"
+                                        },
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "score"
+                                    },
+                                    {
+                                        "translate": "mana_on_activate",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "vex_soul.lore",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "summoners.all.lore.2",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "craft_with_blind",
+                                    "color": "yellow",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,transformable:1,summoner:1,summonerwand:1,summonervexes:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "quality": 8,
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_b",
+                                "minecraft:item_model": "lbc:summoneliteskeleton"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "elite_skeleton_soul",
+                                    "color": "gold",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "entity": "this",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "summoner",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "8 ",
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "translate": "summon_damage",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "20 ",
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "translate": "summon_health",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "2 ",
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "translate": "summon_count",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "score": {
+                                            "name": "elite_skeleton_soul_mana_use",
+                                            "objective": "lbc.math"
+                                        },
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "score"
+                                    },
+                                    {
+                                        "translate": "mana_on_activate",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "elite_skeleton_soul.lore",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "summoners.all.lore.2",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,summoner:1,summonerwand:1,summonereliteskeletons:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "quality": 8,
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_d",
+                                "minecraft:item_model": "lbc:summonghostrider"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "ghost_rider_soul",
+                                    "color": "gold",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "entity": "this",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "summoner",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "7+4; 0 ",
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "translate": "summon_damage",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "20; 15 ",
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "translate": "summon_health",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "2 ",
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "translate": "summon_count",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "score": {
+                                            "name": "ghost_rider_soul_mana_use",
+                                            "objective": "lbc.math"
+                                        },
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "score"
+                                    },
+                                    {
+                                        "translate": "mana_on_activate",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "ghost_rider_soul.lore",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "summoners.all.lore.1",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,summoner:1,summonerwand:1,summonerghostrider:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "quality": 8,
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_d",
+                                "minecraft:item_model": "lbc:summonghast"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "ghast_soul",
+                                    "color": "gold",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "entity": "this",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "summoner",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "6 ",
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "translate": "summon_damage",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "10 ",
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "translate": "summon_health",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "9 ",
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "translate": "summon_count",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "score": {
+                                            "name": "ghast_soul_mana_use",
+                                            "objective": "lbc.math"
+                                        },
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "score"
+                                    },
+                                    {
+                                        "translate": "mana_on_activate",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "ghast_soul.lore",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "summoners.all.lore.2",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,summoner:1,summonerwand:1,summonerghast:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "quality": 8,
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_d",
+                                "minecraft:item_model": "lbc:summonblaze"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "blaze_soul",
+                                    "color": "gold",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "entity": "this",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "summoner",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "5+4 ",
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "translate": "summon_damage",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "20 ",
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "translate": "summon_health",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "3 ",
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "translate": "summon_count",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "score": {
+                                            "name": "blaze_soul_mana_use",
+                                            "objective": "lbc.math"
+                                        },
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "score"
+                                    },
+                                    {
+                                        "translate": "mana_on_activate",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "blaze_soul.lore",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "summoners.all.lore.2",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,summoner:1,summonerwand:1,summonerblaze:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "quality": 8,
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_b",
+                                "minecraft:item_model": "lbc:summonguardian"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "guardian_soul",
+                                    "color": "gold",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "entity": "this",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "summoner",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "6 ",
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "translate": "summon_damage",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "30 ",
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "translate": "summon_health",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "4 ",
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "translate": "summon_count",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "score": {
+                                            "name": "guardian_soul_mana_use",
+                                            "objective": "lbc.math"
+                                        },
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "score"
+                                    },
+                                    {
+                                        "translate": "mana_on_activate",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "guardian_soul.lore",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "summoners.all.lore.2",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,summoner:1,summonerwand:1,summonerguardians:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

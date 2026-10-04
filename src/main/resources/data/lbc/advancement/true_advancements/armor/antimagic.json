@@ -1,0 +1,80 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:leather_chestplate",
+            "components": {
+                "minecraft:item_model": "lbc:armors/overload_chestplate"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.armor.overload"
+        },
+        "description": {
+            "translate": "lbc.adv.armor.overload.lore"
+        },
+        "frame": "goal",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/armor/flesh",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:player_killed_entity",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "nbt": "{playerGameType:3}"
+                            }
+                        }
+                    },
+                    {
+                        "condition": "minecraft:entity_properties",
+                        "entity": "this",
+                        "predicate": {
+                            "equipment": {
+                                "head": {
+                                    "predicates": {
+                                        "minecraft:custom_data": "{overload: 1}"
+                                    }
+                                },
+                                "chest": {
+                                    "predicates": {
+                                        "minecraft:custom_data": "{overload: 1}"
+                                    }
+                                },
+                                "legs": {
+                                    "predicates": {
+                                        "minecraft:custom_data": "{overload: 1}"
+                                    }
+                                },
+                                "feet": {
+                                    "predicates": {
+                                        "minecraft:custom_data": "{overload: 1}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "entity": [
+                    {
+                        "condition": "minecraft:entity_properties",
+                        "entity": "this",
+                        "predicate": {
+                            "type": "minecraft:player"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "rewards": {
+        "function": "lbc:swrg_kit_integration/gain/levelup"
+    }
+}

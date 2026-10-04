@@ -1,0 +1,18 @@
+{"replace":false,
+    "values": [
+      "minecraft:arrow",
+      "minecraft:falling_anvil",
+      "minecraft:falling_block",
+      "minecraft:falling_stalactite",
+      "minecraft:fireworks",
+      "minecraft:mob_projectile",
+      "minecraft:sting",
+      "minecraft:thorns",
+      "minecraft:thrown",
+      "minecraft:trident",
+      "minecraft:wither_skull",
+      "minecraft:outside_border",
+      "minecraft:generic",
+    "minecraft:generic_kill"
+    ]
+  }

@@ -1,0 +1,44 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:black_shulker_box"
+        },
+        "title": {
+            "translate": "lbc.adv.legends.infinity_infinity_shulker"
+        },
+        "description": {
+            "translate": "lbc.adv.legends.infinity_infinity_shulker.lore"
+        },
+        "frame": "goal",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/legends/kill_button",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "nbt": "{playerGameType:3}"
+                            }
+                        }
+                    }
+                ],
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{inf_inf_shulker:1}"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

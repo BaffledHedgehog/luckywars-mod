@@ -1,0 +1,61 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:repeating_command_block",
+            "components": {
+                "minecraft:item_model": "lbc:arcanumbarrier"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.arcanums.barrier"
+        },
+        "description": {
+            "translate": "lbc.adv.arcanums.barrier.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/arcanums/black_hole",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:fall_from_height",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "nbt": "{playerGameType:3}"
+                            }
+                        }
+                    },
+                    {
+                        "condition": "minecraft:entity_properties",
+                        "entity": "this",
+                        "predicate": {
+                            "equipment": {
+                                "mainhand": {
+                                    "predicates": {
+                                        "minecraft:custom_data": "{transformable:1,arcanum:1,barrier_arcanum:1}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "distance": {
+                    "y": {
+                        "min": 100
+                    }
+                }
+            }
+        }
+    },
+    "rewards": {
+        "function": "lbc:swrg_kit_integration/gain/levelup"
+    }
+}

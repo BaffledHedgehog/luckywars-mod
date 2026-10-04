@@ -1,0 +1,158 @@
+    {
+    "pools": [
+        {
+            "rolls": 10,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:tuff",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 64
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:tuff_brick_slab",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 64
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:tuff_brick_stairs",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 64
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:tuff_brick_wall",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 64
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:tuff_bricks",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 64
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:tuff_slab",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 64
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:tuff_stairs",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 64
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:tuff_wall",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 64
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:chiseled_tuff",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 64
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:chiseled_tuff_bricks",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 64
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:polished_tuff",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 64
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:polished_tuff_slab",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 64
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:polished_tuff_stairs",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 64
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:polished_tuff_wall",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 64
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:uniwand"
+                }
+            ]
+        }
+    ]
+}

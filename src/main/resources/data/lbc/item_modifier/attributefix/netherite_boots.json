@@ -1,0 +1,37 @@
+[
+    {
+        "function": "minecraft:set_attributes",
+        "modifiers": [
+            {
+                "attribute": "minecraft:armor",
+                "amount": {
+                    "type": "minecraft:constant",
+                    "value": 3
+                },
+                "operation": "add_value",
+                "id": "minecraft:bafd952e-692a-41ed-9b61-c7d604d107c9",
+                "slot": "feet"
+            },
+            {
+                "attribute": "minecraft:armor_toughness",
+                "amount": {
+                    "type": "minecraft:constant",
+                    "value": 3
+                },
+                "operation": "add_value",
+                "id": "minecraft:bdac1db5-1ef4-45c4-96f2-ff4700331454",
+                "slot": "feet"
+            },
+            {
+                "attribute": "minecraft:knockback_resistance",
+                "amount": {
+                    "type": "minecraft:constant",
+                    "value": 0.1
+                },
+                "operation": "add_value",
+                "id": "minecraft:ce9dc58e-030a-4606-9330-5c578642f6cc",
+                "slot": "feet"
+            }
+        ]
+    }
+]

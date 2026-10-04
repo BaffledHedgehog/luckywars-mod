@@ -1,0 +1,19 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:music_disc_ward",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{display:{Name:{\"translate\":\"entity.minecraft.ender_dragon\",\"color\":\"red\",\"italic\":false}},HideFlags:127,rewardsound:12}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

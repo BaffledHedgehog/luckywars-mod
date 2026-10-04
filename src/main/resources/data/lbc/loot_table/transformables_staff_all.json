@@ -1,0 +1,109 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:transformables_staff",
+                    "weight": 24
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:random_sauvojen_wand",
+                    "weight": 9
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:tuntijaa_acid_acid",
+                    "weight": 1
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:tuntijaa_acid_corrupt",
+                    "weight": 1
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:tuntijaa_air_exasperoso",
+                    "weight": 1
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:tuntijaa_air_homing",
+                    "weight": 1
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:tuntijaa_bolts_bolts",
+                    "weight": 1
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:tuntijaa_electro_electro",
+                    "weight": 1
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:tuntijaa_greed_avarice",
+                    "weight": 1
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:tuntijaa_greed_destroy",
+                    "weight": 1
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:tuntijaa_blind_psycho",
+                    "weight": 1
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:tuntijaa_fire_blaze",
+                    "weight": 1
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:tuntijaa_stone_tanner",
+                    "weight": 1
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:tuntijaa_stone_wall",
+                    "weight": 1
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:ice_wand",
+                    "weight": 1
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:gaycaster",
+                    "weight": 1
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:random_sauvojen_wand_tiny",
+                    "weight": 9
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:shish_wall_wand",
+                    "weight": 1
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:sauvojen_tuntija_wand",
+                    "weight": 1
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:halloween/transformables_staff",
+                    "weight": 2
+                }
+            ]
+        }
+    ]
+}

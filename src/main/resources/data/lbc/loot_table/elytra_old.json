@@ -1,0 +1,53 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:firework_rocket",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:fireworks": {
+                                    "explosions": [
+                                        {
+                                            "shape": "small_ball",
+                                            "colors": [
+                                                16776960
+                                            ],
+                                            "fade_colors": [
+                                                16711680
+                                            ],
+                                            "has_trail": true,
+                                            "has_twinkle": true
+                                        }
+                                    ],
+                                    "flight_duration": 2
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:elytra",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:damage": 430
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,36 @@
+[
+    {
+        "function": "minecraft:set_attributes",
+        "modifiers": [
+            {
+                "attribute": "minecraft:armor",
+                "amount": {
+                    "type": "minecraft:score",
+                    "target": {
+                        "type": "minecraft:fixed",
+                        "name": "#tmp1"
+                    },
+                    "score": "lbc.math",
+                    "scale": 1
+                },
+                "operation": "add_value",
+                "id": "minecraft:71eaf780-80f9-4861-8a64-49ab1247121b",
+                "slot": "head"
+            },
+            {
+                "attribute": "minecraft:armor_toughness",
+                "amount": {
+                    "type": "minecraft:score",
+                    "target": {
+                        "type": "minecraft:fixed",
+                        "name": "#tmp1"
+                    },
+                    "score": "lbc.math"
+                },
+                "operation": "add_value",
+                "id": "minecraft:10c2542e-4ba7-4d60-bfe4-225113e8ecef",
+                "slot": "head"
+            }
+        ]
+    }
+]

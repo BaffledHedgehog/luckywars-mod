@@ -1,0 +1,28 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:light_blue_wool",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 6
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:stick"
+                }
+            ]
+        }
+    ]
+}

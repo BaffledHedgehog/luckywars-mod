@@ -1,0 +1,55 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:repeating_command_block",
+            "components": {
+                "minecraft:item_model": "lbc:advancement_icon/barrier_and_heal"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.arcanums.barrier_and_heal"
+        },
+        "description": {
+            "translate": "lbc.adv.arcanums.barrier_and_heal.lore"
+        },
+        "frame": "goal",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/arcanums/barrier",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "nbt": "{playerGameType:3}"
+                            }
+                        }
+                    }
+                ],
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{transformable:1,arcanum:1,healing_arcanum:1}"
+                        }
+                    },
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{transformable:1,arcanum:1,barrier_arcanum:1}"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "rewards": {
+        "function": "lbc:swrg_kit_integration/gain/kit"
+    }
+}

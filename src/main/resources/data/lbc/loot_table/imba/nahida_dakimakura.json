@@ -1,0 +1,115 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:repeating_command_block",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:item_model": "lbc:nahida_dakimakura",
+                                "minecraft:attribute_modifiers": [
+                                    {
+                                        "type": "minecraft:attack_damage",
+                                        "slot": "mainhand",
+                                        "id": "minecraft:base_attack_damage",
+                                        "amount": 6,
+                                        "operation": "add_value"
+                                    },
+                                    {
+                                        "type": "minecraft:attack_speed",
+                                        "slot": "mainhand",
+                                        "id": "minecraft:base_attack_speed",
+                                        "amount": -3,
+                                        "operation": "add_value"
+                                    },
+                                    {
+                                        "type": "minecraft:attack_knockback",
+                                        "slot": "mainhand",
+                                        "id": "minecraft:base_attack_knockback",
+                                        "amount": 1,
+                                        "operation": "add_value"
+                                    },
+                                    {
+                                        "type": "minecraft:entity_interaction_range",
+                                        "slot": "mainhand",
+                                        "id": "ewhhjddfgj6jffjt",
+                                        "amount": 1,
+                                        "operation": "add_value"
+                                    },
+                                    {
+                                        "type": "minecraft:block_interaction_range",
+                                        "slot": "mainhand",
+                                        "id": "ewhhjddfgj6jffjt",
+                                        "amount": 1,
+                                        "operation": "add_value"
+                                    }
+                                ],
+                                "food": {
+                                    "nutrition": 1,
+                                    "saturation": 1,
+                                    "can_always_eat": true
+                                },
+                                "consumable": {
+                                    "animation": "brush",
+                                    "consume_seconds": 1000000,
+                                    "has_consume_particles": false,
+                                    "sound": "entity.slime.hurt"
+                                },
+                                "use_effects": {
+                                    "can_sprint": true,
+                                    "speed_multiplier": 1
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "dakimakura_nahida",
+                                    "color": "aqua",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "sword",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "dakimakura_nahida.lore.1",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "dakimakura_nahida.lore.2",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,sword:1,nahida_dakimakura:1,magicwand:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

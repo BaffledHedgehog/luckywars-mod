@@ -1,0 +1,47 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:potion",
+            "components": {
+                "minecraft:potion_contents": {
+                    "custom_color": 16777215
+                }
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.potion.succubus"
+        },
+        "description": {
+            "translate": "lbc.adv.potion.succubus.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/potions/snus",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:consume_item",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "nbt": "{playerGameType:3}"
+                            }
+                        }
+                    }
+                ],
+                "item": {
+                    "predicates": {
+                        "minecraft:custom_data": "{transformable:1,potion:1,succubus:1}"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,93 @@
+    {
+    "pools": [
+        {
+            "rolls": 3,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:splash_potion",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:potion_contents": {
+                                    "custom_color": 16739179,
+                                    "custom_effects": [
+                                        {
+                                            "id": "minecraft:instant_health",
+                                            "amplifier": 0
+                                        }
+                                    ]
+                                },
+                                "minecraft:max_stack_size": 3
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "item.minecraft.splash_potion.effect.healing",
+                                    "italic": false
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:splash_potion",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:potion_contents": {
+                                    "custom_color": 2362123,
+                                    "custom_effects": [
+                                        {
+                                            "id": "minecraft:instant_damage",
+                                            "amplifier": 2
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "item.minecraft.splash_potion.effect.harming",
+                                    "italic": false
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "rolls": 2,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:splash_potion",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:potion_contents": {
+                                    "potion": "minecraft:strong_harming"
+                                },
+                                "minecraft:max_stack_size": 2
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

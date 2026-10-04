@@ -1,0 +1,29 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "swrg:gui/roll/case3/bars/d/1"
+                }
+            ]
+        }
+    ],
+    "functions": [
+        {
+            "function": "minecraft:set_lore",
+            "entity": "this",
+            "lore": [
+                {
+                    "nbt": "rare.d",
+                    "storage": "swrg:lang",
+                    "interpret": true,
+                    "source": "storage",
+                    "type": "nbt"
+                }
+            ],
+            "mode": "replace_all"
+        }
+    ]
+}

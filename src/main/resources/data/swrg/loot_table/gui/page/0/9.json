@@ -1,0 +1,26 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:white_bed",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_name",
+                            "entity": "this",
+                            "name": {
+                                "nbt": "page0.s9.Name",
+                                "storage": "swrg:lang",
+                                "interpret": true,
+                                "source": "storage",
+                                "type": "nbt"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

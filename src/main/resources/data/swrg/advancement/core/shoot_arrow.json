@@ -1,0 +1,19 @@
+{
+    "criteria": {
+        "shot_arrow": {
+            "trigger": "minecraft:player_hurt_entity",
+            "conditions": {
+                "damage": {
+                    "type": {
+                        "direct_entity": {
+                            "type": "#minecraft:arrows"
+                        }
+                    },"dealt": {"min": 3}
+                }
+            }
+        }
+    },
+    "rewards": {
+        "function": "swrg:game/player/skills/bow"
+    }
+}

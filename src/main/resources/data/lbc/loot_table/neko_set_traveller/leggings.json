@@ -1,0 +1,95 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:leather_leggings",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:item_model": "lbc:armors/frog_leggings",
+                                "minecraft:tooltip_style":"lbc:tier_c",
+                                "minecraft:max_damage": 400,
+                                "minecraft:equippable":{"slot":"legs","asset_id":"lbc:traveller"},
+                                "minecraft:attribute_modifiers": [
+                                        {
+                                            "type": "minecraft:armor",
+                                            "slot": "legs",
+                                            "id": "gtqwthrt7k67k7mkmghjor",
+                                            "amount": 3,
+                                            "operation": "add_value"
+                                        },
+                                        {
+                                            "type": "minecraft:jump_strength",
+                                            "slot": "legs",
+                                            "id": "gtqwt5535jghjmkmor",
+                                            "amount": 1.25,
+                                            "operation": "add_multiplied_total"
+                                        },
+                                        {
+                                            "type": "minecraft:safe_fall_distance",
+                                            "slot": "legs",
+                                            "id": "gtq432364k67fghk7mkmor",
+                                            "amount": 2,
+                                            "operation": "add_multiplied_total"
+                                        }
+                                    ]
+                                
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "frog_leggings",
+                                    "color": "green",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "leggings",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "frog_leggings.lore",
+                                    "color": "#FFBFBF",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "set_bonus",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "set_bonus_traveller",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,leggings:1,jumpboost:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

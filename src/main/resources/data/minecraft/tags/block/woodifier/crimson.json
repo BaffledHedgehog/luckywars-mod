@@ -1,0 +1,11 @@
+{
+    "replace": false,
+    "values": [
+        "minecraft:magma_block",
+        "minecraft:crimson_nylium",
+        "minecraft:warped_wart_block",
+        "minecraft:shroomlight",
+        "minecraft:redstone_wire",
+        "minecraft:redstone_torch"
+    ]
+}

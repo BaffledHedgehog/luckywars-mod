@@ -1,0 +1,17 @@
+[
+    {
+        "function": "minecraft:set_attributes",
+        "modifiers": [
+            {
+                "attribute": "minecraft:armor",
+                "amount": {
+                    "type": "minecraft:constant",
+                    "value": 3
+                },
+                "operation": "add_value",
+                "id": "minecraft:46e426d6-c51a-4703-b10e-b18a85e03659",
+                "slot": "chest"
+            }
+        ]
+    }
+]

@@ -1,0 +1,10 @@
+[
+    {
+        "function": "minecraft:set_attributes",
+        "modifiers": []
+    },
+    {
+        "function": "minecraft:set_custom_data",
+        "tag": "{testdaeris:2}"
+    }
+]

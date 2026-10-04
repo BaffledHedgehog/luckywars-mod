@@ -1,0 +1,54 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_name",
+                            "entity": "this",
+                            "name": {
+                                "translate": "drone_pult",
+                                "italic": false
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style":"lbc:tier_a",
+                                "minecraft:item_model": "lbc:drone_controller",
+                                "minecraft:enchantment_glint_override": true,
+                                "!max_damage": {},
+                                "!damage": {},
+                                "max_stack_size": 64
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "drone_pult.lore",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "drone_pult.lore1",
+                                    "italic": false,
+                                    "color": "white"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{raycastspell:1,drone_pult:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

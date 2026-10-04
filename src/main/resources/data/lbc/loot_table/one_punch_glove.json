@@ -1,0 +1,107 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "name": "minecraft:iron_sword",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style":"lbc:tier_b",
+                                "minecraft:item_model": "lbc:one_punch_glove",
+                                "minecraft:max_damage": 1,
+                                "minecraft:attribute_modifiers": [
+                                    {
+                                        "type": "minecraft:attack_damage",
+                                        "slot": "mainhand",
+                                        "id": "minecraft:base_attack_damage",
+                                        "amount": -1,
+                                        "operation": "add_value"
+                                    },
+                                    {
+                                        "type": "minecraft:attack_speed",
+                                        "slot": "mainhand",
+                                        "id": "minecraft:base_attack_speed",
+                                        "amount": 2147483647,
+                                        "operation": "add_value"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "one_punch_glove",
+                                    "color": "aqua",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "entity": "this",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "sword",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "GONZO",
+                                        "color": "green",
+                                        "italic": false,
+                                        "type": "text"
+                                    },
+                                    {
+                                        "text": " Beta Server Harem event",
+                                        "color": "dark_gray",
+                                        "italic": false,
+                                        "type": "text"
+                                    }
+                                ]
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_attributes",
+                            "modifiers": [
+                                {
+                                    "attribute": "minecraft:attack_damage",
+                                    "amount": {
+                                        "type": "minecraft:score",
+                                        "target": "this",
+                                        "score": "hplvl"
+                                    },
+                                    "operation": "add_value",
+                                    "id": "minecraft:base_attack_damage",
+                                    "slot": "mainhand"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,sword:1,one_punch:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

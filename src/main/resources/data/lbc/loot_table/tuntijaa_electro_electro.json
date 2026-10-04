@@ -1,0 +1,80 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_s",
+                                "minecraft:item_model": "lbc:erecto"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "erecto_wand",
+                                    "italic": false,
+                                    "color": "aqua"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "entity": "this",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "staff",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "score": {
+                                            "name": "erecto_wand_mana_use",
+                                            "objective": "lbc.math"
+                                        },
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "score"
+                                    },
+                                    {
+                                        "translate": "mana_on_activate",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "erecto_wand.lore",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,staff:1,magicwand:1,erecto_wand:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

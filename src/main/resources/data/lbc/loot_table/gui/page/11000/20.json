@@ -1,0 +1,96 @@
+    {
+        "type": "minecraft:empty",
+        "pools": [
+            {
+                "rolls": 1,
+                "entries": [
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:stone",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:item_model": "lbc:mana_gem"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "entity": "this",
+                                "name": {
+                                    "translate": "lbctrinket.20",
+                                    "italic": false,
+                                    "color": "white"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_lore",
+                                "mode": "replace_all",
+                                "entity": "this",
+                                "lore": [
+                                    {
+                                        "translate": "lbctrinket.20.lore.1",
+                                        "italic": false,
+                                        "color": "gray"
+                                    },
+                                    {
+                                        "translate": "lbctrinket.20.lore.2",
+                                        "italic": false,
+                                        "color": "gray"
+                                    },
+                                    [
+                                        {
+                                            "translate": "pick_rate",
+                                            "italic": false,
+                                            "color": "gold"
+                                        },
+                                        {
+                                            "storage": "stats:stats",
+                                            "nbt": "pick_rate_trinket[20]",
+                                            "italic": false,
+                                            "color": "yellow"
+                                        },
+                                        {
+                                            "translate": "pick_count",
+                                            "italic": false,
+                                            "color": "gold"
+                                        },
+                                        {
+                                            "storage": "stats:stats",
+                                            "nbt": "pick_count_trinket[20]",
+                                            "italic": false,
+                                            "color": "yellow"
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "translate": "win_rate",
+                                            "italic": false,
+                                            "color": "gold"
+                                        },
+                                        {
+                                            "storage": "stats:stats",
+                                            "nbt": "win_rate_trinket[20]",
+                                            "italic": false,
+                                            "color": "yellow"
+                                        },
+                                        {
+                                            "translate": "win_count",
+                                            "italic": false,
+                                            "color": "gold"
+                                        },
+                                        {
+                                            "storage": "stats:stats",
+                                            "nbt": "win_count_trinket[20]",
+                                            "italic": false,
+                                            "color": "yellow"
+                                        }
+                                    ]
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }

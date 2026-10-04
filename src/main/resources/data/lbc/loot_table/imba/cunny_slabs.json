@@ -1,0 +1,1077 @@
+{
+    "pools": [
+        {
+            "rolls": {
+                "min": 1,
+                "max": 8,
+                "type": "minecraft:uniform"
+            },
+            "bonus_rolls": {
+                "min": 0,
+                "max": 8,
+                "type": "minecraft:uniform"
+            },
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "!minecraft:max_damage": {},
+                                "minecraft:max_stack_size": 99,
+                                "minecraft:item_model": "lbc:cunny_0"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "cunny_slab_0",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "cunny_slab_0.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "cunny_slab_0.lore.2",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "dark_purple"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,cunny:0,magicwand:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "!minecraft:max_damage": {},
+                                "minecraft:max_stack_size": 99,
+                                "minecraft:item_model": "lbc:cunny_1"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "cunny_slab_1",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "cunny_slab_1.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "dark_purple"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,cunny:1,magicwand:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "!minecraft:max_damage": {},
+                                "minecraft:max_stack_size": 99,
+                                "minecraft:item_model": "lbc:cunny_2"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "cunny_slab_2",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "cunny_slab_2.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "cunny_slab_2.lore.2",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "dark_purple"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,cunny:2,magicwand:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "!minecraft:max_damage": {},
+                                "minecraft:max_stack_size": 99,
+                                "minecraft:item_model": "lbc:cunny_3"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "cunny_slab_3",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "cunny_slab_3.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "dark_purple"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,cunny:3,magicwand:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "!minecraft:max_damage": {},
+                                "minecraft:max_stack_size": 99,
+                                "minecraft:item_model": "lbc:cunny_4"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "cunny_slab_4",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "cunny_slab_4.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "dark_purple"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,cunny:4,magicwand:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "!minecraft:max_damage": {},
+                                "minecraft:max_stack_size": 99,
+                                "minecraft:item_model": "lbc:cunny_5"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "cunny_slab_5",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "cunny_slab_5.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "dark_purple"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,cunny:5,magicwand:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "!minecraft:max_damage": {},
+                                "minecraft:max_stack_size": 99,
+                                "minecraft:item_model": "lbc:cunny_6"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "cunny_slab_6",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "cunny_slab_6.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "cunny_slab_6.lore.2",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "dark_purple"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,cunny:6,magicwand:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "!minecraft:max_damage": {},
+                                "minecraft:max_stack_size": 99,
+                                "minecraft:item_model": "lbc:cunny_7"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "cunny_slab_7",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "cunny_slab_7.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "dark_purple"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,cunny:7,magicwand:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "!minecraft:max_damage": {},
+                                "minecraft:max_stack_size": 99,
+                                "minecraft:item_model": "lbc:cunny_8"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "cunny_slab_8",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "cunny_slab_8.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "cunny_slab_8.lore.2",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "dark_purple"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,cunny:8,magicwand:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "!minecraft:max_damage": {},
+                                "minecraft:max_stack_size": 99,
+                                "minecraft:item_model": "lbc:cunny_9"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "cunny_slab_9",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "cunny_slab_9.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "cunny_slab_9.lore.2",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "dark_purple"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,cunny:9,magicwand:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "!minecraft:max_damage": {},
+                                "minecraft:max_stack_size": 99,
+                                "minecraft:item_model": "lbc:cunny_10"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "cunny_slab_10",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "cunny_slab_10.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "dark_purple"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,cunny:10,magicwand:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "!minecraft:max_damage": {},
+                                "minecraft:max_stack_size": 99,
+                                "minecraft:item_model": "lbc:cunny_11"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "cunny_slab_11",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "cunny_slab_11.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "dark_purple"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,cunny:11,magicwand:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "!minecraft:max_damage": {},
+                                "minecraft:max_stack_size": 99,
+                                "minecraft:item_model": "lbc:cunny_12"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "cunny_slab_12",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "cunny_slab_12.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "dark_purple"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,cunny:12,magicwand:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "!minecraft:max_damage": {},
+                                "minecraft:max_stack_size": 99,
+                                "minecraft:item_model": "lbc:cunny_13"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "cunny_slab_13",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "cunny_slab_13.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "dark_purple"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,cunny:13,magicwand:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "!minecraft:max_damage": {},
+                                "minecraft:max_stack_size": 99,
+                                "minecraft:item_model": "lbc:cunny_14"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "cunny_slab_14",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "cunny_slab_14.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "dark_purple"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,cunny:14,magicwand:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "!minecraft:max_damage": {},
+                                "minecraft:max_stack_size": 99,
+                                "minecraft:item_model": "lbc:cunny_15"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "cunny_slab_15",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "cunny_slab_15.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "dark_purple"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,cunny:15,magicwand:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "!minecraft:max_damage": {},
+                                "minecraft:max_stack_size": 99,
+                                "minecraft:item_model": "lbc:cunny_16"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "cunny_slab_16",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "cunny_slab_16.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "dark_purple"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,cunny:16,magicwand:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "!minecraft:max_damage": {},
+                                "minecraft:max_stack_size": 99,
+                                "minecraft:item_model": "lbc:cunny_17"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "cunny_slab_17",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "cunny_slab_17.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "dark_purple"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,cunny:17,magicwand:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "!minecraft:max_damage": {},
+                                "minecraft:max_stack_size": 99,
+                                "minecraft:item_model": "lbc:cunny_18"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "cunny_slab_18",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "cunny_slab_18.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "dark_purple"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,cunny:18,magicwand:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "!minecraft:max_damage": {},
+                                "minecraft:max_stack_size": 99,
+                                "minecraft:item_model": "lbc:cunny_19"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "cunny_slab_19",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "cunny_slab_19.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "dark_purple"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,cunny:19,magicwand:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "!minecraft:max_damage": {},
+                                "minecraft:max_stack_size": 99,
+                                "minecraft:item_model": "lbc:cunny_20"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "cunny_slab_20",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "cunny_slab_20.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "dark_purple"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,cunny:20,magicwand:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "!minecraft:max_damage": {},
+                                "minecraft:max_stack_size": 99,
+                                "minecraft:item_model": "lbc:cunny_21"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "cunny_slab_21",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "cunny_slab_21.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "dark_purple"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,cunny:21,magicwand:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

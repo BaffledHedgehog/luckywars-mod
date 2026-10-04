@@ -1,0 +1,25 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_assasin/helmet"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_assasin/chestplate"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_assasin/leggings"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_assasin/boots"
+                }
+            ]
+        }
+    ]
+}

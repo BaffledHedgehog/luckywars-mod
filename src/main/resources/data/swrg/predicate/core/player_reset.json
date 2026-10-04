@@ -1,0 +1,25 @@
+{
+    "condition": "minecraft:any_of",
+    "terms": [
+        {
+            "condition": "minecraft:entity_scores",
+            "entity": "this",
+            "scores": {
+                "swrg.leave": {
+                    "min": 1,
+                    "max": 998900
+                }
+            }
+        },
+        {
+            "condition": "minecraft:entity_scores",
+            "entity": "this",
+            "scores": {
+                "swrg.death": {
+                    "min": 1,
+                    "max": 998900
+                }
+            }
+        }
+    ]
+}

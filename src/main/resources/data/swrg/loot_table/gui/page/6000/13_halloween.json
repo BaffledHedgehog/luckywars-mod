@@ -1,0 +1,51 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:gold_nugget",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_lore",
+                            "entity": "this",
+                            "lore": [
+                                {
+                                    "nbt": "page6000.s13.Lore[0]",
+                                    "storage": "swrg:lang",
+                                    "interpret": true,
+                                    "source": "storage",
+                                    "type": "nbt"
+                                },
+                                {
+                                    "nbt": "page6000.s13.Lore[1]",
+                                    "storage": "swrg:lang",
+                                    "interpret": true,
+                                    "source": "storage",
+                                    "type": "nbt"
+                                }
+                            ],
+                            "mode": "replace_all"
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "entity": "this",
+                            "name": {
+                                "translate": "key_halloween",
+                                "italic": false,
+                                "color":"#9c6894"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "item_model": "lbc:halloween_key"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

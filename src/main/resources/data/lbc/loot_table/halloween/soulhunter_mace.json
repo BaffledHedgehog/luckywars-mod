@@ -1,0 +1,116 @@
+    {
+        "pools": [
+            {
+                "rolls": 1,
+                "entries": [
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:mace",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:tooltip_style": "lbc:tier_ss",
+                                    "minecraft:item_model": "lbc:soulhunter_mace",
+                                    "minecraft:attribute_modifiers": [
+                                        {
+                                            "type": "minecraft:attack_damage",
+                                            "slot": "mainhand",
+                                            "id": "minecraft:base_attack_damage",
+                                            "amount": 10,
+                                            "operation": "add_value"
+                                        },
+                                        {
+                                            "type": "minecraft:attack_speed",
+                                            "slot": "mainhand",
+                                            "id": "minecraft:base_attack_speed",
+                                            "amount": -2.4,
+                                            "operation": "add_value"
+                                        },
+                                        {
+                                            "type": "minecraft:fall_damage_multiplier",
+                                            "slot": "mainhand",
+                                            "id": "mhsr5jhrjntyyj",
+                                            "amount": -1,
+                                            "operation": "add_value"
+                                        }
+                                    ],
+                                    "enchantments": {
+                                        "wind_burst": 2,
+                                        "density": 5
+                                    },
+                                    "consumable": {
+                                        "animation": "none",
+                                        "consume_seconds": 1000000000000,
+                                        "has_consume_particles": false
+                                    },
+                                    "food": {
+                                        "nutrition": 0,
+                                        "saturation": 0,
+                                        "can_always_eat": true
+                                    }
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "soulhunter_mace",
+                                        "color": "red",
+                                        "italic": false
+                                    }
+                                ]
+                            },
+                            {
+                                "function": "minecraft:set_lore",
+                                "mode": "replace_all",
+                                "lore": [
+                                    [
+                                        {
+                                            "translate": "type",
+                                            "italic": false,
+                                            "color": "aqua"
+                                        },
+                                        {
+                                            "translate": "shovel",
+                                            "italic": false,
+                                            "color": "aqua"
+                                        }
+                                    ],
+                                    {
+                                        "translate": "soulhunter_mace.lore.1",
+                                        "italic": false,
+                                        "color": "yellow"
+                                    },
+                                    {
+                                        "translate": "soulhunter_mace.lore.2",
+                                        "italic": false,
+                                        "color": "yellow"
+                                    },
+                                    {
+                                        "translate": "soulhunter_mace.lore.3",
+                                        "italic": false,
+                                        "color": "yellow"
+                                    },
+                                    {
+                                        "translate": "soulhunter_mace.lore.4",
+                                        "italic": false,
+                                        "color": "yellow"
+                                    },
+                                    {
+                                        "translate": "halloween.lore",
+                                        "color": "#ff670f",
+                                        "italic": false
+                                    }
+                                ]
+                            },
+                            {
+                                "function": "minecraft:set_custom_data",
+                                "tag": "{transformable:1,shovel:1,soulhunter_mace:1,spellwithcooldown:1}"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }

@@ -1,0 +1,429 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:snowball",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_b",
+                                "item_model": "lbc:metasola_1"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "metasola_1",
+                                    "color": "aqua",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "metasola",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "metasola_1.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "metasola_1.lore.2",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "metasola_1.lore.3",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "metasola_all.lore",
+                                    "italic": false,
+                                    "color": "red"
+                                },
+                                {
+                                    "translate": "halloween.lore",
+                                    "color": "#ff670f",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,metasola:1,type:1,gadget:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:snowball",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_a",
+                                "item_model": "lbc:metasola_2"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "metasola_2",
+                                    "color": "aqua",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "metasola",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "metasola_2.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "metasola_2.lore.2",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "metasola_2.lore.3",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "metasola_all.lore",
+                                    "italic": false,
+                                    "color": "red"
+                                },
+                                {
+                                    "translate": "halloween.lore",
+                                    "color": "#ff670f",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,metasola:1,type:2,gadget:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:snowball",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_a",
+                                "item_model": "lbc:metasola_3"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "metasola_3",
+                                    "color": "aqua",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "metasola",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "metasola_3.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "metasola_3.lore.2",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "metasola_3.lore.3",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "metasola_all.lore",
+                                    "italic": false,
+                                    "color": "red"
+                                },
+                                {
+                                    "translate": "halloween.lore",
+                                    "color": "#ff670f",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,metasola:1,type:3,gadget:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:snowball",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_a",
+                                "item_model": "lbc:metasola_4"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "metasola_4",
+                                    "color": "aqua",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "metasola",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "metasola_4.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "metasola_4.lore.2",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "metasola_4.lore.3",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "metasola_all.lore",
+                                    "italic": false,
+                                    "color": "red"
+                                },
+                                {
+                                    "translate": "halloween.lore",
+                                    "color": "#ff670f",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,metasola:1,type:4,gadget:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:snowball",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_s",
+                                "item_model": "lbc:metasola_5"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "metasola_5",
+                                    "color": "aqua",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "metasola",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "metasola_5.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "metasola_5.lore.2",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "metasola_5.lore.3",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "metasola_all.lore",
+                                    "italic": false,
+                                    "color": "red"
+                                },
+                                {
+                                    "translate": "halloween.lore",
+                                    "color": "#ff670f",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,metasola:1,type:5,gadget:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:snowball",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_s",
+                                "item_model": "lbc:metasola_6"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "metasola_6",
+                                    "color": "aqua",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "metasola",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "metasola_6.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "metasola_6.lore.2",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "metasola_6.lore.3",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "metasola_all.lore",
+                                    "italic": false,
+                                    "color": "red"
+                                },
+                                {
+                                    "translate": "halloween.lore",
+                                    "color": "#ff670f",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,metasola:1,type:6,gadget:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

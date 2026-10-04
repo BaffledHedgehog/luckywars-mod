@@ -1,0 +1,52 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:golden_axe"
+        },
+        "title": {
+            "translate": "lbc.adv.axe.tomahawk"
+        },
+        "description": {
+            "translate": "lbc.adv.axe.tomahawk.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/axes/randchanted",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:player_killed_entity",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:entity_properties",
+                        "entity": "this",
+                        "predicate": {
+                            "equipment": {
+                                "mainhand": {
+                                    "predicates": {
+                                        "minecraft:custom_data": "{transformable:1,axe:1,tomahawk:1}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "entity": [
+                    {
+                        "condition": "minecraft:entity_properties",
+                        "entity": "this",
+                        "predicate": {
+                            "type": "minecraft:player"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "rewards": {
+        "function": "lbc:swrg_kit_integration/gain/levelup"
+    }
+}

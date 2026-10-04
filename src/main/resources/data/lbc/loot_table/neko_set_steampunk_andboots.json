@@ -1,0 +1,29 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_steampunk/helmet"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_steampunk/chestplate"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_steampunk/leggings"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_steampunk/boots"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_steampunk/boots_spectral"
+                }
+            ]
+        }
+    ]
+}

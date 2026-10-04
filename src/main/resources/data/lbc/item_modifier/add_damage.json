@@ -1,0 +1,25 @@
+[
+    {
+        "function": "minecraft:set_attributes",
+        "modifiers": [
+            {
+                "attribute": "minecraft:attack_damage",
+                "id": "minecraft:base_attack_damage",
+                "amount": {
+                    "type": "minecraft:score",
+                    "target": "this",
+                    "score": "attack_damage",
+                    "scale": 0.0001
+                },
+                "operation": "add_value",
+                "slot": "mainhand"
+            },{
+                "attribute": "minecraft:attack_speed",
+                "id": "minecraft:base_attack_speed",
+                "amount": -2.4,
+                "operation": "add_value",
+                "slot": "mainhand"
+            }
+        ]
+    }
+]

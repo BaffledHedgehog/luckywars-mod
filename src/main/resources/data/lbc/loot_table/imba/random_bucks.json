@@ -1,0 +1,65 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:repeating_command_block",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": {
+                                "min": 1,
+                                "max": 64,
+                                "type": "minecraft:uniform"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_q",
+                                "minecraft:item_model": "lbc:bucks"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "buck",
+                                    "color": "gold",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "buck.lore.1",
+                                    "italic": false,
+                                    "color": "yellow"
+                                },
+                                {
+                                    "translate": "buck.lore.2",
+                                    "italic": false,
+                                    "color": "yellow"
+                                },
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "green"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{bucks:1,imba:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

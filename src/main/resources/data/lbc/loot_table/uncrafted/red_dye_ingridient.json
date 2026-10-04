@@ -1,0 +1,21 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:beetroot"
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:red_tulip"
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:poppy"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,79 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:leather_helmet",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:item_model": "lbc:armors/nanobots_helmet",
+                                "minecraft:tooltip_style":"lbc:tier_b",
+                                "minecraft:max_damage": 7000,
+                                "minecraft:equippable":{"slot":"head","asset_id":"lbc:nanobot"},
+                                "minecraft:attribute_modifiers": [
+                                        {
+                                            "type": "minecraft:armor",
+                                            "slot": "head",
+                                            "id": "jgjgjgjgjukior",
+                                            "amount": 0,
+                                            "operation": "add_value"
+                                        }
+                                    ]
+                                
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": {
+                                "translate": "nanobots_helmet",
+                                "color": "aqua",
+                                "italic": false
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "helmet",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "nanobots_lore.1",
+                                    "italic": false,
+                                    "color": "aqua"
+                                },
+                                {
+                                    "translate": "nanobots_lore.2",
+                                    "italic": false,
+                                    "color": "aqua"
+                                },
+                                {
+                                    "translate": "nanobots_lore.3",
+                                    "italic": false,
+                                    "color": "aqua"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,helmet:1,nanobots:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,84 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_shulker_pre"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_berserk_pre"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_traveller_pre"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_steampunk_pre"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_chaos_pre"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_techno_pre"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_shitty_pre"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_mage_pre"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_assasin_pre"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_phantom_pre"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_paladin_pre"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_glass_pre"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_flesh_pre"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_erosion_pre"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "lbc:neko_set_nanobots_pre"
+                }
+            ]
+        }
+    ]
+}

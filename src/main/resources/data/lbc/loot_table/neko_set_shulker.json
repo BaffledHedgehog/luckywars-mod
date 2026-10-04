@@ -1,0 +1,25 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_shulker/helmet"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_shulker/chestplate"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_shulker/leggings"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_shulker/boots"
+                }
+            ]
+        }
+    ]
+}

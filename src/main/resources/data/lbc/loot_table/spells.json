@@ -1,0 +1,22 @@
+    {
+    "pools": [
+        {
+            "rolls": {
+                "min": 2,
+                "max": 8,
+                "type": "minecraft:uniform"
+            },
+            "bonus_rolls": {
+                "min": 0,
+                "max": 4,
+                "type": "minecraft:uniform"
+            },
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:transformables_spells"
+                }
+            ]
+        }
+    ]
+}

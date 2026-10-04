@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:nexus",
+  "generator": {
+    "type": "minecraft:flat",
+    "settings": {
+      "biome": "minecraft:nexus",
+      "lakes": false,
+      "features": false,
+      "layers": [
+        {
+          "height": 0,
+          "block": "minecraft:air"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,17 @@
+[
+    {
+        "function": "minecraft:set_attributes",
+        "modifiers": [
+            {
+                "attribute": "minecraft:armor",
+                "amount": {
+                    "type": "minecraft:constant",
+                    "value": 3
+                },
+                "operation": "add_value",
+                "id": "minecraft:e6f36f87-7802-411f-8688-056321a5f6a7",
+                "slot": "legs"
+            }
+        ]
+    }
+]

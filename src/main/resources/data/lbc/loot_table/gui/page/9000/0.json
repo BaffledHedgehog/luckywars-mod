@@ -1,0 +1,95 @@
+    {
+        "type": "minecraft:empty","pools": [
+            {
+                "rolls": 1,
+                "entries": [
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:totem_of_undying",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:item_model": "lbc:broken_totem"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "entity": "this",
+                                "name": {
+                                    "translate": "lbckit.0",
+                                    "italic": false,
+                                    "color": "white"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_lore",
+                                "mode": "replace_all",
+                                "entity": "this",
+                                "lore": [
+                                    {
+                                        "translate": "lore.lbckit.0.0",
+                                        "italic": false,
+                                        "color": "gray"
+                                    },
+                                    {
+                                        "translate": "lore.lbckit.0.1",
+                                        "italic": false,
+                                        "color": "gray"
+                                    },
+                                    [
+                                        {
+                                            "translate": "pick_rate",
+                                            "italic": false,
+                                            "color": "gold"
+                                        },
+                                        {
+                                            "storage": "stats:stats",
+                                            "nbt": "pick_rate_kit[0]",
+                                            "italic": false,
+                                            "color": "yellow"
+                                        },
+                                        {
+                                            "translate": "pick_count",
+                                            "italic": false,
+                                            "color": "gold"
+                                        },
+                                        {
+                                            "storage": "stats:stats",
+                                            "nbt": "pick_count_kit[0]",
+                                            "italic": false,
+                                            "color": "yellow"
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "translate": "win_rate",
+                                            "italic": false,
+                                            "color": "gold"
+                                        },
+                                        {
+                                            "storage": "stats:stats",
+                                            "nbt": "win_rate_kit[0]",
+                                            "italic": false,
+                                            "color": "yellow"
+                                        },
+                                        {
+                                            "translate": "win_count",
+                                            "italic": false,
+                                            "color": "gold"
+                                        },
+                                        {
+                                            "storage": "stats:stats",
+                                            "nbt": "win_count_kit[0]",
+                                            "italic": false,
+                                            "color": "yellow"
+                                        }
+                                    ]
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }

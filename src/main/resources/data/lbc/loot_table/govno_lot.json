@@ -1,0 +1,19 @@
+    {
+    "pools": [
+        {
+            "rolls": 10,
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:govno",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 3
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

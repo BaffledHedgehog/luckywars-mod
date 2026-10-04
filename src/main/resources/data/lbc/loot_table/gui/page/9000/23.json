@@ -1,0 +1,121 @@
+    {
+        "type": "minecraft:empty",
+        "pools": [
+            {
+                "rolls": 1,
+                "entries": [
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:carrot_on_a_stick",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:item_model": "lbc:palm_small"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "entity": "this",
+                                "name": {
+                                    "translate": "lbckit.23",
+                                    "italic": false,
+                                    "color": "white"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_lore",
+                                "mode": "replace_all",
+                                "entity": "this",
+                                "lore": [
+                                    {
+                                        "translate": "lbckit.23.lore.1",
+                                        "italic": false,
+                                        "color": "gray"
+                                    },
+                                    {
+                                        "translate": "lbckit.23.lore.2",
+                                        "italic": false,
+                                        "color": "gray"
+                                    },
+                                    {
+                                        "translate": "lbckit.23.lore.3",
+                                        "italic": false,
+                                        "color": "white"
+                                    },
+                                    {
+                                        "translate": "lbckit.23.lore.4",
+                                        "italic": false,
+                                        "color": "gray"
+                                    },
+                                    {
+                                        "translate": "lbckit.23.lore.5",
+                                        "italic": false,
+                                        "color": "gray"
+                                    },
+                                    {
+                                        "translate": "lbckit.23.lore.6",
+                                        "italic": false,
+                                        "color": "gray"
+                                    },
+                                    {
+                                        "translate": "lbckit.23.lore.7",
+                                        "italic": false,
+                                        "color": "gray"
+                                    },
+                                    [
+                                        {
+                                            "translate": "pick_rate",
+                                            "italic": false,
+                                            "color": "gold"
+                                        },
+                                        {
+                                            "storage": "stats:stats",
+                                            "nbt": "pick_rate_kit[23]",
+                                            "italic": false,
+                                            "color": "yellow"
+                                        },
+                                        {
+                                            "translate": "pick_count",
+                                            "italic": false,
+                                            "color": "gold"
+                                        },
+                                        {
+                                            "storage": "stats:stats",
+                                            "nbt": "pick_count_kit[23]",
+                                            "italic": false,
+                                            "color": "yellow"
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "translate": "win_rate",
+                                            "italic": false,
+                                            "color": "gold"
+                                        },
+                                        {
+                                            "storage": "stats:stats",
+                                            "nbt": "win_rate_kit[23]",
+                                            "italic": false,
+                                            "color": "yellow"
+                                        },
+                                        {
+                                            "translate": "win_count",
+                                            "italic": false,
+                                            "color": "gold"
+                                        },
+                                        {
+                                            "storage": "stats:stats",
+                                            "nbt": "win_count_kit[23]",
+                                            "italic": false,
+                                            "color": "yellow"
+                                        }
+                                    ]
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }

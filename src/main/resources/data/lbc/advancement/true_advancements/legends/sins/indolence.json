@@ -1,0 +1,26 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:repeating_command_block",
+            "components": {
+                "minecraft:item_model": "lbc:advancement_icon/sin_indolence"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.legends.sins.indolence"
+        },
+        "description": {
+            "translate": "lbc.adv.legends.sins.indolence.lore"
+        },
+        "frame": "challenge",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/legends/sins/greed",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:impossible"
+        }
+    }
+}

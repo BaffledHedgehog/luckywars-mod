@@ -1,0 +1,67 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:golden_apple",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_b",
+                                "minecraft:item_model": "lbc:badapple"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "text": "B",
+                                    "color": "white",
+                                    "italic": false,
+                                    "type": "text"
+                                },
+                                {
+                                    "text": "a",
+                                    "color": "black",
+                                    "italic": false,
+                                    "type": "text"
+                                },
+                                {
+                                    "text": "d ",
+                                    "color": "white",
+                                    "italic": false,
+                                    "type": "text"
+                                },
+                                {
+                                    "text": "A",
+                                    "color": "black",
+                                    "italic": false,
+                                    "type": "text"
+                                },
+                                {
+                                    "text": "ppl",
+                                    "color": "white",
+                                    "italic": false,
+                                    "type": "text"
+                                },
+                                {
+                                    "text": "e",
+                                    "color": "black",
+                                    "italic": false,
+                                    "type": "text"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{bad_apple:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

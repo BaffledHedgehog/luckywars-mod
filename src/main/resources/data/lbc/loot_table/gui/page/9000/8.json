@@ -1,0 +1,105 @@
+    {
+    "type": "minecraft:empty","pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:panda_spawn_egg",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:item_model": "lbc:nanobot"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "entity": "this",
+                            "name": {
+                                "translate": "lbckit.8",
+                                "italic": false,
+                                "color": "white"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "entity": "this",
+                            "lore": [
+                                {
+                                    "translate": "lore.lbckit.8.0",
+                                    "italic": false,
+                                    "color": "gray"
+                                },
+                                {
+                                    "translate": "lore.lbckit.8.1",
+                                    "italic": false,
+                                    "color": "gray"
+                                },
+                                {
+                                    "translate": "lore.lbckit.8.2",
+                                    "italic": false,
+                                    "color": "gray"
+                                },
+                                {
+                                    "translate": "lore.lbckit.8.3",
+                                    "italic": false,
+                                    "color": "gray"
+                                },
+                                    [
+                                        {
+                                            "translate": "pick_rate",
+                                            "italic": false,
+                                            "color": "gold"
+                                        },
+                                        {
+                                            "storage": "stats:stats",
+                                            "nbt": "pick_rate_kit[8]",
+                                            "italic": false,
+                                            "color": "yellow"
+                                        },
+                                        {
+                                            "translate": "pick_count",
+                                            "italic": false,
+                                            "color": "gold"
+                                        },
+                                        {
+                                            "storage": "stats:stats",
+                                            "nbt": "pick_count_kit[8]",
+                                            "italic": false,
+                                            "color": "yellow"
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "translate": "win_rate",
+                                            "italic": false,
+                                            "color": "gold"
+                                        },
+                                        {
+                                            "storage": "stats:stats",
+                                            "nbt": "win_rate_kit[8]",
+                                            "italic": false,
+                                            "color": "yellow"
+                                        },
+                                        {
+                                            "translate": "win_count",
+                                            "italic": false,
+                                            "color": "gold"
+                                        },
+                                        {
+                                            "storage": "stats:stats",
+                                            "nbt": "win_count_kit[8]",
+                                            "italic": false,
+                                            "color": "yellow"
+                                        }
+                                    ]
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,25 @@
+[
+    {
+        "function": "minecraft:set_name",
+        "name": {
+            "selector": "@p[gamemode=!spectator,distance=0.1..]",
+            "italic": false,
+            "type": "selector"
+        }
+    },
+    {
+        "function": "minecraft:set_components",
+        "components": {
+            "minecraft:lodestone_tracker": {
+                "target": {
+                    "dimension": "minecraft:overworld",
+                    "pos": [
+                        0,
+                        0,
+                        0
+                    ]
+                }
+            }
+        }
+    }
+]

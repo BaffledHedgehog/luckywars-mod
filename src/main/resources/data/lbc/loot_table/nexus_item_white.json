@@ -1,0 +1,115 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "quality": 0,
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style":"lbc:tier_s",
+                                "minecraft:item_model": "lbc:nexus_roadgun"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "nexus_roadgun",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "nexus_roadgun.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "nexus_roadgun.lore.2",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "nexus_roadgun.lore.3",
+                                    "italic": false,
+                                    "color": "white"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{magicwand:1,spellwithcooldown_n:1,spellwithcooldown:1,nexus_roadgun:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "quality": 0,
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style":"lbc:tier_x",
+                                "minecraft:item_model": "lbc:pulsar"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "nexus_pulsar",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "nexus_pulsar.lore.1",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "nexus_pulsar.lore.2",
+                                    "italic": false,
+                                    "color": "white"
+                                },
+                                {
+                                    "translate": "nexus_pulsar.lore.3",
+                                    "italic": false,
+                                    "color": "white"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{magicwand:1,spellwithcooldown_n:1,spellwithcooldown:1,nexus_pulsar:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

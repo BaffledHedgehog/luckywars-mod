@@ -1,0 +1,25 @@
+[
+    {
+        "function": "minecraft:set_name",
+        "entity": "this",
+        "name": [
+            {
+                "translate": "gui.locked",
+                "color": "red",
+                "bold": true,
+                "italic": false
+            }
+        ]
+    },
+    {
+        "function": "minecraft:set_lore",
+        "mode": "replace_all",
+        "entity": "this",
+        "lore": [
+            {
+                "translate": "tournament_open",
+                "color": "red"
+            }
+        ]
+    }
+]

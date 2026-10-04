@@ -1,0 +1,85 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_multiplying/chestplate"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_randchanted/chestplate"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_berserk/chestplate"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_chaos/chestplate"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_mage/chestplate"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_shitty/chestplate"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_shulker/chestplate"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_steampunk/chestplate"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_techno/chestplate"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_traveller/chestplate"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_assasin/chestplate"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_paladin/chestplate"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_phantom/chestplate"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_erosion/chestplate"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_flesh/chestplate"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_nanobots/chestplate"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_glass/chestplate"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_overload/chestplate"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:tnt_chestplate"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,16 @@
+[
+    {
+        "function": "minecraft:set_enchantments",
+        "enchantments": {
+            "minecraft:protection": {
+                "type": "minecraft:score",
+                "target": {
+                    "type": "minecraft:fixed",
+                    "name": "#tmp1"
+                },
+                "score": "lbc.math"
+            }
+        },
+        "add": false
+    }
+]

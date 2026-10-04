@@ -1,0 +1,30 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:repeating_command_block",
+            "components": {
+                "minecraft:item_model": "lbc:arcanumblackhole",
+                "minecraft:enchantment_glint_override": true
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.arcanums.black_hole_max"
+        },
+        "description": {
+            "translate": "lbc.adv.arcanums.black_hole_max.lore"
+        },
+        "frame": "challenge",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/arcanums/black_hole_2",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:impossible"
+        }
+    },
+    "rewards": {
+        "function": "lbc:swrg_kit_integration/gain/levelup"
+    }
+}

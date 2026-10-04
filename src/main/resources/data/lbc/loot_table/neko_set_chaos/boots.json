@@ -1,0 +1,92 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:leather_boots",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:item_model": "lbc:armors/chaos_boots",
+                                "minecraft:tooltip_style":"lbc:tier_b",
+                                "minecraft:max_damage": 700,
+                                "minecraft:equippable":{"slot":"feet","asset_id":"lbc:chaos"},
+                                "minecraft:attribute_modifiers": [
+                                        {
+                                            "type": "minecraft:armor",
+                                            "slot": "feet",
+                                            "id": "genehjd6jv6in7kltyvhmjr",
+                                            "amount": 2,
+                                            "operation": "add_value"
+                                        }
+                                    ]
+                                
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "chaos_boots",
+                                    "color": "gold",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "boots",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "chaos_boots.lore",
+                                    "color": "yellow",
+                                    "italic": false
+                                },
+                                [
+                                    {
+                                        "translate": "set_bonus",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "set_bonus_chaos.1",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "set_bonus_chaos.2",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ]
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,boots:1,chaoschestplate:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

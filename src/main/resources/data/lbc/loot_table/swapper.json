@@ -1,0 +1,51 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [{
+                        "type": "minecraft:item",
+                        "name": "minecraft:snowball",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:tooltip_style": "lbc:tier_a",
+                                    "minecraft:item_model": "lbc:swapper"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_name",
+                                "name": [
+                                    {
+                                        "translate": "swapper",
+                                        "color": "light_purple",
+                                        "italic": false
+                                    }
+                                ]
+                            },
+                            {
+                                "function": "minecraft:set_lore",
+                                "mode": "replace_all",
+                                "lore": [
+                                    {
+                                        "translate": "swapper.lore.1",
+                                        "color": "white",
+                                        "italic": false
+                                    },
+                                    {
+                                        "translate": "swapper.lore.2",
+                                        "color": "white",
+                                        "italic": false
+                                    }
+                                ]
+                            },
+                            {
+                                "function": "minecraft:set_custom_data",
+                                "tag": "{randtp:1,gadget:1}"
+                            }
+                        ]
+                    }
+            ]
+        }
+    ]
+}

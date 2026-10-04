@@ -1,0 +1,18 @@
+{
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:tick",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:reference",
+                        "name": "swrg:core/player_reset"
+                    }
+                ]
+            }
+        }
+    },
+    "rewards": {
+        "function": "swrg:core/player/reset_pre"
+    }
+}

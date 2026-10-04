@@ -1,0 +1,29 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:bow",
+            "components": {
+                "minecraft:item_model": "lbc:madoka_bow"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.bow.madoka_bow"
+        },
+        "description": {
+            "translate": "lbc.adv.bow.madoka_bow.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/bows/railgun",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:impossible"
+        }
+    },
+    "rewards": {
+        "function": "lbc:swrg_kit_integration/gain/skill"
+    }
+}

@@ -1,0 +1,44 @@
+{
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:entity_hurt_player",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "location": {
+                                    "dimension": "minecraft:nexus"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "location": {
+                                    "dimension": "minecraft:imprinted"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "damage": {
+                    "source_entity": {
+                        "type": "minecraft:guardian",
+                        "nbt": "{Tags:[super_guardian]}"
+                    }
+                }
+            }
+        }
+    },
+    "rewards": {
+        "function": "lbc:workingitems/siggewinne_syringe/super_guardian_damage"
+    }
+}

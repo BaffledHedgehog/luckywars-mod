@@ -1,0 +1,190 @@
+    {
+    "pools": [
+        {
+            "rolls": 4,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:repeating_command_block",
+                    "weight": 2,
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style":"lbc:tier_a",
+                                "minecraft:item_model": "lbc:round_standard",
+                                "minecraft:custom_name": {
+                                    "color": "white",
+                                    "italic": false,
+                                    "translate": "round_standard"
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_count",
+                            "count": {
+                                "min": 1,
+                                "max": 2,
+                                "type": "minecraft:uniform"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{standard_round:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:repeating_command_block",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style":"lbc:tier_b",
+                                "minecraft:item_model": "lbc:round_incendiary",
+                                "minecraft:custom_name": {
+                                    "color": "white",
+                                    "italic": false,
+                                    "translate": "round_incendiary"
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_count",
+                            "count": {
+                                "min": 0,
+                                "max": 2,
+                                "type": "minecraft:uniform"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{incendiary_round:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:repeating_command_block",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style":"lbc:tier_s",
+                                "minecraft:item_model": "lbc:round_electric",
+                                "minecraft:custom_name": {
+                                    "color": "white",
+                                    "italic": false,
+                                    "translate": "round_electric"
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_count",
+                            "count": {
+                                "min": 0,
+                                "max": 3,
+                                "type": "minecraft:uniform"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{electric_round:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:repeating_command_block",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style":"lbc:tier_b",
+                                "minecraft:item_model": "lbc:round_acid",
+                                "minecraft:custom_name": {
+                                    "color": "white",
+                                    "italic": false,
+                                    "translate": "round_acid"
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_count",
+                            "count": {
+                                "min": 0,
+                                "max": 2,
+                                "type": "minecraft:uniform"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{acid_round:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:repeating_command_block",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style":"lbc:tier_s",
+                                "minecraft:item_model": "lbc:round_void",
+                                "minecraft:custom_name": {
+                                    "color": "white",
+                                    "italic": false,
+                                    "translate": "round_void"
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_count",
+                            "count": {
+                                "min": 0,
+                                "max": 2,
+                                "type": "minecraft:uniform"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{void_round:1}"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:repeating_command_block",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style":"lbc:tier_s",
+                                "minecraft:item_model": "lbc:round_explosive",
+                                "minecraft:custom_name": {
+                                    "color": "white",
+                                    "italic": false,
+                                    "translate": "round_explosive"
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_count",
+                            "count": {
+                                "min": 0,
+                                "max": 2,
+                                "type": "minecraft:uniform"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{explosive_round:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

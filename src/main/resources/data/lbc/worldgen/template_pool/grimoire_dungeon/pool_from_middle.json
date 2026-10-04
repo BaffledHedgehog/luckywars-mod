@@ -1,0 +1,23 @@
+{
+    "fallback": "lbc:grimoire_dungeon/fallback_balcony",
+    "elements": [
+      {
+        "weight": 60,
+        "element": {
+          "location": "lbc:grimoire_dungeon/road_1",
+          "processors": "minecraft:empty",
+          "projection": "rigid",
+          "element_type": "minecraft:single_pool_element"
+        }
+      },
+      {
+        "weight": 30,
+        "element": {
+          "location": "lbc:grimoire_dungeon/balcony",
+          "processors": "minecraft:empty",
+          "projection": "rigid",
+          "element_type": "minecraft:single_pool_element"
+        }
+      }
+    ]
+  }

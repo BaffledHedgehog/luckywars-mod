@@ -1,0 +1,13 @@
+    {
+    "pools": [
+        {
+            "rolls": 27,
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:transformables_sword_all"
+                }
+            ]
+        }
+    ]
+}

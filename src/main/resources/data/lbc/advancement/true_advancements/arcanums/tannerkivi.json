@@ -1,0 +1,29 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:repeating_command_block",
+            "components": {
+                "minecraft:item_model": "lbc:tannerkivi"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.arcanums.tannerkivi"
+        },
+        "description": {
+            "translate": "lbc.adv.arcanums.tannerkivi.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/arcanums/kiuaskivi",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:impossible"
+        }
+    },
+    "rewards": {
+        "function": "lbc:swrg_kit_integration/gain/skill"
+    }
+}

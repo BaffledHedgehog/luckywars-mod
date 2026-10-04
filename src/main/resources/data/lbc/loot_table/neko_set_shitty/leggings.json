@@ -1,0 +1,78 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:leather_leggings",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:item_model": "lbc:armors/shit_leggings",
+                                "minecraft:tooltip_style":"lbc:tier_c",
+                                "minecraft:max_damage": 300,
+                                "minecraft:equippable":{"slot":"legs","asset_id":"lbc:shit"}
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": {
+                                "translate": "gowno_leggings",
+                                "color": "#402626",
+                                "italic": false
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "leggings",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "gowno_leggings.lore.1",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "gowno_leggings.lore.2",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                [
+                                    {
+                                        "translate": "set_bonus",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "set_bonus_shitty",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ]
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,govnoq:1,transformable:1,leggings:1,gownoleggings:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

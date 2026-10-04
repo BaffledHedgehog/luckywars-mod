@@ -1,0 +1,62 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "name": "minecraft:repeating_command_block",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style":"lbc:tier_q",
+                                "minecraft:item_model": "lbc:nexus_wire_onyx"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "nexus_wire_black",
+                                    "italic": false,
+                                    "color": "gray"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "nexus_wire_black.lore.1",
+                                    "color": "gray",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "nexus_wire_black.lore.2",
+                                    "color": "gray",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "nexus_wire.lore",
+                                    "color": "gold",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{nexus_wire_black:1,instantitem:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

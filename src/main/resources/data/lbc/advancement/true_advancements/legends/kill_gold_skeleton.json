@@ -1,0 +1,50 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:carrot_on_a_stick",
+            "components": {
+                "minecraft:item_model": "lbc:triple_golden_sword"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.legends.kill_golden_skeleton"
+        },
+        "description": {
+            "translate": "lbc.adv.legends.kill_golden_skeleton.lore"
+        },
+        "frame": "goal",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/legends/enter_grimoire_dungeon",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:player_killed_entity",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "nbt": "{playerGameType:3}"
+                            }
+                        }
+                    }
+                ],
+                "entity": [
+                    {
+                        "condition": "minecraft:entity_properties",
+                        "entity": "this",
+                        "predicate": {
+                            "type": "minecraft:skeleton",
+                            "nbt": "{Tags:[\"golden_skeleton\"]}"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

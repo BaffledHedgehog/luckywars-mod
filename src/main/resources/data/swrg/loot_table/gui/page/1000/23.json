@@ -1,0 +1,32 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:repeating_command_block",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_name",
+                            "entity": "this",
+                            "name": {
+                                "nbt": "page1000.s23.Name",
+                                "storage": "swrg:lang",
+                                "interpret": true,
+                                "source": "storage",
+                                "type": "nbt"
+                            }
+                        },
+                        {
+                            "function": "set_components",
+                            "components": {
+                                "item_model": "lbc:kapusta"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

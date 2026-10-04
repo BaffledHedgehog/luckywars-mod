@@ -1,0 +1,66 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:repeating_command_block",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_b",
+                                "minecraft:item_model": "lbc:banan"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "wtf_item",
+                                    "color": "aqua",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "wtf_item.lore",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                [
+                                    {
+                                        "text": "Tinkist00",
+                                        "color": "green",
+                                        "italic": false,
+                                        "type": "text"
+                                    },
+                                    {
+                                        "text": " No Nut November 2023 Event",
+                                        "color": "dark_gray",
+                                        "italic": false,
+                                        "type": "text"
+                                    }
+                                ],
+                                {
+                                    "translate": "razorpine.lore.1",
+                                    "color": "yellow",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{wtf_item:1,craftusable:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,45 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:mace",
+            "components": {
+                "item_model": "lbc:vex_wand"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.event.vex_wand"
+        },
+        "description": {
+            "translate": "lbc.adv.event.vex_wand.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/event/halloween_mace",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:tick",
+            "conditions": {
+                "player": {
+                    "movement": {
+                        "horizontal_speed": {
+                            "min": 75
+                        }
+                    },
+                    "equipment": {
+                        "mainhand": {
+                            "predicates": {
+                                "custom_data": "{vex_wand:1}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "rewards": {
+        "function": "lbc:swrg_kit_integration/gain/default_skill"
+    }
+}

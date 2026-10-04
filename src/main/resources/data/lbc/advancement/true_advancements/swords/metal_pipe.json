@@ -1,0 +1,52 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:spyglass",
+            "components": {
+                "minecraft:item_model": "lbc:metal_pipe"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.sword.metal_pipe"
+        },
+        "description": {
+            "translate": "lbc.adv.sword.metal_pipe.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/swords/vex",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:player_hurt_entity",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:entity_properties",
+                        "entity": "this",
+                        "predicate": {
+                            "equipment": {
+                                "mainhand": {
+                                    "predicates": {
+                                        "minecraft:custom_data": "{transformable: 1,sword: 1,metal_pipe: 1}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "entity": [
+                    {
+                        "condition": "minecraft:entity_properties",
+                        "entity": "this",
+                        "predicate": {
+                            "type": "minecraft:player"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

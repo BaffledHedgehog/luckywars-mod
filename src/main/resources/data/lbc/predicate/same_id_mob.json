@@ -1,0 +1,26 @@
+[
+    {
+        "condition": "minecraft:entity_scores",
+        "entity": "this",
+        "scores": {
+            "lbcID": {
+                "min": {
+                    "type": "minecraft:score",
+                    "target": {
+                        "type": "minecraft:fixed",
+                        "name": "*temp"
+                    },
+                    "score": "lbcID"
+                },
+                "max": {
+                    "type": "minecraft:score",
+                    "target": {
+                        "type": "minecraft:fixed",
+                        "name": "*temp"
+                    },
+                    "score": "lbcID"
+                }
+            }
+        }
+    }
+]

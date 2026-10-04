@@ -1,0 +1,26 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:carrot_on_a_stick",
+            "components": {
+                "minecraft:item_model": "lbc:lightningwand"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.staff.tesla"
+        },
+        "description": {
+            "translate": "lbc.adv.staff.tesla.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/staffs/psycho",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:impossible"
+        }
+    }
+}

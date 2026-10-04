@@ -1,0 +1,77 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "quality": 0,
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:item_model": "lbc:ak47",
+                                "minecraft:tooltip_style": "lbc:tier_s",
+                                "enchantments": {
+                                    "infinity": 1
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "text": "AK-47",
+                                    "italic": false,
+                                    "type": "text"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "shooter",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": "morgenshtern ",
+                                        "color": "green",
+                                        "italic": false,
+                                        "type": "text"
+                                    },
+                                    {
+                                        "text": "Beta Server Harem event",
+                                        "color": "dark_gray",
+                                        "italic": false,
+                                        "type": "text"
+                                    }
+                                ]
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,shooter:1,magicwand:1,ak47:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

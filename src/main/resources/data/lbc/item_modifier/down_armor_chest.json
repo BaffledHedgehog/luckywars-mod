@@ -1,0 +1,80 @@
+[
+    {
+        "function": "minecraft:set_components",
+        "components": {
+            "minecraft:item_model": "lbc:armors/glass_chestplate",
+            "minecraft:max_damage": 150,
+            "minecraft:equippable":{"slot":"chest","asset_id":"lbc:glass"}
+        }
+    },
+    {
+        "function": "minecraft:set_name",
+        "name": {
+            "translate": "glass_chestplate",
+            "color": "white",
+            "italic": false
+        }
+    },
+    {
+        "function": "minecraft:set_lore",
+        "mode": "replace_all",
+        "lore": [
+            [
+                {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                },
+                {
+                    "translate": "chestplate",
+                    "italic": false,
+                    "color": "aqua"
+                }
+            ],
+            {
+                "translate": "glass.lore",
+                "italic": false,
+                "color": "aqua"
+            }
+        ]
+    },
+    {
+        "function": "minecraft:set_attributes",
+        "modifiers": [
+            {
+                "attribute": "minecraft:armor",
+                "amount": {
+                    "type": "minecraft:score",
+                    "target": {
+                        "type": "minecraft:fixed",
+                        "name": "#tmp3"
+                    },
+                    "score": "lbc.math",
+                    "scale": 0.0009
+                },
+                "operation": "add_value",
+                "id": "minecraft:71eaf780-80f9-4861-8a64-49ab1247121b",
+                "slot": "chest"
+            },
+            {
+                "attribute": "minecraft:armor_toughness",
+                "amount": {
+                    "type": "minecraft:score",
+                    "target": {
+                        "type": "minecraft:fixed",
+                        "name": "#tmp3"
+                    },
+                    "score": "lbc.math",
+                    "scale": 0.0009
+                },
+                "operation": "add_value",
+                "id": "minecraft:71eaf780-80f9-4861-8a64-49ab1247121b",
+                "slot": "chest"
+            }
+        ]
+    },
+    {
+        "function": "minecraft:set_custom_data",
+        "tag": "{transformable:1,chestplate:1,glass:1}"
+    }
+]

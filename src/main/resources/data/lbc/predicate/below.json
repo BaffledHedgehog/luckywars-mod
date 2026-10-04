@@ -1,0 +1,18 @@
+[
+    {
+        "condition": "minecraft:entity_scores",
+        "entity": "this",
+        "scores": {
+            "y": {
+                "max": {
+                    "type": "minecraft:score",
+                    "target": {
+                        "type": "minecraft:fixed",
+                        "name": "*tempy"
+                    },
+                    "score": "lbcID2"
+                }
+            }
+        }
+    }
+]

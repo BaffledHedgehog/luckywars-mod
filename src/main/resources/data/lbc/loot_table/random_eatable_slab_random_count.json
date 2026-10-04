@@ -1,0 +1,1930 @@
+    {
+        "pools": [
+            {
+                "rolls": 1,
+                "entries": [
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:oak_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.wood.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:tuff_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.tuff.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:birch_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.wood.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:stone_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:acacia_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.wood.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:bamboo_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.bamboo.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:cherry_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.cherry_wood.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:jungle_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.wood.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:purpur_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:quartz_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:warped_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.wood.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:spruce_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.wood.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:crimson_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.wood.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:diorite_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:granite_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:andesite_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:dark_oak_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.wood.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:mangrove_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.mangrove_roots.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:mud_brick_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.mud_bricks.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:sandstone_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:blackstone_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:cut_copper_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.copper.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:prismarine_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:tuff_brick_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.tuff_bricks.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:cobblestone_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:stone_brick_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:nether_brick_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.nether_bricks.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:smooth_stone_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:cut_sandstone_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:red_sandstone_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:bamboo_mosaic_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.bamboo_wood.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:petrified_oak_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:polished_tuff_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.polished_tuff.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:smooth_quartz_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:deepslate_tile_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.deepslate_tiles.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:end_stone_brick_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.wood.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:dark_prismarine_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:deepslate_brick_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.deepslate_bricks.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:end_stone_brick_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:polished_diorite_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:polished_granite_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:prismarine_brick_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:red_nether_brick_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.nether_bricks.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:waxed_cut_copper_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.copper.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:smooth_sandstone_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:mossy_stone_brick_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:cut_red_sandstone_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:cobbled_deepslate_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.deepslate.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:mossy_cobblestone_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:polished_andesite_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:exposed_cut_copper_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.copper.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:polished_deepslate_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.polished_deepslate.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:oxidized_cut_copper_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.copper.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:polished_blackstone_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:weathered_cut_copper_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.copper.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:smooth_red_sandstone_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:waxed_exposed_cut_copper_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.copper.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:polished_blackstone_brick_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.stone.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:waxed_oxidized_cut_copper_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.copper.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:waxed_weathered_cut_copper_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.copper.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:resin_brick_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 30,
+                                        "animation": "eat",
+                                        "sound": "block.resin_bricks.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    },{
+                        "type": "minecraft:item",
+                        "name": "minecraft:pale_oak_slab",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_count",
+                                "count": {
+                                    "min": 1,
+                                    "max": 99,
+                                    "type": "minecraft:uniform"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:food": {
+                                        "nutrition": 1,
+                                        "saturation": 1,
+                                        "can_always_eat": true
+                                    },
+                                    "minecraft:consumable": {
+                                        "consume_seconds": 0.2,
+                                        "animation": "eat",
+                                        "sound": "block.wood.break",
+                                        "has_consume_particles": true
+                                    },
+                                    "minecraft:max_stack_size": 99
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }

@@ -1,0 +1,97 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style":"lbc:tier_x",
+                                "minecraft:item_model": "lbc:god"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "god",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "entity": "this",
+                            "lore": [
+                                {
+                                    "text": "",
+                                    "color": "dark_red",
+                                    "italic": false,
+                                    "font": "minecraft:alt"
+                                },{
+                                    "text": "",
+                                    "color": "dark_red",
+                                    "italic": false,
+                                    "font": "minecraft:alt"
+                                },{
+                                    "text": "",
+                                    "color": "dark_red",
+                                    "italic": false,
+                                    "font": "minecraft:alt"
+                                },{
+                                    "text": "",
+                                    "color": "dark_red",
+                                    "italic": false,
+                                    "font": "minecraft:illageralt"
+                                },{
+                                    "text": "",
+                                    "color": "dark_red",
+                                    "italic": false,
+                                    "font": "minecraft:illageralt"
+                                },{
+                                    "text": "",
+                                    "color": "dark_red",
+                                    "italic": false,
+                                    "font": "minecraft:illageralt"
+                                },{
+                                    "text": "",
+                                    "color": "dark_red",
+                                    "italic": false,
+                                    "font": "minecraft:illageralt"
+                                },{
+                                    "text": "",
+                                    "color": "dark_red",
+                                    "italic": false,
+                                    "font": "minecraft:illageralt"
+                                },{
+                                    "text": "",
+                                    "color": "dark_red",
+                                    "italic": false,
+                                    "font": "minecraft:illageralt"
+                                },{
+                                    "text": "",
+                                    "color": "dark_red",
+                                    "italic": false,
+                                    "font": "minecraft:illageralt"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{god:1,magicwand:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

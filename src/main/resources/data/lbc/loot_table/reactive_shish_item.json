@@ -1,0 +1,63 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_c",
+                                "minecraft:item_model": "minecraft:spruce_sapling"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "reactive_shish",
+                                    "color": "dark_green",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "entity": "this",
+                            "lore": [
+                                {
+                                    "translate": "reactive_shish.lore",
+                                    "color": "green",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "reactive_shish.lore.1",
+                                    "color": "green",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "craft_with_upgraded_wall_wand.1",
+                                    "color": "gold",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "craft_with_upgraded_wall_wand.2",
+                                    "color": "gold",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,magicwand:1,reactive_shish:1,spellwithcooldown:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

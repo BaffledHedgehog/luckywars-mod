@@ -1,0 +1,82 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_q",
+                                "minecraft:item_model": "lbc:witch_gens"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "witch_gens",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "entity": "this",
+                            "lore": [
+                                {
+                                    "translate": "witch_gens.lore.1",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "witch_gens.lore.2",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "witch_gens.lore.3",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "witch_gens.lore.4",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "witch_gens.lore.5",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "witch_gens.lore.6",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "witch_gens.lore.7",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "witch_gens.lore.8",
+                                    "color": "white",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{witch_gens:1,magicwand:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

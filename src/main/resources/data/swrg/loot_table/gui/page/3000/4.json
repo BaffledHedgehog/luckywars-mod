@@ -1,0 +1,54 @@
+{
+    "type":"empty", "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:bread",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_lore",
+                            "entity": "this",
+                            "lore": [
+                                {
+                                    "nbt": "lore.kit.a5.Lore[0]",
+                                    "storage": "swrg:lang",
+                                    "interpret": true,
+                                    "source": "storage",
+                                    "type": "nbt"
+                                },
+                                {
+                                    "nbt": "lore.kit.a5.Lore[1]",
+                                    "storage": "swrg:lang",
+                                    "interpret": true,
+                                    "source": "storage",
+                                    "type": "nbt"
+                                },
+                                {
+                                    "nbt": "lore.kit.a5.Lore[2]",
+                                    "storage": "swrg:lang",
+                                    "interpret": true,
+                                    "source": "storage",
+                                    "type": "nbt"
+                                }
+                            ],
+                            "mode": "replace_all"
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "entity": "this",
+                            "name": {
+                                "nbt": "kit.a5",
+                                "storage": "swrg:lang",
+                                "interpret": true,
+                                "source": "storage",
+                                "type": "nbt"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

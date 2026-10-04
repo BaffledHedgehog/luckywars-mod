@@ -1,0 +1,122 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:leather_helmet",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:item_model": "lbc:armors/shulker_helmet",
+                                "minecraft:tooltip_style":"lbc:tier_b",
+                                "minecraft:max_damage": 900,
+                                "minecraft:equippable":{"slot":"head","asset_id":"lbc:shulker"},
+                                "minecraft:attribute_modifiers": [
+                                        {
+                                            "type": "minecraft:armor",
+                                            "slot": "head",
+                                            "id": "genhvtnkiyujfhmnjgjhrjhkr",
+                                            "amount": 3,
+                                            "operation": "add_value"
+                                        },
+                                        {
+                                            "type": "minecraft:armor_toughness",
+                                            "slot": "head",
+                                            "id": "ge6h56hyhvtrbhnrmor",
+                                            "amount": 3,
+                                            "operation": "add_value"
+                                        }
+                                    ]
+                                
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "shulker_helmet",
+                                    "color": "#8942B3",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "helmet",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "set_bonus",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "set_bonus_shulker.1",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "set_bonus_shulker.2",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "set_bonus_shulker.3",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "set_bonus_shulker.4",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "shulker_helmet.lore.1",
+                                        "color": "white",
+                                        "italic": false
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "shulker_helmet.lore.2",
+                                        "color": "white",
+                                        "italic": false
+                                    }
+                                ]
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,helmet:1,shulkshell:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

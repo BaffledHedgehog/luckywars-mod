@@ -1,0 +1,26 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:damaged_anvil"
+                }
+            ],
+            "functions": [
+                {
+                    "function": "minecraft:set_name",
+                    "entity": "this",
+                    "name": {
+                        "nbt": "page1000.s26.Name",
+                        "storage": "swrg:lang",
+                        "interpret": true,
+                        "source": "storage",
+                        "type": "nbt"
+                    }
+                }
+            ]
+        }
+    ]
+}

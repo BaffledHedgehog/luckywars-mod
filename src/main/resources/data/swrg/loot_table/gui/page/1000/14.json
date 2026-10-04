@@ -1,0 +1,32 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:dragon_breath"
+                }
+            ],
+            "functions": [
+                {
+                    "function": "minecraft:set_enchantments",
+                    "enchantments": {
+                        "minecraft:fortune": 5
+                    }
+                },
+                {
+                    "function": "minecraft:set_name",
+                    "entity": "this",
+                    "name": {
+                        "nbt": "page1000.s14.Name",
+                        "storage": "swrg:lang",
+                        "interpret": true,
+                        "source": "storage",
+                        "type": "nbt"
+                    }
+                }
+            ]
+        }
+    ]
+}

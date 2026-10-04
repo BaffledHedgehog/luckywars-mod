@@ -1,0 +1,60 @@
+{
+    "type": "minecraft:block",
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 240,
+                    "value": "lbc:traps"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 2300,
+                    "value": "lbc:traps",
+                    "conditions": [
+                        {
+                            "condition": "minecraft:value_check",
+                            "value": {
+                                "type": "minecraft:score",
+                                "target": {
+                                    "type": "minecraft:fixed",
+                                    "name": "final_luck_modifier"
+                                },
+                                "score": "lbc.math",
+                                "scale": 1
+                            },
+                            "range": 3
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 210,
+                    "value": "lbc:barriersnottraps"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 1000000,
+                    "value": "lbc:barriersnottraps",
+                    "conditions": [
+                        {
+                            "condition": "minecraft:value_check",
+                            "value": {
+                                "type": "minecraft:score",
+                                "target": {
+                                    "type": "minecraft:fixed",
+                                    "name": "final_luck_modifier"
+                                },
+                                "score": "lbc.math",
+                                "scale": 1
+                            },
+                            "range": 11
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

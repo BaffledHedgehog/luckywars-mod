@@ -1,0 +1,35 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 550,
+                    "value": "swrg:gui/roll/case1/a/main"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 350,
+                    "value": "swrg:gui/roll/case1/b/main"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 90,
+                    "value": "swrg:gui/roll/case1/c/main"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "value": "swrg:gui/roll/case1/d/main"
+                }
+            ],
+            "functions": [
+                {
+                    "function": "minecraft:set_custom_data",
+                    "tag": "{HideFlags:127,reward:\"kit\"}"
+                }
+            ]
+        }
+    ]
+}

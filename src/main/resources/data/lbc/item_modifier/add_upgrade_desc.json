@@ -1,0 +1,13 @@
+[
+    {
+        "function": "minecraft:set_lore",
+        "mode": "append",
+        "lore": [
+            {
+                "translate": "upgraded_item",
+                "italic": false,
+                "color": "green"
+            }
+        ]
+    }
+]

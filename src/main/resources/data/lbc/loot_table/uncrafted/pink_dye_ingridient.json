@@ -1,0 +1,17 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:pink_petals"
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:pink_tulip"
+                }
+            ]
+        }
+    ]
+}

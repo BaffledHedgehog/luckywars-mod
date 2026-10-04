@@ -1,0 +1,19 @@
+    {
+    "pools": [
+        {
+            "rolls": {
+                "min": 3,
+                "max": 6,
+                "type": "minecraft:uniform"
+            },
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "weight": 10,
+                    "quality": 5,
+                    "value": "lbc:unstable_reactive"
+                }
+            ]
+        }
+    ]
+}

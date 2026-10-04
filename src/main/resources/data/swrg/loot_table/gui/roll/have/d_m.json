@@ -1,0 +1,87 @@
+{
+    "pools": [
+        {
+            "rolls": 27,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:sunflower",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{HideFlags:127,rewardcoin:4}"
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "item_model": "lbc:coin_d"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "functions": [
+                {
+                    "function": "minecraft:toggle_tooltips",
+                    "toggles": {
+                        "minecraft:attribute_modifiers": true
+                    }
+                },
+                {
+                    "function": "minecraft:set_attributes",
+                    "modifiers": [
+                        {
+                            "attribute": "minecraft:spawn_reinforcements",
+                            "id": "minecraft:234252fgfrehgrt",
+                            "amount": {
+                                "min": 0,
+                                "max": 1,
+                                "type": "minecraft:uniform"
+                            },
+                            "operation": "add_value",
+                            "slot": "mainhand"
+                        }
+                    ]
+                },
+                {
+                    "function": "minecraft:set_lore",
+                    "entity": "this",
+                    "lore": [
+                        {
+                            "nbt": "rare.d",
+                            "storage": "swrg:lang",
+                            "interpret": true,
+                            "source": "storage",
+                            "type": "nbt"
+                        }
+                    ],
+                    "mode": "replace_all"
+                },
+                {
+                    "function": "minecraft:set_name",
+                    "entity": "this",
+                    "name": {
+                        "nbt": "gui.memcoins",
+                        "storage": "swrg:lang",
+                        "interpret": true,
+                        "color": "red",
+                        "extra": [
+                            {
+                                "text": " x1000",
+                                "type": "text"
+                            }
+                        ],
+                        "source": "storage",
+                        "type": "nbt"
+                    }
+                },
+                {
+                    "function": "minecraft:toggle_tooltips",
+                    "toggles": {
+                        "minecraft:attribute_modifiers": false
+                    }
+                }
+            ]
+        }
+    ]
+}

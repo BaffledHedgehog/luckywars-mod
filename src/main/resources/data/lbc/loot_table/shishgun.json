@@ -1,0 +1,54 @@
+    {
+        "pools": [
+            {
+                "rolls": 1,
+                "entries": [
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:bow",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_components",
+                                "components": {
+                                    "minecraft:tooltip_style": "lbc:tier_s",
+                                    "minecraft:item_model": "lbc:shishgun_bow",
+                                    "minecraft:enchantments": {
+                                        "minecraft:infinity": 1
+                                    },
+                                    "minecraft:custom_name": {
+                                        "bold": true,
+                                        "color": "green",
+                                        "italic": false,
+                                        "translate": "shish_bow"
+                                    },
+                                    "minecraft:lore": [
+                                        [
+                                            {
+                                                "translate": "type",
+                                                "italic": false,
+                                                "color": "aqua"
+                                            },
+                                            {
+                                                "translate": "bow.lbc",
+                                                "italic": false,
+                                                "color": "aqua"
+                                            }
+                                        ],
+                                        {
+                                            "translate": "shish_bow.lore",
+                                            "color": "gold",
+                                            "italic": false
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_custom_data",
+                                "tag": "{craftusable:1,transformable:1,bow:1,shish_gun:1}"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }

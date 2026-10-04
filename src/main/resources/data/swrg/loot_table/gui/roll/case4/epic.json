@@ -1,0 +1,123 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_name",
+                            "name": {
+                                "text": "\uE192",
+                                "color":"#4E5C24",
+                                "italic": false
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{rewardtype:suffix,reward:23}"
+                        },
+                        {
+                            "function": "set_components",
+                            "components": {
+                                "item_model": "lbc:runes_epic"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "entity": "this",
+                            "lore": [
+                                {
+                                    "nbt": "rare.c",
+                                    "storage": "swrg:lang",
+                                    "interpret": true,
+                                    "source": "storage",
+                                    "type": "nbt"
+                                }
+                            ],
+                            "mode": "replace_all"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_name",
+                            "name": {
+                                "text": "\uE193",
+                                "color":"#4E5C24",
+                                "italic": false
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{rewardtype:suffix,reward:24}"
+                        },
+                        {
+                            "function": "set_components",
+                            "components": {
+                                "item_model": "lbc:runes_epic"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "entity": "this",
+                            "lore": [
+                                {
+                                    "nbt": "rare.c",
+                                    "storage": "swrg:lang",
+                                    "interpret": true,
+                                    "source": "storage",
+                                    "type": "nbt"
+                                }
+                            ],
+                            "mode": "replace_all"
+                        }
+                    ]
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_name",
+                            "name": {
+                                "text": "\uE194",
+                                "color":"#4E5C24",
+                                "italic": false
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{rewardtype:suffix,reward:25}"
+                        },
+                        {
+                            "function": "set_components",
+                            "components": {
+                                "item_model": "lbc:runes_epic"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "entity": "this",
+                            "lore": [
+                                {
+                                    "nbt": "rare.c",
+                                    "storage": "swrg:lang",
+                                    "interpret": true,
+                                    "source": "storage",
+                                    "type": "nbt"
+                                }
+                            ],
+                            "mode": "replace_all"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

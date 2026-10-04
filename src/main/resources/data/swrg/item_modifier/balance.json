@@ -1,0 +1,26 @@
+[
+    {
+        "function": "minecraft:set_lore",
+        "entity": "this",
+        "lore": [
+            {
+                "nbt": "gui.balance",
+                "storage": "swrg:lang",
+                "interpret": true,
+                "extra": [
+                    {
+                        "score": {
+                            "name": "@s",
+                            "objective": "swrg.coins"
+                        },
+                        "color": "gold",
+                        "type": "score"
+                    }
+                ],
+                "source": "storage",
+                "type": "nbt"
+            }
+        ],
+        "mode": "append"
+    }
+]

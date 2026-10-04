@@ -1,0 +1,79 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:spyglass",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style":"lbc:tier_d",
+                                "minecraft:item_model": "lbc:metal_pipe",
+                                "minecraft:attribute_modifiers": [
+                                        {
+                                            "type": "minecraft:attack_damage",
+                                            "slot": "mainhand",
+                                            "id": "minecraft:base_attack_damage",
+                                            "amount": 10,
+                                            "operation": "add_value"
+                                        },
+                                        {
+                                            "type": "minecraft:attack_speed",
+                                            "slot": "mainhand",
+                                            "id": "minecraft:base_attack_speed",
+                                            "amount": -3.1,
+                                            "operation": "add_value"
+                                        }
+                                    ]
+                                
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "metal_pipe",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "sword",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "craft_with_divider",
+                                    "italic": false,
+                                    "color": "yellow"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{metal_pipe:1,craftusable:1,transformable:1,sword:1,PublicBukkitValues:{\"lws:item\":{\"lws:type\":\"metal_pipe\"}}}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

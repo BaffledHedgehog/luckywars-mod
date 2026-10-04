@@ -1,0 +1,21 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:open_eyeblossom"
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:orange_tulip"
+                },
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:torchflower"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,96 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "weight": 1,
+                    "name": "minecraft:carrot_on_a_stick",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style":"lbc:tier_b",
+                                "minecraft:item_model": "lbc:st/air"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "sauvojen_wand_air",
+                                    "color": "light_purple",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "entity": "this",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "staff",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "score": {
+                                            "name": "stair_wand_mana_use",
+                                            "objective": "lbc.math"
+                                        },
+                                        "italic": false,
+                                        "color": "aqua",
+                                        "type": "score"
+                                    },
+                                    {
+                                        "translate": "mana_on_activate",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "sauvojen_wand_air.lore.1",
+                                    "color": "gold",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "sauvojen_wand_air.lore.2",
+                                    "color": "gold",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "sauvojen_wand_air.lore.3",
+                                    "color": "gold",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "sauvojen_wand_air.lore.4",
+                                    "color": "yellow",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,transformable:1,staff:1,magicwand:1,stair:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

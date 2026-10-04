@@ -1,0 +1,67 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:player_head",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_enchantments",
+                            "enchantments": {
+                                "minecraft:protection": 2,
+                                "minecraft:fire_protection": 3,
+                                "minecraft:blast_protection": 3,
+                                "minecraft:sharpness": 6,
+                                "minecraft:fire_aspect": 1
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_attributes",
+                            "modifiers": [
+                                {
+                                    "id": "minecraft:pokrewoijweiouei90",
+                                    "attribute": "minecraft:armor",
+                                    "amount": 3,
+                                    "operation": "add_value",
+                                    "slot": "head"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "entity": "this",
+                            "name": {
+                                "nbt": "item.kit18.Name",
+                                "storage": "swrg:lang",
+                                "interpret": true,
+                                "source": "storage",
+                                "type": "nbt"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:profile": {
+                                    "id": [
+                                        -295757097,
+                                        2052798124,
+                                        -1369498921,
+                                        2052806316
+                                    ],
+                                    "properties": [
+                                        {
+                                            "name": "textures",
+                                            "value": "e3RleHR1cmVzOntTS0lOOnt1cmw6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzM5OGYxMzNhMWYxYjQ1NWEwMWE2ZTFhY2RmYjVhMDg4YWMxMWZkY2I5YTcyZDYyMjYwOTY0OWZiYjEzODljIn19fQ=="
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

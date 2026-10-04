@@ -1,0 +1,33 @@
+    {
+    "pools": [
+        {
+            "rolls": 27,
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:transformables_axe_all"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:transformables_hoe_all"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:transformables_shovel"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:transformables_pickaxe"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:transformables_trident"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:transformables_shield"
+                }
+            ]
+        }
+    ]
+}

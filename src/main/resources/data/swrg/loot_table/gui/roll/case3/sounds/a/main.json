@@ -1,0 +1,53 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "swrg:gui/roll/case3/sounds/a/7"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "swrg:gui/roll/case3/sounds/a/6"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "swrg:gui/roll/case3/sounds/a/5"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "swrg:gui/roll/case3/sounds/a/4"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "swrg:gui/roll/case3/sounds/a/3"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "swrg:gui/roll/case3/sounds/a/2"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "swrg:gui/roll/case3/sounds/a/1"
+                }
+            ],
+            "functions": [
+                {
+                    "function": "minecraft:set_lore",
+                    "entity": "this",
+                    "lore": [
+                        {
+                            "nbt": "rare.a",
+                            "storage": "swrg:lang",
+                            "interpret": true,
+                            "source": "storage",
+                            "type": "nbt"
+                        }
+                    ],
+                    "mode": "replace_all"
+                }
+            ]
+        }
+    ]
+}

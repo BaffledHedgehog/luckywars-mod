@@ -1,0 +1,12 @@
+{
+    "replace": false,
+    "values": [
+        "#airs_only",
+        "lime_concrete_powder",
+        "green_concrete_powder",
+        "yellow_concrete_powder",
+        "light_gray_concrete_powder",
+        "gray_concrete_powder",
+        "black_concrete_powder"
+    ]
+}

@@ -1,0 +1,120 @@
+    {
+    "pools": [
+        {
+            "rolls": 32,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:skeleton_spawn_egg",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:entity_data": {
+                                    "id": "minecraft:skeleton",
+                                    "Tags": [
+                                        "fat_skeleton"
+                                    ],
+                                    "DeathLootTable": "lbc:fatskeleton",
+                                    "PersistenceRequired": true,
+                                    "CustomNameVisible": true,
+                                    "CustomName": {
+                                        "translate": "fat_skeleton",
+                                        "italic": false
+                                    },
+                                    "equipment": {
+                                        "mainhand": {
+                                            "id": "minecraft:bone",
+                                            "count": 1,
+                                            "components": {
+                                                "item_name": {
+                                                    "translate": "omega_bone",
+                                                    "italic": false
+                                                },
+                                                "minecraft:enchantments": {
+                                                    "minecraft:knockback": 1,
+                                                    "vanishing_curse": 1
+                                                }
+                                            }
+                                        },
+                                        "chest": {
+                                            "id": "minecraft:iron_chestplate",
+                                            "count": 1,
+                                            "components": {
+                                                "minecraft:enchantments": {
+                                                    "vanishing_curse": 1
+                                                },
+                                                "minecraft:enchantment_glint_override": false
+                                            }
+                                        },
+                                        "head": {
+                                            "id": "minecraft:skeleton_skull",
+                                            "count": 1,
+                                            "components": {
+                                                "minecraft:enchantments": {
+                                                    "vanishing_curse": 1
+                                                },
+                                                "minecraft:enchantment_glint_override": false
+                                            }
+                                        }
+                                    },
+                                    "drop_chances": {
+                                        "mainhand": 0.0,
+                                        "offhand": 0.0,
+                                        "head": 0.0,
+                                        "chest": 0.0,
+                                        "legs": 0.0,
+                                        "feet": 0.0
+                                    },
+                                    "attributes": [
+                                        {
+                                            "id": "minecraft:movement_speed",
+                                            "base": 0.6
+                                        },
+                                        {
+                                            "id": "minecraft:armor",
+                                            "base": 20
+                                        },
+                                        {
+                                            "id": "minecraft:attack_knockback",
+                                            "base": 100
+                                        },
+                                        {
+                                            "id": "minecraft:armor_toughness",
+                                            "base": 5
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "fat_skeleton_spawn_egg",
+                                    "color": "red",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "imba_version",
+                                    "italic": false,
+                                    "color": "dark_purple"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{imba:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

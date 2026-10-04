@@ -1,0 +1,73 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:golden_boots",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style":"lbc:tier_d",
+                                "minecraft:attribute_modifiers": [
+                                        {
+                                            "type": "minecraft:armor",
+                                            "slot": "feet",
+                                            "id": "generhfhfihchfarmor",
+                                            "amount": 1,
+                                            "operation": "add_multiplied_base"
+                                        },
+                                        {
+                                            "type": "minecraft:armor_toughness",
+                                            "slot": "feet",
+                                            "id": "generjjjjjjjjjjoughness",
+                                            "amount": 1,
+                                            "operation": "add_multiplied_base"
+                                        }
+                                    ]
+                                
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "multiplying_boots",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "boots",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ]
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{multiplying:1,transformable:1,boots:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

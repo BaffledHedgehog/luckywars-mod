@@ -1,0 +1,39 @@
+{
+    "type": "minecraft:multi_action",
+    "title": {
+        "translate": "build_manager"
+    },
+    "inputs": [],
+    "can_close_with_escape": true,
+    "pause": false,
+    "after_action": "close",
+    "exit_action": {
+        "label": {
+            "translate": "close"
+        }
+    },
+    "columns": 4,
+    "actions": [
+        {
+            "label": {
+                "storage": "stats:stats",
+                "nbt": "build_1.name",
+                "hover_event": {
+                    "action": "show_text",
+                    "value": {
+                        "translate": "delete",
+                        "click_event": {
+                            "action": "run_command",
+                            "command": "trigger build_gui_pointer set 1"
+                        }
+                    }
+                }
+            },
+            "width": 100,
+            "action": {
+                "type": "run_command",
+                "command": "trigger build_gui_pointer set 101"
+            }
+        }
+    ]
+}

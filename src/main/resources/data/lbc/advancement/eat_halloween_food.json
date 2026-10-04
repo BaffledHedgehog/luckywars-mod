@@ -1,0 +1,17 @@
+{
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:consume_item",
+            "conditions": {
+                "item": {
+                    "predicates": {
+                        "minecraft:custom_data": "{halloween_food:1}"
+                    }
+                }
+            }
+        }
+    },
+    "rewards": {
+        "function": "lbc:other/event/halloween/eat_halloween_food"
+    }
+}

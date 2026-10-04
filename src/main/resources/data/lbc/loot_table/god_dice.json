@@ -1,0 +1,77 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:snowball",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_u",
+                                "minecraft:item_model": "lbc:superdice"
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "super_dice",
+                                    "color": "light_purple",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "super_dice.lore.1",
+                                    "color": "light_purple",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "super_dice.lore.2",
+                                    "color": "light_purple",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "super_dice.lore.3",
+                                    "color": "light_purple",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "super_dice.lore.4",
+                                    "color": "light_purple",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "super_dice.lore.5",
+                                    "color": "light_purple",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "super_dice.lore.6",
+                                    "color": "light_purple",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "super_dice.lore.7",
+                                    "color": "light_purple",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{superdice:1,gadget:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

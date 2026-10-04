@@ -1,0 +1,41 @@
+{
+    "type": "minecraft:multi_action",
+    "title": {
+        "translate": "build_manager_save"
+    },
+    "inputs": [
+        {
+            "type": "text",
+            "key": "name",
+            "label": {
+                "translate": "build_name"
+            }
+        }
+    ],
+    "can_close_with_escape": true,
+    "pause": false,
+    "after_action": "close",
+    "exit_action": {
+        "label": {
+            "translate": "close"
+        },
+        "action": {
+            "type": "run_command",
+            "command": "trigger build_gui_pointer set 201"
+        }
+    },
+    "columns": 1,
+    "actions": [
+        {
+            "label": {
+                "translate": "save"
+            },
+            "width": 50,
+            "action": {
+                "type": "dynamic/custom",
+                "id": "1",
+                "additions": {}
+            }
+        }
+    ]
+}

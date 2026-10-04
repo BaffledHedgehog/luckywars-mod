@@ -1,0 +1,60 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:golden_sword",
+            "components": {
+                "minecraft:item_model": "lbc:evolutionsword",
+                "minecraft:enchantment_glint_override": true
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.sword.evolution_max"
+        },
+        "description": {
+            "translate": "lbc.adv.sword.evolution_max.lore"
+        },
+        "frame": "challenge",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/swords/evolution_322124",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:player_hurt_entity",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:inverted",
+                        "term": {
+                            "condition": "minecraft:entity_properties",
+                            "entity": "this",
+                            "predicate": {
+                                "nbt": "{playerGameType:3}"
+                            }
+                        }
+                    },
+                    {
+                        "condition": "minecraft:entity_properties",
+                        "entity": "this",
+                        "predicate": {
+                            "equipment": {
+                                "mainhand": {
+                                    "predicates": {
+                                        "minecraft:custom_data": "{transformable: 1,sword: 1,evolution: 1}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "damage": {
+                    "taken": {
+                        "min": 1000000
+                    },
+                    "blocked": false
+                }
+            }
+        }
+    }
+}

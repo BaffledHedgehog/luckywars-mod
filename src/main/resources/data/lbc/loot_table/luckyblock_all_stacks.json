@@ -1,0 +1,31 @@
+    {
+        "pools": [
+            {
+                "rolls": 64,
+                "entries": [
+                    {
+                        "type": "minecraft:loot_table",
+                        "value": "lbc:luckyblock_block_only"
+                    }
+                ]
+            },
+            {
+                "rolls": 64,
+                "entries": [
+                    {
+                        "type": "minecraft:loot_table",
+                        "value": "lbc:luckyblock_neko_block"
+                    }
+                ]
+            },
+            {
+                "rolls": 64,
+                "entries": [
+                    {
+                        "type": "minecraft:loot_table",
+                        "value": "lbc:luckyblock_loli_block"
+                    }
+                ]
+            }
+        ]
+    }

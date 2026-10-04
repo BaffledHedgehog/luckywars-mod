@@ -1,0 +1,81 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_multiplying/helmet"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_randchanted/helmet"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_berserk/helmet"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_chaos/helmet"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_mage/helmet"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_shitty/helmet"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_shulker/helmet"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_steampunk/helmet"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_techno/helmet"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_traveller/helmet"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_assasin/helmet"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_paladin/helmet"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_phantom/helmet"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_erosion/helmet"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_flesh/helmet"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_nanobots/helmet"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_glass/helmet"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_overload/helmet"
+                }
+            ]
+        }
+    ]
+}

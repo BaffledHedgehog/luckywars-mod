@@ -1,0 +1,12 @@
+{
+    "values": [
+        "#minecraft:solid",
+        "#minecraft:wool_carpets",
+        "#minecraft:flower_pots",
+        "#minecraft:beds",
+        "minecraft:lava",
+        "minecraft:water",
+        "minecraft:powder_snow",
+        "minecraft:cobweb"
+    ]
+}

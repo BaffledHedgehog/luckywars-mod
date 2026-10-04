@@ -1,0 +1,115 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:leather_leggings",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:item_model": "lbc:armors/shulker_leggings",
+                                "minecraft:tooltip_style":"lbc:tier_c",
+                                "minecraft:max_damage": 900,
+                                "minecraft:equippable":{"slot":"legs","asset_id":"lbc:shulker"},
+                                "minecraft:attribute_modifiers": [
+                                        {
+                                            "type": "minecraft:armor",
+                                            "slot": "legs",
+                                            "id": "genbnjmuiktftyvhmor",
+                                            "amount": 6,
+                                            "operation": "add_value"
+                                        },
+                                        {
+                                            "type": "minecraft:armor_toughness",
+                                            "slot": "legs",
+                                            "id": "genhgdfhfvtrbh465475fdnrmor",
+                                            "amount": 3,
+                                            "operation": "add_value"
+                                        }
+                                    ]
+                                }
+                            
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "shulker_leggings",
+                                    "color": "#8942B3",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "leggings",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "set_bonus",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "set_bonus_shulker.1",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "set_bonus_shulker.2",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "set_bonus_shulker.3",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "set_bonus_shulker.4",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "shulker_leggings.lore",
+                                        "color": "white",
+                                        "italic": false
+                                    }
+                                ]
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,leggings:1,shulkshell:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

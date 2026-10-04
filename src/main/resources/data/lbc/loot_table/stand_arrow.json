@@ -1,0 +1,96 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "weight": 10,
+                    "name": "minecraft:tipped_arrow",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_count",
+                            "count": 1
+                        },
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:item_model": "lbc:stand_arrow",
+                                "minecraft:tooltip_style": "lbc:tier_q",
+                                "minecraft:potion_contents": {
+                                    "custom_effects": [
+                                        {
+                                            "id": "minecraft:raid_omen",
+                                            "amplifier": 119,
+                                            "duration": 20
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "function": "minecraft:toggle_tooltips",
+                            "toggles": {
+                                "minecraft:dyed_color": false
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "stand_arrow",
+                                    "color": "aqua",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                {
+                                    "translate": "stand_arrow.lore.1",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "stand_arrow.lore.2",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "stand_arrow.lore.3",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "craft_with_time_clocks",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                [
+                                    {
+                                        "text": "Neqrest",
+                                        "color": "green",
+                                        "italic": false,
+                                        "type": "text"
+                                    },
+                                    {
+                                        "text": " No Nut November 2023 Event",
+                                        "color": "dark_gray",
+                                        "italic": false,
+                                        "type": "text"
+                                    }
+                                ]
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{craftusable:1,stand_arrow:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

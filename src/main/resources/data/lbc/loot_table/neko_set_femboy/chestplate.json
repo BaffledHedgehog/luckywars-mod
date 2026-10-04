@@ -1,0 +1,131 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:leather_chestplate",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:item_model": "lbc:armors/nyauwu_chestplate",
+                                "minecraft:tooltip_style":"lbc:tier_s",
+                                "minecraft:max_damage": 1800,
+                                "minecraft:enchantments": {
+                                    "minecraft:fire_protection": 5,
+                                    "minecraft:blast_protection": 5,
+                                    "minecraft:projectile_protection": 5
+                                },
+                                "minecraft:equippable": {
+                                    "slot": "chest",
+                                    "asset_id": "lbc:nyauwu"
+                                },
+                                "minecraft:attribute_modifiers": [
+                                    {
+                                        "type": "minecraft:water_movement_efficiency",
+                                        "slot": "chest",
+                                        "id": "ghfh438juylhumhgfjmluilulkiohed",
+                                        "amount": 1,
+                                        "operation": "add_value"
+                                    },
+                                    {
+                                        "type": "minecraft:armor",
+                                        "slot": "chest",
+                                        "id": "ghfhstgfhsgdthtyjtukukujkhed",
+                                        "amount": 9,
+                                        "operation": "add_value"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": [
+                                {
+                                    "translate": "nyauwu_chestplate",
+                                    "italic": false
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "chestplate",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "nyauwu_chestplate.lore.1",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                {
+                                    "translate": "nyauwu_chestplate.lore.2",
+                                    "color": "white",
+                                    "italic": false
+                                },
+                                [
+                                    {
+                                        "translate": "set_bonus_nyauwu.1",
+                                        "italic": false,
+                                        "color": "gold"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "set_bonus_nyauwu.2",
+                                        "italic": false,
+                                        "color": "gold"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "set_bonus_nyauwu.3",
+                                        "italic": false,
+                                        "color": "gold"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "set_bonus_nyauwu.4",
+                                        "italic": false,
+                                        "color": "gold"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "set_bonus_nyauwu.5",
+                                        "italic": false,
+                                        "color": "gold"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "translate": "mage_compatible",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ]
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,chestplate:1,nyauwu:1,mage:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

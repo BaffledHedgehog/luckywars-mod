@@ -1,0 +1,52 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:iron_sword",
+            "components": {
+                "minecraft:item_model": "lbc:vampiresword"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.sword.vampire"
+        },
+        "description": {
+            "translate": "lbc.adv.sword.vampire.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/swords/devil",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:player_killed_entity",
+            "conditions": {
+                "player": [
+                    {
+                        "condition": "minecraft:entity_properties",
+                        "entity": "this",
+                        "predicate": {
+                            "equipment": {
+                                "mainhand": {
+                                    "predicates": {
+                                        "minecraft:custom_data": "{transformable:1,sword:1,vampire:1}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "entity": [
+                    {
+                        "condition": "minecraft:entity_properties",
+                        "entity": "this",
+                        "predicate": {
+                            "type": "#minecraft:no_blood"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

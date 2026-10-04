@@ -1,0 +1,25 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_techno/helmet"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_techno/chestplate"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_techno/leggings"
+                },
+                {
+                    "type": "minecraft:loot_table",
+                    "value": "lbc:neko_set_techno/boots"
+                }
+            ]
+        }
+    ]
+}

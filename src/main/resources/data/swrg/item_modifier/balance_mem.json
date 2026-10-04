@@ -1,0 +1,25 @@
+[
+    {
+        "function": "minecraft:set_lore",
+        "entity": "this",
+        "lore": [
+            {
+                "translate": "memcoin",
+                "extra": [
+                    {
+                        "score": {
+                            "name": "@s",
+                            "objective": "swrg.memcoins"
+                        },
+                        "color": "gold",
+                        "type": "score",
+                        "italic": false
+                    }
+                ],
+                "italic": false,
+                "color": "yellow"
+            }
+        ],
+        "mode": "append"
+    }
+]

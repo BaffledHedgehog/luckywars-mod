@@ -1,0 +1,51 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:armor_stand",
+    "minecraft:item",
+    "minecraft:item_frame",
+	"minecraft:painting",
+	
+	"minecraft:area_effect_cloud",
+	"#minecraft:impact_projectiles",
+	"minecraft:experience_bottle",
+	"minecraft:experience_orb",
+	      "minecraft:splash_potion",
+      "minecraft:lingering_potion",
+	"minecraft:shulker_bullet",
+	
+	"minecraft:chest_minecart",
+	"minecraft:command_block_minecart",
+	"minecraft:hopper_minecart",
+	"minecraft:minecart",
+	"minecraft:furnace_minecart",
+	"minecraft:tnt_minecart",
+	"minecraft:spawner_minecart",
+	"minecraft:oak_boat",
+	"minecraft:spruce_boat",
+	"minecraft:birch_boat",
+	"minecraft:cherry_boat",
+	"minecraft:dark_oak_boat",
+	"minecraft:pale_oak_boat",
+	"minecraft:jungle_boat",
+	"minecraft:cherry_boat",
+	"minecraft:mangrove_boat",
+	"minecraft:bamboo_raft",
+	
+	"minecraft:end_crystal",
+	"minecraft:ender_pearl",
+	"minecraft:eye_of_ender",
+	
+	"minecraft:falling_block",
+	"minecraft:evoker_fangs",
+	"minecraft:firework_rocket",
+	"minecraft:fishing_bobber",
+	"minecraft:tnt",
+
+	"minecraft:leash_knot",
+	"minecraft:lightning_bolt",
+	"minecraft:llama_spit",
+	"minecraft:wind_charge",
+        "breeze_wind_charge"
+  ]
+}

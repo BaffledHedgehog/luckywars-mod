@@ -1,0 +1,29 @@
+{
+    "replace": false,
+    "values": [
+        "minecraft:iron_ore",
+        "minecraft:iron_chain",
+        "#minecraft:brown",
+        "minecraft:podzol",
+        "minecraft:mud",
+        "minecraft:ice",
+        "minecraft:blue_ice",
+        "minecraft:frosted_ice",
+        "minecraft:packed_ice",
+        "minecraft:soul_campfire",
+        "minecraft:soul_fire",
+        "minecraft:soul_lantern",
+        "minecraft:soul_sand",
+        "minecraft:soul_soil",
+        "minecraft:soul_torch",
+        "minecraft:soul_wall_torch",
+        "minecraft:spruce_leaves",
+        "minecraft:brown_mushroom",
+        "minecraft:brown_mushroom_block",
+        "#minecraft:flower_pots",
+        "minecraft:dried_kelp_block",
+        "minecraft:bedrock",
+        "minecraft:ancient_debris",
+        "minecraft:spawner"
+    ]
+}

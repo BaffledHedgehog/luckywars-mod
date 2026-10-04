@@ -1,0 +1,41 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:crossbow",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:tooltip_style": "lbc:tier_a",
+                                "minecraft:item_model": "lbc:dildomet/dildomet",
+                                "minecraft:enchantments": {
+                                    "minecraft:quick_charge": 4
+                                },
+                                "minecraft:custom_name": {
+                                    "bold": true,
+                                    "color": "#FF0099",
+                                    "italic": false,
+                                    "translate": "dildomet"
+                                },
+                                "minecraft:charged_projectiles": [
+                                    {
+                                        "id": "minecraft:arrow",
+                                        "count": 1
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,bow:1,penisgun:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

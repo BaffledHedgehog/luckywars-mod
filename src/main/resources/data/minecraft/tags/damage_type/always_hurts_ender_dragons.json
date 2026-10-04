@@ -1,0 +1,10 @@
+{"replace":false,
+  "values": [
+    "#minecraft:is_explosion",
+    "#minecraft:is_drowning",
+    "#minecraft:is_fire",
+    "#minecraft:is_freezing",
+    "#minecraft:is_lightning",
+    "#minecraft:is_projectile"
+  ]
+}

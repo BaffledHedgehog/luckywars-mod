@@ -1,0 +1,43 @@
+    {
+        "type": "minecraft:empty",
+        "pools": [
+            {
+                "rolls": 1,
+                "entries": [
+                    {
+                        "type": "minecraft:item",
+                        "name": "minecraft:golden_apple",
+                        "functions": [
+                            {
+                                "function": "minecraft:set_name",
+                                "entity": "this",
+                                "name": {
+                                    "translate": "golden_pumpkin",
+                                    "italic": false,
+                                    "color": "white"
+                                }
+                            },
+                            {
+                                "function": "minecraft:set_lore",
+                                "mode": "replace_all",
+                                "entity": "this",
+                                "lore": [
+                                    {
+                                        "translate": "golden_pumpkin.lore",
+                                        "italic": false,
+                                        "color": "gray"
+                                    }
+                                ]
+                            },
+                            {
+                                "function": "set_components",
+                                "components": {
+                                    "item_model": "lbc:golden_pumpkin"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }

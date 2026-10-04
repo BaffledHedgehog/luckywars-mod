@@ -1,0 +1,32 @@
+{
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:red_mushroom_block"
+                }
+            ],
+            "functions": [
+                {
+                    "function": "set_components",
+                    "components": {
+                        "item_model": "lbc:lucky_block"
+                    }
+                },
+                {
+                    "function": "minecraft:set_name",
+                    "entity": "this",
+                    "name": {
+                        "nbt": "page1000.s11.Name",
+                        "storage": "swrg:lang",
+                        "interpret": true,
+                        "source": "storage",
+                        "type": "nbt"
+                    }
+                }
+            ]
+        }
+    ]
+}

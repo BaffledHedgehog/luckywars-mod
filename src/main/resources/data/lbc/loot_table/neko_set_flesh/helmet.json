@@ -1,0 +1,69 @@
+    {
+    "pools": [
+        {
+            "rolls": 1,
+            "entries": [
+                {
+                    "type": "minecraft:item",
+                    "name": "minecraft:leather_helmet",
+                    "functions": [
+                        {
+                            "function": "minecraft:set_components",
+                            "components": {
+                                "minecraft:item_model": "lbc:armors/flesh_helmet",
+                                "minecraft:tooltip_style":"lbc:tier_c",
+                                "minecraft:max_damage": 6000,
+                                "minecraft:equippable":{"slot":"head","asset_id":"lbc:flesh"},
+                                "minecraft:attribute_modifiers": [
+                                        {
+                                            "type": "minecraft:max_health",
+                                            "slot": "head",
+                                            "id": "hdtfbvjd6vgfd",
+                                            "amount": 8,
+                                            "operation": "add_value"
+                                        }
+                                    ]
+                                
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_name",
+                            "name": {
+                                "translate": "flesh_helmet",
+                                "color": "red",
+                                "italic": false
+                            }
+                        },
+                        {
+                            "function": "minecraft:set_lore",
+                            "mode": "replace_all",
+                            "lore": [
+                                [
+                                    {
+                                        "translate": "type",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    },
+                                    {
+                                        "translate": "helmet",
+                                        "italic": false,
+                                        "color": "aqua"
+                                    }
+                                ],
+                                {
+                                    "translate": "flesh.lore",
+                                    "italic": false,
+                                    "color": "aqua"
+                                }
+                            ]
+                        },
+                        {
+                            "function": "minecraft:set_custom_data",
+                            "tag": "{transformable:1,helmet:1,flesh:1}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

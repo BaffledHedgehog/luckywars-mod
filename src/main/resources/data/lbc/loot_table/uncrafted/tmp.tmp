@@ -1,0 +1,30 @@
+execute if entity @s[nbt={Item:{id:"minecraft:yellow_banner"}}] run loot spawn ~ ~ ~ loot lbc:uncrafted/yellow_wool_6_stick
+execute if entity @s[nbt={Item:{id:"minecraft:yellow_bed"}}] run loot spawn ~ ~ ~ loot lbc:uncrafted/yellow_wool_3_oak_planks_3
+execute if entity @s[nbt={Item:{id:"minecraft:yellow_candle"}}] run loot spawn ~ ~ ~ loot lbc:uncrafted/candle_yellow_dye
+execute if entity @s[nbt={Item:{id:"minecraft:yellow_carpet"}}] run loot spawn ~ ~ ~ loot lbc:uncrafted/yellow_carpet_yellow_dye
+execute if entity @s[nbt={Item:{id:"minecraft:yellow_dye"}}] run loot spawn ~ ~ ~ loot lbc:uncrafted/yellow_petals
+execute if entity @s[nbt={Item:{id:"minecraft:yellow_shulker_box"}}] run loot spawn ~ ~ ~ loot lbc:uncrafted/shulker_box_yellow_dye
+execute if entity @s[nbt={Item:{id:"minecraft:yellow_wool"}}] run loot spawn ~ ~ ~ loot lbc:uncrafted/yellow_wool_yellow_dye
+
+
+
+
+execute if entity @s[nbt={Item:{id:"minecraft:warped_boat"}}] run loot spawn ~ ~ ~ loot lbc:uncrafted/warped_planks_5
+execute if entity @s[nbt={Item:{id:"minecraft:warped_button"}}] run loot spawn ~ ~ ~ loot lbc:uncrafted/warped_planks
+execute if entity @s[nbt={Item:{id:"minecraft:warped_chest_boat"}}] run loot spawn ~ ~ ~ loot lbc:uncrafted/warped_boat_chest
+execute if entity @s[nbt={Item:{id:"minecraft:warped_door"}}] run loot spawn ~ ~ ~ loot lbc:uncrafted/warped_planks_2
+execute if entity @s[nbt={Item:{id:"minecraft:warped_fence_gate"}}] run loot spawn ~ ~ ~ loot lbc:uncrafted/warped_planks_2_stick_4
+execute if entity @s[nbt={Item:{id:"minecraft:warped_pressure_plate"}}] run loot spawn ~ ~ ~ loot lbc:uncrafted/warped_planks_2
+execute if entity @s[nbt={Item:{id:"minecraft:warped_trapdoor"}}] run loot spawn ~ ~ ~ loot lbc:uncrafted/warped_planks_3
+
+
+
+execute if entity @s[nbt={Item:{id:"minecraft:waxed_ffffff_chiseled_copper"}}] run loot spawn ~ ~ ~ loot lbc:uncrafted/honeycomb_ffffff_chiseled_copper
+execute if entity @s[nbt={Item:{id:"minecraft:waxed_ffffff_copper"}}] run loot spawn ~ ~ ~ loot lbc:uncrafted/honeycomb_ffffff_copper
+execute if entity @s[nbt={Item:{id:"minecraft:waxed_ffffff_copper_bulb"}}] run loot spawn ~ ~ ~ loot lbc:uncrafted/honeycomb_ffffff_copper_bulb
+execute if entity @s[nbt={Item:{id:"minecraft:waxed_ffffff_copper_door"}}] run loot spawn ~ ~ ~ loot lbc:uncrafted/honeycomb_ffffff_copper_door
+execute if entity @s[nbt={Item:{id:"minecraft:waxed_ffffff_copper_grate"}}] run loot spawn ~ ~ ~ loot lbc:uncrafted/honeycomb_ffffff_copper_grate
+execute if entity @s[nbt={Item:{id:"minecraft:waxed_ffffff_copper_trapdoor"}}] run loot spawn ~ ~ ~ loot lbc:uncrafted/honeycomb_ffffff_copper_trapdoor
+execute if entity @s[nbt={Item:{id:"minecraft:waxed_ffffff_cut_copper"}}] run loot spawn ~ ~ ~ loot lbc:uncrafted/honeycomb_ffffff_cut_copper
+execute if entity @s[nbt={Item:{id:"minecraft:waxed_ffffff_cut_copper_slab"}}] run loot spawn ~ ~ ~ loot lbc:uncrafted/honeycomb_ffffff_cut_copper_slab
+execute if entity @s[nbt={Item:{id:"minecraft:waxed_ffffff_cut_copper_stairs"}}] run loot spawn ~ ~ ~ loot lbc:uncrafted/honeycomb_ffffff_cut_copper_stairs
