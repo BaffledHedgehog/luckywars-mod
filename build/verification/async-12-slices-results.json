@@ -1,0 +1,10 @@
+{
+  "completed": [
+    "GUI + stages + late join + victory rewards + bridge cleanup",
+    "Two lives: actual damage death, PERFORM_RESPAWN, elimination",
+    "Simultaneous elimination produces a draw without victory rewards",
+    "Broken map placement and clean shutdown during active match",
+    "Restart clears prior map and outside-template bridge from bounds journal"
+  ],
+  "elapsedSeconds": 238.53
+}

@@ -1,0 +1,30 @@
+Compiled from "ScoreHolderArgument.java"
+public class net.minecraft.commands.arguments.ScoreHolderArgument$SelectorResult implements net.minecraft.commands.arguments.ScoreHolderArgument$Result {
+  private final net.minecraft.commands.arguments.selector.EntitySelector selector;
+
+  public net.minecraft.commands.arguments.ScoreHolderArgument$SelectorResult(net.minecraft.commands.arguments.selector.EntitySelector);
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: aload_1
+         6: putfield      #7                  // Field selector:Lnet/minecraft/commands/arguments/selector/EntitySelector;
+         9: return
+
+  public java.util.Collection<net.minecraft.world.scores.ScoreHolder> getNames(net.minecraft.commands.CommandSourceStack, java.util.function.Supplier<java.util.Collection<net.minecraft.world.scores.ScoreHolder>>) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: getfield      #7                  // Field selector:Lnet/minecraft/commands/arguments/selector/EntitySelector;
+         4: aload_1
+         5: invokevirtual #13                 // Method net/minecraft/commands/arguments/selector/EntitySelector.findEntities:(Lnet/minecraft/commands/CommandSourceStack;)Ljava/util/List;
+         8: astore_3
+         9: aload_3
+        10: invokeinterface #19,  1           // InterfaceMethod java/util/List.isEmpty:()Z
+        15: ifeq          25
+        18: getstatic     #25                 // Field net/minecraft/commands/arguments/EntityArgument.NO_ENTITIES_FOUND:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;
+        21: invokevirtual #31                 // Method com/mojang/brigadier/exceptions/SimpleCommandExceptionType.create:()Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        24: athrow
+        25: aload_3
+        26: invokestatic  #37                 // InterfaceMethod java/util/List.copyOf:(Ljava/util/Collection;)Ljava/util/List;
+        29: areturn
+}

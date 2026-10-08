@@ -1,0 +1,12 @@
+{
+  "java.jdt.ls.java.home": "E:/servers_mew/skywars2_last/runtime/jdk-25",
+  "java.import.gradle.java.home": "E:/servers_mew/skywars2_last/runtime/jdk-25",
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-25",
+      "path": "E:/servers_mew/skywars2_last/runtime/jdk-25",
+      "default": true
+    }
+  ],
+  "java.configuration.updateBuildConfiguration": "automatic"
+}

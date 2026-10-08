@@ -1,0 +1,947 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/acid_boom.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/antigravity/refresh_attribute.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/antigravity/start.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/antigravity/tick_10t.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/antigravity/tick_10t_marker.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/antigravity/tick_10t_marker1.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/antigravity/tick_10t_marker_at.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/antigravity/tick_10t_player.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/antigravity/tick_10t_player_veryhigh.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/anvilcage.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/bean.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/beanend.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/bees.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/corrosion.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/corrosion_old.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/creepers.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/creepers_old.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/crocodildo/5s.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/crocodildo/blowjob.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/crocodildo/disappear.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/crocodildo/hitbox_tick.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/crocodildo/hitbox_tick_active.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/crocodildo/hitbox_tick_active_damaged.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/crocodildo/hitbox_tick_active_death.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/crocodildo/spawn.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/crocodildo/spawn_at.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/death_lust.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/death_lust_at.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/empty_cage.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/evilluckyblock.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/falled.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/falled_old.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/fallingblock.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/fallingblock_old.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/fallingnetherite.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/forest.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/forest_loop.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/greedcurse.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/death.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/drop_bomb.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/drop_item.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/hitted.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/phase_1_to_2.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/phase_1_to_3.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/phase_2_to_1.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/phase_3_to_1.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/shoot.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/tick.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/tick_phase_1.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/tick_phase_2.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/tick_phase_3.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/tppos.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss_spawn.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss_spawn_2.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/hole.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/hole_old.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/infinity.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/lavacage.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/levitation.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/library.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/luckypigs.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/luckyroom.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/magic_academy.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/magic_academy_token.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/magicbean.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/magicbean_loop.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/mom.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/muravei.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/muravei_acid.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/muravei_tick.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/obsidiantrap.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/opanvil.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/opanvil_old.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/otchim.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/pizanski.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/ponos.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/ponos_mega.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/portall.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/potioncage.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/sauvojen_tuntija.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/sethome.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/shadow_citadel.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/shulkerbullets.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/skrimmer.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/skrimmer_old.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/specialdrops.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Запуск и расход предмета",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/stalin.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/startarrow.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "non_runtime",
+    "note": "The source file is empty (0 bytes), so it has no executable commands."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/add_lore.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/add_random_lore.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/attribute_get.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/enchantment_get.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/get_sound.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/random_equippable.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/select_random.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/select_random_attribute.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/select_random_enchantment.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/select_random_name.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/select_random_name_1.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/select_random_name_lore.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_basics.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_bow.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_crossbow.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_gapple.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_gapple_2.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_nbttag.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_rc.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_snowball.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_sound.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_storage.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_storage_attribute.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_storage_enchantment.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_storage_hex.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_storage_names.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_storage_nbttags.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_storage_sound.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/setname.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/trigger_smth.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/trigger_smth_not_bow.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/trigger_smth_not_crossbow.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/trigger_smth_not_damaged.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/write_random_attribute.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/write_random_enchantment.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/write_random_nbttag.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Сложные ветки и продолжение по тикам",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt_at.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tntcage.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tnts.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/transformator.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/ultraponos.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/ultraponos_2.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/vex.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/vex_old.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/yameteluckyblock.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/zombietnt.mcfunction",
+    "document": "agent_notes/lbc_drops.md",
+    "section": "Прямые эффекты и пары old/new",
+    "status": "documented",
+    "note": "Commands and observed effect are described in the linked Markdown section; remaining external scheduler or data dependencies are stated there."
+  }
+]

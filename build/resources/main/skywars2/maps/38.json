@@ -1,0 +1,428 @@
+{
+  "id": "38",
+  "name": "Map 38",
+  "playerCapacity": 8,
+  "available": false,
+  "reason": "missing templates: swrg:38-1, swrg:38-13, swrg:38-14, swrg:38-15, swrg:38-16, swrg:38-2, swrg:38-3, swrg:38-4",
+  "placements": [
+    {
+      "template": "swrg:38-1",
+      "origin": [
+        -96,
+        48,
+        -96
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-2",
+      "origin": [
+        -48,
+        48,
+        -96
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-3",
+      "origin": [
+        0,
+        48,
+        -96
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-4",
+      "origin": [
+        48,
+        48,
+        -96
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-5",
+      "origin": [
+        -96,
+        48,
+        -48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-6",
+      "origin": [
+        -48,
+        48,
+        -48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-7",
+      "origin": [
+        0,
+        48,
+        -48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-8",
+      "origin": [
+        48,
+        48,
+        -48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-9",
+      "origin": [
+        -96,
+        48,
+        0
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-10",
+      "origin": [
+        -48,
+        48,
+        0
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-11",
+      "origin": [
+        0,
+        48,
+        0
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-12",
+      "origin": [
+        48,
+        48,
+        0
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-13",
+      "origin": [
+        -96,
+        48,
+        48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-14",
+      "origin": [
+        -48,
+        48,
+        48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-15",
+      "origin": [
+        0,
+        48,
+        48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-16",
+      "origin": [
+        48,
+        48,
+        48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    }
+  ],
+  "brokenPlacements": [
+    {
+      "template": "swrg:38-1",
+      "origin": [
+        -96,
+        48,
+        -96
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-2",
+      "origin": [
+        -48,
+        48,
+        -96
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-3",
+      "origin": [
+        0,
+        48,
+        -96
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-4",
+      "origin": [
+        48,
+        48,
+        -96
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-5",
+      "origin": [
+        -96,
+        48,
+        -48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-6",
+      "origin": [
+        -48,
+        48,
+        -48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-7",
+      "origin": [
+        0,
+        48,
+        -48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-8",
+      "origin": [
+        48,
+        48,
+        -48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-9",
+      "origin": [
+        -96,
+        48,
+        0
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-10",
+      "origin": [
+        -48,
+        48,
+        0
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-11",
+      "origin": [
+        0,
+        48,
+        0
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-12",
+      "origin": [
+        48,
+        48,
+        0
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-13",
+      "origin": [
+        -96,
+        48,
+        48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-14",
+      "origin": [
+        -48,
+        48,
+        48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-15",
+      "origin": [
+        0,
+        48,
+        48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:38-16",
+      "origin": [
+        48,
+        48,
+        48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    }
+  ],
+  "brokenAvailable": false
+}

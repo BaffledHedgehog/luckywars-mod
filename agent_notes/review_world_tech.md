@@ -1,0 +1,280 @@
+# Проверка `lbc_other_world_tech`
+
+Содержательно сверил каждый путь из `agent_notes/inventory/research_jobs.json` (`lbc_other_world_tech`, 253 источника) с соответствующим `.mcfunction` и доступными caller-ссылками в LBC. Поправил русские семейные описания в [lbc_other_world_tech.md](lbc_other_world_tech.md): они суммируют вход, фактический эффект, диапазоны, расходы, cadence и остановку, а подробные карточки сохраняют привязку к конкретным файлам. Для конечных результатов внешних loot/raycast/command bridges описал только наблюдаемую границу зависимости. Coverage указывает точные заголовки соответствующих карточек; наличие coverage само по себе не использовалось как доказательство содержания.
+
+## Результат проверки
+
+- 253/253 путей ниже прочитаны и сверены; все относятся к LBC datapack functions.
+- Основные исправленные/добавленные сводки: Nexus и ray dispatch; Orb Gun (XP, ray и uncraft); шесть Magnum-режимов; Nuke/Nuke Bruh/старые/EoE ветки; Railroad; supply crate; techno boss и Katana; Laser Minigun; шесть типов Wisp и их периодические эффекты.
+- Отдельно проверены единицы: `schedule 20s` — 20 секунд; `Fuse:1` — один тик; эффекты используют секунды; расстояния ray ограничиваются совместно `dx/dy/dz` и `distance`; `execute as` без `at` не переносит позицию.
+- Зависимости, чей внутренний результат не входит в этот manifest: `lbcr:raycast_preloop10magnum`, `lbcr:raycast_preloop11`, raycaster/marker dispatchers, `lbc:air` templates и `lbc:uncrafted` loot tables. В документе они обозначены как границы, не как проверенные эффекты этого набора.
+- Coverage note приведены к читабельному UTF-8; checker: 10 800 источников проекта, 10 800 validly linked, 0 missing, 0 unresolved, 0 link errors.
+
+## Точный manifest прочитанных исходников
+
+Список ниже — дословный ordered `sources` array задания в `research_jobs.json` и соответствует строкам `source` в `coverage/lbc_other_world_tech.json`.
+
+## Координаторская перепроверка после исходного отчёта
+
+Root review выявил и основной документ теперь исправлен:
+
+- Orb Gun `shoot` читает XP points текущего уровня; `store result storage ... int 0.5` записывает `floor(N/2)` в macro storage, не меняя scoreboard `tmp=N`. Отсюда ветка `N>=1` запускает луч при N=1 с уроном0, а N=0 вызывает `shoot_cant` после запроса расхода N+1 XP points.
+- Void Magnum block hit `fill ~.4 ... ~-.4` преобразует координаты в блоковые целые и может затронуть 1–2 блока на ось в зависимости от точки, а не гарантированный объём меньше одного блока.
+- Семейства wires/converter/tree/compass дополнены человеческими описаниями: рецептура белого wire; интерактивные converter rewards, включая item/resource outputs и field/cleanup; случайный lime-concrete tree и timed marker boundary; compass helper no-op/manual macro contract.
+- Из 28 карточек с утверждением «caller не найден» шесть на самом деле вызываются прямыми advancement rewards: четыре `interaction_nexus_frame_{black,green,red,white}`, `place_techno_cyborg`, `convert_arrows_supply`. Условия trigger проверены в `lbc_advancement_contracts.json`; оставшиеся 22 не имеют прямого reward для самого helper ID.
+
+Coverage не менялся, поскольку исправления укладываются в уже имеющиеся headings. Эта дополнительная перепроверка ограничена указанными findings и семействами; полный ordered manifest из 253 источников сохранён ниже.
+
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/corrupter.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/corrupter_ray.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/corrupter_ray_end.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/nexus_compass.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/nexus_compass_2.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/nexus_compass_3.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/nexus_compass_4.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/damage_area.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/damage_area_rand_tentacle.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/damage_area_rand_tentacle_2.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/damage_area_rand_tentacle_2rc.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/damage_at.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/exp_remove_from_strg.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/pre.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/shoot.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/shoot_cant.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/shoot_rc.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/susp_stews.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/uncraft.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/uncraft_at.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/uncraft_f.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/uncraft_f_2.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/uncraft_f_3.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/uncraft_f_loot_select.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/pulsar/pre.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/pulsar/ray.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/pulsar/ray_end.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/roadgun.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/craft_white_wire.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/explode_wire.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/interacted_black.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/interacted_frame_at.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/interacted_green.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/interacted_red.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/interacted_white.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/pulsar_end.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/pulsar_selector.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/pulsar_tick.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/pulsar_tick_black.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/pulsar_tick_final.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/pulsar_tick_final_2.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/pulsar_tick_green.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/pulsar_tick_red.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/pulsar_tick_white.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/roadgun.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/roadgun_2.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/roadgun_end.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/roadgun_sm_ray_2.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/sim_cube_t.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rc.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/spawn_blue_wire.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/spawn_cube.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/spawn_cube_save_coords.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/spawn_wire_black.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/tick_1s_player.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/tree_end.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/tree_end_1.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/tree_end_2.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/tree_end_3.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/tree_end_4.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/tree_end_all.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/tree_end_pre.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/tree_tick.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/tree_tick_move.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/tree_tick_move_macros.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/wires_other_worlds/black.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/wires_other_worlds/black_at.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/wires_other_worlds/black_at_pre.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/wires_other_worlds/green.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nexus/wires_other_worlds/red.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuke.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuke1.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuke1_at.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuke1_at_bruh.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuke1_at_bruh_2.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuke1_bruh.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuke1_old.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuke_bruh.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuke_eoe.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuke_old.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuket.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuket_2.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuket_old.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/railroad/build_down.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/railroad/build_down_loop.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/railroad/build_straight.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/railroad/build_up.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/railroad/end.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/railroad/spawn.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/railroad/tick.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/railroad/tick_build.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/create_boss.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/cyborg_boss/on_hit.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/cyborg_boss/run.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/cyborg_boss/setup.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/cyborg_boss/tick.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/cyborg_boss/wyvern.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/katana/attribute_from_storage.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/katana/charge.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/katana/charged.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/katana/speed_based_change.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/katana/speed_based_change_attr_strg.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/katana/use.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/ray/as_display.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/ray/cast.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/ray/check.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/ray/end.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/ray/hit.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/ray/hit_entity.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/ray/loop.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/ray/tp.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/ray/visual/run.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/ray/visual/tick.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/shoot/cast.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/shoot/click.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/shoot/full_rev.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/shoot/rev_down.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/shoot/run.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/shoot/spin.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/shoot/spin_sound.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/shoot/tick.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/check_ammo.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/check_ammo_2.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/check_shift.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/check_shift_left.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/cooldown.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/cycle.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/cycle_left.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/acid/cast.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/acid/check.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/acid/hit_block.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/acid/hit_entity.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/acid/loop.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/electric/cast.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/electric/check.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/electric/hit_block.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/electric/hit_entity.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/electric/loop.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/explosive/cast.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/explosive/check.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/explosive/hit_block.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/explosive/hit_entity.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/explosive/loop.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/incendiary/cast.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/incendiary/check.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/incendiary/hit_block.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/incendiary/hit_entity.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/incendiary/loop.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/standard/cast.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/standard/check.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/standard/hit_block.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/standard/hit_entity.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/standard/loop.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/uwu.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/void/cast.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/void/check.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/void/hit_block.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/void/hit_entity.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/void/loop.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/supply_crate/land.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/supply_crate/open.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/supply_crate/run.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/supply_crate/tick.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/test_create_boss.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/test_ray/as_display.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/test_ray/check.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/test_ray/click.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/test_ray/end.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/test_ray/hit.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/test_ray/loop.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/test_ray/tp.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/test_ray/visual/run.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/test_ray/visual/tick.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/trade_arrows.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/techno/trade_arrows_1.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/air/drop_as_item.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/air/run.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/air/spawn.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/fire/drop_as_item.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/fire/run.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/fire/spawn.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/light/drop_as_item.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/light/run.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/light/spawn.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/nature/drop_as_item.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/nature/run.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/nature/spawn.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/shadow/drop_as_item.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/shadow/run.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/shadow/spawn.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/water/drop_as_item.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/water/run.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/water/spawn.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/air/1.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/air/all.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/fire/1.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/fire/all.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/kill.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/light/1.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/light/all.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/nature/1.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/nature/all.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/shadow/1.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/shadow/all.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/water/1.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/water/all.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/5_and_more.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/as_player/run.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/as_player/zap.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/count.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/as_display.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/as_target/end.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/as_target/run.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/cast.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/check.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/end.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/hit.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/hit_entity.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/loop.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/run.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/tp.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/visual/run.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/visual/tick.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/fire/5_and_more.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/fire/5_and_more_2.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/fire/count.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/fire/particle.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/light/count.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/light/remove_debuff/1.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/light/remove_debuff/2.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/light/remove_debuff/3.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/light/remove_debuff/4.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/light/remove_debuff.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/light/run.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/nature/5_and_more.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/nature/count.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/nature/give_buff.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/nature/run.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/shadow/check.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/shadow/consume_magic.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/shadow/consume_physical.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/shadow/count.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/shadow/tick.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/tick.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/water/5_and_more.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/water/5_and_more_2.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/water/count.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/realign_wisps/assign_angle.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/realign_wisps/count_wisps.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/realign_wisps/start.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/realign_wisps/teleport/angle.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/realign_wisps/teleport/run.mcfunction`
+- `world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/realign_wisps/teleport/teleport.mcfunction`

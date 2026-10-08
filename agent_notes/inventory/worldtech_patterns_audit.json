@@ -1,0 +1,156 @@
+{
+  "nuke_complete_command_counts": {
+    "normal": 40,
+    "bruh": 39
+  },
+  "creepers_each": 24,
+  "magnum_shots": {
+    "standard": {
+      "cooldown": 25,
+      "recoil_degrees": 3,
+      "all_cast_commands": [
+        "function lbc:other/techno/magnum/shoot/standard/loop",
+        "playsound minecraft:entity.firework_rocket.blast master @a ~ ~ ~ 0.7 1.2",
+        "playsound minecraft:entity.firework_rocket.large_blast master @a ~ ~ ~ 0.7 1.5",
+        "playsound minecraft:item.trident.return master @a ~ ~ ~ 1 2",
+        "execute at @s run tp @s ~ ~ ~ ~ ~-3",
+        "clear @s[scores={coldownMagnum=..0}] *[minecraft:custom_data~{standard_round:1}] 1",
+        "scoreboard players set @s[scores={coldownMagnum=..0}] MagnumNyauwu 4",
+        "scoreboard players set @s coldownMagnum 25",
+        "advancement grant @s only lbc:true_advancements/shooter/magnum"
+      ],
+      "complete_loop_commands": [
+        "function lbc:other/techno/magnum/shoot/standard/check",
+        "execute if score @s Distance matches ..400 positioned ^ ^ ^.5 unless entity @e[type=minecraft:marker,distance=..20,tag=stopper,limit=1] run function lbc:other/techno/magnum/shoot/standard/loop",
+        "execute if score @s Distance matches 401.. run tag @e[tag=hit] remove hit"
+      ]
+    },
+    "incendiary": {
+      "cooldown": 25,
+      "recoil_degrees": 2,
+      "all_cast_commands": [
+        "function lbc:other/techno/magnum/shoot/incendiary/loop",
+        "playsound minecraft:entity.firework_rocket.blast master @a ~ ~ ~ 0.7 1.2",
+        "playsound minecraft:entity.firework_rocket.large_blast master @a ~ ~ ~ 0.7 1.5",
+        "playsound minecraft:entity.blaze.shoot master @a ~ ~ ~ 1 1.3",
+        "playsound minecraft:item.trident.return master @a ~ ~ ~ 1 2",
+        "execute at @s run tp @s ~ ~ ~ ~ ~-2",
+        "clear @s[scores={coldownMagnum=..0}] *[minecraft:custom_data~{incendiary_round:1}] 1",
+        "scoreboard players set @s[scores={coldownMagnum=..0}] MagnumNyauwu 4",
+        "scoreboard players set @s coldownMagnum 25",
+        "advancement grant @s only lbc:true_advancements/shooter/magnum"
+      ],
+      "complete_loop_commands": [
+        "function lbc:other/techno/magnum/shoot/incendiary/check",
+        "execute if score @s Distance matches ..400 positioned ^ ^ ^.5 unless entity @e[type=minecraft:marker,distance=..20,tag=stopper,limit=1] run function lbc:other/techno/magnum/shoot/incendiary/loop",
+        "execute if score @s Distance matches 401.. run tag @e[tag=hit] remove hit"
+      ]
+    },
+    "electric": {
+      "cooldown": 15,
+      "recoil_degrees": 2,
+      "all_cast_commands": [
+        "function lbc:other/techno/magnum/shoot/electric/loop",
+        "playsound minecraft:entity.firework_rocket.blast master @a ~ ~ ~ 0.7 1.2",
+        "playsound minecraft:entity.firework_rocket.large_blast master @a ~ ~ ~ 0.7 1.5",
+        "playsound minecraft:entity.firework_rocket.twinkle master @a ~ ~ ~ 1 2",
+        "playsound minecraft:item.trident.return master @a ~ ~ ~ 1 2",
+        "execute at @s run tp @s ~ ~ ~ ~ ~-2",
+        "clear @s[scores={coldownMagnum=..0}] *[minecraft:custom_data~{electric_round:1}] 1",
+        "scoreboard players set @s[scores={coldownMagnum=..0}] MagnumNyauwu 4",
+        "scoreboard players set @s coldownMagnum 15",
+        "advancement grant @s only lbc:true_advancements/shooter/magnum"
+      ],
+      "complete_loop_commands": [
+        "function lbc:other/techno/magnum/shoot/electric/check",
+        "execute if score @s Distance matches ..400 positioned ^ ^ ^.5 unless entity @e[type=minecraft:marker,distance=..20,tag=stopper,limit=1] run function lbc:other/techno/magnum/shoot/electric/loop",
+        "execute if score @s Distance matches 401.. run tag @e[tag=hit] remove hit"
+      ]
+    },
+    "acid": {
+      "cooldown": 20,
+      "recoil_degrees": 2,
+      "all_cast_commands": [
+        "function lbc:other/techno/magnum/shoot/acid/loop",
+        "playsound minecraft:entity.firework_rocket.blast master @a ~ ~ ~ 0.7 1.2",
+        "playsound minecraft:entity.firework_rocket.large_blast master @a ~ ~ ~ 0.7 1.5",
+        "playsound minecraft:item.trident.return master @a ~ ~ ~ 1 2",
+        "playsound minecraft:entity.zombie_villager.cure master @a ~ ~ ~ .5 2",
+        "execute at @s run tp @s ~ ~ ~ ~ ~-2",
+        "clear @s[scores={coldownMagnum=..0}] *[minecraft:custom_data~{acid_round:1}] 1",
+        "scoreboard players set @s[scores={coldownMagnum=..0}] MagnumNyauwu 4",
+        "scoreboard players set @s coldownMagnum 20",
+        "advancement grant @s only lbc:true_advancements/shooter/magnum"
+      ],
+      "complete_loop_commands": [
+        "function lbc:other/techno/magnum/shoot/acid/check",
+        "execute if score @s Distance matches ..400 positioned ^ ^ ^.5 unless entity @e[type=minecraft:marker,distance=..20,tag=stopper,limit=1] run function lbc:other/techno/magnum/shoot/acid/loop",
+        "execute if score @s Distance matches 401.. run tag @e[tag=hit] remove hit"
+      ]
+    },
+    "void": {
+      "cooldown": 15,
+      "recoil_degrees": 1,
+      "all_cast_commands": [
+        "function lbc:other/techno/magnum/shoot/void/loop",
+        "playsound minecraft:entity.firework_rocket.blast master @a ~ ~ ~ 0.7 1.2",
+        "playsound minecraft:entity.firework_rocket.large_blast master @a ~ ~ ~ 0.7 1.5",
+        "playsound minecraft:ui.toast.out master @a ~ ~ ~ 1 0",
+        "playsound minecraft:item.trident.return master @a ~ ~ ~ 1 2",
+        "execute at @s run tp @s ~ ~ ~ ~ ~-1",
+        "clear @s[scores={coldownMagnum=..0}] *[minecraft:custom_data~{void_round:1}] 1",
+        "scoreboard players set @s[scores={coldownMagnum=..0}] MagnumNyauwu 4",
+        "scoreboard players set @s coldownMagnum 15",
+        "advancement grant @s only lbc:true_advancements/shooter/magnum"
+      ],
+      "complete_loop_commands": [
+        "function lbc:other/techno/magnum/shoot/void/check",
+        "execute if score @s Distance matches ..400 positioned ^ ^ ^.5 unless entity @e[type=minecraft:marker,distance=..20,tag=stopper,limit=1] run function lbc:other/techno/magnum/shoot/void/loop",
+        "execute if score @s Distance matches 401.. run tag @e[tag=hit] remove hit"
+      ]
+    },
+    "explosive": {
+      "cooldown": 40,
+      "recoil_degrees": 3,
+      "all_cast_commands": [
+        "function lbc:other/techno/magnum/shoot/explosive/loop",
+        "playsound minecraft:entity.firework_rocket.blast master @a ~ ~ ~ 0.7 1.2",
+        "playsound minecraft:entity.firework_rocket.large_blast master @a ~ ~ ~ 0.7 1.5",
+        "playsound minecraft:item.trident.return master @a ~ ~ ~ 1 2",
+        "execute at @s run tp @s ~ ~ ~ ~ ~-3",
+        "clear @s[scores={coldownMagnum=..0}] *[minecraft:custom_data~{explosive_round:1}] 1",
+        "scoreboard players set @s[scores={coldownMagnum=..0}] MagnumNyauwu 4",
+        "scoreboard players set @s coldownMagnum 40",
+        "advancement grant @s only lbc:true_advancements/shooter/magnum"
+      ],
+      "complete_loop_commands": [
+        "function lbc:other/techno/magnum/shoot/explosive/check",
+        "execute if score @s Distance matches ..400 positioned ^ ^ ^.5 unless entity @e[type=minecraft:marker,distance=..20,tag=stopper,limit=1] run function lbc:other/techno/magnum/shoot/explosive/loop",
+        "execute if score @s Distance matches 401.. run tag @e[tag=hit] remove hit"
+      ]
+    }
+  },
+  "roadgun_structures": {
+    "white_concrete_7x7": {
+      "size": [
+        7,
+        7,
+        7
+      ],
+      "blocks": 343,
+      "entities": 0,
+      "sha256": "e9bf6bf9a457e4fa404d3b2a310d7d730657d0e2d7794b02b4d1cb8dba84dcde"
+    },
+    "white_concrete_pad_5x1x5": {
+      "size": [
+        5,
+        1,
+        5
+      ],
+      "blocks": 25,
+      "entities": 0,
+      "sha256": "2105d61fdec613d2d6388b0674c4edcd4be2adca3e18fdfd6a9914bb583660c2"
+    }
+  },
+  "errors": []
+}

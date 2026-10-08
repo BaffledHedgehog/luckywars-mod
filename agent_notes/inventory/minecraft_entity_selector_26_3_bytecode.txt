@@ -1,0 +1,668 @@
+﻿Compiled from "EntitySelector.java"
+public class net.minecraft.commands.arguments.selector.EntitySelector {
+  public static final int INFINITE;
+
+  public static final java.util.function.BiConsumer<net.minecraft.world.phys.Vec3, java.util.List<? extends net.minecraft.world.entity.Entity>> ORDER_ARBITRARY;
+
+  private static final net.minecraft.world.level.entity.EntityTypeTest<net.minecraft.world.entity.Entity, ?> ANY_TYPE;
+
+  public static final com.mojang.serialization.Codec<net.minecraft.util.CompilableString<net.minecraft.commands.arguments.selector.EntitySelector>> COMPILABLE_CODEC;
+
+  private final int maxResults;
+
+  private final boolean includesEntities;
+
+  private final boolean worldLimited;
+
+  private final java.util.List<java.util.function.Predicate<net.minecraft.world.entity.Entity>> contextFreePredicates;
+
+  private final net.minecraft.advancements.predicates.MinMaxBounds$Doubles range;
+
+  private final java.util.function.Function<net.minecraft.world.phys.Vec3, net.minecraft.world.phys.Vec3> position;
+
+  private final net.minecraft.world.phys.AABB aabb;
+
+  private final java.util.function.BiConsumer<net.minecraft.world.phys.Vec3, java.util.List<? extends net.minecraft.world.entity.Entity>> order;
+
+  private final boolean currentEntity;
+
+  private final java.lang.String playerName;
+
+  private final java.util.UUID entityUUID;
+
+  private final net.minecraft.world.level.entity.EntityTypeTest<net.minecraft.world.entity.Entity, ?> type;
+
+  private final boolean usesSelector;
+
+  public net.minecraft.commands.arguments.selector.EntitySelector(int, boolean, boolean, java.util.List<java.util.function.Predicate<net.minecraft.world.entity.Entity>>, net.minecraft.advancements.predicates.MinMaxBounds$Doubles, java.util.function.Function<net.minecraft.world.phys.Vec3, net.minecraft.world.phys.Vec3>, net.minecraft.world.phys.AABB, java.util.function.BiConsumer<net.minecraft.world.phys.Vec3, java.util.List<? extends net.minecraft.world.entity.Entity>>, boolean, java.lang.String, java.util.UUID, net.minecraft.world.entity.EntityType<?>, boolean);
+    Code:
+         0: aload_0
+         1: invokespecial #3                  // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: iload_1
+         6: putfield      #9                  // Field maxResults:I
+         9: aload_0
+        10: iload_2
+        11: putfield      #15                 // Field includesEntities:Z
+        14: aload_0
+        15: iload_3
+        16: putfield      #19                 // Field worldLimited:Z
+        19: aload_0
+        20: aload         4
+        22: putfield      #22                 // Field contextFreePredicates:Ljava/util/List;
+        25: aload_0
+        26: aload         5
+        28: putfield      #26                 // Field range:Lnet/minecraft/advancements/predicates/MinMaxBounds$Doubles;
+        31: aload_0
+        32: aload         6
+        34: putfield      #30                 // Field position:Ljava/util/function/Function;
+        37: aload_0
+        38: aload         7
+        40: putfield      #34                 // Field aabb:Lnet/minecraft/world/phys/AABB;
+        43: aload_0
+        44: aload         8
+        46: putfield      #38                 // Field order:Ljava/util/function/BiConsumer;
+        49: aload_0
+        50: iload         9
+        52: putfield      #42                 // Field currentEntity:Z
+        55: aload_0
+        56: aload         10
+        58: putfield      #45                 // Field playerName:Ljava/lang/String;
+        61: aload_0
+        62: aload         11
+        64: putfield      #49                 // Field entityUUID:Ljava/util/UUID;
+        67: aload_0
+        68: aload         12
+        70: ifnonnull     79
+        73: getstatic     #53                 // Field ANY_TYPE:Lnet/minecraft/world/level/entity/EntityTypeTest;
+        76: goto          81
+        79: aload         12
+        81: putfield      #57                 // Field type:Lnet/minecraft/world/level/entity/EntityTypeTest;
+        84: aload_0
+        85: iload         13
+        87: putfield      #60                 // Field usesSelector:Z
+        90: return
+
+  public int getMaxResults();
+    Code:
+         0: aload_0
+         1: getfield      #9                  // Field maxResults:I
+         4: ireturn
+
+  public boolean includesEntities();
+    Code:
+         0: aload_0
+         1: getfield      #15                 // Field includesEntities:Z
+         4: ireturn
+
+  public boolean isSelfSelector();
+    Code:
+         0: aload_0
+         1: getfield      #42                 // Field currentEntity:Z
+         4: ireturn
+
+  public boolean isWorldLimited();
+    Code:
+         0: aload_0
+         1: getfield      #19                 // Field worldLimited:Z
+         4: ireturn
+
+  public boolean usesSelector();
+    Code:
+         0: aload_0
+         1: getfield      #60                 // Field usesSelector:Z
+         4: ireturn
+
+  private void checkPermissions(net.minecraft.commands.CommandSourceStack) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: getfield      #60                 // Field usesSelector:Z
+         4: ifeq          29
+         7: aload_1
+         8: invokevirtual #63                 // Method net/minecraft/commands/CommandSourceStack.permissions:()Lnet/minecraft/server/permissions/PermissionSet;
+        11: getstatic     #69                 // Field net/minecraft/server/permissions/Permissions.COMMANDS_ENTITY_SELECTORS:Lnet/minecraft/server/permissions/Permission;
+        14: invokeinterface #75,  2           // InterfaceMethod net/minecraft/server/permissions/PermissionSet.hasPermission:(Lnet/minecraft/server/permissions/Permission;)Z
+        19: ifne          29
+        22: getstatic     #81                 // Field net/minecraft/commands/arguments/EntityArgument.ERROR_SELECTORS_NOT_ALLOWED:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;
+        25: invokevirtual #87                 // Method com/mojang/brigadier/exceptions/SimpleCommandExceptionType.create:()Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        28: athrow
+        29: return
+
+  public net.minecraft.world.entity.Entity findSingleEntity(net.minecraft.commands.CommandSourceStack) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #93                 // Method checkPermissions:(Lnet/minecraft/commands/CommandSourceStack;)V
+         5: aload_0
+         6: aload_1
+         7: invokevirtual #97                 // Method findEntities:(Lnet/minecraft/commands/CommandSourceStack;)Ljava/util/List;
+        10: astore_2
+        11: aload_2
+        12: invokeinterface #101,  1          // InterfaceMethod java/util/List.isEmpty:()Z
+        17: ifeq          27
+        20: getstatic     #107                // Field net/minecraft/commands/arguments/EntityArgument.NO_ENTITIES_FOUND:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;
+        23: invokevirtual #87                 // Method com/mojang/brigadier/exceptions/SimpleCommandExceptionType.create:()Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        26: athrow
+        27: aload_2
+        28: invokeinterface #110,  1          // InterfaceMethod java/util/List.size:()I
+        33: iconst_1
+        34: if_icmple     44
+        37: getstatic     #114                // Field net/minecraft/commands/arguments/EntityArgument.ERROR_NOT_SINGLE_ENTITY:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;
+        40: invokevirtual #87                 // Method com/mojang/brigadier/exceptions/SimpleCommandExceptionType.create:()Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        43: athrow
+        44: aload_2
+        45: iconst_0
+        46: invokeinterface #117,  2          // InterfaceMethod java/util/List.get:(I)Ljava/lang/Object;
+        51: checkcast     #121                // class net/minecraft/world/entity/Entity
+        54: areturn
+
+  public java.util.List<? extends net.minecraft.world.entity.Entity> findEntities(net.minecraft.commands.CommandSourceStack) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #93                 // Method checkPermissions:(Lnet/minecraft/commands/CommandSourceStack;)V
+         5: aload_0
+         6: getfield      #15                 // Field includesEntities:Z
+         9: ifne          18
+        12: aload_0
+        13: aload_1
+        14: invokevirtual #123                // Method findPlayers:(Lnet/minecraft/commands/CommandSourceStack;)Ljava/util/List;
+        17: areturn
+        18: aload_0
+        19: getfield      #45                 // Field playerName:Ljava/lang/String;
+        22: ifnull        53
+        25: aload_1
+        26: invokevirtual #126                // Method net/minecraft/commands/CommandSourceStack.getServer:()Lnet/minecraft/server/MinecraftServer;
+        29: invokevirtual #130                // Method net/minecraft/server/MinecraftServer.getPlayerList:()Lnet/minecraft/server/players/PlayerList;
+        32: aload_0
+        33: getfield      #45                 // Field playerName:Ljava/lang/String;
+        36: invokevirtual #136                // Method net/minecraft/server/players/PlayerList.getPlayerByName:(Ljava/lang/String;)Lnet/minecraft/server/level/ServerPlayer;
+        39: astore_2
+        40: aload_2
+        41: ifnonnull     48
+        44: invokestatic  #142                // InterfaceMethod java/util/List.of:()Ljava/util/List;
+        47: areturn
+        48: aload_2
+        49: invokestatic  #146                // InterfaceMethod java/util/List.of:(Ljava/lang/Object;)Ljava/util/List;
+        52: areturn
+        53: aload_0
+        54: getfield      #49                 // Field entityUUID:Ljava/util/UUID;
+        57: ifnull        138
+        60: aload_1
+        61: invokevirtual #126                // Method net/minecraft/commands/CommandSourceStack.getServer:()Lnet/minecraft/server/MinecraftServer;
+        64: invokevirtual #149                // Method net/minecraft/server/MinecraftServer.getAllLevels:()Ljava/lang/Iterable;
+        67: invokeinterface #153,  1          // InterfaceMethod java/lang/Iterable.iterator:()Ljava/util/Iterator;
+        72: astore_2
+        73: aload_2
+        74: invokeinterface #159,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        79: ifeq          134
+        82: aload_2
+        83: invokeinterface #164,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        88: checkcast     #168                // class net/minecraft/server/level/ServerLevel
+        91: astore_3
+        92: aload_3
+        93: aload_0
+        94: getfield      #49                 // Field entityUUID:Ljava/util/UUID;
+        97: invokevirtual #170                // Method net/minecraft/server/level/ServerLevel.getEntity:(Ljava/util/UUID;)Lnet/minecraft/world/entity/Entity;
+       100: astore        4
+       102: aload         4
+       104: ifnull        131
+       107: aload         4
+       109: invokevirtual #174                // Method net/minecraft/world/entity/Entity.getType:()Lnet/minecraft/world/entity/EntityType;
+       112: aload_1
+       113: invokevirtual #178                // Method net/minecraft/commands/CommandSourceStack.enabledFeatures:()Lnet/minecraft/world/flag/FeatureFlagSet;
+       116: invokevirtual #182                // Method net/minecraft/world/entity/EntityType.isEnabled:(Lnet/minecraft/world/flag/FeatureFlagSet;)Z
+       119: ifne          125
+       122: goto          134
+       125: aload         4
+       127: invokestatic  #146                // InterfaceMethod java/util/List.of:(Ljava/lang/Object;)Ljava/util/List;
+       130: areturn
+       131: goto          73
+       134: invokestatic  #142                // InterfaceMethod java/util/List.of:()Ljava/util/List;
+       137: areturn
+       138: aload_0
+       139: getfield      #30                 // Field position:Ljava/util/function/Function;
+       142: aload_1
+       143: invokevirtual #188                // Method net/minecraft/commands/CommandSourceStack.getPosition:()Lnet/minecraft/world/phys/Vec3;
+       146: invokeinterface #192,  2          // InterfaceMethod java/util/function/Function.apply:(Ljava/lang/Object;)Ljava/lang/Object;
+       151: checkcast     #198                // class net/minecraft/world/phys/Vec3
+       154: astore_2
+       155: aload_0
+       156: aload_2
+       157: invokevirtual #200                // Method getAbsoluteAabb:(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/AABB;
+       160: astore_3
+       161: aload_0
+       162: getfield      #42                 // Field currentEntity:Z
+       165: ifeq          210
+       168: aload_0
+       169: aload_2
+       170: aload_3
+       171: aconst_null
+       172: invokevirtual #204                // Method getPredicate:(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/AABB;Lnet/minecraft/world/flag/FeatureFlagSet;)Ljava/util/function/Predicate;
+       175: astore        4
+       177: aload_1
+       178: invokevirtual #208                // Method net/minecraft/commands/CommandSourceStack.getEntity:()Lnet/minecraft/world/entity/Entity;
+       181: ifnull        206
+       184: aload         4
+       186: aload_1
+       187: invokevirtual #208                // Method net/minecraft/commands/CommandSourceStack.getEntity:()Lnet/minecraft/world/entity/Entity;
+       190: invokeinterface #211,  2          // InterfaceMethod java/util/function/Predicate.test:(Ljava/lang/Object;)Z
+       195: ifeq          206
+       198: aload_1
+       199: invokevirtual #208                // Method net/minecraft/commands/CommandSourceStack.getEntity:()Lnet/minecraft/world/entity/Entity;
+       202: invokestatic  #146                // InterfaceMethod java/util/List.of:(Ljava/lang/Object;)Ljava/util/List;
+       205: areturn
+       206: invokestatic  #142                // InterfaceMethod java/util/List.of:()Ljava/util/List;
+       209: areturn
+       210: aload_0
+       211: aload_2
+       212: aload_3
+       213: aload_1
+       214: invokevirtual #178                // Method net/minecraft/commands/CommandSourceStack.enabledFeatures:()Lnet/minecraft/world/flag/FeatureFlagSet;
+       217: invokevirtual #204                // Method getPredicate:(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/AABB;Lnet/minecraft/world/flag/FeatureFlagSet;)Ljava/util/function/Predicate;
+       220: astore        4
+       222: new           #217                // class it/unimi/dsi/fastutil/objects/ObjectArrayList
+       225: dup
+       226: invokespecial #219                // Method it/unimi/dsi/fastutil/objects/ObjectArrayList."<init>":()V
+       229: astore        5
+       231: aload_0
+       232: invokevirtual #220                // Method isWorldLimited:()Z
+       235: ifeq          254
+       238: aload_0
+       239: aload         5
+       241: aload_1
+       242: invokevirtual #223                // Method net/minecraft/commands/CommandSourceStack.getLevel:()Lnet/minecraft/server/level/ServerLevel;
+       245: aload_3
+       246: aload         4
+       248: invokevirtual #227                // Method addEntities:(Ljava/util/List;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;)V
+       251: goto          304
+       254: aload_1
+       255: invokevirtual #126                // Method net/minecraft/commands/CommandSourceStack.getServer:()Lnet/minecraft/server/MinecraftServer;
+       258: invokevirtual #149                // Method net/minecraft/server/MinecraftServer.getAllLevels:()Ljava/lang/Iterable;
+       261: invokeinterface #153,  1          // InterfaceMethod java/lang/Iterable.iterator:()Ljava/util/Iterator;
+       266: astore        6
+       268: aload         6
+       270: invokeinterface #159,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+       275: ifeq          304
+       278: aload         6
+       280: invokeinterface #164,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       285: checkcast     #168                // class net/minecraft/server/level/ServerLevel
+       288: astore        7
+       290: aload_0
+       291: aload         5
+       293: aload         7
+       295: aload_3
+       296: aload         4
+       298: invokevirtual #227                // Method addEntities:(Ljava/util/List;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;)V
+       301: goto          268
+       304: aload_0
+       305: aload_2
+       306: aload         5
+       308: invokevirtual #231                // Method sortAndLimit:(Lnet/minecraft/world/phys/Vec3;Ljava/util/List;)Ljava/util/List;
+       311: areturn
+
+  private void addEntities(java.util.List<net.minecraft.world.entity.Entity>, net.minecraft.server.level.ServerLevel, net.minecraft.world.phys.AABB, java.util.function.Predicate<net.minecraft.world.entity.Entity>);
+    Code:
+         0: aload_0
+         1: invokevirtual #235                // Method getResultLimit:()I
+         4: istore        5
+         6: aload_1
+         7: invokeinterface #110,  1          // InterfaceMethod java/util/List.size:()I
+        12: iload         5
+        14: if_icmplt     18
+        17: return
+        18: aload_3
+        19: ifnull        39
+        22: aload_2
+        23: aload_0
+        24: getfield      #57                 // Field type:Lnet/minecraft/world/level/entity/EntityTypeTest;
+        27: aload_3
+        28: aload         4
+        30: aload_1
+        31: iload         5
+        33: invokevirtual #238                // Method net/minecraft/server/level/ServerLevel.getEntities:(Lnet/minecraft/world/level/entity/EntityTypeTest;Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;Ljava/util/List;I)V
+        36: goto          52
+        39: aload_2
+        40: aload_0
+        41: getfield      #57                 // Field type:Lnet/minecraft/world/level/entity/EntityTypeTest;
+        44: aload         4
+        46: aload_1
+        47: iload         5
+        49: invokevirtual #242                // Method net/minecraft/server/level/ServerLevel.getEntities:(Lnet/minecraft/world/level/entity/EntityTypeTest;Ljava/util/function/Predicate;Ljava/util/List;I)V
+        52: return
+
+  private int getResultLimit();
+    Code:
+         0: aload_0
+         1: getfield      #38                 // Field order:Ljava/util/function/BiConsumer;
+         4: getstatic     #245                // Field ORDER_ARBITRARY:Ljava/util/function/BiConsumer;
+         7: if_acmpne     17
+        10: aload_0
+        11: getfield      #9                  // Field maxResults:I
+        14: goto          19
+        17: ldc           #248                // int 2147483647
+        19: ireturn
+
+  public net.minecraft.server.level.ServerPlayer findSinglePlayer(net.minecraft.commands.CommandSourceStack) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #93                 // Method checkPermissions:(Lnet/minecraft/commands/CommandSourceStack;)V
+         5: aload_0
+         6: aload_1
+         7: invokevirtual #123                // Method findPlayers:(Lnet/minecraft/commands/CommandSourceStack;)Ljava/util/List;
+        10: astore_2
+        11: aload_2
+        12: invokeinterface #110,  1          // InterfaceMethod java/util/List.size:()I
+        17: iconst_1
+        18: if_icmpeq     28
+        21: getstatic     #249                // Field net/minecraft/commands/arguments/EntityArgument.NO_PLAYERS_FOUND:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;
+        24: invokevirtual #87                 // Method com/mojang/brigadier/exceptions/SimpleCommandExceptionType.create:()Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        27: athrow
+        28: aload_2
+        29: iconst_0
+        30: invokeinterface #117,  2          // InterfaceMethod java/util/List.get:(I)Ljava/lang/Object;
+        35: checkcast     #252                // class net/minecraft/server/level/ServerPlayer
+        38: areturn
+
+  public java.util.List<net.minecraft.server.level.ServerPlayer> findPlayers(net.minecraft.commands.CommandSourceStack) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #93                 // Method checkPermissions:(Lnet/minecraft/commands/CommandSourceStack;)V
+         5: aload_0
+         6: getfield      #45                 // Field playerName:Ljava/lang/String;
+         9: ifnull        40
+        12: aload_1
+        13: invokevirtual #126                // Method net/minecraft/commands/CommandSourceStack.getServer:()Lnet/minecraft/server/MinecraftServer;
+        16: invokevirtual #130                // Method net/minecraft/server/MinecraftServer.getPlayerList:()Lnet/minecraft/server/players/PlayerList;
+        19: aload_0
+        20: getfield      #45                 // Field playerName:Ljava/lang/String;
+        23: invokevirtual #136                // Method net/minecraft/server/players/PlayerList.getPlayerByName:(Ljava/lang/String;)Lnet/minecraft/server/level/ServerPlayer;
+        26: astore_2
+        27: aload_2
+        28: ifnonnull     35
+        31: invokestatic  #142                // InterfaceMethod java/util/List.of:()Ljava/util/List;
+        34: areturn
+        35: aload_2
+        36: invokestatic  #146                // InterfaceMethod java/util/List.of:(Ljava/lang/Object;)Ljava/util/List;
+        39: areturn
+        40: aload_0
+        41: getfield      #49                 // Field entityUUID:Ljava/util/UUID;
+        44: ifnull        75
+        47: aload_1
+        48: invokevirtual #126                // Method net/minecraft/commands/CommandSourceStack.getServer:()Lnet/minecraft/server/MinecraftServer;
+        51: invokevirtual #130                // Method net/minecraft/server/MinecraftServer.getPlayerList:()Lnet/minecraft/server/players/PlayerList;
+        54: aload_0
+        55: getfield      #49                 // Field entityUUID:Ljava/util/UUID;
+        58: invokevirtual #254                // Method net/minecraft/server/players/PlayerList.getPlayer:(Ljava/util/UUID;)Lnet/minecraft/server/level/ServerPlayer;
+        61: astore_2
+        62: aload_2
+        63: ifnonnull     70
+        66: invokestatic  #142                // InterfaceMethod java/util/List.of:()Ljava/util/List;
+        69: areturn
+        70: aload_2
+        71: invokestatic  #146                // InterfaceMethod java/util/List.of:(Ljava/lang/Object;)Ljava/util/List;
+        74: areturn
+        75: aload_0
+        76: getfield      #30                 // Field position:Ljava/util/function/Function;
+        79: aload_1
+        80: invokevirtual #188                // Method net/minecraft/commands/CommandSourceStack.getPosition:()Lnet/minecraft/world/phys/Vec3;
+        83: invokeinterface #192,  2          // InterfaceMethod java/util/function/Function.apply:(Ljava/lang/Object;)Ljava/lang/Object;
+        88: checkcast     #198                // class net/minecraft/world/phys/Vec3
+        91: astore_2
+        92: aload_0
+        93: aload_2
+        94: invokevirtual #200                // Method getAbsoluteAabb:(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/AABB;
+        97: astore_3
+        98: aload_0
+        99: aload_2
+       100: aload_3
+       101: aconst_null
+       102: invokevirtual #204                // Method getPredicate:(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/AABB;Lnet/minecraft/world/flag/FeatureFlagSet;)Ljava/util/function/Predicate;
+       105: astore        4
+       107: aload_0
+       108: getfield      #42                 // Field currentEntity:Z
+       111: ifeq          157
+       114: aload_1
+       115: invokevirtual #208                // Method net/minecraft/commands/CommandSourceStack.getEntity:()Lnet/minecraft/world/entity/Entity;
+       118: astore        6
+       120: aload         6
+       122: instanceof    #252                // class net/minecraft/server/level/ServerPlayer
+       125: ifeq          153
+       128: aload         6
+       130: checkcast     #252                // class net/minecraft/server/level/ServerPlayer
+       133: astore        5
+       135: aload         4
+       137: aload         5
+       139: invokeinterface #211,  2          // InterfaceMethod java/util/function/Predicate.test:(Ljava/lang/Object;)Z
+       144: ifeq          153
+       147: aload         5
+       149: invokestatic  #146                // InterfaceMethod java/util/List.of:(Ljava/lang/Object;)Ljava/util/List;
+       152: areturn
+       153: invokestatic  #142                // InterfaceMethod java/util/List.of:()Ljava/util/List;
+       156: areturn
+       157: aload_0
+       158: invokevirtual #235                // Method getResultLimit:()I
+       161: istore        6
+       163: aload_0
+       164: invokevirtual #220                // Method isWorldLimited:()Z
+       167: ifeq          186
+       170: aload_1
+       171: invokevirtual #223                // Method net/minecraft/commands/CommandSourceStack.getLevel:()Lnet/minecraft/server/level/ServerLevel;
+       174: aload         4
+       176: iload         6
+       178: invokevirtual #258                // Method net/minecraft/server/level/ServerLevel.getPlayers:(Ljava/util/function/Predicate;I)Ljava/util/List;
+       181: astore        5
+       183: goto          274
+       186: new           #217                // class it/unimi/dsi/fastutil/objects/ObjectArrayList
+       189: dup
+       190: invokespecial #219                // Method it/unimi/dsi/fastutil/objects/ObjectArrayList."<init>":()V
+       193: astore        5
+       195: aload_1
+       196: invokevirtual #126                // Method net/minecraft/commands/CommandSourceStack.getServer:()Lnet/minecraft/server/MinecraftServer;
+       199: invokevirtual #130                // Method net/minecraft/server/MinecraftServer.getPlayerList:()Lnet/minecraft/server/players/PlayerList;
+       202: invokevirtual #262                // Method net/minecraft/server/players/PlayerList.getPlayers:()Ljava/util/List;
+       205: invokeinterface #264,  1          // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+       210: astore        7
+       212: aload         7
+       214: invokeinterface #159,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+       219: ifeq          274
+       222: aload         7
+       224: invokeinterface #164,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       229: checkcast     #252                // class net/minecraft/server/level/ServerPlayer
+       232: astore        8
+       234: aload         4
+       236: aload         8
+       238: invokeinterface #211,  2          // InterfaceMethod java/util/function/Predicate.test:(Ljava/lang/Object;)Z
+       243: ifeq          271
+       246: aload         5
+       248: aload         8
+       250: invokeinterface #265,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       255: pop
+       256: aload         5
+       258: invokeinterface #110,  1          // InterfaceMethod java/util/List.size:()I
+       263: iload         6
+       265: if_icmplt     271
+       268: aload         5
+       270: areturn
+       271: goto          212
+       274: aload_0
+       275: aload_2
+       276: aload         5
+       278: invokevirtual #231                // Method sortAndLimit:(Lnet/minecraft/world/phys/Vec3;Ljava/util/List;)Ljava/util/List;
+       281: areturn
+
+  private net.minecraft.world.phys.AABB getAbsoluteAabb(net.minecraft.world.phys.Vec3);
+    Code:
+         0: aload_0
+         1: getfield      #34                 // Field aabb:Lnet/minecraft/world/phys/AABB;
+         4: ifnull        18
+         7: aload_0
+         8: getfield      #34                 // Field aabb:Lnet/minecraft/world/phys/AABB;
+        11: aload_1
+        12: invokevirtual #268                // Method net/minecraft/world/phys/AABB.move:(Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/AABB;
+        15: goto          19
+        18: aconst_null
+        19: areturn
+
+  private java.util.function.Predicate<net.minecraft.world.entity.Entity> getPredicate(net.minecraft.world.phys.Vec3, net.minecraft.world.phys.AABB, net.minecraft.world.flag.FeatureFlagSet);
+    Code:
+         0: aload_3
+         1: ifnull        8
+         4: iconst_1
+         5: goto          9
+         8: iconst_0
+         9: istore        4
+        11: aload_2
+        12: ifnull        19
+        15: iconst_1
+        16: goto          20
+        19: iconst_0
+        20: istore        5
+        22: aload_0
+        23: getfield      #26                 // Field range:Lnet/minecraft/advancements/predicates/MinMaxBounds$Doubles;
+        26: ifnull        33
+        29: iconst_1
+        30: goto          34
+        33: iconst_0
+        34: istore        6
+        36: iload         4
+        38: ifeq          45
+        41: iconst_1
+        42: goto          46
+        45: iconst_0
+        46: iload         5
+        48: ifeq          55
+        51: iconst_1
+        52: goto          56
+        55: iconst_0
+        56: iadd
+        57: iload         6
+        59: ifeq          66
+        62: iconst_1
+        63: goto          67
+        66: iconst_0
+        67: iadd
+        68: istore        7
+        70: iload         7
+        72: ifne          84
+        75: aload_0
+        76: getfield      #22                 // Field contextFreePredicates:Ljava/util/List;
+        79: astore        8
+        81: goto          179
+        84: new           #217                // class it/unimi/dsi/fastutil/objects/ObjectArrayList
+        87: dup
+        88: aload_0
+        89: getfield      #22                 // Field contextFreePredicates:Ljava/util/List;
+        92: invokeinterface #110,  1          // InterfaceMethod java/util/List.size:()I
+        97: iload         7
+        99: iadd
+       100: invokespecial #273                // Method it/unimi/dsi/fastutil/objects/ObjectArrayList."<init>":(I)V
+       103: astore        9
+       105: aload         9
+       107: aload_0
+       108: getfield      #22                 // Field contextFreePredicates:Ljava/util/List;
+       111: invokeinterface #276,  2          // InterfaceMethod java/util/List.addAll:(Ljava/util/Collection;)Z
+       116: pop
+       117: iload         4
+       119: ifeq          136
+       122: aload         9
+       124: aload_3
+       125: invokedynamic #280,  0            // InvokeDynamic #0:test:(Lnet/minecraft/world/flag/FeatureFlagSet;)Ljava/util/function/Predicate;
+       130: invokeinterface #265,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       135: pop
+       136: iload         5
+       138: ifeq          155
+       141: aload         9
+       143: aload_2
+       144: invokedynamic #283,  0            // InvokeDynamic #1:test:(Lnet/minecraft/world/phys/AABB;)Ljava/util/function/Predicate;
+       149: invokeinterface #265,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       154: pop
+       155: iload         6
+       157: ifeq          175
+       160: aload         9
+       162: aload_0
+       163: aload_1
+       164: invokedynamic #286,  0            // InvokeDynamic #2:test:(Lnet/minecraft/commands/arguments/selector/EntitySelector;Lnet/minecraft/world/phys/Vec3;)Ljava/util/function/Predicate;
+       169: invokeinterface #265,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       174: pop
+       175: aload         9
+       177: astore        8
+       179: aload         8
+       181: invokestatic  #289                // Method net/minecraft/util/Util.allOf:(Ljava/util/List;)Ljava/util/function/Predicate;
+       184: areturn
+
+  private <T extends net.minecraft.world.entity.Entity> java.util.List<T> sortAndLimit(net.minecraft.world.phys.Vec3, java.util.List<T>);
+    Code:
+         0: aload_2
+         1: invokeinterface #110,  1          // InterfaceMethod java/util/List.size:()I
+         6: iconst_1
+         7: if_icmple     21
+        10: aload_0
+        11: getfield      #38                 // Field order:Ljava/util/function/BiConsumer;
+        14: aload_1
+        15: aload_2
+        16: invokeinterface #295,  3          // InterfaceMethod java/util/function/BiConsumer.accept:(Ljava/lang/Object;Ljava/lang/Object;)V
+        21: aload_2
+        22: iconst_0
+        23: aload_0
+        24: getfield      #9                  // Field maxResults:I
+        27: aload_2
+        28: invokeinterface #110,  1          // InterfaceMethod java/util/List.size:()I
+        33: invokestatic  #301                // Method java/lang/Math.min:(II)I
+        36: invokeinterface #307,  3          // InterfaceMethod java/util/List.subList:(II)Ljava/util/List;
+        41: areturn
+
+  public static net.minecraft.network.chat.Component joinNames(java.util.List<? extends net.minecraft.world.entity.Entity>);
+    Code:
+         0: aload_0
+         1: invokedynamic #311,  0            // InvokeDynamic #3:apply:()Ljava/util/function/Function;
+         6: invokestatic  #314                // Method net/minecraft/network/chat/ComponentUtils.formatList:(Ljava/util/Collection;Ljava/util/function/Function;)Lnet/minecraft/network/chat/Component;
+         9: areturn
+
+  private boolean lambda$getPredicate$2(net.minecraft.world.phys.Vec3, net.minecraft.world.entity.Entity);
+    Code:
+         0: aload_0
+         1: getfield      #26                 // Field range:Lnet/minecraft/advancements/predicates/MinMaxBounds$Doubles;
+         4: aload_2
+         5: aload_1
+         6: invokevirtual #320                // Method net/minecraft/world/entity/Entity.distanceToSqr:(Lnet/minecraft/world/phys/Vec3;)D
+         9: invokevirtual #324                // Method net/minecraft/advancements/predicates/MinMaxBounds$Doubles.matchesSqr:(D)Z
+        12: ireturn
+
+  private static boolean lambda$getPredicate$1(net.minecraft.world.phys.AABB, net.minecraft.world.entity.Entity);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #330                // Method net/minecraft/world/entity/Entity.getBoundingBox:()Lnet/minecraft/world/phys/AABB;
+         5: invokevirtual #334                // Method net/minecraft/world/phys/AABB.intersects:(Lnet/minecraft/world/phys/AABB;)Z
+         8: ireturn
+
+  private static boolean lambda$getPredicate$0(net.minecraft.world.flag.FeatureFlagSet, net.minecraft.world.entity.Entity);
+    Code:
+         0: aload_1
+         1: invokevirtual #174                // Method net/minecraft/world/entity/Entity.getType:()Lnet/minecraft/world/entity/EntityType;
+         4: aload_0
+         5: invokevirtual #182                // Method net/minecraft/world/entity/EntityType.isEnabled:(Lnet/minecraft/world/flag/FeatureFlagSet;)Z
+         8: ireturn
+
+  private static void lambda$static$0(net.minecraft.world.phys.Vec3, java.util.List);
+    Code:
+         0: return
+
+  static {};
+    Code:
+         0: invokedynamic #338,  0            // InvokeDynamic #4:accept:()Ljava/util/function/BiConsumer;
+         5: putstatic     #245                // Field ORDER_ARBITRARY:Ljava/util/function/BiConsumer;
+         8: new           #341                // class net/minecraft/commands/arguments/selector/EntitySelector$1
+        11: dup
+        12: invokespecial #343                // Method net/minecraft/commands/arguments/selector/EntitySelector$1."<init>":()V
+        15: putstatic     #53                 // Field ANY_TYPE:Lnet/minecraft/world/level/entity/EntityTypeTest;
+        18: new           #344                // class net/minecraft/commands/arguments/selector/EntitySelector$2
+        21: dup
+        22: invokespecial #346                // Method net/minecraft/commands/arguments/selector/EntitySelector$2."<init>":()V
+        25: invokestatic  #347                // Method net/minecraft/util/CompilableString.codec:(Ljava/util/function/Function;)Lcom/mojang/serialization/Codec;
+        28: putstatic     #353                // Field COMPILABLE_CODEC:Lcom/mojang/serialization/Codec;
+        31: return
+}

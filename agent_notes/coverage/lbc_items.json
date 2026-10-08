@@ -1,0 +1,79 @@
+﻿[
+    {
+        "source":  "world/datapacksdisabled/LBC/data/lbc/function/tick.mcfunction",
+        "document":  "agent_notes/lbc_core_items.md",
+        "section":  "Обработка выброшенных предметов",
+        "status":  "documented",
+        "note":  "Проверены обычная ветка, остановка времени и вызов nexus."
+    },
+    {
+        "source":  "world/datapacksdisabled/LBC/data/lbc/function/tick_not_timestopped.mcfunction",
+        "document":  "agent_notes/lbc_core_items.md",
+        "section":  "Обработка выброшенных предметов",
+        "status":  "unresolved",
+        "note":  "Предварительная заметка касается части веток; полный разбор файла остаётся в очереди."
+    },
+    {
+        "source":  "world/datapacksdisabled/LBC/data/lbc/function/items_tick.mcfunction",
+        "document":  "agent_notes/lbc_core_items.md",
+        "section":  "Обработка выброшенных предметов",
+        "status":  "documented",
+        "note":  "Описаны условия tag/working и copypaster."
+    },
+    {
+        "source":  "world/datapacksdisabled/LBC/data/lbc/function/items_tick_tag.mcfunction",
+        "document":  "agent_notes/lbc_core_items.md",
+        "section":  "Обработка выброшенных предметов",
+        "status":  "documented",
+        "note":  "Описаны распознаваемые custom_data и тегирование; конечные вызовы других групп unresolved."
+    },
+    {
+        "source":  "world/datapacksdisabled/LBC/data/lbc/function/items_tick_tag_2.mcfunction",
+        "document":  "agent_notes/lbc_core_items.md",
+        "section":  "Обработка выброшенных предметов",
+        "status":  "documented",
+        "note":  "Описан флаг lbcskill и imba."
+    },
+    {
+        "source":  "world/datapacksdisabled/LBC/data/lbc/function/items_tick_tag_3.mcfunction",
+        "document":  "agent_notes/lbc_core_items.md",
+        "section":  "Обработка выброшенных предметов",
+        "status":  "documented",
+        "note":  "Описаны частицы и звук."
+    },
+    {
+        "source":  "world/datapacksdisabled/LBC/data/lbc/function/items_tick_act.mcfunction",
+        "document":  "agent_notes/lbc_core_items.md",
+        "section":  "Обработка выброшенных предметов",
+        "status":  "documented",
+        "note":  "Описана диспетчеризация; дочерние конечные эффекты из других участков."
+    },
+    {
+        "source":  "world/datapacksdisabled/LBC/data/lbc/function/items_tick_act_m.mcfunction",
+        "document":  "agent_notes/lbc_core_items.md",
+        "section":  "Обработка выброшенных предметов",
+        "status":  "unresolved",
+        "note":  "Предварительная заметка касается части веток; полный разбор файла остаётся в очереди."
+    },
+    {
+        "source":  "world/datapacksdisabled/LBC/data/lbc/function/items_tick_act_m_check.mcfunction",
+        "document":  "agent_notes/lbc_core_items.md",
+        "section":  "Обработка выброшенных предметов",
+        "status":  "unresolved",
+        "note":  "Предварительная заметка касается части веток; полный разбор файла остаётся в очереди."
+    },
+    {
+        "source":  "world/datapacksdisabled/LBC/data/lbc/function/drops/specialdrops.mcfunction",
+        "document":  "agent_notes/lbc_core_items.md",
+        "section":  "Предметы, направляемые `drops/specialdrops`",
+        "status":  "unresolved",
+        "note":  "Таблица входов диспетчера готова; конечные эффекты дочерних функций ещё исследуются."
+    },
+    {
+        "source":  "world/datapacksdisabled/LBC/data/lbc/function/load.mcfunction",
+        "document":  "agent_notes/lbc_core_items.md",
+        "section":  "Загрузка: прочитанная часть `load`",
+        "status":  "unresolved",
+        "note":  "Файл частично прочитан; полный lifecycle/objective аудит не завершён."
+    }
+]

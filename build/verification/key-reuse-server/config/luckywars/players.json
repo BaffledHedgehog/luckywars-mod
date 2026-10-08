@@ -1,0 +1,98 @@
+{
+  "90955493-221d-3634-be84-dd3e4410be35": {
+    "username": "TestAlpha",
+    "coins": 510,
+    "memcoins": 0,
+    "games": 21,
+    "wins": 0,
+    "kills": 0,
+    "deaths": 25,
+    "keys": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "kit": 0,
+    "skill": 0,
+    "killSound": 0,
+    "suffix": 0,
+    "winEffect": 0,
+    "cage": 0,
+    "lbcKit": 0,
+    "lbcSkill": 0,
+    "lbcTrinket": 0,
+    "lbcChallenge": 0,
+    "levelups": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "bbf46ebe-0b1b-323d-a98a-2dda011fbb4e": {
+    "username": "TestBeta",
+    "coins": 1510,
+    "memcoins": 0,
+    "games": 21,
+    "wins": 10,
+    "kills": 0,
+    "deaths": 5,
+    "keys": [
+      1,
+      6,
+      1,
+      2,
+      0
+    ],
+    "kit": 0,
+    "skill": 0,
+    "killSound": 0,
+    "suffix": 0,
+    "winEffect": 0,
+    "cage": 0,
+    "lbcKit": 0,
+    "lbcSkill": 0,
+    "lbcTrinket": 0,
+    "lbcChallenge": 0,
+    "levelups": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "83b977a0-43b6-3159-9f8a-47d54f50532c": {
+    "username": "TestLate",
+    "coins": 0,
+    "memcoins": 0,
+    "games": 0,
+    "wins": 0,
+    "kills": 0,
+    "deaths": 0,
+    "keys": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "kit": 0,
+    "skill": 0,
+    "killSound": 0,
+    "suffix": 0,
+    "winEffect": 0,
+    "cage": 0,
+    "lbcKit": 0,
+    "lbcSkill": 0,
+    "lbcTrinket": 0,
+    "lbcChallenge": 0,
+    "levelups": [
+      0,
+      0,
+      0,
+      0
+    ]
+  }
+}

@@ -1,370 +1,332 @@
 {
-    "type": "minecraft:chest",
-    "pools": [
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:bow"
-                }
-            ],
-            "conditions": [
-                {
-                    "condition": "minecraft:random_chance",
-                    "chance": 0.15
-                }
-            ]
-        },
-        {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:flint_and_steel"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 2,
-                    "name": "minecraft:tnt",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_attributes",
-                            "modifiers": [
-                                {
-                                    "attribute": "minecraft:spawn_reinforcements",
-                                    "id": "minecraft:count",
-                                    "amount": {
-                                        "min": 3,
-                                        "max": 7,
-                                        "type": "minecraft:uniform"
-                                    },
-                                    "operation": "add_value",
-                                    "slot": "mainhand"
-                                }
-                            ]
-                        }
-                    ],
-                    "conditions": [
-                        {
-                            "condition": "minecraft:random_chance",
-                            "chance": 0.85
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 3,
-                    "name": "minecraft:water_bucket"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:lava_bucket"
-                }
-            ],
-            "conditions": [
-                {
-                    "condition": "minecraft:random_chance",
-                    "chance": 0.6
-                }
-            ]
-        },
-        {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 4,
-                    "name": "minecraft:stone_axe"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 5,
-                    "name": "minecraft:wooden_axe"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 4,
-                    "name": "minecraft:iron_pickaxe"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 5,
-                    "name": "minecraft:stone_pickaxe"
-                }
-            ],
-            "conditions": [
-                {
-                    "condition": "minecraft:random_chance",
-                    "chance": 0.75
-                }
-            ]
-        },
-        {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_attributes",
-                            "modifiers": [
-                                {
-                                    "attribute": "minecraft:spawn_reinforcements",
-                                    "id": "minecraft:count",
-                                    "amount": {
-                                        "min": 4,
-                                        "max": 11,
-                                        "type": "minecraft:uniform"
-                                    },
-                                    "operation": "add_value",
-                                    "slot": "mainhand"
-                                }
-                            ]
-                        }
-                    ],
-                    "conditions": [
-                        {
-                            "condition": "minecraft:random_chance",
-                            "chance": 0.5
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:bread",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_attributes",
-                            "modifiers": [
-                                {
-                                    "attribute": "minecraft:spawn_reinforcements",
-                                    "id": "minecraft:count",
-                                    "amount": {
-                                        "min": 2,
-                                        "max": 7,
-                                        "type": "minecraft:uniform"
-                                    },
-                                    "operation": "add_value",
-                                    "slot": "mainhand"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 1,
-                    "name": "minecraft:golden_apple"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 7,
-                    "name": "minecraft:cooked_porkchop",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_attributes",
-                            "modifiers": [
-                                {
-                                    "attribute": "minecraft:spawn_reinforcements",
-                                    "id": "minecraft:count",
-                                    "amount": {
-                                        "min": 5,
-                                        "max": 13,
-                                        "type": "minecraft:uniform"
-                                    },
-                                    "operation": "add_value",
-                                    "slot": "mainhand"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ],
-            "conditions": [
-                {
-                    "condition": "minecraft:random_chance",
-                    "chance": 0.95
-                }
-            ]
-        },
-        {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 4,
-                    "name": "minecraft:oak_planks",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_attributes",
-                            "modifiers": [
-                                {
-                                    "attribute": "minecraft:spawn_reinforcements",
-                                    "id": "minecraft:count",
-                                    "amount": {
-                                        "min": 20,
-                                        "max": 33,
-                                        "type": "minecraft:uniform"
-                                    },
-                                    "operation": "add_value",
-                                    "slot": "mainhand"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 3,
-                    "name": "minecraft:stone",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_attributes",
-                            "modifiers": [
-                                {
-                                    "attribute": "minecraft:spawn_reinforcements",
-                                    "id": "minecraft:count",
-                                    "amount": {
-                                        "min": 16,
-                                        "max": 31,
-                                        "type": "minecraft:uniform"
-                                    },
-                                    "operation": "add_value",
-                                    "slot": "mainhand"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ],
-            "conditions": [
-                {
-                    "condition": "minecraft:random_chance",
-                    "chance": 0.9
-                }
-            ]
-        },
-        {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:iron_boots"
-                }
-            ],
-            "conditions": [
-                {
-                    "condition": "minecraft:random_chance",
-                    "chance": 0.75
-                }
-            ]
-        },
-        {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:iron_leggings"
-                }
-            ],
-            "conditions": [
-                {
-                    "condition": "minecraft:random_chance",
-                    "chance": 0.65
-                }
-            ]
-        },
-        {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:iron_chestplate"
-                }
-            ],
-            "conditions": [
-                {
-                    "condition": "minecraft:random_chance",
-                    "chance": 0.6
-                }
-            ]
-        },
-        {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:iron_helmet"
-                }
-            ],
-            "conditions": [
-                {
-                    "condition": "minecraft:random_chance",
-                    "chance": 0.75
-                }
-            ]
-        },
-        {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:empty",
-                    "weight": 10
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 31,
-                    "name": "minecraft:iron_sword"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 47,
-                    "name": "minecraft:stone_sword"
-                }
-            ],
-            "functions": [
-                {
-                    "function": "minecraft:set_enchantments",
-                    "enchantments": {
-                        "minecraft:sharpness": 1
-                    },
-                    "add": true,
-                    "conditions": [
-                        {
-                            "condition": "minecraft:random_chance",
-                            "chance": 0.3
-                        }
-                    ]
-                },
-                {
-                    "function": "minecraft:set_enchantments",
-                    "enchantments": {
-                        "minecraft:knockback": 1
-                    },
-                    "add": true,
-                    "conditions": [
-                        {
-                            "condition": "minecraft:random_chance",
-                            "chance": 0.2
-                        }
-                    ]
-                }
-            ]
+          "type": "minecraft:item",
+          "name": "minecraft:bow"
         }
-    ]
+      ],
+      "condition": {
+        "chance": 0.15,
+        "type": "minecraft:random_chance"
+      }
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:flint_and_steel"
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 2,
+          "name": "minecraft:tnt",
+          "modifier": {
+            "modifiers": [
+              {
+                "attribute": "minecraft:spawn_reinforcements",
+                "id": "minecraft:count",
+                "amount": {
+                  "min": 3,
+                  "max": 7,
+                  "type": "minecraft:uniform"
+                },
+                "operation": "add_value",
+                "slot": "mainhand"
+              }
+            ],
+            "type": "minecraft:set_attributes"
+          },
+          "condition": {
+            "chance": 0.85,
+            "type": "minecraft:random_chance"
+          }
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 3,
+          "name": "minecraft:water_bucket"
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:lava_bucket"
+        }
+      ],
+      "condition": {
+        "chance": 0.6,
+        "type": "minecraft:random_chance"
+      }
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 4,
+          "name": "minecraft:stone_axe"
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 5,
+          "name": "minecraft:wooden_axe"
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 4,
+          "name": "minecraft:iron_pickaxe"
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 5,
+          "name": "minecraft:stone_pickaxe"
+        }
+      ],
+      "condition": {
+        "chance": 0.75,
+        "type": "minecraft:random_chance"
+      }
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:arrow",
+          "modifier": {
+            "modifiers": [
+              {
+                "attribute": "minecraft:spawn_reinforcements",
+                "id": "minecraft:count",
+                "amount": {
+                  "min": 4,
+                  "max": 11,
+                  "type": "minecraft:uniform"
+                },
+                "operation": "add_value",
+                "slot": "mainhand"
+              }
+            ],
+            "type": "minecraft:set_attributes"
+          },
+          "condition": {
+            "chance": 0.5,
+            "type": "minecraft:random_chance"
+          }
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:bread",
+          "modifier": {
+            "modifiers": [
+              {
+                "attribute": "minecraft:spawn_reinforcements",
+                "id": "minecraft:count",
+                "amount": {
+                  "min": 2,
+                  "max": 7,
+                  "type": "minecraft:uniform"
+                },
+                "operation": "add_value",
+                "slot": "mainhand"
+              }
+            ],
+            "type": "minecraft:set_attributes"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:golden_apple"
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 7,
+          "name": "minecraft:cooked_porkchop",
+          "modifier": {
+            "modifiers": [
+              {
+                "attribute": "minecraft:spawn_reinforcements",
+                "id": "minecraft:count",
+                "amount": {
+                  "min": 5,
+                  "max": 13,
+                  "type": "minecraft:uniform"
+                },
+                "operation": "add_value",
+                "slot": "mainhand"
+              }
+            ],
+            "type": "minecraft:set_attributes"
+          }
+        }
+      ],
+      "condition": {
+        "chance": 0.95,
+        "type": "minecraft:random_chance"
+      }
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 4,
+          "name": "minecraft:oak_planks",
+          "modifier": {
+            "modifiers": [
+              {
+                "attribute": "minecraft:spawn_reinforcements",
+                "id": "minecraft:count",
+                "amount": {
+                  "min": 20,
+                  "max": 33,
+                  "type": "minecraft:uniform"
+                },
+                "operation": "add_value",
+                "slot": "mainhand"
+              }
+            ],
+            "type": "minecraft:set_attributes"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 3,
+          "name": "minecraft:stone",
+          "modifier": {
+            "modifiers": [
+              {
+                "attribute": "minecraft:spawn_reinforcements",
+                "id": "minecraft:count",
+                "amount": {
+                  "min": 16,
+                  "max": 31,
+                  "type": "minecraft:uniform"
+                },
+                "operation": "add_value",
+                "slot": "mainhand"
+              }
+            ],
+            "type": "minecraft:set_attributes"
+          }
+        }
+      ],
+      "condition": {
+        "chance": 0.9,
+        "type": "minecraft:random_chance"
+      }
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:iron_boots"
+        }
+      ],
+      "condition": {
+        "chance": 0.75,
+        "type": "minecraft:random_chance"
+      }
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:iron_leggings"
+        }
+      ],
+      "condition": {
+        "chance": 0.65,
+        "type": "minecraft:random_chance"
+      }
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:iron_chestplate"
+        }
+      ],
+      "condition": {
+        "chance": 0.6,
+        "type": "minecraft:random_chance"
+      }
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:iron_helmet"
+        }
+      ],
+      "condition": {
+        "chance": 0.75,
+        "type": "minecraft:random_chance"
+      }
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:empty",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 31,
+          "name": "minecraft:iron_sword"
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 47,
+          "name": "minecraft:stone_sword"
+        }
+      ],
+      "modifier": [
+        {
+          "enchantments": {
+            "minecraft:sharpness": 1
+          },
+          "add": true,
+          "type": "minecraft:set_enchantments",
+          "condition": {
+            "chance": 0.3,
+            "type": "minecraft:random_chance"
+          }
+        },
+        {
+          "enchantments": {
+            "minecraft:knockback": 1
+          },
+          "add": true,
+          "type": "minecraft:set_enchantments",
+          "condition": {
+            "chance": 0.2,
+            "type": "minecraft:random_chance"
+          }
+        }
+      ]
+    }
+  ]
 }

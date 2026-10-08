@@ -1,0 +1,11 @@
+{
+  "total_sources": 10800,
+  "validly_linked_sources": 10800,
+  "missing_count": 0,
+  "unresolved_count": 0,
+  "link_errors": [],
+  "missing_by_group": {},
+  "missing_sources": [],
+  "unresolved_sources": [],
+  "warning": "Coverage links prove traceability, not semantic completeness. Human review required."
+}

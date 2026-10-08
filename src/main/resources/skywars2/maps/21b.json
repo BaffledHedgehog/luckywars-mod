@@ -1,0 +1,10 @@
+{
+  "id": "21b",
+  "name": "Map 21b",
+  "playerCapacity": 0,
+  "available": false,
+  "reason": "empty manifest",
+  "placements": [],
+  "brokenPlacements": [],
+  "brokenAvailable": false
+}

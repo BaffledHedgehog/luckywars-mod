@@ -1,27 +1,27 @@
 {
-    "pools": [
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:barrier",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_name",
-                            "name": {
-                                "translate": "block.minecraft.barrier",
-                                "color": "light_purple",
-                                "italic": false
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{rewardbar:17}"
-                        }
-                    ]
-                }
-            ]
+          "type": "minecraft:item",
+          "name": "minecraft:barrier",
+          "modifier": [
+            {
+              "name": {
+                "translate": "block.minecraft.barrier",
+                "color": "light_purple",
+                "italic": false
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "tag": "{rewardbar:17}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

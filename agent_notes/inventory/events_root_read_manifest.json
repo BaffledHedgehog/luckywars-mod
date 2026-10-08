@@ -1,0 +1,687 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/bucks/gen_trades.mcfunction",
+    "sha256": "d6b9e1f8c971b547cd04294c9901d7cd3f8fdac6010f4b870c3cbc02b23bc6dd",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/bucks/rc.mcfunction",
+    "sha256": "f8acb043ca646da495809bcde6bb072e327c1b8f7e1fe2fa9bca7e9caaba1d58",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/eat_halloween_food.mcfunction",
+    "sha256": "f2e83513f87ba3f82da97fd9d14cd16db7b74cd522e7637023e2f00a2757289e",
+    "method": "strict_complete_100_criterion_model_and_json_reward"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/halloween_mace/ability.mcfunction",
+    "sha256": "ebf04edf570632e2e0722eb08aa227c8f9b90114ea43947489731e9bdf9d30dc",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/jack_o_lantern_check.mcfunction",
+    "sha256": "814b8b0f5eaf84b149d4b03e445fc2d205158c4cb8829758654961fb60c789a5",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/jack_o_lantern_explode.mcfunction",
+    "sha256": "fa65d20f8e25e46d2dc26b8b38bf6c7e26732f7f8437eefaa222cbb84328fcd1",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/jack_o_lantern_spawn.mcfunction",
+    "sha256": "75696f51a099fbb3edbf1e5f945031471fe6f83993aeb6c182bff99308e72d6d",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/jack_o_lantern_tick.mcfunction",
+    "sha256": "cb2f97f5014776756998782bd8aa7733f4b3047127a99d4568b0a33811118943",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/particle_wind.mcfunction",
+    "sha256": "6063766dd23c4b2343ba0014f8760074f2b2f3849e6964d7e333b047ec68f999",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/player_tick_1s.mcfunction",
+    "sha256": "b89c90d73034c393c658fa83891fcafa6c09e15ce211ec7e35194ffea0aeaf75",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/activate.mcfunction",
+    "sha256": "595e527041253ddec921d865d601642c11de19c98cb5cf0379b509f5a4f1bf6f",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/drop_cursed_pumpkin.mcfunction",
+    "sha256": "c510878854ad3b6beb90c345ec8147d6fce86da94bc90243229ac0ef6fb22b2e",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/drop_cursed_pumpkin_recursive.mcfunction",
+    "sha256": "b4abddd02c9cc8135578e3b77f12b2dc89b4c7eb26316c17fe69c9751a94057c",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/0.mcfunction",
+    "sha256": "66ebc7e17ddba44ca9f18a28bad6a0a05174e166b8c628f1b38e20c979b7d7c5",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/1.mcfunction",
+    "sha256": "acc13ea932fc0ffa089f8ec9d0035032c4d2a33dece73f9fc1845ec0d21f5cd8",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/10.mcfunction",
+    "sha256": "75fea0f5748fcc9e19c6481824fdfb4233caae2f692488e150eb4539f2281630",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/11.mcfunction",
+    "sha256": "87313ac152f1ed280cf3b21ebc6b7d71636947a5c75aab4b4e115c5790d3a621",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/12.mcfunction",
+    "sha256": "78a2e7cb676c1d0daba610a3cf246ec057192fdc8c4433ff17d8ff3102253fb0",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/13.mcfunction",
+    "sha256": "12e6e7598e31d9291fd4102c064144a461d2435b8706d77a49478d1e09ac513e",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/14.mcfunction",
+    "sha256": "dc474c1c3d38b101d5f6c3fb926afa8c5d817722530c9453984c3746baa27409",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/15.mcfunction",
+    "sha256": "a7dd07af2abf1a017bd8471fcdae32115fbb9cbc692bf3b2a2a60a73c47bd4a7",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/16.mcfunction",
+    "sha256": "3ba9beed198fada2ecebd93116c8b18e5bf1c3bf98afcff7574324fc2781d5e6",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/17.mcfunction",
+    "sha256": "fa732f8a828b84c744151d5c738c93c0009b2806dfb2e703b854f49a17e17c5e",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/18.mcfunction",
+    "sha256": "90bb0beed3afc0f48aef964183d952ef4cca2d8a1e6c5b307a0ad0429b942197",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/19.mcfunction",
+    "sha256": "7b2ae04321ec51fb419614a6db387115ecd51ec91ba435261afc8e89aeec888f",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/2.mcfunction",
+    "sha256": "bfdf889d03416a2ddf48f4a78e39b79294f74acf76e29fbd51fbf48b09ad8181",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/20.mcfunction",
+    "sha256": "bad6bf0f60d36bd064c314eba0911aba428de89a25dc9de67ea958ed8428214c",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/21.mcfunction",
+    "sha256": "069a7b74251b7538b0f4cd772ae12b1d6fa1c23351ca1ad4f79d4c23f9ff1649",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/22.mcfunction",
+    "sha256": "cb498b01331cd31c89c00404e6d0cd13e04a5ae5608959c7c827dd34502b9bd3",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/23.mcfunction",
+    "sha256": "e021ae35355ddaebb8f72531c31e91eed3e4b2ebe68089bce60ffc8b5a45f549",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/24.mcfunction",
+    "sha256": "8e95ed343953f4ac73f746727953dc41f859374349e985ef2a5d016e1a3132ee",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/25.mcfunction",
+    "sha256": "096e956d1850666edc0064ea997ec565dcad8bfba791ba1266070e48d343d4df",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/26.mcfunction",
+    "sha256": "c4498cc1c760bbb8514dffd286f38bd8b7492a70ee45b2d30d087949a8cd319b",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/27.mcfunction",
+    "sha256": "9d0332f2d002252a4fe35a991045ba4866da7d0f6a5318da2d34e535e00d739f",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/28.mcfunction",
+    "sha256": "4a134ffc0add1ea413a1bddd0f9205fe233fa469735b5bb58d6a834dbeac1bf9",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/29.mcfunction",
+    "sha256": "fe07500acdea6ae84804d92b39c61e47325c63cc7cdbaca592a289c793228109",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/3.mcfunction",
+    "sha256": "fc21a178cccc82ffa8369cc0746a71cff95b0c5e0d84b3bb15f2a21c7b6dc1d0",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/30.mcfunction",
+    "sha256": "9aea6f937e4a62f7492509f52d61e6492696506caa4858828c564b7f831d35b9",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/31.mcfunction",
+    "sha256": "35ebb2ff84b131f3c03783aa5896dd9da80c83835380fa858a88c9a7678fd896",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/32.mcfunction",
+    "sha256": "e47257fe297d5bcae0cac6402c02068eea937f5e7e9461db672c55670790402e",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/33.mcfunction",
+    "sha256": "8bc239749ccfb4fdf029a2b6fac047f241929ad473caaae944f4e3c63424bed0",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/34.mcfunction",
+    "sha256": "0f5f41a1f8d4f1c31c1dc23e5195b17c909298420698c2d4251ed88b34b40ff3",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/35.mcfunction",
+    "sha256": "a997886433cdb473734246b05059ccd3e60ca30fb6bfd69086196cd689fa8e48",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/4.mcfunction",
+    "sha256": "52e85f24b3e0d19a44d1838a6d12d80ad39c2871f422351700d53b3ee294d314",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/5.mcfunction",
+    "sha256": "9e14b4e0b4a70d1c187309d996e84d74c2f421b9c21d4d88e206a258ddfcb507",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/6.mcfunction",
+    "sha256": "692d1f9a207b9d3ae29ac8b70515e8d8bddfd92314f23037783b49e4d5daa7be",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/7.mcfunction",
+    "sha256": "bd88b7456ada4cc47dc45afb2c991ddaee1327ed8c37be635fcbd4c30d23ab9b",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/8.mcfunction",
+    "sha256": "2c8926655d23a4e0dd272fb828e4d23b134c8d4a93d21258ba83df2802e63adf",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/9.mcfunction",
+    "sha256": "807ec1422906feaa5ffb00232777af57b38805c982d117651493cf02aaeb7b5d",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/chest.mcfunction",
+    "sha256": "dee97760ccc3d075e47d19d1b6075eec21e3838d554a7505a2cfebee7b241d31",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/feet.mcfunction",
+    "sha256": "4c403fea24520906e38c2001bcba1fa7ca604ec7cfa4e19efcd2c2ea3da3c914",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/head.mcfunction",
+    "sha256": "61fcb382f2bb6d8de449a445f503757b2ca67dc6c3d2ed0c2134179a68496e24",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/legs.mcfunction",
+    "sha256": "b7a97147532e1969bdeea2ab0cb30722692a7155f1e4314100edb3823d3dd9fc",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/offhand.mcfunction",
+    "sha256": "1edec4bdba6a96889264f0ae51a0fd1c51e0a0543f54ebe07e99c3becef99bbd",
+    "method": "strict_complete_command_model"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/tick_10t.mcfunction",
+    "sha256": "8b218618ded67097b9b7a1a423144c658f14e2488a448bc88e455d4c20f33b6b",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/tick_10t_true.mcfunction",
+    "sha256": "76e36475421cfa6cff1035baa2c50f7e24c28fd5bf221421ce5256d0e5c4fbd1",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/up_right.mcfunction",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/1.mcfunction",
+    "sha256": "462dea29dae74ce77d77072a6c1ad171e2d28122cf7068686323768f2424748b",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/10.mcfunction",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/11.mcfunction",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/12.mcfunction",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/13.mcfunction",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/14.mcfunction",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/15.mcfunction",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/16.mcfunction",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/2.mcfunction",
+    "sha256": "09723f713f69a171e18ae35625547bec3af40e4d63bb85f6690ac741b3d5a297",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/3.mcfunction",
+    "sha256": "168487fd6b4f5001d6ae0bfc0f85cc119e3b37e455891201afc8d9c0f601f054",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/4.mcfunction",
+    "sha256": "3a04584ef1ff8d91b14e8be62ece862fed31e39455c5468dd71799100aea6e47",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/5.mcfunction",
+    "sha256": "9791756c004dbfec4a68a513ca2122ed1b90def6c65ad445b1c1f2136503192d",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/6.mcfunction",
+    "sha256": "efcf13e0b77525641530bba377be0ff5b3f93e079f28cf9a25b573fcd9d27556",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/7.mcfunction",
+    "sha256": "5000b49fb326f9503397548a74ceed645c5171d3e5bb64dd80c5dfff4e3e49f2",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/8.mcfunction",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/9.mcfunction",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer_activate.mcfunction",
+    "sha256": "b8280f17c6aa5d207bb23d1e55157a7e82ab017f797c417281516021cc2cb29f",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/apply_ghosting.mcfunction",
+    "sha256": "d9f5dd50c0890f074ad4704cc56ead418978573fa3294a490a2e6e2e926186fe",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/cast.mcfunction",
+    "sha256": "66affab20580ef74c9e53e9c4eedac3469adf751fdd4d4910b2b4399a17b02de",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/cast_2.mcfunction",
+    "sha256": "762c887a7b276f4777d04b0d99d3ab5f2242e399d10fdc973c0789553b02ed20",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/cast_2meditate.mcfunction",
+    "sha256": "cba9edec41a2553b2607587bc60e65442e19aab6e24c7e5640b035aa83075b86",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/cast_upgraded.mcfunction",
+    "sha256": "085c6c7492ec48cc504647522bf01a97eba95063fffc959a8af7435ab0131df2",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/cast_upgraded_2.mcfunction",
+    "sha256": "953d711632b72f463dac767daba0a0765ac7ff4dadc793e0679c54990be1a750",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/cast_upgraded_2_mode_metasola.mcfunction",
+    "sha256": "cc2255fa318056a058911648f7a3b077b6757b16226705de4f8ea34059ad1c55",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/cast_upgraded_left.mcfunction",
+    "sha256": "c8639c341c64b1b8c1dbe81583a20409cfdb5f9c75c44f30ac169ece4d3764df",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/1_tick_1s.mcfunction",
+    "sha256": "6e320732e5b4c889d6a986fb32b75fa769b8da3d1c13234f6401ac621c34eab5",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/1_tick_1s1.mcfunction",
+    "sha256": "5872fce5c7e78de375bfa12e48ba2fe1e932f6482199738e52a9795d7b8407b9",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/2_tick_1s.mcfunction",
+    "sha256": "d090db250e42adbe8b63125c353dc343fcb24c235789bd02b960800674d23ad0",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/2_tick_1s_at.mcfunction",
+    "sha256": "18c0af42fb34307142f0fc3109f1b986cbc7b95a53070bfc0337abdb80ee7ecd",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/3_tick.mcfunction",
+    "sha256": "9a1ef9dc7c5721fa39be1b7ac4d4008d42e3d34f6d8de5c846633bebe14067ec",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/3_tick_at.mcfunction",
+    "sha256": "7f07c679896fe8dcb950ba455d4bb3fa471f8c8b54b591ff6ef948a9fe328e8c",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/4_tick.mcfunction",
+    "sha256": "64ad4b319ef87d8541d43abc0b673ddd5e4cd9c1d4da0055a0e56d6235d8f1b3",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/5_tick.mcfunction",
+    "sha256": "5d69865866603970687f245cca305617c28b9d34dd59f01fd50119bde40f15d5",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/5_tick1.mcfunction",
+    "sha256": "083509d470214a1da9a0579eb88e984e46847d975410c7e911f1dddd644a8933",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/6_tick.mcfunction",
+    "sha256": "b6a178c2b42a112335eddbc3b4e3f2d0f1eab59a6c78a9890b119d0b204ca0c3",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/6_tick_1s_at.mcfunction",
+    "sha256": "099ab750cee296c22522a33c088192c0f19fbdaa4c64ee3b3ad80d075105fe3d",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/break.mcfunction",
+    "sha256": "c827042310349aa24d532004fafe8320f9117d12ebbb6ff7cb8d501ec99694bb",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/throw.mcfunction",
+    "sha256": "98717c69d0b6d413539a810bb13cb8ab901a310c3b4bd49201570d0a8001b717",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/tick.mcfunction",
+    "sha256": "813af7c10e9055a0098c3864c94df4e6629affd38a0843c818896dccb974d157",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/tick_1s_select.mcfunction",
+    "sha256": "36cdada995c1fe0e03394906a6b4728a5bf71655d6c5cfe1bf32957f2ba6618d",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulhunter_mace/jump.mcfunction",
+    "sha256": "961317f88083b2126a634e4384ec1dcdcfbc28434ff55afc18c849b355574651",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulhunter_mace/sprint_end.mcfunction",
+    "sha256": "397578c4e8b50a422447d9ffc4dc1a7a5229effefb04d48381d59ddfcfee1b72",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulhunter_mace/sprint_recharge.mcfunction",
+    "sha256": "1ec6c5768b0ff6bd2eab2895cc4701b26b75b9d2f91e98a08dca2710bc50dc1d",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulhunter_mace/sprint_tick.mcfunction",
+    "sha256": "50e797565ade42dc5519f1ace6bf0e2a85bb2b574f70c82f90b7665cf9dff72d",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulhunter_mace/use.mcfunction",
+    "sha256": "3a7c0343b167538d2e5b3b8ef4297cece42db5b1d64e496751b50c6632a4f6b7",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulhunter_mace/use_dash.mcfunction",
+    "sha256": "d9ac61376ab19f4febaea91dbba40a7dad09b0d5ece0171b727107725c92f5b6",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulhunter_mace/use_splash.mcfunction",
+    "sha256": "34516ecb4b985355f4f75fb0189da2eff0ad1a09e7c6a4fff405e4244896e329",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/start.mcfunction",
+    "sha256": "26be3d0979604fe70e40e54a1ab3a0409f58e69b9b7a57645c58073990b0e326",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast.mcfunction",
+    "sha256": "2e62919707a94e862f807bc8f1beb0cfac0ef5c4984e60c03ab2daea2dcb3f93",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_2.mcfunction",
+    "sha256": "cb196b5b1b435c8adb0a287481352666fccb46733763acb8763b515b1259a02b",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_2_notuser.mcfunction",
+    "sha256": "37b2c385caa1f88fc9d8c8ee40547d929a5ffa8f1f1fd3261675b6b4bb9d1f46",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_2_onlyuser.mcfunction",
+    "sha256": "cce43ee35e90ec8c3d04eee9c62a746e6def4dc8dc509ac0bf7ee703653fc8d0",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_2_windcharges.mcfunction",
+    "sha256": "ccb79019333f45f6ada5030bd338c5c7d9dee866706b8630ba4d0d57664589d8",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_2meditate.mcfunction",
+    "sha256": "55414234d8cb10d7e8c93e0912ae875cf52591db39ea56e68eedb16bd862d1ad",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_2meditate_at.mcfunction",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_upgraded.mcfunction",
+    "sha256": "94c8060ab5772dda8a9be68018c933f7b4d7aeb76db51c55c3fe71d2f8a1a1a1",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_upgraded_2.mcfunction",
+    "sha256": "2442f4ea006a86f3eff0776ac6ed77cf9e0c71c99b0bbe7281f186421fa730c8",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_upgraded_left.mcfunction",
+    "sha256": "7a7453f56bf8edadfeb4c8e824b2b25684dd3b063f84a0cf3498ce967877709d",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/november/click.mcfunction",
+    "sha256": "fc4305c4cfd8c9742ac5f221c3522d836406acea5af5a2a119252ae4e5be269f",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/november/click_jedi.mcfunction",
+    "sha256": "582cce0a76065a806149b2876ea793ad5740fb44937948c42b1ff4cc17ba32c6",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/november/click_no_color.mcfunction",
+    "sha256": "f909ac0ee95ffce56c4b133b8ed8beb532a27cd77f303bdb9d2ce14446632622",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/november/click_sith.mcfunction",
+    "sha256": "79a4da2970b424aae33e9478406acf84d83484321fc11711f74829756b9e30fa",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/november/give_sword.mcfunction",
+    "sha256": "1ddfc5a95c77181d0e0513c11404c5357393759d17042b51d8eab512268846a7",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/tournament/end.mcfunction",
+    "sha256": "0df172c599273c873982f058f3e67695a78f1fd7f23d2cf09bc00af4727b107b",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/tournament/start.mcfunction",
+    "sha256": "60f15e0b10ee72aa3b62f4288f85ef4549a4856f65c0a5709533951cc0211c2a",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/halloween/eat/chorus.mcfunction",
+    "sha256": "add4b7ffa3bc7e773c12f9bb42fd0c385231bb7d4cbc43fb1c921666c9d996fb",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/halloween/eat/chorus_pumpkin_rand.mcfunction",
+    "sha256": "64f3499c8bc0c595b96c0bf3f3c832322e9492f448b74e0fc6316dcaa40842c5",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/1.mcfunction",
+    "sha256": "622050164ac807dd71a0d4b4144cf41fbdf50368d9174703a52d9d610e9f4455",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/2.mcfunction",
+    "sha256": "b91ebd5f3579c6d703dd94f715f9519e6f82a55ef9078c09ddfc03bda9547904",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/3.mcfunction",
+    "sha256": "cf617c785b6a1a7d64690fc6997b390007b0439de4cd713da4b61ddd68b4c99e",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/4.mcfunction",
+    "sha256": "6e606f2b150d516cef23d299b27d9041c619457788fda2f7fd98156690a09f93",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/5.mcfunction",
+    "sha256": "c5cdf54380b17063450591c9e9a46577cfb8619e07e3404e0118620e2ee54f3f",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/6.mcfunction",
+    "sha256": "f3e9591f5461eee731069f67cdff93cec78eb935b1caa0d3d64c125d764e7d5c",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/select.mcfunction",
+    "sha256": "430de338cdb4351ee170bb6bf5fdb2d59d1a5849cbde1caaf75c05d368204676",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/sound_trollge.mcfunction",
+    "sha256": "c8e331d8c98c9b22dc109cd0f299ea350d31f95f0774bd44ec5823482b6a02fd",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/spawn_trollge.mcfunction",
+    "sha256": "9344a4d0676169a3a7cc70fb21cec1aed0fe473ca74445137c96c29db8b34304",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/spawn_trollge_pre.mcfunction",
+    "sha256": "41728d6747ceb47320563e39612db7c2a63f1fc38c80c90cfdaabb1f683d75c3",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/spawn_walls.mcfunction",
+    "sha256": "62f38a89de55802b2b638e48e7889fe53384729e9ebe15b47b910f754b2012c7",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/trollge_spawn.mcfunction",
+    "sha256": "2b59817c788175178c70cbeeab13c722fc264547b91f96e0732c35de6401a982",
+    "method": "manual_full_source"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/trollmasksel.mcfunction",
+    "sha256": "7d2aaa22cc92f60bac693576dffca710e4d4a60d58cc5ed2863036bd17863d9a",
+    "method": "manual_full_source"
+  }
+]

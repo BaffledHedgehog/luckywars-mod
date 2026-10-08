@@ -1,0 +1,417 @@
+[
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/minecraft/dimension/overworld.json",
+    "sha256": "39030ff9055316481eeea089b7e91060a6175d126f29e00423ea59816cd4bc5e",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/minecraft/dimension_type/overworld.json",
+    "sha256": "3d7f87eeff0e56f4afd64a8e27e3adefd3307b9ef6d08078bfb8f8be65f8a80a",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/minecraft/loot_table/blocks/yellow_shulker_box.json",
+    "sha256": "92badf6776030b1076f6c8de08283402dcf6e512371df0e812bb13ed9640ff47",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/minecraft/tags/block/chest.json",
+    "sha256": "f9899b7df13c419bd662e415d8bcfda2727037a423d20a2f22c94f9d2875a32d",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/core/attacking.json",
+    "sha256": "f88c06f273c00da5d943e05969b5220d65a097d61a5ecc15a1070e33f71fb8f5",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/core/first_time.json",
+    "sha256": "db5988fb5301008d4a298cfdca78dc19f4fc1c46d82f1e9d8b19ec9a5ec36d03",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/core/food.json",
+    "sha256": "600947ce6636b44438653a259b03be2f83cc558a75827dfbb66132cb926d811a",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/core/kill.json",
+    "sha256": "d5a405e45a874d9c764ca4cceb9c51ac7b7e4721a3f82151c0c27ca811203c59",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/core/player_reset.json",
+    "sha256": "93643d2690d10421d20a540bb1e979e458d6c066532560211d8097916785938a",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/core/quickstart.json",
+    "sha256": "ec5b7b3e0e83209a339c2f18b7593d407bf6737f0dca14b8a52e61d4a4ea4207",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/core/shoot_arrow.json",
+    "sha256": "175aca75420cb1c9450baf5ef7be637f7154c880c4c17e747784b9420c20e94b",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/drop_1.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/drop_1_requested.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/drop_2.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/drop_2_requested.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/drop_3.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/drop_3_requested.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_1.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_10.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_11.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_12.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_13.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_14.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_15.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_16.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_17.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_18.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_19.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_2.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_20.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_21.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_22.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_23.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_24.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_25.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_26.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_3.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_4.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_5.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_6.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_7.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_8.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_9.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/turnir/killer.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/turnir/trophy1.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/turnir/trophy2.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/turnir/trophy3.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/turnir2/trophy1.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/turnir2/trophy2.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/turnir2/trophy3.json",
+    "sha256": "a32169c956201dc0472be4578df90f5e6c9505a9555b2bda17541ca934dde039",
+    "review_method": "identical JSON model compared for all 39 paths"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/transfer.mcfunction",
+    "sha256": "ef93f085376dac99883a9ec7619d7af459eb3da69c7a3a565f6fcc5110edf7b8",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/transfer_1.mcfunction",
+    "sha256": "8c50f6f1f65c153a1afeed6d33f252490b8f036b30e31f7e2ac977e245e9be34",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/center.json",
+    "sha256": "a5ddbc6da7455325441b36bc0a44e4b80ef2577ff22e30f11aafdfe4e595a9e4",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/center_0.json",
+    "sha256": "6f2a7d64fcf45b4222f57d855ce94dbb98c6c0c3264e23684c64302920fd541a",
+    "review_method": "full JSON pools in accepted skywars_variants audit plus direct root/pool-field review"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/center_lb.json",
+    "sha256": "55a0c8d52f33dca0a122eb3c97a02f2be0633770b6a74e0f1f2b2b435a3f5d6e",
+    "review_method": "full JSON pools in accepted skywars_variants audit plus direct root/pool-field review"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/default.json",
+    "sha256": "c00a9b2c85ce957437584ce878ac6a6fb7c8b80fdd9dade0bdfe384f26b878f9",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/default_0.json",
+    "sha256": "96a6838613e2247b4419d8f585ef36c0cca9e9ec0df5d2fc37518ba4c291c0ee",
+    "review_method": "full JSON pools in accepted skywars_variants audit plus direct root/pool-field review"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/default_lb.json",
+    "sha256": "589e6f165f044b78b88ee33b6b782ec65c6e12c163608e22429311680127bcbf",
+    "review_method": "full JSON pools in accepted skywars_variants audit plus direct root/pool-field review"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/empty.json",
+    "sha256": "56fa1dc49e021f07c291a7903ea84123a706ed394d8d081d072532b0cb623beb",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/midle.json",
+    "sha256": "38ac2dacb3614e960d3bd095918ae24f0d2552a6d7cf3ba86049173aeb71f641",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/midle_0.json",
+    "sha256": "75caef60bbb177cd1f9f9b0d9d933db9bf4b41cc53c4a4be900f43eee3c3214d",
+    "review_method": "full JSON pools in accepted skywars_variants audit plus direct root/pool-field review"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/midle_lb.json",
+    "sha256": "82723e2803b11bb275ace3874c8751da9c103f0d4e5bfbc87653113a742a6c76",
+    "review_method": "full JSON pools in accepted skywars_variants audit plus direct root/pool-field review"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/game/kit/12.json",
+    "sha256": "650697e0f0d84cfc840112907eaacdf323f0025c17fca630f8883ebd7c8df2d4",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/game/kit/18.json",
+    "sha256": "db11f266167063058808d51880e4ff0da65a556556a4afc61d7a869b36aef3d8",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/game/kit/halloween_pies.json",
+    "sha256": "7e1ccfe3712e88d256e677e807e3657b7ca8dbbf2612912307f2954fea3f0838",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/locked_suffix_tournament.json",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/test.json",
+    "sha256": "5bb4e9321e0e5a74471af39640fb2e8a733d37f7468e261b860b6587f4138868",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/chance_10.json",
+    "sha256": "8ac1cc3ce1736d9d5f2300a2ba82f0c6c7164e30a8d0bca71707955ae350b50a",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/chance_20.json",
+    "sha256": "89d44ce8f69831fa7d02cbf457d984552449fe42c1336935b1e7c75a052f8c98",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/chance_25.json",
+    "sha256": "c49167a12736d904b2f2ca3177c6675d668cf3343cb547be66bd1aee5f98854d",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/chance_50.json",
+    "sha256": "df2f7981cab503e8c24106493790881840d10d84b9dea3318a231521790bf745",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/chest.json",
+    "sha256": "2df4409f0cd3554db17ed0db4fbdf1f4262db740a3116cafc613baaa690a0ad9",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/fire.json",
+    "sha256": "1bd8ef9e295f9637b1e411fe505c7d5be7ad8d85703ef9f9e0cb0611eec768a8",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/get_random.json",
+    "sha256": "b2a5bd6de40af140f5b9b97841bfd39e0adb06712a68cebe27c9dcf9c7a5982e",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/hold_compass.json",
+    "sha256": "9b9994e7db60879181bffc06dc49a96448ed7718042a0385f0a10463ae74e879",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/lobby.json",
+    "sha256": "91fd8ea4af9a19dca05caa5f3b484ad5f5dfbab5804dea76a485727be6a45b79",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/maploader.json",
+    "sha256": "a77d5b7fda1a115302fe60c8161dc480a275aa9a53d5e972894892e0e4477066",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/player_reset.json",
+    "sha256": "ac652d0c0c04015d97c3dfadc7cd756dc913a788bea800782f00d538ab4eb5fb",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/on_ground.json",
+    "sha256": "f9a67e0986cc78f9fe5af68bf508cdf2fc2249403051e3a5c124aeff904783e1",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/sprint.json",
+    "sha256": "088b39903208cf868d44e577a40de41eb392f52f174de7146b5d2b5ab8ecdc91",
+    "review_method": "direct source read"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/tags/item/all.json",
+    "sha256": "782b62052670e1a3a8cdac16d92661656611f17f671281f7b1eceaa1c502cd47",
+    "review_method": "full parsed tag entries and declared counts; food list read directly"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/tags/item/food.json",
+    "sha256": "85ce871ed0f8be0e01e9ccf3b3a028f3ae0c6e303a73883622dd07baf7d281cf",
+    "review_method": "full parsed tag entries and declared counts; food list read directly"
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/pack.mcmeta",
+    "sha256": "c319c4f5e1e5ae0eacf5b499db28aa86b712c187c83215b3cc52602f9dafe49a",
+    "review_method": "direct source read"
+  }
+]

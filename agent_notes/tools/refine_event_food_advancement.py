@@ -1,0 +1,4 @@
+﻿from pathlib import Path
+p=Path('agent_notes/lbc_other_events.md'); s=p.read_text(encoding='utf8')
+s=s.replace('Когда advancement reward передаёт сюда съеденную Halloween-еду, функция увеличивает `pumpkin_counter` на 1 и по каждому точному значению 1..100 делает `return run advancement grant` с соответствующим variant-ID. Эти команды сами по себе не проверяют предмет или тип еды; критерий потребления задан вызывающим advancement.', 'Advancement `eat_halloween_food` запускается триггером `consume_item` для предмета с `custom_data.halloween_food:1` и вызывает reward-функцию. Она увеличивает `pumpkin_counter` на 1 и по точному значению 1..100 делает `return run advancement grant` с тем же variant-ID; эти 100 вариантов имеют impossible-критерии и награду default kit. Значит пищу определяет trigger JSON, а количество/прогресс — эта команда и advancement family.')
+p.write_text(s,encoding='utf8')

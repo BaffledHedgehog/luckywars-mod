@@ -1,0 +1,2234 @@
+{
+  "spell1_default": [
+    {
+      "item_key": "evocator",
+      "mana_objective": "evoker_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/evokercast_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{evocator:1}}}}] mana >= evoker_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/evokercast_pre"
+    },
+    {
+      "item_key": "bassboost",
+      "mana_objective": "bass_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/basscast_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{bassboost:1}}}}] mana >= bass_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/basscast_pre"
+    },
+    {
+      "item_key": "enderwand",
+      "mana_objective": "ender_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/endcast_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{enderwand:1}}}}] mana >= ender_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/endcast_pre"
+    },
+    {
+      "item_key": "corrupter",
+      "mana_objective": "corruption_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/corrupter_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{corrupter:1}}}}] mana >= corruption_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/corrupter_pre"
+    },
+    {
+      "item_key": "lifestealer",
+      "mana_objective": "vampire_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/lifestealer_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{lifestealer:1}}}}] mana >= vampire_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/lifestealer_pre"
+    },
+    {
+      "item_key": "foxusing",
+      "mana_objective": "confuse_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/foxuscast_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{foxusing:1}}}}] mana >= confuse_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/foxuscast_pre"
+    },
+    {
+      "item_key": "bloodmagic",
+      "mana_objective": "blood_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/bloodmagic_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{bloodmagic:1}}}}] mana >= blood_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/bloodmagic_pre"
+    },
+    {
+      "item_key": "badwiki",
+      "mana_objective": "bad_wiki_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/badwiki_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{badwiki:1}}}}] mana >= bad_wiki_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/badwiki_pre"
+    },
+    {
+      "item_key": "unstable_spellbook",
+      "mana_objective": "unstable_spellbook_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/random_spell",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{unstable_spellbook:1}}}}] mana >= unstable_spellbook_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/random_spell"
+    },
+    {
+      "item_key": "psychowand",
+      "mana_objective": "psycho_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/psychowand_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{psychowand:1}}}}] mana >= psycho_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/psychowand_pre"
+    },
+    {
+      "item_key": "omegaflag",
+      "mana_objective": "absurd_singularity_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/omegaflag_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{omegaflag:1}}}}] mana >= absurd_singularity_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/omegaflag_pre"
+    },
+    {
+      "item_key": "neutralmage",
+      "mana_objective": "neutral_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/neutralmage/select_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{neutralmage:1}}}}] mana >= neutral_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/neutralmage/select_pre"
+    },
+    {
+      "item_key": "exoperso",
+      "mana_objective": "megumin_staff_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/exoperso_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{exoperso:1}}}}] mana >= megumin_staff_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/exoperso_pre"
+    },
+    {
+      "item_key": "struby",
+      "mana_objective": "struby_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/ruby",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{struby:1}}}}] mana >= struby_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/ruby"
+    },
+    {
+      "item_key": "stterra",
+      "mana_objective": "stterra_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/terra",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{stterra:1}}}}] mana >= stterra_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/terra"
+    },
+    {
+      "item_key": "stelectro",
+      "mana_objective": "stelectro_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/electro",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{stelectro:1}}}}] mana >= stelectro_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/electro"
+    },
+    {
+      "item_key": "stair",
+      "mana_objective": "stair_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/air",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{stair:1}}}}] mana >= stair_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/air"
+    },
+    {
+      "item_key": "stacid",
+      "mana_objective": "stacid_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/acid",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{stacid:1}}}}] mana >= stacid_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/acid"
+    },
+    {
+      "item_key": "stteleport",
+      "mana_objective": "stteleport_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/teleport",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{stteleport:1}}}}] mana >= stteleport_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/teleport"
+    },
+    {
+      "item_key": "ststone",
+      "mana_objective": "ststone_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/stone",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{ststone:1}}}}] mana >= ststone_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/stone"
+    },
+    {
+      "item_key": "stfire",
+      "mana_objective": "stfire_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/fire",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{stfire:1}}}}] mana >= stfire_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/fire"
+    },
+    {
+      "item_key": "stblind",
+      "mana_objective": "stblind_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/blind",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{stblind:1}}}}] mana >= stblind_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/blind"
+    },
+    {
+      "item_key": "dublicating_wand",
+      "mana_objective": "dublicating_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/avarice/click",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{dublicating_wand:1}}}}] mana >= dublicating_wand_mana_use lbc.math at @s anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/avarice/click"
+    },
+    {
+      "item_key": "true_terra",
+      "mana_objective": "true_terra_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/terra/click",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{true_terra:1}}}}] mana >= true_terra_mana_use lbc.math at @s anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/terra/click"
+    },
+    {
+      "item_key": "erecto_wand",
+      "mana_objective": "erecto_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/erecto/click",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{erecto_wand:1}}}}] mana >= erecto_wand_mana_use lbc.math anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/erecto/click"
+    },
+    {
+      "item_key": "exasperato_wand",
+      "mana_objective": "exasperato_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/exasperato/click",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{exasperato_wand:1}}}}] mana >= exasperato_wand_mana_use lbc.math anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/exasperato/click"
+    },
+    {
+      "item_key": "acidacid_wand",
+      "mana_objective": "acidacid_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/acidacid/click",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{acidacid_wand:1}}}}] mana >= acidacid_wand_mana_use lbc.math anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/acidacid/click"
+    },
+    {
+      "item_key": "fireblaze_wand",
+      "mana_objective": "fireblaze_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/fireblaze/click",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{fireblaze_wand:1}}}}] mana >= fireblaze_wand_mana_use lbc.math at @s unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/fireblaze/click"
+    },
+    {
+      "item_key": "psychoblind_wand",
+      "mana_objective": "psychoblind_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/psychoblind/click",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{psychoblind_wand:1}}}}] mana >= psychoblind_wand_mana_use lbc.math anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/psychoblind/click"
+    },
+    {
+      "item_key": "gaycaster",
+      "mana_objective": "gaycaster_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/gaycaster/ray/cast",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{gaycaster:1}}}}] mana >= gaycaster_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/gaycaster/ray/cast"
+    },
+    {
+      "item_key": "ice_wand",
+      "mana_objective": "ice_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/ice_wand/use",
+      "raw_command": "execute if score @s[predicate=!lbc:sneak,nbt={SelectedItem:{components:{\"minecraft:custom_data\":{ice_wand:1}}}}] mana >= ice_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/ice_wand/use"
+    },
+    {
+      "item_key": "ice_wand",
+      "mana_objective": "ice_wand_shift_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/ice_wand/use_shift",
+      "raw_command": "execute if score @s[predicate=lbc:sneak,nbt={SelectedItem:{components:{\"minecraft:custom_data\":{ice_wand:1}}}}] mana >= ice_wand_shift_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/ice_wand/use_shift with entity @s"
+    },
+    {
+      "item_key": "snow_wand",
+      "mana_objective": "snow_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/snow_wand/cast",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{snow_wand:1}}}}] mana >= snow_wand_mana_use lbc.math anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/snow_wand/cast"
+    },
+    {
+      "item_key": "shish_wall_wand",
+      "mana_objective": "shish_wall_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/shish_wall_wand/cast",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{shish_wall_wand:1}}}}] mana >= shish_wall_wand_mana_use lbc.math anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/shish_wall_wand/cast"
+    },
+    {
+      "item_key": "mobgun",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper",
+      "target_function": "lbc:workingitems/mobgun",
+      "raw_command": "execute unless score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{mobgun:1}}}}] coldown16 matches 1.. unless entity @e[type=minecraft:marker,distance=..20,tag=stopper,limit=1] run function lbc:workingitems/mobgun"
+    },
+    {
+      "item_key": "kfcgun",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper",
+      "target_function": "lbc:workingitems/kfc",
+      "raw_command": "execute unless score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{kfcgun:1}}}}] coldown17 matches 1.. unless entity @e[type=minecraft:marker,distance=..20,tag=stopper,limit=1] run function lbc:workingitems/kfc"
+    },
+    {
+      "item_key": "cyberkatana",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper",
+      "target_function": "lbc:workingitems/cyberkatanaability",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{cyberkatana:1}}}}] swordcharged1 matches 1.. unless entity @e[type=minecraft:marker,distance=..20,tag=stopper,limit=1] run function lbc:workingitems/cyberkatanaability"
+    },
+    {
+      "item_key": "techrunner_katana",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper",
+      "target_function": "lbc:other/techno/katana/use",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{techrunner_katana:1}}}}] swordcharged6 matches 1.. at @s unless entity @e[type=minecraft:marker,distance=..20,tag=stopper,limit=1] run function lbc:other/techno/katana/use"
+    },
+    {
+      "item_key": "supersethomer",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/teleporthome",
+      "raw_command": "execute if entity @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{supersethomer:1}}}}] unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/teleporthome"
+    },
+    {
+      "item_key": "razorpine",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper",
+      "target_function": "lbc:workingitems/razorpine_ammo_check",
+      "raw_command": "execute unless score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{razorpine:1}}}}] coldown18 matches 1.. unless score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{razorpine:1}}}}] coldown18b matches 1.. unless entity @e[type=minecraft:marker,distance=..20,tag=stopper,limit=1] run function lbc:workingitems/razorpine_ammo_check"
+    },
+    {
+      "item_key": "time_stopper",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:time_stop",
+      "raw_command": "execute unless score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{time_stopper:1}}}}] coldown1 matches 1.. run function lbc:time_stop"
+    },
+    {
+      "item_key": "popit",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/popit",
+      "raw_command": "execute if entity @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{popit:1}}}}] run function lbc:workingitems/popit"
+    },
+    {
+      "item_key": "govnomet",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper",
+      "target_function": "lbc:workingitems/govno",
+      "raw_command": "execute if entity @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{govnomet:1}}}}] unless entity @e[type=minecraft:marker,distance=..20,tag=stopper,limit=1] run function lbc:workingitems/govno"
+    },
+    {
+      "item_key": "ak47",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper",
+      "target_function": "lbc:workingitems/ak47",
+      "raw_command": "execute if entity @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{ak47:1}}}}] unless entity @e[type=minecraft:marker,distance=..20,tag=stopper,limit=1] run function lbc:workingitems/ak47"
+    },
+    {
+      "item_key": "feather_greed",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/feather_greed",
+      "raw_command": "execute if entity @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{feather_greed:1}}}}] unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/feather_greed"
+    },
+    {
+      "item_key": "greed_greed",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/divider",
+      "raw_command": "execute unless score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{greed_greed:1}}}}] divider_cd matches 1.. unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/divider"
+    },
+    {
+      "item_key": "reactive_shish",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/reactive_shish",
+      "raw_command": "execute unless score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{reactive_shish:1}}}}] coldownshish matches 1.. unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/reactive_shish"
+    },
+    {
+      "item_key": "vexsword",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/vex_ulta",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{vexsword:1}}}}] swordcharged4 matches 1.. unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/vex_ulta"
+    },
+    {
+      "item_key": "shit_katana",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper",
+      "target_function": "lbc:workingitems/shit_ulta",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{shit_katana:1}}}}] swordcharged5 matches 1.. unless entity @e[type=minecraft:marker,distance=..20,tag=stopper,limit=1] run function lbc:workingitems/shit_ulta"
+    },
+    {
+      "item_key": "witch_gens",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/witch_gens/activate",
+      "raw_command": "execute at @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{witch_gens:1}}}}] run function lbc:workingitems/witch_gens/activate"
+    },
+    {
+      "item_key": "whale",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/witch_gens/whale_spawn",
+      "raw_command": "execute at @s[tag=sin_gluttony,nbt={SelectedItem:{components:{\"minecraft:custom_data\":{whale:1}}}}] unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] unless entity @e[type=minecraft:ghast,tag=white_whale] anchored eyes positioned ^ ^ ^ run function lbc:workingitems/witch_gens/whale_spawn"
+    },
+    {
+      "item_key": "lust_cooldown",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/witch_gens/lust_flesh",
+      "raw_command": "execute at @s[tag=sin_lust,nbt={SelectedItem:{components:{\"minecraft:custom_data\":{lust_cooldown:1}}}}] unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/witch_gens/lust_flesh"
+    },
+    {
+      "item_key": "indolence",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/witch_gens/indolence_hand",
+      "raw_command": "execute unless score @s[tag=sin_indolence,nbt={SelectedItem:{components:{\"minecraft:custom_data\":{indolence:1}}}}] indolence_cd matches 1.. unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] anchored eyes positioned ^ ^ ^ run function lbc:workingitems/witch_gens/indolence_hand"
+    },
+    {
+      "item_key": "razorterra",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/terra/razorterra",
+      "raw_command": "execute at @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{razorterra:1}}}}] anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/terra/razorterra"
+    },
+    {
+      "item_key": "bedrock_wand",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/bedrock/click",
+      "raw_command": "execute at @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{bedrock_wand:1}}}}] unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/bedrock/click"
+    },
+    {
+      "item_key": "item_balance",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:other/new_game/click",
+      "raw_command": "execute at @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{item_balance:1}}}}] run function lbc:other/new_game/click"
+    },
+    {
+      "item_key": "evocator_old",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/evokercast_old",
+      "raw_command": "execute unless score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{evocator_old:1}}}}] coldown_evoker matches 961.. at @s run function lbc:workingitems/evokercast_old"
+    },
+    {
+      "item_key": "bassboost_old",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/basscast_old",
+      "raw_command": "execute unless score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{bassboost_old:1}}}}] coldown_bass matches 961.. at @s run function lbc:workingitems/basscast_old"
+    },
+    {
+      "item_key": "enderwand_old",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/endcast_old",
+      "raw_command": "execute unless score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{enderwand_old:1}}}}] coldown_ender matches 761.. at @s run function lbc:workingitems/endcast_old"
+    },
+    {
+      "item_key": "corrupter_old",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/corrupter_old",
+      "raw_command": "execute unless score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{corrupter_old:1}}}}] coldown_corrupt matches 901.. at @s run function lbc:workingitems/corrupter_old"
+    },
+    {
+      "item_key": "lifestealer_old",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/lifestealer_old",
+      "raw_command": "execute unless score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{lifestealer_old:1}}}}] coldown_vampire matches 971.. at @s run function lbc:workingitems/lifestealer_old"
+    },
+    {
+      "item_key": "foxusing_old",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/foxuscast_old",
+      "raw_command": "execute unless score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{foxusing_old:1}}}}] coldown_foxus matches 921.. at @s run function lbc:workingitems/foxuscast_old"
+    },
+    {
+      "item_key": "bloodmagic_old",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/bloodmagic_old",
+      "raw_command": "execute unless score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{bloodmagic_old:1}}}}] coldown_blood matches 701.. at @s run function lbc:workingitems/bloodmagic_old"
+    },
+    {
+      "item_key": "badwiki_old",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/badwiki_old",
+      "raw_command": "execute unless score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{badwiki_old:1}}}}] coldown_wiki matches 941.. at @s run function lbc:workingitems/badwiki_old"
+    },
+    {
+      "item_key": "lightsaberrc",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:other/event/november/click",
+      "raw_command": "execute if entity @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{lightsaberrc:1}}}}] run function lbc:other/event/november/click"
+    },
+    {
+      "item_key": "laser_minigun",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:other/techno/laser_minigun/shoot/click",
+      "raw_command": "execute if entity @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{laser_minigun:1}}}}] anchored eyes positioned ^ ^ ^ run function lbc:other/techno/laser_minigun/shoot/click"
+    },
+    {
+      "item_key": "clocks",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/clock_fragment/select",
+      "raw_command": "execute if entity @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{clocks:1}}}}] run function lbc:workingitems/clock_fragment/select"
+    },
+    {
+      "item_key": "anal_whip",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/ender_whip_teleport",
+      "raw_command": "execute if entity @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{anal_whip:1}}}}] run function lbc:workingitems/ender_whip_teleport"
+    },
+    {
+      "item_key": "banhammer",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:items/swords/banhammer/ability",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{banhammer:1}}}}] swordcharged7 matches 1.. run function lbc:items/swords/banhammer/ability"
+    },
+    {
+      "item_key": "oraora",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:items/oraora/click",
+      "raw_command": "execute unless score @s[tag=have_stand,nbt={SelectedItem:{components:{\"minecraft:custom_data\":{oraora:1}}}}] coldownoraora matches 1.. run function lbc:items/oraora/click"
+    },
+    {
+      "item_key": "homing_lightning",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:other/stand_arrow/homing_lightning_spawn",
+      "raw_command": "execute unless score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{homing_lightning:1}}}}] coldownlightning matches 1.. run function lbc:other/stand_arrow/homing_lightning_spawn"
+    },
+    {
+      "item_key": "stand_clocks",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:time_stop_powerful",
+      "raw_command": "execute unless score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{stand_clocks:1}}}}] coldowntimestand matches 1.. run function lbc:time_stop_powerful"
+    },
+    {
+      "item_key": "divider_by_metal_pipe",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/metal_divider/click",
+      "raw_command": "execute unless score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{divider_by_metal_pipe:1}}}}] metal_divider_cd matches 1.. run function lbc:workingitems/metal_divider/click"
+    },
+    {
+      "item_key": "fevgalea_star",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:items/swords/fevgalea_star/click_select",
+      "raw_command": "execute if entity @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{fevgalea_star:1}}}}] run function lbc:items/swords/fevgalea_star/click_select"
+    },
+    {
+      "item_key": "slr",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:items/shooter/slr/click",
+      "raw_command": "execute if entity @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{slr:1}}}}] run function lbc:items/shooter/slr/click"
+    },
+    {
+      "item_key": "nexus_roadgun",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:other/nexus/click/roadgun",
+      "raw_command": "execute unless score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{nexus_roadgun:1}}}}] nexus_roadgun_cd matches 1.. at @s run function lbc:other/nexus/click/roadgun"
+    },
+    {
+      "item_key": "nexus_corrupter",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:other/nexus/click/corrupter",
+      "raw_command": "execute unless score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{nexus_corrupter:1}}}}] nexus_corrupter_cd matches 1.. run function lbc:other/nexus/click/corrupter"
+    },
+    {
+      "item_key": "nexus_orb_gun",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:other/nexus/click/orb_gun/pre",
+      "raw_command": "execute if entity @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{nexus_orb_gun:1}}}}] run function lbc:other/nexus/click/orb_gun/pre"
+    },
+    {
+      "item_key": "piston_sword",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:items/swords/piston_sword/click",
+      "raw_command": "execute if entity @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{piston_sword:1}}}}] run function lbc:items/swords/piston_sword/click"
+    },
+    {
+      "item_key": "danmaku_staff",
+      "mana_objective": "danmaku_staff_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:items/wands/danmaku_staff/click",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{danmaku_staff:1}}}}] mana >= danmaku_staff_mana_use lbc.math run function lbc:items/wands/danmaku_staff/click"
+    },
+    {
+      "item_key": "nexus_pulsar",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:other/nexus/click/pulsar/pre",
+      "raw_command": "execute unless score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{nexus_pulsar:1}}}}] pulsar_cd matches 1.. run function lbc:other/nexus/click/pulsar/pre"
+    },
+    {
+      "item_key": "triple_golden_sword",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:items/swords/triple_golden_sword/click",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{triple_golden_sword:1}}}}] swordcharged8 matches 1.. run function lbc:items/swords/triple_golden_sword/click"
+    },
+    {
+      "item_key": "uniwand",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:items/wands/uniwand/click",
+      "raw_command": "execute if entity @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{uniwand:1}}}}] run function lbc:items/wands/uniwand/click"
+    },
+    {
+      "item_key": "struby_tiny",
+      "mana_objective": "tiny_ruby_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs_tiny/ruby",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{struby_tiny:1}}}}] mana >= tiny_ruby_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs_tiny/ruby"
+    },
+    {
+      "item_key": "stterra_tiny",
+      "mana_objective": "tiny_terra_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs_tiny/terra",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{stterra_tiny:1}}}}] mana >= tiny_terra_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs_tiny/terra"
+    },
+    {
+      "item_key": "stelectro_tiny",
+      "mana_objective": "tiny_electro_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs_tiny/electro",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{stelectro_tiny:1}}}}] mana >= tiny_electro_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs_tiny/electro"
+    },
+    {
+      "item_key": "stair_tiny",
+      "mana_objective": "tiny_air_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs_tiny/air",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{stair_tiny:1}}}}] mana >= tiny_air_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs_tiny/air"
+    },
+    {
+      "item_key": "stacid_tiny",
+      "mana_objective": "tiny_acid_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs_tiny/acid",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{stacid_tiny:1}}}}] mana >= tiny_acid_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs_tiny/acid"
+    },
+    {
+      "item_key": "stteleport_tiny",
+      "mana_objective": "tiny_teleport_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs_tiny/teleport",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{stteleport_tiny:1}}}}] mana >= tiny_teleport_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs_tiny/teleport"
+    },
+    {
+      "item_key": "ststone_tiny",
+      "mana_objective": "tiny_stone_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs_tiny/stone",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{ststone_tiny:1}}}}] mana >= tiny_stone_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs_tiny/stone"
+    },
+    {
+      "item_key": "stfire_tiny",
+      "mana_objective": "tiny_fire_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs_tiny/fire",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{stfire_tiny:1}}}}] mana >= tiny_fire_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs_tiny/fire"
+    },
+    {
+      "item_key": "stblind_tiny",
+      "mana_objective": "tiny_blind_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs_tiny/blind",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{stblind_tiny:1}}}}] mana >= tiny_blind_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs_tiny/blind"
+    },
+    {
+      "item_key": null,
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:swrg_kit_integration/items/multiply_5",
+      "raw_command": "execute if entity @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{multiply:5}}}}] run function lbc:swrg_kit_integration/items/multiply_5"
+    },
+    {
+      "item_key": "penis_cultus",
+      "mana_objective": "penis_cultus_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/penis_cultus/use",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{penis_cultus:1}}}}] mana >= penis_cultus_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/penis_cultus/use"
+    },
+    {
+      "item_key": "grapping_hook",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper",
+      "target_function": "lbc:swrg_kit_integration/items/grapping_hook",
+      "raw_command": "execute if entity @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{grapping_hook:1}}}}] unless entity @e[type=minecraft:marker,distance=..20,tag=stopper,limit=1] at @s run function lbc:swrg_kit_integration/items/grapping_hook"
+    },
+    {
+      "item_key": null,
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/cunny_item/select",
+      "raw_command": "execute if data entity @s SelectedItem.components.\"minecraft:custom_data\".cunny run function lbc:workingitems/cunny_item/select"
+    },
+    {
+      "item_key": "blazefire_sword",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:items/swords/blazefire_sword/click",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{blazefire_sword:1}}}}] swordcharged9 matches 5.. run function lbc:items/swords/blazefire_sword/click"
+    },
+    {
+      "item_key": "boba_eblan",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:items/misc/huynya/click",
+      "raw_command": "execute if entity @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{boba_eblan:1}}}}] run function lbc:items/misc/huynya/click"
+    },
+    {
+      "item_key": "sauvojen_wand",
+      "mana_objective": "sauvojen_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:items/wands/sauvojen_wand/cast",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{sauvojen_wand:1}}}}] mana >= sauvojen_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:items/wands/sauvojen_wand/cast"
+    },
+    {
+      "item_key": "vex_wand",
+      "mana_objective": "vex_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:other/event/halloween/vex_wand/cast",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{vex_wand:1}}}}] mana >= vex_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:other/event/halloween/vex_wand/cast"
+    },
+    {
+      "item_key": "soulcorrupter",
+      "mana_objective": "soulcorruption_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:other/event/halloween/soulcorruptwand/cast",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{soulcorrupter:1}}}}] mana >= soulcorruption_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:other/event/halloween/soulcorruptwand/cast"
+    },
+    {
+      "item_key": "mellstroy_mask",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:armor/mellstroy_mask/casino",
+      "raw_command": "execute if entity @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{mellstroy_mask:1}}}}] at @s run function lbc:armor/mellstroy_mask/casino"
+    },
+    {
+      "item_key": "fartus_nadristailo",
+      "mana_objective": "fartus_nadristailo_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/firtusnadristailo/cast",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{fartus_nadristailo:1}}}}] mana >= fartus_nadristailo_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/firtusnadristailo/cast"
+    },
+    {
+      "item_key": "big_bob",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/big_bob/click",
+      "raw_command": "execute if entity @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{big_bob:1}}}}] positioned ~ ~1 ~ run function lbc:workingitems/big_bob/click"
+    },
+    {
+      "item_key": "banana_palm",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/banana_palm/click",
+      "raw_command": "execute if entity @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{banana_palm:1}}}}] positioned ~ ~1 ~ run function lbc:workingitems/banana_palm/click"
+    },
+    {
+      "item_key": "pozdman_bot",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:swrg_kit_integration/game/skills/absolute_cinema/bot_click",
+      "raw_command": "execute if entity @s[tag=!pozdman_wait,nbt={SelectedItem:{components:{\"minecraft:custom_data\":{pozdman_bot:1}}}}] run function lbc:swrg_kit_integration/game/skills/absolute_cinema/bot_click"
+    },
+    {
+      "item_key": "nyauwu",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/nyaaahuwuuw",
+      "raw_command": "execute if items entity @s armor.head *[minecraft:custom_data~{nyauwu:1}] if items entity @s armor.chest *[minecraft:custom_data~{nyauwu:1}] if items entity @s armor.legs *[minecraft:custom_data~{nyauwu:1}] if items entity @s armor.feet *[minecraft:custom_data~{nyauwu:1}] run function lbc:workingitems/nyaaahuwuuw"
+    },
+    {
+      "item_key": "overload_crux",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:other/overload_crux/use",
+      "raw_command": "execute at @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{overload_crux:1}}}}] anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:other/overload_crux/use"
+    }
+  ],
+  "spell1_default_left": [
+    {
+      "item_key": "evocator",
+      "mana_objective": "evoker_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/evokercast_pre",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{evocator:1}] if score @s mana >= evoker_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/evokercast_pre"
+    },
+    {
+      "item_key": "bassboost",
+      "mana_objective": "bass_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/basscast_pre",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{bassboost:1}] if score @s mana >= bass_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/basscast_pre"
+    },
+    {
+      "item_key": "enderwand",
+      "mana_objective": "ender_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/endcast_pre",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{enderwand:1}] if score @s mana >= ender_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/endcast_pre"
+    },
+    {
+      "item_key": "corrupter",
+      "mana_objective": "corruption_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/corrupter_pre",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{corrupter:1}] if score @s mana >= corruption_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/corrupter_pre"
+    },
+    {
+      "item_key": "lifestealer",
+      "mana_objective": "vampire_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/lifestealer_pre",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{lifestealer:1}] if score @s mana >= vampire_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/lifestealer_pre"
+    },
+    {
+      "item_key": "foxusing",
+      "mana_objective": "confuse_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/foxuscast_pre",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{foxusing:1}] if score @s mana >= confuse_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/foxuscast_pre"
+    },
+    {
+      "item_key": "bloodmagic",
+      "mana_objective": "blood_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/bloodmagic_pre",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{bloodmagic:1}] if score @s mana >= blood_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/bloodmagic_pre"
+    },
+    {
+      "item_key": "badwiki",
+      "mana_objective": "bad_wiki_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/badwiki_pre",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{badwiki:1}] if score @s mana >= bad_wiki_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/badwiki_pre"
+    },
+    {
+      "item_key": "mobgun",
+      "mana_objective": null,
+      "cooldown_check": "coldown16:1..",
+      "stopper_tag": "stopper",
+      "target_function": "lbc:workingitems/mobgun",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{mobgun:1}] unless score @s coldown16 matches 1.. unless entity @e[type=minecraft:marker,distance=..20,tag=stopper,limit=1] run function lbc:workingitems/mobgun"
+    },
+    {
+      "item_key": "unstable_spellbook",
+      "mana_objective": "unstable_spellbook_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/random_spell",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{unstable_spellbook:1}] if score @s mana >= unstable_spellbook_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/random_spell"
+    },
+    {
+      "item_key": "kfcgun",
+      "mana_objective": null,
+      "cooldown_check": "coldown17:1..",
+      "stopper_tag": "stopper",
+      "target_function": "lbc:workingitems/kfc",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{kfcgun:1}] unless score @s coldown17 matches 1.. unless entity @e[type=minecraft:marker,distance=..20,tag=stopper,limit=1] run function lbc:workingitems/kfc"
+    },
+    {
+      "item_key": "psychowand",
+      "mana_objective": "psycho_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/psychowand_pre",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{psychowand:1}] if score @s mana >= psycho_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/psychowand_pre"
+    },
+    {
+      "item_key": "cyberkatana",
+      "mana_objective": null,
+      "cooldown_check": "swordcharged1:1..",
+      "stopper_tag": "stopper",
+      "target_function": "lbc:workingitems/cyberkatanaability",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{cyberkatana:1}] if score @s swordcharged1 matches 1.. unless entity @e[type=minecraft:marker,distance=..20,tag=stopper,limit=1] run function lbc:workingitems/cyberkatanaability"
+    },
+    {
+      "item_key": "supersethomer",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/teleporthome_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{supersethomer:1}] unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/teleporthome_left"
+    },
+    {
+      "item_key": "razorpine",
+      "mana_objective": null,
+      "cooldown_check": "coldown18b:1..",
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/razorpine_ammo_check",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{razorpine:1}] unless score @s coldown18b matches 1.. unless score @s coldown18b matches 1.. run function lbc:workingitems/razorpine_ammo_check"
+    },
+    {
+      "item_key": "time_stopper",
+      "mana_objective": null,
+      "cooldown_check": "coldown1:1..",
+      "stopper_tag": null,
+      "target_function": "lbc:time_stop",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{time_stopper:1}] unless score @s coldown1 matches 1.. run function lbc:time_stop"
+    },
+    {
+      "item_key": "omegaflag",
+      "mana_objective": "absurd_singularity_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/omegaflag_pre",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{omegaflag:1}] if score @s mana >= absurd_singularity_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/omegaflag_pre"
+    },
+    {
+      "item_key": "neutralmage",
+      "mana_objective": "neutral_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/neutralmage/select_pre",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{neutralmage:1}] if score @s mana >= neutral_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/neutralmage/select_pre"
+    },
+    {
+      "item_key": "popit",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/popit",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{popit:1}] run function lbc:workingitems/popit"
+    },
+    {
+      "item_key": "govnomet",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper",
+      "target_function": "lbc:workingitems/govno",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{govnomet:1}] unless entity @e[type=minecraft:marker,distance=..20,tag=stopper,limit=1] run function lbc:workingitems/govno"
+    },
+    {
+      "item_key": "ak47",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper",
+      "target_function": "lbc:workingitems/ak47",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{ak47:1}] unless entity @e[type=minecraft:marker,distance=..20,tag=stopper,limit=1] run function lbc:workingitems/ak47"
+    },
+    {
+      "item_key": "feather_greed",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/feather_greed",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{feather_greed:1}] unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/feather_greed"
+    },
+    {
+      "item_key": "greed_greed",
+      "mana_objective": null,
+      "cooldown_check": "divider_cd:1..",
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/divider",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{greed_greed:1}] unless score @s divider_cd matches 1.. unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/divider"
+    },
+    {
+      "item_key": "exoperso",
+      "mana_objective": "megumin_staff_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/exoperso_pre",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{exoperso:1}] if score @s mana >= megumin_staff_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/exoperso_pre"
+    },
+    {
+      "item_key": "struby",
+      "mana_objective": "struby_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/ruby",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{struby:1}] if score @s mana >= struby_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/ruby"
+    },
+    {
+      "item_key": "stterra",
+      "mana_objective": "stterra_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/terra",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{stterra:1}] if score @s mana >= stterra_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/terra"
+    },
+    {
+      "item_key": "stelectro",
+      "mana_objective": "stelectro_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/electro",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{stelectro:1}] if score @s mana >= stelectro_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/electro"
+    },
+    {
+      "item_key": "stair",
+      "mana_objective": "stair_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/air",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{stair:1}] if score @s mana >= stair_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/air"
+    },
+    {
+      "item_key": "stacid",
+      "mana_objective": "stacid_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/acid",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{stacid:1}] if score @s mana >= stacid_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/acid"
+    },
+    {
+      "item_key": "stteleport",
+      "mana_objective": "stteleport_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/teleport",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{stteleport:1}] if score @s mana >= stteleport_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/teleport"
+    },
+    {
+      "item_key": "ststone",
+      "mana_objective": "ststone_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/stone",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{ststone:1}] if score @s mana >= ststone_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/stone"
+    },
+    {
+      "item_key": "stfire",
+      "mana_objective": "stfire_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/fire",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{stfire:1}] if score @s mana >= stfire_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/fire"
+    },
+    {
+      "item_key": "stblind",
+      "mana_objective": "stblind_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/blind",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{stblind:1}] if score @s mana >= stblind_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/blind"
+    },
+    {
+      "item_key": "reactive_shish",
+      "mana_objective": null,
+      "cooldown_check": "coldownshish:1..",
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/reactive_shish",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{reactive_shish:1}] unless score @s coldownshish matches 1.. unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/reactive_shish"
+    },
+    {
+      "item_key": "vexsword",
+      "mana_objective": null,
+      "cooldown_check": "swordcharged4:1..",
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/vex_ulta",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{vexsword:1}] if score @s swordcharged4 matches 1.. unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/vex_ulta"
+    },
+    {
+      "item_key": "shit_katana",
+      "mana_objective": null,
+      "cooldown_check": "swordcharged5:1..",
+      "stopper_tag": "stopper",
+      "target_function": "lbc:workingitems/shit_ulta",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{shit_katana:1}] if score @s swordcharged5 matches 1.. unless entity @e[type=minecraft:marker,distance=..20,tag=stopper,limit=1] run function lbc:workingitems/shit_ulta"
+    },
+    {
+      "item_key": "witch_gens",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/witch_gens/activate",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{witch_gens:1}] run function lbc:workingitems/witch_gens/activate"
+    },
+    {
+      "item_key": "whale",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/witch_gens/whale_spawn",
+      "raw_command": "execute if items entity @s[tag=sin_gluttony] weapon.offhand *[minecraft:custom_data~{whale:1}] unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] unless entity @e[type=minecraft:ghast,tag=white_whale] anchored eyes positioned ^ ^ ^ run function lbc:workingitems/witch_gens/whale_spawn"
+    },
+    {
+      "item_key": "lust_cooldown",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/witch_gens/lust_flesh",
+      "raw_command": "execute if items entity @s[tag=sin_lust] weapon.offhand *[minecraft:custom_data~{lust_cooldown:1}] unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/witch_gens/lust_flesh"
+    },
+    {
+      "item_key": "indolence",
+      "mana_objective": null,
+      "cooldown_check": "indolence_cd:1..",
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/witch_gens/indolence_hand",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{indolence:1}] unless score @s indolence_cd matches 1.. unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] anchored eyes positioned ^ ^ ^ run function lbc:workingitems/witch_gens/indolence_hand"
+    },
+    {
+      "item_key": "techrunner_katana",
+      "mana_objective": null,
+      "cooldown_check": "swordcharged6:1..",
+      "stopper_tag": "stopper",
+      "target_function": "lbc:other/techno/katana/use",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{techrunner_katana:1}] if score @s swordcharged6 matches 1.. at @s unless entity @e[type=minecraft:marker,distance=..20,tag=stopper,limit=1] run function lbc:other/techno/katana/use"
+    },
+    {
+      "item_key": "dublicating_wand",
+      "mana_objective": "dublicating_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/avarice/click",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{dublicating_wand:1}] if score @s mana >= dublicating_wand_mana_use lbc.math at @s anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/avarice/click"
+    },
+    {
+      "item_key": "true_terra",
+      "mana_objective": "true_terra_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/terra/click",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{true_terra:1}] if score @s mana >= true_terra_mana_use lbc.math at @s anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/terra/click"
+    },
+    {
+      "item_key": "razorterra",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/terra/razorterra",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{razorterra:1}] anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/terra/razorterra"
+    },
+    {
+      "item_key": "erecto_wand",
+      "mana_objective": "erecto_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/erecto/click",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{erecto_wand:1}] if score @s mana >= erecto_wand_mana_use lbc.math anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/erecto/click"
+    },
+    {
+      "item_key": "exasperato_wand",
+      "mana_objective": "exasperato_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/exasperato/click",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{exasperato_wand:1}] if score @s mana >= exasperato_wand_mana_use lbc.math anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/exasperato/click"
+    },
+    {
+      "item_key": "acidacid_wand",
+      "mana_objective": "acidacid_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/acidacid/click",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{acidacid_wand:1}] if score @s mana >= acidacid_wand_mana_use lbc.math anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/acidacid/click"
+    },
+    {
+      "item_key": "bedrock_wand",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/bedrock/click",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{bedrock_wand:1}] unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/bedrock/click"
+    },
+    {
+      "item_key": "fireblaze_wand",
+      "mana_objective": "fireblaze_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/fireblaze/click",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{fireblaze_wand:1}] if score @s mana >= fireblaze_wand_mana_use lbc.math at @s unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/fireblaze/click"
+    },
+    {
+      "item_key": "psychoblind_wand",
+      "mana_objective": "psychoblind_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/psychoblind/click",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{psychoblind_wand:1}] if score @s mana >= psychoblind_wand_mana_use lbc.math anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/psychoblind/click"
+    },
+    {
+      "item_key": "gaycaster",
+      "mana_objective": "gaycaster_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/gaycaster/ray/cast",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{gaycaster:1}] if score @s mana >= gaycaster_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/gaycaster/ray/cast"
+    },
+    {
+      "item_key": "clocks",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/clock_fragment/select_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{clocks:1}] run function lbc:workingitems/clock_fragment/select_left"
+    },
+    {
+      "item_key": "ice_wand",
+      "mana_objective": "ice_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/ice_wand/use",
+      "raw_command": "execute if items entity @s[predicate=!lbc:sneak] weapon.offhand *[minecraft:custom_data~{ice_wand:1}] if score @s mana >= ice_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/ice_wand/use"
+    },
+    {
+      "item_key": "ice_wand",
+      "mana_objective": "ice_wand_shift_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/ice_wand/use_shift",
+      "raw_command": "execute if items entity @s[predicate=lbc:sneak] weapon.offhand *[minecraft:custom_data~{ice_wand:1}] if score @s mana >= ice_wand_shift_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/ice_wand/use_shift with entity @s"
+    },
+    {
+      "item_key": "anal_whip",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/ender_whip_teleport_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{anal_whip:1}] run function lbc:workingitems/ender_whip_teleport_left"
+    },
+    {
+      "item_key": "banhammer",
+      "mana_objective": null,
+      "cooldown_check": "swordcharged7:1..",
+      "stopper_tag": null,
+      "target_function": "lbc:items/swords/banhammer/ability",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{banhammer:1}] if score @s swordcharged7 matches 1.. run function lbc:items/swords/banhammer/ability"
+    },
+    {
+      "item_key": "oraora",
+      "mana_objective": null,
+      "cooldown_check": "coldownoraora:1..",
+      "stopper_tag": null,
+      "target_function": "lbc:items/oraora/click",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{oraora:1}] unless score @s coldownoraora matches 1.. run function lbc:items/oraora/click"
+    },
+    {
+      "item_key": "stand_clocks",
+      "mana_objective": null,
+      "cooldown_check": "coldowntimestand:1..",
+      "stopper_tag": null,
+      "target_function": "lbc:time_stop_powerful",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{stand_clocks:1}] unless score @s coldowntimestand matches 1.. run function lbc:time_stop_powerful"
+    },
+    {
+      "item_key": "homing_lightning",
+      "mana_objective": null,
+      "cooldown_check": "coldownlightning:1..",
+      "stopper_tag": null,
+      "target_function": "lbc:other/stand_arrow/homing_lightning_spawn",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{homing_lightning:1}] unless score @s coldownlightning matches 1.. run function lbc:other/stand_arrow/homing_lightning_spawn"
+    },
+    {
+      "item_key": "divider_by_metal_pipe",
+      "mana_objective": null,
+      "cooldown_check": "metal_divider_cd:1..",
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/metal_divider/click",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{divider_by_metal_pipe:1}] unless score @s metal_divider_cd matches 1.. run function lbc:workingitems/metal_divider/click"
+    },
+    {
+      "item_key": "nexus_roadgun",
+      "mana_objective": null,
+      "cooldown_check": "nexus_roadgun_cd:1..",
+      "stopper_tag": null,
+      "target_function": "lbc:other/nexus/click/roadgun",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{nexus_roadgun:1}] unless score @s nexus_roadgun_cd matches 1.. at @s run function lbc:other/nexus/click/roadgun"
+    },
+    {
+      "item_key": "nexus_corrupter",
+      "mana_objective": null,
+      "cooldown_check": "nexus_corrupter_cd:1..",
+      "stopper_tag": null,
+      "target_function": "lbc:other/nexus/click/corrupter",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{nexus_corrupter:1}] unless score @s nexus_corrupter_cd matches 1.. at @s run function lbc:other/nexus/click/corrupter"
+    },
+    {
+      "item_key": "nexus_orb_gun",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:other/nexus/click/orb_gun/pre",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{nexus_orb_gun:1}] run function lbc:other/nexus/click/orb_gun/pre"
+    },
+    {
+      "item_key": "piston_sword",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:items/swords/piston_sword/click",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{piston_sword:1}] run function lbc:items/swords/piston_sword/click"
+    },
+    {
+      "item_key": "nexus_pulsar",
+      "mana_objective": null,
+      "cooldown_check": "pulsar_cd:1..",
+      "stopper_tag": null,
+      "target_function": "lbc:other/nexus/click/pulsar/pre",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{nexus_pulsar:1}] unless score @s pulsar_cd matches 1.. run function lbc:other/nexus/click/pulsar/pre"
+    },
+    {
+      "item_key": "danmaku_staff",
+      "mana_objective": "danmaku_staff_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:items/wands/danmaku_staff/click",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{danmaku_staff:1}] if score @s mana >= danmaku_staff_mana_use lbc.math run function lbc:items/wands/danmaku_staff/click"
+    },
+    {
+      "item_key": "triple_golden_sword",
+      "mana_objective": null,
+      "cooldown_check": "swordcharged8:1..",
+      "stopper_tag": null,
+      "target_function": "lbc:items/swords/triple_golden_sword/click",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{triple_golden_sword:1}] if score @s swordcharged8 matches 1.. run function lbc:items/swords/triple_golden_sword/click"
+    },
+    {
+      "item_key": "uniwand",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:items/wands/uniwand/click",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{uniwand:1}] run function lbc:items/wands/uniwand/click"
+    },
+    {
+      "item_key": "struby_tiny",
+      "mana_objective": "tiny_ruby_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs_tiny/ruby",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{struby_tiny:1}] if score @s mana >= tiny_ruby_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs_tiny/ruby"
+    },
+    {
+      "item_key": "stterra_tiny",
+      "mana_objective": "tiny_terra_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs_tiny/terra",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{stterra_tiny:1}] if score @s mana >= tiny_terra_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs_tiny/terra"
+    },
+    {
+      "item_key": "stelectro_tiny",
+      "mana_objective": "tiny_electro_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs_tiny/electro",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{stelectro_tiny:1}] if score @s mana >= tiny_electro_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs_tiny/electro"
+    },
+    {
+      "item_key": "stair_tiny",
+      "mana_objective": "tiny_air_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs_tiny/air",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{stair_tiny:1}] if score @s mana >= tiny_air_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs_tiny/air"
+    },
+    {
+      "item_key": "stacid_tiny",
+      "mana_objective": "tiny_acid_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs_tiny/acid",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{stacid_tiny:1}] if score @s mana >= tiny_acid_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs_tiny/acid"
+    },
+    {
+      "item_key": "stteleport_tiny",
+      "mana_objective": "tiny_teleport_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs_tiny/teleport",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{stteleport_tiny:1}] if score @s mana >= tiny_teleport_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs_tiny/teleport"
+    },
+    {
+      "item_key": "ststone_tiny",
+      "mana_objective": "tiny_stone_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs_tiny/stone",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{ststone_tiny:1}] if score @s mana >= tiny_stone_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs_tiny/stone"
+    },
+    {
+      "item_key": "stfire_tiny",
+      "mana_objective": "tiny_fire_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs_tiny/fire",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{stfire_tiny:1}] if score @s mana >= tiny_fire_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs_tiny/fire"
+    },
+    {
+      "item_key": "stblind_tiny",
+      "mana_objective": "tiny_blind_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs_tiny/blind",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{stblind_tiny:1}] if score @s mana >= tiny_blind_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs_tiny/blind"
+    },
+    {
+      "item_key": null,
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:swrg_kit_integration/items/multiply_5",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{multiply:5}] run function lbc:swrg_kit_integration/items/multiply_5"
+    },
+    {
+      "item_key": "grapping_hook",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper",
+      "target_function": "lbc:swrg_kit_integration/items/grapping_hook",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{grapping_hook:1}] unless entity @e[type=minecraft:marker,distance=..20,tag=stopper,limit=1] at @s run function lbc:swrg_kit_integration/items/grapping_hook"
+    },
+    {
+      "item_key": null,
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/cunny_item/select_left",
+      "raw_command": "execute if data entity @s equipment.offhand.components.\"minecraft:custom_data\".cunny run function lbc:workingitems/cunny_item/select_left"
+    },
+    {
+      "item_key": "blazefire_sword",
+      "mana_objective": null,
+      "cooldown_check": "swordcharged9:5..",
+      "stopper_tag": null,
+      "target_function": "lbc:items/swords/blazefire_sword/click",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{blazefire_sword:1}] if score @s swordcharged9 matches 5.. run function lbc:items/swords/blazefire_sword/click"
+    },
+    {
+      "item_key": "boba_eblan",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:items/misc/huynya/click",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{boba_eblan:1}] run function lbc:items/misc/huynya/click"
+    },
+    {
+      "item_key": "penis_cultus",
+      "mana_objective": "penis_cultus_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/penis_cultus/use",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{penis_cultus:1}] if score @s mana >= penis_cultus_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/penis_cultus/use"
+    },
+    {
+      "item_key": "snow_wand",
+      "mana_objective": "snow_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/snow_wand/cast",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{snow_wand:1}] if score @s mana >= snow_wand_mana_use lbc.math anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/snow_wand/cast"
+    },
+    {
+      "item_key": "shish_wall_wand",
+      "mana_objective": "shish_wall_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/shish_wall_wand/cast",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{shish_wall_wand:1}] if score @s mana >= shish_wall_wand_mana_use lbc.math anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/shish_wall_wand/cast"
+    },
+    {
+      "item_key": "sauvojen_wand",
+      "mana_objective": "sauvojen_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:items/wands/sauvojen_wand/cast",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{sauvojen_wand:1}] if score @s mana >= sauvojen_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:items/wands/sauvojen_wand/cast"
+    },
+    {
+      "item_key": "vex_wand",
+      "mana_objective": "vex_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:other/event/halloween/vex_wand/cast",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{vex_wand:1}] if score @s mana >= vex_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:other/event/halloween/vex_wand/cast"
+    },
+    {
+      "item_key": "soulcorrupter",
+      "mana_objective": "soulcorruption_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:other/event/halloween/soulcorruptwand/cast",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{soulcorrupter:1}] if score @s mana >= soulcorruption_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:other/event/halloween/soulcorruptwand/cast"
+    },
+    {
+      "item_key": "fartus_nadristailo",
+      "mana_objective": "fartus_nadristailo_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/firtusnadristailo/cast",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{fartus_nadristailo:1}] if score @s mana >= fartus_nadristailo_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/firtusnadristailo/cast"
+    },
+    {
+      "item_key": "big_bob",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/big_bob/click",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{big_bob:1}] positioned ~ ~1 ~ run function lbc:workingitems/big_bob/click"
+    },
+    {
+      "item_key": "pozdman_bot",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:swrg_kit_integration/game/skills/absolute_cinema/bot_click",
+      "raw_command": "execute if items entity @s[tag=!pozdman_wait] weapon.offhand *[minecraft:custom_data~{pozdman_bot:1}] run function lbc:swrg_kit_integration/game/skills/absolute_cinema/bot_click"
+    },
+    {
+      "item_key": "nyauwu",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/nyaaahuwuuw",
+      "raw_command": "execute if items entity @s armor.head *[minecraft:custom_data~{nyauwu:1}] if items entity @s armor.chest *[minecraft:custom_data~{nyauwu:1}] if items entity @s armor.legs *[minecraft:custom_data~{nyauwu:1}] if items entity @s armor.feet *[minecraft:custom_data~{nyauwu:1}] run function lbc:workingitems/nyaaahuwuuw"
+    }
+  ],
+  "spell1_upgraded": [
+    {
+      "item_key": "evocator",
+      "mana_objective": "evoker_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/evokercast_upgraded_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{evocator:1}}}}] mana >= evoker_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/evokercast_upgraded_pre"
+    },
+    {
+      "item_key": "bassboost",
+      "mana_objective": "bass_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/basscast_upgraded_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{bassboost:1}}}}] mana >= bass_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/basscast_upgraded_pre"
+    },
+    {
+      "item_key": "enderwand",
+      "mana_objective": "ender_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/endcast_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{enderwand:1}}}}] mana >= ender_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/endcast_pre"
+    },
+    {
+      "item_key": "corrupter",
+      "mana_objective": "corruption_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/corrupter_upgraded_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{corrupter:1}}}}] mana >= corruption_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/corrupter_upgraded_pre"
+    },
+    {
+      "item_key": "lifestealer",
+      "mana_objective": "vampire_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/lifestealer_upgraded_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{lifestealer:1}}}}] mana >= vampire_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/lifestealer_upgraded_pre"
+    },
+    {
+      "item_key": "foxusing",
+      "mana_objective": "confuse_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/foxuscast_upgraded_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{foxusing:1}}}}] mana >= confuse_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/foxuscast_upgraded_pre"
+    },
+    {
+      "item_key": "bloodmagic",
+      "mana_objective": "blood_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/bloodmagic_upgraded_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{bloodmagic:1}}}}] mana >= blood_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/bloodmagic_upgraded_pre"
+    },
+    {
+      "item_key": "badwiki",
+      "mana_objective": "bad_wiki_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/badwiki_upgraded_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{badwiki:1}}}}] mana >= bad_wiki_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/badwiki_upgraded_pre"
+    },
+    {
+      "item_key": "unstable_spellbook",
+      "mana_objective": "unstable_spellbook_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/random_spell_upgraded_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{unstable_spellbook:1}}}}] mana >= unstable_spellbook_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/random_spell_upgraded_pre"
+    },
+    {
+      "item_key": "psychowand",
+      "mana_objective": "psycho_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/psychowand_upgraded_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{psychowand:1}}}}] mana >= psycho_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/psychowand_upgraded_pre"
+    },
+    {
+      "item_key": "omegaflag",
+      "mana_objective": "absurd_singularity_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/omegaflag_upgraded_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{omegaflag:1}}}}] mana >= absurd_singularity_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/omegaflag_upgraded_pre"
+    },
+    {
+      "item_key": "neutralmage",
+      "mana_objective": "neutral_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/neutralmage/select_upgraded_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{neutralmage:1}}}}] mana >= neutral_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/neutralmage/select_upgraded_pre"
+    },
+    {
+      "item_key": "exoperso",
+      "mana_objective": "megumin_staff_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/exoperso_upgraded_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{exoperso:1}}}}] mana >= megumin_staff_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/exoperso_upgraded_pre"
+    },
+    {
+      "item_key": "struby",
+      "mana_objective": "struby_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/ruby_upgraded_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{struby:1}}}}] mana >= struby_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/ruby_upgraded_pre"
+    },
+    {
+      "item_key": "stterra",
+      "mana_objective": "stterra_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/terra_upgraded_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{stterra:1}}}}] mana >= stterra_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/terra_upgraded_pre"
+    },
+    {
+      "item_key": "stelectro",
+      "mana_objective": "stelectro_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/electro_upgraded_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{stelectro:1}}}}] mana >= stelectro_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/electro_upgraded_pre"
+    },
+    {
+      "item_key": "stair",
+      "mana_objective": "stair_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/air_upgraded_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{stair:1}}}}] mana >= stair_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/air_upgraded_pre"
+    },
+    {
+      "item_key": "stacid",
+      "mana_objective": "stacid_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/acid_upgraded_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{stacid:1}}}}] mana >= stacid_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/acid_upgraded_pre"
+    },
+    {
+      "item_key": "stteleport",
+      "mana_objective": "stteleport_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/teleport_upgraded_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{stteleport:1}}}}] mana >= stteleport_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/teleport_upgraded_pre"
+    },
+    {
+      "item_key": "ststone",
+      "mana_objective": "ststone_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/stone_upgraded_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{ststone:1}}}}] mana >= ststone_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/stone_upgraded_pre"
+    },
+    {
+      "item_key": "stfire",
+      "mana_objective": "stfire_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/fire_upgraded_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{stfire:1}}}}] mana >= stfire_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/fire_upgraded_pre"
+    },
+    {
+      "item_key": "stblind",
+      "mana_objective": "stblind_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/blind_upgraded_pre",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{stblind:1}}}}] mana >= stblind_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/blind_upgraded_pre"
+    },
+    {
+      "item_key": "ice_wand",
+      "mana_objective": "ice_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/ice_wand/use",
+      "raw_command": "execute if score @s[predicate=!lbc:sneak,nbt={SelectedItem:{components:{\"minecraft:custom_data\":{ice_wand:1}}}}] mana >= ice_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/ice_wand/use"
+    },
+    {
+      "item_key": "ice_wand",
+      "mana_objective": "ice_wand_shift_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/ice_wand/use_shift_upgraded",
+      "raw_command": "execute if score @s[predicate=lbc:sneak,nbt={SelectedItem:{components:{\"minecraft:custom_data\":{ice_wand:1}}}}] mana >= ice_wand_shift_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/ice_wand/use_shift_upgraded with entity @s"
+    },
+    {
+      "item_key": "dublicating_wand",
+      "mana_objective": "dublicating_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/avarice/click_upgraded",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{dublicating_wand:1}}}}] mana >= dublicating_wand_mana_use lbc.math at @s anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/avarice/click_upgraded"
+    },
+    {
+      "item_key": "erecto_wand",
+      "mana_objective": "erecto_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/erecto/click_upgraded",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{erecto_wand:1}}}}] mana >= erecto_wand_mana_use lbc.math anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/erecto/click_upgraded"
+    },
+    {
+      "item_key": "exasperato_wand",
+      "mana_objective": "exasperato_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/exasperato/click_upgraded",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{exasperato_wand:1}}}}] mana >= exasperato_wand_mana_use lbc.math anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/exasperato/click_upgraded"
+    },
+    {
+      "item_key": "acidacid_wand",
+      "mana_objective": "acidacid_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{acidacid_wand:1}}}}] mana >= acidacid_wand_mana_use lbc.math anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded"
+    },
+    {
+      "item_key": "bedrock_wand",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/bedrock/click_upgraded",
+      "raw_command": "execute at @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{bedrock_wand:1}}}}] unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/bedrock/click_upgraded"
+    },
+    {
+      "item_key": "fireblaze_wand",
+      "mana_objective": "fireblaze_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/fireblaze/click_upgraded",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{fireblaze_wand:1}}}}] mana >= fireblaze_wand_mana_use lbc.math at @s unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/fireblaze/click_upgraded"
+    },
+    {
+      "item_key": "psychoblind_wand",
+      "mana_objective": "psychoblind_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/psychoblind/click_upgraded",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{psychoblind_wand:1}}}}] mana >= psychoblind_wand_mana_use lbc.math anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/psychoblind/click_upgraded"
+    },
+    {
+      "item_key": "snow_wand",
+      "mana_objective": "snow_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/snow_wand/upgraded/cast",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{snow_wand:1}}}}] mana >= snow_wand_mana_use lbc.math anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/snow_wand/upgraded/cast"
+    },
+    {
+      "item_key": "danmaku_staff",
+      "mana_objective": "danmaku_staff_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:items/wands/danmaku_staff/click",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{danmaku_staff:1}}}}] mana >= danmaku_staff_mana_use lbc.math run function lbc:items/wands/danmaku_staff/click"
+    },
+    {
+      "item_key": "gaycaster",
+      "mana_objective": "gaycaster_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/gaycaster/ray/cast_upgraded",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{gaycaster:1}}}}] mana >= gaycaster_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/gaycaster/ray/cast_upgraded"
+    },
+    {
+      "item_key": "sauvojen_wand",
+      "mana_objective": "sauvojen_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:items/wands/sauvojen_wand/cast_upgraded",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{sauvojen_wand:1}}}}] mana >= sauvojen_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:items/wands/sauvojen_wand/cast_upgraded"
+    },
+    {
+      "item_key": "vex_wand",
+      "mana_objective": "vex_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:other/event/halloween/vex_wand/cast_upgraded",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{vex_wand:1}}}}] mana >= vex_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:other/event/halloween/vex_wand/cast_upgraded"
+    },
+    {
+      "item_key": "soulcorrupter",
+      "mana_objective": "soulcorruption_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:other/event/halloween/soulcorruptwand/cast_upgraded",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{soulcorrupter:1}}}}] mana >= soulcorruption_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:other/event/halloween/soulcorruptwand/cast_upgraded"
+    },
+    {
+      "item_key": "fartus_nadristailo",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/firtusnadristailo/cast_upgraded",
+      "raw_command": "execute if score @s[nbt={SelectedItem:{components:{\"minecraft:custom_data\":{fartus_nadristailo:1}}}}] fartus_sword matches 3.. anchored eyes positioned ^ ^ ^ run function lbc:workingitems/firtusnadristailo/cast_upgraded"
+    },
+    {
+      "item_key": "nyauwu",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/nyaaahuwuuw",
+      "raw_command": "execute if items entity @s armor.head *[minecraft:custom_data~{nyauwu:1}] if items entity @s armor.chest *[minecraft:custom_data~{nyauwu:1}] if items entity @s armor.legs *[minecraft:custom_data~{nyauwu:1}] if items entity @s armor.feet *[minecraft:custom_data~{nyauwu:1}] run function lbc:workingitems/nyaaahuwuuw"
+    }
+  ],
+  "spell1_upgraded_left": [
+    {
+      "item_key": "evocator",
+      "mana_objective": "evoker_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/evokercast_upgraded_pre_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{evocator:1}] if score @s mana >= evoker_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/evokercast_upgraded_pre_left"
+    },
+    {
+      "item_key": "bassboost",
+      "mana_objective": "bass_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/basscast_upgraded_pre_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{bassboost:1}] if score @s mana >= bass_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/basscast_upgraded_pre_left"
+    },
+    {
+      "item_key": "enderwand",
+      "mana_objective": "ender_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/endcast_pre",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{enderwand:1}] if score @s mana >= ender_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/endcast_pre"
+    },
+    {
+      "item_key": "corrupter",
+      "mana_objective": "corruption_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/corrupter_upgraded_pre_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{corrupter:1}] if score @s mana >= corruption_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/corrupter_upgraded_pre_left"
+    },
+    {
+      "item_key": "lifestealer",
+      "mana_objective": "vampire_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/lifestealer_upgraded_pre_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{lifestealer:1}] if score @s mana >= vampire_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/lifestealer_upgraded_pre_left"
+    },
+    {
+      "item_key": "foxusing",
+      "mana_objective": "confuse_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/foxuscast_upgraded_pre_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{foxusing:1}] if score @s mana >= confuse_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/foxuscast_upgraded_pre_left"
+    },
+    {
+      "item_key": "bloodmagic",
+      "mana_objective": "blood_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/bloodmagic_upgraded_pre",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{bloodmagic:1}] if score @s mana >= blood_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/bloodmagic_upgraded_pre"
+    },
+    {
+      "item_key": "badwiki",
+      "mana_objective": "bad_wiki_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/badwiki_upgraded_pre_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{badwiki:1}] if score @s mana >= bad_wiki_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/badwiki_upgraded_pre_left"
+    },
+    {
+      "item_key": "unstable_spellbook",
+      "mana_objective": "unstable_spellbook_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/random_spell_upgraded_pre_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{unstable_spellbook:1}] if score @s mana >= unstable_spellbook_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/random_spell_upgraded_pre_left"
+    },
+    {
+      "item_key": "psychowand",
+      "mana_objective": "psycho_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/psychowand_upgraded_pre_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{psychowand:1}] if score @s mana >= psycho_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/psychowand_upgraded_pre_left"
+    },
+    {
+      "item_key": "omegaflag",
+      "mana_objective": "absurd_singularity_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/omegaflag_upgraded_pre",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{omegaflag:1}] if score @s mana >= absurd_singularity_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/omegaflag_upgraded_pre"
+    },
+    {
+      "item_key": "neutralmage",
+      "mana_objective": "neutral_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/neutralmage/select_upgraded_pre_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{neutralmage:1}] if score @s mana >= neutral_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/neutralmage/select_upgraded_pre_left"
+    },
+    {
+      "item_key": "exoperso",
+      "mana_objective": "megumin_staff_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/exoperso_upgraded_pre",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{exoperso:1}] if score @s mana >= megumin_staff_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/exoperso_upgraded_pre"
+    },
+    {
+      "item_key": "struby",
+      "mana_objective": "struby_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/ruby_upgraded_pre_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{struby:1}] if score @s mana >= struby_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/ruby_upgraded_pre_left"
+    },
+    {
+      "item_key": "stterra",
+      "mana_objective": "stterra_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/terra_upgraded_pre",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{stterra:1}] if score @s mana >= stterra_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/terra_upgraded_pre"
+    },
+    {
+      "item_key": "stelectro",
+      "mana_objective": "stelectro_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/electro_upgraded_pre_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{stelectro:1}] if score @s mana >= stelectro_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/electro_upgraded_pre_left"
+    },
+    {
+      "item_key": "stair",
+      "mana_objective": "stair_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/air_upgraded_pre_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{stair:1}] if score @s mana >= stair_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/air_upgraded_pre_left"
+    },
+    {
+      "item_key": "stacid",
+      "mana_objective": "stacid_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/acid_upgraded_pre_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{stacid:1}] if score @s mana >= stacid_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/acid_upgraded_pre_left"
+    },
+    {
+      "item_key": "stteleport",
+      "mana_objective": "stteleport_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/teleport_upgraded_pre_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{stteleport:1}] if score @s mana >= stteleport_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/teleport_upgraded_pre_left"
+    },
+    {
+      "item_key": "ststone",
+      "mana_objective": "ststone_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/stone_upgraded_pre_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{ststone:1}] if score @s mana >= ststone_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/stone_upgraded_pre_left"
+    },
+    {
+      "item_key": "stfire",
+      "mana_objective": "stfire_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/fire_upgraded_pre_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{stfire:1}] if score @s mana >= stfire_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/fire_upgraded_pre_left"
+    },
+    {
+      "item_key": "stblind",
+      "mana_objective": "stblind_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/sauvojen_staffs/blind_upgraded_pre_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{stblind:1}] if score @s mana >= stblind_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/blind_upgraded_pre_left"
+    },
+    {
+      "item_key": "dublicating_wand",
+      "mana_objective": "dublicating_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/avarice/click_upgraded_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{dublicating_wand:1}] if score @s mana >= dublicating_wand_mana_use lbc.math at @s anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/avarice/click_upgraded_left"
+    },
+    {
+      "item_key": "erecto_wand",
+      "mana_objective": "erecto_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/erecto/click_upgraded_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{erecto_wand:1}] if score @s mana >= erecto_wand_mana_use lbc.math anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/erecto/click_upgraded_left"
+    },
+    {
+      "item_key": "exasperato_wand",
+      "mana_objective": "exasperato_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/exasperato/click_upgraded_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{exasperato_wand:1}] if score @s mana >= exasperato_wand_mana_use lbc.math anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/exasperato/click_upgraded_left"
+    },
+    {
+      "item_key": "acidacid_wand",
+      "mana_objective": "acidacid_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{acidacid_wand:1}] if score @s mana >= acidacid_wand_mana_use lbc.math anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded_left"
+    },
+    {
+      "item_key": "bedrock_wand",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/bedrock/click_upgraded_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{bedrock_wand:1}] unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/bedrock/click_upgraded_left"
+    },
+    {
+      "item_key": "fireblaze_wand",
+      "mana_objective": "fireblaze_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/fireblaze/click_upgraded_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{fireblaze_wand:1}] if score @s mana >= fireblaze_wand_mana_use lbc.math at @s unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/fireblaze/click_upgraded_left"
+    },
+    {
+      "item_key": "psychoblind_wand",
+      "mana_objective": "psychoblind_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{psychoblind_wand:1}] if score @s mana >= psychoblind_wand_mana_use lbc.math anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_left"
+    },
+    {
+      "item_key": "ice_wand",
+      "mana_objective": "ice_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/ice_wand/use",
+      "raw_command": "execute if items entity @s[predicate=!lbc:sneak] weapon.offhand *[minecraft:custom_data~{ice_wand:1}] if score @s mana >= ice_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/ice_wand/use"
+    },
+    {
+      "item_key": "ice_wand",
+      "mana_objective": "ice_wand_shift_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/ice_wand/use_shift_upgraded",
+      "raw_command": "execute if items entity @s[predicate=lbc:sneak] weapon.offhand *[minecraft:custom_data~{ice_wand:1}] if score @s mana >= ice_wand_shift_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/ice_wand/use_shift_upgraded with entity @s"
+    },
+    {
+      "item_key": "snow_wand",
+      "mana_objective": "snow_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/snow_wand/upgraded/cast",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{snow_wand:1}] if score @s mana >= snow_wand_mana_use lbc.math anchored eyes positioned ^ ^ ^ unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/snow_wand/upgraded/cast"
+    },
+    {
+      "item_key": "danmaku_staff",
+      "mana_objective": "danmaku_staff_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:items/wands/danmaku_staff/click",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{danmaku_staff:1}] if score @s mana >= danmaku_staff_mana_use lbc.math run function lbc:items/wands/danmaku_staff/click"
+    },
+    {
+      "item_key": "gaycaster",
+      "mana_objective": "gaycaster_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:workingitems/gaycaster/ray/cast_upgraded_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{gaycaster:1}] if score @s mana >= gaycaster_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:workingitems/gaycaster/ray/cast_upgraded_left"
+    },
+    {
+      "item_key": "sauvojen_wand",
+      "mana_objective": "sauvojen_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:items/wands/sauvojen_wand/cast_upgraded",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{sauvojen_wand:1}] if score @s mana >= sauvojen_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:items/wands/sauvojen_wand/cast_upgraded"
+    },
+    {
+      "item_key": "vex_wand",
+      "mana_objective": "vex_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:other/event/halloween/vex_wand/cast_upgraded_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{vex_wand:1}] if score @s mana >= vex_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] at @s anchored eyes positioned ^ ^ ^ run function lbc:other/event/halloween/vex_wand/cast_upgraded_left"
+    },
+    {
+      "item_key": "soulcorrupter",
+      "mana_objective": "soulcorruption_wand_mana_use",
+      "cooldown_check": null,
+      "stopper_tag": "stopper_magic",
+      "target_function": "lbc:other/event/halloween/soulcorruptwand/cast_upgraded_left",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{soulcorrupter:1}] if score @s mana >= soulcorruption_wand_mana_use lbc.math unless entity @e[type=minecraft:marker,distance=..20,tag=stopper_magic,limit=1] run function lbc:other/event/halloween/soulcorruptwand/cast_upgraded_left"
+    },
+    {
+      "item_key": "fartus_nadristailo",
+      "mana_objective": null,
+      "cooldown_check": "fartus_sword:3..",
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/firtusnadristailo/cast_upgraded",
+      "raw_command": "execute if items entity @s weapon.offhand *[minecraft:custom_data~{fartus_nadristailo:1}] if score @s fartus_sword matches 3.. at @s anchored eyes positioned ^ ^ ^ run function lbc:workingitems/firtusnadristailo/cast_upgraded"
+    },
+    {
+      "item_key": "nyauwu",
+      "mana_objective": null,
+      "cooldown_check": null,
+      "stopper_tag": null,
+      "target_function": "lbc:workingitems/nyaaahuwuuw",
+      "raw_command": "execute if items entity @s armor.head *[minecraft:custom_data~{nyauwu:1}] if items entity @s armor.chest *[minecraft:custom_data~{nyauwu:1}] if items entity @s armor.legs *[minecraft:custom_data~{nyauwu:1}] if items entity @s armor.feet *[minecraft:custom_data~{nyauwu:1}] run function lbc:workingitems/nyaaahuwuuw"
+    }
+  ]
+}

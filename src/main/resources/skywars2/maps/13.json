@@ -1,0 +1,324 @@
+{
+  "id": "13",
+  "name": "Map 13",
+  "playerCapacity": 8,
+  "available": true,
+  "reason": "",
+  "placements": [
+    {
+      "template": "swrg:13-2",
+      "origin": [
+        -48,
+        48,
+        -96
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:13-3",
+      "origin": [
+        0,
+        48,
+        -96
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:13-5",
+      "origin": [
+        -96,
+        48,
+        -48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:13-6",
+      "origin": [
+        -48,
+        48,
+        -48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:13-7",
+      "origin": [
+        0,
+        48,
+        -48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:13-8",
+      "origin": [
+        48,
+        48,
+        -48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:13-9",
+      "origin": [
+        -96,
+        48,
+        0
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:13-10",
+      "origin": [
+        -48,
+        48,
+        0
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:13-11",
+      "origin": [
+        0,
+        48,
+        0
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:13-12",
+      "origin": [
+        48,
+        48,
+        0
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:13-14",
+      "origin": [
+        -48,
+        48,
+        48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:13-15",
+      "origin": [
+        0,
+        48,
+        48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 1.0,
+      "seed": 1,
+      "mode": "strict"
+    }
+  ],
+  "brokenPlacements": [
+    {
+      "template": "swrg:13-2",
+      "origin": [
+        -48,
+        48,
+        -96
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:13-3",
+      "origin": [
+        0,
+        48,
+        -96
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:13-5",
+      "origin": [
+        -96,
+        48,
+        -48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:13-6",
+      "origin": [
+        -48,
+        48,
+        -48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:13-7",
+      "origin": [
+        0,
+        48,
+        -48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:13-8",
+      "origin": [
+        48,
+        48,
+        -48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:13-9",
+      "origin": [
+        -96,
+        48,
+        0
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:13-10",
+      "origin": [
+        -48,
+        48,
+        0
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:13-11",
+      "origin": [
+        0,
+        48,
+        0
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:13-12",
+      "origin": [
+        48,
+        48,
+        0
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:13-14",
+      "origin": [
+        -48,
+        48,
+        48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    },
+    {
+      "template": "swrg:13-15",
+      "origin": [
+        0,
+        48,
+        48
+      ],
+      "rotation": "none",
+      "mirror": "none",
+      "integrity": 0.75,
+      "seed": 1,
+      "mode": "strict"
+    }
+  ],
+  "brokenAvailable": true
+}

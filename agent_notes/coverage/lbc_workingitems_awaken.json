@@ -1,0 +1,1941 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidacid: обычный луч и режимы",
+    "status": "documented",
+    "note": "Полный mana/mode/projectile цикл и внешний raycast hit описаны; spell-library variants сведены по отличиям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidacid: обычный луч и режимы",
+    "status": "documented",
+    "note": "Полный mana/mode/projectile цикл и внешний raycast hit описаны; spell-library variants сведены по отличиям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidacid: обычный луч и режимы",
+    "status": "documented",
+    "note": "Полный mana/mode/projectile цикл и внешний raycast hit описаны; spell-library variants сведены по отличиям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidacid: обычный луч и режимы",
+    "status": "documented",
+    "note": "Полный mana/mode/projectile цикл и внешний raycast hit описаны; spell-library variants сведены по отличиям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidacid: обычный луч и режимы",
+    "status": "documented",
+    "note": "Полный mana/mode/projectile цикл и внешний raycast hit описаны; spell-library variants сведены по отличиям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_caust.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidacid: обычный луч и режимы",
+    "status": "documented",
+    "note": "Полный mana/mode/projectile цикл и внешний raycast hit описаны; spell-library variants сведены по отличиям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_caust_lib.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidacid: обычный луч и режимы",
+    "status": "documented",
+    "note": "Полный mana/mode/projectile цикл и внешний raycast hit описаны; spell-library variants сведены по отличиям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_caust_lib_1.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidacid: обычный луч и режимы",
+    "status": "documented",
+    "note": "Полный mana/mode/projectile цикл и внешний raycast hit описаны; spell-library variants сведены по отличиям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_default.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidacid: обычный луч и режимы",
+    "status": "documented",
+    "note": "Полный mana/mode/projectile цикл и внешний raycast hit описаны; spell-library variants сведены по отличиям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_default_lib.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidacid: обычный луч и режимы",
+    "status": "documented",
+    "note": "Полный mana/mode/projectile цикл и внешний raycast hit описаны; spell-library variants сведены по отличиям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_gatling.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidacid: обычный луч и режимы",
+    "status": "documented",
+    "note": "Полный mana/mode/projectile цикл и внешний raycast hit описаны; spell-library variants сведены по отличиям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_gatling_lib.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidacid: обычный луч и режимы",
+    "status": "documented",
+    "note": "Полный mana/mode/projectile цикл и внешний raycast hit описаны; spell-library variants сведены по отличиям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_gatling_lib_1.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidacid: обычный луч и режимы",
+    "status": "documented",
+    "note": "Полный mana/mode/projectile цикл и внешний raycast hit описаны; spell-library variants сведены по отличиям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_rifle.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidacid: обычный луч и режимы",
+    "status": "documented",
+    "note": "Полный mana/mode/projectile цикл и внешний raycast hit описаны; spell-library variants сведены по отличиям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_rifle_tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidacid: обычный луч и режимы",
+    "status": "documented",
+    "note": "Полный mana/mode/projectile цикл и внешний raycast hit описаны; spell-library variants сведены по отличиям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidacid: обычный луч и режимы",
+    "status": "documented",
+    "note": "Полный mana/mode/projectile цикл и внешний raycast hit описаны; spell-library variants сведены по отличиям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/explode.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidacid: обычный луч и режимы",
+    "status": "documented",
+    "note": "Полный mana/mode/projectile цикл и внешний raycast hit описаны; spell-library variants сведены по отличиям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidacid: обычный луч и режимы",
+    "status": "documented",
+    "note": "Полный mana/mode/projectile цикл и внешний raycast hit описаны; spell-library variants сведены по отличиям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/tick_burst.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidacid: обычный луч и режимы",
+    "status": "documented",
+    "note": "Полный mana/mode/projectile цикл и внешний raycast hit описаны; spell-library variants сведены по отличиям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/tick_caust.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidacid: обычный луч и режимы",
+    "status": "documented",
+    "note": "Полный mana/mode/projectile цикл и внешний raycast hit описаны; spell-library variants сведены по отличиям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/tick_spawn.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidacid: обычный луч и режимы",
+    "status": "documented",
+    "note": "Полный mana/mode/projectile цикл и внешний raycast hit описаны; spell-library variants сведены по отличиям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/ball_spawn_falling.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidcorrupt: кислотная траектория и четыре режима",
+    "status": "documented",
+    "note": "Mana-paid ray, upgrade curse, four modes and projectile-ball/debuff endpoints are traced through LBC/LBCR helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/ball_tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidcorrupt: кислотная траектория и четыре режима",
+    "status": "documented",
+    "note": "Mana-paid ray, upgrade curse, four modes and projectile-ball/debuff endpoints are traced through LBC/LBCR helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/click.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidcorrupt: кислотная траектория и четыре режима",
+    "status": "documented",
+    "note": "Mana-paid ray, upgrade curse, four modes and projectile-ball/debuff endpoints are traced through LBC/LBCR helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/click_lib.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidcorrupt: кислотная траектория и четыре режима",
+    "status": "documented",
+    "note": "Mana-paid ray, upgrade curse, four modes and projectile-ball/debuff endpoints are traced through LBC/LBCR helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/click_upgrade.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidcorrupt: кислотная траектория и четыре режима",
+    "status": "documented",
+    "note": "Mana-paid ray, upgrade curse, four modes and projectile-ball/debuff endpoints are traced through LBC/LBCR helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/click_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidcorrupt: кислотная траектория и четыре режима",
+    "status": "documented",
+    "note": "Mana-paid ray, upgrade curse, four modes and projectile-ball/debuff endpoints are traced through LBC/LBCR helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/click_upgraded_2_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidcorrupt: кислотная траектория и четыре режима",
+    "status": "documented",
+    "note": "Mana-paid ray, upgrade curse, four modes and projectile-ball/debuff endpoints are traced through LBC/LBCR helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/click_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidcorrupt: кислотная траектория и четыре режима",
+    "status": "documented",
+    "note": "Mana-paid ray, upgrade curse, four modes and projectile-ball/debuff endpoints are traced through LBC/LBCR helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidcorrupt: кислотная траектория и четыре режима",
+    "status": "documented",
+    "note": "Mana-paid ray, upgrade curse, four modes and projectile-ball/debuff endpoints are traced through LBC/LBCR helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/falling_tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidcorrupt: кислотная траектория и четыре режима",
+    "status": "documented",
+    "note": "Mana-paid ray, upgrade curse, four modes and projectile-ball/debuff endpoints are traced through LBC/LBCR helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/falling_tick_break.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidcorrupt: кислотная траектория и четыре режима",
+    "status": "documented",
+    "note": "Mana-paid ray, upgrade curse, four modes and projectile-ball/debuff endpoints are traced through LBC/LBCR helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/loop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidcorrupt: кислотная траектория и четыре режима",
+    "status": "documented",
+    "note": "Mana-paid ray, upgrade curse, four modes and projectile-ball/debuff endpoints are traced through LBC/LBCR helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/mode_chuma.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidcorrupt: кислотная траектория и четыре режима",
+    "status": "documented",
+    "note": "Mana-paid ray, upgrade curse, four modes and projectile-ball/debuff endpoints are traced through LBC/LBCR helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/mode_chuma_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidcorrupt: кислотная траектория и четыре режима",
+    "status": "documented",
+    "note": "Mana-paid ray, upgrade curse, four modes and projectile-ball/debuff endpoints are traced through LBC/LBCR helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/mode_reverse.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidcorrupt: кислотная траектория и четыре режима",
+    "status": "documented",
+    "note": "Mana-paid ray, upgrade curse, four modes and projectile-ball/debuff endpoints are traced through LBC/LBCR helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/mode_reverse_effect.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidcorrupt: кислотная траектория и четыре режима",
+    "status": "documented",
+    "note": "Mana-paid ray, upgrade curse, four modes and projectile-ball/debuff endpoints are traced through LBC/LBCR helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/mode_reverse_mob.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidcorrupt: кислотная траектория и четыре режима",
+    "status": "documented",
+    "note": "Mana-paid ray, upgrade curse, four modes and projectile-ball/debuff endpoints are traced through LBC/LBCR helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/mode_titul.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidcorrupt: кислотная траектория и четыре режима",
+    "status": "documented",
+    "note": "Mana-paid ray, upgrade curse, four modes and projectile-ball/debuff endpoints are traced through LBC/LBCR helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/mode_titul_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidcorrupt: кислотная траектория и четыре режима",
+    "status": "documented",
+    "note": "Mana-paid ray, upgrade curse, four modes and projectile-ball/debuff endpoints are traced through LBC/LBCR helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/mode_titul_end_mob.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidcorrupt: кислотная траектория и четыре режима",
+    "status": "documented",
+    "note": "Mana-paid ray, upgrade curse, four modes and projectile-ball/debuff endpoints are traced through LBC/LBCR helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/spawn.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidcorrupt: кислотная траектория и четыре режима",
+    "status": "documented",
+    "note": "Mana-paid ray, upgrade curse, four modes and projectile-ball/debuff endpoints are traced through LBC/LBCR helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/spawn_ball.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Acidcorrupt: кислотная траектория и четыре режима",
+    "status": "documented",
+    "note": "Mana-paid ray, upgrade curse, four modes and projectile-ball/debuff endpoints are traced through LBC/LBCR helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Avarice: копирующий wand и режимы",
+    "status": "documented",
+    "note": "Описаны запуск/cost, режимы, block-clone, ограничения cross-dimension macros и lifetime/cleanup с внешними dispatcher границами."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Avarice: копирующий wand и режимы",
+    "status": "documented",
+    "note": "Описаны запуск/cost, режимы, block-clone, ограничения cross-dimension macros и lifetime/cleanup с внешними dispatcher границами."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click2_upgrade.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Avarice: копирующий wand и режимы",
+    "status": "documented",
+    "note": "Описаны запуск/cost, режимы, block-clone, ограничения cross-dimension macros и lifetime/cleanup с внешними dispatcher границами."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click2_upgrade2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Avarice: копирующий wand и режимы",
+    "status": "documented",
+    "note": "Описаны запуск/cost, режимы, block-clone, ограничения cross-dimension macros и lifetime/cleanup с внешними dispatcher границами."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click2_upgrade3.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Avarice: копирующий wand и режимы",
+    "status": "documented",
+    "note": "Описаны запуск/cost, режимы, block-clone, ограничения cross-dimension macros и lifetime/cleanup с внешними dispatcher границами."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click2_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Avarice: копирующий wand и режимы",
+    "status": "documented",
+    "note": "Описаны запуск/cost, режимы, block-clone, ограничения cross-dimension macros и lifetime/cleanup с внешними dispatcher границами."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click2_upgraded_black_hole.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Avarice: копирующий wand и режимы",
+    "status": "documented",
+    "note": "Описаны запуск/cost, режимы, block-clone, ограничения cross-dimension macros и lifetime/cleanup с внешними dispatcher границами."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click2_upgraded_black_hole_charge.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Avarice: копирующий wand и режимы",
+    "status": "documented",
+    "note": "Описаны запуск/cost, режимы, block-clone, ограничения cross-dimension macros и lifetime/cleanup с внешними dispatcher границами."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click2_upgraded_default.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Avarice: копирующий wand и режимы",
+    "status": "documented",
+    "note": "Описаны запуск/cost, режимы, block-clone, ограничения cross-dimension macros и lifetime/cleanup с внешними dispatcher границами."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click2_upgraded_divide.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Avarice: копирующий wand и режимы",
+    "status": "documented",
+    "note": "Описаны запуск/cost, режимы, block-clone, ограничения cross-dimension macros и lifetime/cleanup с внешними dispatcher границами."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click2_upgraded_divide_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Avarice: копирующий wand и режимы",
+    "status": "documented",
+    "note": "Описаны запуск/cost, режимы, block-clone, ограничения cross-dimension macros и lifetime/cleanup с внешними dispatcher границами."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click2_upgraded_expand.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Avarice: копирующий wand и режимы",
+    "status": "documented",
+    "note": "Описаны запуск/cost, режимы, block-clone, ограничения cross-dimension macros и lifetime/cleanup с внешними dispatcher границами."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Avarice: копирующий wand и режимы",
+    "status": "documented",
+    "note": "Описаны запуск/cost, режимы, block-clone, ограничения cross-dimension macros и lifetime/cleanup с внешними dispatcher границами."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Avarice: копирующий wand и режимы",
+    "status": "documented",
+    "note": "Описаны запуск/cost, режимы, block-clone, ограничения cross-dimension macros и lifetime/cleanup с внешними dispatcher границами."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Avarice: копирующий wand и режимы",
+    "status": "documented",
+    "note": "Описаны запуск/cost, режимы, block-clone, ограничения cross-dimension macros и lifetime/cleanup с внешними dispatcher границами."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/rand_from_dim.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Avarice: копирующий wand и режимы",
+    "status": "documented",
+    "note": "Описаны запуск/cost, режимы, block-clone, ограничения cross-dimension macros и lifetime/cleanup с внешними dispatcher границами."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/rand_from_dim_remove.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Avarice: копирующий wand и режимы",
+    "status": "documented",
+    "note": "Описаны запуск/cost, режимы, block-clone, ограничения cross-dimension macros и lifetime/cleanup с внешними dispatcher границами."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/rand_rot.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Avarice: копирующий wand и режимы",
+    "status": "documented",
+    "note": "Описаны запуск/cost, режимы, block-clone, ограничения cross-dimension macros и lifetime/cleanup с внешними dispatcher границами."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/rand_rot2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Avarice: копирующий wand и режимы",
+    "status": "documented",
+    "note": "Описаны запуск/cost, режимы, block-clone, ограничения cross-dimension macros и lifetime/cleanup с внешними dispatcher границами."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/rand_rot2_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Avarice: копирующий wand и режимы",
+    "status": "documented",
+    "note": "Описаны запуск/cost, режимы, block-clone, ограничения cross-dimension macros и lifetime/cleanup с внешними dispatcher границами."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Avarice: копирующий wand и режимы",
+    "status": "documented",
+    "note": "Описаны запуск/cost, режимы, block-clone, ограничения cross-dimension macros и lifetime/cleanup с внешними dispatcher границами."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/tick_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Avarice: копирующий wand и режимы",
+    "status": "documented",
+    "note": "Описаны запуск/cost, режимы, block-clone, ограничения cross-dimension macros и lifetime/cleanup с внешними dispatcher границами."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/break_room.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Bedrock Wand: комната, укрепление и удаление бедрока",
+    "status": "documented",
+    "note": "Описаны owner room toggle/cost, regen loop и upgraded fill/replace, расстояния, бесплатные upgraded ветки и indefinite markers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/break_room_at.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Bedrock Wand: комната, укрепление и удаление бедрока",
+    "status": "documented",
+    "note": "Описаны owner room toggle/cost, regen loop и upgraded fill/replace, расстояния, бесплатные upgraded ветки и indefinite markers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Bedrock Wand: комната, укрепление и удаление бедрока",
+    "status": "documented",
+    "note": "Описаны owner room toggle/cost, regen loop и upgraded fill/replace, расстояния, бесплатные upgraded ветки и indefinite markers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_lib.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Bedrock Wand: комната, укрепление и удаление бедрока",
+    "status": "documented",
+    "note": "Описаны owner room toggle/cost, regen loop и upgraded fill/replace, расстояния, бесплатные upgraded ветки и indefinite markers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgrade.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Bedrock Wand: комната, укрепление и удаление бедрока",
+    "status": "documented",
+    "note": "Описаны owner room toggle/cost, regen loop и upgraded fill/replace, расстояния, бесплатные upgraded ветки и indefinite markers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Bedrock Wand: комната, укрепление и удаление бедрока",
+    "status": "documented",
+    "note": "Описаны owner room toggle/cost, regen loop и upgraded fill/replace, расстояния, бесплатные upgraded ветки и indefinite markers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Bedrock Wand: комната, укрепление и удаление бедрока",
+    "status": "documented",
+    "note": "Описаны owner room toggle/cost, regen loop и upgraded fill/replace, расстояния, бесплатные upgraded ветки и indefinite markers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_default.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Bedrock Wand: комната, укрепление и удаление бедрока",
+    "status": "documented",
+    "note": "Описаны owner room toggle/cost, regen loop и upgraded fill/replace, расстояния, бесплатные upgraded ветки и indefinite markers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_place_cube.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Bedrock Wand: комната, укрепление и удаление бедрока",
+    "status": "documented",
+    "note": "Описаны owner room toggle/cost, regen loop и upgraded fill/replace, расстояния, бесплатные upgraded ветки и indefinite markers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_place_cube_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Bedrock Wand: комната, укрепление и удаление бедрока",
+    "status": "documented",
+    "note": "Описаны owner room toggle/cost, regen loop и upgraded fill/replace, расстояния, бесплатные upgraded ветки и indefinite markers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_regen.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Bedrock Wand: комната, укрепление и удаление бедрока",
+    "status": "documented",
+    "note": "Описаны owner room toggle/cost, regen loop и upgraded fill/replace, расстояния, бесплатные upgraded ветки и indefinite markers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_regen_lib.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Bedrock Wand: комната, укрепление и удаление бедрока",
+    "status": "documented",
+    "note": "Описаны owner room toggle/cost, regen loop и upgraded fill/replace, расстояния, бесплатные upgraded ветки и indefinite markers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_regen_tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Bedrock Wand: комната, укрепление и удаление бедрока",
+    "status": "documented",
+    "note": "Описаны owner room toggle/cost, regen loop и upgraded fill/replace, расстояния, бесплатные upgraded ветки и indefinite markers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_remove.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Bedrock Wand: комната, укрепление и удаление бедрока",
+    "status": "documented",
+    "note": "Описаны owner room toggle/cost, regen loop и upgraded fill/replace, расстояния, бесплатные upgraded ветки и indefinite markers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_remove_cube.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Bedrock Wand: комната, укрепление и удаление бедрока",
+    "status": "documented",
+    "note": "Описаны owner room toggle/cost, regen loop и upgraded fill/replace, расстояния, бесплатные upgraded ветки и indefinite markers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_remove_cube_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Bedrock Wand: комната, укрепление и удаление бедрока",
+    "status": "documented",
+    "note": "Описаны owner room toggle/cost, regen loop и upgraded fill/replace, расстояния, бесплатные upgraded ветки и indefinite markers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_remove_cube_end_at.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Bedrock Wand: комната, укрепление и удаление бедрока",
+    "status": "documented",
+    "note": "Описаны owner room toggle/cost, regen loop и upgraded fill/replace, расстояния, бесплатные upgraded ветки и indefinite markers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_remove_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Bedrock Wand: комната, укрепление и удаление бедрока",
+    "status": "documented",
+    "note": "Описаны owner room toggle/cost, regen loop и upgraded fill/replace, расстояния, бесплатные upgraded ветки и indefinite markers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Bedrock Wand: комната, укрепление и удаление бедрока",
+    "status": "documented",
+    "note": "Описаны owner room toggle/cost, regen loop и upgraded fill/replace, расстояния, бесплатные upgraded ветки и indefinite markers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/create_room.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Bedrock Wand: комната, укрепление и удаление бедрока",
+    "status": "documented",
+    "note": "Описаны owner room toggle/cost, regen loop и upgraded fill/replace, расстояния, бесплатные upgraded ветки и indefinite markers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/create_room_lib.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Bedrock Wand: комната, укрепление и удаление бедрока",
+    "status": "documented",
+    "note": "Описаны owner room toggle/cost, regen loop и upgraded fill/replace, расстояния, бесплатные upgraded ветки и indefinite markers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/create_room_regen.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Bedrock Wand: комната, укрепление и удаление бедрока",
+    "status": "documented",
+    "note": "Описаны owner room toggle/cost, regen loop и upgraded fill/replace, расстояния, бесплатные upgraded ветки и indefinite markers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/create_room_regen_lib.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Bedrock Wand: комната, укрепление и удаление бедрока",
+    "status": "documented",
+    "note": "Описаны owner room toggle/cost, regen loop и upgraded fill/replace, расстояния, бесплатные upgraded ветки и indefinite markers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/charge_tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Boltbolt: молния, снегопад и управление погодой",
+    "status": "documented",
+    "note": "Описан mana/mode цикл, пределы trace, lightning markers, meteor, watering и rider dependencies; указано отсутствующее в LBC звено x5."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/charge_tick_1s.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Boltbolt: молния, снегопад и управление погодой",
+    "status": "documented",
+    "note": "Описан mana/mode цикл, пределы trace, lightning markers, meteor, watering и rider dependencies; указано отсутствующее в LBC звено x5."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Boltbolt: молния, снегопад и управление погодой",
+    "status": "documented",
+    "note": "Описан mana/mode цикл, пределы trace, lightning markers, meteor, watering и rider dependencies; указано отсутствующее в LBC звено x5."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click_lib.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Boltbolt: молния, снегопад и управление погодой",
+    "status": "documented",
+    "note": "Описан mana/mode цикл, пределы trace, lightning markers, meteor, watering и rider dependencies; указано отсутствующее в LBC звено x5."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Boltbolt: молния, снегопад и управление погодой",
+    "status": "documented",
+    "note": "Описан mana/mode цикл, пределы trace, lightning markers, meteor, watering и rider dependencies; указано отсутствующее в LBC звено x5."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Boltbolt: молния, снегопад и управление погодой",
+    "status": "documented",
+    "note": "Описан mana/mode цикл, пределы trace, lightning markers, meteor, watering и rider dependencies; указано отсутствующее в LBC звено x5."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_snow_meteor.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Boltbolt: молния, снегопад и управление погодой",
+    "status": "documented",
+    "note": "Описан mana/mode цикл, пределы trace, lightning markers, meteor, watering и rider dependencies; указано отсутствующее в LBC звено x5."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_snow_meteor_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Boltbolt: молния, снегопад и управление погодой",
+    "status": "documented",
+    "note": "Описан mana/mode цикл, пределы trace, lightning markers, meteor, watering и rider dependencies; указано отсутствующее в LBC звено x5."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_snow_meteor_explode.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Boltbolt: молния, снегопад и управление погодой",
+    "status": "documented",
+    "note": "Описан mana/mode цикл, пределы trace, lightning markers, meteor, watering и rider dependencies; указано отсутствующее в LBC звено x5."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_snow_meteor_first.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Boltbolt: молния, снегопад и управление погодой",
+    "status": "documented",
+    "note": "Описан mana/mode цикл, пределы trace, lightning markers, meteor, watering и rider dependencies; указано отсутствующее в LBC звено x5."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_snow_meteor_tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Boltbolt: молния, снегопад и управление погодой",
+    "status": "documented",
+    "note": "Описан mana/mode цикл, пределы trace, lightning markers, meteor, watering и rider dependencies; указано отсутствующее в LBC звено x5."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_snow_meteor_tick_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Boltbolt: молния, снегопад и управление погодой",
+    "status": "documented",
+    "note": "Описан mana/mode цикл, пределы trace, lightning markers, meteor, watering и rider dependencies; указано отсутствующее в LBC звено x5."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_watering.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Boltbolt: молния, снегопад и управление погодой",
+    "status": "documented",
+    "note": "Описан mana/mode цикл, пределы trace, lightning markers, meteor, watering и rider dependencies; указано отсутствующее в LBC звено x5."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_wind_racer.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Boltbolt: молния, снегопад и управление погодой",
+    "status": "documented",
+    "note": "Описан mana/mode цикл, пределы trace, lightning markers, meteor, watering и rider dependencies; указано отсутствующее в LBC звено x5."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Boltbolt: молния, снегопад и управление погодой",
+    "status": "documented",
+    "note": "Описан mana/mode цикл, пределы trace, lightning markers, meteor, watering и rider dependencies; указано отсутствующее в LBC звено x5."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Boltbolt: молния, снегопад и управление погодой",
+    "status": "documented",
+    "note": "Описан mana/mode цикл, пределы trace, lightning markers, meteor, watering и rider dependencies; указано отсутствующее в LBC звено x5."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/get_id.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Boltbolt: молния, снегопад и управление погодой",
+    "status": "documented",
+    "note": "Описан mana/mode цикл, пределы trace, lightning markers, meteor, watering и rider dependencies; указано отсутствующее в LBC звено x5."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/get_id_with_tp.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Boltbolt: молния, снегопад и управление погодой",
+    "status": "documented",
+    "note": "Описан mana/mode цикл, пределы trace, lightning markers, meteor, watering и rider dependencies; указано отсутствующее в LBC звено x5."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/get_id_with_tp_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Boltbolt: молния, снегопад и управление погодой",
+    "status": "documented",
+    "note": "Описан mana/mode цикл, пределы trace, lightning markers, meteor, watering и rider dependencies; указано отсутствующее в LBC звено x5."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/loop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Boltbolt: молния, снегопад и управление погодой",
+    "status": "documented",
+    "note": "Описан mana/mode цикл, пределы trace, lightning markers, meteor, watering и rider dependencies; указано отсутствующее в LBC звено x5."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/watering_tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Boltbolt: молния, снегопад и управление погодой",
+    "status": "documented",
+    "note": "Описан mana/mode цикл, пределы trace, lightning markers, meteor, watering и rider dependencies; указано отсутствующее в LBC звено x5."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Consuming Wand: луч, тишина и разрыв измерения",
+    "status": "documented",
+    "note": "Описаны base/upgrade mana, fixed trace/block removal, voidmen and four modes including global entities/blocks."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_loop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Consuming Wand: луч, тишина и разрыв измерения",
+    "status": "documented",
+    "note": "Описаны base/upgrade mana, fixed trace/block removal, voidmen and four modes including global entities/blocks."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_loop_randomcloud.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Consuming Wand: луч, тишина и разрыв измерения",
+    "status": "documented",
+    "note": "Описаны base/upgrade mana, fixed trace/block removal, voidmen and four modes including global entities/blocks."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_loop_randomcloud_get.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Consuming Wand: луч, тишина и разрыв измерения",
+    "status": "documented",
+    "note": "Описаны base/upgrade mana, fixed trace/block removal, voidmen and four modes including global entities/blocks."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_upgrade.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Consuming Wand: луч, тишина и разрыв измерения",
+    "status": "documented",
+    "note": "Описаны base/upgrade mana, fixed trace/block removal, voidmen and four modes including global entities/blocks."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Consuming Wand: луч, тишина и разрыв измерения",
+    "status": "documented",
+    "note": "Описаны base/upgrade mana, fixed trace/block removal, voidmen and four modes including global entities/blocks."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Consuming Wand: луч, тишина и разрыв измерения",
+    "status": "documented",
+    "note": "Описаны base/upgrade mana, fixed trace/block removal, voidmen and four modes including global entities/blocks."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_avarice.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Consuming Wand: луч, тишина и разрыв измерения",
+    "status": "documented",
+    "note": "Описаны base/upgrade mana, fixed trace/block removal, voidmen and four modes including global entities/blocks."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_avarice_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Consuming Wand: луч, тишина и разрыв измерения",
+    "status": "documented",
+    "note": "Описаны base/upgrade mana, fixed trace/block removal, voidmen and four modes including global entities/blocks."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_default.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Consuming Wand: луч, тишина и разрыв измерения",
+    "status": "documented",
+    "note": "Описаны base/upgrade mana, fixed trace/block removal, voidmen and four modes including global entities/blocks."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_silence.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Consuming Wand: луч, тишина и разрыв измерения",
+    "status": "documented",
+    "note": "Описаны base/upgrade mana, fixed trace/block removal, voidmen and four modes including global entities/blocks."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_the_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Consuming Wand: луч, тишина и разрыв измерения",
+    "status": "documented",
+    "note": "Описаны base/upgrade mana, fixed trace/block removal, voidmen and four modes including global entities/blocks."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_the_end_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Consuming Wand: луч, тишина и разрыв измерения",
+    "status": "documented",
+    "note": "Описаны base/upgrade mana, fixed trace/block removal, voidmen and four modes including global entities/blocks."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Consuming Wand: луч, тишина и разрыв измерения",
+    "status": "documented",
+    "note": "Описаны base/upgrade mana, fixed trace/block removal, voidmen and four modes including global entities/blocks."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consumption_part.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Consuming Wand: луч, тишина и разрыв измерения",
+    "status": "documented",
+    "note": "Описаны base/upgrade mana, fixed trace/block removal, voidmen and four modes including global entities/blocks."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consumption_part_da.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Consuming Wand: луч, тишина и разрыв измерения",
+    "status": "documented",
+    "note": "Описаны base/upgrade mana, fixed trace/block removal, voidmen and four modes including global entities/blocks."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/electroblock/repell.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Electroblock: собственные и вражеские снаряды",
+    "status": "documented",
+    "note": "Описаны actual instant-selector entrypoint, Motion ×2/opposite vector, owner/team filters и commented-out helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/electroblock/repell_new.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Electroblock: собственные и вражеские снаряды",
+    "status": "documented",
+    "note": "Описаны actual instant-selector entrypoint, Motion ×2/opposite vector, owner/team filters и commented-out helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/electroblock/tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Electroblock: собственные и вражеские снаряды",
+    "status": "documented",
+    "note": "Описаны actual instant-selector entrypoint, Motion ×2/opposite vector, owner/team filters и commented-out helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/electroblock/tick_accelerate.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Electroblock: собственные и вражеские снаряды",
+    "status": "documented",
+    "note": "Описаны actual instant-selector entrypoint, Motion ×2/opposite vector, owner/team filters и commented-out helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/electroblock/tick_owner.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Electroblock: собственные и вражеские снаряды",
+    "status": "documented",
+    "note": "Описаны actual instant-selector entrypoint, Motion ×2/opposite vector, owner/team filters и commented-out helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/electroblock/tick_owner_rc.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Electroblock: собственные и вражеские снаряды",
+    "status": "documented",
+    "note": "Описаны actual instant-selector entrypoint, Motion ×2/opposite vector, owner/team filters и commented-out helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/electroblock/tick_rc.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Electroblock: собственные и вражеские снаряды",
+    "status": "documented",
+    "note": "Описаны actual instant-selector entrypoint, Motion ×2/opposite vector, owner/team filters и commented-out helpers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/arc_tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/arc_tick_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/arc_tick_get_rot.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/arc_tick_get_rot_reset.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/arcs/1.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/arcs/1n.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/arcs/2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/arcs/2n.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/arcs/3.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/arcs/3n.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/arcs/4.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/arcs/4n.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/central_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/central_end_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/central_end_2kill.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/central_tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/central_tick_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/central_tick_end_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_1.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_default.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_ray.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_ray_dmg.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_ray_loop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_ray_particle.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_ray_particle2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_ray_tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sniper.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sniper_bruh.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sniper_bruh_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sniper_bruh_3.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sniper_charge.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sniper_charge_bruh.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sniper_charge_particle.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sniper_lib.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sphere.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sphere_place.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sphere_tick5t.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/get_data.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/get_id_and_rot.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/loop_check.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/loop_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Erecto: центральный луч, дуги, сфера и sniper",
+    "status": "documented",
+    "note": "Описаны main/upgrade casts, eight arcs, sphere, sniper, crossbow variants и external damage/fuse/forceload effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exahoming: огненные трассы, homing и curse target",
+    "status": "documented",
+    "note": "Описаны base/upgrade/end payload, homing fireball velocity/selection, destiny tick and target curse lifetime; wrapper bypasses noted."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exahoming: огненные трассы, homing и curse target",
+    "status": "documented",
+    "note": "Описаны base/upgrade/end payload, homing fireball velocity/selection, destiny tick and target curse lifetime; wrapper bypasses noted."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_end_sis.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exahoming: огненные трассы, homing и curse target",
+    "status": "documented",
+    "note": "Описаны base/upgrade/end payload, homing fireball velocity/selection, destiny tick and target curse lifetime; wrapper bypasses noted."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_lib.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exahoming: огненные трассы, homing и curse target",
+    "status": "documented",
+    "note": "Описаны base/upgrade/end payload, homing fireball velocity/selection, destiny tick and target curse lifetime; wrapper bypasses noted."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_loop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exahoming: огненные трассы, homing и curse target",
+    "status": "documented",
+    "note": "Описаны base/upgrade/end payload, homing fireball velocity/selection, destiny tick and target curse lifetime; wrapper bypasses noted."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgrade.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exahoming: огненные трассы, homing и curse target",
+    "status": "documented",
+    "note": "Описаны base/upgrade/end payload, homing fireball velocity/selection, destiny tick and target curse lifetime; wrapper bypasses noted."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exahoming: огненные трассы, homing и curse target",
+    "status": "documented",
+    "note": "Описаны base/upgrade/end payload, homing fireball velocity/selection, destiny tick and target curse lifetime; wrapper bypasses noted."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exahoming: огненные трассы, homing и curse target",
+    "status": "documented",
+    "note": "Описаны base/upgrade/end payload, homing fireball velocity/selection, destiny tick and target curse lifetime; wrapper bypasses noted."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_curse.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exahoming: огненные трассы, homing и curse target",
+    "status": "documented",
+    "note": "Описаны base/upgrade/end payload, homing fireball velocity/selection, destiny tick and target curse lifetime; wrapper bypasses noted."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_curse_get.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exahoming: огненные трассы, homing и curse target",
+    "status": "documented",
+    "note": "Описаны base/upgrade/end payload, homing fireball velocity/selection, destiny tick and target curse lifetime; wrapper bypasses noted."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_default.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exahoming: огненные трассы, homing и curse target",
+    "status": "documented",
+    "note": "Описаны base/upgrade/end payload, homing fireball velocity/selection, destiny tick and target curse lifetime; wrapper bypasses noted."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_destiny.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exahoming: огненные трассы, homing и curse target",
+    "status": "documented",
+    "note": "Описаны base/upgrade/end payload, homing fireball velocity/selection, destiny tick and target curse lifetime; wrapper bypasses noted."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_destiny_loop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exahoming: огненные трассы, homing и curse target",
+    "status": "documented",
+    "note": "Описаны base/upgrade/end payload, homing fireball velocity/selection, destiny tick and target curse lifetime; wrapper bypasses noted."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_destiny_loop_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exahoming: огненные трассы, homing и curse target",
+    "status": "documented",
+    "note": "Описаны base/upgrade/end payload, homing fireball velocity/selection, destiny tick and target curse lifetime; wrapper bypasses noted."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_destiny_loop_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exahoming: огненные трассы, homing и curse target",
+    "status": "documented",
+    "note": "Описаны base/upgrade/end payload, homing fireball velocity/selection, destiny tick and target curse lifetime; wrapper bypasses noted."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_destiny_tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exahoming: огненные трассы, homing и curse target",
+    "status": "documented",
+    "note": "Описаны base/upgrade/end payload, homing fireball velocity/selection, destiny tick and target curse lifetime; wrapper bypasses noted."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_destiny_tick_vpered.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exahoming: огненные трассы, homing и curse target",
+    "status": "documented",
+    "note": "Описаны base/upgrade/end payload, homing fireball velocity/selection, destiny tick and target curse lifetime; wrapper bypasses noted."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_sisyfus.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exahoming: огненные трассы, homing и curse target",
+    "status": "documented",
+    "note": "Описаны base/upgrade/end payload, homing fireball velocity/selection, destiny tick and target curse lifetime; wrapper bypasses noted."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exahoming: огненные трассы, homing и curse target",
+    "status": "documented",
+    "note": "Описаны base/upgrade/end payload, homing fireball velocity/selection, destiny tick and target curse lifetime; wrapper bypasses noted."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_get_id.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exahoming: огненные трассы, homing и curse target",
+    "status": "documented",
+    "note": "Описаны base/upgrade/end payload, homing fireball velocity/selection, destiny tick and target curse lifetime; wrapper bypasses noted."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_particle_end_loop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exahoming: огненные трассы, homing и curse target",
+    "status": "documented",
+    "note": "Описаны base/upgrade/end payload, homing fireball velocity/selection, destiny tick and target curse lifetime; wrapper bypasses noted."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_slow_get_id.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exahoming: огненные трассы, homing и curse target",
+    "status": "documented",
+    "note": "Описаны base/upgrade/end payload, homing fireball velocity/selection, destiny tick and target curse lifetime; wrapper bypasses noted."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/chtick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exasperato: взрывные линии и ядерный удар",
+    "status": "documented",
+    "note": "Описаны обычный trace/TNT, upgraded четыре режима, tick/collision/fuse, nuke helpers и ownership boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/chtick_electro_ray.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exasperato: взрывные линии и ядерный удар",
+    "status": "documented",
+    "note": "Описаны обычный trace/TNT, upgraded четыре режима, tick/collision/fuse, nuke helpers и ownership boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/chtick_electro_ray_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exasperato: взрывные линии и ядерный удар",
+    "status": "documented",
+    "note": "Описаны обычный trace/TNT, upgraded четыре режима, tick/collision/fuse, nuke helpers и ownership boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/chtick_explode.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exasperato: взрывные линии и ядерный удар",
+    "status": "documented",
+    "note": "Описаны обычный trace/TNT, upgraded четыре режима, tick/collision/fuse, nuke helpers и ownership boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/chtick_explode_check_id.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exasperato: взрывные линии и ядерный удар",
+    "status": "documented",
+    "note": "Описаны обычный trace/TNT, upgraded четыре режима, tick/collision/fuse, nuke helpers и ownership boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/click.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exasperato: взрывные линии и ядерный удар",
+    "status": "documented",
+    "note": "Описаны обычный trace/TNT, upgraded четыре режима, tick/collision/fuse, nuke helpers и ownership boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/click2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exasperato: взрывные линии и ядерный удар",
+    "status": "documented",
+    "note": "Описаны обычный trace/TNT, upgraded четыре режима, tick/collision/fuse, nuke helpers и ownership boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/click2_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exasperato: взрывные линии и ядерный удар",
+    "status": "documented",
+    "note": "Описаны обычный trace/TNT, upgraded четыре режима, tick/collision/fuse, nuke helpers и ownership boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_chaos_area.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exasperato: взрывные линии и ядерный удар",
+    "status": "documented",
+    "note": "Описаны обычный trace/TNT, upgraded четыре режима, tick/collision/fuse, nuke helpers и ownership boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_default.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exasperato: взрывные линии и ядерный удар",
+    "status": "documented",
+    "note": "Описаны обычный trace/TNT, upgraded четыре режима, tick/collision/fuse, nuke helpers и ownership boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_electro_ray.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exasperato: взрывные линии и ядерный удар",
+    "status": "documented",
+    "note": "Описаны обычный trace/TNT, upgraded четыре режима, tick/collision/fuse, nuke helpers и ownership boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_nuke.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exasperato: взрывные линии и ядерный удар",
+    "status": "documented",
+    "note": "Описаны обычный trace/TNT, upgraded четыре режима, tick/collision/fuse, nuke helpers и ownership boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_nuke_rocket.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exasperato: взрывные линии и ядерный удар",
+    "status": "documented",
+    "note": "Описаны обычный trace/TNT, upgraded четыре режима, tick/collision/fuse, nuke helpers и ownership boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_nuke_spawn.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exasperato: взрывные линии и ядерный удар",
+    "status": "documented",
+    "note": "Описаны обычный trace/TNT, upgraded четыре режима, tick/collision/fuse, nuke helpers и ownership boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/click_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exasperato: взрывные линии и ядерный удар",
+    "status": "documented",
+    "note": "Описаны обычный trace/TNT, upgraded четыре режима, tick/collision/fuse, nuke helpers и ownership boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/click_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exasperato: взрывные линии и ядерный удар",
+    "status": "documented",
+    "note": "Описаны обычный trace/TNT, upgraded четыре режима, tick/collision/fuse, nuke helpers и ownership boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/click_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Exasperato: взрывные линии и ядерный удар",
+    "status": "documented",
+    "note": "Описаны обычный trace/TNT, upgraded четыре режима, tick/collision/fuse, nuke helpers и ownership boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/at_pillar.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Fireblaze: случайные fireball и огненные области",
+    "status": "documented",
+    "note": "Описаны target/range, random small/big fireball, typo tag, costs и четыре global mode с точными block volumes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/at_random_big_fireball.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Fireblaze: случайные fireball и огненные области",
+    "status": "documented",
+    "note": "Описаны target/range, random small/big fireball, typo tag, costs и четыре global mode с точными block volumes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/at_random_fireball.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Fireblaze: случайные fireball и огненные области",
+    "status": "documented",
+    "note": "Описаны target/range, random small/big fireball, typo tag, costs и четыре global mode с точными block volumes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/click.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Fireblaze: случайные fireball и огненные области",
+    "status": "documented",
+    "note": "Описаны target/range, random small/big fireball, typo tag, costs и четыре global mode с точными block volumes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/click2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Fireblaze: случайные fireball и огненные области",
+    "status": "documented",
+    "note": "Описаны target/range, random small/big fireball, typo tag, costs и четыре global mode с точными block volumes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/click2_upgrade.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Fireblaze: случайные fireball и огненные области",
+    "status": "documented",
+    "note": "Описаны target/range, random small/big fireball, typo tag, costs и четыре global mode с точными block volumes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Fireblaze: случайные fireball и огненные области",
+    "status": "documented",
+    "note": "Описаны target/range, random small/big fireball, typo tag, costs и четыре global mode с точными block volumes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded_mode_kiuas.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Fireblaze: случайные fireball и огненные области",
+    "status": "documented",
+    "note": "Описаны target/range, random small/big fireball, typo tag, costs и четыре global mode с точными block volumes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded_mode_mega.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Fireblaze: случайные fireball и огненные области",
+    "status": "documented",
+    "note": "Описаны target/range, random small/big fireball, typo tag, costs и четыре global mode с точными block volumes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded_mode_pillars.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Fireblaze: случайные fireball и огненные области",
+    "status": "documented",
+    "note": "Описаны target/range, random small/big fireball, typo tag, costs и четыре global mode с точными block volumes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded_mode_world.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Fireblaze: случайные fireball и огненные области",
+    "status": "documented",
+    "note": "Описаны target/range, random small/big fireball, typo tag, costs и четыре global mode с точными block volumes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/click_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Fireblaze: случайные fireball и огненные области",
+    "status": "documented",
+    "note": "Описаны target/range, random small/big fireball, typo tag, costs и четыре global mode с точными block volumes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/click_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Fireblaze: случайные fireball и огненные области",
+    "status": "documented",
+    "note": "Описаны target/range, random small/big fireball, typo tag, costs и четыре global mode с точными block volumes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/click_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Fireblaze: случайные fireball и огненные области",
+    "status": "documented",
+    "note": "Описаны target/range, random small/big fireball, typo tag, costs и четыре global mode с точными block volumes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/pillar.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Fireblaze: случайные fireball и огненные области",
+    "status": "documented",
+    "note": "Описаны target/range, random small/big fireball, typo tag, costs и четыре global mode с точными block volumes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/infinite_bolt/click.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Infinite Bolt: поиск предметов и переплавка",
+    "status": "documented",
+    "note": "Описан trace item/block stop, точечный ultra_reforge результат, расход/таймеры и отсутствие найденного click caller."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/infinite_bolt/end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Infinite Bolt: поиск предметов и переплавка",
+    "status": "documented",
+    "note": "Описан trace item/block stop, точечный ultra_reforge результат, расход/таймеры и отсутствие найденного click caller."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/infinite_bolt/loop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Infinite Bolt: поиск предметов и переплавка",
+    "status": "documented",
+    "note": "Описан trace item/block stop, точечный ultra_reforge результат, расход/таймеры и отсутствие найденного click caller."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Psychoblind: лучи, слепота и заряд страха",
+    "status": "documented",
+    "note": "Описаны каст, 4 режима, ray tick/stop, конечные lbcr psycho hit effects и LBC skrimmer; постоянные mob score consumers обозначены runtime boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Psychoblind: лучи, слепота и заряд страха",
+    "status": "documented",
+    "note": "Описаны каст, 4 режима, ray tick/stop, конечные lbcr psycho hit effects и LBC skrimmer; постоянные mob score consumers обозначены runtime boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click2_upgrade.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Psychoblind: лучи, слепота и заряд страха",
+    "status": "documented",
+    "note": "Описаны каст, 4 режима, ray tick/stop, конечные lbcr psycho hit effects и LBC skrimmer; постоянные mob score consumers обозначены runtime boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Psychoblind: лучи, слепота и заряд страха",
+    "status": "documented",
+    "note": "Описаны каст, 4 режима, ray tick/stop, конечные lbcr psycho hit effects и LBC skrimmer; постоянные mob score consumers обозначены runtime boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Psychoblind: лучи, слепота и заряд страха",
+    "status": "documented",
+    "note": "Описаны каст, 4 режима, ray tick/stop, конечные lbcr psycho hit effects и LBC skrimmer; постоянные mob score consumers обозначены runtime boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Psychoblind: лучи, слепота и заряд страха",
+    "status": "documented",
+    "note": "Описаны каст, 4 режима, ray tick/stop, конечные lbcr psycho hit effects и LBC skrimmer; постоянные mob score consumers обозначены runtime boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_default.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Psychoblind: лучи, слепота и заряд страха",
+    "status": "documented",
+    "note": "Описаны каст, 4 режима, ray tick/stop, конечные lbcr psycho hit effects и LBC skrimmer; постоянные mob score consumers обозначены runtime boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_default_1.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Psychoblind: лучи, слепота и заряд страха",
+    "status": "documented",
+    "note": "Описаны каст, 4 режима, ray tick/stop, конечные lbcr psycho hit effects и LBC skrimmer; постоянные mob score consumers обозначены runtime boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_invisible_charge.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Psychoblind: лучи, слепота и заряд страха",
+    "status": "documented",
+    "note": "Описаны каст, 4 режима, ray tick/stop, конечные lbcr psycho hit effects и LBC skrimmer; постоянные mob score consumers обозначены runtime boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_mindblowing_ray.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Psychoblind: лучи, слепота и заряд страха",
+    "status": "documented",
+    "note": "Описаны каст, 4 режима, ray tick/stop, конечные lbcr psycho hit effects и LBC skrimmer; постоянные mob score consumers обозначены runtime boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_mindblowing_ray_loop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Psychoblind: лучи, слепота и заряд страха",
+    "status": "documented",
+    "note": "Описаны каст, 4 режима, ray tick/stop, конечные lbcr psycho hit effects и LBC skrimmer; постоянные mob score consumers обозначены runtime boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_mindblowing_ray_ponosed.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Psychoblind: лучи, слепота и заряд страха",
+    "status": "documented",
+    "note": "Описаны каст, 4 режима, ray tick/stop, конечные lbcr psycho hit effects и LBC skrimmer; постоянные mob score consumers обозначены runtime boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_mindblowing_ray_tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Psychoblind: лучи, слепота и заряд страха",
+    "status": "documented",
+    "note": "Описаны каст, 4 режима, ray tick/stop, конечные lbcr psycho hit effects и LBC skrimmer; постоянные mob score consumers обозначены runtime boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_spray.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Psychoblind: лучи, слепота и заряд страха",
+    "status": "documented",
+    "note": "Описаны каст, 4 режима, ray tick/stop, конечные lbcr psycho hit effects и LBC skrimmer; постоянные mob score consumers обозначены runtime boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_spray_tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Psychoblind: лучи, слепота и заряд страха",
+    "status": "documented",
+    "note": "Описаны каст, 4 режима, ray tick/stop, конечные lbcr psycho hit effects и LBC skrimmer; постоянные mob score consumers обозначены runtime boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Psychoblind: лучи, слепота и заряд страха",
+    "status": "documented",
+    "note": "Описаны каст, 4 режима, ray tick/stop, конечные lbcr psycho hit effects и LBC skrimmer; постоянные mob score consumers обозначены runtime boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Psychoblind: лучи, слепота и заряд страха",
+    "status": "documented",
+    "note": "Описаны каст, 4 режима, ray tick/stop, конечные lbcr psycho hit effects и LBC skrimmer; постоянные mob score consumers обозначены runtime boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/tick_invis.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Psychoblind: лучи, слепота и заряд страха",
+    "status": "documented",
+    "note": "Описаны каст, 4 режима, ray tick/stop, конечные lbcr psycho hit effects и LBC skrimmer; постоянные mob score consumers обозначены runtime boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/tickend.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Psychoblind: лучи, слепота и заряд страха",
+    "status": "documented",
+    "note": "Описаны каст, 4 режима, ray tick/stop, конечные lbcr psycho hit effects и LBC skrimmer; постоянные mob score consumers обозначены runtime boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/tickend_spray.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Psychoblind: лучи, слепота и заряд страха",
+    "status": "documented",
+    "note": "Описаны каст, 4 режима, ray tick/stop, конечные lbcr psycho hit effects и LBC skrimmer; постоянные mob score consumers обозначены runtime boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/click.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Stonekivi: каменные сферы, земля и солнечный режим",
+    "status": "documented",
+    "note": "Описаны стоимости/trace distance, templates/targets и достижимость sun macro vs disabled new_sun helper."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/click_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Stonekivi: каменные сферы, земля и солнечный режим",
+    "status": "documented",
+    "note": "Описаны стоимости/trace distance, templates/targets и достижимость sun macro vs disabled new_sun helper."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/click_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Stonekivi: каменные сферы, земля и солнечный режим",
+    "status": "documented",
+    "note": "Описаны стоимости/trace distance, templates/targets и достижимость sun macro vs disabled new_sun helper."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/click_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Stonekivi: каменные сферы, земля и солнечный режим",
+    "status": "documented",
+    "note": "Описаны стоимости/trace distance, templates/targets и достижимость sun macro vs disabled new_sun helper."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/comet.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Stonekivi: каменные сферы, земля и солнечный режим",
+    "status": "documented",
+    "note": "Описаны стоимости/trace distance, templates/targets и достижимость sun macro vs disabled new_sun helper."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/comet_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Stonekivi: каменные сферы, земля и солнечный режим",
+    "status": "documented",
+    "note": "Описаны стоимости/trace distance, templates/targets и достижимость sun macro vs disabled new_sun helper."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Stonekivi: каменные сферы, земля и солнечный режим",
+    "status": "documented",
+    "note": "Описаны стоимости/trace distance, templates/targets и достижимость sun macro vs disabled new_sun helper."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/loop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Stonekivi: каменные сферы, земля и солнечный режим",
+    "status": "documented",
+    "note": "Описаны стоимости/trace distance, templates/targets и достижимость sun macro vs disabled new_sun helper."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/loop_earth.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Stonekivi: каменные сферы, земля и солнечный режим",
+    "status": "documented",
+    "note": "Описаны стоимости/trace distance, templates/targets и достижимость sun macro vs disabled new_sun helper."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/loop_earth_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Stonekivi: каменные сферы, земля и солнечный режим",
+    "status": "documented",
+    "note": "Описаны стоимости/trace distance, templates/targets и достижимость sun macro vs disabled new_sun helper."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/loop_sun.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Stonekivi: каменные сферы, земля и солнечный режим",
+    "status": "documented",
+    "note": "Описаны стоимости/trace distance, templates/targets и достижимость sun macro vs disabled new_sun helper."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/loop_sun_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Stonekivi: каменные сферы, земля и солнечный режим",
+    "status": "documented",
+    "note": "Описаны стоимости/trace distance, templates/targets и достижимость sun macro vs disabled new_sun helper."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/loop_sun_end_nerfed.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Stonekivi: каменные сферы, земля и солнечный режим",
+    "status": "documented",
+    "note": "Описаны стоимости/trace distance, templates/targets и достижимость sun macro vs disabled new_sun helper."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/loop_sun_end_nerfed1.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Stonekivi: каменные сферы, земля и солнечный режим",
+    "status": "documented",
+    "note": "Описаны стоимости/trace distance, templates/targets и достижимость sun macro vs disabled new_sun helper."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/loop_sun_end_nerfed_tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Stonekivi: каменные сферы, земля и солнечный режим",
+    "status": "documented",
+    "note": "Описаны стоимости/trace distance, templates/targets и достижимость sun macro vs disabled new_sun helper."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/terra/click.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Terra: true_terra и razorterra",
+    "status": "documented",
+    "note": "Описаны истинный cast и short random-rotation razorterra, конечный lbcr hit, стоимость и внешняя sword marker boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/terra/click2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Terra: true_terra и razorterra",
+    "status": "documented",
+    "note": "Описаны истинный cast и short random-rotation razorterra, конечный lbcr hit, стоимость и внешняя sword marker boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/terra/razorterra.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Terra: true_terra и razorterra",
+    "status": "documented",
+    "note": "Описаны истинный cast и short random-rotation razorterra, конечный lbcr hit, стоимость и внешняя sword marker boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/terra/razorterra_rand_rot.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Terra: true_terra и razorterra",
+    "status": "documented",
+    "note": "Описаны истинный cast и short random-rotation razorterra, конечный lbcr hit, стоимость и внешняя sword marker boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/terra/tick_awaken.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Terra: true_terra и razorterra",
+    "status": "documented",
+    "note": "Описаны истинный cast и short random-rotation razorterra, конечный lbcr hit, стоимость и внешняя sword marker boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/terra/tick_awaken_loop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_awaken.md",
+    "section": "Terra: true_terra и razorterra",
+    "status": "documented",
+    "note": "Описаны истинный cast и short random-rotation razorterra, конечный lbcr hit, стоимость и внешняя sword marker boundary."
+  }
+]

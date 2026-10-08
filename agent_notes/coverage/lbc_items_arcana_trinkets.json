@@ -1,0 +1,1409 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/accelerate.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Боевые, статусные и перемещенческие hooks",
+    "status": "documented",
+    "note": "Описан входной триггер, условия, score/теги и локальный итог; внешние дочерние mechanics помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/5t/babylon_gate/1.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Babylon Gate: пять исходов",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/5t/babylon_gate/2.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Babylon Gate: пять исходов",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/5t/babylon_gate/3.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Babylon Gate: пять исходов",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/5t/babylon_gate/4.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Babylon Gate: пять исходов",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/5t/babylon_gate/5.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Babylon Gate: пять исходов",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/5t/babylon_gate/sel1.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Babylon Gate: пять исходов",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/5t/babylon_gate/sel2.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Babylon Gate: пять исходов",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/5t/babylon_gate/sel3.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Babylon Gate: пять исходов",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/5t/babylon_gate/sel4.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Babylon Gate: пять исходов",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/5t/babylon_gate/sel5.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Babylon Gate: пять исходов",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/5t/babylon_gate.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы пятого тира",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/5t/select.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы пятого тира",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/5true/projectile_boom.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Sun Arcanum",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/5true/select.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Sun Arcanum",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/5true/select2.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Sun Arcanum",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/5true/sun.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Sun Arcanum",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/5true/sun2.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Sun Arcanum",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/5true/sun_spawn.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Sun Arcanum",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/5true/sun_spawn_left.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Sun Arcanum",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/5true/sun_tick.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Sun Arcanum",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/5true/sun_tick_left.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Sun Arcanum",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/barrier.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/barrier2.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/barrier_spawn.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/barrier_spawn2.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/barrier_tick.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/end.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/end2.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/end25t.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/end5t.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/eyelaser.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/eyelaser1.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/eyelaser_kill.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/eyelaser_pre.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/healing.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/kiuaskivi.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/kiuaskivi2.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/kiuaskivi2arr.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/kiuaskivi2arr1.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/kiuaskivi_spawn.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/kiuaskivi_spawn2.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/kiuaskivi_tick.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/kiuaskivi_tick_item.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/neutral_ball.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/neutral_ball_left.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/select.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/select2.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/tannerkivi.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/tannerkivi2.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/tannerskivi_spawn.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/tannerskivi_spawn2.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/tannerskivi_tick.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/tannerskivi_tick_item.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/tannerskivi_tick_transform.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/void_curse.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/void_curse2.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/void_curse_spawn.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/void_curse_spawn2.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/arcanums/void_curse_tick.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Арканумы: диспетчер и механики",
+    "status": "documented",
+    "note": "Описаны activation/стоимость и перечисленные локальные исходы; конечное попадание снарядов принадлежит внешней projectile/raycast подсистеме, где указано в тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/armor/chaoschestplate_10s.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Связанные предметные эффекты брони",
+    "status": "documented",
+    "note": "Вызов, исполнитель/слоты, теги/условия и локальный итог проверены; дочерние внешние ветви обозначены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/armor.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Общие предметы и системные обработчики",
+    "status": "documented",
+    "note": "Вызов, исполнитель/слоты, теги/условия и локальный итог проверены; дочерние внешние ветви обозначены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/bows.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Общие предметы и системные обработчики",
+    "status": "documented",
+    "note": "Вызов, исполнитель/слоты, теги/условия и локальный итог проверены; дочерние внешние ветви обозначены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/bows_get.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Общие предметы и системные обработчики",
+    "status": "documented",
+    "note": "Вызов, исполнитель/слоты, теги/условия и локальный итог проверены; дочерние внешние ветви обозначены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/bows_get_trinket.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Общие предметы и системные обработчики",
+    "status": "documented",
+    "note": "Вызов, исполнитель/слоты, теги/условия и локальный итог проверены; дочерние внешние ветви обозначены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/changed_inventory/fix_attribute_chest.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Инвентарь и атрибуты",
+    "status": "documented",
+    "note": "Вызов, исполнитель/слоты, теги/условия и локальный итог проверены; дочерние внешние ветви обозначены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/changed_inventory/fix_attribute_feet.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Инвентарь и атрибуты",
+    "status": "documented",
+    "note": "Вызов, исполнитель/слоты, теги/условия и локальный итог проверены; дочерние внешние ветви обозначены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/changed_inventory/fix_attribute_head.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Инвентарь и атрибуты",
+    "status": "documented",
+    "note": "Вызов, исполнитель/слоты, теги/условия и локальный итог проверены; дочерние внешние ветви обозначены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/changed_inventory/fix_attribute_legs.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Инвентарь и атрибуты",
+    "status": "documented",
+    "note": "Вызов, исполнитель/слоты, теги/условия и локальный итог проверены; дочерние внешние ветви обозначены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/changed_inventory/mellstroy_equip.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Инвентарь и атрибуты",
+    "status": "documented",
+    "note": "Вызов, исполнитель/слоты, теги/условия и локальный итог проверены; дочерние внешние ветви обозначены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/changed_inventory/mellstroy_equip_check.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Инвентарь и атрибуты",
+    "status": "documented",
+    "note": "Вызов, исполнитель/слоты, теги/условия и локальный итог проверены; дочерние внешние ветви обозначены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/changed_inventory/mellstroy_unequip.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Инвентарь и атрибуты",
+    "status": "documented",
+    "note": "Вызов, исполнитель/слоты, теги/условия и локальный итог проверены; дочерние внешние ветви обозначены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/changed_inventory/mellstroy_unequip_check.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Инвентарь и атрибуты",
+    "status": "documented",
+    "note": "Вызов, исполнитель/слоты, теги/условия и локальный итог проверены; дочерние внешние ветви обозначены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/changed_inventory/sel.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Инвентарь и атрибуты",
+    "status": "documented",
+    "note": "Вызов, исполнитель/слоты, теги/условия и локальный итог проверены; дочерние внешние ветви обозначены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/crossbow_charging.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Боевые, статусные и перемещенческие hooks",
+    "status": "documented",
+    "note": "Описан входной триггер, условия, score/теги и локальный итог; внешние дочерние mechanics помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/crossbows.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Общие предметы и системные обработчики",
+    "status": "documented",
+    "note": "Вызов, исполнитель/слоты, теги/условия и локальный итог проверены; дочерние внешние ветви обозначены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/damage_up.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Боевые, статусные и перемещенческие hooks",
+    "status": "documented",
+    "note": "Описан входной триггер, условия, score/теги и локальный итог; внешние дочерние mechanics помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/damage_up_1.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Боевые, статусные и перемещенческие hooks",
+    "status": "documented",
+    "note": "Описан входной триггер, условия, score/теги и локальный итог; внешние дочерние mechanics помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/damaged.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Боевые, статусные и перемещенческие hooks",
+    "status": "documented",
+    "note": "Описан входной триггер, условия, score/теги и локальный итог; внешние дочерние mechanics помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/damaged_by_player.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Боевые, статусные и перемещенческие hooks",
+    "status": "documented",
+    "note": "Описан входной триггер, условия, score/теги и локальный итог; внешние дочерние mechanics помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/damaged_get_trinket.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Общие предметы и системные обработчики",
+    "status": "documented",
+    "note": "Вызов, исполнитель/слоты, теги/условия и локальный итог проверены; дочерние внешние ветви обозначены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/damaged_scheduled.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Боевые, статусные и перемещенческие hooks",
+    "status": "documented",
+    "note": "Описан входной триггер, условия, score/теги и локальный итог; внешние дочерние mechanics помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/effects_changed.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Боевые, статусные и перемещенческие hooks",
+    "status": "documented",
+    "note": "Описан входной триггер, условия, score/теги и локальный итог; внешние дочерние mechanics помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/falling.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Боевые, статусные и перемещенческие hooks",
+    "status": "documented",
+    "note": "Описан входной триггер, условия, score/теги и локальный итог; внешние дочерние mechanics помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/jedi_killed_sith.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Боевые, статусные и перемещенческие hooks",
+    "status": "documented",
+    "note": "Описан входной триггер, условия, score/теги и локальный итог; внешние дочерние mechanics помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/libspells/select.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Диспетчер spell ID",
+    "status": "documented",
+    "note": "Разобран ввод snowball/player и точная таблица spell ID→дочерняя функция; конечные дочерние эффекты отслеживаются в назначенном workingitems/raycast исследовании."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/libspells/select_wand.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Диспетчер spell ID",
+    "status": "documented",
+    "note": "Разобран ввод snowball/player и точная таблица spell ID→дочерняя функция; конечные дочерние эффекты отслеживаются в назначенном workingitems/raycast исследовании."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/misc/drone/click.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Дроны и Huynya: проверенные локальные действия",
+    "status": "documented",
+    "note": "Путь и конечные локальные команды описаны; Huynya вызывает отсутствующую в этом datapack функцию clone, внешняя регистрация не проверялась."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/misc/drone/explode.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Дроны и Huynya: проверенные локальные действия",
+    "status": "documented",
+    "note": "Путь и конечные локальные команды описаны; Huynya вызывает отсутствующую в этом datapack функцию clone, внешняя регистрация не проверялась."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/misc/drone/spawn_drone.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Дроны и Huynya: проверенные локальные действия",
+    "status": "documented",
+    "note": "Путь и конечные локальные команды описаны; Huynya вызывает отсутствующую в этом datapack функцию clone, внешняя регистрация не проверялась."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/misc/drone/tick.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Дроны и Huynya: проверенные локальные действия",
+    "status": "documented",
+    "note": "Путь и конечные локальные команды описаны; Huynya вызывает отсутствующую в этом datapack функцию clone, внешняя регистрация не проверялась."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/misc/drone/tick_fly.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Дроны и Huynya: проверенные локальные действия",
+    "status": "documented",
+    "note": "Путь и конечные локальные команды описаны; Huynya вызывает отсутствующую в этом datapack функцию clone, внешняя регистрация не проверялась."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/misc/huynya/at.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Дроны и Huynya: проверенные локальные действия",
+    "status": "documented",
+    "note": "Путь и конечные локальные команды описаны; Huynya вызывает отсутствующую в этом datapack функцию clone, внешняя регистрация не проверялась."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/misc/huynya/at_2.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Дроны и Huynya: проверенные локальные действия",
+    "status": "documented",
+    "note": "Путь и конечные локальные команды описаны; Huynya вызывает отсутствующую в этом datapack функцию clone, внешняя регистрация не проверялась."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/misc/huynya/at_2at.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Дроны и Huynya: проверенные локальные действия",
+    "status": "documented",
+    "note": "Путь и конечные локальные команды описаны; Huynya вызывает отсутствующую в этом datapack функцию clone, внешняя регистрация не проверялась."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/misc/huynya/at_2at_2.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Дроны и Huynya: проверенные локальные действия",
+    "status": "documented",
+    "note": "Путь и конечные локальные команды описаны; Huynya вызывает отсутствующую в этом datapack функцию clone, внешняя регистрация не проверялась."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/misc/huynya/at_2at_22.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Дроны и Huynya: проверенные локальные действия",
+    "status": "documented",
+    "note": "Путь и конечные локальные команды описаны; Huynya вызывает отсутствующую в этом datapack функцию clone, внешняя регистрация не проверялась."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/misc/huynya/click.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Дроны и Huynya: проверенные локальные действия",
+    "status": "documented",
+    "note": "Путь и конечные локальные команды описаны; Huynya вызывает отсутствующую в этом datapack функцию clone, внешняя регистрация не проверялась."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/misc/huynya/click_m.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Дроны и Huynya: проверенные локальные действия",
+    "status": "documented",
+    "note": "Путь и конечные локальные команды описаны; Huynya вызывает отсутствующую в этом datapack функцию clone, внешняя регистрация не проверялась."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/misc/huynya/clickbedwars.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Дроны и Huynya: проверенные локальные действия",
+    "status": "documented",
+    "note": "Путь и конечные локальные команды описаны; Huynya вызывает отсутствующую в этом datapack функцию clone, внешняя регистрация не проверялась."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/on_death.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Боевые, статусные и перемещенческие hooks",
+    "status": "documented",
+    "note": "Survival ветка вызывает items/on_death_survival, отсутствующую в этом datapack; внешнюю регистрацию не проверял. Остальные команды в разделе описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/on_falling.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Боевые, статусные и перемещенческие hooks",
+    "status": "documented",
+    "note": "Описан входной триггер, условия, score/теги и локальный итог; внешние дочерние mechanics помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/on_falling_second_check.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Боевые, статусные и перемещенческие hooks",
+    "status": "documented",
+    "note": "Описан входной триггер, условия, score/теги и локальный итог; внешние дочерние mechanics помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/on_ground.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Боевые, статусные и перемещенческие hooks",
+    "status": "documented",
+    "note": "Описан входной триггер, условия, score/теги и локальный итог; внешние дочерние mechanics помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/on_not_sprint.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Боевые, статусные и перемещенческие hooks",
+    "status": "documented",
+    "note": "Описан входной триггер, условия, score/теги и локальный итог; внешние дочерние mechanics помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/on_sprint.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Боевые, статусные и перемещенческие hooks",
+    "status": "documented",
+    "note": "Описан входной триггер, условия, score/теги и локальный итог; внешние дочерние mechanics помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/oraora/click.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Oraora",
+    "status": "documented",
+    "note": "Клик и tick цикл со сроком, владельцем, геометрией попадания и значениями урона описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/oraora/projectile_create.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Oraora",
+    "status": "documented",
+    "note": "Клик и tick цикл со сроком, владельцем, геометрией попадания и значениями урона описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/oraora/projectile_damage.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Oraora",
+    "status": "documented",
+    "note": "Клик и tick цикл со сроком, владельцем, геометрией попадания и значениями урона описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/oraora/projectile_tick.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Oraora",
+    "status": "documented",
+    "note": "Клик и tick цикл со сроком, владельцем, геометрией попадания и значениями урона описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/oraora/tick.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Oraora",
+    "status": "documented",
+    "note": "Клик и tick цикл со сроком, владельцем, геометрией попадания и значениями урона описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/player_hit_player_arrow.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Боевые, статусные и перемещенческие hooks",
+    "status": "documented",
+    "note": "Описан входной триггер, условия, score/теги и локальный итог; внешние дочерние mechanics помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/player_hit_player_melee.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Боевые, статусные и перемещенческие hooks",
+    "status": "documented",
+    "note": "Описан входной триггер, условия, score/теги и локальный итог; внешние дочерние mechanics помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/player_hit_player_with_bow_or_sword.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Боевые, статусные и перемещенческие hooks",
+    "status": "documented",
+    "note": "Описан входной триггер, условия, score/теги и локальный итог; внешние дочерние mechanics помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/player_killed_entity.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Боевые, статусные и перемещенческие hooks",
+    "status": "documented",
+    "note": "Описан входной триггер, условия, score/теги и локальный итог; внешние дочерние mechanics помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/player_killed_player.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Боевые, статусные и перемещенческие hooks",
+    "status": "documented",
+    "note": "Описан входной триггер, условия, score/теги и локальный итог; внешние дочерние mechanics помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/sith_killed_jedi.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Боевые, статусные и перемещенческие hooks",
+    "status": "documented",
+    "note": "Описан входной триггер, условия, score/теги и локальный итог; внешние дочерние mechanics помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/snowballs.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Боевые, статусные и перемещенческие hooks",
+    "status": "documented",
+    "note": "Описан входной триггер, условия, score/теги и локальный итог; внешние дочерние mechanics помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/spells.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Боевые, статусные и перемещенческие hooks",
+    "status": "documented",
+    "note": "Описан входной триггер, условия, score/теги и локальный итог; внешние дочерние mechanics помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Индекс обработчика мечей и trinket-триггеров",
+    "status": "documented",
+    "note": "Условия dispatcher-а, список custom_data ветвей и внешние gates описаны; конечные melee abilities сведены в lbc_items_weapons.md."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords_get_trinket.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Общие предметы и системные обработчики",
+    "status": "documented",
+    "note": "Вызов, исполнитель/слоты, теги/условия и локальный итог проверены; дочерние внешние ветви обозначены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords_or_bow.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Индекс обработчика мечей и trinket-триггеров",
+    "status": "documented",
+    "note": "Условия dispatcher-а, список custom_data ветвей и внешние gates описаны; конечные melee abilities сведены в lbc_items_weapons.md."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/tmt_item.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Общие предметы и системные обработчики",
+    "status": "documented",
+    "note": "Вызов, исполнитель/слоты, теги/условия и локальный итог проверены; дочерние внешние ветви обозначены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/acid.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/acid_chance.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/acid_chance_storage.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/bass.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/bass_chance.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/bass_chance_storage.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/bedrcock.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/bedrcock_arrow.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/blaze.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/blaze_chance.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/blaze_chance_storage.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/cast_wand.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Оставшиеся trinket-механики и диспетчеры",
+    "status": "documented",
+    "note": "Механика и локальные команды описаны; внешние реализации указаны как отдельные зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/charge_acid_ball.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/charge_firework.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/charge_penis.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/charge_small_fireball.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/charge_tnt.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/cocktail.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Расчёт вероятности, запуск и локальный эффект проверены; внешняя реализация raycast/icesword указана как зависимость."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/cocktail_1.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Расчёт вероятности, запуск и локальный эффект проверены; внешняя реализация raycast/icesword указана как зависимость."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/fourier.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Расчёт вероятности, запуск и локальный эффект проверены; внешняя реализация raycast/icesword указана как зависимость."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/fourier_1.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Расчёт вероятности, запуск и локальный эффект проверены; внешняя реализация raycast/icesword указана как зависимость."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/fourier_11.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Расчёт вероятности, запуск и локальный эффект проверены; внешняя реализация raycast/icesword указана как зависимость."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/func_with_chance_universal.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/ghast.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/ghast_chance.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/ghast_chance_storage.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/gneiss_stone.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Расчёт вероятности, запуск и локальный эффект проверены; внешняя реализация raycast/icesword указана как зависимость."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/gneiss_stone_1.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Расчёт вероятности, запуск и локальный эффект проверены; внешняя реализация raycast/icesword указана как зависимость."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/hedgehog_gauntlet.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Расчёт вероятности, запуск и локальный эффект проверены; внешняя реализация raycast/icesword указана как зависимость."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/hedgehog_gauntlet_1.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Расчёт вероятности, запуск и локальный эффект проверены; внешняя реализация raycast/icesword указана как зависимость."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/hedgehog_gauntlet_spike.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Расчёт вероятности, запуск и локальный эффект проверены; внешняя реализация raycast/icesword указана как зависимость."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/hedgehog_gauntlet_spike_damage.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Расчёт вероятности, запуск и локальный эффект проверены; внешняя реализация raycast/icesword указана как зависимость."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/homing_evoker/find_pos.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Оставшиеся trinket-механики и диспетчеры",
+    "status": "documented",
+    "note": "Механика и локальные команды описаны; внешние реализации указаны как отдельные зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/homing_evoker/tick.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Оставшиеся trinket-механики и диспетчеры",
+    "status": "documented",
+    "note": "Механика и локальные команды описаны; внешние реализации указаны как отдельные зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/ice_gem.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Расчёт вероятности, запуск и локальный эффект проверены; внешняя реализация raycast/icesword указана как зависимость."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/ice_gem_1.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Расчёт вероятности, запуск и локальный эффект проверены; внешняя реализация raycast/icesword указана как зависимость."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/intercal.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Расчёт вероятности, запуск и локальный эффект проверены; внешняя реализация raycast/icesword указана как зависимость."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/intercal_hit.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Расчёт вероятности, запуск и локальный эффект проверены; внешняя реализация raycast/icesword указана как зависимость."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/mana_gem.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Расчёт вероятности, запуск и локальный эффект проверены; внешняя реализация raycast/icesword указана как зависимость."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/modify_volos.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Расчёт вероятности, запуск и локальный эффект проверены; внешняя реализация raycast/icesword указана как зависимость."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/penis_chance.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/penis_chance_storage.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/penis_gun.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/polymorph.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/polymorph_activate.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/polymorph_me.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/psycho_soul.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/psycho_soul_activate.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/psycho_soul_activate_1.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/psycho_soul_particle.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/rocket_spell.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Оставшиеся trinket-механики и диспетчеры",
+    "status": "documented",
+    "note": "Механика и локальные команды описаны; внешние реализации указаны как отдельные зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/rocket_spell_arrow.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Оставшиеся trinket-механики и диспетчеры",
+    "status": "documented",
+    "note": "Механика и локальные команды описаны; внешние реализации указаны как отдельные зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/rocket_spell_cast.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Оставшиеся trinket-механики и диспетчеры",
+    "status": "documented",
+    "note": "Механика и локальные команды описаны; внешние реализации указаны как отдельные зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/rocket_spell_cast_1.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Оставшиеся trinket-механики и диспетчеры",
+    "status": "documented",
+    "note": "Механика и локальные команды описаны; внешние реализации указаны как отдельные зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/rocket_spell_explode.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Оставшиеся trinket-механики и диспетчеры",
+    "status": "documented",
+    "note": "Механика и локальные команды описаны; внешние реализации указаны как отдельные зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/rocket_spell_tick_rocket.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Оставшиеся trinket-механики и диспетчеры",
+    "status": "documented",
+    "note": "Механика и локальные команды описаны; внешние реализации указаны как отдельные зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/rtp.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Оставшиеся trinket-механики и диспетчеры",
+    "status": "documented",
+    "note": "Механика и локальные команды описаны; внешние реализации указаны как отдельные зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/rtp_gas.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Оставшиеся trinket-механики и диспетчеры",
+    "status": "documented",
+    "note": "Механика и локальные команды описаны; внешние реализации указаны как отдельные зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/rtp_gas1.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Оставшиеся trinket-механики и диспетчеры",
+    "status": "documented",
+    "note": "Механика и локальные команды описаны; внешние реализации указаны как отдельные зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/rtp_gas2.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Оставшиеся trinket-механики и диспетчеры",
+    "status": "documented",
+    "note": "Механика и локальные команды описаны; внешние реализации указаны как отдельные зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/rtp_gas21.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Оставшиеся trinket-механики и диспетчеры",
+    "status": "documented",
+    "note": "Механика и локальные команды описаны; внешние реализации указаны как отдельные зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/snow_pearl.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Расчёт вероятности, запуск и локальный эффект проверены; внешняя реализация raycast/icesword указана как зависимость."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/snow_pearl_1.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Расчёт вероятности, запуск и локальный эффект проверены; внешняя реализация raycast/icesword указана как зависимость."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/spawn_blaze.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Оставшиеся trinket-механики и диспетчеры",
+    "status": "documented",
+    "note": "Механика и локальные команды описаны; внешние реализации указаны как отдельные зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/summon_blaze.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Оставшиеся trinket-механики и диспетчеры",
+    "status": "documented",
+    "note": "Механика и локальные команды описаны; внешние реализации указаны как отдельные зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/sunprism.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/sunprism_activate.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/sunprism_activate_1.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/tick.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Оставшиеся trinket-механики и диспетчеры",
+    "status": "documented",
+    "note": "Механика и локальные команды описаны; внешние реализации указаны как отдельные зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/tnt.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/tnt_chance.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/tnt_chance_storage.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Формула, вызов и локальный результат проверены; внешние дочерние эффекты отдельно указаны как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/twilight_sparkle.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Расчёт вероятности, запуск и локальный эффект проверены; внешняя реализация raycast/icesword указана как зависимость."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/twilight_sparkle_activate.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Расчёт вероятности, запуск и локальный эффект проверены; внешняя реализация raycast/icesword указана как зависимость."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/twilight_sparkle_horse.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Расчёт вероятности, запуск и локальный эффект проверены; внешняя реализация raycast/icesword указана как зависимость."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/trinket_effects/volos.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Эффекты trinket",
+    "status": "documented",
+    "note": "Расчёт вероятности, запуск и локальный эффект проверены; внешняя реализация raycast/icesword указана как зависимость."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/win/win.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Победа и фейерверк",
+    "status": "documented",
+    "note": "Вызов, исполнитель/слоты, теги/условия и локальный итог проверены; дочерние внешние ветви обозначены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/win/win_2.mcfunction",
+    "document": "agent_notes/lbc_items_arcana_trinkets.md",
+    "section": "Победа и фейерверк",
+    "status": "documented",
+    "note": "Вызов, исполнитель/слоты, теги/условия и локальный итог проверены; дочерние внешние ветви обозначены."
+  }
+]

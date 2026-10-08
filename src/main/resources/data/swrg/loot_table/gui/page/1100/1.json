@@ -1,19 +1,17 @@
 {
-    "pools": [
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:player_head",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{display:{Name:{\"text\":\"English\",\"color\":\"green\",\"italic\":false}},SkullOwner:{Id:[I;1662491612,1529169119,-1248841189,-961743481],Properties:{textures:[{Value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODc5ZDk5ZDljNDY0NzRlMjcxM2E3ZTg0YTk1ZTRjZTdlOGZmOGVhNGQxNjQ0MTNhNTkyZTQ0MzVkMmM2ZjlkYyJ9fX0=\"}]}}}"
-                        }
-                    ]
-                }
-            ]
+          "type": "minecraft:item",
+          "name": "minecraft:player_head",
+          "modifier": {
+            "tag": "{display:{Name:{\"text\":\"English\",\"color\":\"green\",\"italic\":false}},SkullOwner:{Id:[I;1662491612,1529169119,-1248841189,-961743481],Properties:{textures:[{Value:\"eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODc5ZDk5ZDljNDY0NzRlMjcxM2E3ZTg0YTk1ZTRjZTdlOGZmOGVhNGQxNjQ0MTNhNTkyZTQ0MzVkMmM2ZjlkYyJ9fX0=\"}]}}}",
+            "type": "minecraft:set_custom_data"
+          }
         }
-    ]
+      ]
+    }
+  ]
 }

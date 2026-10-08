@@ -1,62 +1,62 @@
 {
-    "pools": [
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:item",
+          "name": "minecraft:jack_o_lantern",
+          "modifier": [
+            {
+              "entity": "this",
+              "name": {
+                "translate": "case_halloween",
+                "color": "#ffac3e",
+                "italic": false
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "entity": "this",
+              "lore": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:jack_o_lantern",
-                    "functions": [
+                  "nbt": "gui.keys",
+                  "storage": "swrg:lang",
+                  "interpret": true,
+                  "extra": [
+                    {
+                      "text": ": ",
+                      "extra": [
                         {
-                            "function": "minecraft:set_name",
-                            "entity": "this",
-                            "name": {
-                                "translate": "case_halloween",
-                                "color": "#ffac3e",
-                                "italic": false
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "entity": "this",
-                            "lore": [
-                                {
-                                    "nbt": "gui.keys",
-                                    "storage": "swrg:lang",
-                                    "interpret": true,
-                                    "extra": [
-                                        {
-                                            "text": ": ",
-                                            "extra": [
-                                                {
-                                                    "score": {
-                                                        "name": "@s",
-                                                        "objective": "swrg.keys4"
-                                                    },
-                                                    "type": "score"
-                                                }
-                                            ],
-                                            "type": "text"
-                                        }
-                                    ],
-                                    "source": "storage",
-                                    "type": "nbt"
-                                },
-                                {
-                                    "translate": "case_halloween.lore",
-                                    "color": "#ffe6d7",
-                                "italic": false
-                                }
-                            ],
-                            "mode": "replace_all"
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {}
+                          "score": {
+                            "name": "@s",
+                            "objective": "swrg.keys4"
+                          },
+                          "type": "score"
                         }
-                    ]
+                      ],
+                      "type": "text"
+                    }
+                  ],
+                  "source": "storage",
+                  "type": "nbt"
+                },
+                {
+                  "translate": "case_halloween.lore",
+                  "color": "#ffe6d7",
+                  "italic": false
                 }
-            ]
+              ],
+              "mode": "replace_all",
+              "type": "minecraft:set_lore"
+            },
+            {
+              "components": {},
+              "type": "minecraft:set_components"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

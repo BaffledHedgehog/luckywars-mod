@@ -1,0 +1,2319 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/armor.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/armor_1.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/armor_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/armor_toughness.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/armor_toughness_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/armor_toughness_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/armor_toughness_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/armor_toughness_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/armor_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/armor_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/armor_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/attack_damage.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/attack_damage_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/attack_damage_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/attack_damage_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/attack_damage_up_tiny.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/attack_damage_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/attack_knockback_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/attack_knockback_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/attack_knockback_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/attack_knockback_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/attack_speed.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/attack_speed_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/attack_speed_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/attack_speed_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/attack_speed_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/block_break_speed_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/block_break_speed_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/block_break_speed_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/block_break_speed_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/block_interaction_range_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/block_interaction_range_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/block_interaction_range_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/block_interaction_range_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/burning_time_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/burning_time_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/burning_time_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/burning_time_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/entity_interaction_range_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/entity_interaction_range_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/entity_interaction_range_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/entity_interaction_range_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/explosion_knockback_resistance_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/explosion_knockback_resistance_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/explosion_knockback_resistance_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/explosion_knockback_resistance_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/fall_damage_multiplier_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/fall_damage_multiplier_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/fall_damage_multiplier_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/fall_damage_multiplier_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/gen.py",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Вспомогательные генераторы",
+    "status": "documented",
+    "note": "Manual overwrite behavior of the generator is documented; current datapack behavior is from checked-in mcfunction sources."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/gen_rand.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Случайный выбор изменения атрибута",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/gravity_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/gravity_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/gravity_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/jump_strength_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/jump_strength_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/jump_strength_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/jump_strength_up_tiny.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/jump_strength_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/knockback_resistance.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/knockback_resistance_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/knockback_resistance_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/knockback_resistance_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/knockback_resistance_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/luck.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/luck_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/luck_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/luck_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/luck_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/max_health.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/max_health_1.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/max_health_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/max_health_down_eight.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/max_health_down_two.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/max_health_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/max_health_up_eight.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/max_health_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/max_health_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/mining_efficiency_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/mining_efficiency_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/mining_efficiency_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/mining_efficiency_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/movement_efficiency_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/movement_efficiency_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/movement_efficiency_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/movement_efficiency_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/movement_speed.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/movement_speed_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/movement_speed_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/movement_speed_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/movement_speed_up_tiny.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/movement_speed_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/oxygen_bonus_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/oxygen_bonus_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/oxygen_bonus_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/oxygen_bonus_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/absorption.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/absorption_99.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/armor_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/armor_toughness_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/armor_toughness_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/armor_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/attack_damage_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/attack_damage_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/attack_knockback_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/attack_knockback_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/attack_speed_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/attack_speed_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/blindness.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/block_break_speed_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/block_break_speed_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/block_interaction_range_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/block_interaction_range_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/burning_time_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/burning_time_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/conduit_power_1.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/conduit_power_2.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/darkness.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/dolphins_grace.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/drowsy.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/entity_interaction_range_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/entity_interaction_range_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/excited.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/explosion_knockback_resistance_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/explosion_knockback_resistance_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/fall_damage_multiplier_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/fall_damage_multiplier_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/fire_resistance.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/fire_resistance_1.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/fire_resistance_2.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/glowing.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/gravity_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/gravity_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/haste.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/haste_99.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/health_boost.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/hero_of_the_village.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/hunger.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/hunger_99.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/i_found_pills.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/infested.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/instant_damage.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/instant_damage_2.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/instant_health.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/invisibility.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/invisibility_1.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/jump_boost.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/jump_boost_99.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/jump_strength_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/jump_strength_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/knockback_resistance_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/knockback_resistance_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/levitation.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/levitation_99.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/luck.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/luck_99.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/luck_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/luck_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/max_health_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/max_health_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/mining_efficiency_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/mining_efficiency_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/mining_fatigue.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/mining_fatigue_99.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/movement_efficiency_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/movement_efficiency_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/movement_speed_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/movement_speed_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/nausea.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/night_vision.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/oozing.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/oxygen_bonus_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/oxygen_bonus_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/paralysis.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/pillgen.py",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Вспомогательные генераторы",
+    "status": "documented",
+    "note": "Manual overwrite behavior of the generator is documented; current datapack behavior is from checked-in mcfunction sources."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/poison.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_101.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_102.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_103.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_104.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_105.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_106.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_107.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_108.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_109.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_110.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_111.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_112.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_113.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_114.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_115.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_116.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_117.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_118.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_119.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_120.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_121.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_122.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_123.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_124.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_16.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_17.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_18.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_19.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_20.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_40.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_41.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_42.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/raid_omen_74.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/regeneration.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/resistance.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/resistance_5.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/safe_fall_distance_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/safe_fall_distance_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/saturation.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/scale_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/scale_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/slow_falling.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/slowness.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/sneaking_speed_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/sneaking_speed_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/speed.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/step_height_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/step_height_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/strength.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/strength_99.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/submerged_mining_speed_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/submerged_mining_speed_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/sweeping_damage_ratio_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/sweeping_damage_ratio_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/unluck.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/unluck_99.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/water_breathing.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/water_breathing_2.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/water_movement_efficiency_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/water_movement_efficiency_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/weakness.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/weakness_99.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/weaving.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/wind_charged.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/wither.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/pills/wither_99.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Таблетки: trigger, входной предмет и результат",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/randdouble_ab.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Случайный выбор изменения атрибута",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/random_attrs_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Случайный выбор изменения атрибута",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/random_attrs_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Случайный выбор изменения атрибута",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/random_damage.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/random_health.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/random_speed.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/reduce_hp_armor.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/safe_fall_distance_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/safe_fall_distance_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/safe_fall_distance_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/safe_fall_distance_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/scale_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/scale_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/scale_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/scale_up_tiny.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/scale_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/sneaking_speed_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/sneaking_speed_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/sneaking_speed_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/sneaking_speed_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/step_height_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/step_height_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/step_height_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/step_height_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/submerged_mining_speed_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/submerged_mining_speed_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/submerged_mining_speed_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/submerged_mining_speed_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/sweeping_damage_ratio_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/sweeping_damage_ratio_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/sweeping_damage_ratio_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/sweeping_damage_ratio_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/water_movement_efficiency_down.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/water_movement_efficiency_up.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/water_movement_efficiency_up_godclaw.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/attributes/water_movement_efficiency_update.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Изменение базовых атрибутов",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/-106.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/0.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/1.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/10.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/100.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/101.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/102.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/103.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/11.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/12.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/13.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/14.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/15.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/16.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/17.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/18.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/19.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/2.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/20.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/21.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/22.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/23.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/24.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/25.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/26.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/27.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/28.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/29.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/3.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/30.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/31.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/32.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/33.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/34.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/35.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/4.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/5.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/6.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/7.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/8.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drop_inv/9.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Передача предметов из инвентаря в item entities",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/new_game/click.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Новый игровой цикл: legacy предметы и очистка мира",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/new_game/legacy_tick.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Новый игровой цикл: legacy предметы и очистка мира",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/new_game/legacy_tick_1s.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Новый игровой цикл: legacy предметы и очистка мира",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/new_game/legacy_tick_1s_player.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Новый игровой цикл: legacy предметы и очистка мира",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/new_game/legacy_tick_5s.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Новый игровой цикл: legacy предметы и очистка мира",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/new_game/legacy_tick_5s_player.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Новый игровой цикл: legacy предметы и очистка мира",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/new_game/legacy_tick_5t.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Новый игровой цикл: legacy предметы и очистка мира",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/new_game/legacy_tick_5t_player.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Новый игровой цикл: legacy предметы и очистка мира",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/new_game/legacy_tick_player.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Новый игровой цикл: legacy предметы и очистка мира",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/new_game/magic_boost_belt.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Новый игровой цикл: legacy предметы и очистка мира",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/new_game/magic_boost_hat.mcfunction",
+    "document": "agent_notes/lbc_other_attributes.md",
+    "section": "Новый игровой цикл: legacy предметы и очистка мира",
+    "status": "documented",
+    "note": "Exact values and command effects are indexed in this section."
+  }
+]

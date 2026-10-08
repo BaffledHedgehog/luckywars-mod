@@ -1,0 +1,1500 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/baffledend/1.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / baffledend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/baffledend/2.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / baffledend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/baffledend/3.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / baffledend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/baffledend/4.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / baffledend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/baffledend/5.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / baffledend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/baffledend/6.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / baffledend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/baffledend/7.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / baffledend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/baffledend/8.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / baffledend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/baffledend/hedgehogrider.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / baffledend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/baffledwall/tick.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / baffledwall",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/baffledwall/tick_loop.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / baffledwall",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/baffledwall/tick_loop_dmg.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / baffledwall",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/baffledwall/tick_loop_dmg_big.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / baffledwall",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/baffledwall/tick_loop_dmg_laser.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / baffledwall",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/baffledwall/tick_loop_heal.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / baffledwall",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/baffledwall/tick_loop_pl.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / baffledwall",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/baffledwall/tick_loop_pl_heal.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / baffledwall",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/baffledwall/tick_loop_pl_laser.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / baffledwall",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/baffledwall/tick_loop_pl_sniper.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / baffledwall",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/baffledwall/tick_rc.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / baffledwall",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/baffledwall/tick_rc_pl.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / baffledwall",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/baffledwall/tick_rc_pl_heal.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / baffledwall",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/baffledwall/tick_rc_pl_laser.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / baffledwall",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/baffledwall/tick_rc_pl_sniper.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / baffledwall",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/bullshit/anal.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / bullshit",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/bullshit/oral.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / bullshit",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/absorption.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/acid.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/arrows.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/bounce.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/bridge.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/corrosion.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/damage.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/doggies.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/effectselect.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/effectselect_jump.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/effectselect_see.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/effectselect_sprint.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/explode.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/flame.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/flash.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/heal.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/invulnerable.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/jump_boost.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/levitation.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/nitroflight.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/perdesh.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/phase.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/phase_speed.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/ponos.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/slow.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/smoke.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/speed.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/speed_only.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/teleport.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/teleportnazad.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/transfusion.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/chaoschestplate/weakall.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / chaoschestplate",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/1.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/10.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/11.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/12.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/13.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/14.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/15.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/16.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/17.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/18.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/19.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/2.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/20.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/21.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/22.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/23.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/24.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/25.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/26.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/27.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/28.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/29.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/3.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/30.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/31.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/32.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/33.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/34.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/35.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/36.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/37.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/38.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/39.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/4.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/40.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/41.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/42.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/43.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/44.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/45.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/46.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/47.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/48.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/49.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/5.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/50.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/51.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/52.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/53.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/54.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/55.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/56.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/57.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/58.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/6.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/7.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/8.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/9.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/stevari.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/everythingend/trueknowledge.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / everythingend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/evoker/cast1.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / evoker",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/evoker/cast2.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / evoker",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/evoker/cast3.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / evoker",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/freeze/1.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / freeze",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/freeze/10.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / freeze",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/freeze/2.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / freeze",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/freeze/3.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / freeze",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/freeze/4.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / freeze",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/freeze/5.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / freeze",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/freeze/6.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / freeze",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/freeze/7.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / freeze",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/freeze/8.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / freeze",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/freeze/9.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / freeze",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/freeze/add_cold.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / freeze",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/freeze/check.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / freeze",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/freeze/cooldown.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / freeze",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/freeze/full.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / freeze",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/freeze/particle.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / freeze",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/freeze/tick_1s_frozen.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / freeze",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/freeze/block/create.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / freeze / block",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/freeze/block/destroy.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / freeze / block",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/freeze/block/tick.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / freeze / block",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/freeze/block/tick_2.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / freeze / block",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/freeze/block/tick_3.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / freeze / block",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/gayradar/click.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / gayradar",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/gayradar/click_2.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / gayradar",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/gayradar/click_rec.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / gayradar",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/gayradar/max.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / gayradar",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/instants/random_infinity.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / instants",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/instants/select.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / instants",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/instants/select2.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / instants",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/instants/select_old.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / instants",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/overload_crux/give.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / overload_crux",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/overload_crux/use.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / overload_crux",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/penises/dirty.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / penises",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/penises/holy.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / penises",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/penises/horse.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / penises",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/penises/multicast.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / penises",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/penises/nigger.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / penises",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/penises/normal.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / penises",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/penises/player_select.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / penises",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/penises/select.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / penises",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/phantomarrows/1.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / phantomarrows",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/phantomarrows/2.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / phantomarrows",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/phantomarrows/3.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / phantomarrows",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/phantomarrows/4.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / phantomarrows",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/phantomarrows/5.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / phantomarrows",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/phantomarrows/6.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / phantomarrows",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/phantomarrows/7.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / phantomarrows",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/phantomarrows/8.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / phantomarrows",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/phantomarrows/select.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / phantomarrows",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/pumpkinator/explode.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / pumpkinator",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/pumpkinator/tick.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / pumpkinator",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sheep_black_hole/tick.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / sheep_black_hole",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shishend/1.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shishend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shishend/10.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shishend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shishend/11.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shishend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shishend/2.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shishend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shishend/3.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shishend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shishend/4.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shishend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shishend/5.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shishend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shishend/6.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shishend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shishend/7.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shishend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shishend/8.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shishend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shishend/8_1.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shishend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shishend/9.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shishend",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shishend/randomize_position/30.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shishend / randomize_position",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shishend/randomize_position/raycast_electro.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shishend / randomize_position",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shishend/risk_of_rain/as_crate.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shishend / risk_of_rain",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shishend/risk_of_rain/run.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shishend / risk_of_rain",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shishend/risk_of_rain/tick.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shishend / risk_of_rain",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shock_effect/zap.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shock_effect",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shock_effect/potion/convert.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shock_effect / potion",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shock_effect/potion/get_effect.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shock_effect / potion",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shock_effect/potion/particle.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shock_effect / potion",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shock_effect/zap/as_display.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shock_effect / zap",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shock_effect/zap/cast.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shock_effect / zap",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shock_effect/zap/check.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shock_effect / zap",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shock_effect/zap/end.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shock_effect / zap",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shock_effect/zap/hit.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shock_effect / zap",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shock_effect/zap/hit_entity.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shock_effect / zap",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shock_effect/zap/loop.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shock_effect / zap",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shock_effect/zap/run.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shock_effect / zap",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shock_effect/zap/tp.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shock_effect / zap",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shock_effect/zap/as_target/end.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shock_effect / zap / as_target",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shock_effect/zap/as_target/run.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shock_effect / zap / as_target",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shock_effect/zap/visual/run.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shock_effect / zap / visual",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shock_effect/zap/visual/tick.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / shock_effect / zap / visual",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/stand_arrow/hit.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / stand_arrow",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/stand_arrow/hit_pre.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / stand_arrow",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/stand_arrow/homing_lightning_spawn.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / stand_arrow",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/stand_arrow/no_stand.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / stand_arrow",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/stand_arrow/stand_clocks_overheaven_upgrade.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / stand_arrow",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/stand_arrow/stand_gain.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / stand_arrow",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/stand_arrow/tick_10t_stand_clocks.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / stand_arrow",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/workingitems/razorpine2t.mcfunction",
+    "document": "agent_notes/lbc_other_misc.md",
+    "section": "Файлы: other / workingitems",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  }
+]

@@ -1,0 +1,2789 @@
+{
+  "job": "skywars_gui",
+  "expected_sources": 397,
+  "read_sources": 397,
+  "missing_sources": [],
+  "empty_functions": [
+    "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7400_halloween.mcfunction",
+    "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7500_halloween.mcfunction"
+  ],
+  "sources": [
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/clear.mcfunction",
+      "sha256": "a2fd00aeb8768f13514bb177b5e883262a692300ef634c3c418d740ab125e4c5",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 27
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/main.mcfunction",
+      "sha256": "0b521a2a394e9ce415d897a015333a399f99f89565b26f0e7ebf6e61cd7b6148",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 3
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/match.mcfunction",
+      "sha256": "1b03031b8f469fe577fce6a73c1d351a84ae0722d336a50e5cc347e8d4fc0618",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 3
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/0.mcfunction",
+      "sha256": "5fbeaa0fe939ac0aef4c9c5dcc272c4906867cfc0d5dc4ccf4cb7cfc5174170b",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 21
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/1000-lang.mcfunction",
+      "sha256": "ee812831c480599039f79edfa2f22f572bb9f11cc5fd7916f7f700a88fb14b67",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 116
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/1000.mcfunction",
+      "sha256": "10de2f24ce1a2311a71e13768f94757a8a2a4e06402fe425bc4cc1f6b085fa28",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 28
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/1100.mcfunction",
+      "sha256": "edd3abe8b3521aced91876a22c64abe0c2feef3161cfff8e73ba9d24ead58254",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 5
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/15000.mcfunction",
+      "sha256": "a978dd3fdeaea025b127d98a4e5a1214876881b2b89fd26efacec996c4c05917",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 35
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/15000_check_beds.mcfunction",
+      "sha256": "1df0e330d7333ffcc22707cb0c7579f70ecf61077f734c75ac9e3fd70e522517",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 16
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/2000.mcfunction",
+      "sha256": "9956fe13a76ab94721240fe4ae7c470db009a53d71a5d4981f47951283fb302d",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 52
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/2000b.mcfunction",
+      "sha256": "333ba7bd5fc3f43ee7595e2b879712513deb7e7b40136f342654bea3e3e3e58e",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 37
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/2100.mcfunction",
+      "sha256": "b807b8b6b8b4f98872e4495580519e010af5a376b38b60d6e9d3242f423b15dc",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 52
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/2200.mcfunction",
+      "sha256": "030aa88a1638a23e42cfc5572c4e9cd06c1c81993ae61679ff0a2131e9bd8277",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 40
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/3000.mcfunction",
+      "sha256": "9c3a33b85fbe4975a6cc9ca0107fe351f3a27c75d7ee1073aa8093c775abfd6c",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 97
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/3000_ranked.mcfunction",
+      "sha256": "e80024729d3434f0ca8fb311e708732d426e57ed23f240bb6eda6c5dfd7df79b",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 50
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/4000.mcfunction",
+      "sha256": "00e0747384a5d8e32ed0a35d051b0b625921a0f15d1bbc3300eb34517c0bfd1c",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 67
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/4000_ranked.mcfunction",
+      "sha256": "b704d0e7f358ab0225428c449b8706bbda2346dff3e3c0120f708d40b37a42c0",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 40
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/5000-5400.mcfunction",
+      "sha256": "6878d35983b7a49cfa62e3def39809e6cf82e649e4aceea2fae643f2d8888f59",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 10
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/5000.mcfunction",
+      "sha256": "4e4799685cd24edf44bf6df40703dd0f3b8630082fd0b54fdfee20ea526e4410",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 7
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/6000.mcfunction",
+      "sha256": "ec20a1a3fe7e313d63e12ba7554f5f6ec257b1056db4d71e1d9b340da2a928c3",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 34
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7000.mcfunction",
+      "sha256": "c183b4f5c76daab80df6502ee088b991a3a7cb08c0f740bf83295cbd62e1e2a2",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 6
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7100.mcfunction",
+      "sha256": "21fafe79c601432d67bbcc826ff62dde8250723c8fb14e8c66f256b68b657d91",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 54
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7200.mcfunction",
+      "sha256": "5685998e5ae9e6e5426940184ad08f70030ee4e75ac704a6075a103bd3c381bf",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 83
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7300.mcfunction",
+      "sha256": "19d112d970326430286e36308b1b2db7fa9cd5c544c13294d16e86f070783bc1",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 54
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7300_default.mcfunction",
+      "sha256": "d111fce163361902ebb06859bb8a9971c78b8c0a613067e6de435c99849c0cae",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 48
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7300_halloween.mcfunction",
+      "sha256": "5182c34d2a3cd7b2c31ccd4866ecd1d6e208aa8b597b020a8a14db731312fb6b",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 48
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7310.mcfunction",
+      "sha256": "767dfab9a51a2e6b97308ca751c5e46faebcfcf26b047ce653aa6a5dae600a37",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 40
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7310_default.mcfunction",
+      "sha256": "e634a4c5ab5833d4af1e22262831bac9965e811408df7af4f3257c82e88f98d3",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 4
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7310_halloween.mcfunction",
+      "sha256": "189219e9f1b373908819ae3dba0eb5ca1b69a0f69cd6661623075b1b716d6113",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 4
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7400.mcfunction",
+      "sha256": "d16c1dd0bf93431a32199073f119ec77a6ce18ef3884221050ac0b6b5fcb9f1a",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 34
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7400_halloween.mcfunction",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "kind": ".mcfunction",
+      "read_status": "documented_noop"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7500.mcfunction",
+      "sha256": "526542af5ea361898d116afe79d9554b0fec6f3370a4e6d96e7957fc473a7aa8",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 37
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7500_halloween.mcfunction",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "kind": ".mcfunction",
+      "read_status": "documented_noop"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page.mcfunction",
+      "sha256": "77a73dfe4df89e8c6cef931526bf886e34816399a97867f743f68eee824a0ecc",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 32
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/0.mcfunction",
+      "sha256": "2ce4329540235749165a6a434f162845799423609e617a590e70eb86b69eae25",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 45
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/1.mcfunction",
+      "sha256": "0df4a69198ee433e07cfe3ec0515c8cf50bb62811337327f3b25850886dd5f10",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 41
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/2.mcfunction",
+      "sha256": "9ef250fff221406eb73112f7a7fedb8a6c40c8fb4b154a22b90080ed37d280ee",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 41
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/3.mcfunction",
+      "sha256": "03459af7f89f72e50454c49aff1a5cf5adedf42d4cbcfb8642f67a72550af98e",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 41
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/4.mcfunction",
+      "sha256": "f6cd6fa71b77a454b6c09522caa8f29705a24badaf343dd82da4d3f367cd2141",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 41
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/fill0.mcfunction",
+      "sha256": "5682864fc1ca554a2b2c624a1f11fdd159102958fa28f8b61582fe53869f1a84",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 27
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/fill1.mcfunction",
+      "sha256": "c574f0e77ffce4cae7b871719715582b5f6188f29b853084f9ef063aa094cf17",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 27
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/fill2.mcfunction",
+      "sha256": "17195064a30f08664cd4313841fe1818679c4e3beb98645dd841461b613874c2",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 27
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/fill3.mcfunction",
+      "sha256": "f0a00bf13e068ddeb0680633f068614fc73df287298edebb2dfe9f987f23405e",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 27
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/fill4.mcfunction",
+      "sha256": "3f40a32590d237efb5a51998f453a63fd3c212cc5d1ac8af12ae39e5ee54464c",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 27
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/have1.mcfunction",
+      "sha256": "a7f100f1d721559bd451b1aa80bdf9aa54157c36c868a1c0b81599b0b709057a",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 24
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/have2.mcfunction",
+      "sha256": "0ab64511f73aeb2293999d47987c5de2499b51a93ef29bf1a57d7f019c059b93",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 15
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/have3.mcfunction",
+      "sha256": "d274cb79be89642a8f9d008ae8f123c8f4ce8b448292b63c0968e78e48ecd588",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 40
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/have4.mcfunction",
+      "sha256": "bd6b8c83e7f552497935b8242d96ec0e2128af693a3209031fc2a2bb447db5d8",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 33
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/player.mcfunction",
+      "sha256": "ef1160130bcff416e3085b39892cbd339316b58f71e80879296d849566df756d",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 42
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/reset.mcfunction",
+      "sha256": "4f77e5989e35f4fc58d635bb40fe77bdea29737f375a02a18de540a7747f171a",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 6
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/reward/0.mcfunction",
+      "sha256": "3737b405644eb4d02d6de8344168da815089bd97033fd2de9bd24218ed57c0af",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 5
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/reward/1.mcfunction",
+      "sha256": "bc188769d54361423160f72794700d16ba5aba075ac80b324c39d084a1953f1d",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 22
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/reward/2.mcfunction",
+      "sha256": "9f751fd65429f89041a230c17cad7badbfe7c843f397b65ff67960e63cdd7556",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 13
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/reward/3.mcfunction",
+      "sha256": "aa0c9c832007fd4f66d37382e5278231bf4fd2787efc001fdb19c85accb62209",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 3
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/reward/4.mcfunction",
+      "sha256": "1a95394a7b1d43937c70bbab4007bb425ae7c353e73d625c96daae6ad9ddca2a",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 33
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/reward/bars.mcfunction",
+      "sha256": "bb02e39fac0b0019441a3c1196bd52bcf4472870f87f37618757971c4f4195f7",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 22
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/reward/coins.mcfunction",
+      "sha256": "fb3d40e6ce2e2b32c3de335987332ad9a8b889826e827e1b3c7a634e44999a38",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 5
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/reward/memcoins.mcfunction",
+      "sha256": "0b5b67a17266138626e97d7d45c1620bf04956550fcf64788e4f591c4bc7eb15",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 5
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/reward/sounds.mcfunction",
+      "sha256": "bc3e36496aa5b7f83e956e28573d76e2911fae17395496005eee6d8dd26b691a",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 14
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/0.mcfunction",
+      "sha256": "f59b520a3221c7450d33bbd21ff1654281197fcd19759de6d6e1b3411595e06c",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 29
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/1000.mcfunction",
+      "sha256": "49cddc463897f7ffe4cd0698def79dcf305b306758e7fe210597b282067fc410",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 77
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/1000_change_prefix.mcfunction",
+      "sha256": "7f0e7e438df9308fc19ea49ccf37bb88b5bbc7bf0129ddb510f3a9e2cb4ca1c0",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 39
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/1100.mcfunction",
+      "sha256": "4b6aa27ce11cf7e46f71061a295a0480f2da461012d5c9ee020a6a6060197f50",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 4
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/15000.mcfunction",
+      "sha256": "7b1283a1282ddd10462dad95298865911abce5b4e1ffbb4a39047f1c63dce7f7",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 19
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/2000.mcfunction",
+      "sha256": "259db4ffda4b1804d752505a4f504a9ff047dad18e2ec6ec839d036688e5be8e",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 8
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/2000_mapselect.mcfunction",
+      "sha256": "edff4b556b41baf6b8362d0796cd48c4d5f9196f9546e1f3c54982bde9c93f28",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 38
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/2000b.mcfunction",
+      "sha256": "902c21802ccc413b48387bcbec55d20fa7a06f55e603cfb9b824ecce4d2c1a8d",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 8
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/2000b_mapselect.mcfunction",
+      "sha256": "9b18f5f1038bc9a3feec633bd3bde775aba77eb30f77f7715cac308d3414f375",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 71
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/2100.mcfunction",
+      "sha256": "d065fd3f25170a86b458b7287a529fab33ffc95328646ecfb85c7f9cfc66fb1c",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 8
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/2100_mapselect.mcfunction",
+      "sha256": "0890e68081b87ed4ad2f634141bebefc01eb794e808fbac4847584a534da8543",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 38
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/2200.mcfunction",
+      "sha256": "4864a9a26a2aeaf8103590f1af8785dafe052da01059bbf9004542d3ecd26e09",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 7
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/2200_mapselect.mcfunction",
+      "sha256": "51e4125cdd29738a1cb692591773efda1cceb638e47519515fa1b2b8185442f0",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 39
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/3000.mcfunction",
+      "sha256": "ba1c0e3216fccb55b88faeab83b1e0ed5d8dac11173bf1ae94685c7386eacee8",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 30
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/3000_ranked.mcfunction",
+      "sha256": "75a3ae143bb004c5500f81acb65e3a4821c3aa1598e68f34884c57d94b161279",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 26
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/4000.mcfunction",
+      "sha256": "f25abe68b1243cf413646a21192b6f26ebeff496c21b308eb296b040bd0ea229",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 19
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/4000_ranked.mcfunction",
+      "sha256": "c3a765396af506ef5ea126ef20eb850e1ae72fc706790861c23e36cbad478fc0",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 16
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/5000.mcfunction",
+      "sha256": "479d31faaf0ff58a438b9bb78238babb6b24aef1165be13ceabbfeb9202e97e1",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 47
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/6000.mcfunction",
+      "sha256": "871093c482f983a095e43f9c2dc446cc6cd7801998228455aae16eea505619cc",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 47
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/7000.mcfunction",
+      "sha256": "e4f433da817b73cd8bcd542a45adab630e8ab010ccb8b339668cdb4d7a824af3",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 7
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/7100.mcfunction",
+      "sha256": "350477b8a6c5bc442103e1fec036b382e82c9982a917052879936a47d8d70197",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 16
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/7200.mcfunction",
+      "sha256": "e6f638182a408439d0bf51edb491ef4bddb46381bbc94756daae55f79ee2da22",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 23
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/7300.mcfunction",
+      "sha256": "b3859c0dc978acacbfbd6432c517b6425232a64a88716eee0dd2fccc803462a5",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 28
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/7310.mcfunction",
+      "sha256": "98580959c50055e37bc5a9bc9e43477a505e0d67503277d9b0c2b69eba0a879e",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 8
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/7400.mcfunction",
+      "sha256": "a334509baa0226080293b952aa7152b830c6e5fd2a7738f6805dd77bf8a58500",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 7
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/7500.mcfunction",
+      "sha256": "2418ff7e350c8c4d4137ec4d6180aa00dbe43c23e344cabb1f2270928718d016",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 9
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/config.mcfunction",
+      "sha256": "8a9ff0943c969aa89869c1ef2e981df45d91a3109ca00f3e56b7da01710f503b",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 11
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select.mcfunction",
+      "sha256": "64573200d349a776fb417761f5f646c9d3b8d06830a614cbe96155cd1b673785",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 30
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/set_slot_id.mcfunction",
+      "sha256": "bd5d7849bba7e454148677c980259a65dc9005d637719ff66658c998759f79e4",
+      "kind": ".mcfunction",
+      "read_status": "read",
+      "noncomment_lines": 27
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/balance.json",
+      "sha256": "74239a3272570231c0640f450cfaae8f0cbb7ee84afa18b3cb6fa35ccb4364e1",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "list"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/balance_mem.json",
+      "sha256": "1497d5f917f50490ed8c60982d9a8be5f168e5d91960ebbba0f92c0f9022cfb8",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "list"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/compass.json",
+      "sha256": "114fd99589fd3755080f25857904ae3115108c789777f273ae49ca6bf5630782",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "list"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/diamond_axe.json",
+      "sha256": "ac277b4a920b668adab4d65ed62dcc3021d68c7c34e54f714138dd1c0d0d4609",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/empty.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "list"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/golden_axe.json",
+      "sha256": "3d1a15f8381f12b1de0f4f4fd8c98a648c34f496756c33b1d1a8c1ddab6deb35",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/iron_axe.json",
+      "sha256": "308abecfa591f695540764822a8039e505c8317f2acfd3cc643b0893a537b1e0",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked/halloween_food.json",
+      "sha256": "ca7c117481703ac13c548a2fc45f5fd89051dfa67e60733f7cde9085189ee0a7",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "list"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked/halloween_mace.json",
+      "sha256": "99211b9d7a706d4861c190e9bf89b4a64687174b9f7287afe1b56da4d7e8e613",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "list"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked/pumpkin_sword.json",
+      "sha256": "857210ef54d7e94e86f3839256d12873a8525e106f96a8ff3ed695cad31d0348",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "list"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked/soulcorrupt_wand.json",
+      "sha256": "66b78fd57853a06344031704bae21a678ce377ebd28e20a26ee5bac7265284b1",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "list"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked/soulcorrupt_wand_upgraded.json",
+      "sha256": "ce556d0d8f87f5f6c023372ea259ec294006f04571186628717c0010b4931009",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "list"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked/soulhunter_mace.json",
+      "sha256": "4a43816e0e4fc396a9bf5635f843f8575d4e4fc54f929c41d3b76552e9494f0b",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "list"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked/turnir1.json",
+      "sha256": "59a146ba7331a0d0ab7241130c76bc44b30f5a33ee658579257479d98ac595ae",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "list"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked/wind_wand.json",
+      "sha256": "393287ec9292092fe56466da5e8572cd16236be08ba0bebe960cbf48501c4176",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "list"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked/wind_wand_upgraded.json",
+      "sha256": "4241a31ad43815f95af06143e4512e6523b5fcaed7337bdd1d6ef539712de696",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "list"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked_cosmetics_default.json",
+      "sha256": "d33035bd68aa5976a8c66cc9cc35c6c1e36146df9ed7ebd1a0d060884fa4975a",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "list"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked_event.json",
+      "sha256": "04792ba7fe2a30b595cb5c687ea7d2c558ed4c8bb0eb0634709be6fec30f7615",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "list"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked_kit_default.json",
+      "sha256": "e790e148dc165a03ab8df6ff70252366050c5bfcf8ea585983ac3042167eb76f",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "list"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked_skill_default.json",
+      "sha256": "2f4b4907216ee9cd48bca17ca743178ab8ffcfafe5d9f21c5ee0fac6ebd1dc94",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "list"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked_suffix_halloween.json",
+      "sha256": "c4a03c97ec4bdea69637136262aeb476c10617a4328f17282f7e2a0c91460320",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "list"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked_suffix_pandora.json",
+      "sha256": "fae55d998625888a5fe23d729c90a54fefa507ef2fc6e39a104464355821f332",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "list"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/netherite_axe.json",
+      "sha256": "b24346cf221e525f863dfd796f5a248027edc70a906a69a433f7cae6e52ac0e8",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/select.json",
+      "sha256": "3b9aae6b3772c7b314a6d41479fe266b8b274fd2affdeeef0b9e0bda2408b306",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "list"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/stone_axe.json",
+      "sha256": "553a19bdce4f1a7275d4741f9f053f05e67b624658c7e5b9bd56f59066875f51",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/wooden_axe.json",
+      "sha256": "3d1a15f8381f12b1de0f4f4fd8c98a648c34f496756c33b1d1a8c1ddab6deb35",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/back.json",
+      "sha256": "c721d0a28e66b9f2c14cd17b5dadebc4523b43a9d40f68d060c6f2c94c64c3c7",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/next.json",
+      "sha256": "ae37ca69144e0a33b7e8dc59eeeb0eb5d996467bc83e6c6264a139926c68c763",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/0.json",
+      "sha256": "a4f8a81b9a6f3d65570bd31033e967f28127eaf0fa34b7d4a2c3ac353afc729a",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/1.json",
+      "sha256": "79cda9fd10cb3fbebbcfdbbb6e29f49937053b340e8b9c326d106a25a1f40fe0",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/12.json",
+      "sha256": "8ada9517ed69c5e069acbb135fb8952b3b8eb3b41697a8c2a34a56c771f255e9",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/13.json",
+      "sha256": "3e930ec7330d9d83fa762610ef97b88a9716d0139d2567e3a0b092d88ae5190c",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/14.json",
+      "sha256": "6da78279436ba4f641c482266f6232398c706d568b8e776cd7bed4416e2cb4bf",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/17.json",
+      "sha256": "dcbc055c9d12258d8c64253957323eec82c008cc78e157273cb6b57d0881a00f",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/17_old.json",
+      "sha256": "78a1ce0f8ffde042978c4094dc30c38cedbc6c53e9cdeb69efcb3dee52b87dbf",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/19.json",
+      "sha256": "7ef554ead878905636aba1f2ec1ae15c81fb49e0efb1a3bf2b06e51acc0d3db1",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/2.json",
+      "sha256": "996a3db68d88e333ad2995b01ae7de4a3753be9d27e53229212fdcd9e0ae5222",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/20.json",
+      "sha256": "cb8fd48e87705b04093d4d81d5d1b5df9769421b6c9800d9f4e599edc7945b22",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/21.json",
+      "sha256": "9af62e6de2c7cad0e2194aa08f6ac3d502c734493a985bd44843a31a4a9b3e53",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/22.json",
+      "sha256": "0d860205468a905fbad9ff48f988efb620f8f8c5d661ce2bf56c156b069d9d57",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/23.json",
+      "sha256": "6a59749d5ada04a5882905b91706b02d2c40fa4a1e23f61543577a45e0560a41",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/24.json",
+      "sha256": "f52677314c1a1f6ad1027dcd6c788c64ddffe2b2e3f4bd7a6c861270ee043d13",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/25.json",
+      "sha256": "e6edae74abebac17bd4cf54eac76193f94fc9d355e1034cb010a1526feb92bf2",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/26.json",
+      "sha256": "28cef1183ef64ce6be9bb56391aedc45aea86651a558380d829e2738352fe011",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/6.json",
+      "sha256": "f1c282e534fa9fed1c4519ba25f12093d6c72e9da566c0204398449f1d8349a7",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/7.json",
+      "sha256": "7b0956ce5653f42ca21b0ef4723111e380739352b8dcfc538f5416fbcb73570e",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/8.json",
+      "sha256": "6fec16e506a4e594fd014a6342de669a733903a5bf6da829609a128418b621b5",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/9.json",
+      "sha256": "9753144b88b82c12a9c3ce6d0807d37542a63a675f3b8b7c0c3f94dfee123d6f",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/0.json",
+      "sha256": "47893c2b18298456d17529ff5d0d9951800a9f436b9c7257b9d3847487cc813d",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/1.json",
+      "sha256": "9775b28458c5764bbc6f425d6cf9aa6071df47435da61398dfe4ce475ad0484f",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/10.json",
+      "sha256": "fd22d457c3fdd4ab0c4921424dd92be148bddd5e0f02dfd2bd586a96fa8662c2",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/11.json",
+      "sha256": "8e5992848b64109a5eb0cacab2299daa9d2f19534d7d1e32eda9b93f558cb33a",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/12.json",
+      "sha256": "05f176fe95bdbb36ceb486bafda13e791fa8c9a688892854599695b9614db5ae",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/13.json",
+      "sha256": "2356dd9c04d912d73eb24c2186a4321265a4093c51ea751e8fdec5316c253eec",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/14.json",
+      "sha256": "94c2af5d370c97e6f6e581ea3d9cf4903b8e76330f374c1d6a89bba52ea346bb",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/15.json",
+      "sha256": "460e889e1ffec99a85330d7af40bc5d3baae1224750c116d6c3a5284ca9c9b78",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/16.json",
+      "sha256": "68b47a09eebb5240aa03a90d38a09d81fb3550634d05dabb5135c21a8d58011f",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/17.json",
+      "sha256": "55921ba8a76de6f00a086c930f867b27a91fa749d0e909b8d18199f18bae268e",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/19.json",
+      "sha256": "a663f57d2fdd0b91e4056d645f9decc824ad7164097dc20d1a8173eb19873a95",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/2.json",
+      "sha256": "e421a97815a3accbd69c53c37923fd1a374720e8bba9516b540274caee5d1f75",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/20.json",
+      "sha256": "fdd0cceabce1d851d488fd10c9c55e7860dc828a7cafb16bd6f46dff40c44d62",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/21.json",
+      "sha256": "327b8c9b35b1602e164228400ae03b484e4254b34cc416f86dd932968bb98edc",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/22.json",
+      "sha256": "8192a2ee912c3a0d71088d47138a74f2b03f62255216f28972f716907424a9b5",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/23.json",
+      "sha256": "1ebeafb38e212897e5c141825211c7f3ed37652ced83f9283b7ef63b0d8179b5",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/24.json",
+      "sha256": "c725173a468e1972508b136e9b06ba5000017d0ef9226ee25d4a9a270ad53df4",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/25.json",
+      "sha256": "111ab5762375b4c441d7b09bb04f96543d05cfd3a6078ad366ae342c6100a396",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/26.json",
+      "sha256": "35c9fc912ce685a11c9380577c6910016bc9fb939cd51e80cb7b372a070b2ecc",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/3.json",
+      "sha256": "d3658e15403b967dce24d442a81ff17ee18390d2e27abb58874bd53714969a03",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/4.json",
+      "sha256": "4e1d9f31af142ea6e575931d1c9b450466e955d4f61ebe8adfc4eb553d22372d",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/5.json",
+      "sha256": "5724859f1d2bd26fc7852de091fa3cd0edd6efaf222766fb328ac4319e878dc0",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/6.json",
+      "sha256": "9af3196d62389d15566b8eba11181aa083f4136bde4ad686e72df62afaf99cf3",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/7.json",
+      "sha256": "a82611c4b774ba604e2fe78c1cf2d0963c47f9b1dafdc7902a6b0aac0391e6a9",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/8.json",
+      "sha256": "f88507cf3eb13fecd5550fbcff5a4a08ec5e85be759c497bb797c598100c54a6",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/9.json",
+      "sha256": "99b587c5afb6c1c21c4b483fca3ff3572e255a07a00af7e9b68710746f9e6a65",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1100/0.json",
+      "sha256": "5fc371a17b261dddf8426b18dfda378604e4ea4063e13898c1b5348a9e0fae66",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1100/1.json",
+      "sha256": "aefe93643012bafb9241ad7534d95444abc6fb060de203da0975c982e20073ba",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/0.json",
+      "sha256": "178b8bd0ef6f0a1a7eed7981347fe25990feaf20a783c241feb69cade995f1eb",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/1.json",
+      "sha256": "4e26599b7dfd6f1c1f718aa473533691c59dcfddc88ab087a34bfd146cb72845",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/10.json",
+      "sha256": "e3a6417017abeff435f659f959dd94f75ce058acca9ccca60c2f8a329825280c",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/11.json",
+      "sha256": "412cda987763decb60d09bac66862122f1424d9da02695ec4b0a1e090950363f",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/12.json",
+      "sha256": "f36df1d20dcf885211b8f09ccba7f66053cbc0900332be73cd8b1cf590bfff66",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/13.json",
+      "sha256": "f9e6c3e74bc68cf9be436df900a993d1887864d946d9738e601afaeb3ee9ee93",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/14.json",
+      "sha256": "3b799976aa2e76da944dc74d38fca1c209d413898b63da2d55e1af4a3b7fd6ed",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/15.json",
+      "sha256": "ae144ad4c4f44bb0098afd6ba6afaa820d00e68ca0f000123940901636276a0d",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/16.json",
+      "sha256": "cf6b41ec3162c9c5791d59d1b019d922490b6e6518c38e3fed9a01f8fc2f3f45",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/17.json",
+      "sha256": "550f656592beabbd1764957511112b6c2d75f635252ffba5460222753bdeb998",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/19.json",
+      "sha256": "297b0d9145a9f4433611cdf6450a2127164c7010fcc2fbdc8714da797f849097",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/2.json",
+      "sha256": "60d1194272b23229e10506c137b62527438ba0bd6f86475b8aa68daa3f30a13b",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/20.json",
+      "sha256": "39a203d03ede828b89956059ea528b3a7f05389ff7eb77a60b1f528b63232fdd",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/21.json",
+      "sha256": "904b0392012cd43aeb7c9908fde208f29017ebd7814e7d149b8194b56396f6b7",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/22.json",
+      "sha256": "efd4ec2973c74f38602f6658f5071f0514cf584a40db85f45d251d297cddbfe0",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/23.json",
+      "sha256": "43792d1a74fa8dcc42fd2e230027addc8fc9e359abbf1c0c5c0ebaca981556d7",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/3.json",
+      "sha256": "a6663e60224e685c3d7b9e073bee2eba2a5c04bbefe11d0c0be547e2dcd057a5",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/4.json",
+      "sha256": "d8bd90e630a3bd35f1f72300353d34c7ee8faef14187d0f997608a90c4ebae80",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/5.json",
+      "sha256": "265aaa1cd4ff2af7c9930a8faf1a0d2e64462f2546c9c9bf43ec7d8ad11eb665",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/6.json",
+      "sha256": "5686f99f03b8dd5ded9b0dafa7c9113cddf81f60a723015c6a5849d940059192",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/7.json",
+      "sha256": "dac91060bab20a3fe13cff952b37f6a341376fd9883fe82eef32a61f24f641da",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/8.json",
+      "sha256": "7608b77252a27746d83009d18c3668d13a108a4b9624c1cf6a3de329ec8e17a3",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/9.json",
+      "sha256": "51c9689b390dd5a5eafab91055b59c874c2aaff514f13b22d892aa2fb8436fdd",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/0.json",
+      "sha256": "6fefa92591d60ce60211a73c93bb9785e8db27e8194e48346d325ad9bc771958",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/1.json",
+      "sha256": "7cb45ffc8d8917e5e19a5dbb643fb1751cbaa7ab40e19b95dd5ce6aedfbe577b",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/10.json",
+      "sha256": "6085789664f960aa19b247dc52504d1274a2f29a1aded624703c6fc98cd337f3",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/11.json",
+      "sha256": "30f5f9656517cb4c098e295ab4cc43693b51f45211d7d0a515b68eaf714d1b23",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/12.json",
+      "sha256": "9f66446e6efa6fd941f794e3638fb6e90264ace1fbc51c0895a70d8a9f4cc7e8",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/2.json",
+      "sha256": "4e6aef4a31293e6bbdfa80e497ea0c8195171ca09892e77121fe8dd50264ec12",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/3.json",
+      "sha256": "7bd92c846460fc2e19719fefdf1a1df8a85d40b3355845fb23992d46d026f3cd",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/4.json",
+      "sha256": "7e3d852e7ef51f3da885cb5c026b546352d31124d9427ec45ab69d5a764a509d",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/5.json",
+      "sha256": "fbbe40ba5803668868a213d1b57f700d384b93d6375f257ca455b38389fd3ee7",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/6.json",
+      "sha256": "c51d80fd4cfae448d4aece15896f0b0edfd1a181aa75367b1c9e820e7fa512c1",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/7.json",
+      "sha256": "d454d7940fbf30f164aff7bbbf702107e3b6110d55910e25b7ddfd466d70ed8a",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/8.json",
+      "sha256": "d32892ee021921c140a2b2a37ba4177cddd329022743873137105409a66637cb",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/9.json",
+      "sha256": "04073dfa10b070597f7b66066efe37985c873fa462716213594753d096499fee",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/5000/0.json",
+      "sha256": "1c602f4753f54b5d2ecd268481256026a5389f7fad1b2e7a5a96472163e10424",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/5000/1.json",
+      "sha256": "36ffac9f67d4243b8ee6cafe6392c1a813986a66a3236311f1db35877e7031bf",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/5000/2.json",
+      "sha256": "ff64b6458cbf9a2085634619c4306722fc10bfac7350924aee09cb66b242bb02",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/5000/3.json",
+      "sha256": "fc7ab8283cc54b62d72d392281101fd7af7f7acb926533adb5a34e8f8aa7e0c4",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/5000/4.json",
+      "sha256": "3a47e38a7fe172372bd4018300b63d2b0eb484ca071ead6c423cfe38dad7ecb1",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/5000/4_halloween.json",
+      "sha256": "818f060d9455de4fdc1216b7b44fc620ad3858346e90d3d85d64409c1630336f",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/0.json",
+      "sha256": "f132ef1f46eaf44e96966c90e3c74568ddd81fd5da7d0ee635c30f86047054dd",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/1.json",
+      "sha256": "1a2532a819b83d46e2f28ae14f55ec885ae21f80a9015e0b8bae1e62cad0b250",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/10.json",
+      "sha256": "4f3c54757896f8625ab4ba7ecfd65547991d1941a4d52d6315af70264c62953a",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/11.json",
+      "sha256": "bd2164680b5cbaae9990c91d7434a941f786d6030f33642a10e4255c2dd6487a",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/12.json",
+      "sha256": "5089847cf4945d847a14e626b2d28f1c74702f2d54150aad6a8b0b2e829d87ae",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/12_halloween.json",
+      "sha256": "3131355c0a35d72e60d0eef3a57098684e2a94e8049897073ed11a23456a195d",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/13.json",
+      "sha256": "2fbdf60b6f3d79eea242dd04fafd163b0c2698b7c634da62e5084eb15291fb87",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/13_halloween.json",
+      "sha256": "cbacc866dcb05aafdef5846d6de2c20b08cccc7b6cc1b8b216ec44c91541428d",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/14.json",
+      "sha256": "9bd4c27cf96acfc20636d1d4e7b193f9c099e9546143fc66618adf0c7a0f1952",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/14_halloween.json",
+      "sha256": "9b7a70eccaced5485c343b0a890f76f2a7b01eb0dafb031bcd5fdcf7efe61c89",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/2.json",
+      "sha256": "61f26706e2476e5218e1870917e6fd60a25e20de4d02888941e3ea5382dfbd88",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/3.json",
+      "sha256": "5a1ea0a61aaba591859656496ece31543177569fbf8c387f732a1b36ca5d3971",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/4.json",
+      "sha256": "e18f237de06b3e6782a9c0b3cc4cf5957fb5b5c2271c541bb786d5ecd9b2019d",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/5.json",
+      "sha256": "8f56987bc465abde1a2f7acb44bef9115a87b5c3337af5c9a63c5cdbd9f03425",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/6.json",
+      "sha256": "779090141405ebf4ff433d4bf4c596028a84b0f4a01f65516c329c927d0be9ba",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/7.json",
+      "sha256": "0f23ddbb5a5577e2cd5bd671e899243c679e1b861d6003ad567bdd5efee1ae27",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/8.json",
+      "sha256": "b562e7b813855625a14645740c8257faddfad0d5158c882462a7f3eef7dd3f61",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/9.json",
+      "sha256": "59a9c10057dc4d8df1023e268b9621682af4cbfbc7a1184b5b4aae39846a1796",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7000/10.json",
+      "sha256": "d8f05b4ac34b3e01f591e5b8bd60d7ec699b53e5acced66147cccc2b386ae9ee",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7000/12.json",
+      "sha256": "a32bb97def5da8bab9f4ae74198a97ed05b0eabd6943cda48394830d72e13198",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7000/14.json",
+      "sha256": "72749617bd7edd1c66276fd5a8140700ee72eaa629ce55e52a00a460c88bd1e8",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7000/16.json",
+      "sha256": "8db615ee7f06899dbee0b41d5fa6f41e04949bfdaca48cb76876cc1e0073d2d9",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7000/4.json",
+      "sha256": "3c58c9564899fe118c65e07410fa4cd92fc3fc888850e46f4561bcaa2686cbe8",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7200/0.json",
+      "sha256": "10e3cf0303981d0a1ae31821a4be8a434e741e0e66fda70e903597470d17b83b",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/0.json",
+      "sha256": "3a415bdb3a4f1686f7d2c1b59fb15ad2932748036c203c95cde42f9c2d7c4eb0",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/1.json",
+      "sha256": "1e69600c4dc6d84e228f53f27d8a2bc10ae1fc4ea4572ed134cc94c54aaa0f53",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/10.json",
+      "sha256": "c5749ea2bae4fd7895a783fb4e8f73da1469dd3f817a9d717485e720367d409f",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/11.json",
+      "sha256": "52de5d45a4fa110f064083a6dae4f372a6736a679893452ff01339627a3a4424",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/12.json",
+      "sha256": "98fa0251074eed19d4a2c94f9fc526d85eb81400eb91d3f9111d13566e7b0f8c",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/13.json",
+      "sha256": "821744f1a6896fc99c9e2fe70bae055541cd8ad913cc8089c7477789d474be9d",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/14.json",
+      "sha256": "acd96b0bd994a2466ae30e21f794395988c513841ce3a76a550384185cc847f0",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/15.json",
+      "sha256": "c945009d5be523ec77f9a15c34752d4d9c9c569cab24bd89aa91310a45ccc48f",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/16.json",
+      "sha256": "b9e9fbc2ec9d61235ba2eb8a03e9976dd9dec36e681dceb15095e868e3ebdb27",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/17.json",
+      "sha256": "02f50739898855dee283d26a2c62680772817536c4fd41c25e18ba39adcd5aed",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/18.json",
+      "sha256": "9deb1fffd15f35e3a5539c67592049134223cf55c5f255aedd5d04b4ddc4bceb",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/19.json",
+      "sha256": "3680638355b604fad9634c033758b6b50098c8918531f4d81f05e90519d89dca",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/2.json",
+      "sha256": "521c4fdaccaa6d4fa01b179790e581272c4dbc062d46906dc552f6d61764fa7c",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/20.json",
+      "sha256": "a680a8fa88aaf30aee506f23879d50575100f7e8aeccfcd828553b10b8011697",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/21.json",
+      "sha256": "a00e4b1c154d8701e5de2faf2f7bcb30ca5509aeb4719e8a1c0d3d8280419ca1",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/22.json",
+      "sha256": "a33301722dceec7daef2632213df4af2b20d70d504a52c786faf8be149f83030",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/23.json",
+      "sha256": "76383e1696042292f9684b119194e33f4da4300f8ae9d94127f1bd7fc1c856b1",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/24.json",
+      "sha256": "d4f87f8cb78c2edd6791198a5558259dc491e2a793810a6168ca14a454398f6a",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/25.json",
+      "sha256": "38819df8777707cf3747ede5c9a40678196723b77e00da762735835655dff1a8",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/26.json",
+      "sha256": "3d1e3b8d40844ff3b62983c73b07732ca03777baded65947debce85986df800f",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/27.json",
+      "sha256": "4889ffbd2c822a74b38e73f3f66e2b117e61afa6cda1a2d38b5c74de7c2b1ddc",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/28.json",
+      "sha256": "ddebfd3e2aa8d0f00d9b45aaa4b2ae1a1e511864989788e254e142288893f783",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/3.json",
+      "sha256": "ec4c05c7073e8c3ddac446d5bd13c5951caae293e57d1e3061c2733723bf050d",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/4.json",
+      "sha256": "065d94426dc10b0e846b33c108c28318913cf4b50cf0606477d208d77a7fae13",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/5.json",
+      "sha256": "7d737c75c8bf2327468b4e8b813aba6406c0403bfb14ef9fb62dc9d36b5508ca",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/6.json",
+      "sha256": "1d620a057996eae48350bf8235613dfdd8a000c37639358f79331da6cfb57ee5",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/7.json",
+      "sha256": "d031282a9dacfcc8fcfa40b49d830625ed0453cecad996d745377ae8a51d2bfe",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/8.json",
+      "sha256": "fc5bc312c426ad3b36bbbffc639bcbcaff12a00e688cc54866940969ce9edbb4",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/9.json",
+      "sha256": "567a4d4656926a84b41df4018deadc5ba54d6f6e8f9069eaa58519345c4147d0",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7400/0.json",
+      "sha256": "b093d2dca77a269a963c25e28c16862f46c3a96f48b198a52b4bcb6f17143a4b",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7400/1.json",
+      "sha256": "41d35986bd180391e2df7e120879d5e5313852ffbd88b58ce69a5c1e8cc1f4a4",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7500/0.json",
+      "sha256": "35bd269fb8445ee84d2bca9047b648c21588c7fade37f176473d5a82bc6ae204",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7500/1.json",
+      "sha256": "13eba8c7740092d0cb7c81d176cac705dda7dc1f6d081d1b9ddd58cf3c29eab8",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7500/2.json",
+      "sha256": "1e956956197e1c6927742093b0d922ce435d49e0a3b11e519fe6f713c56ddfb8",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/reset.json",
+      "sha256": "46f2a8bc97f9af752587b2817544f8ab3da8743aaa5480158e6211640f59bef7",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case0/main.json",
+      "sha256": "938bb5c44b567fd7dc63fa3926e29b22f974adec1bbbc86c2470c3a3c07561d4",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/a/1.json",
+      "sha256": "db3b45ecfafd0b8a72e4862ad6ac8777c543d913b7a3ec69bea90372baa66604",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/a/2.json",
+      "sha256": "d66ffbcced74191edd365be99077917ff9acb7879d0e8199779d6e54973a8238",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/a/3.json",
+      "sha256": "734801bef647d7d4df103920eb012d43ef0ae0b46063b7d888e9489332b84ca8",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/a/4.json",
+      "sha256": "1e6049c15147cecee9f1c4a539cf8231e803dffb615dc302dcf12daac4352edd",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/a/5.json",
+      "sha256": "b290ab4a6d4816d80fd96579ecf6a60fdb7f14c5f68fb16896b5f3395c44c018",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/a/6.json",
+      "sha256": "d4df2c5bc6d341d10f6c16f0fe2a3c78ff261773b21c36f3938df341d1869e6d",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/a/7.json",
+      "sha256": "a6f9ccbf5e099c6aba3cfba3097b394c348c30c82745989519e079bea3a90480",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/a/main.json",
+      "sha256": "486141e04510890ed60c6d68c23ed76483c11801f96f3c33836d59796cd385e5",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/b/1.json",
+      "sha256": "ba2ca1c75eaf03668ced007022603587eac41f69061d68dfdbd7a583fb527920",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/b/2.json",
+      "sha256": "6a1f1f8b9a8b45fdcec98955263741287975e950066144350dab02ef1e7223e0",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/b/3.json",
+      "sha256": "45939664cef8a29698dda517c05e953bdadd3da1078ce6dbfef440e8c54c2539",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/b/4.json",
+      "sha256": "d248a1c22a997ee4f347ee58d1d09d40d45bf8054aab144e50a800a857dff8b8",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/b/5.json",
+      "sha256": "6e7b320f3a01d82bb47f5bafeb5ed0d7f984c51638a49de208194d2ec9b49aa6",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/b/main.json",
+      "sha256": "c9d35513b5738078be635e0c1255749160020298f58fee0ae3b9b3a809bf0d83",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/c/1.json",
+      "sha256": "6d4723759a7e888fad26d91330327e078a3f1ddf8c3b49d0fbb3dcb858078689",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/c/2.json",
+      "sha256": "570cc33c15533ed8cc3543691ed6c592cdda50c3a26f4b4db0f957d9129d8b63",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/c/3.json",
+      "sha256": "2ad240d6a90aba0015af1e000409e38ea41f21ad4e653983191c7c132c0e8abd",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/c/4.json",
+      "sha256": "8f8d790a3fc3f4e3717728605accfb80aaab8833effedf7154a9c604ea71bce6",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/c/5.json",
+      "sha256": "5c00b366f31a33443cb660427881b03bb50d98dca3ab29222dd1127341b8e37f",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/c/main.json",
+      "sha256": "649645152edeadd5f3b40ba7fc99b0362c0f6e0fd7690732f41fcfd6355260e7",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/d/1.json",
+      "sha256": "7ebc5f079ed2c86e0978ba56e9cacb878a2c1548ce09c25b4966bf7206477834",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/d/2.json",
+      "sha256": "3050f2f612bedac74414fb72ddecbe4861e950e3d69b55f51ef378739dd79a81",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/d/3.json",
+      "sha256": "01c8b75e5152dc98472596a9f24f89e59e51fd46e7451705bf891faae5343d7c",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/d/main.json",
+      "sha256": "d6e523d0806f92a23a41bad4ce7fc07bf42b8b38939707e857c77a6284dc9ff1",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/select.json",
+      "sha256": "f0c4e34596f9a39f8acda70b6a1293503a72d1a0c3ca2b120b06232be26183ac",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/a/1.json",
+      "sha256": "e754235415801d1a476823103c2b17fdc473f06992cb1a5b7d6274fc2db7e215",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/a/2.json",
+      "sha256": "145f1894692328bbd8960301ab71898abf26ba8386454a832659b7920115ce45",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/a/3.json",
+      "sha256": "b8ad250448dec28f11cfa9a13a5b8674bfb7726d80f0c0a42ee68af3a90fad12",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/a/4.json",
+      "sha256": "3a472fd96e84a4b13aff4d2289b6ea038820e30970a44377725254f4c498e4b2",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/a/main.json",
+      "sha256": "ab9b02069c9153986232a039312d688b450edb4a8ec0a02caa5a7f122d8512cb",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/b/1.json",
+      "sha256": "433ab97fa316d5cf31241e09a34f5234f944d48160c5d88aa2ae8d67870c1184",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/b/2.json",
+      "sha256": "acc2cb3aaf245d39cb865d016c984aeb48e2435355c2c63560a49d65041d1ad0",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/b/3.json",
+      "sha256": "2dfcd3fe4c5b168d56a6faa7c96e604aa7165bc5d43e2ae7f5f1fa7e1bf6c7bc",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/b/main.json",
+      "sha256": "8f66566e011b34498d0ee6a4291b9bbd183e1b72e4216cbb1adfa8c96db0e048",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/c/1.json",
+      "sha256": "4e92c2c1c74e5d81420f1a3965852b2f8cdf79156533ed65d850133416e1ca30",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/c/2.json",
+      "sha256": "c65f7950cf24a38915c0f04468078db7721bcf7366e8e7399d58ac84390ab15e",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/c/main.json",
+      "sha256": "dc528ed437cc9238bfe9373f31b1aad23909d487a09c8556f0adb7c7da4f6f82",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/d/1.json",
+      "sha256": "cfc9dedbecab5c4df23666f73fbfea8d6e602a74e639817e327a321951cb4db5",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/d/2.json",
+      "sha256": "d0dd4387c61a07d36afd55fd117c9c1aa7c4c5a47fb4b0e992660b563fa43621",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/d/main.json",
+      "sha256": "fefc53ec5a2817e83d51c5761f95c8e7abc3755fe3806c2a4eb79ab80461f2fc",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/select.json",
+      "sha256": "f665f4c4e70a57f1b5c98fdd748f50d65f4cb7292073ac64d38f0e8e7f2c5e90",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/1.json",
+      "sha256": "72d26d001a1babf5d974057ee8ac7f15045b50a11ca3cf9ef9f5c928e4cba318",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/10.json",
+      "sha256": "477080519a993887261b6176a6fa67669f738bce78f8805c5908b3f22e278507",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/11.json",
+      "sha256": "1e44cddd0a3196ede621814f023e6d9e87c00e119775b7935293ba63c2fde7c2",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/12.json",
+      "sha256": "349022534b219f5eb748137f3163c9e70a77f2975df7f778fdfe11543df287e9",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/13.json",
+      "sha256": "3587d9796cd19302662b05a16dc1c34f72f1e072a144536d550fb24d5a2c7d90",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/14.json",
+      "sha256": "c52ad698cdb81bd1e5ddfffcd12236e1ce5578f77677d45209451d0bd3f209bd",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/15.json",
+      "sha256": "063a601db40a403923f545b64be17d19f0ac93073a9be98efce1a5e59ef8d21a",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/16.json",
+      "sha256": "91b7d67b19ac3ec7d639bf5117d4b4de810ca254b626a773005dab54028e4a4e",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/2.json",
+      "sha256": "7797a95d5bbc8f4a6dd03e5e35780f5bdd0b0d516f94b5c5903ea55c19edafc8",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/3.json",
+      "sha256": "e14952ecb423ab23b3ecc167554b42df1642c51f6b131de3c5c1b57372e1708f",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/4.json",
+      "sha256": "c0f253f5afaf5a4b8d063b1e870b80b73b0fffa19342b2ca7274211c74f8a132",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/5.json",
+      "sha256": "6c7616d2e5303d5a39a284135c2ce0fea5ef65a0da452ba6c3effccff364d76a",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/6.json",
+      "sha256": "6f2c6766448880b6b7b58789e07e2c53828f680c9dac78dcf94be9d6c1ae60fa",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/7.json",
+      "sha256": "9c06672693b9a3a522e0d9952c28773d2233e83b750eb823c39bd1ff2e062acb",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/8.json",
+      "sha256": "7f433cec610c32ee2f82b7ccee391ba9edd8335777e73d9bf372fe0912466211",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/9.json",
+      "sha256": "68a81af906810267573c4a47872092f78a177daa921f1ba0721d635d9787a104",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/main.json",
+      "sha256": "6e329b6e8bf050ee70154c0d807ce6b4b1652551be7fc01246a1048290de71ae",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/c/1.json",
+      "sha256": "fbdd5e824caedc5b664bae0ea59f1f010214c32c76de3a55144be9aee2fd5f55",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/c/2.json",
+      "sha256": "7241205db3ac71b02d98296ff551cc295c6f93912845941bf9c59ba9c21a3110",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/c/3.json",
+      "sha256": "1728d822d63dfd0efdad249fa50a183810b10a5780751d18a8ddbd931985ae5f",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/c/main.json",
+      "sha256": "e95793060815cf96a0e3ffcbba29d22463daf59f6e60f4584d7dfd28e2ce7d2a",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/d/1.json",
+      "sha256": "058b64f588d1b3e579d46891213464115a4821355b45a055d5fcaeb9efa2efd9",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/d/main.json",
+      "sha256": "0d1e8115bc2a8dc321676b6ea7d8aed07e863d16ae5f835a864dba16a919470c",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/select.json",
+      "sha256": "90f12c18fc41ee920bb7a82063a9f5bdea53a1284fc79d642eaa78fec85ae98e",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/select.json",
+      "sha256": "ddb5d3f87fe033f6fa32ad88d41fb8c5c23de1121cfa3ddc5ce81e7309451638",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/a/1.json",
+      "sha256": "5189ab372584164bbe95d1a24f4950b65efb9bfad3ce978eae66b87a01893857",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/a/2.json",
+      "sha256": "ae3bcc782c8a428336144c103bad1d1535d2bcb78d09f26c6882037e786c07cd",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/a/3.json",
+      "sha256": "3e516c8ac125962320f6458c945ff6e1d3b5120754d63041bd4564734de828fc",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/a/4.json",
+      "sha256": "8eeff9a5df6a9cbd6033022bf891ef672156e4f8cbd1ace982674e14da65e677",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/a/5.json",
+      "sha256": "c7f68e2d4d5f5ced6c7499fe92db44d011d6eda00b2aab2f2e228e48b828493a",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/a/6.json",
+      "sha256": "d559030417d209339bd2fbcb1b600924b80c1ecc9bbaea8e52e7f861ee7972b2",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/a/7.json",
+      "sha256": "06746e1922f410bd7ea89b3d100873fc1c7c7bce1c69148ac41cb053ed926794",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/a/main.json",
+      "sha256": "e0e76d84e3d49805a3e4fdf7f5232fd295be1e0763ef939c91b0345d06c35a02",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/b/1.json",
+      "sha256": "612b584853f4d13be1377168631f0c575f5f5a74556e914447efd779b26778c8",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/b/2.json",
+      "sha256": "789128d3ed22a20179420487997fc5eddb6bdb39d72f941a93351ba6a372966c",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/b/3.json",
+      "sha256": "892fc6c771bf96af9d33f36f5f27c367b2845c81a92615dc55159682b5aea7d2",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/b/main.json",
+      "sha256": "4955959c71c4b0dc2c773f81baf0611669ce31f19fdb72dc1b0a2092ecc8c581",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/c/1.json",
+      "sha256": "960ba7621e9bab48626b744ae593dc53fe18bab60037a7bbd028b0fe19dc8c63",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/c/main.json",
+      "sha256": "78cfee64b7d7fa1f982a288041e6611a1ca3e60b62f127e082c33474bddb7d82",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/d/1.json",
+      "sha256": "c70026e3326d21b94698247872048758dc28637029ec2aac7db3838cd2747909",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/d/2.json",
+      "sha256": "111433ad06c4c7f188b471c4d1e3547621730363ffcc26a183d3f90954dacb77",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/d/main.json",
+      "sha256": "b38f665278f7925801372ac00504941ca0c0c38f22238b46e99347d1f22cb5f6",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/select.json",
+      "sha256": "e958c9b9139372169b07481bf9bbc086a328d021330e05009279ac9cffdee457",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case4/common.json",
+      "sha256": "7a9da46811fd4f3c5463a40415e7dd6499cd658a4d1fa9b56d0a1c8522362c31",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case4/epic.json",
+      "sha256": "7e21dda2941dabd45afd5c7c5fd9ccd8614b8488823d672618ec4bc6dc3b73b1",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case4/legendary.json",
+      "sha256": "d4e4d0e224cf0146a74171124589805e2f7925909fc3f687f180ed1cd47e7457",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case4/rare.json",
+      "sha256": "7e15c081da5d4b4252c25e17975a8b95447db98e829da2e3f3e11075d564123a",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case4/select.json",
+      "sha256": "ef6ae00317cbe4e80e5b9701956812b8b55ff9fe1ca6cb0aface166e07ea75c6",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/coins/a.json",
+      "sha256": "9eb186e1f844d1f8be7e64ba906935f98c92d479441340589b5bd067e0e461b3",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/coins/b.json",
+      "sha256": "085e8cf48b73a240fa9447f74992ffa9238e8f7a8b0372a24939cffbceb73e75",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/coins/c.json",
+      "sha256": "4c1fcc217eb78573f8b31157fe70e476cb1ec4f51b7c260483f5c2f21ab45a0f",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/coins/d.json",
+      "sha256": "292d82b91ce5bdea20864d310f7c66062284db28c874c54fffc86e9dff5a1f33",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/coins/main.json",
+      "sha256": "b606576230cb2ed4689a4c308c7f4847904680af0b2b16bbc5efbb9aec57f401",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/have/a.json",
+      "sha256": "a50f4c2127d0e8e48dd085904c5480c7f0895e1570312149ea132d9ab68a9859",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/have/a_m.json",
+      "sha256": "654d9a23632179975f04b02004822c17718d3d281bf3b32c24261aa59ee5d583",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/have/b.json",
+      "sha256": "46b96b09936e1d49c6fa3c8e9c98ca3ad2575fee8bb204ebc0b7a87ef854d534",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/have/b_m.json",
+      "sha256": "c50101ab1dcf89e5768bd5f82d4fa0cd715df72442a2e15e67350931b16714ba",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/have/c.json",
+      "sha256": "eca2d92e0bb09ab4765f8d80a2034ef32e7992407a383663f75bc927d33bc622",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/have/c_m.json",
+      "sha256": "b08a78843f3db8a2e0c492cdf45b10a35322d5cba91b0a957d2518e4c93dceef",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/have/d.json",
+      "sha256": "bfb1eeb659aae7f2abb2a3d8bea625a4ab68fe605984c9782a852940e69f3b6b",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/have/d_m.json",
+      "sha256": "fca7676ae11426eed786c8c9134b9b20ee6210ea2c1675be5a439c1704648816",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/0.json",
+      "sha256": "dd778c74e5176a56875db41759df52f6ce40b2378e7892fe960e96c6ae5e8b01",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot0.json",
+      "sha256": "dd778c74e5176a56875db41759df52f6ce40b2378e7892fe960e96c6ae5e8b01",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot1.json",
+      "sha256": "24121f543497a450fd22cb02eb4e5be504d26e2d59878dbee95ea196dc60f0cf",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot10.json",
+      "sha256": "28ac3afd899ba3237190511872d9aa42f9304620c9bb32b22276276ad0a21c70",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot11.json",
+      "sha256": "be5e00773958114e7ade6105f70babc3d9e59402152f8615ef0e1fab6369c382",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot12.json",
+      "sha256": "eae4b5eda0e3664b6fe7af935ed300cf2004824286eab21524534568eaa95fef",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot13.json",
+      "sha256": "51cbfb4d0f2527a503355d064a44ba28b40df5ebc15d3fa9bf4191d57f24a615",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot14.json",
+      "sha256": "91a58b3d3342f1fb0eaa46e8545d14527c7e77f3b6575f454606d88eb18c015c",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot15.json",
+      "sha256": "fdcf4f057f1b39b864cd6e694939ac11d932c947fb3e366ec38aaec000e7de27",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot16.json",
+      "sha256": "af0a897595c8b0c8fbcdb06d3a6532580bbff953f97c76ef2cb89f9adaacaa03",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot17.json",
+      "sha256": "a555f0703770e457008d928d6f01508d3e58e001c9b450473d938e61740e5a9f",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot18.json",
+      "sha256": "b51c489ccda605c0151fe6a735da96da6bf7687c6fe7c77688d1e152c2e111f6",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot19.json",
+      "sha256": "94cfd70aa97be869a637561fb2b8e99ed0db1185c61eb8d746d26c715dfb77b2",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot2.json",
+      "sha256": "c2251b0d7133cdad1fcb53710d2c89bb0882928385f70cb81474933c6b9beb90",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot20.json",
+      "sha256": "efe417cb244bfa0c35bd764cf49a5e4d1e1d2d03051fc4c9b5b24678a1e39ff7",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot21.json",
+      "sha256": "6b0e54b4a23435f5ab9026f8067ce88f633038fe695ce8dfbc7e24c2a8a5ec43",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot22.json",
+      "sha256": "e0560dc655d2b94c1d4474f5c85b9111ce6ae2173d1bbec2bfbd8aac765afab0",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot23.json",
+      "sha256": "10ac00934dacdc17ad4bab0c692f81243c1b82bb7463f02b8d7aa9deb5f2b2ac",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot24.json",
+      "sha256": "04b9d97415619db53e94a1a53d30b044b2698378c8af16290028fb7b0da837bf",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot25.json",
+      "sha256": "a4bbb5fd7d812e53633ce33e9088abca384f26ade638d8359cfdf164de982500",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot26.json",
+      "sha256": "1635a0568fb0d8b1aa491c1993e6c69c94757ce9776fc27e08335a09fc5cf952",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot3.json",
+      "sha256": "593a03a0b7e7355063a922ae461d1be909db9ec73a16329b6c49801b0f6b9044",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot4.json",
+      "sha256": "44348f604766f505be8de5e0b24335a6f679d4dce1ac63559ce8d9d7e6f577f0",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot5.json",
+      "sha256": "c87c55236831ac4cc6c677844d5fe3f86b1735651087578e89db7d6a29bb4423",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot6.json",
+      "sha256": "87a4f0f7dd5cd02ea78a4e458770b56fb629cdfd03c02fc2e2324c4ab51f00fd",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot7.json",
+      "sha256": "578b4620663c1f90326673bc710eab56be6ee4d5d2d3b301216ffcdc57db1fc4",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot8.json",
+      "sha256": "727094f6f83327a9b042fceb88547195f8de819837e1d3707cda037a670c569f",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot9.json",
+      "sha256": "5ec0e53a4fe0c2f04f7e5e820eb3eb7b493cec159064ad5caf32c9576b139f1c",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/use.json",
+      "sha256": "6d20a3984d2dede7a8c79c3b97842da2009b2953a867b8a1a69543665a0655b7",
+      "kind": ".json",
+      "read_status": "read",
+      "json_root": "dict"
+    }
+  ]
+}

@@ -1,115 +1,115 @@
 {
-    "pools": [
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:splash_potion",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:potion_contents": {
-                                    "custom_color": 6169122,
-                                    "custom_effects": [
-                                        {
-                                            "id": "minecraft:blindness",
-                                            "amplifier": 1,
-                                            "duration": 200
-                                        }
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "entity": "this",
-                            "name": {
-                                "nbt": "item.kit12_2.Name",
-                                "storage": "swrg:lang",
-                                "interpret": true,
-                                "source": "storage",
-                                "type": "nbt"
-                            }
-                        }
-                    ]
+          "type": "minecraft:item",
+          "name": "minecraft:splash_potion",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:potion_contents": {
+                  "custom_color": 6169122,
+                  "custom_effects": [
+                    {
+                      "id": "minecraft:blindness",
+                      "amplifier": 1,
+                      "duration": 200
+                    }
+                  ]
                 }
-            ]
-        },
-        {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:splash_potion",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:potion_contents": {
-                                    "custom_color": 0,
-                                    "custom_effects": [
-                                        {
-                                            "id": "minecraft:wither",
-                                            "amplifier": 1,
-                                            "duration": 400
-                                        }
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "entity": "this",
-                            "name": {
-                                "nbt": "item.kit12_0.Name",
-                                "storage": "swrg:lang",
-                                "interpret": true,
-                                "source": "storage",
-                                "type": "nbt"
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:splash_potion",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:potion_contents": {
-                                    "custom_color": 10205859,
-                                    "custom_effects": [
-                                        {
-                                            "id": "minecraft:nausea",
-                                            "amplifier": 1,
-                                            "duration": 400
-                                        }
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "entity": "this",
-                            "name": {
-                                "nbt": "item.kit12_1.Name",
-                                "storage": "swrg:lang",
-                                "interpret": true,
-                                "source": "storage",
-                                "type": "nbt"
-                            }
-                        }
-                    ]
-                }
-            ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "entity": "this",
+              "name": {
+                "nbt": "item.kit12_2.Name",
+                "storage": "swrg:lang",
+                "interpret": true,
+                "source": "storage",
+                "type": "nbt"
+              },
+              "type": "minecraft:set_name"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:splash_potion",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:potion_contents": {
+                  "custom_color": 0,
+                  "custom_effects": [
+                    {
+                      "id": "minecraft:wither",
+                      "amplifier": 1,
+                      "duration": 400
+                    }
+                  ]
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "entity": "this",
+              "name": {
+                "nbt": "item.kit12_0.Name",
+                "storage": "swrg:lang",
+                "interpret": true,
+                "source": "storage",
+                "type": "nbt"
+              },
+              "type": "minecraft:set_name"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:splash_potion",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:potion_contents": {
+                  "custom_color": 10205859,
+                  "custom_effects": [
+                    {
+                      "id": "minecraft:nausea",
+                      "amplifier": 1,
+                      "duration": 400
+                    }
+                  ]
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "entity": "this",
+              "name": {
+                "nbt": "item.kit12_1.Name",
+                "storage": "swrg:lang",
+                "interpret": true,
+                "source": "storage",
+                "type": "nbt"
+              },
+              "type": "minecraft:set_name"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

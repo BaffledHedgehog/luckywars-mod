@@ -1,0 +1,542 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/acid_boom.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/antigravity/refresh_attribute.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/antigravity/start.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/antigravity/tick_10t.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/antigravity/tick_10t_marker.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/antigravity/tick_10t_marker1.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/antigravity/tick_10t_marker_at.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/antigravity/tick_10t_player.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/antigravity/tick_10t_player_veryhigh.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/anvilcage.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/bean.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/beanend.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/bees.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/corrosion.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/corrosion_old.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/creepers.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/creepers_old.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/crocodildo/5s.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/crocodildo/blowjob.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/crocodildo/disappear.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/crocodildo/hitbox_tick.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/crocodildo/hitbox_tick_active.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/crocodildo/hitbox_tick_active_damaged.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/crocodildo/hitbox_tick_active_death.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/crocodildo/spawn.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/crocodildo/spawn_at.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/death_lust.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/death_lust_at.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/empty_cage.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/evilluckyblock.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/falled.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/falled_old.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/fallingblock.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/fallingblock_old.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/fallingnetherite.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/forest.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/forest_loop.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/greedcurse.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/death.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/drop_bomb.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/drop_item.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/hitted.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/phase_1_to_2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/phase_1_to_3.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/phase_2_to_1.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/phase_3_to_1.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/shoot.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/tick.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/tick_phase_1.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/tick_phase_2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/tick_phase_3.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss/tppos.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss_spawn.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/helicopter_boss_spawn_2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/hole.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/hole_old.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/infinity.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/lavacage.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/levitation.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/library.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/luckypigs.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/luckyroom.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/magic_academy.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/magic_academy_token.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/magicbean.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/magicbean_loop.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/mom.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/muravei.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/muravei_acid.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/muravei_tick.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/obsidiantrap.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/opanvil.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/opanvil_old.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/otchim.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/pizanski.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/ponos.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/ponos_mega.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/portall.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/potioncage.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/sauvojen_tuntija.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/sethome.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/shadow_citadel.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/shulkerbullets.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/skrimmer.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/skrimmer_old.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/specialdrops.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/stalin.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/startarrow.mcfunction",
+    "read_status": "read_blank_non_runtime"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/add_lore.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/add_random_lore.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/attribute_get.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/enchantment_get.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/get_sound.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/random_equippable.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/select_random.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/select_random_attribute.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/select_random_enchantment.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/select_random_name.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/select_random_name_1.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/select_random_name_lore.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_basics.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_bow.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_crossbow.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_gapple.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_gapple_2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_nbttag.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_rc.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_snowball.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_sound.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_storage.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_storage_attribute.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_storage_enchantment.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_storage_hex.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_storage_names.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_storage_nbttags.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_storage_sound.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/setname.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/trigger_smth.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/trigger_smth_not_bow.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/trigger_smth_not_crossbow.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/trigger_smth_not_damaged.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/write_random_attribute.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/write_random_enchantment.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/write_random_nbttag.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt_at.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tntcage.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tnts.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/transformator.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/ultraponos.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/ultraponos_2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/vex.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/vex_old.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/yameteluckyblock.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/zombietnt.mcfunction",
+    "read_status": "read_and_compared"
+  }
+]

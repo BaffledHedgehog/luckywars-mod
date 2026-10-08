@@ -1,0 +1,400 @@
+# LBC: оружие и боевые предметы
+
+Охват пакета: 256 функций из `items/bows`, `items/crossbow`, `items/shields`, `items/shooter/slr` и `items/swords`/`items/wands`. Здесь описываются триггеры и конечное действие; выдачу/точный состав компонентов сверяйте по [каталогу loot](lbc_loot_definitions.md), а условия advancement по [каталогу advancement](lbc_advancements.md). Дочерние `workingitems/**`, лучи и снаряды указаны как зависимости, пока не прослеженные в этом пакете.
+
+## Контексты исполнения и геометрия
+
+`execute as` меняет исполнителя, но сохраняет текущую позицию и поворот, пока цепочка не использует `at`, `positioned` или другой перенос контекста. Селектор `dx/dy/dz` задаёт прямоугольный объём поиска; `distance` лишь отсекает сущности внутри этого объёма и сам по себе не расширяет его до сферы. Для единиц: NBT `fuse:100s` означает Short со значением 100 тиков (5 секунд), типичная NBT `Duration` также задаётся в тиках, а `schedule function ... 1s` — реальная секунда.
+
+## Общие луки
+
+`items/bows/charge_add` увеличивает `bow_charge` на 1, если `time_stopped` не активен; при значении ровно 1 и `custom_data.infinite_arrow:1` выдаёт loot `lbc:imba/infinite_arrow`, а при включённых skills зовёт внешний `swrg_kit_integration/game/skills/bow_charge`. В конце отзывается advancement `bow_pulling`. `charge_query` вызывает внешнюю зарядку `shish_gun` при выбранном соответствующем предмете и обнуляет `bow_charge` вместе с `bow_charge_sub`, если выбранный предмет не обычный bow; аналогичный `charge_query_crossbow` обнуляет `crossbow_charge`, если выбран не crossbow. Триггер установки advancement-ов относится к их определениям; сами функции не проверяют наличие лука до изменения счётчиков.
+
+## Madoka Bow
+
+`custom_data.madoka_bow:1` маркирует основу `bow` из loot `lbc:madoka_bow`; пользовательский выстрел проходит через advancement `lbc:madoka_bow` (смотрите его критерий и запрет измерений в [каталоге](lbc_advancements.md)). `shoot` переименовывает ближайшую spectral arrow в обычную arrow, добавляет ближайшей стреле эффект raid omen на 10t с amplifier 76, а затем копирует `lbcID2` и `team_number` стрелку; замена spectral-происходит через временную стрелу с теми же Motion, Rotation и Owner. `tick` иногда рисует сердечки (predicate `lbc:chance20`) и при попадании снаряда в блок создаёт загрузку 11×11×11 из измерения `white` в overworld, заполняет ближайшие сундуки таблицей `swrg:chests/default|midle|center`, выдаёт эффект уровня/звук и удаляет marker; фрагмент chest loot принадлежит SWRG-пакету.
+
+При попадании по цели наличие upgraded-предмета в любом контейнерном слоте вызывает `hit_find`: 54 проверки слотов по очереди перезаписывают macro storage, так что при нескольких подходящих предметах выбирается последний совпавший индекс, а не первый. Для выбранного предмета удаляются `upgraded`, `upgradable`, `upgrade_available`, последняя строка lore заменяется на `madoka_cursed` и ставится `pissed_by_madoka_sob_sob_sob_sob_sob:1`. Такой же сброс происходит для offhand; владелец получает сообщение `lost_upgrade`. Отдельная `hit_adv` снимает 10000 raw единиц маны, выдаёт частицы и секретное достижение; в показанном наборе не найден вызов, связывающий её с попаданием.
+
+## Улучшенные арбалеты
+
+`custom_data.imba_fast_crossbow:1` включает повторяемый advancement во время использования crossbow вне `nexus`/`imprinted`; при наличии в инвентаре стрелы он вызывает `imba_fast_crossbow_shoot`. Функция создаёт одну обычную arrow в глазах владельца, задаёт Owner и разбросанный вектор через `raycast_vpered_big_with_razbros`, пробует передать ей trinket-эффекты, играет звук и тратит одну стрелу, кроме `infinite_arrow:1`. Это функция без собственного cooldown; время её повтора задаётся advancement/игрой.
+
+`imba_shotgun_crossbow` создаёт256 стрел с тегами `imba_shotgun,killedarrow`, затем по каждой задаёт Owner, `lbcID2`, team_number, item и Rotation от владельца и запускает веерный `raycast_vpered_razbros`. После этого функция убивает все обычные arrows без `killedarrow` в радиусе1 около владельца; она сама не проверяет инвентарный боезапас и не очищает arrows из inventory. Конечный урон и жизнь созданных стрел зависят от универсального raycast/runtime и будут описаны в соответствующих пакетах. `imba_gatlingator_crossbow`, `imba_sniper_crossbow` и `imba_super_shotgun_crossbow` передают управление трём внешним режимам `workingitems/awaken_tuntija_wands/erecto`; gatling тратит3 arrows, две другие сначала убивают arrows в радиусе1 у глаз, а перед вызовом ставят игроку `caster` и `Distance=0`. Их конечное поражение цели принадлежит внешнему коду и здесь не выводится по имени функции.
+
+## Щиты
+
+`energy_shield` пока нет time stop вызывает `energy_shield_2` и сразу сбрасывает advancement. При каждом срабатывании проходятся все projectiles-raycaster сущности в радиусе 7: `energy_shield_proj` сначала умножает каждую компоненту Motion на 1000, затем записывает её с коэффициентом −0.001; итоговая скорость равна обратной исходной (с округлением), а не исходной скорости, умноженной на −0.001. Затем функция телепортирует projectile на 0.1 блока вперёд по направлению его взгляда, ставит `mirrored` и искры. Затем shield присваивает отражённым снарядам Owner, `owner`, `lbcID2` и `team_number` игрока и снимает `mirrored` с тех, кто дальше 7, но не дальше 14 блоков; наличие advancement-а на попадание отражённой стрелой также описано в [каталоге](lbc_advancements.md).
+
+`holyshield` при отсутствии остановки времени проверяет область на 3 блока вперёд и радиус 4: выдаёт `instant_health` всем `#minecraft:unholy_monsters` и рисует им золотую пыль (для undead-целей этот эффект может наносить урон), удаляет рядом `corrupted_dust` и выдаёт секретное достижение, если найден zombie с `DeathLootTable:"lbc:reactive_shish"`. Это не постоянная аура: команда выполняется только на срабатывании advancement-а, который затем отзывается. `shield_block` не срабатывает при `time_stopped>=2` и в измерениях `nexus`/`imprinted`; иначе находит raycaster в радиусе 2 перед игроком и убивает `shield_blockable`, а `shield_blockable2` — только при условии, что в его текущем блоке воздух; обе группы, принадлежащие тому же игроку или команде по `lbcID2`/`team_number`, помечаются `donotblock` и пропускаются. В конце очищает этот временный тег у сущностей в радиусе 5.
+
+## SLR (магический стрелок)
+
+Предмет задаётся loot `lbc:slr` как carrot-on-a-stick с `custom_data.shooter`, `magicwand`, `mode:1`, `slr`; advancement `lbc:slr` реагирует на использование. Shift-клик меняет режим через внешнюю функцию `other/magic_academy/change_mode_4` и сообщает выбранную цифру 1–4; обычный клик, если есть arrow и `coldownMagnum<=0`, запускает выстрел из точки `^-.2 ^-.2 ^`. `shoot` расходует одну arrow, кроме бесконечных, исполняет один из четырёх рекурсивных лучей по `mode` (standard / poison / explosion / electro), проигрывает звук, добавляет cooldown-score 15, генерирует случайную отдачу по yaw −6..6° и pitch −15..−5° и телепортирует владельца с новой Rotation.
+
+Лучевые функции шагают по `^ ^ ^.2`, увеличивая `Distance` на 1; цикл может выполнить 1500 перемещений и дойти до счётчика 1501, то есть геометрический предел — около 300 блоков, если раньше не встретится преграда. Лучи рисуют частицы и ломают блоки из `#minecraft:breakable_slr`; режим взрыва вместо этого останавливается при не-воздухе из `#minecraft:airs` и создаёт TNT с `fuse:2s` (Short: 2 тика = 0,1 секунды). На каждом шаге селектор цели ограничен `dx=dy=dz=0` (куб примерно 1×1×1 блок); `Distance<=17` для поиска запускающей цели и `Distance<=15` для урона — только дополнительные фильтры, они не превращают куб в сферу радиусом 17 или 15. Повторный поиск при продвижении луча может задеть одну цель несколькими вызовами, поэтому указанное значение нельзя автоматически считать уроном за весь выстрел. Обычный режим наносит общий урон 10 cactus; головная ветка дополнительно наносит 20 урона и снимает helmet, после чего общий урон 10 всё равно выполняется; урон по факту зависит от Minecraft damage cooldown. Poison наносит 8 cactus damage, накладывает poison, slowness и blindness на 10 секунд и hunger на 10 секунд с amplifier 1; electro накладывает slowness, weakness и mining fatigue на 4 секунды с amplifier 127. В explosion-режиме прямой hit наносит 5 cactus damage; блоковая ветка выставляет `Distance=1600`, а `dmg_with_id_explode` при попадании в сущность — `Distance=1700`; обе создают TNT с `fuse:2s` (2 тика = 0,1 секунды).
+
+Исходники этих механик перечислены по точным путям в конце документа.
+
+
+## Мечи: Banhammer и Blazefire
+
+`custom_data.banhammer:1` увеличивает `swordcharging7` при каждом обычном выполнении `items/swords` пока меч выбран; каждые 15 счётных срабатываний сбрасывает заряд и добавляет `swordcharged7`. Ability обнуляет `Distance`, помечает владельца `caster` и пускает взглядовый луч по 0.4 блока, максимум 200 шагов (80 блоков); первый моб в 10 блоках или преграда вызывает падение молота. Молот item_display появляется на Y+200 с сохранёнными `lbcID2` и `team_number`, владелец ставится на `Distance=19999`, а заряд уменьшается на 1; его `tick_fall` опускает его на 2 блока за каждый из первых 99 Lifetime ticks, при 100 наносит эффект в радиусе 5.5, при 200 убивает display. На приземлении все не-spectator игроки в радиусе 5.5 получают 40 393 одинаковых block-marker particle commands и macro-команду `kick`; если skills включены игроку с `lbc.skill=12` эффект пропускается, и совпавший владелец получает секретное достижение.
+
+`custom_data` меча Blazefire при клике ставит на владельца `firefarting`; `players_2t` вызывает для этой метки `tick_5t`, то есть ударная волна включается через двухтиковый player loop. Каждый её проход тратит 3 `swordcharged9`, запускает пламенный луч из глаз с продвижением на 1 блок, поражает каждую сущность максимум раз за проход тегом `hitten` на 1 `in_fire` плюс 0.1 `arrow` damage, затем снимает временные метки. Когда charge достигает 0, метка активности снимается и счётчик обнуляется; на цикл проигрывается звук fire charge.
+
+## Chaos Sword, Triple Golden Sword и Kara
+
+`custom_data.chaos_swo:1` запускает `chaos_sword_imba_pre`: команды создают большой фиксированный строй item_display золотых мечей вокруг/над игроком; каждый сохраняет `lbcID2` и `team_number`, получает случайный угол и отмечается `homing_sword,slowraycast,imba_rc,magic`. При свободном пути мечи на каждом тике преследуют ближайшую допустимую цель, пропуская владельца и союзников по ID/команде; в пределах 8 блоков наносят 4 arrow damage владельцем (или 4 generic без владельца), после чего меч разбивается. При попадании в блоке он помечается `inground` и остаётся до случайного 1% разлома за тик; блокирующая стена и `Lifetime>=100` завершают его. Не следует считать это одним выстрелом: пре-функция выпускает много отдельных преследующих мечей.
+
+`custom_data.triple_golden_sword:1` заряжает `swordcharged8` вплоть до 6; click тратит один заряд и выпускает три display-меча веером с yaw −10°, 0°, +10°. Они используют тот же преследующий/попадающийся блокам цикл, что Chaos Sword, но на игроках и мобах отдельно исключают владельца и его команду; каждый попавший меч наносит 4 урона и исчезает. `custom_data.kara:1` запускает central slowraycast marker; на каждом `tick_kara` он уничтожает блоки вдоль вертикали от Y=0 до Y=319, оставляет end_rod-частицы/взрывной звук и пока Lifetime<100 рождает два боковых луча с yaw ±30° и смещением ±0.8. Marker исчезает при Lifetime 100; сколько блоков он реально разрушит зависит от мира и позиции, а прямой урон живым целям в этих функциях отсутствует.
+
+## Fevgalea Star
+
+`custom_data.fevgalea_star:1` добавляет `fevgalea_charge` при каждом обработанном ударе и порождает на случайной из трёх полос marker-звезду с `lifetime:40`, Owner ID и командой. По клику обычная атака при нулевом заряде требует 1000 mana и тратит её, создавая marker дождя на 100 ticks на 15 блоков над владельцем; он движется вперёд и с 50% вероятностью каждого шага выпускает waterdrop, у которой 25 ticks жизни и луч длиной 11 шагов, повреждающий мобов внешним `lbcr:dmg_bypl_3nocd`. Shift при заряде до 6 требует 5000 mana, лечит владельца мгновенно (amplifier 99), даёт Resistance IV 7s, добавляет `void_resistance` 7 и тратит 5000 mana; её луч на 120 шагов наносит вокруг владельца урон, равный текущему Health цели, за вычетом защиты от `nomagic_active` и `stopper_magic`.
+
+При заряде 1..6 обычный клик запускает луч звезды: три цветовых варианта повреждают до трёх узких точек каждой позиции внешним `lbcr:damagewithid_10maxhealth`, `...10health` или `...10speed`; он проходит до 10 шагов по 0.2 блока и завершается через `lbcr:raycast_end_with_tp`. Shift с зарядом 7+ атакует всех не-союзных мобов в радиусе 20: `damage_100hp` наносит ровно половину текущего Health через общий `damage_with_tmp`, затем снимает 7 заряда; обычный charged-click вместо этого расходует 1 заряд и запускает shift-луч. Содержимое внешнего damage helper определяет итоговое снятие здоровья/скорости, поэтому здесь даны только точные переданные ему значения.
+
+## Piston Sword, Ruchka и WTF
+
+Клик Piston Sword запускает луч до200 шагов с шагом0,33, останавливаясь на позиции, где блок не равен ID `minecraft:air`; затем рекурсивно пытается сдвинуть цепь блоков вперёд, клонируя текущий блок в следующую позицию и заменяя исходную позицию воздухом. При неудаче clone ветка возвращает `return fail`; если последующая очистка исходной позиции не сработала, `ray_2_r_blocked` сбрасывает временный флаг и очищает следующий блок. Поэтому итог зависит от успешности clone/setblock. Удар проигрывает piston extend; прямого entity damage в этом луче нет.
+
+`ruchka` не обращается к item custom_data в своей функции: диспетчер `items/swords` вызывает её при выбранном предмете с `custom_data.ruchka:1`, если рядом нет `stopper`. Она сохраняет team владельца и находит недружеского игрока в 7 блоках с `HurtTime:10s`, затем передаёт эффект внешнему `projectiles/gadgets/ruchka_pl`; после этого забирает у владельца один предмет с моделью `lbc:ruchka`. Для `wtf_item:1` похожий триггер срабатывает по удару: предмет расходуется, ищется ближайшая недружеская сущность с `HurtTime:10s` в 7 блоках (селектор не ограничен игроками), и на 10 блоков за её спиной создаётся один item_display `shef` размером3, а цель получает `shef_hated`. Display каждый tick движется к помеченной сущности; отдельный damage selector может задеть одну сущность в точечном кубе+distance5 у display и наносит ей10 cactus damage. Если помеченной сущности нет, display удаляется; звук выбирается равновероятно из шести вариантов с predicate `chance0_5`.
+
+## Fish-разрушители (ручные функции)
+
+`items/swords/get_penised` вызываются core-диспетчером для выбранных предметов `diamond_fish`, `netherite_fish`, `netherstar_fish`, `transdimensional_fish`, `multiverse_fish`; во всех случаях цель — недружеский не-spectator игрок, раненный именно в этом тике (`HurtTime:10s`) в пределах 7 блоков. Вариант diamond даёт `lookback +10` и blindness 5s; netherite сначала разбрасывает жертву на 0..100 блоков, добавляет lookback 10 и blindness; netherstar разбрасывает так же, добавляет lookback/target/nomagic по 100 и unluck 100s amplifier 100; transdimensional через projectile teleport helper добавляет lookback/scared/target/nomagic по 1000 и unluck 1000s amplifier 100; multiverse делает то же с величиной 10000. У всех пяти звук puffer fish повторяется с нарастающей громкостью/высотой; cooldown, цена или снятие предмета этими функциями не задаются.
+
+
+## Danmaku Staff и его volleys
+
+Loot `lbc:danmaku_staff` задаёт `custom_data.danmaku_staff:1`, `spellwithcooldown`, `staff`, `magicwand`; обработчик работает в `players_tick` только при `danmaku>=1` и отсутствии `stopper_magic` в 20 блоках. Обычный клик вызывает `click_2`, добавляет 20 к `danmaku`, а затем списывает `danmaku_staff_mana_use` (в `config` это 1000); если все четыре части брони имеют `mage:1`, дополнительно увеличивается `manamax` на bonus 150, а не текущая mana. Вызов trinket helper отдельный. Каждый активный тик уменьшает danmaku на 1, поэтому окно атаки 20 server ticks; снимок `danmaku % 20` делит выстрелы по рукам: чётные позиции запускают mainhand series, нечётные — offhand, а при отсутствии wand в руке для чётной позиции срабатывает fallback main series. Advanced tick выбирает паттерны с `upgraded:1` в соответствующей руке; spellid 159 и uniwand также используют ряд danmaku.
+
+В базовых рядах `shoot_1..10` 10 фаз чередуются через 2 ticks: 1 и 7 выпускают по 5 обычных и 4 homing снаряда под указанными в исходниках углами; 2–6 выпускают по 2 обычных под углами −20..+25°, 8–10 — по 4 обычных с веером ±17..23°. `shoot_1l..10l` (левая рука) дают по 2 обычных projectile, кроме номера 10, где 5 обычных + 12 homing; `shoot_1_upgraded..9_upgraded` заменяют каждую фазу на 8 homing projectile, `shoot_10_upgraded` создаёт 17 обычных лучей шириной ±40°. Left-upgraded-фазы 1–10 дают по 6 снарядов, выставленных кругом. Каждый projectile — item_display, несёт `lbcID2` и `team_number` стрелявшего и получает `active`; homing-варианты добавляют `homing`. Расход mana здесь выполняется на активации, отдельно от этих снарядов.
+
+Sneak-клик при `danmaku_score>=50` вместо следующей атаки создаёт два зеркально наложенных красных display-бомбы; сохраняет владельца/team и накопленный score в `Distance`, сбрасывает `danmaku_score`, играет звук, а при `upgradable` и score>=1500 вызывает внешний upgrade-check. В обычном `bomb_tick` lifetime растёт на 3 за проход, display раздувается по 0.2×Lifetime, а macro-проход `bomb_tick_2` использует радиус примерно 0.06×Lifetime: он удаляет чужие projectiles, магические/mecha raycasters, mob_projectile и наносит 1 magic damage мобам, исключая союзников, owner и strict-map-object; после того как возраст превысит исходный score, объект держит `empty` 60 проходов и удаляется. `bomb_tick_fast` имеет отдельную геометрию по saved Distance, наращивает age по 10 и вызывает аналогичный `bomb_tick_2_fast`; в исследованных вызовах этого задания fast-вариант не создаётся, поэтому фиксирую его как runnable helper с неустановленным триггером, а не как штатный исход staff.
+
+
+## Sauvojen Wand: random wand and upgraded modes
+
+`cast` запускается advancement-ом базовой или улучшенной Sauvojen Wand. Обычное применение тратит 2500 mana (настройка `config`), добавляет 150 к максимуму маны только при наличии `mage:1` во всех четырёх слотах брони и может вызвать SWRG trinket hook. Затем случайно выбирает одну из девяти стихийных палочек (`ruby, terra, electro, air, acid, teleport, stone, fire, blind`), ставит её на 2 блока впереди и копирует `lbcID2`/`team_number`; вызов босса ghast закомментирован. Shift-применение улучшенной палочки начинает медитацию со счёта 620; улучшенное применение создаёт тот же набор и выдаёт соответствующее скрытое достижение.
+
+Базовая летающая палочка движется через raycaster loop: поворачивается к ближайшему подходящему мобу в пределах 150 блоков, пропуская spectator, владельца и союзную команду, и останавливается у не-воздушного блока либо по достижении Lifetime 200 тиков (10 секунд). Частота выпуска зависит от стихии: ruby/stone/air — 60 тиков, blind — 10, acid/electro/terra — 20, teleport — 80, fire — 5. Эмиттеры создают лучевые маркеры со сроком ruby 50, stone 80, air 120, teleport 60, terra 200, acid 300, blind 100 тиков; electro выпускает несколько electroweb display, fire — small_fireball с Owner/team и Motion от временного маркера. Конечные попадания обрабатываются raycaster/projectile функциями, описываемыми в назначенных для них пакетах; если эмиттер не копирует владельца, атрибуция здесь не предполагается.
+
+Улучшенные палочки живут до Lifetime 400 тиков (20 секунд), наводятся на подходящего врага в пределах 150 блоков и циклически вызывают режимы `cold` с частотой: ruby 10, stone 40, air 10, acid/electro/teleport 5, terra каждый тик, fire 5, blind 5. Каждый режим вызывает конкретную дочернюю функцию `workingitems/sauvojen_staffs/**` либо `workingitems/awaken_tuntija_wands/**` (например acidacid/acidcorrupt, exahoming/exasperato, avarice, erecto, stonekivi, boltbolt, fireblaze); дочерние эффекты будут разобраны отдельным пакетом, поэтому здесь указана зависимость, а не вывод по имени. Каждый тик также случайно меняется визуальная модель на одну из 3–4 моделей соответствующей палочки; у terra четыре варианта.
+## Sauvojen meditation (upgrade attempt)
+
+Shift-клик с улучшенной Sauvojen wand запускает отсчёт 620 score-единиц. `players_tick` проверяет его каждый игровой тик, только когда рядом нет `stopper_magic`; `tick` прерывает медитацию, если палочка ушла из главной руки. Для достижения score 1 нужно не менее 31 секунды непрерывного удержания. Получение урона в фазах вызывает `fail`: счёт сбрасывается, маркер медитации убивается и через 3 тика ставится ещё одна очистка. Субтитры появляются на отметках 620, 560, 520, 420, 310, 300, 160, 140 и 30. На score 1 вызывается внешняя проверка Magic Academy `can_upgrade`, а медиатор удаляется; сама замена предмета находится во внешней функции.
+
+Фазы выполняют реальные команды мира, это не обычное заклинание урона. На score 620 запускается ruby-фаза, которая `fill ... air destroy` разрушает сужающийся коридор около 21×25 блоков; на 600..550 каждый шаг создаёт три display-палочки вокруг игрока. На 520..440 строятся четыре electro display за тик (дополнительные на score 500/480/460/440), а на 420 стартует связанный electroweb луч: он может нанести 8 magic damage и провалить испытание. На 419..383 air-фаза перемещается от 18 блоков впереди игрока к 18 позади; на 320 по смещению (−23,−4,−23) ставится структура `lbc:stone_cylinder`, на 300 начинается acid-медитация. На 290..200 с шансом 50% появляется большой acid-ball display при случайных X/Z от −10 до 10 и Y+9. На 160 игрок получает levitation 15 секунд и отдельный levitation amplifier 20 на 1 тик; на 140 — darkness 15 секунд. На 140..40 могут появляться scare-face/picture взаимодействия, а на 40..120 с шансом 70% countdown увеличивается обратно на 1. На 20 снимается levitation, даётся slow falling на 4 секунды, заполняется ближайшая яма и массив лавы 121×30 блоков; разрушение и заливка мира подтверждены исходной командой.
+
+Маркер acid-фазы испускает зелёные частицы и движется на 0,25 блока за тик до Lifetime 130. `acidballer` живёт 50 тиков и с вероятностью 50% за вызов выпускает acidball со случайным Rotation; каждый шар проходит максимум 3 блока (три шага по 0,4), живёт не более 40 тиков, наносит ближайшему мобу в 5 блоках 4 урона `in_fire` и poison на 10 секунд, а блоки окрашивает по цепочке lime→green→yellow→light_gray→gray→black concrete powder. Проверки урона в медитации различаются: `damaged` наносит 8 magic и проваливает испытание, если score ещё положительный; `damaged_acid` перед провалом наносит 4 `in_fire` плюс poison на 10 секунд. Blindness-фаза многократно даёт darkness на 15 секунд и levitation на 1 секунду, создаёт interaction 4×4 в 10 блоках при случайном Rotation и показывает одну из 10 scare-face моделей. Маркеры picture/face поднимаются на 0,1 блока за тик и умирают на Lifetime 100. В `tick_blind_check` есть незавершённая строка `execute if entity ...` без `run`, поэтому она ничего не проверяет.
+
+
+
+## Uni Wand
+
+Loot `lbc:uniwand` создаёт carrot-on-a-stick с `custom_data.uniwand:1`, `mana:0`, `spellcount:0`; `click` читает сохранённый `mana` как требование и запускает cast только если текущая mana выше него либо одновременно меньше него и `manamax` тоже меньше порога. При равенстве требованию и при нехватке текущей маны, когда manamax уже не ниже порога, функция не делает ничего; в таблице базового предмета порог равен нулю, поэтому равная нулю мана тоже не проходит условие. `cast` вычитает это значение, начинает `currspell=0`, считывает `spellcount`, затем `cast_loop` повышает номер до 1 и передаёт его в `items/libspells/select_wand`; повтор продолжается, пока `currspell < spellcount`. Поскольку первый spell cast происходит до сравнения, `spellcount=0` всё равно даёт один вызов выбора; для положительного N цикл вызывает последовательно spell slots 1..N. Сами эффекты определяются выбранными spell IDs/макросом в `select_wand`, а не трёхфункциональным циклом Uni Wand.
+
+
+Три meditation-функции остаются пустыми: `loop_particle`, `loop_particle_white` и `phase_acid` не исполняют команд; вызов `loop_particle` не добавляет визуального эффекта. Пустой `phase_acid` отдельный от рабочего `phase_acid_tick`, который запускается от acidmedit marker. В coverage они оставлены `documented` как фактические no-op функции.
+
+## Источники
+
+### Общие луки
+
+- [items/bows/charge_add.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/bows/charge_add.mcfunction)
+- [items/bows/charge_query.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/bows/charge_query.mcfunction)
+- [items/bows/charge_query_crossbow.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/bows/charge_query_crossbow.mcfunction)
+
+### Madoka Bow
+
+- [items/bows/kaname_bow/chest_loot_spawn.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/bows/kaname_bow/chest_loot_spawn.mcfunction)
+- [items/bows/kaname_bow/fall.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/bows/kaname_bow/fall.mcfunction)
+- [items/bows/kaname_bow/hit.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/bows/kaname_bow/hit.mcfunction)
+- [items/bows/kaname_bow/hit_adv.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/bows/kaname_bow/hit_adv.mcfunction)
+- [items/bows/kaname_bow/hit_find.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/bows/kaname_bow/hit_find.mcfunction)
+- [items/bows/kaname_bow/hit_find_offhand.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/bows/kaname_bow/hit_find_offhand.mcfunction)
+- [items/bows/kaname_bow/hit_find_stor.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/bows/kaname_bow/hit_find_stor.mcfunction)
+- [items/bows/kaname_bow/shoot.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/bows/kaname_bow/shoot.mcfunction)
+- [items/bows/kaname_bow/spec_in_norm.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/bows/kaname_bow/spec_in_norm.mcfunction)
+- [items/bows/kaname_bow/tick.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/bows/kaname_bow/tick.mcfunction)
+
+### Улучшенные арбалеты
+
+- [items/crossbow/imba_fast_crossbow.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/crossbow/imba_fast_crossbow.mcfunction)
+- [items/crossbow/imba_fast_crossbow_shoot.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/crossbow/imba_fast_crossbow_shoot.mcfunction)
+- [items/crossbow/imba_gatlingator_crossbow.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/crossbow/imba_gatlingator_crossbow.mcfunction)
+- [items/crossbow/imba_gatlingator_crossbow_shoot.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/crossbow/imba_gatlingator_crossbow_shoot.mcfunction)
+- [items/crossbow/imba_shotgun_crossbow.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/crossbow/imba_shotgun_crossbow.mcfunction)
+- [items/crossbow/imba_shotgun_crossbow_at.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/crossbow/imba_shotgun_crossbow_at.mcfunction)
+- [items/crossbow/imba_sniper_crossbow.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/crossbow/imba_sniper_crossbow.mcfunction)
+- [items/crossbow/imba_super_shotgun_crossbow.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/crossbow/imba_super_shotgun_crossbow.mcfunction)
+
+### Щиты
+
+- [items/shields/energy_shield.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/shields/energy_shield.mcfunction)
+- [items/shields/energy_shield_2.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/shields/energy_shield_2.mcfunction)
+- [items/shields/energy_shield_proj.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/shields/energy_shield_proj.mcfunction)
+- [items/shields/energy_shield_rayc.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/shields/energy_shield_rayc.mcfunction)
+- [items/shields/holyshield.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/shields/holyshield.mcfunction)
+- [items/shields/shield_block.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/shields/shield_block.mcfunction)
+- [items/shields/shield_block_2.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/shields/shield_block_2.mcfunction)
+
+### SLR (магический стрелок)
+
+- [items/shooter/slr/change_mode.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/change_mode.mcfunction)
+- [items/shooter/slr/click.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/click.mcfunction)
+- [items/shooter/slr/dmg_with_id_electro.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/dmg_with_id_electro.mcfunction)
+- [items/shooter/slr/dmg_with_id_explode.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/dmg_with_id_explode.mcfunction)
+- [items/shooter/slr/dmg_with_id_poison.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/dmg_with_id_poison.mcfunction)
+- [items/shooter/slr/dmg_with_id_standart.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/dmg_with_id_standart.mcfunction)
+- [items/shooter/slr/dmg_with_id_standart_head.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/dmg_with_id_standart_head.mcfunction)
+- [items/shooter/slr/electro.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/electro.mcfunction)
+- [items/shooter/slr/explode.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/explode.mcfunction)
+- [items/shooter/slr/explode_mob.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/explode_mob.mcfunction)
+- [items/shooter/slr/kb.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/kb.mcfunction)
+- [items/shooter/slr/poison.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/poison.mcfunction)
+- [items/shooter/slr/raycast_electro.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/raycast_electro.mcfunction)
+- [items/shooter/slr/raycast_explode.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/raycast_explode.mcfunction)
+- [items/shooter/slr/raycast_poison.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/raycast_poison.mcfunction)
+- [items/shooter/slr/raycast_standart.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/raycast_standart.mcfunction)
+- [items/shooter/slr/shoot.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/shoot.mcfunction)
+
+### Мечи: Banhammer и Blazefire
+
+- [items/swords/banhammer/ability.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/banhammer/ability.mcfunction)
+- [items/swords/banhammer/ability_at.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/banhammer/ability_at.mcfunction)
+- [items/swords/banhammer/hurt.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/banhammer/hurt.mcfunction)
+- [items/swords/banhammer/rc.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/banhammer/rc.mcfunction)
+- [items/swords/banhammer/rc_end.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/banhammer/rc_end.mcfunction)
+- [items/swords/banhammer/tick_fall.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/banhammer/tick_fall.mcfunction)
+- [items/swords/banhammer/tick_fall_end.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/banhammer/tick_fall_end.mcfunction)
+- [items/swords/banhammer/tick_fall_end_advancement.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/banhammer/tick_fall_end_advancement.mcfunction)
+- [items/swords/blazefire_sword/click.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/blazefire_sword/click.mcfunction)
+- [items/swords/blazefire_sword/tick_5t.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/blazefire_sword/tick_5t.mcfunction)
+- [items/swords/blazefire_sword/tick_5t_rc.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/blazefire_sword/tick_5t_rc.mcfunction)
+- [items/swords/blazefire_sword/tick_5t_rc_damaged.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/blazefire_sword/tick_5t_rc_damaged.mcfunction)
+
+### Chaos Sword, Triple Golden Sword и Kara
+
+- [items/swords/chaos_sword_imba/homing_sword.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/chaos_sword_imba/homing_sword.mcfunction)
+- [items/swords/chaos_sword_imba/homing_sword_2.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/chaos_sword_imba/homing_sword_2.mcfunction)
+- [items/swords/chaos_sword_imba/homing_sword_break.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/chaos_sword_imba/homing_sword_break.mcfunction)
+- [items/swords/chaos_sword_imba/homing_sword_break_pre.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/chaos_sword_imba/homing_sword_break_pre.mcfunction)
+- [items/swords/chaos_sword_imba/homing_sword_break_raycheck.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/chaos_sword_imba/homing_sword_break_raycheck.mcfunction)
+- [items/swords/chaos_sword_imba/homing_sword_dmg.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/chaos_sword_imba/homing_sword_dmg.mcfunction)
+- [items/swords/chaos_sword_imba/homing_sword_dmg_mob.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/chaos_sword_imba/homing_sword_dmg_mob.mcfunction)
+- [items/swords/chaos_sword_imba.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/chaos_sword_imba.mcfunction)
+- [items/swords/chaos_sword_imba_pre.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/chaos_sword_imba_pre.mcfunction)
+- [items/swords/imba_kara_slab/hit.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/imba_kara_slab/hit.mcfunction)
+- [items/swords/imba_kara_slab/tick_kara.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/imba_kara_slab/tick_kara.mcfunction)
+- [items/swords/imba_kara_slab/tick_kara_central.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/imba_kara_slab/tick_kara_central.mcfunction)
+- [items/swords/triple_golden_sword/click.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/triple_golden_sword/click.mcfunction)
+- [items/swords/triple_golden_sword/damage.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/triple_golden_sword/damage.mcfunction)
+- [items/swords/triple_golden_sword/tick.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/triple_golden_sword/tick.mcfunction)
+- [items/swords/triple_golden_sword/tick_2.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/triple_golden_sword/tick_2.mcfunction)
+- [items/swords/triple_golden_sword/tick_2_mob.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/triple_golden_sword/tick_2_mob.mcfunction)
+- [items/swords/triple_golden_sword/tick_2_player.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/triple_golden_sword/tick_2_player.mcfunction)
+- [items/swords/triple_golden_sword/tick_loop.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/triple_golden_sword/tick_loop.mcfunction)
+- [items/swords/triple_golden_sword/tick_loop_mob.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/triple_golden_sword/tick_loop_mob.mcfunction)
+- [items/swords/triple_golden_sword/triple_sword_spawn.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/triple_golden_sword/triple_sword_spawn.mcfunction)
+
+### Fevgalea Star
+
+- [items/swords/fevgalea_star/click_charged.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/click_charged.mcfunction)
+- [items/swords/fevgalea_star/click_charged_shift.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/click_charged_shift.mcfunction)
+- [items/swords/fevgalea_star/click_select.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/click_select.mcfunction)
+- [items/swords/fevgalea_star/click_uncharged.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/click_uncharged.mcfunction)
+- [items/swords/fevgalea_star/click_uncharged_shift.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/click_uncharged_shift.mcfunction)
+- [items/swords/fevgalea_star/click_uncharged_shift_damage.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/click_uncharged_shift_damage.mcfunction)
+- [items/swords/fevgalea_star/click_uncharged_shift_rc.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/click_uncharged_shift_rc.mcfunction)
+- [items/swords/fevgalea_star/damage_100hp.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/damage_100hp.mcfunction)
+- [items/swords/fevgalea_star/hit.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/hit.mcfunction)
+- [items/swords/fevgalea_star/hit_shoot.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/hit_shoot.mcfunction)
+- [items/swords/fevgalea_star/rain_projectile_spawn.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/rain_projectile_spawn.mcfunction)
+- [items/swords/fevgalea_star/star_charge_1.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/star_charge_1.mcfunction)
+- [items/swords/fevgalea_star/star_charge_2.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/star_charge_2.mcfunction)
+- [items/swords/fevgalea_star/star_charge_3.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/star_charge_3.mcfunction)
+- [items/swords/fevgalea_star/star_charge_select.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/star_charge_select.mcfunction)
+- [items/swords/fevgalea_star/star_rain_tick.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/star_rain_tick.mcfunction)
+- [items/swords/fevgalea_star/star_rain_waterdrops_spawn.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/star_rain_waterdrops_spawn.mcfunction)
+- [items/swords/fevgalea_star/star_raindrop_tick.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/star_raindrop_tick.mcfunction)
+
+### Fish-разрушители (ручные функции)
+
+- [items/swords/get_penised.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/get_penised.mcfunction)
+- [items/swords/get_penised_2.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/get_penised_2.mcfunction)
+- [items/swords/get_penised_3.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/get_penised_3.mcfunction)
+- [items/swords/get_penised_4.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/get_penised_4.mcfunction)
+- [items/swords/get_penised_5.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/get_penised_5.mcfunction)
+
+### Piston Sword, Ruchka и WTF
+
+- [items/swords/piston_sword/click.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/piston_sword/click.mcfunction)
+- [items/swords/piston_sword/ray.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/piston_sword/ray.mcfunction)
+- [items/swords/piston_sword/ray_2.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/piston_sword/ray_2.mcfunction)
+- [items/swords/piston_sword/ray_2_r.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/piston_sword/ray_2_r.mcfunction)
+- [items/swords/piston_sword/ray_2_r_blocked.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/piston_sword/ray_2_r_blocked.mcfunction)
+- [items/swords/piston_sword/ray_pre.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/piston_sword/ray_pre.mcfunction)
+- [items/swords/ruchka.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/ruchka.mcfunction)
+- [items/swords/wtf_item/hit.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/wtf_item/hit.mcfunction)
+- [items/swords/wtf_item/random_sound.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/wtf_item/random_sound.mcfunction)
+- [items/swords/wtf_item/random_sound_low.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/wtf_item/random_sound_low.mcfunction)
+- [items/swords/wtf_item/spawn.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/wtf_item/spawn.mcfunction)
+- [items/swords/wtf_item/tick.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/swords/wtf_item/tick.mcfunction)
+
+### Danmaku Staff и его volleys
+
+- [items/wands/danmaku_staff/bomb_tick.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/bomb_tick.mcfunction)
+- [items/wands/danmaku_staff/bomb_tick_2.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/bomb_tick_2.mcfunction)
+- [items/wands/danmaku_staff/bomb_tick_2_fast.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/bomb_tick_2_fast.mcfunction)
+- [items/wands/danmaku_staff/bomb_tick_fast.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/bomb_tick_fast.mcfunction)
+- [items/wands/danmaku_staff/bomb_tick_fast_scale.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/bomb_tick_fast_scale.mcfunction)
+- [items/wands/danmaku_staff/click.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/click.mcfunction)
+- [items/wands/danmaku_staff/click_2.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/click_2.mcfunction)
+- [items/wands/danmaku_staff/click_bomb.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/click_bomb.mcfunction)
+- [items/wands/danmaku_staff/damage.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/damage.mcfunction)
+- [items/wands/danmaku_staff/detect_rec.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/detect_rec.mcfunction)
+- [items/wands/danmaku_staff/projectile_tick.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/projectile_tick.mcfunction)
+- [items/wands/danmaku_staff/shoot.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot.mcfunction)
+- [items/wands/danmaku_staff/shoot_1.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_1.mcfunction)
+- [items/wands/danmaku_staff/shoot_10.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_10.mcfunction)
+- [items/wands/danmaku_staff/shoot_10_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_10_upgraded.mcfunction)
+- [items/wands/danmaku_staff/shoot_10l.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_10l.mcfunction)
+- [items/wands/danmaku_staff/shoot_10l_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_10l_upgraded.mcfunction)
+- [items/wands/danmaku_staff/shoot_1_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_1_upgraded.mcfunction)
+- [items/wands/danmaku_staff/shoot_1l.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_1l.mcfunction)
+- [items/wands/danmaku_staff/shoot_1l_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_1l_upgraded.mcfunction)
+- [items/wands/danmaku_staff/shoot_2.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_2.mcfunction)
+- [items/wands/danmaku_staff/shoot_2_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_2_upgraded.mcfunction)
+- [items/wands/danmaku_staff/shoot_2l.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_2l.mcfunction)
+- [items/wands/danmaku_staff/shoot_2l_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_2l_upgraded.mcfunction)
+- [items/wands/danmaku_staff/shoot_3.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_3.mcfunction)
+- [items/wands/danmaku_staff/shoot_3_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_3_upgraded.mcfunction)
+- [items/wands/danmaku_staff/shoot_3l.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_3l.mcfunction)
+- [items/wands/danmaku_staff/shoot_3l_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_3l_upgraded.mcfunction)
+- [items/wands/danmaku_staff/shoot_4.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_4.mcfunction)
+- [items/wands/danmaku_staff/shoot_4_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_4_upgraded.mcfunction)
+- [items/wands/danmaku_staff/shoot_4l.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_4l.mcfunction)
+- [items/wands/danmaku_staff/shoot_4l_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_4l_upgraded.mcfunction)
+- [items/wands/danmaku_staff/shoot_5.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_5.mcfunction)
+- [items/wands/danmaku_staff/shoot_5_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_5_upgraded.mcfunction)
+- [items/wands/danmaku_staff/shoot_5l.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_5l.mcfunction)
+- [items/wands/danmaku_staff/shoot_5l_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_5l_upgraded.mcfunction)
+- [items/wands/danmaku_staff/shoot_6.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_6.mcfunction)
+- [items/wands/danmaku_staff/shoot_6_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_6_upgraded.mcfunction)
+- [items/wands/danmaku_staff/shoot_6l.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_6l.mcfunction)
+- [items/wands/danmaku_staff/shoot_6l_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_6l_upgraded.mcfunction)
+- [items/wands/danmaku_staff/shoot_7.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_7.mcfunction)
+- [items/wands/danmaku_staff/shoot_7_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_7_upgraded.mcfunction)
+- [items/wands/danmaku_staff/shoot_7l.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_7l.mcfunction)
+- [items/wands/danmaku_staff/shoot_7l_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_7l_upgraded.mcfunction)
+- [items/wands/danmaku_staff/shoot_8.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_8.mcfunction)
+- [items/wands/danmaku_staff/shoot_8_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_8_upgraded.mcfunction)
+- [items/wands/danmaku_staff/shoot_8l.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_8l.mcfunction)
+- [items/wands/danmaku_staff/shoot_8l_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_8l_upgraded.mcfunction)
+- [items/wands/danmaku_staff/shoot_9.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_9.mcfunction)
+- [items/wands/danmaku_staff/shoot_9_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_9_upgraded.mcfunction)
+- [items/wands/danmaku_staff/shoot_9l.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_9l.mcfunction)
+- [items/wands/danmaku_staff/shoot_9l_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_9l_upgraded.mcfunction)
+- [items/wands/danmaku_staff/shoot_homing.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_homing.mcfunction)
+- [items/wands/danmaku_staff/tick.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/tick.mcfunction)
+- [items/wands/danmaku_staff/tick_left.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/tick_left.mcfunction)
+- [items/wands/danmaku_staff/tick_left_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/tick_left_upgraded.mcfunction)
+- [items/wands/danmaku_staff/tick_right.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/tick_right.mcfunction)
+- [items/wands/danmaku_staff/tick_right_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/tick_right_upgraded.mcfunction)
+
+### Sauvojen Wand: random wand and upgraded modes
+
+- [items/wands/sauvojen_wand/cast.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/cast.mcfunction)
+- [items/wands/sauvojen_wand/cast_2.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/cast_2.mcfunction)
+- [items/wands/sauvojen_wand/cast_2_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/cast_2_upgraded.mcfunction)
+- [items/wands/sauvojen_wand/cast_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/cast_upgraded.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_kill.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_kill.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_acid.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_acid.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_acid_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_acid_upgraded.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_acid_upgraded_change_model.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_acid_upgraded_change_model.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_air.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_air.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_air_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_air_upgraded.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_air_upgraded_change_model.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_air_upgraded_change_model.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_blind.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_blind.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_blind_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_blind_upgraded.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_blind_upgraded_change_model.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_blind_upgraded_change_model.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_electro.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_electro.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_electro_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_electro_upgraded.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_electro_upgraded_change_model.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_electro_upgraded_change_model.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_fire.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_fire.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_fire_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_fire_upgraded.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_fire_upgraded_change_model.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_fire_upgraded_change_model.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_ruby.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_ruby.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_ruby_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_ruby_upgraded.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_ruby_upgraded_change_model.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_ruby_upgraded_change_model.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_stone.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_stone.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_stone_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_stone_upgraded.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_stone_upgraded_change_model.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_stone_upgraded_change_model.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_teleport.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_teleport.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_teleport_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_teleport_upgraded.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_teleport_upgraded_change_model.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_teleport_upgraded_change_model.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_terra.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_terra.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_terra_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_terra_upgraded.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_terra_upgraded_change_model.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_terra_upgraded_change_model.mcfunction)
+- [items/wands/sauvojen_wand/flying_wand_tick_upgraded.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_upgraded.mcfunction)
+
+### Sauvojen meditation (upgrade attempt)
+
+- [items/wands/sauvojen_wand/meditate/acid_ball_spawn.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/acid_ball_spawn.mcfunction)
+- [items/wands/sauvojen_wand/meditate/acid_ball_spawn1.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/acid_ball_spawn1.mcfunction)
+- [items/wands/sauvojen_wand/meditate/damaged.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/damaged.mcfunction)
+- [items/wands/sauvojen_wand/meditate/damaged_acid.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/damaged_acid.mcfunction)
+- [items/wands/sauvojen_wand/meditate/fail.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/fail.mcfunction)
+- [items/wands/sauvojen_wand/meditate/fail1.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/fail1.mcfunction)
+- [items/wands/sauvojen_wand/meditate/loop_particle.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/loop_particle.mcfunction)
+- [items/wands/sauvojen_wand/meditate/loop_particle_1.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/loop_particle_1.mcfunction)
+- [items/wands/sauvojen_wand/meditate/loop_particle_12.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/loop_particle_12.mcfunction)
+- [items/wands/sauvojen_wand/meditate/loop_particle_white.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/loop_particle_white.mcfunction)
+- [items/wands/sauvojen_wand/meditate/meditator_tick.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/meditator_tick.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_acid.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_acid.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_acid_tick.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_acid_tick.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_acid_tick_baller.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_acid_tick_baller.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_acid_tick_baller1.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_acid_tick_baller1.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_acid_tick_baller_ball.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_acid_tick_baller_ball.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_acid_tick_baller_ball_block_corrupt.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_acid_tick_baller_ball_block_corrupt.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_acid_tick_baller_ball_block_corrupt1.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_acid_tick_baller_ball_block_corrupt1.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_air.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_air.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_air1.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_air1.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_air_explode.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_air_explode.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_air_tick.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_air_tick.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_electro_tick.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_electro_tick.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_electro_tick_at.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_electro_tick_at.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_electro_tick_at_dmg.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_electro_tick_at_dmg.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_electro_tick_at_dmgpre.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_electro_tick_at_dmgpre.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_electro_tick_at_loop.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_electro_tick_at_loop.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_electro_tick_at_loop_dmg.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_electro_tick_at_loop_dmg.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_electro_tick_at_loop_dmg_pre.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_electro_tick_at_loop_dmg_pre.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_electro_tick_at_loop_pre.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_electro_tick_at_loop_pre.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_fire.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_fire.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_ruby.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_ruby.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_stone.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_stone.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_terra_spawn.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_terra_spawn.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_terra_spawn1.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_terra_spawn1.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_terra_spawn1_setup.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_terra_spawn1_setup.mcfunction)
+- [items/wands/sauvojen_wand/meditate/phase_terra_tick.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_terra_tick.mcfunction)
+- [items/wands/sauvojen_wand/meditate/start.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/start.mcfunction)
+- [items/wands/sauvojen_wand/meditate/stop.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/stop.mcfunction)
+- [items/wands/sauvojen_wand/meditate/tick.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/tick.mcfunction)
+- [items/wands/sauvojen_wand/meditate/tick_blind.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/tick_blind.mcfunction)
+- [items/wands/sauvojen_wand/meditate/tick_blind_1.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/tick_blind_1.mcfunction)
+- [items/wands/sauvojen_wand/meditate/tick_blind_1at.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/tick_blind_1at.mcfunction)
+- [items/wands/sauvojen_wand/meditate/tick_blind_check.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/tick_blind_check.mcfunction)
+- [items/wands/sauvojen_wand/meditate/tick_blind_face.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/tick_blind_face.mcfunction)
+- [items/wands/sauvojen_wand/meditate/tick_blind_picture.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/tick_blind_picture.mcfunction)
+- [items/wands/sauvojen_wand/meditate/tick_blind_up.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/tick_blind_up.mcfunction)
+- [items/wands/sauvojen_wand/meditate/tick_ok.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/tick_ok.mcfunction)
+
+### Uni Wand
+
+- [items/wands/uniwand/cast.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/uniwand/cast.mcfunction)
+- [items/wands/uniwand/cast_loop.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/uniwand/cast_loop.mcfunction)
+- [items/wands/uniwand/click.mcfunction](../world/datapacksdisabled/LBC/data/lbc/function/items/wands/uniwand/click.mcfunction)

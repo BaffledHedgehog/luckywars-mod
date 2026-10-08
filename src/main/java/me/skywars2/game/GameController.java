@@ -1,0 +1,659 @@
+package me.skywars2.game;
+
+import static me.skywars2.SkyWars2.text;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
+
+import me.skywars2.SkyWars2;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.Commands;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerBossEvent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.level.storage.LevelData;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.BossEvent;
+
+/** One owner of the match. All methods are called on the server thread. */
+public final class GameController {
+    public static final int MENU_COMPASS_SLOT = 4;
+    public enum Stage { LOBBY, LOADING, COUNTDOWN, PLAYING, PHASE_ONE, PHASE_TWO, ENDING }
+
+    private static final class Participant {
+        final MapManager.Spawn spawn;
+        int lives;
+        boolean awaitingRespawn;
+        boolean disconnected;
+        Participant(MapManager.Spawn spawn, int lives) { this.spawn = spawn; this.lives = lives; }
+    }
+
+    private final MinecraftServer server;
+    private final GameConfig config;
+    private final PlayerStore players;
+    private final MapManager maps;
+    private final MatchEvents events;
+    private final ItemStack lobbyCompass = menuCompass();
+    private final Map<UUID, Participant> participants = new LinkedHashMap<>();
+    private final Set<UUID> pendingLobby = new java.util.HashSet<>();
+    private final ServerBossEvent bar = new ServerBossEvent(UUID.randomUUID(), text("game.title"),
+            BossEvent.BossBarColor.GREEN, BossEvent.BossBarOverlay.PROGRESS);
+    private GameMenus menus;
+    private Stage stage = Stage.LOADING;
+    private UUID host;
+    private int countdownTicks;
+    private int gameTicks;
+    private int finishTicks;
+    private int lastAliveTicks = 5;
+    private int lifetimeTicks;
+    private int lastCountdownTitleSeconds = -1;
+    private boolean lobbyReady;
+    private boolean stopped;
+    private boolean fallEnabled;
+    private Component mapFailure = Component.empty();
+
+    public GameController(MinecraftServer server, GameConfig config, PlayerStore players, MapManager maps) {
+        this.server = server; this.config = config; this.players = players; this.maps = maps;
+        this.events = new MatchEvents(this, maps, config, players);
+    }
+
+    public void menus(GameMenus menus) { this.menus = menus; }
+    public MinecraftServer server() { return server; }
+    public Stage stage() { return stage; }
+    public UUID host() { return host; }
+    public boolean inLobby() { return stage == Stage.LOBBY && lobbyReady; }
+    public boolean canUseMenus() { return !stopped && (inLobby() || stage == Stage.LOADING); }
+    public boolean inventoryLocked() { return canUseMenus(); }
+    public boolean playing() { return stage == Stage.PLAYING || stage == Stage.PHASE_ONE || stage == Stage.PHASE_TWO; }
+    public int matchTicks() { return gameTicks; }
+    public int lives(UUID id) { Participant p = participants.get(id); return p == null ? 0 : p.lives; }
+    public boolean awaitingRespawn(UUID id) { Participant p = participants.get(id); return p != null && p.awaitingRespawn; }
+    public MapManager maps() { return maps; }
+    public GameConfig config() { return config; }
+    public PlayerStore players() { return players; }
+    public GameMenus menus() { return menus; }
+
+    public Component status() {
+        return text("game.status", text("stage." + stage.name().toLowerCase(java.util.Locale.ROOT)),
+                maps.info(config.mapId) == null ? text("game.map_unknown", config.mapId) : maps.info(config.mapId).displayName(),
+                text(maps.busy() ? "common.enabled" : "common.disabled"), alivePlayers().size(),
+                participants.size(), gameTicks, text(lobbyReady ? "common.enabled" : "common.disabled"), mapFailure);
+    }
+
+    public void startServer() {
+        if (maps.level() == null) {
+            mapFailure = text("map.error.dimension");
+            SkyWars2.LOGGER.error("{}", mapFailure.getString()); return;
+        }
+        var rules = maps.level().getGameRules();
+        rules.set(GameRules.IMMEDIATE_RESPAWN, true, server);
+        rules.set(GameRules.SPAWN_MOBS, false, server);
+        rules.set(GameRules.SPAWN_MONSTERS, false, server);
+        rules.set(GameRules.ADVANCE_TIME, false, server);
+        rules.set(GameRules.ADVANCE_WEATHER, false, server);
+        rules.set(GameRules.RESPAWN_RADIUS, 0, server);
+        maps.level().setRespawnData(LevelData.RespawnData.of(maps.level().dimension(),
+                new net.minecraft.core.BlockPos(0, 127, 0), 0, 0));
+        restoreLobby();
+    }
+
+    public void join(ServerPlayer player) {
+        players.get(player.getUUID()).username = player.getScoreboardName();
+        if (host == null || server.getPlayerList().getPlayer(host) == null) host = player.getUUID();
+        // Joining during a match never silently enrolls a new participant.
+        if (stage == Stage.LOBBY && lobbyReady) lobbyPlayer(player);
+        else if (stage == Stage.LOADING) {
+            pendingLobby.add(player.getUUID());
+            loadingPlayer(player);
+        }
+        else {
+            player.setGameMode(GameType.SPECTATOR);
+            pendingLobby.add(player.getUUID());
+            if (maps.level() != null) teleport(player, maps.look(), 0, 0);
+        }
+    }
+
+    public void leave(ServerPlayer player) {
+        pendingLobby.remove(player.getUUID());
+        Participant p = participants.get(player.getUUID());
+        if (p != null) { p.lives = 0; p.disconnected = true; p.awaitingRespawn = false; }
+        bar.removePlayer(player);
+        if (player.getUUID().equals(host)) host = server.getPlayerList().getPlayers().stream()
+                .filter(other -> !other.getUUID().equals(player.getUUID())).map(ServerPlayer::getUUID).findFirst().orElse(null);
+        players.save();
+    }
+
+    public boolean canStart(ServerPlayer player) {
+        if (!inLobby() || maps.busy() || online().size() < 2) return false;
+        if (player != null && host != null && server.getPlayerList().getPlayer(host) != null
+                && !host.equals(player.getUUID()) && !isAdmin(player)) return false;
+        MapManager.MapInfo map = maps.info(config.mapId);
+        return map != null && map.available() && map.playerCapacity() >= online().size();
+    }
+
+    public boolean selectMap(ServerPlayer player, String id, boolean broken) {
+        if (!inLobby()) return false;
+        MapManager.MapInfo map = maps.info(id);
+        if (map == null || !map.available()) {
+            tell(player, map == null ? text("game.map_unknown", id) : map.unavailableReason()); return false;
+        }
+        if (broken && !maps.brokenAvailable(id)) {
+            tell(player, text("game.no_broken", map.displayName())); return false;
+        }
+        config.mapId = id; config.broken = broken; config.save();
+        announce(text("game.map_selected", map.displayName(), text(broken ? "common.broken" : "common.normal")));
+        return true;
+    }
+
+    /** Op command entry point: every accepted mutation is validated and saved while still in the lobby. */
+    public Component configureLobbySetting(ServerPlayer player, String parameter, String value) {
+        if (!inLobby()) throw new GameConfig.SettingError(text("settings.lobby_only"));
+        String key = parameter == null ? "" : parameter.trim().toLowerCase(java.util.Locale.ROOT);
+        if (key.equals("map") || key.equals("mapid")) {
+            MapManager.MapInfo map = maps.info(value);
+            if (map == null) throw new GameConfig.SettingError(text("game.map_unknown", value));
+            if (!map.available()) throw new GameConfig.SettingError(text("game.map_unavailable", map.displayName(), map.unavailableReason()));
+            if (!selectMap(player, map.id(), config.broken)) throw new GameConfig.SettingError(text("settings.map_failed"));
+            return text("game.map_selected", map.displayName(), text(config.broken ? "common.broken" : "common.normal"));
+        }
+        if (key.equals("broken")) {
+            String normalized = value == null ? "" : value.trim();
+            if (!normalized.equalsIgnoreCase("true") && !normalized.equalsIgnoreCase("false"))
+                throw new GameConfig.SettingError(text("settings.boolean", "broken"));
+            MapManager.MapInfo map = maps.info(config.mapId);
+            if (map == null || !map.available())
+                throw new GameConfig.SettingError(text("settings.map_first"));
+            boolean brokenVariant = Boolean.parseBoolean(normalized);
+            if (!selectMap(player, config.mapId, brokenVariant)) throw new GameConfig.SettingError(text("settings.map_failed"));
+            return text("settings.broken", text(brokenVariant ? "common.enabled" : "common.disabled"));
+        }
+        return config.setSetting(parameter, value);
+    }
+
+    public Component settingsSummary() {
+        var summary = text("settings.header");
+        for (Object[] row : new Object[][] {
+                {"lives", config.lives},
+                {"health", config.health},
+                {"countdownSeconds", config.countdownSeconds},
+                {"stageOneSeconds", config.stageOneSeconds},
+                {"stageTwoSeconds", config.stageTwoSeconds},
+                {"endingSeconds", config.endingSeconds},
+                {"stageOneEvent", config.stageOneEvent},
+                {"stageTwoEvent", config.stageTwoEvent},
+                {"pvpMode", config.pvpMode},
+                {"day", config.day},
+                {"vanillaKits", config.vanillaKits},
+                {"vanillaSkills", config.vanillaSkills},
+                {"noBorders", config.noBorders},
+                {"map", config.mapId}, {"broken", config.broken}
+        }) {
+            Object value = row[1] instanceof Boolean enabled ? text(enabled ? "common.enabled" : "common.disabled") : row[1];
+            summary.append(text("settings.line", text("settings.label." + row[0]), value));
+        }
+        return summary.append(text("settings.help"));
+    }
+
+    public void requestStart(ServerPlayer player, boolean quick) {
+        if (!inLobby() || maps.busy()) { tell(player, text("game.start_unavailable")); return; }
+        if (host != null && player != null && !host.equals(player.getUUID()) && !isAdmin(player)
+                && server.getPlayerList().getPlayer(host) != null) {
+            tell(player, text("game.host_only")); return;
+        }
+        if (quick) {
+            int count = online().size();
+            int[] pool = count <= 8 ? java.util.stream.IntStream.rangeClosed(1, 61).toArray()
+                    : count <= 12 ? new int[] {53,54,55,56,58,59,60,61,63}
+                    : count <= 16 ? new int[] {53,58,59,60,63}
+                    : count <= 20 ? new int[] {58,60,63} : count <= 24 ? new int[] {63} : new int[0];
+            List<MapManager.MapInfo> available = java.util.Arrays.stream(pool).mapToObj(id -> maps.info(Integer.toString(id)))
+                    .filter(m -> m != null && m.available() && m.playerCapacity() >= count).toList();
+            if (available.isEmpty()) { tell(player, text("game.quick_missing", count)); return; }
+            config.mapId = available.get(ThreadLocalRandom.current().nextInt(available.size())).id();
+            config.save();
+        }
+        if (!canStart(player)) { tell(player, text("game.start_requirements")); return; }
+        begin();
+    }
+
+    private void begin() {
+        transition(Stage.LOADING); lobbyReady = false; mapFailure = Component.empty();
+        var enrolled = new ArrayList<>(online().stream().map(ServerPlayer::getUUID).toList());
+        for (ServerPlayer player : online()) loadingPlayer(player);
+        announce(text("game.loading", maps.info(config.mapId).displayName()));
+        maps.load(config.mapId, config.broken, result -> {
+            if (stopped) return;
+            if (!result.success()) {
+                mapFailure = result.message(); announce(text("game.load_failed", result.message())); restoreLobby(); return;
+            }
+            List<ServerPlayer> ready = enrolled.stream().map(id -> server.getPlayerList().getPlayer(id)).filter(p -> p != null).toList();
+            if (ready.size() < 2 || maps.spawns().size() < ready.size()) {
+                announce(text("game.cancelled_players")); restoreLobby(); return;
+            }
+            participants.clear();
+            for (ServerPlayer player : online()) {
+                player.closeContainer();
+                if (!ready.contains(player)) player.setGameMode(GameType.SPECTATOR);
+            }
+            List<MapManager.Spawn> spawns = new ArrayList<>(maps.spawns());
+            Collections.shuffle(spawns);
+            for (int i = 0; i < ready.size(); i++) {
+                ServerPlayer player = ready.get(i);
+                Participant member = new Participant(spawns.get(i), Math.max(1, config.lives));
+                participants.put(player.getUUID(), member);
+                player.setRespawnPosition(new ServerPlayer.RespawnConfig(LevelData.RespawnData.of(
+                        maps.level().dimension(), net.minecraft.core.BlockPos.containing(member.spawn.position()),
+                        member.spawn.yaw(), member.spawn.pitch()), true), false);
+                resetPlayer(player, config.health);
+                player.setGameMode(GameType.ADVENTURE);
+                GameType.ADVENTURE.updatePlayerAbilities(player.getAbilities());
+                player.onUpdateAbilities();
+                teleport(player, member.spawn.position(), member.spawn.yaw(), member.spawn.pitch());
+                var profile = players.get(player.getUUID()); profile.games++; profile.coins += 10;
+                player.sendSystemMessage(rewardText("swrg.reward.start_game"));
+            }
+            players.save(); maps.cages(true);
+            countdownTicks = Math.max(1, config.countdownSeconds) * 20;
+            gameTicks = 0; lastAliveTicks = 5; fallEnabled = false;
+            maps.level().getGameRules().set(GameRules.FALL_DAMAGE, false, server);
+            maps.level().getGameRules().set(GameRules.BLOCK_DROPS, false, server);
+            maps.level().getGameRules().set(GameRules.ENTITY_DROPS, false, server);
+            maps.level().getGameRules().set(GameRules.MOB_DROPS, false, server);
+            command("time set " + (config.day == 1 ? 1000 : config.day == 2 ? 13000 : 18000));
+            maps.level().getGameRules().set(GameRules.PVP, true, server);
+            bar.removeAllPlayers(); for (ServerPlayer player : ready) bar.addPlayer(player);
+            bar.setColor(BossEvent.BossBarColor.GREEN); bar.setVisible(false);
+            lastCountdownTitleSeconds = -1;
+            transition(Stage.COUNTDOWN);
+        });
+    }
+
+    public void tick() {
+        if (stopped || !server.tickRateManager().runsNormally()) return;
+        lifetimeTicks++;
+        if (inventoryLocked()) for (ServerPlayer player : online()) enforceLobbyInventory(player);
+        maps.tick();
+        if (stage == Stage.LOBBY && lobbyReady) {
+            maps.cleanupLobbyEntities();
+            for (ServerPlayer player : online()) {
+                if (player.getY() < 100 || player.level() != maps.level()) lobbyPlayer(player);
+                player.setRemainingFireTicks(0);
+                if (lifetimeTicks % 20 == 0) {
+                    player.setGameMode(GameType.ADVENTURE); player.setHealth(player.getMaxHealth());
+                    player.getFoodData().setFoodLevel(20);
+                    player.getFoodData().setSaturation(5);
+                    player.removeAllEffects();
+                    player.setExperienceLevels(0); player.setExperiencePoints(0);
+                }
+            }
+        } else if (stage == Stage.COUNTDOWN) {
+            for (ServerPlayer player : alivePlayers()) {
+                Participant p = participants.get(player.getUUID());
+                if (player.position().distanceToSqr(p.spawn.position()) > 4) teleport(player, p.spawn.position(), p.spawn.yaw(), p.spawn.pitch());
+            }
+            int seconds = (countdownTicks + 19) / 20;
+            if (seconds != lastCountdownTitleSeconds) {
+                showCountdownTitle(seconds);
+                lastCountdownTitleSeconds = seconds;
+            }
+            if (--countdownTicks <= 0) startPlaying();
+        } else if (playing()) {
+            gameTicks++;
+            if (!fallEnabled && gameTicks >= 100) {
+                fallEnabled = true; maps.level().getGameRules().set(GameRules.FALL_DAMAGE, true, server);
+            }
+            if (stage == Stage.PLAYING && gameTicks >= Math.max(1, config.stageOneSeconds) * 20) {
+                transition(Stage.PHASE_ONE);
+                if (config.stageOneEvent != 0) rewardAlive(20, "swrg.reward.stage1");
+                events.stageOne(config.stageOneEvent); bar.setColor(BossEvent.BossBarColor.RED);
+            }
+            if ((stage == Stage.PLAYING || stage == Stage.PHASE_ONE) && config.stageTwoEvent != 0
+                    && gameTicks >= Math.max(config.stageOneSeconds + 1, config.stageTwoSeconds) * 20) {
+                transition(Stage.PHASE_TWO); rewardAlive(40, "swrg.reward.stage2"); events.stageTwo(config.stageTwoEvent);
+            }
+            events.tick();
+            if (gameTicks % 20 == 0) {
+                updateBar();
+                updateTrackers();
+                for (ServerPlayer player : alivePlayers()) {
+                    // Void deaths use the real damage/death event and life accounting.
+                    if (!config.noBorders && (Math.abs(player.getX()) > 500 || Math.abs(player.getZ()) > 500)) {
+                        int x = Math.max(0, ((int) Math.floor(Math.abs(player.getX())) - 500) / 10);
+                        int z = Math.max(0, ((int) Math.floor(Math.abs(player.getZ())) - 500) / 10);
+                        float amount = (float) Math.floor(config.health * .1) + x + z;
+                        player.hurtServer(maps.level(), player.damageSources().generic(), Math.max(1, amount));
+                    }
+                }
+            }
+            // A player awaiting vanilla respawn still owns remaining lives.
+            long eligible = participants.entrySet().stream().filter(e -> e.getValue().lives > 0
+                    && !e.getValue().disconnected && server.getPlayerList().getPlayer(e.getKey()) != null).count();
+            boolean waiting = participants.values().stream().anyMatch(p -> p.lives > 0 && p.awaitingRespawn && !p.disconnected);
+            if (eligible >= 2 || waiting) lastAliveTicks = 5;
+            else if (--lastAliveTicks <= 0) finish();
+        } else if (stage == Stage.ENDING) {
+            if (finishTicks % 20 == 0) victoryParticles();
+            if (--finishTicks <= 0) restoreLobby();
+        }
+        if (lifetimeTicks % 600 == 0) players.save();
+    }
+
+    private void startPlaying() {
+        if (alivePlayers().size() < 2) { restoreLobby(); return; }
+        maps.cages(false); maps.fillChests(false);
+        transition(Stage.PLAYING); gameTicks = 0;
+        events.start();
+        for (ServerPlayer player : alivePlayers()) {
+            player.setGameMode(GameType.SURVIVAL); player.setHealth(player.getMaxHealth());
+            if (config.vanillaKits) events.giveKit(player);
+            if (config.vanillaSkills) events.giveSkill(player);
+            player.getInventory().add(menuCompass());
+        }
+        maps.level().getGameRules().set(GameRules.BLOCK_DROPS, true, server);
+        maps.level().getGameRules().set(GameRules.ENTITY_DROPS, true, server);
+        maps.level().getGameRules().set(GameRules.MOB_DROPS, true, server);
+        for (ServerPlayer player : alivePlayers()) {
+            player.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal(" ")));
+        }
+        updateBar();
+    }
+
+    public List<ServerPlayer> alivePlayers() {
+        return participants.entrySet().stream().filter(e -> e.getValue().lives > 0 && !e.getValue().disconnected
+                        && !e.getValue().awaitingRespawn)
+                .map(e -> server.getPlayerList().getPlayer(e.getKey())).filter(p -> p != null).toList();
+    }
+
+    public boolean allowDamage(ServerPlayer player) {
+        return playing() && participants.containsKey(player.getUUID()) && lives(player.getUUID()) > 0;
+    }
+
+    public void died(ServerPlayer player, DamageSource damage) {
+        if (!playing()) return;
+        Participant p = participants.get(player.getUUID());
+        if (p == null || p.lives <= 0 || p.awaitingRespawn) return;
+        p.lives--; p.awaitingRespawn = true;
+        players.get(player.getUUID()).deaths++;
+        Entity attacker = damage.getEntity();
+        if (attacker instanceof ServerPlayer killer && !killer.getUUID().equals(player.getUUID())
+                && participants.containsKey(killer.getUUID())) {
+            players.get(killer.getUUID()).kills++;
+            players.get(killer.getUUID()).coins += 50;
+            command("execute at " + killer.getScoreboardName()
+                    + " run playsound minecraft:entity.player.levelup master "
+                    + killer.getScoreboardName() + " ~ ~ ~ 1 2");
+            killer.sendSystemMessage(rewardText("swrg.reward.kill"));
+        }
+        players.save();
+    }
+
+    public void respawned(ServerPlayer player) {
+        Participant p = participants.get(player.getUUID());
+        if (playing() && p != null && !p.disconnected && p.lives > 0) {
+            p.awaitingRespawn = false; resetPlayer(player, config.health);
+            player.setGameMode(GameType.SURVIVAL); teleport(player, p.spawn.position(), p.spawn.yaw(), p.spawn.pitch());
+            if (config.vanillaKits) events.giveKit(player);
+            if (config.vanillaSkills) events.giveSkill(player);
+            player.getInventory().add(menuCompass());
+        } else if (stage == Stage.LOBBY && lobbyReady) lobbyPlayer(player);
+        else if (stage == Stage.LOADING) loadingPlayer(player);
+        else { if (p != null) p.awaitingRespawn = false; player.setGameMode(GameType.SPECTATOR); teleport(player, maps.look(), 0, 0); }
+    }
+
+    public void stopMatch() {
+        if (maps.busy()) { announce(text("game.wait_loading")); return; }
+        announce(text("game.cancelled")); restoreLobby();
+    }
+
+    public void damaged(ServerPlayer victim, DamageSource source, float amount) {
+        if (!playing() || !allowDamage(victim)) return;
+        events.onPlayerDamaged(victim, source, amount);
+        if (source.getEntity() instanceof ServerPlayer attacker && allowDamage(attacker))
+            events.onPlayerAttack(attacker, victim, source, amount);
+    }
+
+    private void finish() {
+        events.stop(); maps.cages(false); bar.setVisible(false); bar.removeAllPlayers();
+        List<ServerPlayer> alive = participants.entrySet().stream().filter(e -> e.getValue().lives > 0
+                && !e.getValue().disconnected).map(e -> server.getPlayerList().getPlayer(e.getKey())).filter(p -> p != null).toList();
+        ServerPlayer winner = alive.size() == 1 ? alive.getFirst() : null;
+        if (winner != null) {
+            var profile = players.get(winner.getUUID()); profile.coins += 100; profile.wins++;
+            profile.keys[ThreadLocalRandom.current().nextInt(4)]++;
+            announce(Component.translatable("swrg.title.player_win")
+                    .withStyle(ChatFormatting.DARK_GREEN)
+                    .append(Component.literal(" "))
+                    .append(winner.getDisplayName().copy().withStyle(style -> style
+                            .withColor(ChatFormatting.WHITE).withBold(true)))
+                    .append(Component.literal(" "))
+                    .append(Component.translatable("swrg.title.player_win2")));
+            winner.sendSystemMessage(rewardText("swrg.reward.win"));
+        } else announce(Component.translatable("swrg.title.draw")
+                .withStyle(style -> style.withColor(ChatFormatting.GREEN)));
+        for (ServerPlayer player : online()) {
+            player.closeContainer(); player.getInventory().clearContent(); player.removeAllEffects();
+            player.setGameMode(player == winner ? GameType.CREATIVE : GameType.SPECTATOR);
+            teleport(player, maps.look(), 0, 0);
+        }
+        maps.level().getGameRules().set(GameRules.BLOCK_DROPS, false, server);
+        maps.level().getGameRules().set(GameRules.ENTITY_DROPS, false, server);
+        maps.level().getGameRules().set(GameRules.MOB_DROPS, false, server);
+        config.gamesPlayed++; config.save(); players.save();
+        transition(Stage.ENDING); finishTicks = Math.max(1, config.endingSeconds) * 20;
+    }
+
+    private void restoreLobby() {
+        events.stop(); participants.clear(); gameTicks = 0; lastAliveTicks = 5;
+        lobbyReady = false; bar.setVisible(false); bar.removeAllPlayers(); transition(Stage.LOADING);
+        for (ServerPlayer player : online()) loadingPlayer(player);
+        maps.clearTransientEntities();
+        if (maps.level() != null) {
+            maps.level().getWorldBorder().setCenter(0, 0); maps.level().getWorldBorder().setSize(59_999_968);
+            maps.level().getGameRules().set(GameRules.FALL_DAMAGE, false, server);
+            maps.level().getGameRules().set(GameRules.KEEP_INVENTORY, false, server);
+        }
+        maps.lobby(result -> {
+            if (stopped) return;
+            if (!result.success()) { mapFailure = result.message(); SkyWars2.LOGGER.error("Lobby: {}", mapFailure.getString()); return; }
+            lobbyReady = true; transition(Stage.LOBBY);
+            for (ServerPlayer player : online()) lobbyPlayer(player);
+            pendingLobby.clear();
+        });
+    }
+
+    private void lobbyPlayer(ServerPlayer player) {
+        player.closeContainer(); resetPlayer(player, 20); player.setGameMode(GameType.ADVENTURE);
+        GameType.ADVENTURE.updatePlayerAbilities(player.getAbilities());
+        player.onUpdateAbilities();
+        teleport(player, new Vec3(.5, 127, .5), 0, 0);
+        giveLobbyInventory(player);
+    }
+
+    /** Adventure permits vanilla use-item packets; temporary flight keeps players above the moving arena. */
+    private void loadingPlayer(ServerPlayer player) {
+        player.setGameMode(GameType.ADVENTURE);
+        player.getAbilities().mayfly = true;
+        player.getAbilities().flying = true;
+        player.getAbilities().invulnerable = true;
+        player.onUpdateAbilities();
+        if (maps.level() != null) teleport(player, new Vec3(.5, maps.level().getMaxY() - 16, .5), 0, 0);
+        giveLobbyInventory(player);
+    }
+
+    private void giveLobbyInventory(ServerPlayer player) {
+        enforceLobbyInventory(player);
+        player.getInventory().setSelectedSlot(MENU_COMPASS_SLOT);
+        player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetHeldSlotPacket(MENU_COMPASS_SLOT));
+    }
+
+    /** Fixed lobby contents, also repairs server-side grants without allowing client mutations. */
+    public void enforceLobbyInventory(ServerPlayer player) {
+        if (!inventoryLocked()) return;
+        var inventory = player.getInventory();
+        boolean changed = false;
+        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+            ItemStack current = inventory.getItem(slot);
+            if (slot == MENU_COMPASS_SLOT) {
+                if (current.getCount() != 1 || !ItemStack.isSameItemSameComponents(current, lobbyCompass)) {
+                    inventory.setItem(slot, lobbyCompass.copy()); changed = true;
+                }
+            } else if (!current.isEmpty()) {
+                inventory.setItem(slot, ItemStack.EMPTY); changed = true;
+            }
+        }
+        // The personal crafting grid and cursor are outside Inventory.
+        for (int slot = 0; slot <= 4; slot++) {
+            if (!player.inventoryMenu.getSlot(slot).getItem().isEmpty()) {
+                player.inventoryMenu.getSlot(slot).set(ItemStack.EMPTY); changed = true;
+            }
+        }
+        if (!player.containerMenu.getCarried().isEmpty()) {
+            player.containerMenu.setCarried(ItemStack.EMPTY); changed = true;
+        }
+        if (changed) {
+            inventory.setChanged();
+            player.inventoryMenu.broadcastChanges();
+            if (player.containerMenu != player.inventoryMenu) player.containerMenu.broadcastChanges();
+        }
+    }
+
+    private static ItemStack menuCompass() {
+        ItemStack compass = new ItemStack(Items.COMPASS);
+        compass.set(DataComponents.CUSTOM_NAME, Component.translatable("swrg.item.compass")
+                .withStyle(style -> style.withColor(ChatFormatting.YELLOW).withItalic(false)));
+        return compass;
+    }
+
+    private void resetPlayer(ServerPlayer player, int health) {
+        player.getInventory().clearContent(); player.removeAllEffects();
+        var max = player.getAttribute(Attributes.MAX_HEALTH);
+        if (max != null) max.setBaseValue(Math.max(1, Math.min(1000, health)));
+        var speed = player.getAttribute(Attributes.ATTACK_SPEED);
+        if (speed != null) speed.setBaseValue(config.pvpMode == 1 && stage != Stage.LOBBY ? 100000 : 4);
+        player.setHealth(player.getMaxHealth()); player.getFoodData().setFoodLevel(20);
+        player.getFoodData().setSaturation(5);
+        player.setExperienceLevels(0); player.setExperiencePoints(0);
+        player.setRemainingFireTicks(0); player.fallDistance = 0;
+    }
+
+    private void teleport(ServerPlayer player, Vec3 position, float yaw, float pitch) {
+        if (maps.level() != null) player.teleportTo(maps.level(), position.x, position.y, position.z, Set.of(), yaw, pitch, true);
+    }
+
+    private void rewardAlive(int coins, String translationKey) {
+        for (ServerPlayer player : alivePlayers()) {
+            players.get(player.getUUID()).coins += coins;
+            player.sendSystemMessage(rewardText(translationKey));
+        }
+        players.save();
+    }
+    private static Component rewardText(String translationKey) {
+        return Component.translatable(translationKey)
+                .withStyle(style -> style.withColor(ChatFormatting.GOLD).withItalic(false));
+    }
+    private List<ServerPlayer> online() { return List.copyOf(server.getPlayerList().getPlayers()); }
+    private static boolean isAdmin(ServerPlayer player) { return player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER); }
+    private void tell(ServerPlayer player, Component message) { if (player != null) player.sendSystemMessage(message); else SkyWars2.LOGGER.info("{}", message.getString()); }
+    public void announce(Component message) { server.getPlayerList().broadcastSystemMessage(message, false); SkyWars2.LOGGER.info("[game] {}", message.getString()); }
+    private void transition(Stage next) { SkyWars2.LOGGER.info("[game] {} -> {}", stage, next); stage = next; }
+
+    /** Use the native dispatcher; malformed migrated commands are explicit failures. */
+    public boolean command(String command) {
+        try {
+            boolean[] success = {false};
+            var source = server.createCommandSourceStack().withLevel(maps.level()).withPosition(Vec3.ZERO)
+                    .withSuppressedOutput().withCallback((ok, result) -> success[0] |= ok);
+            var parsed = server.getCommands().getDispatcher().parse(command, source);
+            if (parsed.getReader().canRead()) {
+                SkyWars2.LOGGER.error("Invalid gameplay command: {} ({})", command, parsed.getExceptions()); return false;
+            }
+            server.getCommands().performCommand(parsed, command); return success[0];
+        } catch (Exception exception) { SkyWars2.LOGGER.error("Gameplay command failed: {}", command, exception); return false; }
+    }
+
+    private void updateBar() {
+        int stageOneAt = Math.max(1, config.stageOneSeconds);
+        int stageTwoAt = Math.max(config.stageOneSeconds + 1, config.stageTwoSeconds);
+        boolean hasStageOne = config.stageOneEvent != 0;
+        boolean hasStageTwo = config.stageTwoEvent != 0;
+        if (stage == Stage.PHASE_TWO || (!hasStageOne && !hasStageTwo)
+                || (stage == Stage.PHASE_ONE && !hasStageTwo)) {
+            bar.setVisible(false);
+            return;
+        }
+        int next;
+        int remaining;
+        if (stage == Stage.PHASE_ONE) {
+            next = stageTwoAt - stageOneAt;
+            remaining = stageTwoAt - gameTicks / 20;
+            bar.setColor(BossEvent.BossBarColor.RED);
+        } else if (hasStageOne) {
+            next = stageOneAt;
+            remaining = next - gameTicks / 20;
+            bar.setColor(BossEvent.BossBarColor.GREEN);
+        } else {
+            next = stageTwoAt;
+            remaining = next - gameTicks / 20;
+            bar.setColor(BossEvent.BossBarColor.RED);
+        }
+        bar.setVisible(true);
+        remaining = Math.max(0, remaining);
+        bar.setName(Component.translatable("swrg.title.gametimer").withStyle(ChatFormatting.GOLD)
+                .append(Component.literal("["))
+                .append(Component.literal(Integer.toString(remaining)).withStyle(ChatFormatting.LIGHT_PURPLE))
+                .append(Component.literal("]").withStyle(ChatFormatting.GOLD)));
+        bar.setProgress(Math.max(0, Math.min(1, (float) remaining / Math.max(1, next))));
+    }
+
+    private void showCountdownTitle(int seconds) {
+        Component subtitle = seconds > 0
+                ? Component.literal(Integer.toString(seconds)).withStyle(ChatFormatting.GREEN)
+                : Component.literal(" ").withStyle(ChatFormatting.GREEN);
+        for (ServerPlayer player : alivePlayers()) {
+            player.connection.send(new ClientboundSetTitleTextPacket(Component.literal(" ")));
+            player.connection.send(new ClientboundSetSubtitleTextPacket(subtitle));
+        }
+    }
+
+    private void updateTrackers() {
+        List<ServerPlayer> alive = alivePlayers();
+        for (ServerPlayer player : alive) {
+            ServerPlayer target = alive.stream().filter(other -> other != player)
+                    .min(java.util.Comparator.comparingDouble(other -> other.distanceToSqr(player))).orElse(null);
+            for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+                ItemStack compass = player.getInventory().getItem(slot);
+                if (!compass.is(Items.COMPASS)) continue;
+                if (target == null) compass.remove(DataComponents.LODESTONE_TRACKER);
+                else compass.set(DataComponents.LODESTONE_TRACKER, new net.minecraft.world.item.component.LodestoneTracker(
+                        java.util.Optional.of(net.minecraft.core.GlobalPos.of(maps.level().dimension(), target.blockPosition())), false));
+            }
+        }
+    }
+
+    private void victoryParticles() {
+        Vec3 look = maps.look();
+        command("particle minecraft:firework " + look.x + " " + (look.y + 2) + " " + look.z + " 3 2 3 0.1 30 force");
+    }
+
+    public void shutdown() {
+        stopped = true; events.stop(); maps.shutdown(); bar.removeAllPlayers(); players.save(); config.save();
+    }
+}

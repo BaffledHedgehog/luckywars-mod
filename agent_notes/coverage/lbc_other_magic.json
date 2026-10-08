@@ -1,0 +1,1731 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/room_reward.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/room_reward_4.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/room_reward_4_1.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/room_reward_random.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/golden_skeleton/10s.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "`lbc:other/grimoire_dungeon/mobs/golden_skeleton/10s`",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/golden_skeleton/portal_tick.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "`lbc:other/grimoire_dungeon/mobs/golden_skeleton/portal_tick`",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/golden_skeleton/portal_tick_attack.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "`lbc:other/grimoire_dungeon/mobs/golden_skeleton/portal_tick_attack`",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/death.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/falling_meteor.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/falling_meteor_break.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/hit.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/phase_danmaku.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/phase_danmaku_at.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/phase_danmaku_at_prot.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/phase_danmaku_at_swordspawn.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/phase_danmaku_at_swordspawn_2.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/phase_danmaku_end.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/phase_danmaku_tick.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/phase_laser_at.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/phase_laser_end.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/phase_laser_loop.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/phase_laser_pre.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/phase_laser_selected.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/phase_laser_start.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/phase_meteors.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/phase_meteors_end.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/phase_meteors_spawn.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/phase_meteors_spawn_2.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/phase_meteors_spawn_marker.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/phase_meteors_tick.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/prism_preloop.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/prism_preloop_loop.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/prism_shoot.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/prism_shoot_loop.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/prism_shoot_loop_dmg.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/prism_tick.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/random_phase_select.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/tick.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/tick1.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/tick_true.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/grimoire_boss/tppos.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / grimoire_boss",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/mobs/tiny_skeleton/hurt.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / mobs / tiny_skeleton",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/room_reward/spawn_boss.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / room_reward",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/room_reward/spawn_boss_music.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / room_reward",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/room_reward/spawn_boss_pre.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / room_reward",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/room_reward/spawn_miniboss.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / room_reward",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/room_reward/spawn_miniboss_golden_skeleton.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / room_reward",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/room_reward/spawn_miniboss_tiny_skeleton.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / room_reward",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/room_rewards/breezes.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / room_rewards",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/room_rewards/creepers.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / room_rewards",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/room_rewards/grimoire_chest.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / room_rewards",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/room_rewards/luckyblock_mobs.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / room_rewards",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/room_rewards/luckyblocks.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / room_rewards",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/room_rewards/mine.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / room_rewards",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/room_rewards/pillagers.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / room_rewards",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/room_rewards/random_chest.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / room_rewards",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/room_rewards/random_mob_miniboss.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / room_rewards",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/room_rewards/skeletons.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / room_rewards",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/room_rewards/spawner_hehehogs.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / room_rewards",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/grimoire_dungeon/room_rewards/zombies.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / grimoire_dungeon / room_rewards",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade2.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "non_runtime",
+    "note": "Проверен вспомогательный, не runtime-источник."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade_book.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_2.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_28_down.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_28_down_left.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_28_up.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_28_up_left.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_2_left.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_3.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_3_left.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_4.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_4_down.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_4_down_left.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_4_left.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_4_magnum.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_5.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_50_down.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_50_up.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_53_down.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_53_down_left.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_53_up.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_53_up_left.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_5_left.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_8.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_8_gaycaster.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_8_gaycaster_color.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_8_gaycaster_color_left.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_mode_8_gaycaster_left.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_tier_2.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_tier_2_left.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_tier_3_down.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_tier_3_down_left.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_tier_3_up.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/change_tier_3_up_left.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/commands.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/completed_challenge.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/interacted.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/interacted_2.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/interacted_cancel_update.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/interacted_upgrade.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/acidacid_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/acidcorrupt_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/acidwand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/advancedteleport.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/badwiki.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/baffledhedgehog.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/bassboost.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/bedrock_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/bloodmagic.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/boltbolt_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/consuming_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/corrupter.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/danmaku_staff.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/dublicating_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/enderwand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/erecto_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/evocator.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/exahoming_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/exasperato_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/exoperso.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/fallingstars.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/fartus_nadristailo.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/fireblaze_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/foxusing.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/gaycaster.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/ice_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/infbolt_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/lifestealer.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/lightning_bolts.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/lightningwand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/neutralmage.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/omegaflag.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/prisma.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/psychoblind_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/psychowand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/sauvojen_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/sheepwand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/snow_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/soulcorrupter.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/stacid.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/stair.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/stblind.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/stelectro.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/stfire.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/stonekivi_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/struby.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/ststone.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/stteleport.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/stterra.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/truefallingstars.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/unstable_spellbook.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/vex_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/can_upgrade/wall.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / can_upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/acidacid_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/acidcorrupt_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/acidwand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/advancedteleport.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/badwiki.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/baffledhedgehog.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/bassboost.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/bedrock_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/bloodmagic.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/boltbolt_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/consuming_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/corrupter.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/danmaku_staff.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/dublicating_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/enderwand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/erecto_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/evocator.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/exahoming_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/exasperato_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/exoperso.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/fallingstars.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/fartus_nadristailo.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/fireblaze_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/foxusing.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/gaycaster.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/ice_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/infbolt_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/lifestealer.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/lightning_bolts.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/lightningwand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/neutralmage.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/omegaflag.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/prisma.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/psychoblind_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/psychowand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/sauvojen_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/sheepwand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/snow_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/soulcorrupter.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/stacid.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/stair.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/stblind.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/stelectro.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/stfire.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/stonekivi_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/struby.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/ststone.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/stteleport.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/stterra.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/truefallingstars.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/unstable_spellbook.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/vex_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/magic_academy/upgrade/wall.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / magic_academy / upgrade",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_acidacid.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_acidacid_inv.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_acidcorrupt.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_acidcorrupt_inv.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_avarice.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_avarice_inv.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_awakened_terra.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_awakened_terra_inv.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_blazefirewand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_blazefirewand_inv.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_boltbolt.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_boltbolt_inv.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_energyblock.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_energyblock_inv.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_exahoming.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_exahoming_inv.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_exasperoso.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_exasperoso_inv.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_greed.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_greed_inv.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_kiuaswand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_kiuaswand_inv.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_psychoblind.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_psychoblind_inv.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_psychovex.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_psychovex_inv.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_razorterra.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_razorterra_inv.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_tannerstone.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_tannerstone_inv.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_ultraelectro.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_ultraelectro_inv.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_ultrareforge.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_ultrareforge_inv.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_wallstone.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/crafted_wallstone_inv.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/drop_all_wands.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/drop_wand.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/select.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sauvojen_tuntija/select_eoe.mcfunction",
+    "document": "agent_notes/lbc_other_magic.md",
+    "section": "Файлы: other / sauvojen_tuntija",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  }
+]

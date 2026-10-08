@@ -1,0 +1,39 @@
+{
+  "review": "Source-level review only; no Paper runtime verification performed.",
+  "documentation": "E:/servers_mew/skywars2_last/luckywars-mod/agent_notes/COMMAND_IMPLEMENTATIONS.md",
+  "reviewed_sources": [
+    {"source": "E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/java/me/luckywars/command/AntigravityCommand.java", "sha256": "4359f26a66d30ae8ee74519106cfd08ef5e57749c48e33fa7981fb420e1e95c6"},
+    {"source": "E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/java/me/luckywars/command/CommandRegistry.java", "sha256": "4e63749e4dabc75de6c3e3d7e76d3d39574dda58c21bb6385aa5d3599013039c"},
+    {"source": "E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/java/me/luckywars/command/DevCommand.java", "sha256": "8b0bdf2aa494db8e128dd451bb9ef88f6c746533c359265e38a71472117a9c24"},
+    {"source": "E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/java/me/luckywars/command/MidasCommand.java", "sha256": "bbbc99638f43407418646759f6fbb2fbc2f8fb0ab85e354b85211296684f247a"},
+    {"source": "E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/java/me/luckywars/command/MotionBrigadier.java", "sha256": "10a12010147304a520c04c53aa9f95dcbf70f0753271cd72e0ee570a333c7d7f"},
+    {"source": "E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/java/me/luckywars/command/NexusCloneCommand.java", "sha256": "8eabeef093587986c3763ee4be292d73cbcff19fc97df8af78cb87064add9ef1"},
+    {"source": "E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/java/me/luckywars/command/PulsarCommand.java", "sha256": "9bf633aaa8c7ee667f5cecfcdb837fe5de207202ffba5e5ea32a1a9a237f25e5"},
+    {"source": "E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/java/me/luckywars/command/Regeneration.java", "sha256": "bb685b0f6047091f053ed7aa54caea1a2a4d2dca649716ade250f0996275d7c1"},
+    {"source": "E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/java/me/luckywars/BuildManagerImpl.java", "sha256": "eff238ce07fd2fceb0021e825452ebdb3396990cce5eeea0d0b7e791cb101e06"},
+    {"source": "E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/java/me/luckywars/RotateMapService.java", "sha256": "a27401bdbdc285bf302b2ccf76ae4695c7865c998e7a657ab76a8561386a1083"},
+    {"source": "E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/java/me/luckywars/MagmifyService.java", "sha256": "12fc3be97a76bb5ef5ef957dcc892e4f2c26e4797506873f6f2e0323082bfb32"},
+    {"source": "E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/java/me/luckywars/SigmaWarsMain.java", "sha256": "e2ff679a9f920cad2eb3ae97389a5adf2777a3fa04e76f6e21c16b52bfd3f934"},
+    {"source": "E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/java/me/luckywars/badapple/BadAppleCommand.java", "sha256": "b0f8ab62ec220aa7a16fe04d374705226404d2711f719e675213546b7a399b82"},
+    {"source": "E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/java/me/luckywars/badapple/BadAppleService.java", "sha256": "91c9111eea0a98a520b9b5abe72d0c64838596fcb7dd4966a8ee59b164f6ef22"},
+    {"source": "E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/java/me/luckywars/badapple/SafeFrameProvider.java", "sha256": "872fb4cbcbc440eaf723cd0781453ab88d44f66684411cc0a871516bc0b4d022"},
+    {"source": "E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/java/me/luckywars/badapple/FrameProvider.java", "sha256": "3c005f6029ebf73e36a03569d04e53b7e571da8c685b6447aab87b6e6ade130e"},
+    {"source": "E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/java/me/luckywars/badapple/DiffBinFrameProvider.java", "sha256": "0e7382e27c0838afa8474ce8df4394eb6366aeeb4a8e26d34637f949c3e89796"},
+    {"source": "E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/java/me/luckywars/bedwars/BedwarsCommand.java", "sha256": "b3314223d97b480d80c2c9206d3cfecf05420971e108024dda0a20adaa892686"},
+    {"source": "E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/java/me/luckywars/bedwars/BedwarsRegionManager.java", "sha256": "c672e2b0256c27e33b6cd799a1f1aa9fac309769cc834ea59b8e22e681adf20e"},
+    {"source": "E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/java/me/luckywars/bedwars/BedwarsBootstrap.java", "sha256": "20758a0f328e9f18a9351870f217dc3e530d03a522bdf2796095a61dc566f709"},
+    {"source": "E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/java/me/luckywars/bedwars/MapClearCommand.java", "sha256": "85399deeb77e0c75f23c212e2e0fd58c6be8a9b6116c3a4474405abc4e62b20f"},
+    {"source": "E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/java/me/luckywars/bedwars/TeamInitCommand.java", "sha256": "292763f086099331487067445df8f37ecee1edff6782732d7bdf76f6fdcb7deb"},
+    {"source": "E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/resources/plugin.yml", "sha256": "81412963c8c217adf0085966b0722453231570c18986e90f82ea41136ad05ad0"}
+  ],
+  "handlers_reviewed": [
+    "/startdev", "/end", "/dev", "/clonetonexus", "/antigravity", "/pulsar", "/motion", "/midas", "/midasfr", "/badapple", "/buildmanager", "/regen", "/mapclear", "/bedwars", "/teaminit", "/rotatemap", "/magmify"
+  ],
+  "registration_findings": [
+    "BasicCommand handlers are registered from lifecycle COMMANDS event; executor commands require plugin.yml declarations and are bound by CommandRegistry.",
+    "/startdev and /end are omitted when legacy.enabled=false; /dev depends on GameManager; /buildmanager depends on BuildManagerImpl; /badapple depends on BadAppleService; bedwars/teaminit depend on BedwarsRegionManager.",
+    "/bedwars's own lws.bedwars.admin check does not match plugin.yml's bedwarsprotector.admin node.",
+    "/buildmanager ignores password/token and all args after its first target; current argument resolution differs from a datapack call that passes a token and @s.",
+    "/mapclear usage advertises [world], but the handler ignores world names and only recognizes includespecial."
+  ]
+}

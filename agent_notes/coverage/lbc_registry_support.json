@@ -1,0 +1,2200 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/.vscode/settings.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`.vscode/settings.json`",
+    "status": "non_runtime",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/damage_type/lucky_projectile.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/lbc/damage_type/lucky_projectile.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/dialog/gui/build_maker.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/lbc/dialog/gui/build_maker.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/dialog/gui/save_build1.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/lbc/dialog/gui/save_build1.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/painting_variant/baffled.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/lbc/painting_variant/baffled.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/painting_variant/daeris.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/lbc/painting_variant/daeris.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/painting_variant/harus.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/lbc/painting_variant/harus.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/painting_variant/justshish.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/lbc/painting_variant/justshish.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/painting_variant/karich.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/lbc/painting_variant/karich.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/painting_variant/lolm.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/lbc/painting_variant/lolm.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/painting_variant/roxy_4x3.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/lbc/painting_variant/roxy_4x3.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/painting_variant/swarog.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/lbc/painting_variant/swarog.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/painting_variant/vladislave.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/lbc/painting_variant/vladislave.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/tags/block/blood_slabbed.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/lbc/tags/block/blood_slabbed.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/tags/entity_type/bloody_slabby.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/lbc/tags/entity_type/bloody_slabby.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/worldgen/structure/grimoire_dungeon.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/lbc/worldgen/structure/grimoire_dungeon.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/worldgen/template_pool/grimoire_dungeon/fallback.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/lbc/worldgen/template_pool/grimoire_dungeon/fallback.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/worldgen/template_pool/grimoire_dungeon/fallback_2.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/lbc/worldgen/template_pool/grimoire_dungeon/fallback_2.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/worldgen/template_pool/grimoire_dungeon/fallback_balcony.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/lbc/worldgen/template_pool/grimoire_dungeon/fallback_balcony.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/worldgen/template_pool/grimoire_dungeon/fallback_only_top.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/lbc/worldgen/template_pool/grimoire_dungeon/fallback_only_top.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/worldgen/template_pool/grimoire_dungeon/pool.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/lbc/worldgen/template_pool/grimoire_dungeon/pool.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/worldgen/template_pool/grimoire_dungeon/pool_from_middle.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/lbc/worldgen/template_pool/grimoire_dungeon/pool_from_middle.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/worldgen/template_pool/grimoire_dungeon/pool_no_middle.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/lbc/worldgen/template_pool/grimoire_dungeon/pool_no_middle.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/worldgen/template_pool/grimoire_dungeon/pool_start.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/lbc/worldgen/template_pool/grimoire_dungeon/pool_start.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/arrow.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/arrow.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/bad_respawn_point.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/bad_respawn_point.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/cactus.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/cactus.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/cramming.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/cramming.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/dragon_breath.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/dragon_breath.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/drown.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/drown.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/dry_out.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/dry_out.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/explosion.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/explosion.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/fall.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/fall.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/falling_anvil.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/falling_anvil.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/falling_block.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/falling_block.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/falling_stalactite.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/falling_stalactite.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/fireball.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/fireball.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/fireworks.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/fireworks.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/fly_into_wall.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/fly_into_wall.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/freeze.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/freeze.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/generic.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/generic.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/hot_floor.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/hot_floor.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/in_fire.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/in_fire.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/in_wall.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/in_wall.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/indirect_magic.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/indirect_magic.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/lava.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/lava.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/lightning_bolt.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/lightning_bolt.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/magic.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/magic.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/mob_attack.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/mob_attack.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/mob_attack_no_aggro.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/mob_attack_no_aggro.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/mob_projectile.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/mob_projectile.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/on_fire.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/on_fire.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/out_of_world.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/out_of_world.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/player_attack.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/player_attack.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/player_explosion.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/player_explosion.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/sonic_boom.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/sonic_boom.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/stalagmite.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/stalagmite.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/starve.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/starve.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/sting.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/sting.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/sweet_berry_bush.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/sweet_berry_bush.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/thorns.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/thorns.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/thrown.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/thrown.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/trident.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/trident.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/unattributed_fireball.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/unattributed_fireball.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/wither.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/wither.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/damage_type/wither_skull.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/damage_type/wither_skull.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/dimension/imprinted.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/dimension/imprinted.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/dimension/nexus.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/dimension/nexus.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/dimension/white.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/dimension/white.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/dimension_type/imprinted.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/dimension_type/imprinted.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/dimension_type/nexus.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/dimension_type/nexus.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/dimension_type/white.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/dimension_type/white.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/enchantment/multishot.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/enchantment/multishot.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/loot_table/blocks/brown_mushroom_block.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/loot_table/blocks/brown_mushroom_block.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/loot_table/blocks/ender_chest.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/loot_table/blocks/ender_chest.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/loot_table/blocks/mushroom_stem.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/loot_table/blocks/mushroom_stem.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/loot_table/blocks/red_mushroom_block.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/loot_table/blocks/red_mushroom_block.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/loot_table/empty.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/loot_table/empty.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/airs.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/airs.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/airs_only.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/airs_only.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/airs_or_glass.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/airs_or_glass.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/airs_to_fire.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/airs_to_fire.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/all_blocks_no_dirt.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/all_blocks_no_dirt.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/black.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/black.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/black_concrete_air.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/black_concrete_air.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/blue.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/blue.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/breakable_slr.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/breakable_slr.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/bricks.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/bricks.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/brown.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/brown.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/colored.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/colored.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/cyan.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/cyan.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/electroprovod.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/electroprovod.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/firelava.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/firelava.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/fluids.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/fluids.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/glass_default.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/glass_default.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/glasses.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/glasses.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/glasses_2.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/glasses_2.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/gray.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/gray.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/green.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/green.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/in_colored.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/in_colored.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/indestructible_very.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/indestructible_very.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/kiuaskivi_to_air.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/kiuaskivi_to_air.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/kiuaskivi_to_fire.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/kiuaskivi_to_fire.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/light_blue.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/light_blue.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/light_gray.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/light_gray.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/lime.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/lime.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/liquid.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/liquid.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/magenta.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/magenta.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/magic.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/magic.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/mecha.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/mecha.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/no_midas.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/no_midas.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/no_pulsar_black.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/no_pulsar_black.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/no_pulsar_green.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/no_pulsar_green.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/no_pulsar_red.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/no_pulsar_red.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/no_pulsar_white.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/no_pulsar_white.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/orange.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/orange.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/pink.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/pink.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/portals_restricted.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/portals_restricted.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/purple.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/purple.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/red.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/red.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/solid.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/solid.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/solid_no_dirt.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/solid_no_dirt.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/solid_no_glass.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/solid_no_glass.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/tannerkivi.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/tannerkivi.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/tannerkivi_no_dirt.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/tannerkivi_no_dirt.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/to_lava.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/to_lava.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/to_lime.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/to_lime.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/to_magma.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/to_magma.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/to_netherrack.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/to_netherrack.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/to_netherrack_no_dirt.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/to_netherrack_no_dirt.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/to_nylium.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/to_nylium.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/to_shroomlight.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/to_shroomlight.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/to_soulsand.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/to_soulsand.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/water.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/water.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/white.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/white.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/woodifier/acacia.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/woodifier/acacia.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/woodifier/bamboo.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/woodifier/bamboo.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/woodifier/birch.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/woodifier/birch.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/woodifier/cherry.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/woodifier/cherry.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/woodifier/crimson.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/woodifier/crimson.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/woodifier/dark_oak.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/woodifier/dark_oak.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/woodifier/jungle.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/woodifier/jungle.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/woodifier/mangrove.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/woodifier/mangrove.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/woodifier/oak.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/woodifier/oak.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/woodifier/pale_oak.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/woodifier/pale_oak.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/woodifier/spruce.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/woodifier/spruce.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/woodifier/warped.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/woodifier/warped.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/block/yellow.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/block/yellow.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/acceptable_for_manavampirism.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/acceptable_for_manavampirism.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/always_hurts_ender_dragons.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/always_hurts_ender_dragons.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/always_most_significant_fall.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/always_most_significant_fall.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/always_triggers_silverfish.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/always_triggers_silverfish.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/arrow_only.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/arrow_only.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/avoids_guardian_thorns.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/avoids_guardian_thorns.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/burns_armor_stands.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/burns_armor_stands.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/bypasses_armor.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/bypasses_armor.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/bypasses_blocking.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/bypasses_blocking.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/bypasses_cooldown.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/bypasses_cooldown.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/bypasses_effects.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/bypasses_effects.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/bypasses_enchantments.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/bypasses_enchantments.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/bypasses_invulnerability.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/bypasses_invulnerability.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/bypasses_resistance.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/bypasses_resistance.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/cactus_only.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/cactus_only.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/damages_helmet.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/damages_helmet.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/ignites_armor_stands.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/ignites_armor_stands.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/is_drowning.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/is_drowning.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/is_explosion.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/is_explosion.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/is_fall.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/is_fall.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/is_fire.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/is_fire.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/is_freezing.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/is_freezing.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/is_lightning.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/is_lightning.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/is_projectile.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/is_projectile.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/no_anger.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/no_anger.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/no_impact.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/no_impact.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/no_knockback.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/no_knockback.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/witch_resistant_to.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/witch_resistant_to.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/damage_type/wither_immune_to.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/damage_type/wither_immune_to.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/dimension/nexuslike.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/dimension/nexuslike.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/attacks.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/attacks.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/crossbow_charges.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/crossbow_charges.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/flammable_monsters.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/flammable_monsters.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/hitbox_entities.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/hitbox_entities.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/inter_itdisp.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/inter_itdisp.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/kill_nexus.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/kill_nexus.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/magic_entities.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/magic_entities.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/magic_mobs.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/magic_mobs.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/mecha.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/mecha.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/mobs.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/mobs.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/mobs_and_markers.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/mobs_and_markers.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/monsters.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/monsters.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/no_blood.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/no_blood.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/no_mob_entity.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/no_mob_entity.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/notforsheep.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/notforsheep.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/notforsheep_2.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/notforsheep_2.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/peaceful_mobs.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/peaceful_mobs.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/player_cloud.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/player_cloud.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/player_marker.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/player_marker.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/projectiles.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/projectiles.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/projectiles_double.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/projectiles_double.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/projectiles_tannerkivi.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/projectiles_tannerkivi.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/raycasters.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/raycasters.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/raycasters_projectiles.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/raycasters_projectiles.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/spawn_barrier_on_time_stop.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/spawn_barrier_on_time_stop.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/unholy_monsters.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/unholy_monsters.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/unstable.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/unstable.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/entity_type/use_simpletimer.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/entity_type/use_simpletimer.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/function/load.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/function/load.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/function/tick.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/function/tick.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/item/all_food.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/item/all_food.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/item/bioitems.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/item/bioitems.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/item/razor_ammo.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/item/razor_ammo.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/item/razor_ammo_best.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/item/razor_ammo_best.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/item/shelf.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/item/shelf.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/item/shulker_boxes.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/item/shulker_boxes.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/tags/item/vanilla_shooting.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/tags/item/vanilla_shooting.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/worldgen/biome/imprinted.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/worldgen/biome/imprinted.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/worldgen/biome/nexus.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/worldgen/biome/nexus.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/worldgen/biome/white.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/worldgen/biome/white.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/minecraft/worldgen/noise/baffled-1.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/minecraft/worldgen/noise/baffled-1.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/anvil.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/anvil.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/bed.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/bed.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/brown_mushroom_block.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/brown_mushroom_block.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/carpet.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/carpet.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/cauldron.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/cauldron.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/cobblestone_wall.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/cobblestone_wall.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/concrete.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/concrete.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/concrete_powder.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/concrete_powder.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/dirt.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/dirt.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/double_plant.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/double_plant.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/double_stone_slab.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/double_stone_slab.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/double_stone_slab2.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/double_stone_slab2.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/double_wooden_slab.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/double_wooden_slab.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/floor_skull.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/floor_skull.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/leaves.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/leaves.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/leaves2.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/leaves2.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/log.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/log.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/log2.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/log2.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/monster_egg.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/monster_egg.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/planks.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/planks.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/prismarine.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/prismarine.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/quartz_block.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/quartz_block.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/red_flower.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/red_flower.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/red_mushroom_block.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/red_mushroom_block.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/red_sandstone.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/red_sandstone.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/redstone_torch.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/redstone_torch.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/sand.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/sand.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/sandstone.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/sandstone.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/sapling.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/sapling.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/skull.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/skull.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/sponge.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/sponge.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/stained_glass.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/stained_glass.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/stained_glass_pane.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/stained_glass_pane.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/stained_hardened_clay.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/stained_hardened_clay.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/standing_banner.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/standing_banner.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/stone.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/stone.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/stone_slab.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/stone_slab.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/stonebrick.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/stonebrick.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/tall_flowers.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/tall_flowers.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/tallgrass.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/tallgrass.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/torch.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/torch.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/unlit_redstone_torch.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/unlit_redstone_torch.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/wall_banner.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/wall_banner.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/wall_skull.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/wall_skull.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/wooden_slab.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/wooden_slab.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/block/wool.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/block/wool.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/entity_type/chest_boat.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/entity_type/chest_boat.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/anvil.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/anvil.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/banner.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/banner.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/bed.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/bed.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/carpet.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/carpet.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/coal.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/coal.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/cobblestone_wall.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/cobblestone_wall.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/concrete.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/concrete.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/concrete_powder.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/concrete_powder.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/cooked_fish.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/cooked_fish.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/dirt.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/dirt.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/double_plant.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/double_plant.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/dye.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/dye.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/fish.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/fish.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/flowers.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/flowers.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/golden_apple.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/golden_apple.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/leaves.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/leaves.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/leaves2.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/leaves2.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/log.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/log.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/log2.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/log2.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/monster_egg.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/monster_egg.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/music_discs.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/music_discs.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/planks.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/planks.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/prismarine.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/prismarine.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/quartz_block.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/quartz_block.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/red_flower.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/red_flower.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/red_sandstone.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/red_sandstone.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/sand.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/sand.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/sandstone.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/sandstone.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/sapling.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/sapling.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/skull.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/skull.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/spawn_egg.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/spawn_egg.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/sponge.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/sponge.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/stained_glass.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/stained_glass.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/stained_glass_pane.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/stained_glass_pane.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/stained_hardened_clay.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/stained_hardened_clay.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/stone.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/stone.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/stone_slab.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/stone_slab.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/stonebrick.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/stonebrick.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/tall_flowers.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/tall_flowers.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/tallgrass.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/tallgrass.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/tools.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/tools.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/trim_templates.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/trim_templates.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/wooden_slab.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/wooden_slab.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/tag_replacements/tags/item/wool.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`data/tag_replacements/tags/item/wool.json`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/datapack.config.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`datapack.config.json`",
+    "status": "non_runtime",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/pack.mcmeta",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`pack.mcmeta`",
+    "status": "documented",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/spyglass.json",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`spyglass.json`",
+    "status": "non_runtime",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/update.txt",
+    "document": "agent_notes/lbc_registry_support.md",
+    "section": "`update.txt`",
+    "status": "non_runtime",
+    "note": "Complete registry membership/settings and behavior described; literal references and inactive dialog boundary recorded."
+  }
+]

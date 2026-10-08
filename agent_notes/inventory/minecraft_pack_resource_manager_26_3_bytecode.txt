@@ -1,0 +1,299 @@
+﻿Compiled from "MultiPackResourceManager.java"
+public class net.minecraft.server.packs.resources.MultiPackResourceManager implements net.minecraft.server.packs.resources.CloseableResourceManager {
+  private static final org.slf4j.Logger LOGGER;
+
+  private final java.util.Map<java.lang.String, net.minecraft.server.packs.resources.FallbackResourceManager> namespacedManagers;
+
+  private final java.util.List<net.minecraft.server.packs.PackResources> packs;
+
+  public net.minecraft.server.packs.resources.MultiPackResourceManager(net.minecraft.server.packs.PackType, java.util.List<net.minecraft.server.packs.PackResources>);
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: aload_2
+         6: invokestatic  #7                  // InterfaceMethod java/util/List.copyOf:(Ljava/util/Collection;)Ljava/util/List;
+         9: putfield      #13                 // Field packs:Ljava/util/List;
+        12: new           #19                 // class java/util/HashMap
+        15: dup
+        16: invokespecial #21                 // Method java/util/HashMap."<init>":()V
+        19: astore_3
+        20: aload_2
+        21: invokeinterface #22,  1           // InterfaceMethod java/util/List.stream:()Ljava/util/stream/Stream;
+        26: aload_1
+        27: invokedynamic #26,  0             // InvokeDynamic #0:apply:(Lnet/minecraft/server/packs/PackType;)Ljava/util/function/Function;
+        32: invokeinterface #30,  2           // InterfaceMethod java/util/stream/Stream.flatMap:(Ljava/util/function/Function;)Ljava/util/stream/Stream;
+        37: invokeinterface #36,  1           // InterfaceMethod java/util/stream/Stream.distinct:()Ljava/util/stream/Stream;
+        42: invokeinterface #39,  1           // InterfaceMethod java/util/stream/Stream.toList:()Ljava/util/List;
+        47: astore        4
+        49: aload_2
+        50: invokeinterface #43,  1           // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+        55: astore        5
+        57: aload         5
+        59: invokeinterface #47,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        64: ifeq          287
+        67: aload         5
+        69: invokeinterface #53,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        74: checkcast     #57                 // class net/minecraft/server/packs/PackResources
+        77: astore        6
+        79: aload_0
+        80: aload         6
+        82: invokevirtual #59                 // Method getPackFilterSection:(Lnet/minecraft/server/packs/PackResources;)Lnet/minecraft/server/packs/resources/ResourceFilterSection;
+        85: astore        7
+        87: aload         6
+        89: aload_1
+        90: invokeinterface #63,  2           // InterfaceMethod net/minecraft/server/packs/PackResources.getNamespaces:(Lnet/minecraft/server/packs/PackType;)Ljava/util/Set;
+        95: astore        8
+        97: aload         7
+        99: ifnull        112
+       102: aload         7
+       104: invokedynamic #67,  0             // InvokeDynamic #1:isFiltered:(Lnet/minecraft/server/packs/resources/ResourceFilterSection;)Lnet/minecraft/server/packs/PackResources$Filter;
+       109: goto          113
+       112: aconst_null
+       113: astore        9
+       115: aload         4
+       117: invokeinterface #43,  1           // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+       122: astore        10
+       124: aload         10
+       126: invokeinterface #47,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+       131: ifeq          284
+       134: aload         10
+       136: invokeinterface #53,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       141: checkcast     #71                 // class java/lang/String
+       144: astore        11
+       146: aload         8
+       148: aload         11
+       150: invokeinterface #73,  2           // InterfaceMethod java/util/Set.contains:(Ljava/lang/Object;)Z
+       155: istore        12
+       157: aload         7
+       159: ifnull        176
+       162: aload         7
+       164: aload         11
+       166: invokevirtual #79                 // Method net/minecraft/server/packs/resources/ResourceFilterSection.isNamespaceFiltered:(Ljava/lang/String;)Z
+       169: ifeq          176
+       172: iconst_1
+       173: goto          177
+       176: iconst_0
+       177: istore        13
+       179: iload         12
+       181: ifne          189
+       184: iload         13
+       186: ifeq          281
+       189: aload_3
+       190: aload         11
+       192: invokeinterface #85,  2           // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+       197: checkcast     #91                 // class net/minecraft/server/packs/resources/FallbackResourceManager
+       200: astore        14
+       202: aload         14
+       204: ifnonnull     230
+       207: new           #91                 // class net/minecraft/server/packs/resources/FallbackResourceManager
+       210: dup
+       211: aload_1
+       212: aload         11
+       214: invokespecial #93                 // Method net/minecraft/server/packs/resources/FallbackResourceManager."<init>":(Lnet/minecraft/server/packs/PackType;Ljava/lang/String;)V
+       217: astore        14
+       219: aload_3
+       220: aload         11
+       222: aload         14
+       224: invokeinterface #96,  3           // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+       229: pop
+       230: iload         12
+       232: ifeq          252
+       235: iload         13
+       237: ifeq          252
+       240: aload         14
+       242: aload         6
+       244: aload         9
+       246: invokevirtual #100                // Method net/minecraft/server/packs/resources/FallbackResourceManager.push:(Lnet/minecraft/server/packs/PackResources;Lnet/minecraft/server/packs/PackResources$Filter;)V
+       249: goto          281
+       252: iload         12
+       254: ifeq          267
+       257: aload         14
+       259: aload         6
+       261: invokevirtual #104                // Method net/minecraft/server/packs/resources/FallbackResourceManager.push:(Lnet/minecraft/server/packs/PackResources;)V
+       264: goto          281
+       267: aload         14
+       269: aload         6
+       271: invokeinterface #107,  1          // InterfaceMethod net/minecraft/server/packs/PackResources.packId:()Ljava/lang/String;
+       276: aload         9
+       278: invokevirtual #111                // Method net/minecraft/server/packs/resources/FallbackResourceManager.pushFilterOnly:(Ljava/lang/String;Lnet/minecraft/server/packs/PackResources$Filter;)V
+       281: goto          124
+       284: goto          57
+       287: aload_0
+       288: aload_3
+       289: putfield      #115                // Field namespacedManagers:Ljava/util/Map;
+       292: return
+
+  private net.minecraft.server.packs.resources.ResourceFilterSection getPackFilterSection(net.minecraft.server.packs.PackResources);
+    Code:
+         0: aload_1
+         1: getstatic     #119                // Field net/minecraft/server/packs/resources/ResourceFilterSection.TYPE:Lnet/minecraft/server/packs/metadata/MetadataSectionType;
+         4: invokeinterface #123,  2          // InterfaceMethod net/minecraft/server/packs/PackResources.getMetadataSection:(Lnet/minecraft/server/packs/metadata/MetadataSectionType;)Ljava/lang/Object;
+         9: checkcast     #80                 // class net/minecraft/server/packs/resources/ResourceFilterSection
+        12: areturn
+        13: astore_2
+        14: getstatic     #129                // Field LOGGER:Lorg/slf4j/Logger;
+        17: ldc           #133                // String Failed to get filter section from pack {}
+        19: aload_1
+        20: invokeinterface #107,  1          // InterfaceMethod net/minecraft/server/packs/PackResources.packId:()Ljava/lang/String;
+        25: invokeinterface #135,  3          // InterfaceMethod org/slf4j/Logger.error:(Ljava/lang/String;Ljava/lang/Object;)V
+        30: aconst_null
+        31: areturn
+      Exception table:
+         from    to  target type
+             0    12    13   Class java/lang/Exception
+
+  public java.util.Set<java.lang.String> getNamespaces();
+    Code:
+         0: aload_0
+         1: getfield      #115                // Field namespacedManagers:Ljava/util/Map;
+         4: invokeinterface #141,  1          // InterfaceMethod java/util/Map.keySet:()Ljava/util/Set;
+         9: areturn
+
+  public java.util.Optional<net.minecraft.server.packs.resources.Resource> getResource(net.minecraft.resources.Identifier);
+    Code:
+         0: aload_0
+         1: getfield      #115                // Field namespacedManagers:Ljava/util/Map;
+         4: aload_1
+         5: invokevirtual #145                // Method net/minecraft/resources/Identifier.getNamespace:()Ljava/lang/String;
+         8: invokeinterface #85,  2           // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        13: checkcast     #150                // class net/minecraft/server/packs/resources/ResourceManager
+        16: astore_2
+        17: aload_2
+        18: ifnull        29
+        21: aload_2
+        22: aload_1
+        23: invokeinterface #152,  2          // InterfaceMethod net/minecraft/server/packs/resources/ResourceManager.getResource:(Lnet/minecraft/resources/Identifier;)Ljava/util/Optional;
+        28: areturn
+        29: invokestatic  #156                // Method java/util/Optional.empty:()Ljava/util/Optional;
+        32: areturn
+
+  public java.util.List<net.minecraft.server.packs.resources.Resource> getResourceStack(net.minecraft.resources.Identifier);
+    Code:
+         0: aload_0
+         1: getfield      #115                // Field namespacedManagers:Ljava/util/Map;
+         4: aload_1
+         5: invokevirtual #145                // Method net/minecraft/resources/Identifier.getNamespace:()Ljava/lang/String;
+         8: invokeinterface #85,  2           // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        13: checkcast     #150                // class net/minecraft/server/packs/resources/ResourceManager
+        16: astore_2
+        17: aload_2
+        18: ifnull        29
+        21: aload_2
+        22: aload_1
+        23: invokeinterface #162,  2          // InterfaceMethod net/minecraft/server/packs/resources/ResourceManager.getResourceStack:(Lnet/minecraft/resources/Identifier;)Ljava/util/List;
+        28: areturn
+        29: invokestatic  #166                // InterfaceMethod java/util/List.of:()Ljava/util/List;
+        32: areturn
+
+  public java.util.Map<net.minecraft.resources.Identifier, net.minecraft.server.packs.resources.Resource> listResources(java.lang.String, net.minecraft.server.packs.resources.ResourceManager$Selector);
+    Code:
+         0: aload_1
+         1: invokestatic  #169                // Method checkTrailingDirectoryPath:(Ljava/lang/String;)V
+         4: new           #173                // class java/util/TreeMap
+         7: dup
+         8: invokespecial #175                // Method java/util/TreeMap."<init>":()V
+        11: astore_3
+        12: aload_0
+        13: getfield      #115                // Field namespacedManagers:Ljava/util/Map;
+        16: invokeinterface #176,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        21: invokeinterface #180,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        26: astore        4
+        28: aload         4
+        30: invokeinterface #47,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        35: ifeq          66
+        38: aload         4
+        40: invokeinterface #53,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        45: checkcast     #91                 // class net/minecraft/server/packs/resources/FallbackResourceManager
+        48: astore        5
+        50: aload_3
+        51: aload         5
+        53: aload_1
+        54: aload_2
+        55: invokevirtual #183                // Method net/minecraft/server/packs/resources/FallbackResourceManager.listResources:(Ljava/lang/String;Lnet/minecraft/server/packs/resources/ResourceManager$Selector;)Ljava/util/Map;
+        58: invokeinterface #187,  2          // InterfaceMethod java/util/Map.putAll:(Ljava/util/Map;)V
+        63: goto          28
+        66: aload_3
+        67: areturn
+
+  public java.util.Map<net.minecraft.resources.Identifier, java.util.List<net.minecraft.server.packs.resources.Resource>> listResourceStacks(java.lang.String, net.minecraft.server.packs.resources.ResourceManager$Selector);
+    Code:
+         0: aload_1
+         1: invokestatic  #169                // Method checkTrailingDirectoryPath:(Ljava/lang/String;)V
+         4: new           #173                // class java/util/TreeMap
+         7: dup
+         8: invokespecial #175                // Method java/util/TreeMap."<init>":()V
+        11: astore_3
+        12: aload_0
+        13: getfield      #115                // Field namespacedManagers:Ljava/util/Map;
+        16: invokeinterface #176,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        21: invokeinterface #180,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        26: astore        4
+        28: aload         4
+        30: invokeinterface #47,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        35: ifeq          66
+        38: aload         4
+        40: invokeinterface #53,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        45: checkcast     #91                 // class net/minecraft/server/packs/resources/FallbackResourceManager
+        48: astore        5
+        50: aload_3
+        51: aload         5
+        53: aload_1
+        54: aload_2
+        55: invokevirtual #191                // Method net/minecraft/server/packs/resources/FallbackResourceManager.listResourceStacks:(Ljava/lang/String;Lnet/minecraft/server/packs/resources/ResourceManager$Selector;)Ljava/util/Map;
+        58: invokeinterface #187,  2          // InterfaceMethod java/util/Map.putAll:(Ljava/util/Map;)V
+        63: goto          28
+        66: aload_3
+        67: areturn
+
+  private static void checkTrailingDirectoryPath(java.lang.String);
+    Code:
+         0: aload_0
+         1: ldc           #194                // String /
+         3: invokevirtual #196                // Method java/lang/String.endsWith:(Ljava/lang/String;)Z
+         6: ifeq          23
+         9: new           #199                // class java/lang/IllegalArgumentException
+        12: dup
+        13: aload_0
+        14: invokedynamic #201,  0            // InvokeDynamic #2:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+        19: invokespecial #205                // Method java/lang/IllegalArgumentException."<init>":(Ljava/lang/String;)V
+        22: athrow
+        23: return
+
+  public java.util.stream.Stream<net.minecraft.server.packs.PackResources> listPacks();
+    Code:
+         0: aload_0
+         1: getfield      #13                 // Field packs:Ljava/util/List;
+         4: invokeinterface #22,  1           // InterfaceMethod java/util/List.stream:()Ljava/util/stream/Stream;
+         9: areturn
+
+  public void close();
+    Code:
+         0: aload_0
+         1: getfield      #13                 // Field packs:Ljava/util/List;
+         4: invokedynamic #207,  0            // InvokeDynamic #3:accept:()Ljava/util/function/Consumer;
+         9: invokeinterface #211,  2          // InterfaceMethod java/util/List.forEach:(Ljava/util/function/Consumer;)V
+        14: return
+
+  private static boolean lambda$new$1(net.minecraft.server.packs.resources.ResourceFilterSection, net.minecraft.resources.Identifier);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #215                // Method net/minecraft/resources/Identifier.getPath:()Ljava/lang/String;
+         5: invokevirtual #218                // Method net/minecraft/server/packs/resources/ResourceFilterSection.isPathFiltered:(Ljava/lang/String;)Z
+         8: ireturn
+
+  private static java.util.stream.Stream lambda$new$0(net.minecraft.server.packs.PackType, net.minecraft.server.packs.PackResources);
+    Code:
+         0: aload_1
+         1: aload_0
+         2: invokeinterface #63,  2           // InterfaceMethod net/minecraft/server/packs/PackResources.getNamespaces:(Lnet/minecraft/server/packs/PackType;)Ljava/util/Set;
+         7: invokeinterface #221,  1          // InterfaceMethod java/util/Set.stream:()Ljava/util/stream/Stream;
+        12: areturn
+
+  static {};
+    Code:
+         0: invokestatic  #222                // Method com/mojang/logging/LogUtils.getLogger:()Lorg/slf4j/Logger;
+         3: putstatic     #129                // Field LOGGER:Lorg/slf4j/Logger;
+         6: return
+}

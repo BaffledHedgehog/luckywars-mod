@@ -1,0 +1,1640 @@
+[
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/bars.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: редактор, markers и служебные функции",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/delete_saver.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: редактор, markers и служебные функции",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/game/end.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: игра и администраторский запуск",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/game/end/0.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: игра и администраторский запуск",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/game/end/0_pre.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: игра и администраторский запуск",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/game/end/1.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: игра и администраторский запуск",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/game/end/firework_random.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: игра и администраторский запуск",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/game/end/fireworks.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: игра и администраторский запуск",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/game/start.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: игра и администраторский запуск",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/game/start/0.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: игра и администраторский запуск",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/game/start/1.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: игра и администраторский запуск",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/game/start/2.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: игра и администраторский запуск",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/game/start/bars.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: игра и администраторский запуск",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/game/start/clear.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: игра и администраторский запуск",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/game/start/config.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: игра и администраторский запуск",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/game/start/team_join.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: игра и администраторский запуск",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/game/start/team_prefix/list_sfw.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: игра и администраторский запуск",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/game/start/team_prefix/select.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: игра и администраторский запуск",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/game/start/team_prefix/select_1.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: игра и администраторский запуск",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/game/start/team_prefix/select_for.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: игра и администраторский запуск",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/game/start/team_prefix/select_prefix.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: игра и администраторский запуск",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/game/start/timer.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: игра и администраторский запуск",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/giveall.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: редактор, markers и служебные функции",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/markers/5t.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: редактор, markers и служебные функции",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/markers/count.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: редактор, markers и служебные функции",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/markers/give.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: редактор, markers и служебные функции",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/markers/off.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: редактор, markers и служебные функции",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/markers/on.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: редактор, markers и служебные функции",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/reload.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: редактор, markers и служебные функции",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/saver.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: редактор, markers и служебные функции",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/saver_check.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: редактор, markers и служебные функции",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/saver_check_kill.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: редактор, markers и служебные функции",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/temp.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: редактор, markers и служебные функции",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/tools/give.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: редактор, markers и служебные функции",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/tools/menu.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: редактор, markers и служебные функции",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/tools/selection.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: редактор, markers и служебные функции",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/developer/tools/tick.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Developer: редактор, markers и служебные функции",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/clear.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Параметры шаблона и границы снимка",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/clear1.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Параметры шаблона и границы снимка",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/lobby.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Выбор и запуск карты",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/1.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/10.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/10_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/10b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/10b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/11.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/11_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/11b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/11b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/12.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/12_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/12b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/12b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/13.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/13_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/13b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/13b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/14.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/14_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/14b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/14b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/15.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/15_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/15b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/15b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/16.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/16_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/16b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/16b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/17.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/17_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/17b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/17b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/18.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/18_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/18b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/18b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/19.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/19_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/19b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/19b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/1_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/1b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/1b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/2.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/20.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/20_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/20b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/20b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/21.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/21_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/21b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/21b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/22.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/22_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/22b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/22b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/23.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/23_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/23b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/23b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/24.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/24_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/24b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/24b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/25.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/25_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/25b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/25b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/26.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/26_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/27.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/27_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/28.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/28_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/29.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/29_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/2_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/2b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/2b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/3.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/30.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/30_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/31.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/31_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/32.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/32_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/33.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/33_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/34.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/34_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/35.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/35_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/36.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/36_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/37.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/37_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/38.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/38_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/39.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/39_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/3_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/3b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/3b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/4.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/40.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/40_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/41.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/41_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/42.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/42_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/43.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/43_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/44.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/44_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/45.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/45_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/46.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/46_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/47.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/47_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/48.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/48_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/49.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/49_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/4_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/4b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/4b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/5.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/50.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/50_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/51.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/51_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/52.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/52_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/53.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/53_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/54.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/54_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/55.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/55_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/56.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/56_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/57.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/57_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/58.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/58_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/59.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/59_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/5_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/5b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/5b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/6.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/60.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/60_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/61.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/61_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/62.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/62_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/63.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/63_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/64.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/64_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/6_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/6b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/6b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/7.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/7_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/7b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/7b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/8.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/8_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/8b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/8b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/9.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/9_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/9b.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/9b_broken.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/alwayspast.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Выбор и запуск карты",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/alwayspastb.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Выбор и запуск карты",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/alwayspre.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Выбор и запуск карты",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/alwayspre_qs.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Выбор и запуск карты",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/alwayspreb.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Выбор и запуск карты",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/script.py",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Выбор и запуск карты",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/temp.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/temp_full.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Размещение по каждому файлу",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map_select_imprinted.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Выбор и запуск карты",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map_select_imprinted1.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Выбор и запуск карты",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map_select_imprinted2.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Выбор и запуск карты",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map_select_imprintedb.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Выбор и запуск карты",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map_select_white.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Выбор и запуск карты",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map_select_white1.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Выбор и запуск карты",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map_select_white2.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Выбор и запуск карты",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map_select_whiteb.mcfunction",
+    "document": "agent_notes/skywars_maps_admin.md",
+    "section": "Выбор и запуск карты",
+    "status": "documented",
+    "note": "Verified source behavior summarized in the linked section."
+  }
+]

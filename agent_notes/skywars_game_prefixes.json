@@ -1,0 +1,1325 @@
+{
+  "description": "Every row is appended to storage swrg:core prefix; list_all appends SFW followed by NSFW.",
+  "list_all_source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/start/team_prefix/list_all.mcfunction",
+  "total_count": 261,
+  "lists": {
+    "sfw": {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/start/team_prefix/list_sfw.mcfunction",
+      "count": 170,
+      "entries": [
+        {
+          "index": 1,
+          "text": "Бесполезногиня ",
+          "color": "#2B5CE3"
+        },
+        {
+          "index": 2,
+          "text": "Megumin voice actress ",
+          "color": "#E34D36"
+        },
+        {
+          "index": 3,
+          "text": "Соль наше вещество ",
+          "color": "#33FF00"
+        },
+        {
+          "index": 4,
+          "text": "Дерево рисовое поле трава ",
+          "color": "#FF9317"
+        },
+        {
+          "index": 5,
+          "text": "КосмонаФт ",
+          "color": "#14E0FF"
+        },
+        {
+          "index": 6,
+          "text": "Админ зайка ",
+          "color": "#EB36FF"
+        },
+        {
+          "index": 7,
+          "text": "Путин ",
+          "color": "#2B5CE3"
+        },
+        {
+          "index": 8,
+          "text": "Fungus Amongus ",
+          "color": "#6B08FF"
+        },
+        {
+          "index": 9,
+          "text": "Sempai ",
+          "color": "#EB36FF"
+        },
+        {
+          "index": 10,
+          "text": "Братик ",
+          "color": "#EB36FF"
+        },
+        {
+          "index": 11,
+          "text": "糞 ",
+          "color": "#FF9317"
+        },
+        {
+          "index": 12,
+          "text": "Сварог ",
+          "color": "#14E0FF"
+        },
+        {
+          "index": 13,
+          "text": "Данил Данилов ",
+          "color": "#14E0FF"
+        },
+        {
+          "index": 14,
+          "text": "Sauvojen Tuntija ",
+          "color": "#6B08FF"
+        },
+        {
+          "index": 15,
+          "text": "Мама я ",
+          "color": "#14E0FF"
+        },
+        {
+          "index": 16,
+          "text": "Дед инсайд ",
+          "color": "#14E0FF"
+        },
+        {
+          "index": 17,
+          "text": "Сестренка ",
+          "color": "#33FF00"
+        },
+        {
+          "index": 18,
+          "text": "Ексоперсе ",
+          "color": "#E34D36"
+        },
+        {
+          "index": 19,
+          "text": "爆発 ",
+          "color": "#E34D36"
+        },
+        {
+          "index": 20,
+          "text": "Лаки блок ",
+          "color": "#2B5CE3"
+        },
+        {
+          "index": 21,
+          "text": "Тотем дьявола ",
+          "color": "#E34D36"
+        },
+        {
+          "index": 22,
+          "text": "Хароош ",
+          "color": "#33FF00"
+        },
+        {
+          "index": 23,
+          "text": "Мусо Синсэцу ",
+          "color": "#6B08FF"
+        },
+        {
+          "index": 24,
+          "text": "Автор лаки блоков ",
+          "color": "#2B5CE3"
+        },
+        {
+          "index": 25,
+          "text": "Хямис ",
+          "color": "#6B08FF"
+        },
+        {
+          "index": 26,
+          "text": "Лиматоукка ",
+          "color": "#6B08FF"
+        },
+        {
+          "index": 27,
+          "text": "Кранухийси ",
+          "color": "yellow"
+        },
+        {
+          "index": 28,
+          "text": "Всем привет, мне 13 лет ",
+          "color": "white"
+        },
+        {
+          "index": 29,
+          "text": "Пелагея Звездная ",
+          "color": "#14E0FF"
+        },
+        {
+          "index": 30,
+          "text": "Админ забанька ",
+          "color": "#33FF00"
+        },
+        {
+          "index": 31,
+          "text": "Кто сдохнет первым ",
+          "color": "gold"
+        },
+        {
+          "index": 32,
+          "text": "Я иду в тишине ",
+          "color": "gold"
+        },
+        {
+          "index": 33,
+          "text": "Геншинфаг нефор 1000-7 ",
+          "color": "#EB36FF"
+        },
+        {
+          "index": 34,
+          "text": "1000-7 ",
+          "color": "#FF0A0A"
+        },
+        {
+          "index": 35,
+          "text": "АХАХАХАХА ",
+          "color": "#FF9317"
+        },
+        {
+          "index": 36,
+          "text": "Баффлед молодец ",
+          "color": "#33FF00"
+        },
+        {
+          "index": 37,
+          "text": "Карыч ",
+          "color": "#14E0FF"
+        },
+        {
+          "index": 38,
+          "text": "Плазменные резаки ",
+          "color": "#33FF00"
+        },
+        {
+          "index": 39,
+          "text": "Опа гангнам стайл ",
+          "color": "#FF9317"
+        },
+        {
+          "index": 40,
+          "text": "kill @e ",
+          "color": "white"
+        },
+        {
+          "index": 41,
+          "text": "Tactical Megumin ",
+          "color": "#FF0A0A"
+        },
+        {
+          "index": 42,
+          "text": "Моё имя ",
+          "color": "red"
+        },
+        {
+          "index": 43,
+          "text": "Я из алых мазоку ",
+          "color": "red"
+        },
+        {
+          "index": 44,
+          "text": "Omae wa mou shindeiru ",
+          "color": "#FF0A0A"
+        },
+        {
+          "index": 45,
+          "text": "Nani? ",
+          "color": "red"
+        },
+        {
+          "index": 46,
+          "text": "Desintegrated ",
+          "color": "#FF0A0A"
+        },
+        {
+          "index": 47,
+          "text": "Мама спит давайте без матов ",
+          "color": "yellow"
+        },
+        {
+          "index": 48,
+          "text": "Maid in Abyss ",
+          "color": "#190436"
+        },
+        {
+          "index": 49,
+          "text": "No prefix ",
+          "color": "gray"
+        },
+        {
+          "index": 50,
+          "text": "Админ ",
+          "color": "#14E0FF"
+        },
+        {
+          "index": 51,
+          "text": "Реактивный Щищ ",
+          "color": "#14E0FF"
+        },
+        {
+          "index": 52,
+          "text": "Джастщищ ",
+          "color": "#14E0FF"
+        },
+        {
+          "index": 53,
+          "text": "Рашит мид ",
+          "color": "#14E0FF"
+        },
+        {
+          "index": 54,
+          "text": "Pudge ",
+          "color": "#14E0FF"
+        },
+        {
+          "index": 55,
+          "text": "Swarodge ",
+          "color": "#14E0FF"
+        },
+        {
+          "index": 56,
+          "text": "Грумм ",
+          "color": "#873322"
+        },
+        {
+          "index": 57,
+          "text": "В чулочках и юбочке ",
+          "color": "#DB3BB1"
+        },
+        {
+          "index": 58,
+          "text": "Pride month fan ",
+          "color": "#DB9F44"
+        },
+        {
+          "index": 59,
+          "text": "Lucky Block enjoyer ",
+          "color": "yellow"
+        },
+        {
+          "index": 60,
+          "text": "Gigachad ",
+          "color": "#DEDEDE"
+        },
+        {
+          "index": 61,
+          "text": "Sigma ",
+          "color": "#DBDEB4"
+        },
+        {
+          "index": 62,
+          "text": "Сократ ",
+          "color": "gold"
+        },
+        {
+          "index": 63,
+          "text": "Платон ",
+          "color": "gold"
+        },
+        {
+          "index": 64,
+          "text": "Конфуций ",
+          "color": "gold"
+        },
+        {
+          "index": 65,
+          "text": "Банфуций ",
+          "color": "yellow"
+        },
+        {
+          "index": 66,
+          "text": "Baba is ",
+          "color": "#DB3BB1"
+        },
+        {
+          "index": 67,
+          "text": "Baffle'd ",
+          "color": "gray"
+        },
+        {
+          "index": 68,
+          "text": "Гигант мысли ",
+          "color": "gold"
+        },
+        {
+          "index": 69,
+          "text": "Astolfo ",
+          "color": "#DB3BB1"
+        },
+        {
+          "index": 70,
+          "text": "Felix ",
+          "color": "#DEC69E"
+        },
+        {
+          "index": 71,
+          "text": "Трап ",
+          "color": "#962ADE"
+        },
+        {
+          "index": 72,
+          "text": "Ёж ",
+          "color": "gray"
+        },
+        {
+          "index": 73,
+          "text": "Умер от варенья ",
+          "color": "#FF0D6E"
+        },
+        {
+          "index": 74,
+          "text": "Умиротворение ",
+          "color": "#FF0D6E"
+        },
+        {
+          "index": 75,
+          "text": "Лахазор Ла Кадур Ха Хахахаха ",
+          "color": "#50FF05"
+        },
+        {
+          "index": 76,
+          "text": "ыые ",
+          "color": "#0A9DFF"
+        },
+        {
+          "index": 77,
+          "text": "bible ",
+          "color": "#0A9DFF"
+        },
+        {
+          "index": 78,
+          "text": "Колдун ",
+          "color": "#0A9DFF"
+        },
+        {
+          "index": 79,
+          "text": "Раб божий ",
+          "color": "#0A9DFF"
+        },
+        {
+          "index": 80,
+          "text": "mom.png ",
+          "color": "#FFE9B5"
+        },
+        {
+          "index": 81,
+          "text": "Sigma male ",
+          "color": "#FF85E2"
+        },
+        {
+          "index": 82,
+          "text": "Chen Xiao Shi ",
+          "color": "#FFEB6B"
+        },
+        {
+          "index": 83,
+          "text": "Lu Guang ",
+          "color": "#FFEB6B"
+        },
+        {
+          "index": 84,
+          "text": "Кошкодевочка ",
+          "color": "#FFBAEA"
+        },
+        {
+          "index": 85,
+          "text": "Девочка волшебница ",
+          "color": "#FFBAEA"
+        },
+        {
+          "index": 86,
+          "text": "Иногда в голову приходят интересные вещи ",
+          "color": "#ED9595"
+        },
+        {
+          "index": 87,
+          "text": "Мать моя женщина ",
+          "color": "#EDBC37"
+        },
+        {
+          "index": 88,
+          "text": "Человек Паук ",
+          "color": "#FF0505"
+        },
+        {
+          "index": 89,
+          "text": "Мяу Мяу Мяу Ня Ня Ня~! ",
+          "color": "#FFB5FF"
+        },
+        {
+          "index": 90,
+          "text": "Мур мур мур... ",
+          "color": "#FFB5FF"
+        },
+        {
+          "index": 91,
+          "text": "Ньяяях!~ ",
+          "color": "#FFB5FF"
+        },
+        {
+          "index": 92,
+          "text": "Семпай... ",
+          "color": "#FFB5FF"
+        },
+        {
+          "index": 93,
+          "text": "Кохай ",
+          "color": "#FFB5FF"
+        },
+        {
+          "index": 94,
+          "text": "Бака! ",
+          "color": "#FF0505"
+        },
+        {
+          "index": 95,
+          "text": "Владик ",
+          "color": "#2BEAFF"
+        },
+        {
+          "index": 96,
+          "text": "Иль... Тот, чьё имя нельзя произносить ",
+          "color": "#3A851E"
+        },
+        {
+          "index": 97,
+          "text": "Хаос, ",
+          "color": "#FFF265"
+        },
+        {
+          "index": 98,
+          "text": "Вездесущность, ",
+          "color": "#FFF015"
+        },
+        {
+          "index": 99,
+          "text": "Удача, ",
+          "color": "#FFF025"
+        },
+        {
+          "index": 100,
+          "text": "Лицемерие, ",
+          "color": "#FFF035"
+        },
+        {
+          "index": 101,
+          "text": "Неизвестность, ",
+          "color": "#FFF045"
+        },
+        {
+          "index": 102,
+          "text": "Помешанность, ",
+          "color": "#FFF055"
+        },
+        {
+          "index": 103,
+          "text": "Danmaku ",
+          "color": "#FFF065"
+        },
+        {
+          "index": 104,
+          "text": "Cry about it ",
+          "color": "#FFF085"
+        },
+        {
+          "index": 105,
+          "text": "Shall we danmaku? ",
+          "color": "#FFF095"
+        },
+        {
+          "index": 106,
+          "text": "Ня мяу UwU ",
+          "color": "#FFF105"
+        },
+        {
+          "index": 107,
+          "text": "Мяу мяу мяу ",
+          "color": "#FFF115"
+        },
+        {
+          "index": 108,
+          "text": "Банки! ",
+          "color": "#FFF125"
+        },
+        {
+          "index": 109,
+          "text": "Бан бан бан ",
+          "color": "#FFF135"
+        },
+        {
+          "index": 110,
+          "text": "Секибанки ",
+          "color": "#FFF145"
+        },
+        {
+          "index": 111,
+          "text": "Пэр Лэкоф Энтс ",
+          "color": "#FFF155"
+        },
+        {
+          "index": 112,
+          "text": "Даерис карыч ",
+          "color": "#FFF175"
+        },
+        {
+          "index": 113,
+          "text": "На даерисе ",
+          "color": "#FFF185"
+        },
+        {
+          "index": 114,
+          "text": "Daerisu ",
+          "color": "#FFF195"
+        },
+        {
+          "index": 115,
+          "text": ":) :) :) ",
+          "color": "#FFF205"
+        },
+        {
+          "index": 116,
+          "text": "Школа романтика комедия ",
+          "color": "#FFF225"
+        },
+        {
+          "index": 117,
+          "text": "Солнышко ",
+          "color": "#FFF235"
+        },
+        {
+          "index": 118,
+          "text": "Лапочка ",
+          "color": "#FFF245"
+        },
+        {
+          "index": 119,
+          "text": "Любимка ",
+          "color": "#FFF255"
+        },
+        {
+          "index": 120,
+          "text": "Милашка ",
+          "color": "#FFF005"
+        },
+        {
+          "index": 121,
+          "text": "Сосал кровь ",
+          "color": "#FFF285"
+        },
+        {
+          "index": 122,
+          "text": "На мне жидкая кровь ",
+          "color": "#FFF295"
+        },
+        {
+          "index": 123,
+          "text": "Да я люблю сосать кровь ",
+          "color": "#FFF305"
+        },
+        {
+          "index": 124,
+          "text": "Немальчик ",
+          "color": "#FFF315"
+        },
+        {
+          "index": 125,
+          "text": "Девочка ",
+          "color": "#FFF325"
+        },
+        {
+          "index": 126,
+          "text": "Свароська! ",
+          "color": "#FFF335"
+        },
+        {
+          "index": 127,
+          "text": "Доки доки ",
+          "color": "#FFF345"
+        },
+        {
+          "index": 128,
+          "text": "Ваку ваку ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 129,
+          "text": "Hedonistic! ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 130,
+          "text": "Первый в мире ёж ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 131,
+          "text": "Гуталиновый ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 132,
+          "text": "Daeris_ ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 133,
+          "text": "Ай лаву ист! ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 134,
+          "text": "Ай лаву коно секаи! ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 135,
+          "text": "Кусо ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 136,
+          "text": "Ка-ка-ка-каруманешонс! ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 137,
+          "text": "Аччи-коччи ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 138,
+          "text": "Ракин докин ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 139,
+          "text": "Лаки блоки ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 140,
+          "text": "Я бафлед ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 141,
+          "text": "FFFFFF ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 142,
+          "text": "baFFFFFFled ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 143,
+          "text": "Scuffled ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 144,
+          "text": "Scuferis ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 145,
+          "text": "Scufrog ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 146,
+          "text": "Grummrog ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 147,
+          "text": "Астольфиевич ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 148,
+          "text": "Грумрог Астольфиевич ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 149,
+          "text": "Няшка зайка ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 150,
+          "text": "Скажи 'ня'",
+          "color": "#FFF355"
+        },
+        {
+          "index": 151,
+          "text": "Уи биииииим! ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 152,
+          "text": "Шигуре Хуи ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 153,
+          "text": "Stack ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 154,
+          "text": "Чупакабура ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 155,
+          "text": "Чупакабуру ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 156,
+          "text": "Чупакабуре ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 157,
+          "text": "Чупа ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 158,
+          "text": "Надел ушки ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 159,
+          "text": "Надел чокер ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 160,
+          "text": "Пегалея ",
+          "color": "aqua"
+        },
+        {
+          "index": 161,
+          "text": "Пагалея ",
+          "color": "aqua"
+        },
+        {
+          "index": 162,
+          "text": "Пивгалея ",
+          "color": "aqua"
+        },
+        {
+          "index": 163,
+          "text": "Февгалея Стар ",
+          "color": "aqua"
+        },
+        {
+          "index": 164,
+          "text": "Пафлагея ",
+          "color": "aqua"
+        },
+        {
+          "index": 165,
+          "text": "Пагалея Звёдзная ",
+          "color": "aqua"
+        },
+        {
+          "index": 166,
+          "text": "Пилагея ",
+          "color": "aqua"
+        },
+        {
+          "index": 167,
+          "text": "Павгалея ",
+          "color": "aqua"
+        },
+        {
+          "index": 168,
+          "text": "Пивагея Стар ",
+          "color": "aqua"
+        },
+        {
+          "index": 169,
+          "text": "сво победа ",
+          "color": "aqua"
+        },
+        {
+          "index": 170,
+          "text": "сво рог ",
+          "color": "aqua"
+        }
+      ]
+    },
+    "nsfw": {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/start/team_prefix/list_nsfw.mcfunction",
+      "count": 91,
+      "entries": [
+        {
+          "index": 1,
+          "text": "Пидорас ",
+          "color": "#E34D36"
+        },
+        {
+          "index": 2,
+          "text": "СЫН КАРТОШКИ ",
+          "color": "#E34D36"
+        },
+        {
+          "index": 3,
+          "text": "Гитлер ",
+          "color": "#E34D36"
+        },
+        {
+          "index": 4,
+          "text": "Муссолини ",
+          "color": "#E34D36"
+        },
+        {
+          "index": 5,
+          "text": "Любитель лоль ",
+          "color": "#2B5CE3"
+        },
+        {
+          "index": 6,
+          "text": "Phallus Erectus ",
+          "color": "#E34D36"
+        },
+        {
+          "index": 7,
+          "text": "Участник холокоста ",
+          "color": "#FF9317"
+        },
+        {
+          "index": 8,
+          "text": "Справа гей -> ",
+          "color": "#14E0FF"
+        },
+        {
+          "index": 9,
+          "text": "Nigger ",
+          "color": "black"
+        },
+        {
+          "index": 10,
+          "text": "Yamai desu ",
+          "color": "#EB36FF"
+        },
+        {
+          "index": 11,
+          "text": "Нахидочка ",
+          "color": "#33FF00"
+        },
+        {
+          "index": 12,
+          "text": "Жирное уебище ",
+          "color": "#E34D36"
+        },
+        {
+          "index": 13,
+          "text": "Бафлет хуеглот ",
+          "color": "#E34D36"
+        },
+        {
+          "index": 14,
+          "text": "Я ебашу админа палками ",
+          "color": "#E34D36"
+        },
+        {
+          "index": 15,
+          "text": "Еврей ",
+          "color": "#FF9317"
+        },
+        {
+          "index": 16,
+          "text": "Ляхазо Ляхаду Хуяхерс ",
+          "color": "#33FF00"
+        },
+        {
+          "index": 17,
+          "text": "Happy holocaust! ",
+          "color": "#FF9317"
+        },
+        {
+          "index": 18,
+          "text": "L ",
+          "color": "#14E0FF"
+        },
+        {
+          "index": 19,
+          "text": "Лох) ",
+          "color": "#33FF00"
+        },
+        {
+          "index": 20,
+          "text": "Любитель нахиды ",
+          "color": "#33FF00"
+        },
+        {
+          "index": 21,
+          "text": "Нет блять сиськомеч ",
+          "color": "#6B08FF"
+        },
+        {
+          "index": 22,
+          "text": "Маг Ебатель ",
+          "color": "dark_red"
+        },
+        {
+          "index": 23,
+          "text": "Лолька ",
+          "color": "#33FF00"
+        },
+        {
+          "index": 24,
+          "text": "Пиздолиз ",
+          "color": "#EB36FF"
+        },
+        {
+          "index": 25,
+          "text": "Тряпочка ",
+          "color": "gray"
+        },
+        {
+          "index": 26,
+          "text": "Кранухийси (сын мертвой бляди) ",
+          "color": "yellow"
+        },
+        {
+          "index": 27,
+          "text": "Некропедофил ",
+          "color": "#E34D36"
+        },
+        {
+          "index": 28,
+          "text": "Некололи ",
+          "color": "#EB36FF"
+        },
+        {
+          "index": 29,
+          "text": "Экстрасекс ",
+          "color": "#14E0FF"
+        },
+        {
+          "index": 30,
+          "text": "Открыватель ворот ",
+          "color": "#33FF00"
+        },
+        {
+          "index": 31,
+          "text": "Выключатор матери с кнопки ",
+          "color": "#33FF00"
+        },
+        {
+          "index": 32,
+          "text": "ТРАХНУЛ СЕСТРУ ",
+          "color": "#E34D36"
+        },
+        {
+          "index": 33,
+          "text": "Баффлед сядь мне на лицо! ",
+          "color": "#EB36FF"
+        },
+        {
+          "index": 34,
+          "text": "Нахида сядь мне на лицо! ",
+          "color": "#EB36FF"
+        },
+        {
+          "index": 35,
+          "text": "Ебаный голем ",
+          "color": "#FF9317"
+        },
+        {
+          "index": 36,
+          "text": "Писькогрыз ",
+          "color": "#33FF00"
+        },
+        {
+          "index": 37,
+          "text": "ПИДОРАС ",
+          "color": "dark_red",
+          "obfuscated": true
+        },
+        {
+          "index": 38,
+          "text": "Ахуенно забалансил ",
+          "color": "#33FF00"
+        },
+        {
+          "index": 39,
+          "text": "8====о ",
+          "color": "#EB36FF"
+        },
+        {
+          "index": 40,
+          "text": "Социофоб без личной жизни ",
+          "color": "#33FF00"
+        },
+        {
+          "index": 41,
+          "text": "Соскокрут ",
+          "color": "#FF9317"
+        },
+        {
+          "index": 42,
+          "text": "Я хочу чтоб меня ебали тентакли ",
+          "color": "#EB36FF"
+        },
+        {
+          "index": 43,
+          "text": "Лучшая вайфу ",
+          "color": "#EB36FF"
+        },
+        {
+          "index": 44,
+          "text": "Маты спят давайте без мамы ",
+          "color": "yellow"
+        },
+        {
+          "index": 45,
+          "text": "Созданный в пробирке ",
+          "color": "dark_red"
+        },
+        {
+          "index": 46,
+          "text": "Ноэлль пописай мне в рот! ",
+          "color": "#EB36FF"
+        },
+        {
+          "index": 47,
+          "text": "Тарталья трахни меня в очко! ",
+          "color": "#EB36FF"
+        },
+        {
+          "index": 48,
+          "text": "баффлед пописай на меня! ",
+          "color": "#EB36FF"
+        },
+        {
+          "index": 49,
+          "text": "Фембойчик ",
+          "color": "#DB3BB1"
+        },
+        {
+          "index": 50,
+          "text": "Не пидор ",
+          "color": "yellow"
+        },
+        {
+          "index": 51,
+          "text": "LGBT ",
+          "color": "#DB3BB1"
+        },
+        {
+          "index": 52,
+          "text": "У меня нет прав ",
+          "color": "white"
+        },
+        {
+          "index": 53,
+          "text": "Не гей ",
+          "color": "aqua"
+        },
+        {
+          "index": 54,
+          "text": "b penis b penis e ",
+          "color": "#FFE9B5"
+        },
+        {
+          "index": 55,
+          "text": "penis penis penis penis penispenispenis ",
+          "color": "#FFE9B5"
+        },
+        {
+          "index": 56,
+          "text": "raycast_penis.mcfunction ",
+          "color": "#FFE9B5"
+        },
+        {
+          "index": 57,
+          "text": "random_penis.json ",
+          "color": "#FFE9B5"
+        },
+        {
+          "index": 58,
+          "text": "Я сегодня без трусов ",
+          "color": "#FF1414"
+        },
+        {
+          "index": 59,
+          "text": "Chlen Xui Soshi ",
+          "color": "#FFEB6B"
+        },
+        {
+          "index": 60,
+          "text": "Слащавый Педик ",
+          "color": "#FFEB6B"
+        },
+        {
+          "index": 61,
+          "text": "Imagine being gay ",
+          "color": "#DD80FF"
+        },
+        {
+          "index": 62,
+          "text": "Totally not gay ",
+          "color": "#DD80FF"
+        },
+        {
+          "index": 63,
+          "text": "Femboy trap (not gay) ",
+          "color": "#DD80FF"
+        },
+        {
+          "index": 64,
+          "text": "\"I'm cute femboy UwU\" ",
+          "color": "#FFBAEA"
+        },
+        {
+          "index": 65,
+          "text": "В ЛСД трипе со спущенными трусиками ",
+          "color": "#D29EFF"
+        },
+        {
+          "index": 66,
+          "text": "Мать моя мужчина ",
+          "color": "#EDBC37"
+        },
+        {
+          "index": 67,
+          "text": "Отец моя женщина ",
+          "color": "#EDBC37"
+        },
+        {
+          "index": 68,
+          "text": "Отец моя мужчина ",
+          "color": "#EDBC37"
+        },
+        {
+          "index": 69,
+          "text": "Человек Долбоёб ",
+          "color": "#FF0505"
+        },
+        {
+          "index": 70,
+          "text": "Милый Фембой ",
+          "color": "#FFB5FF"
+        },
+        {
+          "index": 71,
+          "text": "Миловидный трапик ",
+          "color": "#FFB5FF"
+        },
+        {
+          "index": 72,
+          "text": "Lack of parents ",
+          "color": "#FFF075"
+        },
+        {
+          "index": 73,
+          "text": "Дендрофил ",
+          "color": "#FFF165"
+        },
+        {
+          "index": 74,
+          "text": "Хохлы ",
+          "color": "#FFF215"
+        },
+        {
+          "index": 75,
+          "text": "Сын шлюхи ",
+          "color": "#FFF275"
+        },
+        {
+          "index": 76,
+          "text": "С синдромом дауна ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 77,
+          "text": "Дакимакура с бафледом ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 78,
+          "text": "Нахида! ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 79,
+          "text": "Заклинатель жёлтых молний ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 80,
+          "text": "Жёлтая молния ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 81,
+          "text": "Ножки Нахидочки! ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 82,
+          "text": "Ножки Шигуре Уи! ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 83,
+          "text": "Stack xyev v жопе ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 84,
+          "text": "Стак наступи на меня! ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 85,
+          "text": "У бафледа под столом ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 86,
+          "text": "Огромные яйца ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 87,
+          "text": "Громадный вспучившийся клитор ",
+          "color": "#FFF355"
+        },
+        {
+          "index": 88,
+          "text": "Долой трусы ",
+          "color": "aqua"
+        },
+        {
+          "index": 89,
+          "text": "Свободу письке! ",
+          "color": "aqua"
+        },
+        {
+          "index": 90,
+          "text": "Я бы потрогал ",
+          "color": "aqua"
+        },
+        {
+          "index": 91,
+          "text": "Не оставляет детей без присмотра ",
+          "color": "aqua"
+        }
+      ]
+    }
+  }
+}

@@ -1,66 +1,67 @@
 {
-    "type":"empty", "pools": [
+  "type": "empty",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:item",
+          "name": "minecraft:diamond_boots",
+          "modifier": [
+            {
+              "entity": "this",
+              "lore": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:diamond_boots",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_lore",
-                            "entity": "this",
-                            "lore": [
-                                {
-                                    "nbt": "lore.skill.a3.Lore[0]",
-                                    "storage": "swrg:lang",
-                                    "interpret": true,
-                                    "source": "storage",
-                                    "type": "nbt"
-                                }
-                            ],
-                            "mode": "replace_all"
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "entity": "this",
-                            "name": {
-                                "nbt": "skill.a3",
-                                "storage": "swrg:lang",
-                                "interpret": true,
-                                "source": "storage",
-                                "type": "nbt"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:attribute_modifiers": [
-                                    {
-                                        "id": "au8thifgjk",
-                                        "type": "minecraft:armor_toughness",
-                                        "amount": 0,
-                                        "operation": "add_value",
-                                        "slot": "feet"
-                                    },
-                                    {
-                                        "id": "te4rilrwewrtyui",
-                                        "type": "minecraft:armor",
-                                        "amount": 0,
-                                        "operation": "add_value",
-                                        "slot": "feet"
-                                    }
-                                ],
-                                "minecraft:tooltip_display": {
-                                    "hidden_components": [
-                                        "minecraft:attribute_modifiers"
-                                    ]
-                                }
-                            }
-                        }
-                    ]
+                  "nbt": "lore.skill.a3.Lore[0]",
+                  "storage": "swrg:lang",
+                  "interpret": true,
+                  "source": "storage",
+                  "type": "nbt"
                 }
-            ]
+              ],
+              "mode": "replace_all",
+              "type": "minecraft:set_lore"
+            },
+            {
+              "entity": "this",
+              "name": {
+                "nbt": "skill.a3",
+                "storage": "swrg:lang",
+                "interpret": true,
+                "source": "storage",
+                "type": "nbt"
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "components": {
+                "minecraft:attribute_modifiers": [
+                  {
+                    "id": "au8thifgjk",
+                    "type": "minecraft:armor_toughness",
+                    "amount": 0,
+                    "operation": "add_value",
+                    "slot": "feet"
+                  },
+                  {
+                    "id": "te4rilrwewrtyui",
+                    "type": "minecraft:armor",
+                    "amount": 0,
+                    "operation": "add_value",
+                    "slot": "feet"
+                  }
+                ],
+                "minecraft:tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:attribute_modifiers"
+                  ]
+                }
+              },
+              "type": "minecraft:set_components"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

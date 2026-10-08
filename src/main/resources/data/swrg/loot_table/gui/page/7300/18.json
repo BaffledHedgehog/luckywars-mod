@@ -1,29 +1,29 @@
 {
-    "pools": [
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:stick",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_name",
-                            "name": {
-                                "text": "\uE188",
-                                "color": "white",
-                                "italic": false
-                            }
-                        },
-                        {
-                            "function": "set_components",
-                            "components": {
-                                "item_model": "lbc:runes_rare"
-                            }
-                        }
-                    ]
-                }
-            ]
+          "type": "minecraft:item",
+          "name": "minecraft:stick",
+          "modifier": [
+            {
+              "name": {
+                "text": "",
+                "color": "white",
+                "italic": false
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "components": {
+                "item_model": "lbc:runes_rare"
+              },
+              "type": "set_components"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

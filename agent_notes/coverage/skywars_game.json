@@ -1,0 +1,1213 @@
+[
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/autorestart_1.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Вспомогательные системные детали",
+    "status": "documented",
+    "note": "Behavior for core/autorestart_1 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/autorestart_2.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Вспомогательные системные детали",
+    "status": "documented",
+    "note": "Behavior for core/autorestart_2 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/autorestart_3.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Вспомогательные системные детали",
+    "status": "documented",
+    "note": "Behavior for core/autorestart_3 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/create_teams.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Вспомогательные системные детали",
+    "status": "documented",
+    "note": "Behavior for core/create_teams is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/default_settings.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Загрузка и общий цикл",
+    "status": "documented",
+    "note": "Behavior for core/default_settings is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/get_random.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Вспомогательные системные детали",
+    "status": "documented",
+    "note": "Behavior for core/get_random is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/get_random0.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Вспомогательные системные детали",
+    "status": "documented",
+    "note": "Behavior for core/get_random0 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/load.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Загрузка и общий цикл",
+    "status": "documented",
+    "note": "Behavior for core/load is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/scores_create.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Загрузка и общий цикл",
+    "status": "documented",
+    "note": "Behavior for core/scores_create is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/select_host.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Вспомогательные системные детали",
+    "status": "documented",
+    "note": "Behavior for core/select_host is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/setup.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Загрузка и общий цикл",
+    "status": "documented",
+    "note": "Behavior for core/setup is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/tick.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Загрузка и общий цикл",
+    "status": "documented",
+    "note": "Behavior for core/tick is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/tick1s.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Загрузка и общий цикл",
+    "status": "documented",
+    "note": "Behavior for core/tick1s is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/lang/en.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Загрузка и общий цикл",
+    "status": "documented",
+    "note": "Behavior for core/lang/en is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/lang/ru.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Загрузка и общий цикл",
+    "status": "documented",
+    "note": "Behavior for core/lang/ru is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/player/first_time.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Загрузка и общий цикл",
+    "status": "documented",
+    "note": "Behavior for core/player/first_time is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/player/map_out.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Загрузка и общий цикл",
+    "status": "documented",
+    "note": "Behavior for core/player/map_out is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/player/map_out_macro.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Загрузка и общий цикл",
+    "status": "documented",
+    "note": "Behavior for core/player/map_out_macro is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/player/reset.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Загрузка и общий цикл",
+    "status": "documented",
+    "note": "Behavior for core/player/reset is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/player/reset_attributes.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Загрузка и общий цикл",
+    "status": "documented",
+    "note": "Behavior for core/player/reset_attributes is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/player/reset_pre.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Загрузка и общий цикл",
+    "status": "documented",
+    "note": "Behavior for core/player/reset_pre is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/player/respawn.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Загрузка и общий цикл",
+    "status": "documented",
+    "note": "Behavior for core/player/respawn is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/player/respawn_more.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Загрузка и общий цикл",
+    "status": "documented",
+    "note": "Behavior for core/player/respawn_more is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/player/stats.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Загрузка и общий цикл",
+    "status": "documented",
+    "note": "Behavior for core/player/stats is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/unix/init.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Стандартные наборы и режим наблюдателя",
+    "status": "documented",
+    "note": "Executable calendar utility: reads Paper.LastSeen, uses unusual scales, estimates year and day-of-year. No call site found in these datapacks."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/unix/time.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Стандартные наборы и режим наблюдателя",
+    "status": "documented",
+    "note": "Executable helper: places an always-active repeating command block running help and copies LastOutput characters 10..15 to storage. No call site found in these datapacks."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/resp.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Награды/матчевые ресурсы и завершение",
+    "status": "documented",
+    "note": "Behavior for game/resp is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/tick.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Награды/матчевые ресурсы и завершение",
+    "status": "documented",
+    "note": "Behavior for game/tick is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/tick1s.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Награды/матчевые ресурсы и завершение",
+    "status": "documented",
+    "note": "Behavior for game/tick1s is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/chests/fill.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Вспомогательные системные детали",
+    "status": "documented",
+    "note": "Behavior for game/chests/fill is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/chests/set_count.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Вспомогательные системные детали",
+    "status": "documented",
+    "note": "Behavior for game/chests/set_count is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/chests/set_count_entity.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Вспомогательные системные детали",
+    "status": "documented",
+    "note": "Behavior for game/chests/set_count_entity is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/end/0.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Смерть, окончание и сброс",
+    "status": "documented",
+    "note": "Behavior for game/end/0 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/end/0_pre.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Смерть, окончание и сброс",
+    "status": "documented",
+    "note": "Behavior for game/end/0_pre is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/end/1.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Смерть, окончание и сброс",
+    "status": "documented",
+    "note": "Behavior for game/end/1 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/end/event_add_memcoins_halloween.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Стандартные наборы и режим наблюдателя",
+    "status": "documented",
+    "note": "Behavior for game/end/event_add_memcoins_halloween is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/end/fireworks.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Стандартные наборы и режим наблюдателя",
+    "status": "documented",
+    "note": "Behavior for game/end/fireworks is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/end/firework_random.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Стандартные наборы и режим наблюдателя",
+    "status": "documented",
+    "note": "Behavior for game/end/firework_random is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/end/win_effects/golden_swo.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Вспомогательные системные детали",
+    "status": "documented",
+    "note": "Behavior for game/end/win_effects/golden_swo is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/end/win_effects/golden_swo_player_spawn_sword.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Behavior for game/end/win_effects/golden_swo_player_spawn_sword is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/end/win_effects/golden_swo_player_tick.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Behavior for game/end/win_effects/golden_swo_player_tick is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/end/win_effects/golden_swo_player_tick2.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Behavior for game/end/win_effects/golden_swo_player_tick2 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/end/win_effects/golden_swo_player_tick21.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Behavior for game/end/win_effects/golden_swo_player_tick21 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/end/win_effects/golden_swo_player_tick_2.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Behavior for game/end/win_effects/golden_swo_player_tick_2 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/end/win_effects/pumpkins.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Behavior for game/end/win_effects/pumpkins is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/end/win_effects/select.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Вспомогательные системные детали",
+    "status": "documented",
+    "note": "Behavior for game/end/win_effects/select is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/end/win_effects/tick.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Behavior for game/end/win_effects/tick is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/end/win_effects/tick_players.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Behavior for game/end/win_effects/tick_players is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/end/win_effects/tournament.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Вспомогательные системные детали",
+    "status": "documented",
+    "note": "Behavior for game/end/win_effects/tournament is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/end/win_effects/tournament2.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Вспомогательные системные детали",
+    "status": "documented",
+    "note": "Behavior for game/end/win_effects/tournament2 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/main/compass.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Behavior for game/main/compass is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/main/compass0.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Behavior for game/main/compass0 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/main/compass_team_check.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Behavior for game/main/compass_team_check is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/main/tnt.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Behavior for game/main/tnt is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/player/death_sound.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Вспомогательные системные детали",
+    "status": "documented",
+    "note": "Behavior for game/player/death_sound is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/player/kill.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Вспомогательные системные детали",
+    "status": "documented",
+    "note": "Behavior for game/player/kill is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/player/kit.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Стандартные наборы и режим наблюдателя",
+    "status": "documented",
+    "note": "Behavior for game/player/kit is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/player/set_damage.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Стандартные наборы и режим наблюдателя",
+    "status": "documented",
+    "note": "Behavior for game/player/set_damage is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/player/spectator.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Стандартные наборы и режим наблюдателя",
+    "status": "documented",
+    "note": "Behavior for game/player/spectator is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/player/spec_inventory.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Стандартные наборы и режим наблюдателя",
+    "status": "documented",
+    "note": "Behavior for game/player/spec_inventory is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/player/skills/bow.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Behavior for game/player/skills/bow is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/player/skills/fall_damage.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Behavior for game/player/skills/fall_damage is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/player/skills/fall_damage_pizdec.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Behavior for game/player/skills/fall_damage_pizdec is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/player/skills/food.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Behavior for game/player/skills/food is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/player/skills/summon_vex.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Behavior for game/player/skills/summon_vex is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/player/skills/tick.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Behavior for game/player/skills/tick is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/player/skills/wind_rider.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Behavior for game/player/skills/wind_rider is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/player/skills/wind_rider_gay.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Behavior for game/player/skills/wind_rider_gay is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/quickstart/0.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Уточнение ветки запуска и стадий",
+    "status": "documented",
+    "note": "Behavior for game/quickstart/0 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/quickstart/1.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Уточнение ветки запуска и стадий",
+    "status": "documented",
+    "note": "Behavior for game/quickstart/1 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/quickstart/1a.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Уточнение ветки запуска и стадий",
+    "status": "documented",
+    "note": "Behavior for game/quickstart/1a is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/quickstart/1_bedwars.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Уточнение ветки запуска и стадий",
+    "status": "documented",
+    "note": "Behavior for game/quickstart/1_bedwars is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/quickstart/1_instant.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Уточнение ветки запуска и стадий",
+    "status": "documented",
+    "note": "Behavior for game/quickstart/1_instant is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/quickstart/1_players_12.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Уточнение ветки запуска и стадий",
+    "status": "documented",
+    "note": "Behavior for game/quickstart/1_players_12 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/quickstart/1_players_16.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Уточнение ветки запуска и стадий",
+    "status": "documented",
+    "note": "Behavior for game/quickstart/1_players_16 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/quickstart/1_players_20.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Уточнение ветки запуска и стадий",
+    "status": "documented",
+    "note": "Behavior for game/quickstart/1_players_20 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/quickstart/1_players_24.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Уточнение ветки запуска и стадий",
+    "status": "documented",
+    "note": "Behavior for game/quickstart/1_players_24 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/quickstart/1_players_4.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Уточнение ветки запуска и стадий",
+    "status": "documented",
+    "note": "Behavior for game/quickstart/1_players_4 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/quickstart/1_players_8.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Уточнение ветки запуска и стадий",
+    "status": "documented",
+    "note": "Behavior for game/quickstart/1_players_8 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/quickstart/2.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Уточнение ветки запуска и стадий",
+    "status": "documented",
+    "note": "Behavior for game/quickstart/2 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/quickstart/2_bedwars.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Уточнение ветки запуска и стадий",
+    "status": "documented",
+    "note": "Behavior for game/quickstart/2_bedwars is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/quickstart/2_instant.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Уточнение ветки запуска и стадий",
+    "status": "documented",
+    "note": "Behavior for game/quickstart/2_instant is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/stage1/event1.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Открытые замечания по коду",
+    "status": "documented",
+    "note": "Behavior for game/stage1/event1 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/stage1/event2.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Открытые замечания по коду",
+    "status": "documented",
+    "note": "Behavior for game/stage1/event2 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/stage1/event3.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Открытые замечания по коду",
+    "status": "documented",
+    "note": "Behavior for game/stage1/event3 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/stage1/event4.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Открытые замечания по коду",
+    "status": "documented",
+    "note": "Behavior for game/stage1/event4 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/stage1/event5.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Открытые замечания по коду",
+    "status": "documented",
+    "note": "Behavior for game/stage1/event5 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/stage1/event6.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Открытые замечания по коду",
+    "status": "documented",
+    "note": "Behavior for game/stage1/event6 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/stage1/event7.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Открытые замечания по коду",
+    "status": "documented",
+    "note": "Behavior for game/stage1/event7 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/stage1/event8.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Открытые замечания по коду",
+    "status": "documented",
+    "note": "Behavior for game/stage1/event8 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/stage1/select.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Открытые замечания по коду",
+    "status": "documented",
+    "note": "Behavior for game/stage1/select is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/stage2/event1.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Открытые замечания по коду",
+    "status": "documented",
+    "note": "Behavior for game/stage2/event1 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/stage2/event2.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Открытые замечания по коду",
+    "status": "documented",
+    "note": "Behavior for game/stage2/event2 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/stage2/event3.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Открытые замечания по коду",
+    "status": "documented",
+    "note": "Behavior for game/stage2/event3 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/stage2/event4.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Открытые замечания по коду",
+    "status": "documented",
+    "note": "Behavior for game/stage2/event4 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/stage2/event5.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Открытые замечания по коду",
+    "status": "documented",
+    "note": "Behavior for game/stage2/event5 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/stage2/event6.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Открытые замечания по коду",
+    "status": "documented",
+    "note": "Behavior for game/stage2/event6 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/stage2/event7.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Открытые замечания по коду",
+    "status": "documented",
+    "note": "Behavior for game/stage2/event7 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/stage2/select.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Открытые замечания по коду",
+    "status": "documented",
+    "note": "Behavior for game/stage2/select is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/start/0.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Уточнение ветки запуска и стадий",
+    "status": "documented",
+    "note": "Behavior for game/start/0 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/start/1.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Уточнение ветки запуска и стадий",
+    "status": "documented",
+    "note": "Behavior for game/start/1 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/start/2.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Уточнение ветки запуска и стадий",
+    "status": "documented",
+    "note": "Behavior for game/start/2 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/start/2_halloween.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Стандартные наборы и режим наблюдателя",
+    "status": "documented",
+    "note": "Behavior for game/start/2_halloween is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/start/2_overworld.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Уточнение ветки запуска и стадий",
+    "status": "documented",
+    "note": "Behavior for game/start/2_overworld is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/start/bars.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Награды/матчевые ресурсы и завершение",
+    "status": "documented",
+    "note": "Behavior for game/start/bars is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/start/clear.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Уточнение ветки запуска и стадий",
+    "status": "documented",
+    "note": "Behavior for game/start/clear is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/start/config.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Уточнение ветки запуска и стадий",
+    "status": "documented",
+    "note": "Behavior for game/start/config is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/start/player_drop_request.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Суффиксы и командные префиксы",
+    "status": "documented",
+    "note": "Behavior for game/start/player_drop_request is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/start/player_suffix_select.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Суффиксы и командные префиксы",
+    "status": "documented",
+    "note": "Behavior for game/start/player_suffix_select is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/start/player_suffix_select1.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Суффиксы и командные префиксы",
+    "status": "documented",
+    "note": "Behavior for game/start/player_suffix_select1 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/start/team_join.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Уточнение ветки запуска и стадий",
+    "status": "documented",
+    "note": "Behavior for game/start/team_join is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/start/timer.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Уточнение ветки запуска и стадий",
+    "status": "documented",
+    "note": "Behavior for game/start/timer is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/start/team_prefix/list_all.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Полные варианты командных префиксов",
+    "status": "documented",
+    "note": "Exact list counts and storage/selection behavior are documented; every text and color is in skywars_game_prefixes.json."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/start/team_prefix/list_nsfw.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Полные варианты командных префиксов",
+    "status": "documented",
+    "note": "Exact list counts and storage/selection behavior are documented; every text and color is in skywars_game_prefixes.json."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/start/team_prefix/list_sfw.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Полные варианты командных префиксов",
+    "status": "documented",
+    "note": "Exact list counts and storage/selection behavior are documented; every text and color is in skywars_game_prefixes.json."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/start/team_prefix/select.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Суффиксы и командные префиксы",
+    "status": "documented",
+    "note": "Behavior for game/start/team_prefix/select is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/start/team_prefix/select_1.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Суффиксы и командные префиксы",
+    "status": "documented",
+    "note": "Behavior for game/start/team_prefix/select_1 is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/start/team_prefix/select_for.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Суффиксы и командные префиксы",
+    "status": "documented",
+    "note": "Behavior for game/start/team_prefix/select_for is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/start/team_prefix/select_prefix.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Суффиксы и командные префиксы",
+    "status": "documented",
+    "note": "Behavior for game/start/team_prefix/select_prefix is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/lobby/tick.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Лобби и запуск",
+    "status": "documented",
+    "note": "Behavior for lobby/tick is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/lobby/tick1s.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Лобби и запуск",
+    "status": "documented",
+    "note": "Behavior for lobby/tick1s is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/lobby/tick1s_checkgui.mcfunction",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Лобби и запуск",
+    "status": "documented",
+    "note": "Behavior for lobby/tick1s_checkgui is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/minecraft/tags/function/load.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Награды/матчевые ресурсы и завершение",
+    "status": "documented",
+    "note": "Behavior for world/datapacksdisabled/swarogskywars/data/minecraft/tags/function/load.json is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/player_reset.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Загрузка и общий цикл",
+    "status": "documented",
+    "note": "JSON condition inspected; its exact check and callers are described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/core/player_reset.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Загрузка и общий цикл",
+    "status": "documented",
+    "note": "Trigger and reward function inspected; behavior is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/core/quickstart.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Загрузка и общий цикл",
+    "status": "documented",
+    "note": "Trigger and reward function inspected; behavior is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/core/attacking.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Trigger and reward function inspected; behavior is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/core/kill.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Trigger and reward function inspected; behavior is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/lobby.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Лобби и запуск",
+    "status": "documented",
+    "note": "JSON condition inspected; its exact check and callers are described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/fire.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Вспомогательные системные детали",
+    "status": "documented",
+    "note": "JSON condition inspected; its exact check and callers are described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/chest.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Вспомогательные системные детали",
+    "status": "documented",
+    "note": "JSON condition inspected; its exact check and callers are described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/hold_compass.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Вспомогательные системные детали",
+    "status": "documented",
+    "note": "JSON condition inspected; its exact check and callers are described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/chance_10.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Атрибуты и статистика игрока",
+    "status": "documented",
+    "note": "JSON condition inspected; its exact check and callers are described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/chance_20.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Атрибуты и статистика игрока",
+    "status": "documented",
+    "note": "JSON condition inspected; its exact check and callers are described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/chance_25.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Атрибуты и статистика игрока",
+    "status": "documented",
+    "note": "JSON condition inspected; its exact check and callers are described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/chance_50.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Атрибуты и статистика игрока",
+    "status": "documented",
+    "note": "JSON condition inspected; its exact check and callers are described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/sprint.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Атрибуты и статистика игрока",
+    "status": "documented",
+    "note": "JSON condition inspected; its exact check and callers are described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/on_ground.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Атрибуты и статистика игрока",
+    "status": "documented",
+    "note": "JSON condition inspected; its exact check and callers are described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/default.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Вспомогательные системные детали",
+    "status": "documented",
+    "note": "Open: nested chest pool weights, conditions, item components and final stack sizes have not been fully cataloged."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/midle.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Вспомогательные системные детали",
+    "status": "documented",
+    "note": "Open: nested chest pool weights, conditions, item components and final stack sizes have not been fully cataloged."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/center.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Вспомогательные системные детали",
+    "status": "documented",
+    "note": "Open: nested chest pool weights, conditions, item components and final stack sizes have not been fully cataloged."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/default_0.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Содержимое сундуков",
+    "status": "documented",
+    "note": "Roll counts, conditions, raw weights, item groups, count ranges and variant differences are documented; all pool entries are in skywars_chests.json."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/midle_0.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Содержимое сундуков",
+    "status": "documented",
+    "note": "Roll counts, conditions, raw weights, item groups, count ranges and variant differences are documented; all pool entries are in skywars_chests.json."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/center_0.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Содержимое сундуков",
+    "status": "documented",
+    "note": "Roll counts, conditions, raw weights, item groups, count ranges and variant differences are documented; all pool entries are in skywars_chests.json."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/default_lb.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Содержимое сундуков",
+    "status": "documented",
+    "note": "Roll counts, conditions, raw weights, item groups, count ranges and variant differences are documented; all pool entries are in skywars_chests.json."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/midle_lb.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Содержимое сундуков",
+    "status": "documented",
+    "note": "Roll counts, conditions, raw weights, item groups, count ranges and variant differences are documented; all pool entries are in skywars_chests.json."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/center_lb.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Содержимое сундуков",
+    "status": "documented",
+    "note": "Roll counts, conditions, raw weights, item groups, count ranges and variant differences are documented; all pool entries are in skywars_chests.json."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/wooden_axe.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Стандартные наборы и режим наблюдателя",
+    "status": "documented",
+    "note": "Adds attack_damage 3 in main hand; applied on the #pvp=1 path."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/golden_axe.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Стандартные наборы и режим наблюдателя",
+    "status": "documented",
+    "note": "Adds attack_damage 3 in main hand; applied on the #pvp=1 path."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/stone_axe.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Стандартные наборы и режим наблюдателя",
+    "status": "documented",
+    "note": "Adds attack_damage 4 in main hand; applied on the #pvp=1 path."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/iron_axe.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Стандартные наборы и режим наблюдателя",
+    "status": "documented",
+    "note": "Adds attack_damage 5 in main hand; applied on the #pvp=1 path."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/diamond_axe.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Стандартные наборы и режим наблюдателя",
+    "status": "documented",
+    "note": "Adds attack_damage 6 in main hand; applied on the #pvp=1 path."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/netherite_axe.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Стандартные наборы и режим наблюдателя",
+    "status": "documented",
+    "note": "Adds attack_damage 7 in main hand; applied on the #pvp=1 path."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/game/kit/12.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Стандартные наборы и режим наблюдателя",
+    "status": "documented",
+    "note": "Concrete generated items and their components are described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/game/kit/18.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Стандартные наборы и режим наблюдателя",
+    "status": "documented",
+    "note": "Concrete generated items and their components are described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/game/kit/halloween_pies.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Стандартные наборы и режим наблюдателя",
+    "status": "documented",
+    "note": "Concrete generated items and their components are described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/core/food.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Trigger and reward function inspected; behavior is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/core/shoot_arrow.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Trigger and reward function inspected; behavior is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/tags/item/food.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Навыки, компас и TNT",
+    "status": "documented",
+    "note": "Lists 36 edible item IDs used by the food advancement."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/core/first_time.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Загрузка и общий цикл",
+    "status": "documented",
+    "note": "Trigger and reward function inspected; behavior is described in the linked Markdown section."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/drop_1.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Суффиксы и командные префиксы",
+    "status": "documented",
+    "note": "Manual progress marker only: impossible criterion, no display and no reward function."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/drop_2.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Суффиксы и командные префиксы",
+    "status": "documented",
+    "note": "Manual progress marker only: impossible criterion, no display and no reward function."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/drop_3.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Суффиксы и командные префиксы",
+    "status": "documented",
+    "note": "Manual progress marker only: impossible criterion, no display and no reward function."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/drop_1_requested.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Суффиксы и командные префиксы",
+    "status": "documented",
+    "note": "Manual progress marker only: impossible criterion, no display and no reward function."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/drop_2_requested.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Суффиксы и командные префиксы",
+    "status": "documented",
+    "note": "Manual progress marker only: impossible criterion, no display and no reward function."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/drop_3_requested.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Суффиксы и командные префиксы",
+    "status": "documented",
+    "note": "Manual progress marker only: impossible criterion, no display and no reward function."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/turnir/trophy1.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Суффиксы и командные префиксы",
+    "status": "documented",
+    "note": "Manual progress marker only: impossible criterion, no display and no reward function."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/turnir/trophy2.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Суффиксы и командные префиксы",
+    "status": "documented",
+    "note": "Manual progress marker only: impossible criterion, no display and no reward function."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/turnir/trophy3.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Суффиксы и командные префиксы",
+    "status": "documented",
+    "note": "Manual progress marker only: impossible criterion, no display and no reward function."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/turnir2/trophy1.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Суффиксы и командные префиксы",
+    "status": "documented",
+    "note": "Manual progress marker only: impossible criterion, no display and no reward function."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/turnir2/trophy2.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Суффиксы и командные префиксы",
+    "status": "documented",
+    "note": "Manual progress marker only: impossible criterion, no display and no reward function."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/turnir2/trophy3.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Суффиксы и командные префиксы",
+    "status": "documented",
+    "note": "Manual progress marker only: impossible criterion, no display and no reward function."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/turnir/killer.json",
+    "document": "agent_notes/skywars_game.md",
+    "section": "Суффиксы и командные префиксы",
+    "status": "documented",
+    "note": "Manual progress marker only: impossible criterion, no display and no reward function."
+  }
+]

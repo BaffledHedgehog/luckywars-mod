@@ -1,0 +1,1949 @@
+{
+  "badwiki": [
+    {
+      "mode_or_roll": 1,
+      "effect": "absorption",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 1 run effect give @s minecraft:absorption 120 0"
+    },
+    {
+      "mode_or_roll": 2,
+      "effect": "blindness",
+      "duration_seconds_or_macro": "20",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 2 run effect give @s minecraft:blindness 20 0"
+    },
+    {
+      "mode_or_roll": 3,
+      "effect": "conduit_power",
+      "duration_seconds_or_macro": "20",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 3 run effect give @s minecraft:conduit_power 20 0"
+    },
+    {
+      "mode_or_roll": 4,
+      "effect": "fire_resistance",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 4 run effect give @s minecraft:fire_resistance 60 0"
+    },
+    {
+      "mode_or_roll": 5,
+      "effect": "glowing",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 5 run effect give @s minecraft:glowing 60 0"
+    },
+    {
+      "mode_or_roll": 6,
+      "effect": "haste",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 6 run effect give @s minecraft:haste 120 0"
+    },
+    {
+      "mode_or_roll": 7,
+      "effect": "health_boost",
+      "duration_seconds_or_macro": "200",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 7 run effect give @s minecraft:health_boost 200 0"
+    },
+    {
+      "mode_or_roll": 8,
+      "effect": "hunger",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 8 run effect give @s minecraft:hunger 60 0"
+    },
+    {
+      "mode_or_roll": 9,
+      "effect": "instant_damage",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 9 run effect give @s minecraft:instant_damage 1 0"
+    },
+    {
+      "mode_or_roll": 10,
+      "effect": "instant_health",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 10 run effect give @s minecraft:instant_health 1 0"
+    },
+    {
+      "mode_or_roll": 11,
+      "effect": "invisibility",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 11 run effect give @s minecraft:invisibility 60 0"
+    },
+    {
+      "mode_or_roll": 12,
+      "effect": "jump_boost",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 12 run effect give @s minecraft:jump_boost 60 0"
+    },
+    {
+      "mode_or_roll": 13,
+      "effect": "levitation",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 13 run effect give @s minecraft:levitation 30 0"
+    },
+    {
+      "mode_or_roll": 14,
+      "effect": "mining_fatigue",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 14 run effect give @s minecraft:mining_fatigue 60 0"
+    },
+    {
+      "mode_or_roll": 15,
+      "effect": "nausea",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 15 run effect give @s minecraft:nausea 30 0"
+    },
+    {
+      "mode_or_roll": 16,
+      "effect": "night_vision",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 16 run effect give @s minecraft:night_vision 60 0"
+    },
+    {
+      "mode_or_roll": 17,
+      "effect": "poison",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 17 run effect give @s minecraft:poison 30 0"
+    },
+    {
+      "mode_or_roll": 18,
+      "effect": "regeneration",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 18 run effect give @s minecraft:regeneration 30 0"
+    },
+    {
+      "mode_or_roll": 19,
+      "effect": "resistance",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 19 run effect give @s minecraft:resistance 60 0"
+    },
+    {
+      "mode_or_roll": 20,
+      "effect": "saturation",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "3",
+      "raw_command": "execute if score #random84 lbc.math matches 20 run effect give @s minecraft:saturation 1 3"
+    },
+    {
+      "mode_or_roll": 21,
+      "effect": "slow_falling",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 21 run effect give @s minecraft:slow_falling 30 0"
+    },
+    {
+      "mode_or_roll": 22,
+      "effect": "slowness",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 22 run effect give @s minecraft:slowness 60 0"
+    },
+    {
+      "mode_or_roll": 23,
+      "effect": "speed",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 23 run effect give @s minecraft:speed 60 0"
+    },
+    {
+      "mode_or_roll": 24,
+      "effect": "strength",
+      "duration_seconds_or_macro": "40",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 24 run effect give @s minecraft:strength 40 0"
+    },
+    {
+      "mode_or_roll": 25,
+      "effect": "water_breathing",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 25 run effect give @s minecraft:water_breathing 60 0"
+    },
+    {
+      "mode_or_roll": 26,
+      "effect": "weakness",
+      "duration_seconds_or_macro": "40",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 26 run effect give @s minecraft:weakness 40 0"
+    },
+    {
+      "mode_or_roll": 27,
+      "effect": "wither",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 27 run effect give @s minecraft:wither 30 0"
+    },
+    {
+      "mode_or_roll": 28,
+      "effect": "absorption",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random84 lbc.math matches 28 run effect give @s minecraft:absorption 120 1"
+    },
+    {
+      "mode_or_roll": 29,
+      "effect": "blindness",
+      "duration_seconds_or_macro": "40",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 29 run effect give @s minecraft:blindness 40 0"
+    },
+    {
+      "mode_or_roll": 30,
+      "effect": "conduit_power",
+      "duration_seconds_or_macro": "20",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random84 lbc.math matches 30 run effect give @s minecraft:conduit_power 20 1"
+    },
+    {
+      "mode_or_roll": 31,
+      "effect": "fire_resistance",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random84 lbc.math matches 31 run effect give @s minecraft:fire_resistance 60 1"
+    },
+    {
+      "mode_or_roll": 32,
+      "effect": "glowing",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 32 run effect give @s minecraft:glowing 120 0"
+    },
+    {
+      "mode_or_roll": 33,
+      "effect": "haste",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random84 lbc.math matches 33 run effect give @s minecraft:haste 120 1"
+    },
+    {
+      "mode_or_roll": 34,
+      "effect": "health_boost",
+      "duration_seconds_or_macro": "200",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random84 lbc.math matches 34 run effect give @s minecraft:health_boost 200 1"
+    },
+    {
+      "mode_or_roll": 35,
+      "effect": "hunger",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random84 lbc.math matches 35 run effect give @s minecraft:hunger 60 1"
+    },
+    {
+      "mode_or_roll": 36,
+      "effect": "instant_damage",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random84 lbc.math matches 36 run effect give @s minecraft:instant_damage 1 1"
+    },
+    {
+      "mode_or_roll": 37,
+      "effect": "instant_health",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random84 lbc.math matches 37 run effect give @s minecraft:instant_health 1 1"
+    },
+    {
+      "mode_or_roll": 38,
+      "effect": "invisibility",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random84 lbc.math matches 38 run effect give @s minecraft:invisibility 60 1 true"
+    },
+    {
+      "mode_or_roll": 39,
+      "effect": "jump_boost",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random84 lbc.math matches 39 run effect give @s minecraft:jump_boost 60 1"
+    },
+    {
+      "mode_or_roll": 40,
+      "effect": "levitation",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random84 lbc.math matches 40 run effect give @s minecraft:levitation 30 1"
+    },
+    {
+      "mode_or_roll": 41,
+      "effect": "mining_fatigue",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random84 lbc.math matches 41 run effect give @s minecraft:mining_fatigue 60 1"
+    },
+    {
+      "mode_or_roll": 42,
+      "effect": "nausea",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 42 run effect give @s minecraft:nausea 60 0"
+    },
+    {
+      "mode_or_roll": 43,
+      "effect": "night_vision",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 43 run effect give @s minecraft:night_vision 120 0"
+    },
+    {
+      "mode_or_roll": 44,
+      "effect": "poison",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random84 lbc.math matches 44 run effect give @s minecraft:poison 30 1"
+    },
+    {
+      "mode_or_roll": 45,
+      "effect": "regeneration",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random84 lbc.math matches 45 run effect give @s minecraft:regeneration 30 1"
+    },
+    {
+      "mode_or_roll": 46,
+      "effect": "resistance",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random84 lbc.math matches 46 run effect give @s minecraft:resistance 60 1"
+    },
+    {
+      "mode_or_roll": 47,
+      "effect": "saturation",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random84 lbc.math matches 47 run effect give @s minecraft:saturation 1 1"
+    },
+    {
+      "mode_or_roll": 48,
+      "effect": "slow_falling",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 48 run effect give @s minecraft:slow_falling 60 0"
+    },
+    {
+      "mode_or_roll": 49,
+      "effect": "slowness",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random84 lbc.math matches 49 run effect give @s minecraft:slowness 60 1"
+    },
+    {
+      "mode_or_roll": 50,
+      "effect": "speed",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random84 lbc.math matches 50 run effect give @s minecraft:speed 60 1"
+    },
+    {
+      "mode_or_roll": 51,
+      "effect": "strength",
+      "duration_seconds_or_macro": "40",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random84 lbc.math matches 51 run effect give @s minecraft:strength 40 1"
+    },
+    {
+      "mode_or_roll": 52,
+      "effect": "water_breathing",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random84 lbc.math matches 52 run effect give @s minecraft:water_breathing 60 1"
+    },
+    {
+      "mode_or_roll": 53,
+      "effect": "weakness",
+      "duration_seconds_or_macro": "40",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random84 lbc.math matches 53 run effect give @s minecraft:weakness 40 1"
+    },
+    {
+      "mode_or_roll": 54,
+      "effect": "wither",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random84 lbc.math matches 54 run effect give @s minecraft:wither 30 1"
+    },
+    {
+      "mode_or_roll": 55,
+      "effect": "absorption",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random84 lbc.math matches 55 run effect give @s minecraft:absorption 120 2"
+    },
+    {
+      "mode_or_roll": 56,
+      "effect": "blindness",
+      "duration_seconds_or_macro": "100",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 56 run effect give @s minecraft:blindness 100 0"
+    },
+    {
+      "mode_or_roll": 57,
+      "effect": "conduit_power",
+      "duration_seconds_or_macro": "20",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random84 lbc.math matches 57 run effect give @s minecraft:conduit_power 20 2"
+    },
+    {
+      "mode_or_roll": 58,
+      "effect": "fire_resistance",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random84 lbc.math matches 58 run effect give @s minecraft:fire_resistance 60 2"
+    },
+    {
+      "mode_or_roll": 59,
+      "effect": "glowing",
+      "duration_seconds_or_macro": "300",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random84 lbc.math matches 59 run effect give @s minecraft:glowing 300 0"
+    },
+    {
+      "mode_or_roll": 60,
+      "effect": "haste",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random84 lbc.math matches 60 run effect give @s minecraft:haste 120 2"
+    },
+    {
+      "mode_or_roll": 61,
+      "effect": "health_boost",
+      "duration_seconds_or_macro": "200",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random84 lbc.math matches 61 run effect give @s minecraft:health_boost 200 2"
+    },
+    {
+      "mode_or_roll": 62,
+      "effect": "hunger",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random84 lbc.math matches 62 run effect give @s minecraft:hunger 60 2"
+    },
+    {
+      "mode_or_roll": 63,
+      "effect": "instant_damage",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random84 lbc.math matches 63 run effect give @s minecraft:instant_damage 1 2"
+    },
+    {
+      "mode_or_roll": 64,
+      "effect": "instant_health",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random84 lbc.math matches 64 run effect give @s minecraft:instant_health 1 2"
+    },
+    {
+      "mode_or_roll": 65,
+      "effect": "invisibility",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random84 lbc.math matches 65 run effect give @s minecraft:invisibility 120 1 true"
+    },
+    {
+      "mode_or_roll": 66,
+      "effect": "jump_boost",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random84 lbc.math matches 66 run effect give @s minecraft:jump_boost 60 2"
+    },
+    {
+      "mode_or_roll": 67,
+      "effect": "levitation",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random84 lbc.math matches 67 run effect give @s minecraft:levitation 30 2"
+    },
+    {
+      "mode_or_roll": 68,
+      "effect": "mining_fatigue",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random84 lbc.math matches 68 run effect give @s minecraft:mining_fatigue 60 2"
+    },
+    {
+      "mode_or_roll": 69,
+      "effect": "nausea",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random84 lbc.math matches 69 run effect give @s minecraft:nausea 120 2"
+    },
+    {
+      "mode_or_roll": 70,
+      "effect": "night_vision",
+      "duration_seconds_or_macro": "240",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random84 lbc.math matches 70 run effect give @s minecraft:night_vision 240 2"
+    },
+    {
+      "mode_or_roll": 71,
+      "effect": "poison",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random84 lbc.math matches 71 run effect give @s minecraft:poison 30 2"
+    },
+    {
+      "mode_or_roll": 72,
+      "effect": "regeneration",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random84 lbc.math matches 72 run effect give @s minecraft:regeneration 30 2"
+    },
+    {
+      "mode_or_roll": 73,
+      "effect": "resistance",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random84 lbc.math matches 73 run effect give @s minecraft:resistance 60 2"
+    },
+    {
+      "mode_or_roll": 74,
+      "effect": "saturation",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random84 lbc.math matches 74 run effect give @s minecraft:saturation 1 2"
+    },
+    {
+      "mode_or_roll": 75,
+      "effect": "slow_falling",
+      "duration_seconds_or_macro": "180",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random84 lbc.math matches 75 run effect give @s minecraft:slow_falling 180 2"
+    },
+    {
+      "mode_or_roll": 76,
+      "effect": "slowness",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random84 lbc.math matches 76 run effect give @s minecraft:slowness 60 2"
+    },
+    {
+      "mode_or_roll": 77,
+      "effect": "speed",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random84 lbc.math matches 77 run effect give @s minecraft:speed 60 2"
+    },
+    {
+      "mode_or_roll": 78,
+      "effect": "strength",
+      "duration_seconds_or_macro": "40",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random84 lbc.math matches 78 run effect give @s minecraft:strength 40 2"
+    },
+    {
+      "mode_or_roll": 79,
+      "effect": "water_breathing",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random84 lbc.math matches 79 run effect give @s minecraft:water_breathing 60 2"
+    },
+    {
+      "mode_or_roll": 80,
+      "effect": "weakness",
+      "duration_seconds_or_macro": "40",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random84 lbc.math matches 80 run effect give @s minecraft:weakness 40 2"
+    },
+    {
+      "mode_or_roll": 81,
+      "effect": "wither",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random84 lbc.math matches 81 run effect give @s minecraft:wither 30 2"
+    },
+    {
+      "mode_or_roll": 82,
+      "effect": "raid_omen",
+      "duration_seconds_or_macro": "20",
+      "amplifier_or_macro": "40",
+      "raw_command": "execute if score #random84 lbc.math matches 82 run effect give @s minecraft:raid_omen 20 40 true"
+    },
+    {
+      "mode_or_roll": 83,
+      "effect": "raid_omen",
+      "duration_seconds_or_macro": "20",
+      "amplifier_or_macro": "41",
+      "raw_command": "execute if score #random84 lbc.math matches 83 run effect give @s minecraft:raid_omen 20 41 true"
+    },
+    {
+      "mode_or_roll": 84,
+      "effect": "raid_omen",
+      "duration_seconds_or_macro": "20",
+      "amplifier_or_macro": "42",
+      "raw_command": "execute if score #random84 lbc.math matches 84 run effect give @s minecraft:raid_omen 20 42 true"
+    }
+  ],
+  "badwiki_old": [
+    {
+      "mode_or_roll": 1,
+      "effect": "absorption",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 1 run effect give @s minecraft:absorption 120 0"
+    },
+    {
+      "mode_or_roll": 2,
+      "effect": "blindness",
+      "duration_seconds_or_macro": "20",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 2 run effect give @s minecraft:blindness 20 0"
+    },
+    {
+      "mode_or_roll": 3,
+      "effect": "conduit_power",
+      "duration_seconds_or_macro": "20",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 3 run effect give @s minecraft:conduit_power 20 0"
+    },
+    {
+      "mode_or_roll": 4,
+      "effect": "fire_resistance",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 4 run effect give @s minecraft:fire_resistance 60 0"
+    },
+    {
+      "mode_or_roll": 5,
+      "effect": "glowing",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 5 run effect give @s minecraft:glowing 60 0"
+    },
+    {
+      "mode_or_roll": 6,
+      "effect": "haste",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 6 run effect give @s minecraft:haste 120 0"
+    },
+    {
+      "mode_or_roll": 7,
+      "effect": "health_boost",
+      "duration_seconds_or_macro": "200",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 7 run effect give @s minecraft:health_boost 200 0"
+    },
+    {
+      "mode_or_roll": 8,
+      "effect": "hunger",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 8 run effect give @s minecraft:hunger 60 0"
+    },
+    {
+      "mode_or_roll": 9,
+      "effect": "instant_damage",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 9 run effect give @s minecraft:instant_damage 1 0"
+    },
+    {
+      "mode_or_roll": 10,
+      "effect": "instant_health",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 10 run effect give @s minecraft:instant_health 1 0"
+    },
+    {
+      "mode_or_roll": 11,
+      "effect": "invisibility",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 11 run effect give @s minecraft:invisibility 60 0"
+    },
+    {
+      "mode_or_roll": 12,
+      "effect": "jump_boost",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 12 run effect give @s minecraft:jump_boost 60 0"
+    },
+    {
+      "mode_or_roll": 13,
+      "effect": "levitation",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 13 run effect give @s minecraft:levitation 30 0"
+    },
+    {
+      "mode_or_roll": 14,
+      "effect": "mining_fatigue",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 14 run effect give @s minecraft:mining_fatigue 60 0"
+    },
+    {
+      "mode_or_roll": 15,
+      "effect": "nausea",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 15 run effect give @s minecraft:nausea 30 0"
+    },
+    {
+      "mode_or_roll": 16,
+      "effect": "night_vision",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 16 run effect give @s minecraft:night_vision 60 0"
+    },
+    {
+      "mode_or_roll": 17,
+      "effect": "poison",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 17 run effect give @s minecraft:poison 30 0"
+    },
+    {
+      "mode_or_roll": 18,
+      "effect": "regeneration",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 18 run effect give @s minecraft:regeneration 30 0"
+    },
+    {
+      "mode_or_roll": 19,
+      "effect": "resistance",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 19 run effect give @s minecraft:resistance 60 0"
+    },
+    {
+      "mode_or_roll": 20,
+      "effect": "saturation",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "3",
+      "raw_command": "execute if score #random81 lbc.math matches 20 run effect give @s minecraft:saturation 1 3"
+    },
+    {
+      "mode_or_roll": 21,
+      "effect": "slow_falling",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 21 run effect give @s minecraft:slow_falling 30 0"
+    },
+    {
+      "mode_or_roll": 22,
+      "effect": "slowness",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 22 run effect give @s minecraft:slowness 60 0"
+    },
+    {
+      "mode_or_roll": 23,
+      "effect": "speed",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 23 run effect give @s minecraft:speed 60 0"
+    },
+    {
+      "mode_or_roll": 24,
+      "effect": "strength",
+      "duration_seconds_or_macro": "40",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 24 run effect give @s minecraft:strength 40 0"
+    },
+    {
+      "mode_or_roll": 25,
+      "effect": "water_breathing",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 25 run effect give @s minecraft:water_breathing 60 0"
+    },
+    {
+      "mode_or_roll": 26,
+      "effect": "weakness",
+      "duration_seconds_or_macro": "40",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 26 run effect give @s minecraft:weakness 40 0"
+    },
+    {
+      "mode_or_roll": 27,
+      "effect": "wither",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 27 run effect give @s minecraft:wither 30 0"
+    },
+    {
+      "mode_or_roll": 28,
+      "effect": "absorption",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random81 lbc.math matches 28 run effect give @s minecraft:absorption 120 1"
+    },
+    {
+      "mode_or_roll": 29,
+      "effect": "blindness",
+      "duration_seconds_or_macro": "40",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 29 run effect give @s minecraft:blindness 40 0"
+    },
+    {
+      "mode_or_roll": 30,
+      "effect": "conduit_power",
+      "duration_seconds_or_macro": "20",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random81 lbc.math matches 30 run effect give @s minecraft:conduit_power 20 1"
+    },
+    {
+      "mode_or_roll": 31,
+      "effect": "fire_resistance",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random81 lbc.math matches 31 run effect give @s minecraft:fire_resistance 60 1"
+    },
+    {
+      "mode_or_roll": 32,
+      "effect": "glowing",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 32 run effect give @s minecraft:glowing 120 0"
+    },
+    {
+      "mode_or_roll": 33,
+      "effect": "haste",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random81 lbc.math matches 33 run effect give @s minecraft:haste 120 1"
+    },
+    {
+      "mode_or_roll": 34,
+      "effect": "health_boost",
+      "duration_seconds_or_macro": "200",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random81 lbc.math matches 34 run effect give @s minecraft:health_boost 200 1"
+    },
+    {
+      "mode_or_roll": 35,
+      "effect": "hunger",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random81 lbc.math matches 35 run effect give @s minecraft:hunger 60 1"
+    },
+    {
+      "mode_or_roll": 36,
+      "effect": "instant_damage",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random81 lbc.math matches 36 run effect give @s minecraft:instant_damage 1 1"
+    },
+    {
+      "mode_or_roll": 37,
+      "effect": "instant_health",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random81 lbc.math matches 37 run effect give @s minecraft:instant_health 1 1"
+    },
+    {
+      "mode_or_roll": 38,
+      "effect": "invisibility",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random81 lbc.math matches 38 run effect give @s minecraft:invisibility 60 1 true"
+    },
+    {
+      "mode_or_roll": 39,
+      "effect": "jump_boost",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random81 lbc.math matches 39 run effect give @s minecraft:jump_boost 60 1"
+    },
+    {
+      "mode_or_roll": 40,
+      "effect": "levitation",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random81 lbc.math matches 40 run effect give @s minecraft:levitation 30 1"
+    },
+    {
+      "mode_or_roll": 41,
+      "effect": "mining_fatigue",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random81 lbc.math matches 41 run effect give @s minecraft:mining_fatigue 60 1"
+    },
+    {
+      "mode_or_roll": 42,
+      "effect": "nausea",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 42 run effect give @s minecraft:nausea 60 0"
+    },
+    {
+      "mode_or_roll": 43,
+      "effect": "night_vision",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 43 run effect give @s minecraft:night_vision 120 0"
+    },
+    {
+      "mode_or_roll": 44,
+      "effect": "poison",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random81 lbc.math matches 44 run effect give @s minecraft:poison 30 1"
+    },
+    {
+      "mode_or_roll": 45,
+      "effect": "regeneration",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random81 lbc.math matches 45 run effect give @s minecraft:regeneration 30 1"
+    },
+    {
+      "mode_or_roll": 46,
+      "effect": "resistance",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random81 lbc.math matches 46 run effect give @s minecraft:resistance 60 1"
+    },
+    {
+      "mode_or_roll": 47,
+      "effect": "saturation",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random81 lbc.math matches 47 run effect give @s minecraft:saturation 1 1"
+    },
+    {
+      "mode_or_roll": 48,
+      "effect": "slow_falling",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 48 run effect give @s minecraft:slow_falling 60 0"
+    },
+    {
+      "mode_or_roll": 49,
+      "effect": "slowness",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random81 lbc.math matches 49 run effect give @s minecraft:slowness 60 1"
+    },
+    {
+      "mode_or_roll": 50,
+      "effect": "speed",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random81 lbc.math matches 50 run effect give @s minecraft:speed 60 1"
+    },
+    {
+      "mode_or_roll": 51,
+      "effect": "strength",
+      "duration_seconds_or_macro": "40",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random81 lbc.math matches 51 run effect give @s minecraft:strength 40 1"
+    },
+    {
+      "mode_or_roll": 52,
+      "effect": "water_breathing",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random81 lbc.math matches 52 run effect give @s minecraft:water_breathing 60 1"
+    },
+    {
+      "mode_or_roll": 53,
+      "effect": "weakness",
+      "duration_seconds_or_macro": "40",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random81 lbc.math matches 53 run effect give @s minecraft:weakness 40 1"
+    },
+    {
+      "mode_or_roll": 54,
+      "effect": "wither",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random81 lbc.math matches 54 run effect give @s minecraft:wither 30 1"
+    },
+    {
+      "mode_or_roll": 55,
+      "effect": "absorption",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random81 lbc.math matches 55 run effect give @s minecraft:absorption 120 2"
+    },
+    {
+      "mode_or_roll": 56,
+      "effect": "blindness",
+      "duration_seconds_or_macro": "100",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 56 run effect give @s minecraft:blindness 100 0"
+    },
+    {
+      "mode_or_roll": 57,
+      "effect": "conduit_power",
+      "duration_seconds_or_macro": "20",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random81 lbc.math matches 57 run effect give @s minecraft:conduit_power 20 2"
+    },
+    {
+      "mode_or_roll": 58,
+      "effect": "fire_resistance",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random81 lbc.math matches 58 run effect give @s minecraft:fire_resistance 60 2"
+    },
+    {
+      "mode_or_roll": 59,
+      "effect": "glowing",
+      "duration_seconds_or_macro": "300",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score #random81 lbc.math matches 59 run effect give @s minecraft:glowing 300 0"
+    },
+    {
+      "mode_or_roll": 60,
+      "effect": "haste",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random81 lbc.math matches 60 run effect give @s minecraft:haste 120 2"
+    },
+    {
+      "mode_or_roll": 61,
+      "effect": "health_boost",
+      "duration_seconds_or_macro": "200",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random81 lbc.math matches 61 run effect give @s minecraft:health_boost 200 2"
+    },
+    {
+      "mode_or_roll": 62,
+      "effect": "hunger",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random81 lbc.math matches 62 run effect give @s minecraft:hunger 60 2"
+    },
+    {
+      "mode_or_roll": 63,
+      "effect": "instant_damage",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random81 lbc.math matches 63 run effect give @s minecraft:instant_damage 1 2"
+    },
+    {
+      "mode_or_roll": 64,
+      "effect": "instant_health",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random81 lbc.math matches 64 run effect give @s minecraft:instant_health 1 2"
+    },
+    {
+      "mode_or_roll": 65,
+      "effect": "invisibility",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score #random81 lbc.math matches 65 run effect give @s minecraft:invisibility 120 1 true"
+    },
+    {
+      "mode_or_roll": 66,
+      "effect": "jump_boost",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random81 lbc.math matches 66 run effect give @s minecraft:jump_boost 60 2"
+    },
+    {
+      "mode_or_roll": 67,
+      "effect": "levitation",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random81 lbc.math matches 67 run effect give @s minecraft:levitation 30 2"
+    },
+    {
+      "mode_or_roll": 68,
+      "effect": "mining_fatigue",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random81 lbc.math matches 68 run effect give @s minecraft:mining_fatigue 60 2"
+    },
+    {
+      "mode_or_roll": 69,
+      "effect": "nausea",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random81 lbc.math matches 69 run effect give @s minecraft:nausea 120 2"
+    },
+    {
+      "mode_or_roll": 70,
+      "effect": "night_vision",
+      "duration_seconds_or_macro": "240",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random81 lbc.math matches 70 run effect give @s minecraft:night_vision 240 2"
+    },
+    {
+      "mode_or_roll": 71,
+      "effect": "poison",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random81 lbc.math matches 71 run effect give @s minecraft:poison 30 2"
+    },
+    {
+      "mode_or_roll": 72,
+      "effect": "regeneration",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random81 lbc.math matches 72 run effect give @s minecraft:regeneration 30 2"
+    },
+    {
+      "mode_or_roll": 73,
+      "effect": "resistance",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random81 lbc.math matches 73 run effect give @s minecraft:resistance 60 2"
+    },
+    {
+      "mode_or_roll": 74,
+      "effect": "saturation",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random81 lbc.math matches 74 run effect give @s minecraft:saturation 1 2"
+    },
+    {
+      "mode_or_roll": 75,
+      "effect": "slow_falling",
+      "duration_seconds_or_macro": "180",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random81 lbc.math matches 75 run effect give @s minecraft:slow_falling 180 2"
+    },
+    {
+      "mode_or_roll": 76,
+      "effect": "slowness",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random81 lbc.math matches 76 run effect give @s minecraft:slowness 60 2"
+    },
+    {
+      "mode_or_roll": 77,
+      "effect": "speed",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random81 lbc.math matches 77 run effect give @s minecraft:speed 60 2"
+    },
+    {
+      "mode_or_roll": 78,
+      "effect": "strength",
+      "duration_seconds_or_macro": "40",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random81 lbc.math matches 78 run effect give @s minecraft:strength 40 2"
+    },
+    {
+      "mode_or_roll": 79,
+      "effect": "water_breathing",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random81 lbc.math matches 79 run effect give @s minecraft:water_breathing 60 2"
+    },
+    {
+      "mode_or_roll": 80,
+      "effect": "weakness",
+      "duration_seconds_or_macro": "40",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random81 lbc.math matches 80 run effect give @s minecraft:weakness 40 2"
+    },
+    {
+      "mode_or_roll": 81,
+      "effect": "wither",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score #random81 lbc.math matches 81 run effect give @s minecraft:wither 30 2"
+    }
+  ],
+  "badwiki_lib": [
+    {
+      "mode_or_roll": 28,
+      "effect": "absorption",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 28 run effect give @s minecraft:absorption 120 0"
+    },
+    {
+      "mode_or_roll": 29,
+      "effect": "blindness",
+      "duration_seconds_or_macro": "20",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 29 run effect give @s minecraft:blindness 20 0"
+    },
+    {
+      "mode_or_roll": 30,
+      "effect": "conduit_power",
+      "duration_seconds_or_macro": "20",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 30 run effect give @s minecraft:conduit_power 20 0"
+    },
+    {
+      "mode_or_roll": 31,
+      "effect": "fire_resistance",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 31 run effect give @s minecraft:fire_resistance 60 0"
+    },
+    {
+      "mode_or_roll": 32,
+      "effect": "glowing",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 32 run effect give @s minecraft:glowing 60 0"
+    },
+    {
+      "mode_or_roll": 33,
+      "effect": "haste",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 33 run effect give @s minecraft:haste 120 0"
+    },
+    {
+      "mode_or_roll": 34,
+      "effect": "health_boost",
+      "duration_seconds_or_macro": "200",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 34 run effect give @s minecraft:health_boost 200 0"
+    },
+    {
+      "mode_or_roll": 35,
+      "effect": "hunger",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 35 run effect give @s minecraft:hunger 60 0"
+    },
+    {
+      "mode_or_roll": 36,
+      "effect": "instant_damage",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 36 run effect give @s minecraft:instant_damage 1 0"
+    },
+    {
+      "mode_or_roll": 37,
+      "effect": "instant_health",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 37 run effect give @s minecraft:instant_health 1 0"
+    },
+    {
+      "mode_or_roll": 38,
+      "effect": "invisibility",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 38 run effect give @s minecraft:invisibility 60 0"
+    },
+    {
+      "mode_or_roll": 39,
+      "effect": "jump_boost",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 39 run effect give @s minecraft:jump_boost 60 0"
+    },
+    {
+      "mode_or_roll": 40,
+      "effect": "levitation",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 40 run effect give @s minecraft:levitation 30 0"
+    },
+    {
+      "mode_or_roll": 41,
+      "effect": "mining_fatigue",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 41 run effect give @s minecraft:mining_fatigue 60 0"
+    },
+    {
+      "mode_or_roll": 42,
+      "effect": "nausea",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 42 run effect give @s minecraft:nausea 30 0"
+    },
+    {
+      "mode_or_roll": 43,
+      "effect": "night_vision",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 43 run effect give @s minecraft:night_vision 60 0"
+    },
+    {
+      "mode_or_roll": 44,
+      "effect": "poison",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 44 run effect give @s minecraft:poison 30 0"
+    },
+    {
+      "mode_or_roll": 45,
+      "effect": "regeneration",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 45 run effect give @s minecraft:regeneration 30 0"
+    },
+    {
+      "mode_or_roll": 46,
+      "effect": "resistance",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 46 run effect give @s minecraft:resistance 60 0"
+    },
+    {
+      "mode_or_roll": 47,
+      "effect": "saturation",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "3",
+      "raw_command": "execute if score spell lbc.math matches 47 run effect give @s minecraft:saturation 1 3"
+    },
+    {
+      "mode_or_roll": 48,
+      "effect": "slow_falling",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 48 run effect give @s minecraft:slow_falling 30 0"
+    },
+    {
+      "mode_or_roll": 49,
+      "effect": "slowness",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 49 run effect give @s minecraft:slowness 60 0"
+    },
+    {
+      "mode_or_roll": 50,
+      "effect": "speed",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 50 run effect give @s minecraft:speed 60 0"
+    },
+    {
+      "mode_or_roll": 51,
+      "effect": "strength",
+      "duration_seconds_or_macro": "40",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 51 run effect give @s minecraft:strength 40 0"
+    },
+    {
+      "mode_or_roll": 52,
+      "effect": "water_breathing",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 52 run effect give @s minecraft:water_breathing 60 0"
+    },
+    {
+      "mode_or_roll": 53,
+      "effect": "weakness",
+      "duration_seconds_or_macro": "40",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 53 run effect give @s minecraft:weakness 40 0"
+    },
+    {
+      "mode_or_roll": 54,
+      "effect": "wither",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 54 run effect give @s minecraft:wither 30 0"
+    },
+    {
+      "mode_or_roll": 55,
+      "effect": "absorption",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score spell lbc.math matches 55 run effect give @s minecraft:absorption 120 1"
+    },
+    {
+      "mode_or_roll": 56,
+      "effect": "blindness",
+      "duration_seconds_or_macro": "40",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 56 run effect give @s minecraft:blindness 40 0"
+    },
+    {
+      "mode_or_roll": 57,
+      "effect": "conduit_power",
+      "duration_seconds_or_macro": "20",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score spell lbc.math matches 57 run effect give @s minecraft:conduit_power 20 1"
+    },
+    {
+      "mode_or_roll": 58,
+      "effect": "fire_resistance",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score spell lbc.math matches 58 run effect give @s minecraft:fire_resistance 60 1"
+    },
+    {
+      "mode_or_roll": 59,
+      "effect": "glowing",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 59 run effect give @s minecraft:glowing 120 0"
+    },
+    {
+      "mode_or_roll": 60,
+      "effect": "haste",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score spell lbc.math matches 60 run effect give @s minecraft:haste 120 1"
+    },
+    {
+      "mode_or_roll": 61,
+      "effect": "health_boost",
+      "duration_seconds_or_macro": "200",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score spell lbc.math matches 61 run effect give @s minecraft:health_boost 200 1"
+    },
+    {
+      "mode_or_roll": 62,
+      "effect": "hunger",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score spell lbc.math matches 62 run effect give @s minecraft:hunger 60 1"
+    },
+    {
+      "mode_or_roll": 63,
+      "effect": "instant_damage",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score spell lbc.math matches 63 run effect give @s minecraft:instant_damage 1 1"
+    },
+    {
+      "mode_or_roll": 64,
+      "effect": "instant_health",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score spell lbc.math matches 64 run effect give @s minecraft:instant_health 1 1"
+    },
+    {
+      "mode_or_roll": 65,
+      "effect": "invisibility",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score spell lbc.math matches 65 run effect give @s minecraft:invisibility 60 1 true"
+    },
+    {
+      "mode_or_roll": 66,
+      "effect": "jump_boost",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score spell lbc.math matches 66 run effect give @s minecraft:jump_boost 60 1"
+    },
+    {
+      "mode_or_roll": 67,
+      "effect": "levitation",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score spell lbc.math matches 67 run effect give @s minecraft:levitation 30 1"
+    },
+    {
+      "mode_or_roll": 68,
+      "effect": "mining_fatigue",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score spell lbc.math matches 68 run effect give @s minecraft:mining_fatigue 60 1"
+    },
+    {
+      "mode_or_roll": 69,
+      "effect": "nausea",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 69 run effect give @s minecraft:nausea 60 0"
+    },
+    {
+      "mode_or_roll": 70,
+      "effect": "night_vision",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 70 run effect give @s minecraft:night_vision 120 0"
+    },
+    {
+      "mode_or_roll": 71,
+      "effect": "poison",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score spell lbc.math matches 71 run effect give @s minecraft:poison 30 1"
+    },
+    {
+      "mode_or_roll": 72,
+      "effect": "regeneration",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score spell lbc.math matches 72 run effect give @s minecraft:regeneration 30 1"
+    },
+    {
+      "mode_or_roll": 73,
+      "effect": "resistance",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score spell lbc.math matches 73 run effect give @s minecraft:resistance 60 1"
+    },
+    {
+      "mode_or_roll": 74,
+      "effect": "saturation",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score spell lbc.math matches 74 run effect give @s minecraft:saturation 1 1"
+    },
+    {
+      "mode_or_roll": 75,
+      "effect": "slow_falling",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 75 run effect give @s minecraft:slow_falling 60 0"
+    },
+    {
+      "mode_or_roll": 76,
+      "effect": "slowness",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score spell lbc.math matches 76 run effect give @s minecraft:slowness 60 1"
+    },
+    {
+      "mode_or_roll": 77,
+      "effect": "speed",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score spell lbc.math matches 77 run effect give @s minecraft:speed 60 1"
+    },
+    {
+      "mode_or_roll": 78,
+      "effect": "strength",
+      "duration_seconds_or_macro": "40",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score spell lbc.math matches 78 run effect give @s minecraft:strength 40 1"
+    },
+    {
+      "mode_or_roll": 79,
+      "effect": "water_breathing",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score spell lbc.math matches 79 run effect give @s minecraft:water_breathing 60 1"
+    },
+    {
+      "mode_or_roll": 80,
+      "effect": "weakness",
+      "duration_seconds_or_macro": "40",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score spell lbc.math matches 80 run effect give @s minecraft:weakness 40 1"
+    },
+    {
+      "mode_or_roll": 81,
+      "effect": "wither",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score spell lbc.math matches 81 run effect give @s minecraft:wither 30 1"
+    },
+    {
+      "mode_or_roll": 82,
+      "effect": "absorption",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score spell lbc.math matches 82 run effect give @s minecraft:absorption 120 2"
+    },
+    {
+      "mode_or_roll": 83,
+      "effect": "blindness",
+      "duration_seconds_or_macro": "100",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 83 run effect give @s minecraft:blindness 100 0"
+    },
+    {
+      "mode_or_roll": 84,
+      "effect": "conduit_power",
+      "duration_seconds_or_macro": "20",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score spell lbc.math matches 84 run effect give @s minecraft:conduit_power 20 2"
+    },
+    {
+      "mode_or_roll": 85,
+      "effect": "fire_resistance",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score spell lbc.math matches 85 run effect give @s minecraft:fire_resistance 60 2"
+    },
+    {
+      "mode_or_roll": 86,
+      "effect": "glowing",
+      "duration_seconds_or_macro": "300",
+      "amplifier_or_macro": "0",
+      "raw_command": "execute if score spell lbc.math matches 86 run effect give @s minecraft:glowing 300 0"
+    },
+    {
+      "mode_or_roll": 87,
+      "effect": "haste",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score spell lbc.math matches 87 run effect give @s minecraft:haste 120 2"
+    },
+    {
+      "mode_or_roll": 88,
+      "effect": "health_boost",
+      "duration_seconds_or_macro": "200",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score spell lbc.math matches 88 run effect give @s minecraft:health_boost 200 2"
+    },
+    {
+      "mode_or_roll": 89,
+      "effect": "hunger",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score spell lbc.math matches 89 run effect give @s minecraft:hunger 60 2"
+    },
+    {
+      "mode_or_roll": 90,
+      "effect": "instant_damage",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score spell lbc.math matches 90 run effect give @s minecraft:instant_damage 1 2"
+    },
+    {
+      "mode_or_roll": 91,
+      "effect": "instant_health",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score spell lbc.math matches 91 run effect give @s minecraft:instant_health 1 2"
+    },
+    {
+      "mode_or_roll": 92,
+      "effect": "invisibility",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "1",
+      "raw_command": "execute if score spell lbc.math matches 92 run effect give @s minecraft:invisibility 120 1 true"
+    },
+    {
+      "mode_or_roll": 93,
+      "effect": "jump_boost",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score spell lbc.math matches 93 run effect give @s minecraft:jump_boost 60 2"
+    },
+    {
+      "mode_or_roll": 94,
+      "effect": "levitation",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score spell lbc.math matches 94 run effect give @s minecraft:levitation 30 2"
+    },
+    {
+      "mode_or_roll": 95,
+      "effect": "mining_fatigue",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score spell lbc.math matches 95 run effect give @s minecraft:mining_fatigue 60 2"
+    },
+    {
+      "mode_or_roll": 96,
+      "effect": "nausea",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score spell lbc.math matches 96 run effect give @s minecraft:nausea 120 2"
+    },
+    {
+      "mode_or_roll": 97,
+      "effect": "night_vision",
+      "duration_seconds_or_macro": "240",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score spell lbc.math matches 97 run effect give @s minecraft:night_vision 240 2"
+    },
+    {
+      "mode_or_roll": 98,
+      "effect": "poison",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score spell lbc.math matches 98 run effect give @s minecraft:poison 30 2"
+    },
+    {
+      "mode_or_roll": 99,
+      "effect": "regeneration",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score spell lbc.math matches 99 run effect give @s minecraft:regeneration 30 2"
+    },
+    {
+      "mode_or_roll": 100,
+      "effect": "resistance",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score spell lbc.math matches 100 run effect give @s minecraft:resistance 60 2"
+    },
+    {
+      "mode_or_roll": 101,
+      "effect": "saturation",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score spell lbc.math matches 101 run effect give @s minecraft:saturation 1 2"
+    },
+    {
+      "mode_or_roll": 102,
+      "effect": "slow_falling",
+      "duration_seconds_or_macro": "180",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score spell lbc.math matches 102 run effect give @s minecraft:slow_falling 180 2"
+    },
+    {
+      "mode_or_roll": 103,
+      "effect": "slowness",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score spell lbc.math matches 103 run effect give @s minecraft:slowness 60 2"
+    },
+    {
+      "mode_or_roll": 104,
+      "effect": "speed",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score spell lbc.math matches 104 run effect give @s minecraft:speed 60 2"
+    },
+    {
+      "mode_or_roll": 105,
+      "effect": "strength",
+      "duration_seconds_or_macro": "40",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score spell lbc.math matches 105 run effect give @s minecraft:strength 40 2"
+    },
+    {
+      "mode_or_roll": 106,
+      "effect": "water_breathing",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score spell lbc.math matches 106 run effect give @s minecraft:water_breathing 60 2"
+    },
+    {
+      "mode_or_roll": 107,
+      "effect": "weakness",
+      "duration_seconds_or_macro": "40",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score spell lbc.math matches 107 run effect give @s minecraft:weakness 40 2"
+    },
+    {
+      "mode_or_roll": 108,
+      "effect": "wither",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "2",
+      "raw_command": "execute if score spell lbc.math matches 108 run effect give @s minecraft:wither 30 2"
+    },
+    {
+      "mode_or_roll": 109,
+      "effect": "raid_omen",
+      "duration_seconds_or_macro": "20",
+      "amplifier_or_macro": "40",
+      "raw_command": "execute if score spell lbc.math matches 109 run effect give @s minecraft:raid_omen 20 40 true"
+    },
+    {
+      "mode_or_roll": 110,
+      "effect": "raid_omen",
+      "duration_seconds_or_macro": "20",
+      "amplifier_or_macro": "41",
+      "raw_command": "execute if score spell lbc.math matches 110 run effect give @s minecraft:raid_omen 20 41 true"
+    },
+    {
+      "mode_or_roll": 111,
+      "effect": "raid_omen",
+      "duration_seconds_or_macro": "20",
+      "amplifier_or_macro": "42",
+      "raw_command": "execute if score spell lbc.math matches 111 run effect give @s minecraft:raid_omen 20 42 true"
+    }
+  ],
+  "badwiki_upgraded": [
+    {
+      "mode_or_roll": 1,
+      "effect": "absorption",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 1 run effect give @s minecraft:absorption 120 $(tier)"
+    },
+    {
+      "mode_or_roll": 2,
+      "effect": "blindness",
+      "duration_seconds_or_macro": "20",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 2 run effect give @s minecraft:blindness 20 $(tier)"
+    },
+    {
+      "mode_or_roll": 3,
+      "effect": "conduit_power",
+      "duration_seconds_or_macro": "20",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 3 run effect give @s minecraft:conduit_power 20 $(tier)"
+    },
+    {
+      "mode_or_roll": 4,
+      "effect": "fire_resistance",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 4 run effect give @s minecraft:fire_resistance 60 $(tier)"
+    },
+    {
+      "mode_or_roll": 5,
+      "effect": "glowing",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 5 run effect give @s minecraft:glowing 60 $(tier)"
+    },
+    {
+      "mode_or_roll": 6,
+      "effect": "haste",
+      "duration_seconds_or_macro": "120",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 6 run effect give @s minecraft:haste 120 $(tier)"
+    },
+    {
+      "mode_or_roll": 7,
+      "effect": "health_boost",
+      "duration_seconds_or_macro": "200",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 7 run effect give @s minecraft:health_boost 200 $(tier)"
+    },
+    {
+      "mode_or_roll": 8,
+      "effect": "hunger",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 8 run effect give @s minecraft:hunger 60 $(tier)"
+    },
+    {
+      "mode_or_roll": 9,
+      "effect": "instant_damage",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 9 run effect give @s minecraft:instant_damage 1 $(tier)"
+    },
+    {
+      "mode_or_roll": 10,
+      "effect": "instant_health",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 10 run effect give @s minecraft:instant_health 1 $(tier)"
+    },
+    {
+      "mode_or_roll": 11,
+      "effect": "invisibility",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 11 run effect give @s minecraft:invisibility 60 $(tier)"
+    },
+    {
+      "mode_or_roll": 12,
+      "effect": "jump_boost",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 12 run effect give @s minecraft:jump_boost 60 $(tier)"
+    },
+    {
+      "mode_or_roll": 13,
+      "effect": "levitation",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 13 run effect give @s minecraft:levitation 30 $(tier)"
+    },
+    {
+      "mode_or_roll": 14,
+      "effect": "mining_fatigue",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 14 run effect give @s minecraft:mining_fatigue 60 $(tier)"
+    },
+    {
+      "mode_or_roll": 15,
+      "effect": "nausea",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 15 run effect give @s minecraft:nausea 30 $(tier)"
+    },
+    {
+      "mode_or_roll": 16,
+      "effect": "night_vision",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 16 run effect give @s minecraft:night_vision 60 $(tier)"
+    },
+    {
+      "mode_or_roll": 17,
+      "effect": "poison",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 17 run effect give @s minecraft:poison 30 $(tier)"
+    },
+    {
+      "mode_or_roll": 18,
+      "effect": "regeneration",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 18 run effect give @s minecraft:regeneration 30 $(tier)"
+    },
+    {
+      "mode_or_roll": 19,
+      "effect": "resistance",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 19 run effect give @s minecraft:resistance 60 $(tier)"
+    },
+    {
+      "mode_or_roll": 20,
+      "effect": "saturation",
+      "duration_seconds_or_macro": "1",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 20 run effect give @s minecraft:saturation 1 $(tier)"
+    },
+    {
+      "mode_or_roll": 21,
+      "effect": "slow_falling",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 21 run effect give @s minecraft:slow_falling 30 $(tier)"
+    },
+    {
+      "mode_or_roll": 22,
+      "effect": "slowness",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 22 run effect give @s minecraft:slowness 60 $(tier)"
+    },
+    {
+      "mode_or_roll": 23,
+      "effect": "speed",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 23 run effect give @s minecraft:speed 60 $(tier)"
+    },
+    {
+      "mode_or_roll": 24,
+      "effect": "strength",
+      "duration_seconds_or_macro": "40",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 24 run effect give @s minecraft:strength 40 $(tier)"
+    },
+    {
+      "mode_or_roll": 25,
+      "effect": "water_breathing",
+      "duration_seconds_or_macro": "60",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 25 run effect give @s minecraft:water_breathing 60 $(tier)"
+    },
+    {
+      "mode_or_roll": 26,
+      "effect": "weakness",
+      "duration_seconds_or_macro": "40",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 26 run effect give @s minecraft:weakness 40 $(tier)"
+    },
+    {
+      "mode_or_roll": 27,
+      "effect": "wither",
+      "duration_seconds_or_macro": "30",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 27 run effect give @s minecraft:wither 30 $(tier)"
+    },
+    {
+      "mode_or_roll": 28,
+      "effect": "raid_omen",
+      "duration_seconds_or_macro": "20",
+      "amplifier_or_macro": "$(tier)",
+      "raw_command": "$execute if score #mode lbc.math matches 28 run effect give @s minecraft:raid_omen 20 $(tier) true"
+    }
+  ]
+}

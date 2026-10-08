@@ -1,0 +1,1024 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gain/challenge.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Назначение наборов и наград",
+    "status": "documented",
+    "note": "Установлен вызывающий event и показанное игроку уведомление/гейт."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gain/challenge_completed.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Назначение наборов и наград",
+    "status": "documented",
+    "note": "Установлен вызывающий event и показанное игроку уведомление/гейт."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gain/death_effect.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Назначение наборов и наград",
+    "status": "documented",
+    "note": "Установлен вызывающий event и показанное игроку уведомление/гейт."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gain/default_kill_effect.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Назначение наборов и наград",
+    "status": "documented",
+    "note": "Установлен вызывающий event и показанное игроку уведомление/гейт."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gain/default_kit.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Назначение наборов и наград",
+    "status": "documented",
+    "note": "Установлен вызывающий event и показанное игроку уведомление/гейт."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gain/default_skill.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Назначение наборов и наград",
+    "status": "documented",
+    "note": "Установлен вызывающий event и показанное игроку уведомление/гейт."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gain/kit.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Назначение наборов и наград",
+    "status": "documented",
+    "note": "Установлен вызывающий event и показанное игроку уведомление/гейт."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gain/levelup.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Назначение наборов и наград",
+    "status": "documented",
+    "note": "Установлен вызывающий event и показанное игроку уведомление/гейт."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gain/skill.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Назначение наборов и наград",
+    "status": "documented",
+    "note": "Установлен вызывающий event и показанное игроку уведомление/гейт."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gain/skill_acidman.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Назначение наборов и наград",
+    "status": "documented",
+    "note": "Установлен вызывающий event и показанное игроку уведомление/гейт."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gain/skill_minigun.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Назначение наборов и наград",
+    "status": "documented",
+    "note": "Установлен вызывающий event и показанное игроку уведомление/гейт."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gain/trinket.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Назначение наборов и наград",
+    "status": "documented",
+    "note": "Установлен вызывающий event и показанное игроку уведомление/гейт."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/build_manager/open.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/build_manager/open1.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/correct_negative_pick_tmp.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/10000.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "GUI: страницы и выборы",
+    "status": "documented",
+    "note": "Проверены построение страницы, слоты EnderItems и применяемые unlock-маркеры; вариации страниц перечислены в каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/10000_ranked.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "GUI: страницы и выборы",
+    "status": "documented",
+    "note": "Проверены построение страницы, слоты EnderItems и применяемые unlock-маркеры; вариации страниц перечислены в каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/10100.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "GUI: страницы и выборы",
+    "status": "documented",
+    "note": "Проверены построение страницы, слоты EnderItems и применяемые unlock-маркеры; вариации страниц перечислены в каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/10100_ranked.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "GUI: страницы и выборы",
+    "status": "documented",
+    "note": "Проверены построение страницы, слоты EnderItems и применяемые unlock-маркеры; вариации страниц перечислены в каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/11000.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "GUI: страницы и выборы",
+    "status": "documented",
+    "note": "Проверены построение страницы, слоты EnderItems и применяемые unlock-маркеры; вариации страниц перечислены в каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/11000_ranked.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "GUI: страницы и выборы",
+    "status": "documented",
+    "note": "Проверены построение страницы, слоты EnderItems и применяемые unlock-маркеры; вариации страниц перечислены в каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/11000_x.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "GUI: страницы и выборы",
+    "status": "documented",
+    "note": "Проверены построение страницы, слоты EnderItems и применяемые unlock-маркеры; вариации страниц перечислены в каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/11000_x1.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "GUI: страницы и выборы",
+    "status": "documented",
+    "note": "Проверены построение страницы, слоты EnderItems и применяемые unlock-маркеры; вариации страниц перечислены в каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/11100.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "GUI: страницы и выборы",
+    "status": "documented",
+    "note": "Проверены построение страницы, слоты EnderItems и применяемые unlock-маркеры; вариации страниц перечислены в каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/12000.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "GUI: страницы и выборы",
+    "status": "documented",
+    "note": "Проверены построение страницы, слоты EnderItems и применяемые unlock-маркеры; вариации страниц перечислены в каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/12000_ranked.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "GUI: страницы и выборы",
+    "status": "documented",
+    "note": "Проверены построение страницы, слоты EnderItems и применяемые unlock-маркеры; вариации страниц перечислены в каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/8000.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "GUI: страницы и выборы",
+    "status": "documented",
+    "note": "Проверены построение страницы, слоты EnderItems и применяемые unlock-маркеры; вариации страниц перечислены в каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/8000_ranked.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "GUI: страницы и выборы",
+    "status": "documented",
+    "note": "Проверены построение страницы, слоты EnderItems и применяемые unlock-маркеры; вариации страниц перечислены в каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/8000_x.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "GUI: страницы и выборы",
+    "status": "documented",
+    "note": "Проверены построение страницы, слоты EnderItems и применяемые unlock-маркеры; вариации страниц перечислены в каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/8000_x1.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "GUI: страницы и выборы",
+    "status": "documented",
+    "note": "Проверены построение страницы, слоты EnderItems и применяемые unlock-маркеры; вариации страниц перечислены в каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/8100.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "GUI: страницы и выборы",
+    "status": "documented",
+    "note": "Проверены построение страницы, слоты EnderItems и применяемые unlock-маркеры; вариации страниц перечислены в каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/8100_ranked.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "GUI: страницы и выборы",
+    "status": "documented",
+    "note": "Проверены построение страницы, слоты EnderItems и применяемые unlock-маркеры; вариации страниц перечислены в каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/9000.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "GUI: страницы и выборы",
+    "status": "documented",
+    "note": "Проверены построение страницы, слоты EnderItems и применяемые unlock-маркеры; вариации страниц перечислены в каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/9000_ranked.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "GUI: страницы и выборы",
+    "status": "documented",
+    "note": "Проверены построение страницы, слоты EnderItems и применяемые unlock-маркеры; вариации страниц перечислены в каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/9100.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "GUI: страницы и выборы",
+    "status": "documented",
+    "note": "Проверены построение страницы, слоты EnderItems и применяемые unlock-маркеры; вариации страниц перечислены в каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/9100_ranked.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "GUI: страницы и выборы",
+    "status": "documented",
+    "note": "Проверены построение страницы, слоты EnderItems и применяемые unlock-маркеры; вариации страниц перечислены в каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/reset_statholder.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/10000.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/10000_ranked.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/10100.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/10100_ranked.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/11000.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/11000_prex_2.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/11000_prex_3.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/11000_ranked.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/11100.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/12000.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/12000_ranked.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/8000.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/8000_prex_2.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/8000_prex_3.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/8000_ranked.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/8100.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/8100_ranked.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/9000.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/9000_ranked.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/9100.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/9100_ranked.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_grant_wins.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_grant_wins_levelup.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_grant_wins_trinket.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_kit_add_pick.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_kit_add_win.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_levelup_add_pick.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_levelup_add_win.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_kit.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_kit_1.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_kit_loop.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_levelup.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_levelup2.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_levelup_loop.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_skill.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_skill2.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_skill_loop.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_trinket.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_trinket2.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_trinket_loop.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_x_kit.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_x_kit_loop.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_skill_add_pick.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_skill_add_win.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_trinket_add_pick.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_trinket_add_win.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_x_kit_add_pick.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_x_kit_add_win.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Статистика и unlock",
+    "status": "documented",
+    "note": "Проверены selector IDs, ограничения advancement, обновление выбранного состояния/статистики и навигация."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/attribute_fix_item.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/break_luck_key.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/break_luck_key1.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/broken_totem.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/false_tumba.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/gaara_tikva.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/govno_poprigun.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/govno_poprigun_hit.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/govno_poprigun_hit_wall.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/govno_raskid.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/govno_raskid_def.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/govno_raskid_mega.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/grapping_hook.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/grapping_hook_add_vec.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/grapping_hook_loop.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/grapping_hook_loop_end.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/grapping_hook_success.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/grapping_hook_tick.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/grapping_hook_tick_particle.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/grapping_hook_work.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/multiply_2.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/multiply_3.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/multiply_4.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/multiply_5.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/multiply_select.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/nanotrapik_tick.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/nanotrapik_tick2.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/smoke_bomb_explode.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/smoke_bomb_explode1.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/steampunk_pickaxe_use.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/steampunk_pickaxe_use_rc.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/steampunk_rocket.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/steampunk_sword.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/steampunk_sword1.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/steampunk_sword_1.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/touhou_items/addmana.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/touhou_items/bomb.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/touhou_items/give_bomb.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/touhou_items/give_life.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/touhou_items/select.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/touhou_items/time_orbs_count.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/touhou_items/time_orbs_count_tell.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/touhou_items/time_orbs_give_clocks.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/touhou_items/time_stop.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/touhou_items/update_power.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Предметы интеграции",
+    "status": "documented",
+    "note": "Прослежены item marker, потребление/кулдаун и команды эффекта; входные handlers зафиксированы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/blood_spawn.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Эффекты убийства",
+    "status": "documented",
+    "note": "Прослежены выбор по scoreboard и конечные particle/sound/entity effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/blood_spawn_1.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Эффекты убийства",
+    "status": "documented",
+    "note": "Прослежены выбор по scoreboard и конечные particle/sound/entity effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/bloodshed.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Эффекты убийства",
+    "status": "documented",
+    "note": "Прослежены выбор по scoreboard и конечные particle/sound/entity effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/bloodshed_particle.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Эффекты убийства",
+    "status": "documented",
+    "note": "Прослежены выбор по scoreboard и конечные particle/sound/entity effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/bloodshed_player.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Эффекты убийства",
+    "status": "documented",
+    "note": "Прослежены выбор по scoreboard и конечные particle/sound/entity effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/hammerfalling.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Эффекты убийства",
+    "status": "documented",
+    "note": "Прослежены выбор по scoreboard и конечные particle/sound/entity effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/hammerfalling1.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Эффекты убийства",
+    "status": "documented",
+    "note": "Прослежены выбор по scoreboard и конечные particle/sound/entity effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/hammerfalling1aquash.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Эффекты убийства",
+    "status": "documented",
+    "note": "Прослежены выбор по scoreboard и конечные particle/sound/entity effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/select.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Эффекты убийства",
+    "status": "documented",
+    "note": "Прослежены выбор по scoreboard и конечные particle/sound/entity effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/soul.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Эффекты убийства",
+    "status": "documented",
+    "note": "Прослежены выбор по scoreboard и конечные particle/sound/entity effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/soul_particle.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Эффекты убийства",
+    "status": "documented",
+    "note": "Прослежены выбор по scoreboard и конечные particle/sound/entity effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/soul_spawn.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Эффекты убийства",
+    "status": "documented",
+    "note": "Прослежены выбор по scoreboard и конечные particle/sound/entity effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/soul_spawn_1.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Эффекты убийства",
+    "status": "documented",
+    "note": "Прослежены выбор по scoreboard и конечные particle/sound/entity effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/wagnerhammer.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Эффекты убийства",
+    "status": "documented",
+    "note": "Прослежены выбор по scoreboard и конечные particle/sound/entity effects."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/lang_en.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Язык и внешние границы",
+    "status": "documented",
+    "note": "Сверено изменение языка и реально записываемые тексты."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/lang_ru.mcfunction",
+    "document": "agent_notes/lbc_kit_interface.md",
+    "section": "Язык и внешние границы",
+    "status": "documented",
+    "note": "Сверено изменение языка и реально записываемые тексты."
+  }
+]

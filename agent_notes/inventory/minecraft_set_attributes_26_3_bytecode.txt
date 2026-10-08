@@ -1,0 +1,181 @@
+﻿Compiled from "SetAttributesFunction.java"
+public class net.minecraft.world.level.storage.loot.functions.SetAttributesFunction extends net.minecraft.world.level.storage.loot.functions.LootItemConditionalFunction {
+  public static final com.mojang.serialization.MapCodec<net.minecraft.world.level.storage.loot.functions.SetAttributesFunction> MAP_CODEC;
+
+  private final java.util.List<net.minecraft.world.level.storage.loot.functions.SetAttributesFunction$Modifier> modifiers;
+
+  private final boolean replace;
+
+  private net.minecraft.world.level.storage.loot.functions.SetAttributesFunction(java.util.Optional<net.minecraft.core.Holder<net.minecraft.world.level.storage.loot.predicates.LootItemCondition>>, java.util.List<net.minecraft.world.level.storage.loot.functions.SetAttributesFunction$Modifier>, boolean);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokespecial #1                  // Method net/minecraft/world/level/storage/loot/functions/LootItemConditionalFunction."<init>":(Ljava/util/Optional;)V
+         5: aload_0
+         6: aload_2
+         7: invokestatic  #7                  // InterfaceMethod java/util/List.copyOf:(Ljava/util/Collection;)Ljava/util/List;
+        10: putfield      #13                 // Field modifiers:Ljava/util/List;
+        13: aload_0
+        14: iload_3
+        15: putfield      #19                 // Field replace:Z
+        18: return
+
+  public com.mojang.serialization.MapCodec<net.minecraft.world.level.storage.loot.functions.SetAttributesFunction> codec();
+    Code:
+         0: getstatic     #23                 // Field MAP_CODEC:Lcom/mojang/serialization/MapCodec;
+         3: areturn
+
+  public void validate(net.minecraft.world.level.storage.loot.ValidationContext);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokespecial #27                 // Method net/minecraft/world/level/storage/loot/functions/LootItemConditionalFunction.validate:(Lnet/minecraft/world/level/storage/loot/ValidationContext;)V
+         5: aload_1
+         6: ldc           #31                 // String modifiers
+         8: aload_0
+         9: getfield      #13                 // Field modifiers:Ljava/util/List;
+        12: invokestatic  #32                 // InterfaceMethod net/minecraft/world/level/storage/loot/Validatable.validate:(Lnet/minecraft/world/level/storage/loot/ValidationContext;Ljava/lang/String;Ljava/util/List;)V
+        15: return
+
+  public net.minecraft.world.item.ItemStack run(net.minecraft.world.item.ItemStack, net.minecraft.world.level.storage.loot.LootContext);
+    Code:
+         0: aload_0
+         1: getfield      #19                 // Field replace:Z
+         4: ifeq          26
+         7: aload_1
+         8: getstatic     #37                 // Field net/minecraft/core/component/DataComponents.ATTRIBUTE_MODIFIERS:Lnet/minecraft/core/component/DataComponentType;
+        11: aload_0
+        12: aload_2
+        13: getstatic     #43                 // Field net/minecraft/world/item/component/ItemAttributeModifiers.EMPTY:Lnet/minecraft/world/item/component/ItemAttributeModifiers;
+        16: invokevirtual #49                 // Method updateModifiers:(Lnet/minecraft/world/level/storage/loot/LootContext;Lnet/minecraft/world/item/component/ItemAttributeModifiers;)Lnet/minecraft/world/item/component/ItemAttributeModifiers;
+        19: invokevirtual #53                 // Method net/minecraft/world/item/ItemStack.set:(Lnet/minecraft/core/component/DataComponentType;Ljava/lang/Object;)Ljava/lang/Object;
+        22: pop
+        23: goto          44
+        26: aload_1
+        27: getstatic     #37                 // Field net/minecraft/core/component/DataComponents.ATTRIBUTE_MODIFIERS:Lnet/minecraft/core/component/DataComponentType;
+        30: getstatic     #43                 // Field net/minecraft/world/item/component/ItemAttributeModifiers.EMPTY:Lnet/minecraft/world/item/component/ItemAttributeModifiers;
+        33: aload_0
+        34: aload_2
+        35: invokedynamic #59,  0             // InvokeDynamic #0:apply:(Lnet/minecraft/world/level/storage/loot/functions/SetAttributesFunction;Lnet/minecraft/world/level/storage/loot/LootContext;)Ljava/util/function/UnaryOperator;
+        40: invokevirtual #63                 // Method net/minecraft/world/item/ItemStack.update:(Lnet/minecraft/core/component/DataComponentType;Ljava/lang/Object;Ljava/util/function/UnaryOperator;)Ljava/lang/Object;
+        43: pop
+        44: aload_1
+        45: areturn
+
+  private net.minecraft.world.item.component.ItemAttributeModifiers updateModifiers(net.minecraft.world.level.storage.loot.LootContext, net.minecraft.world.item.component.ItemAttributeModifiers);
+    Code:
+         0: aload_1
+         1: invokevirtual #67                 // Method net/minecraft/world/level/storage/loot/LootContext.getRandom:()Lnet/minecraft/util/RandomSource;
+         4: astore_3
+         5: aload_0
+         6: getfield      #13                 // Field modifiers:Ljava/util/List;
+         9: invokeinterface #73,  1           // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+        14: astore        4
+        16: aload         4
+        18: invokeinterface #77,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        23: ifeq          104
+        26: aload         4
+        28: invokeinterface #83,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        33: checkcast     #87                 // class net/minecraft/world/level/storage/loot/functions/SetAttributesFunction$Modifier
+        36: astore        5
+        38: aload         5
+        40: getfield      #89                 // Field net/minecraft/world/level/storage/loot/functions/SetAttributesFunction$Modifier.slots:Ljava/util/List;
+        43: aload_3
+        44: invokestatic  #92                 // Method net/minecraft/util/Util.getRandom:(Ljava/util/List;Lnet/minecraft/util/RandomSource;)Ljava/lang/Object;
+        47: checkcast     #97                 // class net/minecraft/world/entity/EquipmentSlotGroup
+        50: astore        6
+        52: aload_2
+        53: aload         5
+        55: getfield      #99                 // Field net/minecraft/world/level/storage/loot/functions/SetAttributesFunction$Modifier.attribute:Lnet/minecraft/core/Holder;
+        58: new           #103                // class net/minecraft/world/entity/ai/attributes/AttributeModifier
+        61: dup
+        62: aload         5
+        64: getfield      #105                // Field net/minecraft/world/level/storage/loot/functions/SetAttributesFunction$Modifier.id:Lnet/minecraft/resources/Identifier;
+        67: aload         5
+        69: getfield      #109                // Field net/minecraft/world/level/storage/loot/functions/SetAttributesFunction$Modifier.amount:Lnet/minecraft/core/Holder;
+        72: invokeinterface #112,  1          // InterfaceMethod net/minecraft/core/Holder.value:()Ljava/lang/Object;
+        77: checkcast     #117                // class net/minecraft/world/level/storage/loot/providers/number/floats/ContextFloatProvider
+        80: aload_1
+        81: invokeinterface #119,  2          // InterfaceMethod net/minecraft/world/level/storage/loot/providers/number/floats/ContextFloatProvider.getFloat:(Lnet/minecraft/world/level/storage/loot/LootContext;)F
+        86: f2d
+        87: aload         5
+        89: getfield      #123                // Field net/minecraft/world/level/storage/loot/functions/SetAttributesFunction$Modifier.operation:Lnet/minecraft/world/entity/ai/attributes/AttributeModifier$Operation;
+        92: invokespecial #127                // Method net/minecraft/world/entity/ai/attributes/AttributeModifier."<init>":(Lnet/minecraft/resources/Identifier;DLnet/minecraft/world/entity/ai/attributes/AttributeModifier$Operation;)V
+        95: aload         6
+        97: invokevirtual #130                // Method net/minecraft/world/item/component/ItemAttributeModifiers.withModifierAdded:(Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/ai/attributes/AttributeModifier;Lnet/minecraft/world/entity/EquipmentSlotGroup;)Lnet/minecraft/world/item/component/ItemAttributeModifiers;
+       100: astore_2
+       101: goto          16
+       104: aload_2
+       105: areturn
+
+  public static net.minecraft.world.level.storage.loot.functions.SetAttributesFunction$ModifierBuilder modifier(net.minecraft.resources.Identifier, net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute>, net.minecraft.world.entity.ai.attributes.AttributeModifier$Operation, net.minecraft.core.Holder<net.minecraft.world.level.storage.loot.providers.number.floats.ContextFloatProvider>);
+    Code:
+         0: new           #134                // class net/minecraft/world/level/storage/loot/functions/SetAttributesFunction$ModifierBuilder
+         3: dup
+         4: aload_0
+         5: aload_1
+         6: aload_2
+         7: aload_3
+         8: invokespecial #136                // Method net/minecraft/world/level/storage/loot/functions/SetAttributesFunction$ModifierBuilder."<init>":(Lnet/minecraft/resources/Identifier;Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/ai/attributes/AttributeModifier$Operation;Lnet/minecraft/core/Holder;)V
+        11: areturn
+
+  public static net.minecraft.world.level.storage.loot.functions.SetAttributesFunction$Builder setAttributes();
+    Code:
+         0: new           #139                // class net/minecraft/world/level/storage/loot/functions/SetAttributesFunction$Builder
+         3: dup
+         4: invokespecial #141                // Method net/minecraft/world/level/storage/loot/functions/SetAttributesFunction$Builder."<init>":()V
+         7: areturn
+
+  private net.minecraft.world.item.component.ItemAttributeModifiers lambda$run$0(net.minecraft.world.level.storage.loot.LootContext, net.minecraft.world.item.component.ItemAttributeModifiers);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: aload_2
+         3: invokevirtual #49                 // Method updateModifiers:(Lnet/minecraft/world/level/storage/loot/LootContext;Lnet/minecraft/world/item/component/ItemAttributeModifiers;)Lnet/minecraft/world/item/component/ItemAttributeModifiers;
+         6: areturn
+
+  private static com.mojang.datafixers.kinds.App lambda$static$0(com.mojang.serialization.codecs.RecordCodecBuilder$Instance);
+    Code:
+         0: aload_0
+         1: invokestatic  #144                // Method commonFields:(Lcom/mojang/serialization/codecs/RecordCodecBuilder$Instance;)Lcom/mojang/datafixers/Products$P1;
+         4: aload_0
+         5: getstatic     #148                // Field net/minecraft/world/level/storage/loot/functions/SetAttributesFunction$Modifier.CODEC:Lcom/mojang/serialization/Codec;
+         8: invokeinterface #152,  1          // InterfaceMethod com/mojang/serialization/Codec.listOf:()Lcom/mojang/serialization/Codec;
+        13: ldc           #31                 // String modifiers
+        15: invokeinterface #158,  2          // InterfaceMethod com/mojang/serialization/Codec.fieldOf:(Ljava/lang/String;)Lcom/mojang/serialization/MapCodec;
+        20: invokedynamic #162,  0            // InvokeDynamic #1:apply:()Ljava/util/function/Function;
+        25: invokevirtual #165                // Method com/mojang/serialization/MapCodec.forGetter:(Ljava/util/function/Function;)Lcom/mojang/serialization/codecs/RecordCodecBuilder;
+        28: getstatic     #171                // Field com/mojang/serialization/Codec.BOOL:Lcom/mojang/serialization/codecs/PrimitiveCodec;
+        31: ldc           #175                // String replace
+        33: iconst_1
+        34: invokestatic  #176                // Method java/lang/Boolean.valueOf:(Z)Ljava/lang/Boolean;
+        37: invokeinterface #182,  3          // InterfaceMethod com/mojang/serialization/codecs/PrimitiveCodec.optionalFieldOf:(Ljava/lang/String;Ljava/lang/Object;)Lcom/mojang/serialization/MapCodec;
+        42: invokedynamic #188,  0            // InvokeDynamic #2:apply:()Ljava/util/function/Function;
+        47: invokevirtual #165                // Method com/mojang/serialization/MapCodec.forGetter:(Ljava/util/function/Function;)Lcom/mojang/serialization/codecs/RecordCodecBuilder;
+        50: invokevirtual #189                // Method com/mojang/serialization/codecs/RecordCodecBuilder$Instance.group:(Lcom/mojang/datafixers/kinds/App;Lcom/mojang/datafixers/kinds/App;)Lcom/mojang/datafixers/Products$P2;
+        53: invokevirtual #195                // Method com/mojang/datafixers/Products$P1.and:(Lcom/mojang/datafixers/Products$P2;)Lcom/mojang/datafixers/Products$P3;
+        56: aload_0
+        57: invokedynamic #201,  0            // InvokeDynamic #3:apply:()Lcom/mojang/datafixers/util/Function3;
+        62: invokevirtual #204                // Method com/mojang/datafixers/Products$P3.apply:(Lcom/mojang/datafixers/kinds/Applicative;Lcom/mojang/datafixers/util/Function3;)Lcom/mojang/datafixers/kinds/App;
+        65: areturn
+
+  private static java.lang.Boolean lambda$static$2(net.minecraft.world.level.storage.loot.functions.SetAttributesFunction);
+    Code:
+         0: aload_0
+         1: getfield      #19                 // Field replace:Z
+         4: invokestatic  #176                // Method java/lang/Boolean.valueOf:(Z)Ljava/lang/Boolean;
+         7: areturn
+
+  private static java.util.List lambda$static$1(net.minecraft.world.level.storage.loot.functions.SetAttributesFunction);
+    Code:
+         0: aload_0
+         1: getfield      #13                 // Field modifiers:Ljava/util/List;
+         4: areturn
+
+  static {};
+    Code:
+         0: invokedynamic #209,  0            // InvokeDynamic #4:apply:()Ljava/util/function/Function;
+         5: invokestatic  #210                // Method com/mojang/serialization/codecs/RecordCodecBuilder.mapCodec:(Ljava/util/function/Function;)Lcom/mojang/serialization/MapCodec;
+         8: putstatic     #23                 // Field MAP_CODEC:Lcom/mojang/serialization/MapCodec;
+        11: return
+}

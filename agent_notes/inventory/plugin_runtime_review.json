@@ -1,0 +1,221 @@
+﻿{
+    "review":  "Paper plugin runtime source review; code-observed, not live-tested",
+    "created_utc":  "2026-10-06T09:43:50Z",
+    "source_root":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars",
+    "review_document":  "E:\\servers_mew\\skywars2_last\\luckywars-mod\\agent_notes\\NATIVE_RUNTIME_OVERVIEW.md",
+    "review_document_sha256":  "350bb8e9a8df1a438426b2ae62fc5a97c132070c751f5c6e1ded64f2fb07674c",
+    "resource_observation":  {
+                                 "source_snapshot_path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\resources\\legacy-datapacks",
+                                 "source_snapshot_exists":  false,
+                                 "current_build_output_path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\build\\resources\\main\\legacy-datapacks",
+                                 "current_build_output_exists":  true,
+                                 "current_build_output_pack_directories":  [
+                                                                               "LBC",
+                                                                               "maps",
+                                                                               "swarogskywars"
+                                                                           ],
+                                 "current_build_output_file_count":  10800,
+                                 "fresh_build_embedding_verified":  false
+                             },
+    "files":  [
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\SigmaWarsMain.java",
+                      "sha256":  "e2ff679a9f920cad2eb3ae97389a5adf2777a3fa04e76f6e21c16b52bfd3f934",
+                      "bytes":  10056,
+                      "read_scope":  "full file; enable/disable order and registration"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\game\\GameStage.java",
+                      "sha256":  "142aae96050cfb7ff12e201657746e398663660a8b417e0ba16dfcf190427fc1",
+                      "bytes":  627,
+                      "read_scope":  "full file"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\game\\GameState.java",
+                      "sha256":  "5fef2aae12749e3a84c64f13b1c8bcddb79e8915a8c7ec8a4ab43474470259ef",
+                      "bytes":  3935,
+                      "read_scope":  "full file"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\game\\GameManager.java",
+                      "sha256":  "e5fe305d68c3a00d4178ece83c7d188b8dde6f970a508bb242add1b42be2ecee",
+                      "bytes":  42191,
+                      "read_scope":  "opening and targeted lifecycle references/search"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\game\\stage\\StageEvents.java",
+                      "sha256":  "8b3c49176d4a91a23d680b9bce22952fb5f5105ab633afef648da7b2ca833635",
+                      "bytes":  9081,
+                      "read_scope":  "event implementations and TODO sections"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\game\\loadout\\Loadout.java",
+                      "sha256":  "5a0b2bd32fce4313e365e49d897c8c7b34005a4a6447270aed5c64c940e657a3",
+                      "bytes":  3718,
+                      "read_scope":  "TODO declarations via source search"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\lobby\\LobbyManager.java",
+                      "sha256":  "ce0d7a9fbb1ec8daae51628b5e7d9baa07efd87030fede6fc1c92eb011e5ae29",
+                      "bytes":  8572,
+                      "read_scope":  "full file"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\gui\\GuiManager.java",
+                      "sha256":  "22a0dd8ea38959029f815c6e81ffbb6de2a4355468f7d2d1f8117e222acd3877",
+                      "bytes":  23207,
+                      "read_scope":  "opening, registration and inventory event paths"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\gui\\MapRegistry.java",
+                      "sha256":  "9cac3ce8e8ad0d9c8cd302cdf702a779d0f70cc978f18afa9686965afdc785e0",
+                      "bytes":  10191,
+                      "read_scope":  "full file"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\ui\\ActionBarService.java",
+                      "sha256":  "686e3d556fd406d2ae8c9580c25acfd62df76a919d7f209ec4f8e4e2cb42e950",
+                      "bytes":  7356,
+                      "read_scope":  "full file"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\ui\\LegacyUiElements.java",
+                      "sha256":  "636ab8a19efa9e660a02201970a6187f2ce970eebfaed7a8bfa3ab50564cf55b",
+                      "bytes":  22402,
+                      "read_scope":  "registration and representative render sections"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\ui\\CoreUiElements.java",
+                      "sha256":  "3fa041a38702661a19224722951b81402b5c5c6d0779d68f8fbddbde0fcfc893",
+                      "bytes":  4678,
+                      "read_scope":  "full file"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\text\\SwrgText.java",
+                      "sha256":  "5611b91563b8fd7f3fd4b057e03ed9272aee0c619c18006ae1d7c8efedd95e2f",
+                      "bytes":  4991,
+                      "read_scope":  "full file"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\PhysicalObjectPhysics.java",
+                      "sha256":  "324a47b26e31fdf7ac6bcf6e39ea1db402402533acb226729d6b9a4d51460e36",
+                      "bytes":  25911,
+                      "read_scope":  "class startup and physics-step sections"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\legacy\\EmbeddedDatapackInstaller.java",
+                      "sha256":  "adb0c0c02962b380b293b947b43d4e2ac36fac4aa8e94502f6ace70cffed1834",
+                      "bytes":  5220,
+                      "read_scope":  "full file"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\legacy\\LegacyResourceSnapshot.java",
+                      "sha256":  "3b2e23c260464b8993ad8d8f0728cb890da47f034eb6872ff72848d1015d5545",
+                      "bytes":  1360,
+                      "read_scope":  "full file"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\legacy\\LegacyFunctionRuntime.java",
+                      "sha256":  "5580d5f3386741f51b60c3f4ca9ebc993e7aaf04ba9d6290bb7f65f6958e8197",
+                      "bytes":  28786,
+                      "read_scope":  "registration/loading/dispatch/schedule/shutdown sections"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\legacy\\LegacyDatapackAudit.java",
+                      "sha256":  "ff72eaa79436aa7c1983ab181a9dcaf94dcba9744863022773a65b013cf26ca8",
+                      "bytes":  2769,
+                      "read_scope":  "full file"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\swrg\\SwrgNativeService.java",
+                      "sha256":  "0b4f23feddffaadad0346adbfe5986d2591f6a448982516ad28d99065a79bd5d",
+                      "bytes":  670532,
+                      "read_scope":  "targeted override-registration search and nearby registration"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\command\\CommandRegistry.java",
+                      "sha256":  "4e63749e4dabc75de6c3e3d7e76d3d39574dda58c21bb6385aa5d3599013039c",
+                      "bytes":  9889,
+                      "read_scope":  "full file"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\config.yml",
+                      "sha256":  "5172fb01fe37c69adc0011e6723499c4d4d2ba5bed6c47e2b5599b27383bf01c",
+                      "bytes":  334,
+                      "read_scope":  "full file"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\resources\\config.yml",
+                      "sha256":  "a4a1df36b9596ec03d9ec75163e2932b08543219b77f478a391400eae86941ff",
+                      "bytes":  340,
+                      "read_scope":  "full file"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\resources\\plugin.yml",
+                      "sha256":  "81412963c8c217adf0085966b0722453231570c18986e90f82ea41136ad05ad0",
+                      "bytes":  2267,
+                      "read_scope":  "full file"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\build.gradle",
+                      "sha256":  "5ac877ea5f506082e07b32bf2e00c07eb348a07e6ea0641cfb967c0837d8c93d",
+                      "bytes":  1935,
+                      "read_scope":  "full file"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\config\\GameSettings.java",
+                      "sha256":  "8494a80bb6d2be336db19a104847029f4e3d4938761261479ac639dd722d2b98",
+                      "bytes":  13212,
+                      "read_scope":  "full file; persistent game settings and map spiral"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\game\\ChestLootFiller.java",
+                      "sha256":  "f8e50e75d3351a90881e4a8c86c60095852a3c2f9fa41807e9b03d50abbe6543",
+                      "bytes":  3210,
+                      "read_scope":  "full file; loot-table roll and stack placement"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\game\\Match.java",
+                      "sha256":  "876cba1f6bea55fd7ebbccee4b421634540f3c0a3bc0a8ee8b5df0ec91ffd00d",
+                      "bytes":  4024,
+                      "read_scope":  "state/task sections; in-memory match data and task cancellation"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\gui\\GuiItems.java",
+                      "sha256":  "ede28e18b67def1da272fcd899c0540b3f8527fee8e57d9ba0838b15b593e6ad",
+                      "bytes":  6935,
+                      "read_scope":  "full file; page/loot button generation"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\java\\me\\luckywars\\legacy\\swrg\\SwrgLegacyMapLoader.java",
+                      "sha256":  "2c1f3d1a87ca5b78f1179028df87ecc09e735ae8ab2eb9ef7c94bc05d95722db",
+                      "bytes":  43650,
+                      "read_scope":  "map manifest, async load, restore cache and cleanup sections"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\src\\main\\resources\\values.yml",
+                      "sha256":  "8085c24e10b0adf9c0cb7d32348612c3ccbfbc0066ccb13a3334cbf4bcdcf7cd",
+                      "bytes":  3126,
+                      "read_scope":  "full file; configured mana values and cost map"
+                  },
+                  {
+                      "path":  "E:\\servers_mew\\cringe1_21_4_skywars\\plugins\\luckywars\\settings.gradle",
+                      "sha256":  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                      "bytes":  0,
+                      "read_scope":  "empty file (0 bytes)"
+                  }
+              ],
+    "limitations":  [
+                        "No live server, build, or gameplay test.",
+                        "Current source resources do not contain legacy-datapacks; current build/resources/main does.",
+                        "plugin.yml bootstrapper class was not found in current Java source tree; descriptor behavior unresolved.",
+                        "paperweight target is 1.21.11-R0.1-SNAPSHOT / Java 21; no compatibility claim for a server labeled 1_21_4."
+                    ],
+    "instruction_inputs":  [
+                               {
+                                   "path":  "E:\\servers_mew\\skywars2_last\\luckywars-mod\\agent_notes\\AGENTS.md",
+                                   "sha256":  "241063271bee86f721054daea289555b53eab3ae7e5f70fa5026f686c09435ce",
+                                   "read_scope":  "full project documentation review instructions; not an old-server source"
+                               }
+                           ]
+}

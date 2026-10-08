@@ -1,28 +1,26 @@
 {
-    "type": "minecraft:chest",
-    "pools": [
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:stone",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_attributes",
-                            "modifiers": [
-                                {
-                                    "attribute": "minecraft:spawn_reinforcements",
-                                    "id": "minecraft:count",
-                                    "amount": 0,
-                                    "operation": "add_value",
-                                    "slot": "mainhand"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
+          "type": "minecraft:item",
+          "name": "minecraft:stone",
+          "modifier": {
+            "modifiers": [
+              {
+                "attribute": "minecraft:spawn_reinforcements",
+                "id": "minecraft:count",
+                "amount": 0,
+                "operation": "add_value",
+                "slot": "mainhand"
+              }
+            ],
+            "type": "minecraft:set_attributes"
+          }
         }
-    ]
+      ]
+    }
+  ]
 }

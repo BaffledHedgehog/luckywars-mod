@@ -1,27 +1,27 @@
 {
-    "pools": [
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:music_disc_stal",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_name",
-                            "name": {
-                                "translate": "entity.minecraft.wolf",
-                                "color": "gold",
-                                "italic": false
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{rewardsound:8}"
-                        }
-                    ]
-                }
-            ]
+          "type": "minecraft:item",
+          "name": "minecraft:music_disc_stal",
+          "modifier": [
+            {
+              "name": {
+                "translate": "entity.minecraft.wolf",
+                "color": "gold",
+                "italic": false
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "tag": "{rewardsound:8}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

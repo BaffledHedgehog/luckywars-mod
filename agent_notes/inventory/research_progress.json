@@ -1,0 +1,363 @@
+{
+  "lbc_advancements": {
+    "sources": 656,
+    "covered_claims": 656,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_advancements.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_armor": {
+    "sources": 77,
+    "covered_claims": 77,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_armor.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_bedwars": {
+    "sources": 27,
+    "covered_claims": 27,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_bedwars.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_drop_effects": {
+    "sources": 135,
+    "covered_claims": 135,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_core_items.md",
+      "agent_notes/lbc_drops.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_effects": {
+    "sources": 46,
+    "covered_claims": 46,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_effects.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_items_arcana_trinkets": {
+    "sources": 201,
+    "covered_claims": 201,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_items_arcana_trinkets.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_items_weapons": {
+    "sources": 256,
+    "covered_claims": 256,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_items_weapons.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_kit_game": {
+    "sources": 1355,
+    "covered_claims": 1355,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_kit_game.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_kit_interface": {
+    "sources": 146,
+    "covered_claims": 146,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_kit_interface.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_lbcr": {
+    "sources": 347,
+    "covered_claims": 347,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_lbcr.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_loot_definitions": {
+    "sources": 669,
+    "covered_claims": 669,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/SOURCE_FINDINGS.md",
+      "agent_notes/lbc_loot_definitions.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_loot_uncrafted": {
+    "sources": 625,
+    "covered_claims": 625,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_loot_uncrafted.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_other_attributes": {
+    "sources": 331,
+    "covered_claims": 331,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_other_attributes.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_other_consumables_craft": {
+    "sources": 221,
+    "covered_claims": 221,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_mana.md",
+      "agent_notes/lbc_other_consumables_craft.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_other_events": {
+    "sources": 137,
+    "covered_claims": 137,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_other_events.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_other_imba": {
+    "sources": 293,
+    "covered_claims": 293,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_other_imba.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_other_magic": {
+    "sources": 247,
+    "covered_claims": 247,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_other_magic.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_other_main": {
+    "sources": 215,
+    "covered_claims": 215,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_mana.md",
+      "agent_notes/lbc_other_main.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_other_misc": {
+    "sources": 214,
+    "covered_claims": 214,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_mana.md",
+      "agent_notes/lbc_other_misc.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_other_world_tech": {
+    "sources": 253,
+    "covered_claims": 253,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_other_world_tech.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_predicates_modifiers": {
+    "sources": 230,
+    "covered_claims": 230,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_predicates_modifiers.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_projectiles": {
+    "sources": 70,
+    "covered_claims": 70,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_projectiles.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_raycast": {
+    "sources": 20,
+    "covered_claims": 20,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_raycast.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_registry_support": {
+    "sources": 314,
+    "covered_claims": 314,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_registry_support.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_runtime": {
+    "sources": 250,
+    "covered_claims": 250,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_core_items.md",
+      "agent_notes/lbc_mana.md",
+      "agent_notes/lbc_runtime.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_ui": {
+    "sources": 11,
+    "covered_claims": 11,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_ui.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_workingitems_awaken": {
+    "sources": 277,
+    "covered_claims": 277,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_workingitems_awaken.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_workingitems_generators": {
+    "sources": 324,
+    "covered_claims": 324,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_workingitems_generators.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_workingitems_main": {
+    "sources": 271,
+    "covered_claims": 271,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_workingitems_main.md"
+    ],
+    "content_reviewed": true
+  },
+  "lbc_workingitems_other": {
+    "sources": 288,
+    "covered_claims": 288,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/lbc_workingitems_other.md"
+    ],
+    "content_reviewed": true
+  },
+  "maps_catalogue": {
+    "sources": 1457,
+    "covered_claims": 1457,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/maps_catalog.md",
+      "agent_notes/maps_structures.md"
+    ],
+    "content_reviewed": true
+  },
+  "skywars_game": {
+    "sources": 123,
+    "covered_claims": 123,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/skywars_game.md"
+    ],
+    "content_reviewed": true
+  },
+  "skywars_gui": {
+    "sources": 397,
+    "covered_claims": 397,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/skywars_game.md",
+      "agent_notes/skywars_gui.md"
+    ],
+    "content_reviewed": true
+  },
+  "skywars_maps_admin": {
+    "sources": 234,
+    "covered_claims": 234,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/skywars_maps_admin.md"
+    ],
+    "content_reviewed": true
+  },
+  "skywars_support": {
+    "sources": 83,
+    "covered_claims": 83,
+    "unresolved": 0,
+    "missing": 0,
+    "documents": [
+      "agent_notes/SOURCE_FINDINGS.md",
+      "agent_notes/skywars_game.md",
+      "agent_notes/skywars_support.md"
+    ],
+    "content_reviewed": true
+  }
+}

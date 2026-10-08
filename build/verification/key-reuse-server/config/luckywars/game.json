@@ -1,0 +1,18 @@
+{
+  "lives": 1,
+  "health": 20,
+  "countdownSeconds": 5,
+  "stageOneSeconds": 120,
+  "stageTwoSeconds": 360,
+  "endingSeconds": 10,
+  "stageOneEvent": 1,
+  "stageTwoEvent": 1,
+  "pvpMode": 2,
+  "day": 1,
+  "vanillaKits": true,
+  "vanillaSkills": true,
+  "noBorders": false,
+  "mapId": "1",
+  "broken": false,
+  "gamesPlayed": 1
+}

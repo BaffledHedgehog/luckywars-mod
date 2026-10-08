@@ -1,0 +1,2270 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/hsv_to_rgb/0-59.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: HSV → RGB",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/hsv_to_rgb/120-179.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: HSV → RGB",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/hsv_to_rgb/180-239.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: HSV → RGB",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/hsv_to_rgb/240-299.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: HSV → RGB",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/hsv_to_rgb/300-359.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: HSV → RGB",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/hsv_to_rgb/60-119.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: HSV → RGB",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/hsv_to_rgb.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: HSV → RGB",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/fail.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/phase_1.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/phase_1_at.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/phase_1_at_prot.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/phase_1_at_swordspawn.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/phase_1_at_swordspawn_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/phase_1_x.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/phase_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/phase_3.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/phase_4.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/phase_4_at.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/phase_5.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/phase_6.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/phase_6_at.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/stop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_5t.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_5t_ok.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_acid.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_acid_damage.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_electricity.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_electricity_blow.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_electricity_blow_at.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_fireball.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_fireball_blow.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_fireball_blow_damage.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_fireball_particle_generator.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_fireball_particle_generator1.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_fireball_particle_generator1_green.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_fireball_particle_generator1_red.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_fireball_particle_generator_green.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_fireball_particle_generator_red.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_medifade.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_medifade_damage.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_mediprism.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_mediprism_preloop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_mediprism_preloop_loop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_mediprism_shoot.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_mediprism_shoot_loop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_mediprism_shoot_loop_dmg.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_select.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_zatop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate/tick_zatop_damage.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/meditate.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: медитация",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/particle_output.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: HSV → RGB",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/score_to_store.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: HSV → RGB",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast2_blue.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast2_blue_block.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast2_blue_entity.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast2_green.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast2_green_block.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast2_green_entity.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast2_light_blue.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast2_light_blue_block.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast2_light_blue_entity.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast2_orange.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast2_orange_block.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast2_orange_entity.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast2_purple.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast2_purple_block.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast2_purple_entity.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast2_red.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast2_red_block.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast2_red_entity.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast2_yellow.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast2_yellow_block.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast2_yellow_entity.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast_upgraded_change_mode.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast_upgraded_change_mode_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/cast_upgraded_pre_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/check.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/impact/block/blue.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/impact/block/cyan.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/impact/block/green.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/impact/block/orange.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/impact/block/purple.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/impact/block/red.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/impact/block/run.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/impact/block/yellow.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/impact/block/yellow_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/impact/entity/blue.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/impact/entity/cyan.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/impact/entity/green.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/impact/entity/orange.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/impact/entity/purple.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/impact/entity/red.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/impact/entity/run.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/impact/entity/yellow.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/impact.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaycaster/ray/loop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Gaycaster: луч и цветовые попадания",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/acid.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/acid_get_id.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/acid_preloop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/acid_preloop_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/acid_preloop_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/acid_preloop_upgraded_lib.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/acid_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/acid_upgraded_pre_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/acid_upgraded_pre_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/air.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/air_preloop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/air_preloop_burst.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/air_preloop_fast.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/air_preloop_homing.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/air_preloop_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/air_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/air_upgraded_pre_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/air_upgraded_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/blind.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/blind_get_id.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "non_runtime",
+    "note": "The source contains only commented-out commands; it has no runtime effect."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/blind_loop_gatling.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/blind_preloop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/blind_preloop_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/blind_preloop_upgraded_default.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/blind_preloop_upgraded_gatlingator.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/blind_preloop_upgraded_phantom.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/blind_preloop_upgraded_rain.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/blind_preloop_upgraded_rain_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/blind_preloop_upgraded_rain_end2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/blind_preloop_upgraded_rain_loop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/blind_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/blind_upgraded_pre_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/blind_upgraded_pre_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/electro.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/electro_default.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/electro_preloop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/electro_preloop_upgrade.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/electro_preloop_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/electro_ray.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/electro_ray_particle.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/electro_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/electro_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/electro_upgraded_pre_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/fire.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/fire_preloop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/fire_preloop_upgrade.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/fire_preloop_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/fire_preloop_upgraded_big.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/fire_preloop_upgraded_concentrated.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/fire_preloop_upgraded_concentrated_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/fire_preloop_upgraded_default.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/fire_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/fire_upgraded_pre_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/fire_upgraded_pre_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/ruby.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/ruby_get_id.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "non_runtime",
+    "note": "The source contains only commented-out commands; it has no runtime effect."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/ruby_hole.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/ruby_hole_create.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/ruby_preloop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/ruby_preloop_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/ruby_preloop_check_upgrade.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/ruby_ray.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/ruby_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/ruby_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/ruby_upgraded_pre_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/stone.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/stone_get_id.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "non_runtime",
+    "note": "The source contains only commented-out commands; it has no runtime effect."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/stone_preloop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/stone_preloop_upgrade.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/stone_preloop_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/stone_preloop_upgraded_bridge.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/stone_preloop_upgraded_default.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/stone_preloop_upgraded_shield.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/stone_preloop_upgraded_spike.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/stone_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/stone_upgraded_pre_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/stone_upgraded_pre_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/teleport.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/teleport_cloud.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/teleport_default.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/teleport_get_id.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/teleport_inverted.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/teleport_preloop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/teleport_preloop_upgrade.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/teleport_preloop_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/teleport_snowball.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/teleport_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/teleport_upgraded_pre_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/teleport_upgraded_pre_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/terra.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/terra_get_id.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/terra_preloop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/terra_preloop_check_upgrade.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/terra_preloop_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/terra_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/terra_upgraded_pre_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/tnt_get_id.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/true_terra_get_id.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs/true_terra_sword_hit.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Посохи: основной набор",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/acid.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/acid_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/acid_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/air.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/air_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/air_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/blind.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/blind_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/blind_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/electro.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/electro_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/electro_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/fire.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/fire_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/ruby.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/ruby_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/ruby_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/stone.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/stone_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/stone_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/teleport.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/teleport_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/teleport_2_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/terra.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/terra_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/sauvojen_staffs_tiny/terra_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Малые посохи",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/activate.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/activate_check.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/activate_envy_check.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/activate_envy_check_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/activate_switch.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/activate_vanity_check.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/envy.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/envy_second.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/envy_tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/gluttony.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/gluttony_get.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/grand_rabbit_spawn.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/greed.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/greed_apply_heart.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/greed_get.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/greed_second_mobs_near.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/greed_tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/greed_tick_active.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/greed_tick_inactive.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/indolence.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/indolence_get.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/indolence_hand.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/indolence_hand_0.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/indolence_hand_1-2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/indolence_hand_3-4.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/indolence_hand_5-6.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/indolence_hand_5-6_sneak.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/indolence_hand_7-.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/indolence_hand_7-_sneak.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/indolence_hand_controllable_rc.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/indolence_hand_controllable_rc_razbros.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/indolence_hand_destroy.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/indolence_hand_get_rot.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/indolence_hand_get_rot_with_razb.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/indolence_hand_get_rot_with_razb_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/indolence_hand_get_rot_with_razb_3.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/indolence_hand_get_rot_with_razb_4.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/indolence_hand_rc.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/indolence_hand_rc_recur.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/indolence_respawn.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/indolence_respawn_cheduled.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/indolence_respawn_cheduled_as.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/indolence_respawn_hand_only.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/lust.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/lust_damage.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/lust_damage_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/lust_damage_2_many.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/lust_dragon_5t.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/lust_dragon_kill.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/lust_flesh.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/lust_flesh_not_sneak.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/lust_flesh_not_sneak_air.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/lust_flesh_not_sneak_ground.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/lust_flesh_sneak.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/lust_flesh_sneak_air.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/lust_flesh_sneak_ground.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/lust_flesh_sneak_ground_many.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/lust_get.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/no_gens.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/reset.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/snake_big_tick_rc.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/snake_damage.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/snake_damage_entity.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/snake_tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/snake_tick_if.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/snake_tick_if_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/snake_tick_if_at.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/snake_tick_tp.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/vanity.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/vanity_respawn.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/vanity_respawn_1.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/vanity_respawn_12.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/vanity_respawn_return_attributes.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/vanity_respawn_return_attributes_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/vanity_respawn_return_effects.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/vanity_respawn_return_effects_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/vanity_respawn_return_effects_pre_x5.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/vanity_respawn_return_pos.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/vanity_respawn_return_tags.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/vanity_respawn_return_tags_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/whale_clone_random_sound.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/whale_clone_second.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/whale_fog_rc.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/whale_fog_rc_explode.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/whale_random_sound.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/whale_run_away.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/whale_second.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/whale_spawn.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/whale_spawn_fog.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/whale_tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/wrath.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/wrath_get.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/wrath_tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/wrath_tick_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/wrath_tick_edit_health_players.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/wrath_tick_edit_health_players_dmg.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/wrath_tick_edit_health_players_dmg_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/wrath_tick_edit_health_players_dmg_pre2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/witch_gens/yes_gens.mcfunction",
+    "document": "agent_notes/lbc_workingitems_generators.md",
+    "section": "Генераторы ведьмы",
+    "status": "documented",
+    "note": "Manual behavior is described in the linked family section and checked against this source."
+  }
+]

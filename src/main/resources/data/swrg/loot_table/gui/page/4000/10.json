@@ -1,40 +1,41 @@
 {
-    "type":"empty", "pools": [
+  "type": "empty",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:item",
+          "name": "minecraft:ghast_tear",
+          "modifier": [
+            {
+              "entity": "this",
+              "lore": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:ghast_tear",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_lore",
-                            "entity": "this",
-                            "lore": [
-                                {
-                                    "nbt": "lore.skill.d2.Lore[0]",
-                                    "storage": "swrg:lang",
-                                    "interpret": true,
-                                    "source": "storage",
-                                    "type": "nbt"
-                                }
-                            ],
-                            "mode": "replace_all"
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "entity": "this",
-                            "name": {
-                                "nbt": "skill.d2",
-                                "storage": "swrg:lang",
-                                "interpret": true,
-                                "source": "storage",
-                                "type": "nbt"
-                            }
-                        }
-                    ]
+                  "nbt": "lore.skill.d2.Lore[0]",
+                  "storage": "swrg:lang",
+                  "interpret": true,
+                  "source": "storage",
+                  "type": "nbt"
                 }
-            ]
+              ],
+              "mode": "replace_all",
+              "type": "minecraft:set_lore"
+            },
+            {
+              "entity": "this",
+              "name": {
+                "nbt": "skill.d2",
+                "storage": "swrg:lang",
+                "interpret": true,
+                "source": "storage",
+                "type": "nbt"
+              },
+              "type": "minecraft:set_name"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

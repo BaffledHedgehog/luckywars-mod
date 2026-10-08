@@ -1,0 +1,16 @@
+﻿[
+    {
+        "status":  "documented",
+        "section":  "Пустые loot tables",
+        "document":  "agent_notes/SOURCE_FINDINGS.md",
+        "source":  "world/datapacksdisabled/LBC/data/lbc/loot_table/reroll_9999/material_block.json",
+        "note":  "Проверена длина0байт; содержимое отсутствует, корректную loot table восстановить по этому файлу невозможно."
+    },
+    {
+        "status":  "documented",
+        "section":  "Пустые loot tables",
+        "document":  "agent_notes/SOURCE_FINDINGS.md",
+        "source":  "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/locked_suffix_tournament.json",
+        "note":  "Проверена длина0байт; параметры турнирного суффикса в этом файле отсутствуют."
+    }
+]

@@ -1,0 +1,233 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/manaregen.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Обычный проход: `manaregen`",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/manaregen_belt_stacked.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Регенерация, экипировка и обратная мана",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/manaregen_hit.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Регенерация, экипировка и обратная мана",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/manaregen_inwater.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Регенерация, экипировка и обратная мана",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/manaregen_mage_armor.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Регенерация, экипировка и обратная мана",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/manaregen_mana_belts.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Регенерация, экипировка и обратная мана",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/manaregen_mana_boost.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Регенерация, экипировка и обратная мана",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/manaregen_true.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Регенерация, экипировка и обратная мана",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/manaregen_true_pre.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Регенерация, экипировка и обратная мана",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Отрицательная мана: `negative_mana`",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana_1.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Отрицательная мана: `negative_mana`",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana_2.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Отрицательная мана: `negative_mana`",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana_3.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Отрицательная мана: `negative_mana`",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana_4.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Отрицательная мана: `negative_mana`",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana_5.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Предельная перегрузка: `_5`, `_5_helmet`, `damage_with_tmp_void`",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana_5_helmet.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Предельная перегрузка: `_5`, `_5_helmet`, `damage_with_tmp_void`",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana_resist.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Отрицательная мана: `negative_mana`",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana/explode.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Предельная перегрузка: `_5`, `_5_helmet`, `damage_with_tmp_void`",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana/tentacle.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Щупальца: направление, длина, урон и восстановление",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana/tentacle_2.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Щупальца: направление, длина, урон и восстановление",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana/tentacle_2_1.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Щупальца: направление, длина, урон и восстановление",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana/tentacle_big.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Щупальца: направление, длина, урон и восстановление",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana/tentacle_big_2.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Щупальца: направление, длина, урон и восстановление",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana/tentacle_big_2_1.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Щупальца: направление, длина, урон и восстановление",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana/tentacle_damage.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Щупальца: направление, длина, урон и восстановление",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana/tentacle_damage_restore_hp.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Щупальца: направление, длина, урон и восстановление",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana/tentacle_full_set.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Щупальца: направление, длина, урон и восстановление",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana/tentacle_full_set_2.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Щупальца: направление, длина, урон и восстановление",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/damage_with_tmp_void.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Предельная перегрузка: `_5`, `_5_helmet`, `damage_with_tmp_void`",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/speed_up.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Регенерация, экипировка и обратная мана",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/overload_crux/give.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Обычный проход: `manaregen`",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/mana_potions/bad.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Плохое зелье маны: `mana_potions/bad`, `select`",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/mana_potions/select.mcfunction",
+    "document": "agent_notes/lbc_mana.md",
+    "section": "Плохое зелье маны: `mana_potions/bad`, `select`",
+    "status": "documented",
+    "note": "Manually read source and linked mana loop, thresholds, numeric transforms, projectile recursion and caller guards."
+  }
+]

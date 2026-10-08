@@ -1,27 +1,27 @@
 {
-    "pools": [
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:music_disc_13",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_name",
-                            "name": {
-                                "translate": "entity.minecraft.zombified_piglin",
-                                "color": "aqua",
-                                "italic": false
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{rewardsound:1}"
-                        }
-                    ]
-                }
-            ]
+          "type": "minecraft:item",
+          "name": "minecraft:music_disc_13",
+          "modifier": [
+            {
+              "name": {
+                "translate": "entity.minecraft.zombified_piglin",
+                "color": "aqua",
+                "italic": false
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "tag": "{rewardsound:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

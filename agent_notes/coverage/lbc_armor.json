@@ -1,0 +1,541 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/assasin_set_bonus.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Наборы и постоянные эффекты",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/chaos_set_bonus.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Наборы и постоянные эффекты",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/erosion/tick.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Erosion и Glass: изменение брони при времени и уроне",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/erosion/tick_rnd.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Erosion и Glass: изменение брони при времени и уроне",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/flesh_set_bonus_add.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Наборы и постоянные эффекты",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/flesh_set_bonus_remove.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Наборы и постоянные эффекты",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/glass/damaged.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Erosion и Glass: изменение брони при времени и уроне",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/glass/damaged_full_set.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Erosion и Glass: изменение брони при времени и уроне",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/glass/damaged_full_set_dmg.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Erosion и Glass: изменение брони при времени и уроне",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/gownoleggings/1.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Gownoleggings и Mellstroy Mask",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/gownoleggings/2.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Gownoleggings и Mellstroy Mask",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/gownoleggings/3.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Gownoleggings и Mellstroy Mask",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/gownoleggings/4.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Gownoleggings и Mellstroy Mask",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/gownoleggings/5.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Gownoleggings и Mellstroy Mask",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/gownoleggings/6.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Gownoleggings и Mellstroy Mask",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/gownoleggings/7.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Gownoleggings и Mellstroy Mask",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/gownoleggings/8.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Gownoleggings и Mellstroy Mask",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/gownoleggings/any.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Gownoleggings и Mellstroy Mask",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/gownoleggings/select.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Gownoleggings и Mellstroy Mask",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/gownoleggings/select_gownomen.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Gownoleggings и Mellstroy Mask",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/mellstroy_mask/casino.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Gownoleggings и Mellstroy Mask",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/mellstroy_mask/casino_lastdep.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Gownoleggings и Mellstroy Mask",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/mellstroy_mask/casino_megadep.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Gownoleggings и Mellstroy Mask",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/mellstroy_mask/tick.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Gownoleggings и Mellstroy Mask",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/mellstroy_mask/tick_enemies_players.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Gownoleggings и Mellstroy Mask",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/nanobots/damaged.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Nanobots и Overload",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/nanobots/resist.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Nanobots и Overload",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/nanobots/tick1s.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Nanobots и Overload",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/nanobots/tick1s1.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Nanobots и Overload",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/overload/boots/impact.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Nanobots и Overload",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/overload/boots/impact_2.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Nanobots и Overload",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/overload/boots/slam.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Nanobots и Overload",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/overload/boots/tick.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Nanobots и Overload",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/overload/leggings/jump.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Nanobots и Overload",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/overload/leggings/tick.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Nanobots и Overload",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/phantom_set_bonus.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Наборы и постоянные эффекты",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/phantom_set_bonus_clear.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Наборы и постоянные эффекты",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/phantom_set_bonus_pre.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Наборы и постоянные эффекты",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/powerhelmet.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/powerhelmet_particle.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/powerhelmet_particle_2.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/powerhelmettick.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/reactive_helmet.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Наборы и постоянные эффекты",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/set_bonus/berserk4.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Наборы и постоянные эффекты",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/set_bonus/shulker4.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Наборы и постоянные эффекты",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/set_bonus/technomk2/damaged.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/set_bonus/technomk2/shield.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/set_bonus/technomk2/tick.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/shulker_teleport.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Наборы и постоянные эффекты",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/techno_sel.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/techno_set_bonus.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/techno_set_bonus1.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/technomk2/boots/after_flight.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/technomk2/boots/flight/begin.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/technomk2/boots/flight/down.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/technomk2/boots/flight/hover.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/technomk2/boots/flight/hover_1.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/technomk2/boots/flight/particle/from_ass.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/technomk2/boots/flight/particle/from_feet.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/technomk2/boots/flight/particle/from_feet_strong.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/technomk2/boots/flight/remove_fuel.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/technomk2/boots/flight/run.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/technomk2/boots/flight/sound/down.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/technomk2/boots/flight/sound/hover.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/technomk2/boots/flight/sound/up.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/technomk2/boots/flight/stop.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/technomk2/boots/flight/tick.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/technomk2/boots/flight/up.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/technomk2/boots/flight/up_upgraded.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/technomk2/boots/regen.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/technomk2/boots/regen_add.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/technomk2/boots/slow_falling.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/technomk2/boots/tick.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/technomk2/chestplate/tick.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/technomk2/take_off.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Technomk2 и Technomk2 flight boots",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/traveller_chestplate.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Наборы и постоянные эффекты",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/armor/traveller_set_bonus.mcfunction",
+    "document": "agent_notes/lbc_armor.md",
+    "section": "Наборы и постоянные эффекты",
+    "status": "documented",
+    "note": "Поведение сверено с исходной функцией и описано в указанном разделе; внешние вызовы отмечены как зависимости."
+  }
+]

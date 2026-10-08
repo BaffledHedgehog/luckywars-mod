@@ -1,0 +1,583 @@
+[
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/minecraft/dimension/overworld.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Измерение и метаданные пакета",
+    "status": "documented",
+    "note": "Значения JSON записаны; загрузочная семантика отмечена в границах, где она зависит от runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/minecraft/dimension_type/overworld.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Измерение и метаданные пакета",
+    "status": "documented",
+    "note": "Значения JSON записаны; загрузочная семантика отмечена в границах, где она зависит от runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/minecraft/loot_table/blocks/yellow_shulker_box.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Loot tables",
+    "status": "documented",
+    "note": "Сверены pools, roll count, weights, условия и назначение; дочерние/обёрточные варианты сопоставлены."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/minecraft/tags/block/chest.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Предикаты, теги и фильтры",
+    "status": "documented",
+    "note": "Проверены конкретные элементы и потребляющий advancement/predicate."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/core/attacking.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Игровые триггеры и сброс",
+    "status": "documented",
+    "note": "Критерий и фактические consumers/revoke сверены с функциями."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/core/first_time.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Игровые триггеры и сброс",
+    "status": "documented",
+    "note": "Критерий и фактические consumers/revoke сверены с функциями."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/core/food.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Игровые триггеры и сброс",
+    "status": "documented",
+    "note": "Критерий и фактические consumers/revoke сверены с функциями."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/core/kill.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Игровые триггеры и сброс",
+    "status": "documented",
+    "note": "Критерий и фактические consumers/revoke сверены с функциями."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/core/player_reset.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Игровые триггеры и сброс",
+    "status": "documented",
+    "note": "Критерий и фактические consumers/revoke сверены с функциями."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/core/quickstart.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Игровые триггеры и сброс",
+    "status": "documented",
+    "note": "Критерий и фактические consumers/revoke сверены с функциями."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/core/shoot_arrow.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Игровые триггеры и сброс",
+    "status": "documented",
+    "note": "Критерий и фактические consumers/revoke сверены с функциями."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/drop_1.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/drop_1_requested.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/drop_2.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/drop_2_requested.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/drop_3.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/drop_3_requested.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_1.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_10.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_11.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_12.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_13.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_14.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_15.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_16.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_17.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_18.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_19.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_2.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_20.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_21.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_22.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_23.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_24.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_25.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_26.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_3.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_4.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_5.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_6.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_7.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_8.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/suffix_9.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/turnir/killer.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/turnir/trophy1.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/turnir/trophy2.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/turnir/trophy3.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/turnir2/trophy1.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/turnir2/trophy2.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/advancement/rewards/turnir2/trophy3.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Advancement-награды и косметика",
+    "status": "documented",
+    "note": "Impossible criterion; получатель и вызывающий grant/revoke прослежены по командам."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/transfer.mcfunction",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Передача игроков",
+    "status": "documented",
+    "note": "Команда и контекст macro проверены; отсутствие авто-вызова отмечено."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/transfer_1.mcfunction",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Передача игроков",
+    "status": "documented",
+    "note": "Команда и контекст macro проверены; отсутствие авто-вызова отмечено."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/center.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Loot tables",
+    "status": "documented",
+    "note": "Сверены pools, roll count, weights, условия и назначение; дочерние/обёрточные варианты сопоставлены."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/center_0.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Loot tables",
+    "status": "documented",
+    "note": "Сверены pools, roll count, weights, условия и назначение; дочерние/обёрточные варианты сопоставлены."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/center_lb.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Loot tables",
+    "status": "documented",
+    "note": "Сверены pools, roll count, weights, условия и назначение; дочерние/обёрточные варианты сопоставлены."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/default.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Loot tables",
+    "status": "documented",
+    "note": "Сверены pools, roll count, weights, условия и назначение; дочерние/обёрточные варианты сопоставлены."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/default_0.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Loot tables",
+    "status": "documented",
+    "note": "Сверены pools, roll count, weights, условия и назначение; дочерние/обёрточные варианты сопоставлены."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/default_lb.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Loot tables",
+    "status": "documented",
+    "note": "Сверены pools, roll count, weights, условия и назначение; дочерние/обёрточные варианты сопоставлены."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/empty.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Loot tables",
+    "status": "documented",
+    "note": "Сверены pools, roll count, weights, условия и назначение; дочерние/обёрточные варианты сопоставлены."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/midle.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Loot tables",
+    "status": "documented",
+    "note": "Сверены pools, roll count, weights, условия и назначение; дочерние/обёрточные варианты сопоставлены."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/midle_0.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Loot tables",
+    "status": "documented",
+    "note": "Сверены pools, roll count, weights, условия и назначение; дочерние/обёрточные варианты сопоставлены."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/chests/midle_lb.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Loot tables",
+    "status": "documented",
+    "note": "Сверены pools, roll count, weights, условия и назначение; дочерние/обёрточные варианты сопоставлены."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/game/kit/12.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Loot tables",
+    "status": "documented",
+    "note": "Сверены pools, roll count, weights, условия и назначение; дочерние/обёрточные варианты сопоставлены."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/game/kit/18.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Loot tables",
+    "status": "documented",
+    "note": "Сверены pools, roll count, weights, условия и назначение; дочерние/обёрточные варианты сопоставлены."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/game/kit/halloween_pies.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Loot tables",
+    "status": "documented",
+    "note": "Сверены pools, roll count, weights, условия и назначение; дочерние/обёрточные варианты сопоставлены."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/locked_suffix_tournament.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Loot tables",
+    "status": "documented",
+    "note": "Проверен JSON; невалидный файл отмечен как неисполняемый, тестовая таблица проверена на вызовы."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/test.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Loot tables",
+    "status": "documented",
+    "note": "Проверен JSON; невалидный файл отмечен как неисполняемый, тестовая таблица проверена на вызовы."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/chance_10.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Предикаты, теги и фильтры",
+    "status": "documented",
+    "note": "Проверены условия и известные вызовы; отсутствие вызовов отдельно отмечено."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/chance_20.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Предикаты, теги и фильтры",
+    "status": "documented",
+    "note": "Проверены условия и известные вызовы; отсутствие вызовов отдельно отмечено."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/chance_25.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Предикаты, теги и фильтры",
+    "status": "documented",
+    "note": "Проверены условия и известные вызовы; отсутствие вызовов отдельно отмечено."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/chance_50.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Предикаты, теги и фильтры",
+    "status": "documented",
+    "note": "Проверены условия и известные вызовы; отсутствие вызовов отдельно отмечено."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/chest.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Предикаты, теги и фильтры",
+    "status": "documented",
+    "note": "Проверены условия и известные вызовы; отсутствие вызовов отдельно отмечено."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/fire.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Предикаты, теги и фильтры",
+    "status": "documented",
+    "note": "Проверены условия и известные вызовы; отсутствие вызовов отдельно отмечено."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/get_random.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Предикаты, теги и фильтры",
+    "status": "documented",
+    "note": "Проверены условия и известные вызовы; отсутствие вызовов отдельно отмечено."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/hold_compass.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Предикаты, теги и фильтры",
+    "status": "documented",
+    "note": "Проверены условия и известные вызовы; отсутствие вызовов отдельно отмечено."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/lobby.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Предикаты, теги и фильтры",
+    "status": "documented",
+    "note": "Проверены условия и известные вызовы; отсутствие вызовов отдельно отмечено."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/maploader.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Предикаты, теги и фильтры",
+    "status": "documented",
+    "note": "Проверены условия и известные вызовы; отсутствие вызовов отдельно отмечено."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/core/player_reset.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Предикаты, теги и фильтры",
+    "status": "documented",
+    "note": "Проверены условия и известные вызовы; отсутствие вызовов отдельно отмечено."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/on_ground.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Предикаты, теги и фильтры",
+    "status": "documented",
+    "note": "Проверены условия и известные вызовы; отсутствие вызовов отдельно отмечено."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/sprint.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Предикаты, теги и фильтры",
+    "status": "documented",
+    "note": "Проверены условия и известные вызовы; отсутствие вызовов отдельно отмечено."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/tags/item/all.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Предикаты, теги и фильтры",
+    "status": "documented",
+    "note": "Проверены конкретные элементы и потребляющий advancement/predicate."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/tags/item/food.json",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Предикаты, теги и фильтры",
+    "status": "documented",
+    "note": "Проверены конкретные элементы и потребляющий advancement/predicate."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/pack.mcmeta",
+    "document": "agent_notes/skywars_support.md",
+    "section": "Измерение и метаданные пакета",
+    "status": "documented",
+    "note": "Значения JSON записаны; загрузочная семантика отмечена в границах, где она зависит от runtime."
+  }
+]

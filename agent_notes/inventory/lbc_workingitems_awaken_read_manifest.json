@@ -1,0 +1,1110 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_left.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_caust.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_caust_lib.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_caust_lib_1.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_default.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_default_lib.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_gatling.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_gatling_lib.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_gatling_lib_1.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_rifle.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_rifle_tick.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/click_upgraded_pre.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/explode.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/tick.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/tick_burst.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/tick_caust.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidacid/tick_spawn.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/ball_spawn_falling.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/ball_tick.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/click.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/click_lib.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/click_upgrade.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/click_upgraded.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/click_upgraded_2_pre.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/click_upgraded_left.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/end.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/falling_tick.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/falling_tick_break.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/loop.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/mode_chuma.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/mode_chuma_end.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/mode_reverse.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/mode_reverse_effect.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/mode_reverse_mob.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/mode_titul.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/mode_titul_end.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/mode_titul_end_mob.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/spawn.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/acidcorrupt/spawn_ball.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click2_upgrade.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click2_upgrade2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click2_upgrade3.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click2_upgraded.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click2_upgraded_black_hole.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click2_upgraded_black_hole_charge.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click2_upgraded_default.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click2_upgraded_divide.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click2_upgraded_divide_end.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click2_upgraded_expand.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click_upgraded.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click_upgraded_left.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/click_upgraded_pre.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/rand_from_dim.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/rand_from_dim_remove.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/rand_rot.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/rand_rot2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/rand_rot2_2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/tick.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/avarice/tick_2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/break_room.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/break_room_at.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_lib.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgrade.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_left.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_default.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_place_cube.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_place_cube_end.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_regen.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_regen_lib.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_regen_tick.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_remove.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_remove_cube.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_remove_cube_end.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_remove_cube_end_at.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_remove_end.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/click_upgraded_pre.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/create_room.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/create_room_lib.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/create_room_regen.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/bedrock/create_room_regen_lib.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/charge_tick.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/charge_tick_1s.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click_lib.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click_upgraded.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_left.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_snow_meteor.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_snow_meteor_end.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_snow_meteor_explode.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_snow_meteor_first.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_snow_meteor_tick.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_snow_meteor_tick_2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_watering.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_wind_racer.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_pre.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/end.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/get_id.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/get_id_with_tp.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/get_id_with_tp_2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/loop.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/boltbolt/watering_tick.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_loop.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_loop_randomcloud.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_loop_randomcloud_get.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_upgrade.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_upgraded.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_upgraded_left.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_avarice.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_avarice_end.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_default.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_silence.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_the_end.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_the_end_pre.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consuming_wand_upgraded_pre.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consumption_part.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/consumption_part_da.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/electroblock/repell.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/electroblock/repell_new.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/electroblock/tick.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/electroblock/tick_accelerate.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/electroblock/tick_owner.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/electroblock/tick_owner_rc.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/electroblock/tick_rc.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/arc_tick.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/arc_tick_end.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/arc_tick_get_rot.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/arc_tick_get_rot_reset.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/arcs/1.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/arcs/1n.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/arcs/2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/arcs/2n.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/arcs/3.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/arcs/3n.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/arcs/4.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/arcs/4n.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/central_end.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/central_end_2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/central_end_2kill.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/central_tick.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/central_tick_end.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/central_tick_end_2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_1.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_default.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_ray.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_ray_dmg.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_ray_loop.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_ray_particle.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_ray_particle2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_ray_tick.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sniper.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sniper_bruh.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sniper_bruh_2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sniper_bruh_3.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sniper_charge.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sniper_charge_bruh.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sniper_charge_particle.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sniper_lib.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sphere.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sphere_place.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sphere_tick5t.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_pre.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/click_upgraded_left.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/get_data.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/get_id_and_rot.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/loop_check.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/erecto/loop_end.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_end.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_end_sis.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_lib.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_loop.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgrade.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded_left.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_curse.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_curse_get.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_default.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_destiny.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_destiny_loop.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_destiny_loop_end.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_destiny_loop_pre.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_destiny_tick.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_destiny_tick_vpered.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_sisyfus.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_click_upgraded_pre.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_get_id.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_particle_end_loop.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exahoming_slow_get_id.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/chtick.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/chtick_electro_ray.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/chtick_electro_ray_end.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/chtick_explode.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/chtick_explode_check_id.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/click.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/click2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/click2_upgraded.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_chaos_area.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_default.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_electro_ray.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_nuke.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_nuke_rocket.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_nuke_spawn.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/click_upgraded.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/click_upgraded_left.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/exasperato/click_upgraded_pre.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/at_pillar.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/at_random_big_fireball.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/at_random_fireball.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/click.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/click2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/click2_upgrade.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded_mode_kiuas.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded_mode_mega.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded_mode_pillars.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded_mode_world.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/click_upgraded.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/click_upgraded_left.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/click_upgraded_pre.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/fireblaze/pillar.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/infinite_bolt/click.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/infinite_bolt/end.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/infinite_bolt/loop.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click2_upgrade.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_left.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_default.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_default_1.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_invisible_charge.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_mindblowing_ray.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_mindblowing_ray_loop.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_mindblowing_ray_ponosed.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_mindblowing_ray_tick.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_spray.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_spray_tick.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_pre.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/tick.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/tick_invis.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/tickend.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/psychoblind/tickend_spray.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/click.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/click_upgraded.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/click_upgraded_left.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/click_upgraded_pre.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/comet.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/comet_end.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/end.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/loop.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/loop_earth.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/loop_earth_end.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/loop_sun.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/loop_sun_end.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/loop_sun_end_nerfed.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/loop_sun_end_nerfed1.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/loop_sun_end_nerfed_tick.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/terra/click.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/terra/click2.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/terra/razorterra.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/terra/razorterra_rand_rot.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/terra/tick_awaken.mcfunction",
+    "read_status": "read_and_compared"
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/terra/tick_awaken_loop.mcfunction",
+    "read_status": "read_and_compared"
+  }
+]

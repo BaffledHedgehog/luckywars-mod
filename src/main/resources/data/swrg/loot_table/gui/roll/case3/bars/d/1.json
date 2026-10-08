@@ -1,27 +1,27 @@
 {
-    "pools": [
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:crying_obsidian",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_name",
-                            "name": {
-                                "translate": "block.minecraft.crying_obsidian",
-                                "color": "red",
-                                "italic": false
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{rewardbar:20}"
-                        }
-                    ]
-                }
-            ]
+          "type": "minecraft:item",
+          "name": "minecraft:crying_obsidian",
+          "modifier": [
+            {
+              "name": {
+                "translate": "block.minecraft.crying_obsidian",
+                "color": "red",
+                "italic": false
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "tag": "{rewardbar:20}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

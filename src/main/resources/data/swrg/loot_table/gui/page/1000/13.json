@@ -1,32 +1,32 @@
 {
-    "pools": [
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:ender_chest"
-                }
-            ],
-            "functions": [
-                {
-                    "function": "minecraft:set_enchantments",
-                    "enchantments": {
-                        "minecraft:fortune": 5
-                    }
-                },
-                {
-                    "function": "minecraft:set_name",
-                    "entity": "this",
-                    "name": {
-                        "nbt": "page1000.s13.Name",
-                        "storage": "swrg:lang",
-                        "interpret": true,
-                        "source": "storage",
-                        "type": "nbt"
-                    }
-                }
-            ]
+          "type": "minecraft:item",
+          "name": "minecraft:ender_chest"
         }
-    ]
+      ],
+      "modifier": [
+        {
+          "enchantments": {
+            "minecraft:fortune": 5
+          },
+          "type": "minecraft:set_enchantments"
+        },
+        {
+          "entity": "this",
+          "name": {
+            "nbt": "page1000.s13.Name",
+            "storage": "swrg:lang",
+            "interpret": true,
+            "source": "storage",
+            "type": "nbt"
+          },
+          "type": "minecraft:set_name"
+        }
+      ]
+    }
+  ]
 }

@@ -1,0 +1,465 @@
+{
+  "slots": 41,
+  "food_criteria": 100,
+  "errors": [],
+  "rows": [
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/0.mcfunction",
+      "sha256": "66ebc7e17ddba44ca9f18a28bad6a0a05174e166b8c628f1b38e20c979b7d7c5",
+      "slot": "container.0",
+      "targets": [
+        "container.1",
+        "container.27"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/1.mcfunction",
+      "sha256": "acc13ea932fc0ffa089f8ec9d0035032c4d2a33dece73f9fc1845ec0d21f5cd8",
+      "slot": "container.1",
+      "targets": [
+        "container.0",
+        "container.2",
+        "container.28"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/10.mcfunction",
+      "sha256": "75fea0f5748fcc9e19c6481824fdfb4233caae2f692488e150eb4539f2281630",
+      "slot": "container.10",
+      "targets": [
+        "container.9",
+        "container.11",
+        "container.19"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/11.mcfunction",
+      "sha256": "87313ac152f1ed280cf3b21ebc6b7d71636947a5c75aab4b4e115c5790d3a621",
+      "slot": "container.11",
+      "targets": [
+        "container.10",
+        "container.12",
+        "container.20"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/12.mcfunction",
+      "sha256": "78a2e7cb676c1d0daba610a3cf246ec057192fdc8c4433ff17d8ff3102253fb0",
+      "slot": "container.12",
+      "targets": [
+        "container.11",
+        "container.13",
+        "container.21"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/13.mcfunction",
+      "sha256": "12e6e7598e31d9291fd4102c064144a461d2435b8706d77a49478d1e09ac513e",
+      "slot": "container.13",
+      "targets": [
+        "container.12",
+        "container.14",
+        "container.22",
+        "weapon.offhand"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/14.mcfunction",
+      "sha256": "dc474c1c3d38b101d5f6c3fb926afa8c5d817722530c9453984c3746baa27409",
+      "slot": "container.14",
+      "targets": [
+        "container.13",
+        "container.15",
+        "container.23"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/15.mcfunction",
+      "sha256": "a7dd07af2abf1a017bd8471fcdae32115fbb9cbc692bf3b2a2a60a73c47bd4a7",
+      "slot": "container.15",
+      "targets": [
+        "container.14",
+        "container.16",
+        "container.24"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/16.mcfunction",
+      "sha256": "3ba9beed198fada2ecebd93116c8b18e5bf1c3bf98afcff7574324fc2781d5e6",
+      "slot": "container.16",
+      "targets": [
+        "container.15",
+        "container.17",
+        "container.25"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/17.mcfunction",
+      "sha256": "fa732f8a828b84c744151d5c738c93c0009b2806dfb2e703b854f49a17e17c5e",
+      "slot": "container.17",
+      "targets": [
+        "container.16",
+        "container.26"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/18.mcfunction",
+      "sha256": "90bb0beed3afc0f48aef964183d952ef4cca2d8a1e6c5b307a0ad0429b942197",
+      "slot": "container.18",
+      "targets": [
+        "container.9",
+        "container.19",
+        "container.27"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/19.mcfunction",
+      "sha256": "7b2ae04321ec51fb419614a6db387115ecd51ec91ba435261afc8e89aeec888f",
+      "slot": "container.19",
+      "targets": [
+        "container.10",
+        "container.18",
+        "container.20",
+        "container.28"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/2.mcfunction",
+      "sha256": "bfdf889d03416a2ddf48f4a78e39b79294f74acf76e29fbd51fbf48b09ad8181",
+      "slot": "container.2",
+      "targets": [
+        "container.1",
+        "container.3",
+        "container.29"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/20.mcfunction",
+      "sha256": "bad6bf0f60d36bd064c314eba0911aba428de89a25dc9de67ea958ed8428214c",
+      "slot": "container.20",
+      "targets": [
+        "container.11",
+        "container.19",
+        "container.21",
+        "container.29"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/21.mcfunction",
+      "sha256": "069a7b74251b7538b0f4cd772ae12b1d6fa1c23351ca1ad4f79d4c23f9ff1649",
+      "slot": "container.21",
+      "targets": [
+        "container.12",
+        "container.20",
+        "container.22",
+        "container.30"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/22.mcfunction",
+      "sha256": "cb498b01331cd31c89c00404e6d0cd13e04a5ae5608959c7c827dd34502b9bd3",
+      "slot": "container.22",
+      "targets": [
+        "container.13",
+        "container.21",
+        "container.23",
+        "container.31"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/23.mcfunction",
+      "sha256": "e021ae35355ddaebb8f72531c31e91eed3e4b2ebe68089bce60ffc8b5a45f549",
+      "slot": "container.23",
+      "targets": [
+        "container.14",
+        "container.22",
+        "container.24",
+        "container.32"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/24.mcfunction",
+      "sha256": "8e95ed343953f4ac73f746727953dc41f859374349e985ef2a5d016e1a3132ee",
+      "slot": "container.24",
+      "targets": [
+        "container.15",
+        "container.23",
+        "container.25",
+        "container.33"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/25.mcfunction",
+      "sha256": "096e956d1850666edc0064ea997ec565dcad8bfba791ba1266070e48d343d4df",
+      "slot": "container.25",
+      "targets": [
+        "container.16",
+        "container.24",
+        "container.26",
+        "container.34"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/26.mcfunction",
+      "sha256": "c4498cc1c760bbb8514dffd286f38bd8b7492a70ee45b2d30d087949a8cd319b",
+      "slot": "container.26",
+      "targets": [
+        "container.17",
+        "container.25",
+        "container.35"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/27.mcfunction",
+      "sha256": "9d0332f2d002252a4fe35a991045ba4866da7d0f6a5318da2d34e535e00d739f",
+      "slot": "container.27",
+      "targets": [
+        "container.18",
+        "container.28",
+        "container.0"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/28.mcfunction",
+      "sha256": "4a134ffc0add1ea413a1bddd0f9205fe233fa469735b5bb58d6a834dbeac1bf9",
+      "slot": "container.28",
+      "targets": [
+        "container.19",
+        "container.27",
+        "container.29",
+        "container.1"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/29.mcfunction",
+      "sha256": "fe07500acdea6ae84804d92b39c61e47325c63cc7cdbaca592a289c793228109",
+      "slot": "container.29",
+      "targets": [
+        "container.20",
+        "container.28",
+        "container.30",
+        "container.2"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/3.mcfunction",
+      "sha256": "fc21a178cccc82ffa8369cc0746a71cff95b0c5e0d84b3bb15f2a21c7b6dc1d0",
+      "slot": "container.3",
+      "targets": [
+        "container.2",
+        "container.4",
+        "container.30"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/30.mcfunction",
+      "sha256": "9aea6f937e4a62f7492509f52d61e6492696506caa4858828c564b7f831d35b9",
+      "slot": "container.30",
+      "targets": [
+        "container.21",
+        "container.29",
+        "container.31",
+        "container.3"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/31.mcfunction",
+      "sha256": "35ebb2ff84b131f3c03783aa5896dd9da80c83835380fa858a88c9a7678fd896",
+      "slot": "container.31",
+      "targets": [
+        "container.22",
+        "container.30",
+        "container.32",
+        "container.4"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/32.mcfunction",
+      "sha256": "e47257fe297d5bcae0cac6402c02068eea937f5e7e9461db672c55670790402e",
+      "slot": "container.32",
+      "targets": [
+        "container.23",
+        "container.31",
+        "container.33",
+        "container.5"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/33.mcfunction",
+      "sha256": "8bc239749ccfb4fdf029a2b6fac047f241929ad473caaae944f4e3c63424bed0",
+      "slot": "container.33",
+      "targets": [
+        "container.24",
+        "container.32",
+        "container.34",
+        "container.6"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/34.mcfunction",
+      "sha256": "0f5f41a1f8d4f1c31c1dc23e5195b17c909298420698c2d4251ed88b34b40ff3",
+      "slot": "container.34",
+      "targets": [
+        "container.25",
+        "container.33",
+        "container.35",
+        "container.7"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/35.mcfunction",
+      "sha256": "a997886433cdb473734246b05059ccd3e60ca30fb6bfd69086196cd689fa8e48",
+      "slot": "container.35",
+      "targets": [
+        "container.26",
+        "container.34",
+        "container.8"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/4.mcfunction",
+      "sha256": "52e85f24b3e0d19a44d1838a6d12d80ad39c2871f422351700d53b3ee294d314",
+      "slot": "container.4",
+      "targets": [
+        "container.3",
+        "container.5",
+        "container.31"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/5.mcfunction",
+      "sha256": "9e14b4e0b4a70d1c187309d996e84d74c2f421b9c21d4d88e206a258ddfcb507",
+      "slot": "container.5",
+      "targets": [
+        "container.4",
+        "container.6",
+        "container.32"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/6.mcfunction",
+      "sha256": "692d1f9a207b9d3ae29ac8b70515e8d8bddfd92314f23037783b49e4d5daa7be",
+      "slot": "container.6",
+      "targets": [
+        "container.5",
+        "container.7",
+        "container.33"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/7.mcfunction",
+      "sha256": "bd88b7456ada4cc47dc45afb2c991ddaee1327ed8c37be635fcbd4c30d23ab9b",
+      "slot": "container.7",
+      "targets": [
+        "container.6",
+        "container.8",
+        "container.34"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/8.mcfunction",
+      "sha256": "2c8926655d23a4e0dd272fb828e4d23b134c8d4a93d21258ba83df2802e63adf",
+      "slot": "container.8",
+      "targets": [
+        "container.7",
+        "container.35"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/9.mcfunction",
+      "sha256": "807ec1422906feaa5ffb00232777af57b38805c982d117651493cf02aaeb7b5d",
+      "slot": "container.9",
+      "targets": [
+        "container.10",
+        "container.18",
+        "armor.feet"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/chest.mcfunction",
+      "sha256": "dee97760ccc3d075e47d19d1b6075eec21e3838d554a7505a2cfebee7b241d31",
+      "slot": "armor.chest",
+      "targets": [
+        "armor.head",
+        "armor.legs"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/feet.mcfunction",
+      "sha256": "4c403fea24520906e38c2001bcba1fa7ca604ec7cfa4e19efcd2c2ea3da3c914",
+      "slot": "armor.feet",
+      "targets": [
+        "armor.legs",
+        "weapon.offhand",
+        "container.9"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/head.mcfunction",
+      "sha256": "61fcb382f2bb6d8de449a445f503757b2ca67dc6c3d2ed0c2134179a68496e24",
+      "slot": "armor.head",
+      "targets": [
+        "armor.chest"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/legs.mcfunction",
+      "sha256": "b7a97147532e1969bdeea2ab0cb30722692a7155f1e4314100edb3823d3dd9fc",
+      "slot": "armor.legs",
+      "targets": [
+        "armor.chest",
+        "armor.feet"
+      ],
+      "complete_match": true
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/offhand.mcfunction",
+      "sha256": "1edec4bdba6a96889264f0ae51a0fd1c51e0a0543f54ebe07e99c3becef99bbd",
+      "slot": "weapon.offhand",
+      "targets": [
+        "armor.feet",
+        "container.13"
+      ],
+      "complete_match": true
+    }
+  ]
+}

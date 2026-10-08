@@ -1,0 +1,2781 @@
+[
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/clear.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Маршрутизация и состояние GUI",
+    "status": "documented",
+    "note": "Проверены вызовы, контекст игрока, page state и взаимодействие с cursor/EnderItems."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/main.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Маршрутизация и состояние GUI",
+    "status": "documented",
+    "note": "Проверены вызовы, контекст игрока, page state и взаимодействие с cursor/EnderItems."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/match.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Маршрутизация и состояние GUI",
+    "status": "documented",
+    "note": "Проверены вызовы, контекст игрока, page state и взаимодействие с cursor/EnderItems."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/0.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Маршрутизация и состояние GUI",
+    "status": "documented",
+    "note": "Проверены вызовы, контекст игрока, page state и взаимодействие с cursor/EnderItems."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/1000-lang.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Настройки и покупки",
+    "status": "documented",
+    "note": "Проверен цикл настройки, условие списания/выдачи либо выбор языка и фактический глобальный state."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/1000.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Настройки и покупки",
+    "status": "documented",
+    "note": "Проверен цикл настройки, условие списания/выдачи либо выбор языка и фактический глобальный state."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/1100.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Настройки и покупки",
+    "status": "documented",
+    "note": "Проверен цикл настройки, условие списания/выдачи либо выбор языка и фактический глобальный state."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/15000.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Выбор карт и команд",
+    "status": "documented",
+    "note": "Проверены доступность team slot, присоединение/выход и соответствие bed marker."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/15000_check_beds.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Выбор карт и команд",
+    "status": "documented",
+    "note": "Проверены доступность team slot, присоединение/выход и соответствие bed marker."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/2000.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Выбор карт и команд",
+    "status": "documented",
+    "note": "Проверена кнопка выбора, сохранение map ID и связь с maploader; внешняя загрузка отмечена в основном тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/2000b.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Выбор карт и команд",
+    "status": "documented",
+    "note": "Проверена кнопка выбора, сохранение map ID и связь с maploader; внешняя загрузка отмечена в основном тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/2100.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Выбор карт и команд",
+    "status": "documented",
+    "note": "Проверена кнопка выбора, сохранение map ID и связь с maploader; внешняя загрузка отмечена в основном тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/2200.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Выбор карт и команд",
+    "status": "documented",
+    "note": "Проверена кнопка выбора, сохранение map ID и связь с maploader; внешняя загрузка отмечена в основном тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/3000.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/3000_ranked.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/4000.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/4000_ranked.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/5000-5400.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Маршрутизация и состояние GUI",
+    "status": "documented",
+    "note": "Проверены вызовы, контекст игрока, page state и взаимодействие с cursor/EnderItems."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/5000.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Маршрутизация и состояние GUI",
+    "status": "documented",
+    "note": "Проверены вызовы, контекст игрока, page state и взаимодействие с cursor/EnderItems."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/6000.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Настройки и покупки",
+    "status": "documented",
+    "note": "Проверен цикл настройки, условие списания/выдачи либо выбор языка и фактический глобальный state."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7000.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7100.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7200.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7300.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7300_default.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7300_halloween.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7310.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7310_default.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7310_halloween.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7400.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7400_halloween.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7500.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page/7500_halloween.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/page.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Маршрутизация и состояние GUI",
+    "status": "documented",
+    "note": "Проверены вызовы, контекст игрока, page state и взаимодействие с cursor/EnderItems."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/0.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/1.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/2.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/3.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/4.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/fill0.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/fill1.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/fill2.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/fill3.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/fill4.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/have1.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/have2.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/have3.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/have4.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/player.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/reset.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/reward/0.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/reward/1.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/reward/2.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/reward/3.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/reward/4.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/reward/bars.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/reward/coins.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/reward/memcoins.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/roll/reward/sounds.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/0.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Маршрутизация и состояние GUI",
+    "status": "documented",
+    "note": "Проверены вызовы, контекст игрока, page state и взаимодействие с cursor/EnderItems."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/1000.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Настройки и покупки",
+    "status": "documented",
+    "note": "Проверен цикл настройки, условие списания/выдачи либо выбор языка и фактический глобальный state."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/1000_change_prefix.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Настройки и покупки",
+    "status": "documented",
+    "note": "Проверен цикл настройки, условие списания/выдачи либо выбор языка и фактический глобальный state."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/1100.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Настройки и покупки",
+    "status": "documented",
+    "note": "Проверен цикл настройки, условие списания/выдачи либо выбор языка и фактический глобальный state."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/15000.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Выбор карт и команд",
+    "status": "documented",
+    "note": "Проверены доступность team slot, присоединение/выход и соответствие bed marker."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/2000.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Выбор карт и команд",
+    "status": "documented",
+    "note": "Проверена кнопка выбора, сохранение map ID и связь с maploader; внешняя загрузка отмечена в основном тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/2000_mapselect.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Выбор карт и команд",
+    "status": "documented",
+    "note": "Проверена кнопка выбора, сохранение map ID и связь с maploader; внешняя загрузка отмечена в основном тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/2000b.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Выбор карт и команд",
+    "status": "documented",
+    "note": "Проверена кнопка выбора, сохранение map ID и связь с maploader; внешняя загрузка отмечена в основном тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/2000b_mapselect.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Выбор карт и команд",
+    "status": "documented",
+    "note": "Проверена кнопка выбора, сохранение map ID и связь с maploader; внешняя загрузка отмечена в основном тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/2100.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Выбор карт и команд",
+    "status": "documented",
+    "note": "Проверена кнопка выбора, сохранение map ID и связь с maploader; внешняя загрузка отмечена в основном тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/2100_mapselect.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Выбор карт и команд",
+    "status": "documented",
+    "note": "Проверена кнопка выбора, сохранение map ID и связь с maploader; внешняя загрузка отмечена в основном тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/2200.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Выбор карт и команд",
+    "status": "documented",
+    "note": "Проверена кнопка выбора, сохранение map ID и связь с maploader; внешняя загрузка отмечена в основном тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/2200_mapselect.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Выбор карт и команд",
+    "status": "documented",
+    "note": "Проверена кнопка выбора, сохранение map ID и связь с maploader; внешняя загрузка отмечена в основном тексте."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/3000.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/3000_ranked.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/4000.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/4000_ranked.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/5000.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Прослежен запуск, расписание, состояние кейса, выплата и обработка повтора."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/6000.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Настройки и покупки",
+    "status": "documented",
+    "note": "Проверен цикл настройки, условие списания/выдачи либо выбор языка и фактический глобальный state."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/7000.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/7100.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/7200.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/7300.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/7310.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/7400.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/7500.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Наборы, навыки и косметика",
+    "status": "documented",
+    "note": "Проверены отображение слотов, условия доступа и исполняемый эффект выбора/сброса."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select/config.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Маршрутизация и состояние GUI",
+    "status": "documented",
+    "note": "Проверены вызовы, контекст игрока, page state и взаимодействие с cursor/EnderItems."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Маршрутизация и состояние GUI",
+    "status": "documented",
+    "note": "Проверены вызовы, контекст игрока, page state и взаимодействие с cursor/EnderItems."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/set_slot_id.mcfunction",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Маршрутизация и состояние GUI",
+    "status": "documented",
+    "note": "Проверены вызовы, контекст игрока, page state и взаимодействие с cursor/EnderItems."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/balance.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/balance_mem.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/compass.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/diamond_axe.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/empty.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/golden_axe.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/iron_axe.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked/halloween_food.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked/halloween_mace.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked/pumpkin_sword.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked/soulcorrupt_wand.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked/soulcorrupt_wand_upgraded.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked/soulhunter_mace.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked/turnir1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked/wind_wand.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked/wind_wand_upgraded.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked_cosmetics_default.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked_event.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked_kit_default.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked_skill_default.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked_suffix_halloween.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/locked_suffix_pandora.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/netherite_axe.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/select.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/stone_axe.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier/wooden_axe.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Модификаторы предметов",
+    "status": "documented",
+    "note": "Проверено фактическое изменение имени, lore, glint, атрибутов или locked-подсказки."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/back.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/next.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/0.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/12.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/13.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/14.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/17.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/17_old.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/19.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/2.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/20.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/21.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/22.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/23.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/24.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/25.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/26.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/6.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/7.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/8.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/0/9.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/0.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/10.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/11.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/12.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/13.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/14.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/15.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/16.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/17.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/19.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/2.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/20.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/21.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/22.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/23.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/24.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/25.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/26.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/3.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/4.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/5.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/6.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/7.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/8.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1000/9.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1100/0.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/1100/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/0.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/10.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/11.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/12.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/13.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/14.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/15.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/16.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/17.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/19.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/2.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/20.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/21.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/22.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/23.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/3.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/4.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/5.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/6.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/7.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/8.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/3000/9.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/0.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/10.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/11.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/12.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/2.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/3.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/4.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/5.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/6.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/7.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/8.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/4000/9.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/5000/0.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/5000/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/5000/2.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/5000/3.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/5000/4.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/5000/4_halloween.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/0.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/10.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/11.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/12.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/12_halloween.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/13.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/13_halloween.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/14.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/14_halloween.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/2.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/3.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/4.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/5.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/6.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/7.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/8.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/6000/9.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7000/10.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7000/12.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7000/14.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7000/16.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7000/4.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7200/0.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/0.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/10.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/11.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/12.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/13.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/14.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/15.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/16.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/17.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/18.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/19.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/2.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/20.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/21.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/22.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/23.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/24.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/25.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/26.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/27.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/28.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/3.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/4.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/5.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/6.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/7.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/8.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7300/9.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7400/0.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7400/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7500/0.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7500/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/page/7500/2.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/reset.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Страницы и кнопки",
+    "status": "documented",
+    "note": "Проверены входы loot table и размещение результата на GUI-странице; отличия вариантов сверены с обработчиком."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case0/main.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/a/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/a/2.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/a/3.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/a/4.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/a/5.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/a/6.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/a/7.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/a/main.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/b/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/b/2.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/b/3.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/b/4.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/b/5.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/b/main.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/c/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/c/2.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/c/3.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/c/4.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/c/5.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/c/main.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/d/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/d/2.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/d/3.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/d/main.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case1/select.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/a/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/a/2.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/a/3.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/a/4.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/a/main.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/b/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/b/2.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/b/3.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/b/main.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/c/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/c/2.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/c/main.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/d/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/d/2.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/d/main.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case2/select.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/10.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/11.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/12.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/13.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/14.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/15.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/16.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/2.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/3.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/4.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/5.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/6.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/7.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/8.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/9.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/a/main.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/c/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/c/2.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/c/3.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/c/main.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/d/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/d/main.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/bars/select.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/select.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/a/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/a/2.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/a/3.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/a/4.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/a/5.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/a/6.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/a/7.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/a/main.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/b/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/b/2.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/b/3.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/b/main.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/c/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/c/main.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/d/1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/d/2.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/d/main.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case3/sounds/select.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case4/common.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case4/epic.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case4/legendary.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case4/rare.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/case4/select.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/coins/a.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/coins/b.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/coins/c.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/coins/d.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/coins/main.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/have/a.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/have/a_m.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/have/b.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/have/b_m.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/have/c.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/have/c_m.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/have/d.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/gui/roll/have/d_m.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Покупка ключей и кейс-роллы",
+    "status": "documented",
+    "note": "Сверены pools, веса, условия, предметы и вызванная reward-ветка; вероятность нормирована по сумме весов."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/0.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot0.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot1.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot10.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot11.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot12.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot13.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot14.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot15.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot16.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot17.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot18.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot19.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot2.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot20.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot21.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot22.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot23.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot24.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot25.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot26.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot3.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot4.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot5.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot6.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot7.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot8.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/slot9.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/predicate/gui/use.json",
+    "document": "agent_notes/skywars_gui.md",
+    "section": "Предикаты кликов",
+    "status": "documented",
+    "note": "Проверено поведение предиката и наличие либо отсутствие вызовов в GUI."
+  }
+]

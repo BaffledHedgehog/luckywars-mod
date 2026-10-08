@@ -1,0 +1,1364 @@
+Compiled from "DataCommands.java"
+public class net.minecraft.server.commands.data.DataCommands {
+  private static final com.mojang.brigadier.exceptions.SimpleCommandExceptionType ERROR_MERGE_UNCHANGED;
+
+  private static final com.mojang.brigadier.exceptions.DynamicCommandExceptionType ERROR_GET_NOT_NUMBER;
+
+  private static final com.mojang.brigadier.exceptions.DynamicCommandExceptionType ERROR_GET_NON_EXISTENT;
+
+  private static final com.mojang.brigadier.exceptions.SimpleCommandExceptionType ERROR_MULTIPLE_TAGS;
+
+  private static final com.mojang.brigadier.exceptions.DynamicCommandExceptionType ERROR_EXPECTED_OBJECT;
+
+  private static final com.mojang.brigadier.exceptions.DynamicCommandExceptionType ERROR_EXPECTED_VALUE;
+
+  private static final com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType ERROR_INVALID_SUBSTRING;
+
+  public static final java.util.List<net.minecraft.server.commands.ArgProvider$Factory<net.minecraft.server.commands.data.DataAccessor>> ALL_PROVIDERS;
+
+  public static final java.util.List<net.minecraft.server.commands.ArgProvider<net.minecraft.server.commands.data.DataAccessor>> TARGET_PROVIDERS;
+
+  public static final java.util.List<net.minecraft.server.commands.ArgProvider<net.minecraft.server.commands.data.DataAccessor>> SOURCE_PROVIDERS;
+
+  public net.minecraft.server.commands.data.DataCommands();
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return
+
+  public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack>, net.minecraft.commands.CommandBuildContext);
+    Code:
+         0: ldc           #7                  // String data
+         2: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+         5: getstatic     #15                 // Field net/minecraft/commands/Commands.LEVEL_GAMEMASTERS:Lnet/minecraft/server/permissions/PermissionCheck;
+         8: invokestatic  #19                 // Method net/minecraft/commands/Commands.hasPermission:(Lnet/minecraft/server/permissions/PermissionCheck;)Lnet/minecraft/server/permissions/PermissionProviderCheck;
+        11: invokevirtual #23                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.requires:(Ljava/util/function/Predicate;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        14: checkcast     #24                 // class com/mojang/brigadier/builder/LiteralArgumentBuilder
+        17: astore_2
+        18: getstatic     #29                 // Field TARGET_PROVIDERS:Ljava/util/List;
+        21: invokeinterface #35,  1           // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+        26: astore_3
+        27: aload_3
+        28: invokeinterface #41,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        33: ifeq          139
+        36: aload_3
+        37: invokeinterface #47,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        42: checkcast     #51                 // class net/minecraft/server/commands/ArgProvider
+        45: astore        4
+        47: aload_2
+        48: aload         4
+        50: ldc           #53                 // String merge
+        52: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+        55: aload         4
+        57: invokedynamic #55,  0             // InvokeDynamic #0:apply:(Lnet/minecraft/server/commands/ArgProvider;)Ljava/util/function/Function;
+        62: invokeinterface #59,  3           // InterfaceMethod net/minecraft/server/commands/ArgProvider.wrap:(Lcom/mojang/brigadier/builder/ArgumentBuilder;Ljava/util/function/Function;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        67: invokevirtual #63                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        70: checkcast     #24                 // class com/mojang/brigadier/builder/LiteralArgumentBuilder
+        73: aload         4
+        75: ldc           #67                 // String get
+        77: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+        80: aload         4
+        82: invokedynamic #69,  0             // InvokeDynamic #1:apply:(Lnet/minecraft/server/commands/ArgProvider;)Ljava/util/function/Function;
+        87: invokeinterface #59,  3           // InterfaceMethod net/minecraft/server/commands/ArgProvider.wrap:(Lcom/mojang/brigadier/builder/ArgumentBuilder;Ljava/util/function/Function;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        92: invokevirtual #63                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        95: checkcast     #24                 // class com/mojang/brigadier/builder/LiteralArgumentBuilder
+        98: aload         4
+       100: ldc           #70                 // String remove
+       102: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+       105: aload         4
+       107: invokedynamic #72,  0             // InvokeDynamic #2:apply:(Lnet/minecraft/server/commands/ArgProvider;)Ljava/util/function/Function;
+       112: invokeinterface #59,  3           // InterfaceMethod net/minecraft/server/commands/ArgProvider.wrap:(Lcom/mojang/brigadier/builder/ArgumentBuilder;Ljava/util/function/Function;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       117: invokevirtual #63                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       120: checkcast     #24                 // class com/mojang/brigadier/builder/LiteralArgumentBuilder
+       123: aload_1
+       124: invokedynamic #73,  0             // InvokeDynamic #3:accept:()Ljava/util/function/BiConsumer;
+       129: invokestatic  #77                 // Method decorateModification:(Lnet/minecraft/commands/CommandBuildContext;Ljava/util/function/BiConsumer;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       132: invokevirtual #63                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       135: pop
+       136: goto          27
+       139: aload_0
+       140: aload_2
+       141: invokevirtual #81                 // Method com/mojang/brigadier/CommandDispatcher.register:(Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;)Lcom/mojang/brigadier/tree/LiteralCommandNode;
+       144: pop
+       145: return
+
+  private static java.lang.String getAsText(net.minecraft.nbt.Tag) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: dup
+         2: invokestatic  #87                 // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+         5: pop
+         6: astore_1
+         7: iconst_0
+         8: istore_2
+         9: aload_1
+        10: iload_2
+        11: invokedynamic #93,  0             // InvokeDynamic #4:typeSwitch:(Lnet/minecraft/nbt/Tag;I)I
+        16: lookupswitch  { // 2
+
+                       0: 44
+
+                       1: 64
+                 default: 80
+            }
+        44: aload_1
+        45: checkcast     #97                 // class net/minecraft/nbt/StringTag
+        48: astore_3
+        49: aload_3
+        50: invokevirtual #99                 // Method net/minecraft/nbt/StringTag.value:()Ljava/lang/String;
+        53: astore        5
+        55: aload         5
+        57: astore        4
+        59: aload         4
+        61: goto          88
+        64: aload_1
+        65: checkcast     #103                // class net/minecraft/nbt/PrimitiveTag
+        68: astore        5
+        70: aload         5
+        72: invokeinterface #105,  1          // InterfaceMethod net/minecraft/nbt/PrimitiveTag.toString:()Ljava/lang/String;
+        77: goto          88
+        80: getstatic     #108                // Field ERROR_EXPECTED_VALUE:Lcom/mojang/brigadier/exceptions/DynamicCommandExceptionType;
+        83: aload_0
+        84: invokevirtual #112                // Method com/mojang/brigadier/exceptions/DynamicCommandExceptionType.create:(Ljava/lang/Object;)Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        87: athrow
+        88: areturn
+        89: astore_1
+        90: new           #120                // class java/lang/MatchException
+        93: dup
+        94: aload_1
+        95: invokevirtual #122                // Method java/lang/Throwable.toString:()Ljava/lang/String;
+        98: aload_1
+        99: invokespecial #123                // Method java/lang/MatchException."<init>":(Ljava/lang/String;Ljava/lang/Throwable;)V
+       102: athrow
+      Exception table:
+         from    to  target type
+            50    53    89   Class java/lang/Throwable
+
+  private static java.util.List<net.minecraft.nbt.Tag> stringifyTagList(java.util.List<net.minecraft.nbt.Tag>, net.minecraft.server.commands.data.DataCommands$StringProcessor) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: new           #126                // class java/util/ArrayList
+         3: dup
+         4: aload_0
+         5: invokeinterface #128,  1          // InterfaceMethod java/util/List.size:()I
+        10: invokespecial #132                // Method java/util/ArrayList."<init>":(I)V
+        13: astore_2
+        14: aload_0
+        15: invokeinterface #35,  1           // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+        20: astore_3
+        21: aload_3
+        22: invokeinterface #41,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        27: ifeq          69
+        30: aload_3
+        31: invokeinterface #47,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        36: checkcast     #135                // class net/minecraft/nbt/Tag
+        39: astore        4
+        41: aload         4
+        43: invokestatic  #137                // Method getAsText:(Lnet/minecraft/nbt/Tag;)Ljava/lang/String;
+        46: astore        5
+        48: aload_2
+        49: aload_1
+        50: aload         5
+        52: invokeinterface #141,  2          // InterfaceMethod net/minecraft/server/commands/data/DataCommands$StringProcessor.process:(Ljava/lang/String;)Ljava/lang/String;
+        57: invokestatic  #147                // Method net/minecraft/nbt/StringTag.valueOf:(Ljava/lang/String;)Lnet/minecraft/nbt/StringTag;
+        60: invokeinterface #151,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+        65: pop
+        66: goto          21
+        69: aload_2
+        70: areturn
+
+  private static com.mojang.brigadier.builder.ArgumentBuilder<net.minecraft.commands.CommandSourceStack, ?> decorateModification(net.minecraft.commands.CommandBuildContext, java.util.function.BiConsumer<com.mojang.brigadier.builder.ArgumentBuilder<net.minecraft.commands.CommandSourceStack, ?>, net.minecraft.server.commands.data.DataCommands$DataManipulatorDecorator>);
+    Code:
+         0: ldc           #155                // String modify
+         2: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+         5: astore_2
+         6: getstatic     #29                 // Field TARGET_PROVIDERS:Ljava/util/List;
+         9: invokeinterface #35,  1           // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+        14: astore_3
+        15: aload_3
+        16: invokeinterface #41,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        21: ifeq          56
+        24: aload_3
+        25: invokeinterface #47,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        30: checkcast     #51                 // class net/minecraft/server/commands/ArgProvider
+        33: astore        4
+        35: aload         4
+        37: aload_2
+        38: aload_1
+        39: aload         4
+        41: aload_0
+        42: invokedynamic #157,  0            // InvokeDynamic #5:apply:(Ljava/util/function/BiConsumer;Lnet/minecraft/server/commands/ArgProvider;Lnet/minecraft/commands/CommandBuildContext;)Ljava/util/function/Function;
+        47: invokeinterface #59,  3           // InterfaceMethod net/minecraft/server/commands/ArgProvider.wrap:(Lcom/mojang/brigadier/builder/ArgumentBuilder;Ljava/util/function/Function;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        52: pop
+        53: goto          15
+        56: aload_2
+        57: areturn
+
+  private static java.lang.String validatedSubstring(java.lang.String, int, int) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: iload_1
+         1: iflt          17
+         4: iload_2
+         5: aload_0
+         6: invokevirtual #160                // Method java/lang/String.length:()I
+         9: if_icmpgt     17
+        12: iload_1
+        13: iload_2
+        14: if_icmple     32
+        17: getstatic     #165                // Field ERROR_INVALID_SUBSTRING:Lcom/mojang/brigadier/exceptions/Dynamic2CommandExceptionType;
+        20: iload_1
+        21: invokestatic  #169                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        24: iload_2
+        25: invokestatic  #169                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        28: invokevirtual #174                // Method com/mojang/brigadier/exceptions/Dynamic2CommandExceptionType.create:(Ljava/lang/Object;Ljava/lang/Object;)Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        31: athrow
+        32: aload_0
+        33: iload_1
+        34: iload_2
+        35: invokevirtual #179                // Method java/lang/String.substring:(II)Ljava/lang/String;
+        38: areturn
+
+  private static java.lang.String substring(java.lang.String, int, int) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: invokevirtual #160                // Method java/lang/String.length:()I
+         4: istore_3
+         5: iload_1
+         6: iload_3
+         7: invokestatic  #183                // Method getOffset:(II)I
+        10: istore        4
+        12: iload_2
+        13: iload_3
+        14: invokestatic  #183                // Method getOffset:(II)I
+        17: istore        5
+        19: aload_0
+        20: iload         4
+        22: iload         5
+        24: invokestatic  #187                // Method validatedSubstring:(Ljava/lang/String;II)Ljava/lang/String;
+        27: areturn
+
+  private static java.lang.String substring(java.lang.String, int) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: invokevirtual #160                // Method java/lang/String.length:()I
+         4: istore_2
+         5: aload_0
+         6: iload_1
+         7: iload_2
+         8: invokestatic  #183                // Method getOffset:(II)I
+        11: iload_2
+        12: invokestatic  #187                // Method validatedSubstring:(Ljava/lang/String;II)Ljava/lang/String;
+        15: areturn
+
+  private static int getOffset(int, int);
+    Code:
+         0: iload_0
+         1: iflt          8
+         4: iload_0
+         5: goto          11
+         8: iload_1
+         9: iload_0
+        10: iadd
+        11: ireturn
+
+  private static java.util.List<net.minecraft.nbt.Tag> getSingletonSource(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack>, net.minecraft.server.commands.ArgProvider<net.minecraft.server.commands.data.DataAccessor>) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_1
+         1: aload_0
+         2: invokeinterface #191,  2          // InterfaceMethod net/minecraft/server/commands/ArgProvider.access:(Lcom/mojang/brigadier/context/CommandContext;)Ljava/lang/Object;
+         7: checkcast     #195                // class net/minecraft/server/commands/data/DataAccessor
+        10: astore_2
+        11: aload_2
+        12: invokeinterface #197,  1          // InterfaceMethod net/minecraft/server/commands/data/DataAccessor.getData:()Lnet/minecraft/nbt/CompoundTag;
+        17: invokestatic  #201                // Method java/util/Collections.singletonList:(Ljava/lang/Object;)Ljava/util/List;
+        20: areturn
+
+  private static java.util.List<net.minecraft.nbt.Tag> resolveSourcePath(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack>, net.minecraft.server.commands.ArgProvider<net.minecraft.server.commands.data.DataAccessor>) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_1
+         1: aload_0
+         2: invokeinterface #191,  2          // InterfaceMethod net/minecraft/server/commands/ArgProvider.access:(Lcom/mojang/brigadier/context/CommandContext;)Ljava/lang/Object;
+         7: checkcast     #195                // class net/minecraft/server/commands/data/DataAccessor
+        10: astore_2
+        11: aload_0
+        12: ldc           #207                // String sourcePath
+        14: invokestatic  #209                // Method net/minecraft/commands/arguments/NbtPathArgument.getPath:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/commands/arguments/NbtPathArgument$NbtPath;
+        17: astore_3
+        18: aload_3
+        19: aload_2
+        20: invokeinterface #197,  1          // InterfaceMethod net/minecraft/server/commands/data/DataAccessor.getData:()Lnet/minecraft/nbt/CompoundTag;
+        25: invokevirtual #215                // Method net/minecraft/commands/arguments/NbtPathArgument$NbtPath.get:(Lnet/minecraft/nbt/Tag;)Ljava/util/List;
+        28: areturn
+
+  private static int manipulateData(com.mojang.brigadier.context.CommandContext<net.minecraft.commands.CommandSourceStack>, net.minecraft.server.commands.ArgProvider<net.minecraft.server.commands.data.DataAccessor>, net.minecraft.server.commands.data.DataCommands$DataManipulator, java.util.List<net.minecraft.nbt.Tag>) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_1
+         1: aload_0
+         2: invokeinterface #191,  2          // InterfaceMethod net/minecraft/server/commands/ArgProvider.access:(Lcom/mojang/brigadier/context/CommandContext;)Ljava/lang/Object;
+         7: checkcast     #195                // class net/minecraft/server/commands/data/DataAccessor
+        10: astore        4
+        12: aload_0
+        13: ldc           #220                // String targetPath
+        15: invokestatic  #209                // Method net/minecraft/commands/arguments/NbtPathArgument.getPath:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/commands/arguments/NbtPathArgument$NbtPath;
+        18: astore        5
+        20: aload         4
+        22: invokeinterface #197,  1          // InterfaceMethod net/minecraft/server/commands/data/DataAccessor.getData:()Lnet/minecraft/nbt/CompoundTag;
+        27: astore        6
+        29: aload_2
+        30: aload_0
+        31: aload         6
+        33: aload         5
+        35: aload_3
+        36: invokeinterface #222,  5          // InterfaceMethod net/minecraft/server/commands/data/DataCommands$DataManipulator.modify:(Lcom/mojang/brigadier/context/CommandContext;Lnet/minecraft/nbt/CompoundTag;Lnet/minecraft/commands/arguments/NbtPathArgument$NbtPath;Ljava/util/List;)I
+        41: istore        7
+        43: iload         7
+        45: ifne          55
+        48: getstatic     #227                // Field ERROR_MERGE_UNCHANGED:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;
+        51: invokevirtual #231                // Method com/mojang/brigadier/exceptions/SimpleCommandExceptionType.create:()Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        54: athrow
+        55: aload         4
+        57: aload         6
+        59: invokeinterface #236,  2          // InterfaceMethod net/minecraft/server/commands/data/DataAccessor.setData:(Lnet/minecraft/nbt/CompoundTag;)V
+        64: aload_0
+        65: invokevirtual #240                // Method com/mojang/brigadier/context/CommandContext.getSource:()Ljava/lang/Object;
+        68: checkcast     #245                // class net/minecraft/commands/CommandSourceStack
+        71: aload         4
+        73: invokedynamic #247,  0            // InvokeDynamic #6:get:(Lnet/minecraft/server/commands/data/DataAccessor;)Ljava/util/function/Supplier;
+        78: iconst_1
+        79: invokevirtual #250                // Method net/minecraft/commands/CommandSourceStack.sendSuccess:(Ljava/util/function/Supplier;Z)V
+        82: iload         7
+        84: ireturn
+
+  private static int removeData(net.minecraft.commands.CommandSourceStack, net.minecraft.server.commands.data.DataAccessor, net.minecraft.commands.arguments.NbtPathArgument$NbtPath) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_1
+         1: invokeinterface #197,  1          // InterfaceMethod net/minecraft/server/commands/data/DataAccessor.getData:()Lnet/minecraft/nbt/CompoundTag;
+         6: astore_3
+         7: aload_2
+         8: aload_3
+         9: invokevirtual #254                // Method net/minecraft/commands/arguments/NbtPathArgument$NbtPath.remove:(Lnet/minecraft/nbt/Tag;)I
+        12: istore        4
+        14: iload         4
+        16: ifne          26
+        19: getstatic     #227                // Field ERROR_MERGE_UNCHANGED:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;
+        22: invokevirtual #231                // Method com/mojang/brigadier/exceptions/SimpleCommandExceptionType.create:()Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        25: athrow
+        26: aload_1
+        27: aload_3
+        28: invokeinterface #236,  2          // InterfaceMethod net/minecraft/server/commands/data/DataAccessor.setData:(Lnet/minecraft/nbt/CompoundTag;)V
+        33: aload_0
+        34: aload_1
+        35: invokedynamic #257,  0            // InvokeDynamic #7:get:(Lnet/minecraft/server/commands/data/DataAccessor;)Ljava/util/function/Supplier;
+        40: iconst_1
+        41: invokevirtual #250                // Method net/minecraft/commands/CommandSourceStack.sendSuccess:(Ljava/util/function/Supplier;Z)V
+        44: iload         4
+        46: ireturn
+
+  public static net.minecraft.nbt.Tag getSingleTag(net.minecraft.commands.arguments.NbtPathArgument$NbtPath, net.minecraft.server.commands.data.DataAccessor) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokeinterface #197,  1          // InterfaceMethod net/minecraft/server/commands/data/DataAccessor.getData:()Lnet/minecraft/nbt/CompoundTag;
+         7: invokevirtual #215                // Method net/minecraft/commands/arguments/NbtPathArgument$NbtPath.get:(Lnet/minecraft/nbt/Tag;)Ljava/util/List;
+        10: astore_2
+        11: aload_2
+        12: invokeinterface #258,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        17: astore_3
+        18: aload_3
+        19: invokeinterface #47,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        24: checkcast     #135                // class net/minecraft/nbt/Tag
+        27: astore        4
+        29: aload_3
+        30: invokeinterface #41,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        35: ifeq          45
+        38: getstatic     #261                // Field ERROR_MULTIPLE_TAGS:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;
+        41: invokevirtual #231                // Method com/mojang/brigadier/exceptions/SimpleCommandExceptionType.create:()Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        44: athrow
+        45: aload         4
+        47: areturn
+
+  private static int getData(net.minecraft.commands.CommandSourceStack, net.minecraft.server.commands.data.DataAccessor, net.minecraft.commands.arguments.NbtPathArgument$NbtPath) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_2
+         1: aload_1
+         2: invokestatic  #264                // Method getSingleTag:(Lnet/minecraft/commands/arguments/NbtPathArgument$NbtPath;Lnet/minecraft/server/commands/data/DataAccessor;)Lnet/minecraft/nbt/Tag;
+         5: astore_3
+         6: aload_3
+         7: dup
+         8: invokestatic  #87                 // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+        11: pop
+        12: astore        5
+        14: iconst_0
+        15: istore        6
+        17: aload         5
+        19: iload         6
+        21: invokedynamic #268,  0            // InvokeDynamic #8:typeSwitch:(Lnet/minecraft/nbt/Tag;I)I
+        26: tableswitch   { // 0 to 4
+
+                       0: 70
+
+                       1: 90
+
+                       2: 107
+
+                       3: 122
+
+                       4: 148
+                 default: 60
+            }
+        60: new           #120                // class java/lang/MatchException
+        63: dup
+        64: aconst_null
+        65: aconst_null
+        66: invokespecial #123                // Method java/lang/MatchException."<init>":(Ljava/lang/String;Ljava/lang/Throwable;)V
+        69: athrow
+        70: aload         5
+        72: checkcast     #269                // class net/minecraft/nbt/NumericTag
+        75: astore        7
+        77: aload         7
+        79: invokeinterface #271,  1          // InterfaceMethod net/minecraft/nbt/NumericTag.doubleValue:()D
+        84: invokestatic  #275                // Method net/minecraft/util/Mth.floor:(D)I
+        87: goto          166
+        90: aload         5
+        92: checkcast     #281                // class net/minecraft/nbt/CollectionTag
+        95: astore        8
+        97: aload         8
+        99: invokeinterface #283,  1          // InterfaceMethod net/minecraft/nbt/CollectionTag.size:()I
+       104: goto          166
+       107: aload         5
+       109: checkcast     #284                // class net/minecraft/nbt/CompoundTag
+       112: astore        9
+       114: aload         9
+       116: invokevirtual #286                // Method net/minecraft/nbt/CompoundTag.size:()I
+       119: goto          166
+       122: aload         5
+       124: checkcast     #97                 // class net/minecraft/nbt/StringTag
+       127: astore        10
+       129: aload         10
+       131: invokevirtual #99                 // Method net/minecraft/nbt/StringTag.value:()Ljava/lang/String;
+       134: astore        12
+       136: aload         12
+       138: astore        11
+       140: aload         11
+       142: invokevirtual #160                // Method java/lang/String.length:()I
+       145: goto          166
+       148: aload         5
+       150: checkcast     #287                // class net/minecraft/nbt/EndTag
+       153: astore        12
+       155: getstatic     #289                // Field ERROR_GET_NON_EXISTENT:Lcom/mojang/brigadier/exceptions/DynamicCommandExceptionType;
+       158: aload_2
+       159: invokevirtual #292                // Method net/minecraft/commands/arguments/NbtPathArgument$NbtPath.toString:()Ljava/lang/String;
+       162: invokevirtual #112                // Method com/mojang/brigadier/exceptions/DynamicCommandExceptionType.create:(Ljava/lang/Object;)Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+       165: athrow
+       166: istore        4
+       168: aload_0
+       169: aload_1
+       170: aload_3
+       171: invokedynamic #293,  0            // InvokeDynamic #9:get:(Lnet/minecraft/server/commands/data/DataAccessor;Lnet/minecraft/nbt/Tag;)Ljava/util/function/Supplier;
+       176: iconst_0
+       177: invokevirtual #250                // Method net/minecraft/commands/CommandSourceStack.sendSuccess:(Ljava/util/function/Supplier;Z)V
+       180: iload         4
+       182: ireturn
+       183: astore        5
+       185: new           #120                // class java/lang/MatchException
+       188: dup
+       189: aload         5
+       191: invokevirtual #122                // Method java/lang/Throwable.toString:()Ljava/lang/String;
+       194: aload         5
+       196: invokespecial #123                // Method java/lang/MatchException."<init>":(Ljava/lang/String;Ljava/lang/Throwable;)V
+       199: athrow
+      Exception table:
+         from    to  target type
+           131   134   183   Class java/lang/Throwable
+
+  private static int getNumeric(net.minecraft.commands.CommandSourceStack, net.minecraft.server.commands.data.DataAccessor, net.minecraft.commands.arguments.NbtPathArgument$NbtPath, double) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_2
+         1: aload_1
+         2: invokestatic  #264                // Method getSingleTag:(Lnet/minecraft/commands/arguments/NbtPathArgument$NbtPath;Lnet/minecraft/server/commands/data/DataAccessor;)Lnet/minecraft/nbt/Tag;
+         5: astore        5
+         7: aload         5
+         9: instanceof    #269                // class net/minecraft/nbt/NumericTag
+        12: ifeq          25
+        15: aload         5
+        17: checkcast     #269                // class net/minecraft/nbt/NumericTag
+        20: astore        6
+        22: goto          36
+        25: getstatic     #296                // Field ERROR_GET_NOT_NUMBER:Lcom/mojang/brigadier/exceptions/DynamicCommandExceptionType;
+        28: aload_2
+        29: invokevirtual #292                // Method net/minecraft/commands/arguments/NbtPathArgument$NbtPath.toString:()Ljava/lang/String;
+        32: invokevirtual #112                // Method com/mojang/brigadier/exceptions/DynamicCommandExceptionType.create:(Ljava/lang/Object;)Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        35: athrow
+        36: aload         6
+        38: invokeinterface #271,  1          // InterfaceMethod net/minecraft/nbt/NumericTag.doubleValue:()D
+        43: dload_3
+        44: dmul
+        45: invokestatic  #275                // Method net/minecraft/util/Mth.floor:(D)I
+        48: istore        7
+        50: aload_0
+        51: aload_1
+        52: aload_2
+        53: dload_3
+        54: iload         7
+        56: invokedynamic #299,  0            // InvokeDynamic #10:get:(Lnet/minecraft/server/commands/data/DataAccessor;Lnet/minecraft/commands/arguments/NbtPathArgument$NbtPath;DI)Ljava/util/function/Supplier;
+        61: iconst_0
+        62: invokevirtual #250                // Method net/minecraft/commands/CommandSourceStack.sendSuccess:(Ljava/util/function/Supplier;Z)V
+        65: iload         7
+        67: ireturn
+
+  private static int getData(net.minecraft.commands.CommandSourceStack, net.minecraft.server.commands.data.DataAccessor) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_1
+         1: invokeinterface #197,  1          // InterfaceMethod net/minecraft/server/commands/data/DataAccessor.getData:()Lnet/minecraft/nbt/CompoundTag;
+         6: astore_2
+         7: aload_0
+         8: aload_1
+         9: aload_2
+        10: invokedynamic #302,  0            // InvokeDynamic #11:get:(Lnet/minecraft/server/commands/data/DataAccessor;Lnet/minecraft/nbt/CompoundTag;)Ljava/util/function/Supplier;
+        15: iconst_0
+        16: invokevirtual #250                // Method net/minecraft/commands/CommandSourceStack.sendSuccess:(Ljava/util/function/Supplier;Z)V
+        19: iconst_1
+        20: ireturn
+
+  private static int mergeData(net.minecraft.commands.CommandSourceStack, net.minecraft.server.commands.data.DataAccessor, net.minecraft.nbt.CompoundTag) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_1
+         1: invokeinterface #197,  1          // InterfaceMethod net/minecraft/server/commands/data/DataAccessor.getData:()Lnet/minecraft/nbt/CompoundTag;
+         6: astore_3
+         7: aload_2
+         8: iconst_0
+         9: invokestatic  #305                // Method net/minecraft/commands/arguments/NbtPathArgument$NbtPath.isTooDeep:(Lnet/minecraft/nbt/Tag;I)Z
+        12: ifeq          22
+        15: getstatic     #309                // Field net/minecraft/commands/arguments/NbtPathArgument.ERROR_DATA_TOO_DEEP:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;
+        18: invokevirtual #231                // Method com/mojang/brigadier/exceptions/SimpleCommandExceptionType.create:()Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        21: athrow
+        22: aload_3
+        23: invokevirtual #312                // Method net/minecraft/nbt/CompoundTag.copy:()Lnet/minecraft/nbt/CompoundTag;
+        26: aload_2
+        27: invokevirtual #315                // Method net/minecraft/nbt/CompoundTag.merge:(Lnet/minecraft/nbt/CompoundTag;)Lnet/minecraft/nbt/CompoundTag;
+        30: astore        4
+        32: aload_3
+        33: aload         4
+        35: invokevirtual #318                // Method net/minecraft/nbt/CompoundTag.equals:(Ljava/lang/Object;)Z
+        38: ifeq          48
+        41: getstatic     #227                // Field ERROR_MERGE_UNCHANGED:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;
+        44: invokevirtual #231                // Method com/mojang/brigadier/exceptions/SimpleCommandExceptionType.create:()Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        47: athrow
+        48: aload_1
+        49: aload         4
+        51: invokeinterface #236,  2          // InterfaceMethod net/minecraft/server/commands/data/DataAccessor.setData:(Lnet/minecraft/nbt/CompoundTag;)V
+        56: aload_0
+        57: aload_1
+        58: invokedynamic #321,  0            // InvokeDynamic #12:get:(Lnet/minecraft/server/commands/data/DataAccessor;)Ljava/util/function/Supplier;
+        63: iconst_1
+        64: invokevirtual #250                // Method net/minecraft/commands/CommandSourceStack.sendSuccess:(Ljava/util/function/Supplier;Z)V
+        67: iconst_1
+        68: ireturn
+
+  private static net.minecraft.network.chat.Component lambda$mergeData$0(net.minecraft.server.commands.data.DataAccessor);
+    Code:
+         0: aload_0
+         1: invokeinterface #322,  1          // InterfaceMethod net/minecraft/server/commands/data/DataAccessor.getModifiedSuccess:()Lnet/minecraft/network/chat/Component;
+         6: areturn
+
+  private static net.minecraft.network.chat.Component lambda$getData$1(net.minecraft.server.commands.data.DataAccessor, net.minecraft.nbt.CompoundTag);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokeinterface #326,  2          // InterfaceMethod net/minecraft/server/commands/data/DataAccessor.getPrintSuccess:(Lnet/minecraft/nbt/Tag;)Lnet/minecraft/network/chat/Component;
+         7: areturn
+
+  private static net.minecraft.network.chat.Component lambda$getNumeric$0(net.minecraft.server.commands.data.DataAccessor, net.minecraft.commands.arguments.NbtPathArgument$NbtPath, double, int);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: dload_2
+         3: iload         4
+         5: invokeinterface #330,  5          // InterfaceMethod net/minecraft/server/commands/data/DataAccessor.getPrintSuccess:(Lnet/minecraft/commands/arguments/NbtPathArgument$NbtPath;DI)Lnet/minecraft/network/chat/Component;
+        10: areturn
+
+  private static net.minecraft.network.chat.Component lambda$getData$0(net.minecraft.server.commands.data.DataAccessor, net.minecraft.nbt.Tag);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokeinterface #326,  2          // InterfaceMethod net/minecraft/server/commands/data/DataAccessor.getPrintSuccess:(Lnet/minecraft/nbt/Tag;)Lnet/minecraft/network/chat/Component;
+         7: areturn
+
+  private static net.minecraft.network.chat.Component lambda$removeData$0(net.minecraft.server.commands.data.DataAccessor);
+    Code:
+         0: aload_0
+         1: invokeinterface #322,  1          // InterfaceMethod net/minecraft/server/commands/data/DataAccessor.getModifiedSuccess:()Lnet/minecraft/network/chat/Component;
+         6: areturn
+
+  private static net.minecraft.network.chat.Component lambda$manipulateData$0(net.minecraft.server.commands.data.DataAccessor);
+    Code:
+         0: aload_0
+         1: invokeinterface #322,  1          // InterfaceMethod net/minecraft/server/commands/data/DataAccessor.getModifiedSuccess:()Lnet/minecraft/network/chat/Component;
+         6: areturn
+
+  private static com.mojang.brigadier.builder.ArgumentBuilder lambda$decorateModification$0(java.util.function.BiConsumer, net.minecraft.server.commands.ArgProvider, net.minecraft.commands.CommandBuildContext, com.mojang.brigadier.builder.ArgumentBuilder);
+    Code:
+         0: ldc           #220                // String targetPath
+         2: invokestatic  #333                // Method net/minecraft/commands/arguments/NbtPathArgument.nbtPath:()Lnet/minecraft/commands/arguments/NbtPathArgument;
+         5: invokestatic  #337                // Method net/minecraft/commands/Commands.argument:(Ljava/lang/String;Lcom/mojang/brigadier/arguments/ArgumentType;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+         8: astore        4
+        10: getstatic     #341                // Field SOURCE_PROVIDERS:Ljava/util/List;
+        13: invokeinterface #35,  1           // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+        18: astore        5
+        20: aload         5
+        22: invokeinterface #41,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        27: ifeq          77
+        30: aload         5
+        32: invokeinterface #47,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        37: checkcast     #51                 // class net/minecraft/server/commands/ArgProvider
+        40: astore        6
+        42: aload_0
+        43: aload         4
+        45: aload         6
+        47: aload_1
+        48: invokedynamic #344,  0            // InvokeDynamic #13:create:(Lnet/minecraft/server/commands/ArgProvider;Lnet/minecraft/server/commands/ArgProvider;)Lnet/minecraft/server/commands/data/DataCommands$DataManipulatorDecorator;
+        53: invokeinterface #347,  3          // InterfaceMethod java/util/function/BiConsumer.accept:(Ljava/lang/Object;Ljava/lang/Object;)V
+        58: aload_0
+        59: aload         4
+        61: aload         6
+        63: aload_1
+        64: invokedynamic #352,  0            // InvokeDynamic #14:create:(Lnet/minecraft/server/commands/ArgProvider;Lnet/minecraft/server/commands/ArgProvider;)Lnet/minecraft/server/commands/data/DataCommands$DataManipulatorDecorator;
+        69: invokeinterface #347,  3          // InterfaceMethod java/util/function/BiConsumer.accept:(Ljava/lang/Object;Ljava/lang/Object;)V
+        74: goto          20
+        77: aload_0
+        78: aload         4
+        80: aload_2
+        81: aload_1
+        82: invokedynamic #353,  0            // InvokeDynamic #15:create:(Lnet/minecraft/commands/CommandBuildContext;Lnet/minecraft/server/commands/ArgProvider;)Lnet/minecraft/server/commands/data/DataCommands$DataManipulatorDecorator;
+        87: invokeinterface #347,  3          // InterfaceMethod java/util/function/BiConsumer.accept:(Ljava/lang/Object;Ljava/lang/Object;)V
+        92: aload_0
+        93: aload         4
+        95: aload_1
+        96: invokedynamic #356,  0            // InvokeDynamic #16:create:(Lnet/minecraft/server/commands/ArgProvider;)Lnet/minecraft/server/commands/data/DataCommands$DataManipulatorDecorator;
+       101: invokeinterface #347,  3          // InterfaceMethod java/util/function/BiConsumer.accept:(Ljava/lang/Object;Ljava/lang/Object;)V
+       106: aload_3
+       107: aload         4
+       109: invokevirtual #359                // Method com/mojang/brigadier/builder/ArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       112: areturn
+
+  private static com.mojang.brigadier.builder.ArgumentBuilder lambda$decorateModification$19(net.minecraft.server.commands.ArgProvider, net.minecraft.server.commands.data.DataCommands$DataManipulator);
+    Code:
+         0: ldc_w         #362                // String value
+         3: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+         6: ldc_w         #362                // String value
+         9: invokestatic  #363                // Method net/minecraft/commands/arguments/NbtTagArgument.nbtTag:()Lnet/minecraft/commands/arguments/NbtTagArgument;
+        12: invokestatic  #337                // Method net/minecraft/commands/Commands.argument:(Ljava/lang/String;Lcom/mojang/brigadier/arguments/ArgumentType;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+        15: aload_0
+        16: aload_1
+        17: invokedynamic #369,  0            // InvokeDynamic #17:run:(Lnet/minecraft/server/commands/ArgProvider;Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;)Lcom/mojang/brigadier/Command;
+        22: invokevirtual #373                // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        25: invokevirtual #63                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        28: areturn
+
+  private static int lambda$decorateModification$20(net.minecraft.server.commands.ArgProvider, net.minecraft.server.commands.data.DataCommands$DataManipulator, com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_2
+         1: ldc_w         #362                // String value
+         4: invokestatic  #379                // Method net/minecraft/commands/arguments/NbtTagArgument.getNbtTag:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/nbt/Tag;
+         7: invokestatic  #201                // Method java/util/Collections.singletonList:(Ljava/lang/Object;)Ljava/util/List;
+        10: astore_3
+        11: aload_2
+        12: aload_0
+        13: aload_1
+        14: aload_3
+        15: invokestatic  #383                // Method manipulateData:(Lcom/mojang/brigadier/context/CommandContext;Lnet/minecraft/server/commands/ArgProvider;Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;Ljava/util/List;)I
+        18: ireturn
+
+  private static com.mojang.brigadier.builder.ArgumentBuilder lambda$decorateModification$15(net.minecraft.commands.CommandBuildContext, net.minecraft.server.commands.ArgProvider, net.minecraft.server.commands.data.DataCommands$DataManipulator);
+    Code:
+         0: ldc_w         #387                // String compute
+         3: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+         6: aload_0
+         7: aload_1
+         8: aload_2
+         9: invokedynamic #389,  0            // InvokeDynamic #18:visit:(Lnet/minecraft/commands/CommandBuildContext;Lnet/minecraft/server/commands/ArgProvider;Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;)Lnet/minecraft/server/commands/LootContextSources$NodeVisitor;
+        14: invokestatic  #393                // Method net/minecraft/server/commands/LootContextSources.addContextSources:(Lcom/mojang/brigadier/builder/ArgumentBuilder;Lnet/minecraft/server/commands/LootContextSources$NodeVisitor;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        17: areturn
+
+  private static void lambda$decorateModification$16(net.minecraft.commands.CommandBuildContext, net.minecraft.server.commands.ArgProvider, net.minecraft.server.commands.data.DataCommands$DataManipulator, net.minecraft.server.commands.LootContextSources$ContextDecorator, java.util.function.Consumer);
+    Code:
+         0: aload         4
+         2: ldc_w         #399                // String float
+         5: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+         8: ldc_w         #401                // String provider
+        11: aload_0
+        12: invokestatic  #403                // Method net/minecraft/commands/arguments/ResourceOrIdArgument.floatProvider:(Lnet/minecraft/commands/CommandBuildContext;)Lnet/minecraft/commands/arguments/ResourceOrIdArgument$ContextFloatProviderArgument;
+        15: invokestatic  #337                // Method net/minecraft/commands/Commands.argument:(Ljava/lang/String;Lcom/mojang/brigadier/arguments/ArgumentType;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+        18: aload_3
+        19: aload_1
+        20: aload_2
+        21: invokedynamic #409,  0            // InvokeDynamic #19:run:(Lnet/minecraft/server/commands/LootContextSources$ContextDecorator;Lnet/minecraft/server/commands/ArgProvider;Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;)Lcom/mojang/brigadier/Command;
+        26: invokevirtual #373                // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        29: invokevirtual #63                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        32: invokeinterface #412,  2          // InterfaceMethod java/util/function/Consumer.accept:(Ljava/lang/Object;)V
+        37: aload         4
+        39: ldc_w         #417                // String integer
+        42: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+        45: ldc_w         #401                // String provider
+        48: aload_0
+        49: invokestatic  #419                // Method net/minecraft/commands/arguments/ResourceOrIdArgument.intProvider:(Lnet/minecraft/commands/CommandBuildContext;)Lnet/minecraft/commands/arguments/ResourceOrIdArgument$ContextIntProviderArgument;
+        52: invokestatic  #337                // Method net/minecraft/commands/Commands.argument:(Ljava/lang/String;Lcom/mojang/brigadier/arguments/ArgumentType;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+        55: aload_3
+        56: aload_1
+        57: aload_2
+        58: invokedynamic #423,  0            // InvokeDynamic #20:run:(Lnet/minecraft/server/commands/LootContextSources$ContextDecorator;Lnet/minecraft/server/commands/ArgProvider;Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;)Lcom/mojang/brigadier/Command;
+        63: invokevirtual #373                // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        66: invokevirtual #63                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        69: invokeinterface #412,  2          // InterfaceMethod java/util/function/Consumer.accept:(Ljava/lang/Object;)V
+        74: return
+
+  private static int lambda$decorateModification$18(net.minecraft.server.commands.LootContextSources$ContextDecorator, net.minecraft.server.commands.ArgProvider, net.minecraft.server.commands.data.DataCommands$DataManipulator, com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: aload_3
+         2: invokeinterface #424,  2          // InterfaceMethod net/minecraft/server/commands/LootContextSources$ContextDecorator.createContext:(Lcom/mojang/brigadier/context/CommandContext;)Lnet/minecraft/world/level/storage/loot/LootContext;
+         7: astore        4
+         9: aload_3
+        10: ldc_w         #401                // String provider
+        13: invokestatic  #430                // Method net/minecraft/commands/arguments/ResourceOrIdArgument.getIntProvider:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/core/Holder;
+        16: astore        5
+        18: aload         5
+        20: invokeinterface #434,  1          // InterfaceMethod net/minecraft/core/Holder.value:()Ljava/lang/Object;
+        25: checkcast     #438                // class net/minecraft/world/level/storage/loot/providers/number/ints/ContextIntProvider
+        28: aload         4
+        30: invokeinterface #440,  2          // InterfaceMethod net/minecraft/world/level/storage/loot/providers/number/ints/ContextIntProvider.getInt:(Lnet/minecraft/world/level/storage/loot/LootContext;)I
+        35: istore        6
+        37: aload_3
+        38: aload_1
+        39: aload_2
+        40: iload         6
+        42: invokestatic  #444                // Method net/minecraft/nbt/IntTag.valueOf:(I)Lnet/minecraft/nbt/IntTag;
+        45: invokestatic  #449                // InterfaceMethod java/util/List.of:(Ljava/lang/Object;)Ljava/util/List;
+        48: invokestatic  #383                // Method manipulateData:(Lcom/mojang/brigadier/context/CommandContext;Lnet/minecraft/server/commands/ArgProvider;Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;Ljava/util/List;)I
+        51: ireturn
+
+  private static int lambda$decorateModification$17(net.minecraft.server.commands.LootContextSources$ContextDecorator, net.minecraft.server.commands.ArgProvider, net.minecraft.server.commands.data.DataCommands$DataManipulator, com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: aload_3
+         2: invokeinterface #424,  2          // InterfaceMethod net/minecraft/server/commands/LootContextSources$ContextDecorator.createContext:(Lcom/mojang/brigadier/context/CommandContext;)Lnet/minecraft/world/level/storage/loot/LootContext;
+         7: astore        4
+         9: aload_3
+        10: ldc_w         #401                // String provider
+        13: invokestatic  #452                // Method net/minecraft/commands/arguments/ResourceOrIdArgument.getFloatProvider:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/core/Holder;
+        16: astore        5
+        18: aload         5
+        20: invokeinterface #434,  1          // InterfaceMethod net/minecraft/core/Holder.value:()Ljava/lang/Object;
+        25: checkcast     #455                // class net/minecraft/world/level/storage/loot/providers/number/floats/ContextFloatProvider
+        28: aload         4
+        30: invokeinterface #457,  2          // InterfaceMethod net/minecraft/world/level/storage/loot/providers/number/floats/ContextFloatProvider.getFloat:(Lnet/minecraft/world/level/storage/loot/LootContext;)F
+        35: fstore        6
+        37: aload_3
+        38: aload_1
+        39: aload_2
+        40: fload         6
+        42: invokestatic  #461                // Method net/minecraft/nbt/FloatTag.valueOf:(F)Lnet/minecraft/nbt/FloatTag;
+        45: invokestatic  #449                // InterfaceMethod java/util/List.of:(Ljava/lang/Object;)Ljava/util/List;
+        48: invokestatic  #383                // Method manipulateData:(Lcom/mojang/brigadier/context/CommandContext;Lnet/minecraft/server/commands/ArgProvider;Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;Ljava/util/List;)I
+        51: ireturn
+
+  private static com.mojang.brigadier.builder.ArgumentBuilder lambda$decorateModification$5(net.minecraft.server.commands.ArgProvider, net.minecraft.server.commands.ArgProvider, net.minecraft.server.commands.data.DataCommands$DataManipulator);
+    Code:
+         0: aload_0
+         1: ldc_w         #466                // String string
+         4: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+         7: aload_1
+         8: aload_2
+         9: aload_0
+        10: invokedynamic #468,  0            // InvokeDynamic #21:apply:(Lnet/minecraft/server/commands/ArgProvider;Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;Lnet/minecraft/server/commands/ArgProvider;)Ljava/util/function/Function;
+        15: invokeinterface #59,  3           // InterfaceMethod net/minecraft/server/commands/ArgProvider.wrap:(Lcom/mojang/brigadier/builder/ArgumentBuilder;Ljava/util/function/Function;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        20: areturn
+
+  private static com.mojang.brigadier.builder.ArgumentBuilder lambda$decorateModification$6(net.minecraft.server.commands.ArgProvider, net.minecraft.server.commands.data.DataCommands$DataManipulator, net.minecraft.server.commands.ArgProvider, com.mojang.brigadier.builder.ArgumentBuilder);
+    Code:
+         0: aload_3
+         1: aload_0
+         2: aload_1
+         3: aload_2
+         4: invokedynamic #471,  0            // InvokeDynamic #22:run:(Lnet/minecraft/server/commands/ArgProvider;Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;Lnet/minecraft/server/commands/ArgProvider;)Lcom/mojang/brigadier/Command;
+         9: invokevirtual #474                // Method com/mojang/brigadier/builder/ArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        12: ldc           #207                // String sourcePath
+        14: invokestatic  #333                // Method net/minecraft/commands/arguments/NbtPathArgument.nbtPath:()Lnet/minecraft/commands/arguments/NbtPathArgument;
+        17: invokestatic  #337                // Method net/minecraft/commands/Commands.argument:(Ljava/lang/String;Lcom/mojang/brigadier/arguments/ArgumentType;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+        20: aload_0
+        21: aload_1
+        22: aload_2
+        23: invokedynamic #475,  0            // InvokeDynamic #23:run:(Lnet/minecraft/server/commands/ArgProvider;Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;Lnet/minecraft/server/commands/ArgProvider;)Lcom/mojang/brigadier/Command;
+        28: invokevirtual #373                // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        31: checkcast     #374                // class com/mojang/brigadier/builder/RequiredArgumentBuilder
+        34: ldc_w         #476                // String start
+        37: invokestatic  #478                // Method com/mojang/brigadier/arguments/IntegerArgumentType.integer:()Lcom/mojang/brigadier/arguments/IntegerArgumentType;
+        40: invokestatic  #337                // Method net/minecraft/commands/Commands.argument:(Ljava/lang/String;Lcom/mojang/brigadier/arguments/ArgumentType;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+        43: aload_0
+        44: aload_1
+        45: aload_2
+        46: invokedynamic #483,  0            // InvokeDynamic #24:run:(Lnet/minecraft/server/commands/ArgProvider;Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;Lnet/minecraft/server/commands/ArgProvider;)Lcom/mojang/brigadier/Command;
+        51: invokevirtual #373                // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        54: checkcast     #374                // class com/mojang/brigadier/builder/RequiredArgumentBuilder
+        57: ldc_w         #484                // String end
+        60: invokestatic  #478                // Method com/mojang/brigadier/arguments/IntegerArgumentType.integer:()Lcom/mojang/brigadier/arguments/IntegerArgumentType;
+        63: invokestatic  #337                // Method net/minecraft/commands/Commands.argument:(Ljava/lang/String;Lcom/mojang/brigadier/arguments/ArgumentType;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+        66: aload_0
+        67: aload_1
+        68: aload_2
+        69: invokedynamic #486,  0            // InvokeDynamic #25:run:(Lnet/minecraft/server/commands/ArgProvider;Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;Lnet/minecraft/server/commands/ArgProvider;)Lcom/mojang/brigadier/Command;
+        74: invokevirtual #373                // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        77: invokevirtual #487                // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        80: invokevirtual #487                // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        83: invokevirtual #359                // Method com/mojang/brigadier/builder/ArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        86: areturn
+
+  private static int lambda$decorateModification$13(net.minecraft.server.commands.ArgProvider, net.minecraft.server.commands.data.DataCommands$DataManipulator, net.minecraft.server.commands.ArgProvider, com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_3
+         1: aload_0
+         2: aload_1
+         3: aload_3
+         4: aload_2
+         5: invokestatic  #488                // Method resolveSourcePath:(Lcom/mojang/brigadier/context/CommandContext;Lnet/minecraft/server/commands/ArgProvider;)Ljava/util/List;
+         8: aload_3
+         9: invokedynamic #492,  0            // InvokeDynamic #26:process:(Lcom/mojang/brigadier/context/CommandContext;)Lnet/minecraft/server/commands/data/DataCommands$StringProcessor;
+        14: invokestatic  #495                // Method stringifyTagList:(Ljava/util/List;Lnet/minecraft/server/commands/data/DataCommands$StringProcessor;)Ljava/util/List;
+        17: invokestatic  #383                // Method manipulateData:(Lcom/mojang/brigadier/context/CommandContext;Lnet/minecraft/server/commands/ArgProvider;Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;Ljava/util/List;)I
+        20: ireturn
+
+  private static java.lang.String lambda$decorateModification$14(com.mojang.brigadier.context.CommandContext, java.lang.String) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_1
+         1: aload_0
+         2: ldc_w         #476                // String start
+         5: invokestatic  #499                // Method com/mojang/brigadier/arguments/IntegerArgumentType.getInteger:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)I
+         8: aload_0
+         9: ldc_w         #484                // String end
+        12: invokestatic  #499                // Method com/mojang/brigadier/arguments/IntegerArgumentType.getInteger:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)I
+        15: invokestatic  #503                // Method substring:(Ljava/lang/String;II)Ljava/lang/String;
+        18: areturn
+
+  private static int lambda$decorateModification$11(net.minecraft.server.commands.ArgProvider, net.minecraft.server.commands.data.DataCommands$DataManipulator, net.minecraft.server.commands.ArgProvider, com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_3
+         1: aload_0
+         2: aload_1
+         3: aload_3
+         4: aload_2
+         5: invokestatic  #488                // Method resolveSourcePath:(Lcom/mojang/brigadier/context/CommandContext;Lnet/minecraft/server/commands/ArgProvider;)Ljava/util/List;
+         8: aload_3
+         9: invokedynamic #505,  0            // InvokeDynamic #27:process:(Lcom/mojang/brigadier/context/CommandContext;)Lnet/minecraft/server/commands/data/DataCommands$StringProcessor;
+        14: invokestatic  #495                // Method stringifyTagList:(Ljava/util/List;Lnet/minecraft/server/commands/data/DataCommands$StringProcessor;)Ljava/util/List;
+        17: invokestatic  #383                // Method manipulateData:(Lcom/mojang/brigadier/context/CommandContext;Lnet/minecraft/server/commands/ArgProvider;Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;Ljava/util/List;)I
+        20: ireturn
+
+  private static java.lang.String lambda$decorateModification$12(com.mojang.brigadier.context.CommandContext, java.lang.String) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_1
+         1: aload_0
+         2: ldc_w         #476                // String start
+         5: invokestatic  #499                // Method com/mojang/brigadier/arguments/IntegerArgumentType.getInteger:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)I
+         8: invokestatic  #506                // Method substring:(Ljava/lang/String;I)Ljava/lang/String;
+        11: areturn
+
+  private static int lambda$decorateModification$9(net.minecraft.server.commands.ArgProvider, net.minecraft.server.commands.data.DataCommands$DataManipulator, net.minecraft.server.commands.ArgProvider, com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_3
+         1: aload_0
+         2: aload_1
+         3: aload_3
+         4: aload_2
+         5: invokestatic  #488                // Method resolveSourcePath:(Lcom/mojang/brigadier/context/CommandContext;Lnet/minecraft/server/commands/ArgProvider;)Ljava/util/List;
+         8: invokedynamic #509,  0            // InvokeDynamic #28:process:()Lnet/minecraft/server/commands/data/DataCommands$StringProcessor;
+        13: invokestatic  #495                // Method stringifyTagList:(Ljava/util/List;Lnet/minecraft/server/commands/data/DataCommands$StringProcessor;)Ljava/util/List;
+        16: invokestatic  #383                // Method manipulateData:(Lcom/mojang/brigadier/context/CommandContext;Lnet/minecraft/server/commands/ArgProvider;Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;Ljava/util/List;)I
+        19: ireturn
+
+  private static java.lang.String lambda$decorateModification$10(java.lang.String) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: areturn
+
+  private static int lambda$decorateModification$7(net.minecraft.server.commands.ArgProvider, net.minecraft.server.commands.data.DataCommands$DataManipulator, net.minecraft.server.commands.ArgProvider, com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_3
+         1: aload_0
+         2: aload_1
+         3: aload_3
+         4: aload_2
+         5: invokestatic  #512                // Method getSingletonSource:(Lcom/mojang/brigadier/context/CommandContext;Lnet/minecraft/server/commands/ArgProvider;)Ljava/util/List;
+         8: invokedynamic #515,  0            // InvokeDynamic #29:process:()Lnet/minecraft/server/commands/data/DataCommands$StringProcessor;
+        13: invokestatic  #495                // Method stringifyTagList:(Ljava/util/List;Lnet/minecraft/server/commands/data/DataCommands$StringProcessor;)Ljava/util/List;
+        16: invokestatic  #383                // Method manipulateData:(Lcom/mojang/brigadier/context/CommandContext;Lnet/minecraft/server/commands/ArgProvider;Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;Ljava/util/List;)I
+        19: ireturn
+
+  private static java.lang.String lambda$decorateModification$8(java.lang.String) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: areturn
+
+  private static com.mojang.brigadier.builder.ArgumentBuilder lambda$decorateModification$1(net.minecraft.server.commands.ArgProvider, net.minecraft.server.commands.ArgProvider, net.minecraft.server.commands.data.DataCommands$DataManipulator);
+    Code:
+         0: aload_0
+         1: ldc_w         #516                // String from
+         4: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+         7: aload_1
+         8: aload_2
+         9: aload_0
+        10: invokedynamic #518,  0            // InvokeDynamic #30:apply:(Lnet/minecraft/server/commands/ArgProvider;Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;Lnet/minecraft/server/commands/ArgProvider;)Ljava/util/function/Function;
+        15: invokeinterface #59,  3           // InterfaceMethod net/minecraft/server/commands/ArgProvider.wrap:(Lcom/mojang/brigadier/builder/ArgumentBuilder;Ljava/util/function/Function;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        20: areturn
+
+  private static com.mojang.brigadier.builder.ArgumentBuilder lambda$decorateModification$2(net.minecraft.server.commands.ArgProvider, net.minecraft.server.commands.data.DataCommands$DataManipulator, net.minecraft.server.commands.ArgProvider, com.mojang.brigadier.builder.ArgumentBuilder);
+    Code:
+         0: aload_3
+         1: aload_0
+         2: aload_1
+         3: aload_2
+         4: invokedynamic #519,  0            // InvokeDynamic #31:run:(Lnet/minecraft/server/commands/ArgProvider;Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;Lnet/minecraft/server/commands/ArgProvider;)Lcom/mojang/brigadier/Command;
+         9: invokevirtual #474                // Method com/mojang/brigadier/builder/ArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        12: ldc           #207                // String sourcePath
+        14: invokestatic  #333                // Method net/minecraft/commands/arguments/NbtPathArgument.nbtPath:()Lnet/minecraft/commands/arguments/NbtPathArgument;
+        17: invokestatic  #337                // Method net/minecraft/commands/Commands.argument:(Ljava/lang/String;Lcom/mojang/brigadier/arguments/ArgumentType;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+        20: aload_0
+        21: aload_1
+        22: aload_2
+        23: invokedynamic #520,  0            // InvokeDynamic #32:run:(Lnet/minecraft/server/commands/ArgProvider;Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;Lnet/minecraft/server/commands/ArgProvider;)Lcom/mojang/brigadier/Command;
+        28: invokevirtual #373                // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        31: invokevirtual #359                // Method com/mojang/brigadier/builder/ArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        34: areturn
+
+  private static int lambda$decorateModification$4(net.minecraft.server.commands.ArgProvider, net.minecraft.server.commands.data.DataCommands$DataManipulator, net.minecraft.server.commands.ArgProvider, com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_3
+         1: aload_0
+         2: aload_1
+         3: aload_3
+         4: aload_2
+         5: invokestatic  #488                // Method resolveSourcePath:(Lcom/mojang/brigadier/context/CommandContext;Lnet/minecraft/server/commands/ArgProvider;)Ljava/util/List;
+         8: invokestatic  #383                // Method manipulateData:(Lcom/mojang/brigadier/context/CommandContext;Lnet/minecraft/server/commands/ArgProvider;Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;Ljava/util/List;)I
+        11: ireturn
+
+  private static int lambda$decorateModification$3(net.minecraft.server.commands.ArgProvider, net.minecraft.server.commands.data.DataCommands$DataManipulator, net.minecraft.server.commands.ArgProvider, com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_3
+         1: aload_0
+         2: aload_1
+         3: aload_3
+         4: aload_2
+         5: invokestatic  #512                // Method getSingletonSource:(Lcom/mojang/brigadier/context/CommandContext;Lnet/minecraft/server/commands/ArgProvider;)Ljava/util/List;
+         8: invokestatic  #383                // Method manipulateData:(Lcom/mojang/brigadier/context/CommandContext;Lnet/minecraft/server/commands/ArgProvider;Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;Ljava/util/List;)I
+        11: ireturn
+
+  private static void lambda$register$8(com.mojang.brigadier.builder.ArgumentBuilder, net.minecraft.server.commands.data.DataCommands$DataManipulatorDecorator);
+    Code:
+         0: aload_0
+         1: ldc_w         #521                // String insert
+         4: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+         7: ldc_w         #523                // String index
+        10: invokestatic  #478                // Method com/mojang/brigadier/arguments/IntegerArgumentType.integer:()Lcom/mojang/brigadier/arguments/IntegerArgumentType;
+        13: invokestatic  #337                // Method net/minecraft/commands/Commands.argument:(Ljava/lang/String;Lcom/mojang/brigadier/arguments/ArgumentType;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+        16: aload_1
+        17: invokedynamic #525,  0            // InvokeDynamic #33:modify:()Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;
+        22: invokeinterface #528,  2          // InterfaceMethod net/minecraft/server/commands/data/DataCommands$DataManipulatorDecorator.create:(Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        27: invokevirtual #487                // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        30: invokevirtual #63                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        33: invokevirtual #359                // Method com/mojang/brigadier/builder/ArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        36: ldc_w         #533                // String prepend
+        39: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+        42: aload_1
+        43: invokedynamic #535,  0            // InvokeDynamic #34:modify:()Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;
+        48: invokeinterface #528,  2          // InterfaceMethod net/minecraft/server/commands/data/DataCommands$DataManipulatorDecorator.create:(Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        53: invokevirtual #63                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        56: invokevirtual #359                // Method com/mojang/brigadier/builder/ArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        59: ldc_w         #536                // String append
+        62: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+        65: aload_1
+        66: invokedynamic #538,  0            // InvokeDynamic #35:modify:()Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;
+        71: invokeinterface #528,  2          // InterfaceMethod net/minecraft/server/commands/data/DataCommands$DataManipulatorDecorator.create:(Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        76: invokevirtual #63                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        79: invokevirtual #359                // Method com/mojang/brigadier/builder/ArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        82: ldc_w         #539                // String set
+        85: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+        88: aload_1
+        89: invokedynamic #541,  0            // InvokeDynamic #36:modify:()Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;
+        94: invokeinterface #528,  2          // InterfaceMethod net/minecraft/server/commands/data/DataCommands$DataManipulatorDecorator.create:(Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        99: invokevirtual #63                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       102: invokevirtual #359                // Method com/mojang/brigadier/builder/ArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       105: ldc           #53                 // String merge
+       107: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+       110: aload_1
+       111: invokedynamic #542,  0            // InvokeDynamic #37:modify:()Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;
+       116: invokeinterface #528,  2          // InterfaceMethod net/minecraft/server/commands/data/DataCommands$DataManipulatorDecorator.create:(Lnet/minecraft/server/commands/data/DataCommands$DataManipulator;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       121: invokevirtual #63                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       124: invokevirtual #359                // Method com/mojang/brigadier/builder/ArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       127: pop
+       128: return
+
+  private static int lambda$register$13(com.mojang.brigadier.context.CommandContext, net.minecraft.nbt.CompoundTag, net.minecraft.commands.arguments.NbtPathArgument$NbtPath, java.util.List) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: new           #284                // class net/minecraft/nbt/CompoundTag
+         3: dup
+         4: invokespecial #543                // Method net/minecraft/nbt/CompoundTag."<init>":()V
+         7: astore        4
+         9: aload_3
+        10: invokeinterface #35,  1           // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+        15: astore        5
+        17: aload         5
+        19: invokeinterface #41,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        24: ifeq          93
+        27: aload         5
+        29: invokeinterface #47,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        34: checkcast     #135                // class net/minecraft/nbt/Tag
+        37: astore        6
+        39: aload         6
+        41: iconst_0
+        42: invokestatic  #305                // Method net/minecraft/commands/arguments/NbtPathArgument$NbtPath.isTooDeep:(Lnet/minecraft/nbt/Tag;I)Z
+        45: ifeq          55
+        48: getstatic     #309                // Field net/minecraft/commands/arguments/NbtPathArgument.ERROR_DATA_TOO_DEEP:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;
+        51: invokevirtual #231                // Method com/mojang/brigadier/exceptions/SimpleCommandExceptionType.create:()Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        54: athrow
+        55: aload         6
+        57: instanceof    #284                // class net/minecraft/nbt/CompoundTag
+        60: ifeq          81
+        63: aload         6
+        65: checkcast     #284                // class net/minecraft/nbt/CompoundTag
+        68: astore        7
+        70: aload         4
+        72: aload         7
+        74: invokevirtual #315                // Method net/minecraft/nbt/CompoundTag.merge:(Lnet/minecraft/nbt/CompoundTag;)Lnet/minecraft/nbt/CompoundTag;
+        77: pop
+        78: goto          90
+        81: getstatic     #544                // Field ERROR_EXPECTED_OBJECT:Lcom/mojang/brigadier/exceptions/DynamicCommandExceptionType;
+        84: aload         6
+        86: invokevirtual #112                // Method com/mojang/brigadier/exceptions/DynamicCommandExceptionType.create:(Ljava/lang/Object;)Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        89: athrow
+        90: goto          17
+        93: aload_2
+        94: aload_1
+        95: invokedynamic #547,  0            // InvokeDynamic #38:get:()Ljava/util/function/Supplier;
+       100: invokevirtual #550                // Method net/minecraft/commands/arguments/NbtPathArgument$NbtPath.getOrCreate:(Lnet/minecraft/nbt/Tag;Ljava/util/function/Supplier;)Ljava/util/List;
+       103: astore        5
+       105: iconst_0
+       106: istore        6
+       108: aload         5
+       110: invokeinterface #258,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+       115: astore        7
+       117: aload         7
+       119: invokeinterface #41,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+       124: ifeq          204
+       127: aload         7
+       129: invokeinterface #47,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       134: checkcast     #135                // class net/minecraft/nbt/Tag
+       137: astore        8
+       139: aload         8
+       141: instanceof    #284                // class net/minecraft/nbt/CompoundTag
+       144: ifeq          157
+       147: aload         8
+       149: checkcast     #284                // class net/minecraft/nbt/CompoundTag
+       152: astore        9
+       154: goto          166
+       157: getstatic     #544                // Field ERROR_EXPECTED_OBJECT:Lcom/mojang/brigadier/exceptions/DynamicCommandExceptionType;
+       160: aload         8
+       162: invokevirtual #112                // Method com/mojang/brigadier/exceptions/DynamicCommandExceptionType.create:(Ljava/lang/Object;)Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+       165: athrow
+       166: aload         9
+       168: invokevirtual #312                // Method net/minecraft/nbt/CompoundTag.copy:()Lnet/minecraft/nbt/CompoundTag;
+       171: astore        10
+       173: aload         9
+       175: aload         4
+       177: invokevirtual #315                // Method net/minecraft/nbt/CompoundTag.merge:(Lnet/minecraft/nbt/CompoundTag;)Lnet/minecraft/nbt/CompoundTag;
+       180: pop
+       181: iload         6
+       183: aload         10
+       185: aload         9
+       187: invokevirtual #318                // Method net/minecraft/nbt/CompoundTag.equals:(Ljava/lang/Object;)Z
+       190: ifeq          197
+       193: iconst_0
+       194: goto          198
+       197: iconst_1
+       198: iadd
+       199: istore        6
+       201: goto          117
+       204: iload         6
+       206: ireturn
+
+  private static int lambda$register$12(com.mojang.brigadier.context.CommandContext, net.minecraft.nbt.CompoundTag, net.minecraft.commands.arguments.NbtPathArgument$NbtPath, java.util.List) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_2
+         1: aload_1
+         2: aload_3
+         3: invokestatic  #554                // Method com/google/common/collect/Iterables.getLast:(Ljava/lang/Iterable;)Ljava/lang/Object;
+         6: checkcast     #135                // class net/minecraft/nbt/Tag
+         9: invokevirtual #560                // Method net/minecraft/commands/arguments/NbtPathArgument$NbtPath.set:(Lnet/minecraft/nbt/Tag;Lnet/minecraft/nbt/Tag;)I
+        12: ireturn
+
+  private static int lambda$register$11(com.mojang.brigadier.context.CommandContext, net.minecraft.nbt.CompoundTag, net.minecraft.commands.arguments.NbtPathArgument$NbtPath, java.util.List) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_2
+         1: iconst_m1
+         2: aload_1
+         3: aload_3
+         4: invokevirtual #563                // Method net/minecraft/commands/arguments/NbtPathArgument$NbtPath.insert:(ILnet/minecraft/nbt/CompoundTag;Ljava/util/List;)I
+         7: ireturn
+
+  private static int lambda$register$10(com.mojang.brigadier.context.CommandContext, net.minecraft.nbt.CompoundTag, net.minecraft.commands.arguments.NbtPathArgument$NbtPath, java.util.List) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_2
+         1: iconst_0
+         2: aload_1
+         3: aload_3
+         4: invokevirtual #563                // Method net/minecraft/commands/arguments/NbtPathArgument$NbtPath.insert:(ILnet/minecraft/nbt/CompoundTag;Ljava/util/List;)I
+         7: ireturn
+
+  private static int lambda$register$9(com.mojang.brigadier.context.CommandContext, net.minecraft.nbt.CompoundTag, net.minecraft.commands.arguments.NbtPathArgument$NbtPath, java.util.List) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_2
+         1: aload_0
+         2: ldc_w         #523                // String index
+         5: invokestatic  #499                // Method com/mojang/brigadier/arguments/IntegerArgumentType.getInteger:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)I
+         8: aload_1
+         9: aload_3
+        10: invokevirtual #563                // Method net/minecraft/commands/arguments/NbtPathArgument$NbtPath.insert:(ILnet/minecraft/nbt/CompoundTag;Ljava/util/List;)I
+        13: ireturn
+
+  private static com.mojang.brigadier.builder.ArgumentBuilder lambda$register$6(net.minecraft.server.commands.ArgProvider, com.mojang.brigadier.builder.ArgumentBuilder);
+    Code:
+         0: aload_1
+         1: ldc_w         #566                // String path
+         4: invokestatic  #333                // Method net/minecraft/commands/arguments/NbtPathArgument.nbtPath:()Lnet/minecraft/commands/arguments/NbtPathArgument;
+         7: invokestatic  #337                // Method net/minecraft/commands/Commands.argument:(Ljava/lang/String;Lcom/mojang/brigadier/arguments/ArgumentType;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+        10: aload_0
+        11: invokedynamic #568,  0            // InvokeDynamic #39:run:(Lnet/minecraft/server/commands/ArgProvider;)Lcom/mojang/brigadier/Command;
+        16: invokevirtual #373                // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        19: invokevirtual #359                // Method com/mojang/brigadier/builder/ArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        22: areturn
+
+  private static int lambda$register$7(net.minecraft.server.commands.ArgProvider, com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_1
+         1: invokevirtual #240                // Method com/mojang/brigadier/context/CommandContext.getSource:()Ljava/lang/Object;
+         4: checkcast     #245                // class net/minecraft/commands/CommandSourceStack
+         7: aload_0
+         8: aload_1
+         9: invokeinterface #191,  2          // InterfaceMethod net/minecraft/server/commands/ArgProvider.access:(Lcom/mojang/brigadier/context/CommandContext;)Ljava/lang/Object;
+        14: checkcast     #195                // class net/minecraft/server/commands/data/DataAccessor
+        17: aload_1
+        18: ldc_w         #566                // String path
+        21: invokestatic  #209                // Method net/minecraft/commands/arguments/NbtPathArgument.getPath:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/commands/arguments/NbtPathArgument$NbtPath;
+        24: invokestatic  #571                // Method removeData:(Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/server/commands/data/DataAccessor;Lnet/minecraft/commands/arguments/NbtPathArgument$NbtPath;)I
+        27: ireturn
+
+  private static com.mojang.brigadier.builder.ArgumentBuilder lambda$register$2(net.minecraft.server.commands.ArgProvider, com.mojang.brigadier.builder.ArgumentBuilder);
+    Code:
+         0: aload_1
+         1: aload_0
+         2: invokedynamic #575,  0            // InvokeDynamic #40:run:(Lnet/minecraft/server/commands/ArgProvider;)Lcom/mojang/brigadier/Command;
+         7: invokevirtual #474                // Method com/mojang/brigadier/builder/ArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        10: ldc_w         #566                // String path
+        13: invokestatic  #333                // Method net/minecraft/commands/arguments/NbtPathArgument.nbtPath:()Lnet/minecraft/commands/arguments/NbtPathArgument;
+        16: invokestatic  #337                // Method net/minecraft/commands/Commands.argument:(Ljava/lang/String;Lcom/mojang/brigadier/arguments/ArgumentType;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+        19: aload_0
+        20: invokedynamic #576,  0            // InvokeDynamic #41:run:(Lnet/minecraft/server/commands/ArgProvider;)Lcom/mojang/brigadier/Command;
+        25: invokevirtual #373                // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        28: checkcast     #374                // class com/mojang/brigadier/builder/RequiredArgumentBuilder
+        31: ldc_w         #577                // String scale
+        34: invokestatic  #579                // Method com/mojang/brigadier/arguments/DoubleArgumentType.doubleArg:()Lcom/mojang/brigadier/arguments/DoubleArgumentType;
+        37: invokestatic  #337                // Method net/minecraft/commands/Commands.argument:(Ljava/lang/String;Lcom/mojang/brigadier/arguments/ArgumentType;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+        40: aload_0
+        41: invokedynamic #585,  0            // InvokeDynamic #42:run:(Lnet/minecraft/server/commands/ArgProvider;)Lcom/mojang/brigadier/Command;
+        46: invokevirtual #373                // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        49: invokevirtual #487                // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        52: invokevirtual #359                // Method com/mojang/brigadier/builder/ArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        55: areturn
+
+  private static int lambda$register$5(net.minecraft.server.commands.ArgProvider, com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_1
+         1: invokevirtual #240                // Method com/mojang/brigadier/context/CommandContext.getSource:()Ljava/lang/Object;
+         4: checkcast     #245                // class net/minecraft/commands/CommandSourceStack
+         7: aload_0
+         8: aload_1
+         9: invokeinterface #191,  2          // InterfaceMethod net/minecraft/server/commands/ArgProvider.access:(Lcom/mojang/brigadier/context/CommandContext;)Ljava/lang/Object;
+        14: checkcast     #195                // class net/minecraft/server/commands/data/DataAccessor
+        17: aload_1
+        18: ldc_w         #566                // String path
+        21: invokestatic  #209                // Method net/minecraft/commands/arguments/NbtPathArgument.getPath:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/commands/arguments/NbtPathArgument$NbtPath;
+        24: aload_1
+        25: ldc_w         #577                // String scale
+        28: invokestatic  #586                // Method com/mojang/brigadier/arguments/DoubleArgumentType.getDouble:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)D
+        31: invokestatic  #590                // Method getNumeric:(Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/server/commands/data/DataAccessor;Lnet/minecraft/commands/arguments/NbtPathArgument$NbtPath;D)I
+        34: ireturn
+
+  private static int lambda$register$4(net.minecraft.server.commands.ArgProvider, com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_1
+         1: invokevirtual #240                // Method com/mojang/brigadier/context/CommandContext.getSource:()Ljava/lang/Object;
+         4: checkcast     #245                // class net/minecraft/commands/CommandSourceStack
+         7: aload_0
+         8: aload_1
+         9: invokeinterface #191,  2          // InterfaceMethod net/minecraft/server/commands/ArgProvider.access:(Lcom/mojang/brigadier/context/CommandContext;)Ljava/lang/Object;
+        14: checkcast     #195                // class net/minecraft/server/commands/data/DataAccessor
+        17: aload_1
+        18: ldc_w         #566                // String path
+        21: invokestatic  #209                // Method net/minecraft/commands/arguments/NbtPathArgument.getPath:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/commands/arguments/NbtPathArgument$NbtPath;
+        24: invokestatic  #594                // Method getData:(Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/server/commands/data/DataAccessor;Lnet/minecraft/commands/arguments/NbtPathArgument$NbtPath;)I
+        27: ireturn
+
+  private static int lambda$register$3(net.minecraft.server.commands.ArgProvider, com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_1
+         1: invokevirtual #240                // Method com/mojang/brigadier/context/CommandContext.getSource:()Ljava/lang/Object;
+         4: checkcast     #245                // class net/minecraft/commands/CommandSourceStack
+         7: aload_0
+         8: aload_1
+         9: invokeinterface #191,  2          // InterfaceMethod net/minecraft/server/commands/ArgProvider.access:(Lcom/mojang/brigadier/context/CommandContext;)Ljava/lang/Object;
+        14: checkcast     #195                // class net/minecraft/server/commands/data/DataAccessor
+        17: invokestatic  #596                // Method getData:(Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/server/commands/data/DataAccessor;)I
+        20: ireturn
+
+  private static com.mojang.brigadier.builder.ArgumentBuilder lambda$register$0(net.minecraft.server.commands.ArgProvider, com.mojang.brigadier.builder.ArgumentBuilder);
+    Code:
+         0: aload_1
+         1: ldc_w         #599                // String nbt
+         4: invokestatic  #601                // Method net/minecraft/commands/arguments/CompoundTagArgument.compoundTag:()Lnet/minecraft/commands/arguments/CompoundTagArgument;
+         7: invokestatic  #337                // Method net/minecraft/commands/Commands.argument:(Ljava/lang/String;Lcom/mojang/brigadier/arguments/ArgumentType;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+        10: aload_0
+        11: invokedynamic #607,  0            // InvokeDynamic #43:run:(Lnet/minecraft/server/commands/ArgProvider;)Lcom/mojang/brigadier/Command;
+        16: invokevirtual #373                // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        19: invokevirtual #359                // Method com/mojang/brigadier/builder/ArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        22: areturn
+
+  private static int lambda$register$1(net.minecraft.server.commands.ArgProvider, com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_1
+         1: invokevirtual #240                // Method com/mojang/brigadier/context/CommandContext.getSource:()Ljava/lang/Object;
+         4: checkcast     #245                // class net/minecraft/commands/CommandSourceStack
+         7: aload_0
+         8: aload_1
+         9: invokeinterface #191,  2          // InterfaceMethod net/minecraft/server/commands/ArgProvider.access:(Lcom/mojang/brigadier/context/CommandContext;)Ljava/lang/Object;
+        14: checkcast     #195                // class net/minecraft/server/commands/data/DataAccessor
+        17: aload_1
+        18: ldc_w         #599                // String nbt
+        21: invokestatic  #608                // Method net/minecraft/commands/arguments/CompoundTagArgument.getCompoundTag:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/nbt/CompoundTag;
+        24: invokestatic  #612                // Method mergeData:(Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/server/commands/data/DataAccessor;Lnet/minecraft/nbt/CompoundTag;)I
+        27: ireturn
+
+  private static com.mojang.brigadier.Message lambda$static$4(java.lang.Object, java.lang.Object);
+    Code:
+         0: ldc_w         #616                // String commands.data.modify.invalid_substring
+         3: iconst_2
+         4: anewarray     #2                  // class java/lang/Object
+         7: dup
+         8: iconst_0
+         9: aload_0
+        10: aastore
+        11: dup
+        12: iconst_1
+        13: aload_1
+        14: aastore
+        15: invokestatic  #618                // InterfaceMethod net/minecraft/network/chat/Component.translatableEscape:(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;
+        18: areturn
+
+  private static com.mojang.brigadier.Message lambda$static$3(java.lang.Object);
+    Code:
+         0: ldc_w         #624                // String commands.data.modify.expected_value
+         3: iconst_1
+         4: anewarray     #2                  // class java/lang/Object
+         7: dup
+         8: iconst_0
+         9: aload_0
+        10: aastore
+        11: invokestatic  #618                // InterfaceMethod net/minecraft/network/chat/Component.translatableEscape:(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;
+        14: areturn
+
+  private static com.mojang.brigadier.Message lambda$static$2(java.lang.Object);
+    Code:
+         0: ldc_w         #626                // String commands.data.modify.expected_object
+         3: iconst_1
+         4: anewarray     #2                  // class java/lang/Object
+         7: dup
+         8: iconst_0
+         9: aload_0
+        10: aastore
+        11: invokestatic  #618                // InterfaceMethod net/minecraft/network/chat/Component.translatableEscape:(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;
+        14: areturn
+
+  private static com.mojang.brigadier.Message lambda$static$1(java.lang.Object);
+    Code:
+         0: ldc_w         #628                // String commands.data.get.unknown
+         3: iconst_1
+         4: anewarray     #2                  // class java/lang/Object
+         7: dup
+         8: iconst_0
+         9: aload_0
+        10: aastore
+        11: invokestatic  #618                // InterfaceMethod net/minecraft/network/chat/Component.translatableEscape:(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;
+        14: areturn
+
+  private static com.mojang.brigadier.Message lambda$static$0(java.lang.Object);
+    Code:
+         0: ldc_w         #630                // String commands.data.get.invalid
+         3: iconst_1
+         4: anewarray     #2                  // class java/lang/Object
+         7: dup
+         8: iconst_0
+         9: aload_0
+        10: aastore
+        11: invokestatic  #618                // InterfaceMethod net/minecraft/network/chat/Component.translatableEscape:(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;
+        14: areturn
+
+  static {};
+    Code:
+         0: new           #232                // class com/mojang/brigadier/exceptions/SimpleCommandExceptionType
+         3: dup
+         4: ldc_w         #632                // String commands.data.merge.failed
+         7: invokestatic  #634                // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+        10: invokespecial #638                // Method com/mojang/brigadier/exceptions/SimpleCommandExceptionType."<init>":(Lcom/mojang/brigadier/Message;)V
+        13: putstatic     #227                // Field ERROR_MERGE_UNCHANGED:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;
+        16: new           #113                // class com/mojang/brigadier/exceptions/DynamicCommandExceptionType
+        19: dup
+        20: invokedynamic #641,  0            // InvokeDynamic #44:apply:()Ljava/util/function/Function;
+        25: invokespecial #644                // Method com/mojang/brigadier/exceptions/DynamicCommandExceptionType."<init>":(Ljava/util/function/Function;)V
+        28: putstatic     #296                // Field ERROR_GET_NOT_NUMBER:Lcom/mojang/brigadier/exceptions/DynamicCommandExceptionType;
+        31: new           #113                // class com/mojang/brigadier/exceptions/DynamicCommandExceptionType
+        34: dup
+        35: invokedynamic #647,  0            // InvokeDynamic #45:apply:()Ljava/util/function/Function;
+        40: invokespecial #644                // Method com/mojang/brigadier/exceptions/DynamicCommandExceptionType."<init>":(Ljava/util/function/Function;)V
+        43: putstatic     #289                // Field ERROR_GET_NON_EXISTENT:Lcom/mojang/brigadier/exceptions/DynamicCommandExceptionType;
+        46: new           #232                // class com/mojang/brigadier/exceptions/SimpleCommandExceptionType
+        49: dup
+        50: ldc_w         #648                // String commands.data.get.multiple
+        53: invokestatic  #634                // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+        56: invokespecial #638                // Method com/mojang/brigadier/exceptions/SimpleCommandExceptionType."<init>":(Lcom/mojang/brigadier/Message;)V
+        59: putstatic     #261                // Field ERROR_MULTIPLE_TAGS:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;
+        62: new           #113                // class com/mojang/brigadier/exceptions/DynamicCommandExceptionType
+        65: dup
+        66: invokedynamic #650,  0            // InvokeDynamic #46:apply:()Ljava/util/function/Function;
+        71: invokespecial #644                // Method com/mojang/brigadier/exceptions/DynamicCommandExceptionType."<init>":(Ljava/util/function/Function;)V
+        74: putstatic     #544                // Field ERROR_EXPECTED_OBJECT:Lcom/mojang/brigadier/exceptions/DynamicCommandExceptionType;
+        77: new           #113                // class com/mojang/brigadier/exceptions/DynamicCommandExceptionType
+        80: dup
+        81: invokedynamic #651,  0            // InvokeDynamic #47:apply:()Ljava/util/function/Function;
+        86: invokespecial #644                // Method com/mojang/brigadier/exceptions/DynamicCommandExceptionType."<init>":(Ljava/util/function/Function;)V
+        89: putstatic     #108                // Field ERROR_EXPECTED_VALUE:Lcom/mojang/brigadier/exceptions/DynamicCommandExceptionType;
+        92: new           #175                // class com/mojang/brigadier/exceptions/Dynamic2CommandExceptionType
+        95: dup
+        96: invokedynamic #652,  0            // InvokeDynamic #48:apply:()Lcom/mojang/brigadier/exceptions/Dynamic2CommandExceptionType$Function;
+       101: invokespecial #655                // Method com/mojang/brigadier/exceptions/Dynamic2CommandExceptionType."<init>":(Lcom/mojang/brigadier/exceptions/Dynamic2CommandExceptionType$Function;)V
+       104: putstatic     #165                // Field ERROR_INVALID_SUBSTRING:Lcom/mojang/brigadier/exceptions/Dynamic2CommandExceptionType;
+       107: getstatic     #658                // Field net/minecraft/server/commands/data/EntityDataAccessor.PROVIDER:Lnet/minecraft/server/commands/ArgProvider$Factory;
+       110: getstatic     #664                // Field net/minecraft/server/commands/data/BlockDataAccessor.PROVIDER:Lnet/minecraft/server/commands/ArgProvider$Factory;
+       113: getstatic     #667                // Field net/minecraft/server/commands/data/StorageDataAccessor.PROVIDER:Lnet/minecraft/server/commands/ArgProvider$Factory;
+       116: invokestatic  #670                // InterfaceMethod java/util/List.of:(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/util/List;
+       119: putstatic     #673                // Field ALL_PROVIDERS:Ljava/util/List;
+       122: ldc_w         #676                // String target
+       125: getstatic     #673                // Field ALL_PROVIDERS:Ljava/util/List;
+       128: invokestatic  #678                // InterfaceMethod net/minecraft/server/commands/ArgProvider.buildList:(Ljava/lang/String;Ljava/util/List;)Ljava/util/List;
+       131: putstatic     #29                 // Field TARGET_PROVIDERS:Ljava/util/List;
+       134: ldc_w         #682                // String source
+       137: getstatic     #673                // Field ALL_PROVIDERS:Ljava/util/List;
+       140: invokestatic  #678                // InterfaceMethod net/minecraft/server/commands/ArgProvider.buildList:(Ljava/lang/String;Ljava/util/List;)Ljava/util/List;
+       143: putstatic     #341                // Field SOURCE_PROVIDERS:Ljava/util/List;
+       146: return
+}

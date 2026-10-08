@@ -1,35 +1,35 @@
 {
-    "pools": [
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:item",
+          "name": "minecraft:mace",
+          "modifier": [
+            {
+              "name": {
+                "translate": "kill_effect_hammer_bonk",
+                "color": "gold",
+                "italic": false
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:mace",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_name",
-                            "name": {
-                                "translate": "kill_effect_hammer_bonk",
-                                "color": "gold",
-                                "italic": false
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "entity": "this",
-                            "lore": [
-                                {
-                                    "translate": "kill_effect_hammer_bonk.lore",
-                                    "color": "white",
-                                    "italic": false
-                                }
-                            ]
-                        }
-                    ]
+                  "translate": "kill_effect_hammer_bonk.lore",
+                  "color": "white",
+                  "italic": false
                 }
-            ]
+              ],
+              "type": "minecraft:set_lore"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

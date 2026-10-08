@@ -1,0 +1,492 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/arrows/bigexplode.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Стрелы: коды эффектов и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/arrows/evoker.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Стрелы: коды эффектов и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/arrows/evoker_rand.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Стрелы: коды эффектов и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/arrows/inair.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Стрелы: коды эффектов и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/arrows/inairtrail.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Стрелы: коды эффектов и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/arrows/inairtrail2.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Стрелы: коды эффектов и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/arrows/inairtrappertrail.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Стрелы: коды эффектов и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/arrows/inairtrappertrailactive.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Стрелы: коды эффектов и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/arrows/shock.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Стрелы: коды эффектов и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/arrows.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Стрелы: коды эффектов и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/arrows2.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Стрелы: коды эффектов и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/arrows2_nodebuff.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Стрелы: коды эффектов и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/arrows_f.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Стрелы: коды эффектов и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/bi_arrow.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Стрелы: коды эффектов и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/eggs.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/bridgebuilders.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/bucket.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/bucket_2.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/bucket_noteam.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/bucket_pl.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/drop_helmet.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/honew.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/honew_2.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/honey_pl.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/islandteleporter.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/ruchka.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/ruchka_2.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/ruchka_pl.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/superdice/1.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/superdice/2.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/superdice/3.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/superdice/4.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/superdice/5.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/superdice/6.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/superdice.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/swapper.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/teleport.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/teleport_imba.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/teleport_imba_2.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/teleport_imba_3.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/teleport_imba_4.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/tikva.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/tikva_2.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/tikva_pl.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/gadgets/wools/select.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гаджеты: снежки и попадания",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/homing.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Самонаводящиеся снаряды",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/homing_hit.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Самонаводящиеся снаряды",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/homing_soft.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Самонаводящиеся снаряды",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/homing_tnt.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Самонаводящиеся снаряды",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/pre.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Подготовка стрел и эффекты",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/prein.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Подготовка стрел и эффекты",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/racer_arrow.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гоночные стрелы",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/racer_arrow_lighting.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гоночные стрелы",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/racer_arrow_steampunk.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Гоночные стрелы",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/shulker_bullet.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Шалкер-снаряды",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/shulker_bullet_generate.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Шалкер-снаряды",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/smoke.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Дымовые стрелы",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/smoke_old.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Дымовые стрелы",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/specials.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Особые метательные предметы и телепортация",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/specials_dragon_pernul.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Особые метательные предметы и телепортация",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/specials_ender_pernul.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Особые метательные предметы и телепортация",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/specials_ender_pernul_rand.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Особые метательные предметы и телепортация",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/specials_ender_pernul_rand2.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Особые метательные предметы и телепортация",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/specials_ender_pernul_rand_2.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Особые метательные предметы и телепортация",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/specials_fire_pernul.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Особые метательные предметы и телепортация",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/teleport_nahui.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Особые метательные предметы и телепортация",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/teleport_nahui_im.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Особые метательные предметы и телепортация",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/teleport_nahui_ne.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Особые метательные предметы и телепортация",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/teleport_nahui_oe.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Особые метательные предметы и телепортация",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectiles/teleport_nahui_on.mcfunction",
+    "document": "agent_notes/lbc_projectiles.md",
+    "section": "Особые метательные предметы и телепортация",
+    "status": "documented",
+    "note": "Поведение, условия срабатывания и локальное завершение описаны в указанном разделе; внешние обработчики отмечены как зависимости."
+  }
+]

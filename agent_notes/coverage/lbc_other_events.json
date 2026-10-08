@@ -1,0 +1,961 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/bucks/gen_trades.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / bucks",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/bucks/rc.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / bucks",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/eat_halloween_food.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "`lbc:other/event/halloween/eat_halloween_food`",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/jack_o_lantern_check.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "`lbc:other/event/halloween/jack_o_lantern_check`",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/jack_o_lantern_explode.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "`lbc:other/event/halloween/jack_o_lantern_explode`",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/jack_o_lantern_spawn.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "`lbc:other/event/halloween/jack_o_lantern_spawn`",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/jack_o_lantern_tick.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "`lbc:other/event/halloween/jack_o_lantern_tick`",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/particle_wind.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "`lbc:other/event/halloween/particle_wind`",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/player_tick_1s.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "`lbc:other/event/halloween/player_tick_1s`",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer_activate.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "`lbc:other/event/halloween/screamer_activate`",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/start.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "`lbc:other/event/halloween/start`",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/halloween_mace/ability.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "`lbc:other/event/halloween/halloween_mace/ability`",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/activate.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/drop_cursed_pumpkin.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/drop_cursed_pumpkin_recursive.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/tick_10t.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/tick_10t_true.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/up_right.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword",
+    "status": "non_runtime",
+    "note": "Проверен вспомогательный, не runtime-источник."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/0.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/1.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/10.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/11.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/12.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/13.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/14.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/15.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/16.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/17.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/18.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/19.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/2.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/20.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/21.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/22.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/23.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/24.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/25.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/26.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/27.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/28.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/29.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/3.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/30.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/31.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/32.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/33.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/34.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/35.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/4.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/5.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/6.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/7.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/8.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/9.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/chest.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/feet.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/head.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/legs.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/pumpkin_king_sword/slot/offhand.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / pumpkin_king_sword / slot",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/1.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / screamer",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/10.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / screamer",
+    "status": "non_runtime",
+    "note": "Проверен вспомогательный, не runtime-источник."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/11.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / screamer",
+    "status": "non_runtime",
+    "note": "Проверен вспомогательный, не runtime-источник."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/12.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / screamer",
+    "status": "non_runtime",
+    "note": "Проверен вспомогательный, не runtime-источник."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/13.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / screamer",
+    "status": "non_runtime",
+    "note": "Проверен вспомогательный, не runtime-источник."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/14.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / screamer",
+    "status": "non_runtime",
+    "note": "Проверен вспомогательный, не runtime-источник."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/15.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / screamer",
+    "status": "non_runtime",
+    "note": "Проверен вспомогательный, не runtime-источник."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/16.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / screamer",
+    "status": "non_runtime",
+    "note": "Проверен вспомогательный, не runtime-источник."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/2.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / screamer",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/3.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / screamer",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/4.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / screamer",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/5.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / screamer",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/6.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / screamer",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/7.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / screamer",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/8.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / screamer",
+    "status": "non_runtime",
+    "note": "Проверен вспомогательный, не runtime-источник."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/screamer/9.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / screamer",
+    "status": "non_runtime",
+    "note": "Проверен вспомогательный, не runtime-источник."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/apply_ghosting.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulcorruptwand",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/cast.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulcorruptwand",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/cast_2.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulcorruptwand",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/cast_2meditate.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulcorruptwand",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/cast_upgraded.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulcorruptwand",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/cast_upgraded_2.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulcorruptwand",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/cast_upgraded_2_mode_metasola.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulcorruptwand",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/cast_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulcorruptwand",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/1_tick_1s.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulcorruptwand / metasola",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/1_tick_1s1.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulcorruptwand / metasola",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/2_tick_1s.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulcorruptwand / metasola",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/2_tick_1s_at.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulcorruptwand / metasola",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/3_tick.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulcorruptwand / metasola",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/3_tick_at.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulcorruptwand / metasola",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/4_tick.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulcorruptwand / metasola",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/5_tick.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulcorruptwand / metasola",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/5_tick1.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulcorruptwand / metasola",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/6_tick.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulcorruptwand / metasola",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/6_tick_1s_at.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulcorruptwand / metasola",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/break.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulcorruptwand / metasola",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/throw.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulcorruptwand / metasola",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/tick.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulcorruptwand / metasola",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/tick_1s_select.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulcorruptwand / metasola",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulhunter_mace/jump.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulhunter_mace",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulhunter_mace/sprint_end.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulhunter_mace",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulhunter_mace/sprint_recharge.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulhunter_mace",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulhunter_mace/sprint_tick.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulhunter_mace",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulhunter_mace/use.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulhunter_mace",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulhunter_mace/use_dash.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulhunter_mace",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulhunter_mace/use_splash.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / soulhunter_mace",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / vex_wand",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_2.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / vex_wand",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_2_notuser.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / vex_wand",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_2_onlyuser.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / vex_wand",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_2_windcharges.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / vex_wand",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_2meditate.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / vex_wand",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_2meditate_at.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / vex_wand",
+    "status": "non_runtime",
+    "note": "Проверен вспомогательный, не runtime-источник."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_upgraded.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / vex_wand",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_upgraded_2.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / vex_wand",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / halloween / vex_wand",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/november/click.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / november",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/november/click_jedi.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / november",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/november/click_no_color.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / november",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/november/click_sith.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / november",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/november/give_sword.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / november",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/tournament/end.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / tournament",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/tournament/start.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / event / tournament",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/halloween/eat/chorus.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / halloween / eat",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/halloween/eat/chorus_pumpkin_rand.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / halloween / eat",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/1.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / troll_box",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/2.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / troll_box",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/3.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / troll_box",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/4.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / troll_box",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/5.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / troll_box",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/6.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / troll_box",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/select.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / troll_box",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/sound_trollge.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / troll_box",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/spawn_trollge.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / troll_box",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/spawn_trollge_pre.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / troll_box",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/spawn_walls.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / troll_box",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/trollge_spawn.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / troll_box",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/troll_box/trollmasksel.mcfunction",
+    "document": "agent_notes/lbc_other_events.md",
+    "section": "Файлы: other / troll_box",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  }
+]

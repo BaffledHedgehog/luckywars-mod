@@ -1,0 +1,1544 @@
+﻿Compiled from "NbtOps.java"
+public class net.minecraft.nbt.NbtOps implements com.mojang.serialization.DynamicOps<net.minecraft.nbt.Tag> {
+  public static final net.minecraft.nbt.NbtOps INSTANCE;
+
+  private net.minecraft.nbt.NbtOps();
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return
+
+  public net.minecraft.nbt.Tag empty();
+    Code:
+         0: getstatic     #7                  // Field net/minecraft/nbt/EndTag.INSTANCE:Lnet/minecraft/nbt/EndTag;
+         3: areturn
+
+  public net.minecraft.nbt.Tag emptyList();
+    Code:
+         0: new           #13                 // class net/minecraft/nbt/ListTag
+         3: dup
+         4: invokespecial #15                 // Method net/minecraft/nbt/ListTag."<init>":()V
+         7: areturn
+
+  public net.minecraft.nbt.Tag emptyMap();
+    Code:
+         0: new           #16                 // class net/minecraft/nbt/CompoundTag
+         3: dup
+         4: invokespecial #18                 // Method net/minecraft/nbt/CompoundTag."<init>":()V
+         7: areturn
+
+  public <U> U convertTo(com.mojang.serialization.DynamicOps<U>, net.minecraft.nbt.Tag);
+    Code:
+         0: aload_2
+         1: dup
+         2: invokestatic  #19                 // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+         5: pop
+         6: astore_3
+         7: iconst_0
+         8: istore        4
+        10: aload_3
+        11: iload         4
+        13: invokedynamic #25,  0             // InvokeDynamic #0:typeSwitch:(Lnet/minecraft/nbt/Tag;I)I
+        18: tableswitch   { // 0 to 12
+
+                       0: 94
+
+                       1: 109
+
+                       2: 154
+
+                       3: 199
+
+                       4: 244
+
+                       5: 289
+
+                       6: 335
+
+                       7: 381
+
+                       8: 404
+
+                       9: 432
+
+                      10: 448
+
+                      11: 464
+
+                      12: 487
+                 default: 84
+            }
+        84: new           #29                 // class java/lang/MatchException
+        87: dup
+        88: aconst_null
+        89: aconst_null
+        90: invokespecial #31                 // Method java/lang/MatchException."<init>":(Ljava/lang/String;Ljava/lang/Throwable;)V
+        93: athrow
+        94: aload_3
+        95: checkcast     #8                  // class net/minecraft/nbt/EndTag
+        98: astore        5
+       100: aload_1
+       101: invokeinterface #34,  1           // InterfaceMethod com/mojang/serialization/DynamicOps.empty:()Ljava/lang/Object;
+       106: goto          510
+       109: aload_3
+       110: checkcast     #40                 // class net/minecraft/nbt/ByteTag
+       113: astore        6
+       115: aload         6
+       117: invokevirtual #42                 // Method net/minecraft/nbt/ByteTag.value:()B
+       120: istore        8
+       122: iload         8
+       124: istore        9
+       126: iconst_1
+       127: ifeq          137
+       130: iload         8
+       132: istore        7
+       134: goto          143
+       137: iconst_2
+       138: istore        4
+       140: goto          10
+       143: aload_1
+       144: iload         7
+       146: invokeinterface #46,  2           // InterfaceMethod com/mojang/serialization/DynamicOps.createByte:(B)Ljava/lang/Object;
+       151: goto          510
+       154: aload_3
+       155: checkcast     #50                 // class net/minecraft/nbt/ShortTag
+       158: astore        8
+       160: aload         8
+       162: invokevirtual #52                 // Method net/minecraft/nbt/ShortTag.value:()S
+       165: istore        10
+       167: iload         10
+       169: istore        11
+       171: iconst_1
+       172: ifeq          182
+       175: iload         10
+       177: istore        9
+       179: goto          188
+       182: iconst_3
+       183: istore        4
+       185: goto          10
+       188: aload_1
+       189: iload         9
+       191: invokeinterface #55,  2           // InterfaceMethod com/mojang/serialization/DynamicOps.createShort:(S)Ljava/lang/Object;
+       196: goto          510
+       199: aload_3
+       200: checkcast     #59                 // class net/minecraft/nbt/IntTag
+       203: astore        10
+       205: aload         10
+       207: invokevirtual #61                 // Method net/minecraft/nbt/IntTag.value:()I
+       210: istore        12
+       212: iload         12
+       214: istore        13
+       216: iconst_1
+       217: ifeq          227
+       220: iload         12
+       222: istore        11
+       224: goto          233
+       227: iconst_4
+       228: istore        4
+       230: goto          10
+       233: aload_1
+       234: iload         11
+       236: invokeinterface #64,  2           // InterfaceMethod com/mojang/serialization/DynamicOps.createInt:(I)Ljava/lang/Object;
+       241: goto          510
+       244: aload_3
+       245: checkcast     #68                 // class net/minecraft/nbt/LongTag
+       248: astore        12
+       250: aload         12
+       252: invokevirtual #70                 // Method net/minecraft/nbt/LongTag.value:()J
+       255: lstore        15
+       257: lload         15
+       259: lstore        17
+       261: iconst_1
+       262: ifeq          272
+       265: lload         15
+       267: lstore        13
+       269: goto          278
+       272: iconst_5
+       273: istore        4
+       275: goto          10
+       278: aload_1
+       279: lload         13
+       281: invokeinterface #73,  3           // InterfaceMethod com/mojang/serialization/DynamicOps.createLong:(J)Ljava/lang/Object;
+       286: goto          510
+       289: aload_3
+       290: checkcast     #77                 // class net/minecraft/nbt/FloatTag
+       293: astore        15
+       295: aload         15
+       297: invokevirtual #79                 // Method net/minecraft/nbt/FloatTag.value:()F
+       300: fstore        17
+       302: fload         17
+       304: fstore        18
+       306: iconst_1
+       307: ifeq          317
+       310: fload         17
+       312: fstore        16
+       314: goto          324
+       317: bipush        6
+       319: istore        4
+       321: goto          10
+       324: aload_1
+       325: fload         16
+       327: invokeinterface #82,  2           // InterfaceMethod com/mojang/serialization/DynamicOps.createFloat:(F)Ljava/lang/Object;
+       332: goto          510
+       335: aload_3
+       336: checkcast     #86                 // class net/minecraft/nbt/DoubleTag
+       339: astore        17
+       341: aload         17
+       343: invokevirtual #88                 // Method net/minecraft/nbt/DoubleTag.value:()D
+       346: dstore        20
+       348: dload         20
+       350: dstore        22
+       352: iconst_1
+       353: ifeq          363
+       356: dload         20
+       358: dstore        18
+       360: goto          370
+       363: bipush        7
+       365: istore        4
+       367: goto          10
+       370: aload_1
+       371: dload         18
+       373: invokeinterface #91,  3           // InterfaceMethod com/mojang/serialization/DynamicOps.createDouble:(D)Ljava/lang/Object;
+       378: goto          510
+       381: aload_3
+       382: checkcast     #95                 // class net/minecraft/nbt/ByteArrayTag
+       385: astore        20
+       387: aload_1
+       388: aload         20
+       390: invokevirtual #97                 // Method net/minecraft/nbt/ByteArrayTag.getAsByteArray:()[B
+       393: invokestatic  #101                // Method java/nio/ByteBuffer.wrap:([B)Ljava/nio/ByteBuffer;
+       396: invokeinterface #107,  2          // InterfaceMethod com/mojang/serialization/DynamicOps.createByteList:(Ljava/nio/ByteBuffer;)Ljava/lang/Object;
+       401: goto          510
+       404: aload_3
+       405: checkcast     #111                // class net/minecraft/nbt/StringTag
+       408: astore        21
+       410: aload         21
+       412: invokevirtual #113                // Method net/minecraft/nbt/StringTag.value:()Ljava/lang/String;
+       415: astore        23
+       417: aload         23
+       419: astore        22
+       421: aload_1
+       422: aload         22
+       424: invokeinterface #116,  2          // InterfaceMethod com/mojang/serialization/DynamicOps.createString:(Ljava/lang/String;)Ljava/lang/Object;
+       429: goto          510
+       432: aload_3
+       433: checkcast     #13                 // class net/minecraft/nbt/ListTag
+       436: astore        23
+       438: aload_0
+       439: aload_1
+       440: aload         23
+       442: invokevirtual #120                // Method convertList:(Lcom/mojang/serialization/DynamicOps;Ljava/lang/Object;)Ljava/lang/Object;
+       445: goto          510
+       448: aload_3
+       449: checkcast     #16                 // class net/minecraft/nbt/CompoundTag
+       452: astore        24
+       454: aload_0
+       455: aload_1
+       456: aload         24
+       458: invokevirtual #126                // Method convertMap:(Lcom/mojang/serialization/DynamicOps;Ljava/lang/Object;)Ljava/lang/Object;
+       461: goto          510
+       464: aload_3
+       465: checkcast     #129                // class net/minecraft/nbt/IntArrayTag
+       468: astore        25
+       470: aload_1
+       471: aload         25
+       473: invokevirtual #131                // Method net/minecraft/nbt/IntArrayTag.getAsIntArray:()[I
+       476: invokestatic  #135                // Method java/util/Arrays.stream:([I)Ljava/util/stream/IntStream;
+       479: invokeinterface #141,  2          // InterfaceMethod com/mojang/serialization/DynamicOps.createIntList:(Ljava/util/stream/IntStream;)Ljava/lang/Object;
+       484: goto          510
+       487: aload_3
+       488: checkcast     #145                // class net/minecraft/nbt/LongArrayTag
+       491: astore        26
+       493: aload_1
+       494: aload         26
+       496: invokevirtual #147                // Method net/minecraft/nbt/LongArrayTag.getAsLongArray:()[J
+       499: invokestatic  #151                // Method java/util/Arrays.stream:([J)Ljava/util/stream/LongStream;
+       502: invokeinterface #154,  2          // InterfaceMethod com/mojang/serialization/DynamicOps.createLongList:(Ljava/util/stream/LongStream;)Ljava/lang/Object;
+       507: goto          510
+       510: areturn
+       511: astore_3
+       512: new           #29                 // class java/lang/MatchException
+       515: dup
+       516: aload_3
+       517: invokevirtual #160                // Method java/lang/Throwable.toString:()Ljava/lang/String;
+       520: aload_3
+       521: invokespecial #31                 // Method java/lang/MatchException."<init>":(Ljava/lang/String;Ljava/lang/Throwable;)V
+       524: athrow
+      Exception table:
+         from    to  target type
+           117   120   511   Class java/lang/Throwable
+           162   165   511   Class java/lang/Throwable
+           207   210   511   Class java/lang/Throwable
+           252   255   511   Class java/lang/Throwable
+           297   300   511   Class java/lang/Throwable
+           343   346   511   Class java/lang/Throwable
+           412   415   511   Class java/lang/Throwable
+
+  public com.mojang.serialization.DataResult<java.lang.Number> getNumberValue(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_1
+         1: invokeinterface #163,  1          // InterfaceMethod net/minecraft/nbt/Tag.asNumber:()Ljava/util/Optional;
+         6: invokedynamic #169,  0            // InvokeDynamic #1:apply:()Ljava/util/function/Function;
+        11: invokevirtual #173                // Method java/util/Optional.map:(Ljava/util/function/Function;)Ljava/util/Optional;
+        14: invokedynamic #179,  0            // InvokeDynamic #2:get:()Ljava/util/function/Supplier;
+        19: invokevirtual #183                // Method java/util/Optional.orElseGet:(Ljava/util/function/Supplier;)Ljava/lang/Object;
+        22: checkcast     #187                // class com/mojang/serialization/DataResult
+        25: areturn
+
+  public net.minecraft.nbt.Tag createNumeric(java.lang.Number);
+    Code:
+         0: aload_1
+         1: invokevirtual #189                // Method java/lang/Number.doubleValue:()D
+         4: invokestatic  #194                // Method net/minecraft/nbt/DoubleTag.valueOf:(D)Lnet/minecraft/nbt/DoubleTag;
+         7: areturn
+
+  public net.minecraft.nbt.Tag createByte(byte);
+    Code:
+         0: iload_1
+         1: invokestatic  #198                // Method net/minecraft/nbt/ByteTag.valueOf:(B)Lnet/minecraft/nbt/ByteTag;
+         4: areturn
+
+  public net.minecraft.nbt.Tag createShort(short);
+    Code:
+         0: iload_1
+         1: invokestatic  #201                // Method net/minecraft/nbt/ShortTag.valueOf:(S)Lnet/minecraft/nbt/ShortTag;
+         4: areturn
+
+  public net.minecraft.nbt.Tag createInt(int);
+    Code:
+         0: iload_1
+         1: invokestatic  #204                // Method net/minecraft/nbt/IntTag.valueOf:(I)Lnet/minecraft/nbt/IntTag;
+         4: areturn
+
+  public net.minecraft.nbt.Tag createLong(long);
+    Code:
+         0: lload_1
+         1: invokestatic  #207                // Method net/minecraft/nbt/LongTag.valueOf:(J)Lnet/minecraft/nbt/LongTag;
+         4: areturn
+
+  public net.minecraft.nbt.Tag createFloat(float);
+    Code:
+         0: fload_1
+         1: invokestatic  #210                // Method net/minecraft/nbt/FloatTag.valueOf:(F)Lnet/minecraft/nbt/FloatTag;
+         4: areturn
+
+  public net.minecraft.nbt.Tag createDouble(double);
+    Code:
+         0: dload_1
+         1: invokestatic  #194                // Method net/minecraft/nbt/DoubleTag.valueOf:(D)Lnet/minecraft/nbt/DoubleTag;
+         4: areturn
+
+  public com.mojang.serialization.DataResult<java.lang.Boolean> getBooleanValue(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #213                // Method getNumberValue:(Lnet/minecraft/nbt/Tag;)Lcom/mojang/serialization/DataResult;
+         5: invokedynamic #217,  0            // InvokeDynamic #3:apply:()Ljava/util/function/Function;
+        10: invokeinterface #218,  2          // InterfaceMethod com/mojang/serialization/DataResult.map:(Ljava/util/function/Function;)Lcom/mojang/serialization/DataResult;
+        15: areturn
+
+  public net.minecraft.nbt.Tag createBoolean(boolean);
+    Code:
+         0: iload_1
+         1: invokestatic  #221                // Method net/minecraft/nbt/ByteTag.valueOf:(Z)Lnet/minecraft/nbt/ByteTag;
+         4: areturn
+
+  public com.mojang.serialization.DataResult<java.lang.String> getStringValue(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_1
+         1: instanceof    #111                // class net/minecraft/nbt/StringTag
+         4: ifeq          26
+         7: aload_1
+         8: checkcast     #111                // class net/minecraft/nbt/StringTag
+        11: astore_2
+        12: aload_2
+        13: invokevirtual #113                // Method net/minecraft/nbt/StringTag.value:()Ljava/lang/String;
+        16: astore        4
+        18: aload         4
+        20: astore_3
+        21: aload_3
+        22: invokestatic  #224                // InterfaceMethod com/mojang/serialization/DataResult.success:(Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+        25: areturn
+        26: invokedynamic #228,  0            // InvokeDynamic #4:get:()Ljava/util/function/Supplier;
+        31: invokestatic  #229                // InterfaceMethod com/mojang/serialization/DataResult.error:(Ljava/util/function/Supplier;)Lcom/mojang/serialization/DataResult;
+        34: areturn
+        35: astore_2
+        36: new           #29                 // class java/lang/MatchException
+        39: dup
+        40: aload_2
+        41: invokevirtual #160                // Method java/lang/Throwable.toString:()Ljava/lang/String;
+        44: aload_2
+        45: invokespecial #31                 // Method java/lang/MatchException."<init>":(Ljava/lang/String;Ljava/lang/Throwable;)V
+        48: athrow
+      Exception table:
+         from    to  target type
+            13    16    35   Class java/lang/Throwable
+
+  public net.minecraft.nbt.Tag createString(java.lang.String);
+    Code:
+         0: aload_1
+         1: invokestatic  #233                // Method net/minecraft/nbt/StringTag.valueOf:(Ljava/lang/String;)Lnet/minecraft/nbt/StringTag;
+         4: areturn
+
+  public com.mojang.serialization.DataResult<net.minecraft.nbt.Tag> mergeToList(net.minecraft.nbt.Tag, net.minecraft.nbt.Tag);
+    Code:
+         0: aload_1
+         1: invokestatic  #236                // Method createCollector:(Lnet/minecraft/nbt/Tag;)Ljava/util/Optional;
+         4: aload_2
+         5: invokedynamic #240,  0            // InvokeDynamic #5:apply:(Lnet/minecraft/nbt/Tag;)Ljava/util/function/Function;
+        10: invokevirtual #173                // Method java/util/Optional.map:(Ljava/util/function/Function;)Ljava/util/Optional;
+        13: aload_1
+        14: invokedynamic #243,  0            // InvokeDynamic #6:get:(Lnet/minecraft/nbt/Tag;)Ljava/util/function/Supplier;
+        19: invokevirtual #183                // Method java/util/Optional.orElseGet:(Ljava/util/function/Supplier;)Ljava/lang/Object;
+        22: checkcast     #187                // class com/mojang/serialization/DataResult
+        25: areturn
+
+  public com.mojang.serialization.DataResult<net.minecraft.nbt.Tag> mergeToList(net.minecraft.nbt.Tag, java.util.List<net.minecraft.nbt.Tag>);
+    Code:
+         0: aload_1
+         1: invokestatic  #236                // Method createCollector:(Lnet/minecraft/nbt/Tag;)Ljava/util/Optional;
+         4: aload_2
+         5: invokedynamic #246,  0            // InvokeDynamic #7:apply:(Ljava/util/List;)Ljava/util/function/Function;
+        10: invokevirtual #173                // Method java/util/Optional.map:(Ljava/util/function/Function;)Ljava/util/Optional;
+        13: aload_1
+        14: invokedynamic #249,  0            // InvokeDynamic #8:get:(Lnet/minecraft/nbt/Tag;)Ljava/util/function/Supplier;
+        19: invokevirtual #183                // Method java/util/Optional.orElseGet:(Ljava/util/function/Supplier;)Ljava/lang/Object;
+        22: checkcast     #187                // class com/mojang/serialization/DataResult
+        25: areturn
+
+  public com.mojang.serialization.DataResult<net.minecraft.nbt.Tag> mergeToMap(net.minecraft.nbt.Tag, net.minecraft.nbt.Tag, net.minecraft.nbt.Tag);
+    Code:
+         0: aload_1
+         1: instanceof    #16                 // class net/minecraft/nbt/CompoundTag
+         4: ifne          25
+         7: aload_1
+         8: instanceof    #8                  // class net/minecraft/nbt/EndTag
+        11: ifne          25
+        14: aload_1
+        15: invokedynamic #250,  0            // InvokeDynamic #9:get:(Lnet/minecraft/nbt/Tag;)Ljava/util/function/Supplier;
+        20: aload_1
+        21: invokestatic  #251                // InterfaceMethod com/mojang/serialization/DataResult.error:(Ljava/util/function/Supplier;Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+        24: areturn
+        25: aload_2
+        26: instanceof    #111                // class net/minecraft/nbt/StringTag
+        29: ifeq          52
+        32: aload_2
+        33: checkcast     #111                // class net/minecraft/nbt/StringTag
+        36: astore        5
+        38: aload         5
+        40: invokevirtual #113                // Method net/minecraft/nbt/StringTag.value:()Ljava/lang/String;
+        43: astore        6
+        45: aload         6
+        47: astore        4
+        49: goto          63
+        52: aload_2
+        53: invokedynamic #254,  0            // InvokeDynamic #10:get:(Lnet/minecraft/nbt/Tag;)Ljava/util/function/Supplier;
+        58: aload_1
+        59: invokestatic  #251                // InterfaceMethod com/mojang/serialization/DataResult.error:(Ljava/util/function/Supplier;Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+        62: areturn
+        63: aload_1
+        64: instanceof    #16                 // class net/minecraft/nbt/CompoundTag
+        67: ifeq          84
+        70: aload_1
+        71: checkcast     #16                 // class net/minecraft/nbt/CompoundTag
+        74: astore        6
+        76: aload         6
+        78: invokevirtual #255                // Method net/minecraft/nbt/CompoundTag.shallowCopy:()Lnet/minecraft/nbt/CompoundTag;
+        81: goto          91
+        84: new           #16                 // class net/minecraft/nbt/CompoundTag
+        87: dup
+        88: invokespecial #18                 // Method net/minecraft/nbt/CompoundTag."<init>":()V
+        91: astore        5
+        93: aload         5
+        95: aload         4
+        97: aload_3
+        98: invokevirtual #259                // Method net/minecraft/nbt/CompoundTag.put:(Ljava/lang/String;Lnet/minecraft/nbt/Tag;)Lnet/minecraft/nbt/Tag;
+       101: pop
+       102: aload         5
+       104: invokestatic  #224                // InterfaceMethod com/mojang/serialization/DataResult.success:(Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+       107: areturn
+       108: astore        6
+       110: new           #29                 // class java/lang/MatchException
+       113: dup
+       114: aload         6
+       116: invokevirtual #160                // Method java/lang/Throwable.toString:()Ljava/lang/String;
+       119: aload         6
+       121: invokespecial #31                 // Method java/lang/MatchException."<init>":(Ljava/lang/String;Ljava/lang/Throwable;)V
+       124: athrow
+      Exception table:
+         from    to  target type
+            40    43   108   Class java/lang/Throwable
+
+  public com.mojang.serialization.DataResult<net.minecraft.nbt.Tag> mergeToMap(net.minecraft.nbt.Tag, com.mojang.serialization.MapLike<net.minecraft.nbt.Tag>);
+    Code:
+         0: aload_1
+         1: instanceof    #16                 // class net/minecraft/nbt/CompoundTag
+         4: ifne          25
+         7: aload_1
+         8: instanceof    #8                  // class net/minecraft/nbt/EndTag
+        11: ifne          25
+        14: aload_1
+        15: invokedynamic #263,  0            // InvokeDynamic #11:get:(Lnet/minecraft/nbt/Tag;)Ljava/util/function/Supplier;
+        20: aload_1
+        21: invokestatic  #251                // InterfaceMethod com/mojang/serialization/DataResult.error:(Ljava/util/function/Supplier;Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+        24: areturn
+        25: aload_2
+        26: invokeinterface #264,  1          // InterfaceMethod com/mojang/serialization/MapLike.entries:()Ljava/util/stream/Stream;
+        31: invokeinterface #270,  1          // InterfaceMethod java/util/stream/Stream.iterator:()Ljava/util/Iterator;
+        36: astore_3
+        37: aload_3
+        38: invokeinterface #276,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        43: ifne          67
+        46: aload_1
+        47: aload_0
+        48: invokevirtual #282                // Method empty:()Lnet/minecraft/nbt/Tag;
+        51: if_acmpne     62
+        54: aload_0
+        55: invokevirtual #285                // Method emptyMap:()Lnet/minecraft/nbt/Tag;
+        58: invokestatic  #224                // InterfaceMethod com/mojang/serialization/DataResult.success:(Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+        61: areturn
+        62: aload_1
+        63: invokestatic  #224                // InterfaceMethod com/mojang/serialization/DataResult.success:(Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+        66: areturn
+        67: aload_1
+        68: instanceof    #16                 // class net/minecraft/nbt/CompoundTag
+        71: ifeq          88
+        74: aload_1
+        75: checkcast     #16                 // class net/minecraft/nbt/CompoundTag
+        78: astore        5
+        80: aload         5
+        82: invokevirtual #255                // Method net/minecraft/nbt/CompoundTag.shallowCopy:()Lnet/minecraft/nbt/CompoundTag;
+        85: goto          95
+        88: new           #16                 // class net/minecraft/nbt/CompoundTag
+        91: dup
+        92: invokespecial #18                 // Method net/minecraft/nbt/CompoundTag."<init>":()V
+        95: astore        4
+        97: new           #288                // class java/util/ArrayList
+       100: dup
+       101: invokespecial #290                // Method java/util/ArrayList."<init>":()V
+       104: astore        5
+       106: aload_3
+       107: aload         5
+       109: aload         4
+       111: invokedynamic #291,  0            // InvokeDynamic #12:accept:(Ljava/util/List;Lnet/minecraft/nbt/CompoundTag;)Ljava/util/function/Consumer;
+       116: invokeinterface #295,  2          // InterfaceMethod java/util/Iterator.forEachRemaining:(Ljava/util/function/Consumer;)V
+       121: aload         5
+       123: invokeinterface #299,  1          // InterfaceMethod java/util/List.isEmpty:()Z
+       128: ifne          144
+       131: aload         5
+       133: invokedynamic #304,  0            // InvokeDynamic #13:get:(Ljava/util/List;)Ljava/util/function/Supplier;
+       138: aload         4
+       140: invokestatic  #251                // InterfaceMethod com/mojang/serialization/DataResult.error:(Ljava/util/function/Supplier;Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+       143: areturn
+       144: aload         4
+       146: invokestatic  #224                // InterfaceMethod com/mojang/serialization/DataResult.success:(Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+       149: areturn
+
+  public com.mojang.serialization.DataResult<net.minecraft.nbt.Tag> mergeToMap(net.minecraft.nbt.Tag, java.util.Map<net.minecraft.nbt.Tag, net.minecraft.nbt.Tag>);
+    Code:
+         0: aload_1
+         1: instanceof    #16                 // class net/minecraft/nbt/CompoundTag
+         4: ifne          25
+         7: aload_1
+         8: instanceof    #8                  // class net/minecraft/nbt/EndTag
+        11: ifne          25
+        14: aload_1
+        15: invokedynamic #307,  0            // InvokeDynamic #14:get:(Lnet/minecraft/nbt/Tag;)Ljava/util/function/Supplier;
+        20: aload_1
+        21: invokestatic  #251                // InterfaceMethod com/mojang/serialization/DataResult.error:(Ljava/util/function/Supplier;Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+        24: areturn
+        25: aload_2
+        26: invokeinterface #308,  1          // InterfaceMethod java/util/Map.isEmpty:()Z
+        31: ifeq          55
+        34: aload_1
+        35: aload_0
+        36: invokevirtual #282                // Method empty:()Lnet/minecraft/nbt/Tag;
+        39: if_acmpne     50
+        42: aload_0
+        43: invokevirtual #285                // Method emptyMap:()Lnet/minecraft/nbt/Tag;
+        46: invokestatic  #224                // InterfaceMethod com/mojang/serialization/DataResult.success:(Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+        49: areturn
+        50: aload_1
+        51: invokestatic  #224                // InterfaceMethod com/mojang/serialization/DataResult.success:(Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+        54: areturn
+        55: aload_1
+        56: instanceof    #16                 // class net/minecraft/nbt/CompoundTag
+        59: ifeq          76
+        62: aload_1
+        63: checkcast     #16                 // class net/minecraft/nbt/CompoundTag
+        66: astore        4
+        68: aload         4
+        70: invokevirtual #255                // Method net/minecraft/nbt/CompoundTag.shallowCopy:()Lnet/minecraft/nbt/CompoundTag;
+        73: goto          83
+        76: new           #16                 // class net/minecraft/nbt/CompoundTag
+        79: dup
+        80: invokespecial #18                 // Method net/minecraft/nbt/CompoundTag."<init>":()V
+        83: astore_3
+        84: new           #288                // class java/util/ArrayList
+        87: dup
+        88: invokespecial #290                // Method java/util/ArrayList."<init>":()V
+        91: astore        4
+        93: aload_2
+        94: invokeinterface #311,  1          // InterfaceMethod java/util/Map.entrySet:()Ljava/util/Set;
+        99: invokeinterface #315,  1          // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+       104: astore        5
+       106: aload         5
+       108: invokeinterface #276,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+       113: ifeq          199
+       116: aload         5
+       118: invokeinterface #318,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       123: checkcast     #321                // class java/util/Map$Entry
+       126: astore        6
+       128: aload         6
+       130: invokeinterface #323,  1          // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+       135: checkcast     #164                // class net/minecraft/nbt/Tag
+       138: astore        7
+       140: aload         7
+       142: instanceof    #111                // class net/minecraft/nbt/StringTag
+       145: ifeq          186
+       148: aload         7
+       150: checkcast     #111                // class net/minecraft/nbt/StringTag
+       153: astore        8
+       155: aload         8
+       157: invokevirtual #113                // Method net/minecraft/nbt/StringTag.value:()Ljava/lang/String;
+       160: astore        10
+       162: aload         10
+       164: astore        9
+       166: aload_3
+       167: aload         9
+       169: aload         6
+       171: invokeinterface #326,  1          // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+       176: checkcast     #164                // class net/minecraft/nbt/Tag
+       179: invokevirtual #259                // Method net/minecraft/nbt/CompoundTag.put:(Ljava/lang/String;Lnet/minecraft/nbt/Tag;)Lnet/minecraft/nbt/Tag;
+       182: pop
+       183: goto          196
+       186: aload         4
+       188: aload         7
+       190: invokeinterface #329,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       195: pop
+       196: goto          106
+       199: aload         4
+       201: invokeinterface #299,  1          // InterfaceMethod java/util/List.isEmpty:()Z
+       206: ifne          221
+       209: aload         4
+       211: invokedynamic #333,  0            // InvokeDynamic #15:get:(Ljava/util/List;)Ljava/util/function/Supplier;
+       216: aload_3
+       217: invokestatic  #251                // InterfaceMethod com/mojang/serialization/DataResult.error:(Ljava/util/function/Supplier;Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+       220: areturn
+       221: aload_3
+       222: invokestatic  #224                // InterfaceMethod com/mojang/serialization/DataResult.success:(Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+       225: areturn
+       226: astore        5
+       228: new           #29                 // class java/lang/MatchException
+       231: dup
+       232: aload         5
+       234: invokevirtual #160                // Method java/lang/Throwable.toString:()Ljava/lang/String;
+       237: aload         5
+       239: invokespecial #31                 // Method java/lang/MatchException."<init>":(Ljava/lang/String;Ljava/lang/Throwable;)V
+       242: athrow
+      Exception table:
+         from    to  target type
+           157   160   226   Class java/lang/Throwable
+
+  public com.mojang.serialization.DataResult<java.util.stream.Stream<com.mojang.datafixers.util.Pair<net.minecraft.nbt.Tag, net.minecraft.nbt.Tag>>> getMapValues(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_1
+         1: instanceof    #16                 // class net/minecraft/nbt/CompoundTag
+         4: ifeq          36
+         7: aload_1
+         8: checkcast     #16                 // class net/minecraft/nbt/CompoundTag
+        11: astore_2
+        12: aload_2
+        13: invokevirtual #334                // Method net/minecraft/nbt/CompoundTag.entrySet:()Ljava/util/Set;
+        16: invokeinterface #335,  1          // InterfaceMethod java/util/Set.stream:()Ljava/util/stream/Stream;
+        21: aload_0
+        22: invokedynamic #337,  0            // InvokeDynamic #16:apply:(Lnet/minecraft/nbt/NbtOps;)Ljava/util/function/Function;
+        27: invokeinterface #340,  2          // InterfaceMethod java/util/stream/Stream.map:(Ljava/util/function/Function;)Ljava/util/stream/Stream;
+        32: invokestatic  #224                // InterfaceMethod com/mojang/serialization/DataResult.success:(Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+        35: areturn
+        36: aload_1
+        37: invokedynamic #343,  0            // InvokeDynamic #17:get:(Lnet/minecraft/nbt/Tag;)Ljava/util/function/Supplier;
+        42: invokestatic  #229                // InterfaceMethod com/mojang/serialization/DataResult.error:(Ljava/util/function/Supplier;)Lcom/mojang/serialization/DataResult;
+        45: areturn
+
+  public com.mojang.serialization.DataResult<java.util.function.Consumer<java.util.function.BiConsumer<net.minecraft.nbt.Tag, net.minecraft.nbt.Tag>>> getMapEntries(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_1
+         1: instanceof    #16                 // class net/minecraft/nbt/CompoundTag
+         4: ifeq          23
+         7: aload_1
+         8: checkcast     #16                 // class net/minecraft/nbt/CompoundTag
+        11: astore_2
+        12: aload_0
+        13: aload_2
+        14: invokedynamic #344,  0            // InvokeDynamic #18:accept:(Lnet/minecraft/nbt/NbtOps;Lnet/minecraft/nbt/CompoundTag;)Ljava/util/function/Consumer;
+        19: invokestatic  #224                // InterfaceMethod com/mojang/serialization/DataResult.success:(Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+        22: areturn
+        23: aload_1
+        24: invokedynamic #347,  0            // InvokeDynamic #19:get:(Lnet/minecraft/nbt/Tag;)Ljava/util/function/Supplier;
+        29: invokestatic  #229                // InterfaceMethod com/mojang/serialization/DataResult.error:(Ljava/util/function/Supplier;)Lcom/mojang/serialization/DataResult;
+        32: areturn
+
+  public com.mojang.serialization.DataResult<com.mojang.serialization.MapLike<net.minecraft.nbt.Tag>> getMap(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_1
+         1: instanceof    #16                 // class net/minecraft/nbt/CompoundTag
+         4: ifeq          25
+         7: aload_1
+         8: checkcast     #16                 // class net/minecraft/nbt/CompoundTag
+        11: astore_2
+        12: new           #348                // class net/minecraft/nbt/NbtOps$1
+        15: dup
+        16: aload_0
+        17: aload_2
+        18: invokespecial #350                // Method net/minecraft/nbt/NbtOps$1."<init>":(Lnet/minecraft/nbt/NbtOps;Lnet/minecraft/nbt/CompoundTag;)V
+        21: invokestatic  #224                // InterfaceMethod com/mojang/serialization/DataResult.success:(Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+        24: areturn
+        25: aload_1
+        26: invokedynamic #353,  0            // InvokeDynamic #20:get:(Lnet/minecraft/nbt/Tag;)Ljava/util/function/Supplier;
+        31: invokestatic  #229                // InterfaceMethod com/mojang/serialization/DataResult.error:(Ljava/util/function/Supplier;)Lcom/mojang/serialization/DataResult;
+        34: areturn
+
+  public net.minecraft.nbt.Tag createMap(java.util.stream.Stream<com.mojang.datafixers.util.Pair<net.minecraft.nbt.Tag, net.minecraft.nbt.Tag>>);
+    Code:
+         0: new           #16                 // class net/minecraft/nbt/CompoundTag
+         3: dup
+         4: invokespecial #18                 // Method net/minecraft/nbt/CompoundTag."<init>":()V
+         7: astore_2
+         8: aload_1
+         9: aload_2
+        10: invokedynamic #354,  0            // InvokeDynamic #21:accept:(Lnet/minecraft/nbt/CompoundTag;)Ljava/util/function/Consumer;
+        15: invokeinterface #357,  2          // InterfaceMethod java/util/stream/Stream.forEach:(Ljava/util/function/Consumer;)V
+        20: aload_2
+        21: areturn
+
+  public com.mojang.serialization.DataResult<java.util.stream.Stream<net.minecraft.nbt.Tag>> getStream(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_1
+         1: instanceof    #360                // class net/minecraft/nbt/CollectionTag
+         4: ifeq          22
+         7: aload_1
+         8: checkcast     #360                // class net/minecraft/nbt/CollectionTag
+        11: astore_2
+        12: aload_2
+        13: invokeinterface #362,  1          // InterfaceMethod net/minecraft/nbt/CollectionTag.stream:()Ljava/util/stream/Stream;
+        18: invokestatic  #224                // InterfaceMethod com/mojang/serialization/DataResult.success:(Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+        21: areturn
+        22: invokedynamic #363,  0            // InvokeDynamic #22:get:()Ljava/util/function/Supplier;
+        27: invokestatic  #229                // InterfaceMethod com/mojang/serialization/DataResult.error:(Ljava/util/function/Supplier;)Lcom/mojang/serialization/DataResult;
+        30: areturn
+
+  public com.mojang.serialization.DataResult<java.util.function.Consumer<java.util.function.Consumer<net.minecraft.nbt.Tag>>> getList(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_1
+         1: instanceof    #360                // class net/minecraft/nbt/CollectionTag
+         4: ifeq          27
+         7: aload_1
+         8: checkcast     #360                // class net/minecraft/nbt/CollectionTag
+        11: astore_2
+        12: aload_2
+        13: dup
+        14: invokestatic  #19                 // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+        17: pop
+        18: invokedynamic #364,  0            // InvokeDynamic #23:accept:(Lnet/minecraft/nbt/CollectionTag;)Ljava/util/function/Consumer;
+        23: invokestatic  #224                // InterfaceMethod com/mojang/serialization/DataResult.success:(Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+        26: areturn
+        27: aload_1
+        28: invokedynamic #367,  0            // InvokeDynamic #24:get:(Lnet/minecraft/nbt/Tag;)Ljava/util/function/Supplier;
+        33: invokestatic  #229                // InterfaceMethod com/mojang/serialization/DataResult.error:(Ljava/util/function/Supplier;)Lcom/mojang/serialization/DataResult;
+        36: areturn
+
+  public com.mojang.serialization.DataResult<java.nio.ByteBuffer> getByteBuffer(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_1
+         1: instanceof    #95                 // class net/minecraft/nbt/ByteArrayTag
+         4: ifeq          23
+         7: aload_1
+         8: checkcast     #95                 // class net/minecraft/nbt/ByteArrayTag
+        11: astore_2
+        12: aload_2
+        13: invokevirtual #97                 // Method net/minecraft/nbt/ByteArrayTag.getAsByteArray:()[B
+        16: invokestatic  #101                // Method java/nio/ByteBuffer.wrap:([B)Ljava/nio/ByteBuffer;
+        19: invokestatic  #224                // InterfaceMethod com/mojang/serialization/DataResult.success:(Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+        22: areturn
+        23: aload_0
+        24: aload_1
+        25: invokespecial #368                // InterfaceMethod com/mojang/serialization/DynamicOps.getByteBuffer:(Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+        28: areturn
+
+  public net.minecraft.nbt.Tag createByteList(java.nio.ByteBuffer);
+    Code:
+         0: aload_1
+         1: invokevirtual #371                // Method java/nio/ByteBuffer.duplicate:()Ljava/nio/ByteBuffer;
+         4: invokevirtual #375                // Method java/nio/ByteBuffer.clear:()Ljava/nio/ByteBuffer;
+         7: astore_2
+         8: aload_1
+         9: invokevirtual #378                // Method java/nio/ByteBuffer.capacity:()I
+        12: newarray       byte
+        14: astore_3
+        15: aload_2
+        16: iconst_0
+        17: aload_3
+        18: iconst_0
+        19: aload_3
+        20: arraylength
+        21: invokevirtual #381                // Method java/nio/ByteBuffer.get:(I[BII)Ljava/nio/ByteBuffer;
+        24: pop
+        25: new           #95                 // class net/minecraft/nbt/ByteArrayTag
+        28: dup
+        29: aload_3
+        30: invokespecial #384                // Method net/minecraft/nbt/ByteArrayTag."<init>":([B)V
+        33: areturn
+
+  public com.mojang.serialization.DataResult<java.util.stream.IntStream> getIntStream(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_1
+         1: instanceof    #129                // class net/minecraft/nbt/IntArrayTag
+         4: ifeq          23
+         7: aload_1
+         8: checkcast     #129                // class net/minecraft/nbt/IntArrayTag
+        11: astore_2
+        12: aload_2
+        13: invokevirtual #131                // Method net/minecraft/nbt/IntArrayTag.getAsIntArray:()[I
+        16: invokestatic  #135                // Method java/util/Arrays.stream:([I)Ljava/util/stream/IntStream;
+        19: invokestatic  #224                // InterfaceMethod com/mojang/serialization/DataResult.success:(Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+        22: areturn
+        23: aload_0
+        24: aload_1
+        25: invokespecial #387                // InterfaceMethod com/mojang/serialization/DynamicOps.getIntStream:(Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+        28: areturn
+
+  public net.minecraft.nbt.Tag createIntList(java.util.stream.IntStream);
+    Code:
+         0: new           #129                // class net/minecraft/nbt/IntArrayTag
+         3: dup
+         4: aload_1
+         5: invokeinterface #390,  1          // InterfaceMethod java/util/stream/IntStream.toArray:()[I
+        10: invokespecial #395                // Method net/minecraft/nbt/IntArrayTag."<init>":([I)V
+        13: areturn
+
+  public com.mojang.serialization.DataResult<java.util.stream.LongStream> getLongStream(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_1
+         1: instanceof    #145                // class net/minecraft/nbt/LongArrayTag
+         4: ifeq          23
+         7: aload_1
+         8: checkcast     #145                // class net/minecraft/nbt/LongArrayTag
+        11: astore_2
+        12: aload_2
+        13: invokevirtual #147                // Method net/minecraft/nbt/LongArrayTag.getAsLongArray:()[J
+        16: invokestatic  #151                // Method java/util/Arrays.stream:([J)Ljava/util/stream/LongStream;
+        19: invokestatic  #224                // InterfaceMethod com/mojang/serialization/DataResult.success:(Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+        22: areturn
+        23: aload_0
+        24: aload_1
+        25: invokespecial #398                // InterfaceMethod com/mojang/serialization/DynamicOps.getLongStream:(Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+        28: areturn
+
+  public net.minecraft.nbt.Tag createLongList(java.util.stream.LongStream);
+    Code:
+         0: new           #145                // class net/minecraft/nbt/LongArrayTag
+         3: dup
+         4: aload_1
+         5: invokeinterface #401,  1          // InterfaceMethod java/util/stream/LongStream.toArray:()[J
+        10: invokespecial #405                // Method net/minecraft/nbt/LongArrayTag."<init>":([J)V
+        13: areturn
+
+  public net.minecraft.nbt.Tag createList(java.util.stream.Stream<net.minecraft.nbt.Tag>);
+    Code:
+         0: new           #13                 // class net/minecraft/nbt/ListTag
+         3: dup
+         4: aload_1
+         5: invokestatic  #408                // Method net/minecraft/util/Util.toMutableList:()Ljava/util/stream/Collector;
+         8: invokeinterface #414,  2          // InterfaceMethod java/util/stream/Stream.collect:(Ljava/util/stream/Collector;)Ljava/lang/Object;
+        13: checkcast     #300                // class java/util/List
+        16: invokespecial #418                // Method net/minecraft/nbt/ListTag."<init>":(Ljava/util/List;)V
+        19: areturn
+
+  public net.minecraft.nbt.Tag remove(net.minecraft.nbt.Tag, java.lang.String);
+    Code:
+         0: aload_1
+         1: instanceof    #16                 // class net/minecraft/nbt/CompoundTag
+         4: ifeq          28
+         7: aload_1
+         8: checkcast     #16                 // class net/minecraft/nbt/CompoundTag
+        11: astore_3
+        12: aload_3
+        13: invokevirtual #255                // Method net/minecraft/nbt/CompoundTag.shallowCopy:()Lnet/minecraft/nbt/CompoundTag;
+        16: astore        4
+        18: aload         4
+        20: aload_2
+        21: invokevirtual #421                // Method net/minecraft/nbt/CompoundTag.remove:(Ljava/lang/String;)Lnet/minecraft/nbt/Tag;
+        24: pop
+        25: aload         4
+        27: areturn
+        28: aload_1
+        29: areturn
+
+  public java.lang.String toString();
+    Code:
+         0: ldc_w         #425                // String NBT
+         3: areturn
+
+  public com.mojang.serialization.RecordBuilder<net.minecraft.nbt.Tag> mapBuilder();
+    Code:
+         0: new           #427                // class net/minecraft/nbt/NbtOps$NbtRecordBuilder
+         3: dup
+         4: aload_0
+         5: invokespecial #429                // Method net/minecraft/nbt/NbtOps$NbtRecordBuilder."<init>":(Lnet/minecraft/nbt/NbtOps;)V
+         8: areturn
+
+  private static java.util.Optional<net.minecraft.nbt.NbtOps$ListCollector> createCollector(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_0
+         1: instanceof    #8                  // class net/minecraft/nbt/EndTag
+         4: ifeq          18
+         7: new           #432                // class net/minecraft/nbt/NbtOps$GenericListCollector
+        10: dup
+        11: invokespecial #434                // Method net/minecraft/nbt/NbtOps$GenericListCollector."<init>":()V
+        14: invokestatic  #435                // Method java/util/Optional.of:(Ljava/lang/Object;)Ljava/util/Optional;
+        17: areturn
+        18: aload_0
+        19: instanceof    #360                // class net/minecraft/nbt/CollectionTag
+        22: ifeq          197
+        25: aload_0
+        26: checkcast     #360                // class net/minecraft/nbt/CollectionTag
+        29: astore_1
+        30: aload_1
+        31: invokeinterface #439,  1          // InterfaceMethod net/minecraft/nbt/CollectionTag.isEmpty:()Z
+        36: ifeq          50
+        39: new           #432                // class net/minecraft/nbt/NbtOps$GenericListCollector
+        42: dup
+        43: invokespecial #434                // Method net/minecraft/nbt/NbtOps$GenericListCollector."<init>":()V
+        46: invokestatic  #435                // Method java/util/Optional.of:(Ljava/lang/Object;)Ljava/util/Optional;
+        49: areturn
+        50: aload_1
+        51: dup
+        52: invokestatic  #19                 // Method java/util/Objects.requireNonNull:(Ljava/lang/Object;)Ljava/lang/Object;
+        55: pop
+        56: astore_2
+        57: iconst_0
+        58: istore_3
+        59: aload_2
+        60: iload_3
+        61: invokedynamic #440,  0            // InvokeDynamic #25:typeSwitch:(Lnet/minecraft/nbt/CollectionTag;I)I
+        66: tableswitch   { // 0 to 3
+
+                       0: 106
+
+                       1: 127
+
+                       2: 151
+
+                       3: 175
+                 default: 96
+            }
+        96: new           #29                 // class java/lang/MatchException
+        99: dup
+       100: aconst_null
+       101: aconst_null
+       102: invokespecial #31                 // Method java/lang/MatchException."<init>":(Ljava/lang/String;Ljava/lang/Throwable;)V
+       105: athrow
+       106: aload_2
+       107: checkcast     #13                 // class net/minecraft/nbt/ListTag
+       110: astore        4
+       112: new           #432                // class net/minecraft/nbt/NbtOps$GenericListCollector
+       115: dup
+       116: aload         4
+       118: invokespecial #443                // Method net/minecraft/nbt/NbtOps$GenericListCollector."<init>":(Lnet/minecraft/nbt/ListTag;)V
+       121: invokestatic  #435                // Method java/util/Optional.of:(Ljava/lang/Object;)Ljava/util/Optional;
+       124: goto          196
+       127: aload_2
+       128: checkcast     #95                 // class net/minecraft/nbt/ByteArrayTag
+       131: astore        5
+       133: new           #446                // class net/minecraft/nbt/NbtOps$ByteListCollector
+       136: dup
+       137: aload         5
+       139: invokevirtual #97                 // Method net/minecraft/nbt/ByteArrayTag.getAsByteArray:()[B
+       142: invokespecial #448                // Method net/minecraft/nbt/NbtOps$ByteListCollector."<init>":([B)V
+       145: invokestatic  #435                // Method java/util/Optional.of:(Ljava/lang/Object;)Ljava/util/Optional;
+       148: goto          196
+       151: aload_2
+       152: checkcast     #129                // class net/minecraft/nbt/IntArrayTag
+       155: astore        6
+       157: new           #449                // class net/minecraft/nbt/NbtOps$IntListCollector
+       160: dup
+       161: aload         6
+       163: invokevirtual #131                // Method net/minecraft/nbt/IntArrayTag.getAsIntArray:()[I
+       166: invokespecial #451                // Method net/minecraft/nbt/NbtOps$IntListCollector."<init>":([I)V
+       169: invokestatic  #435                // Method java/util/Optional.of:(Ljava/lang/Object;)Ljava/util/Optional;
+       172: goto          196
+       175: aload_2
+       176: checkcast     #145                // class net/minecraft/nbt/LongArrayTag
+       179: astore        7
+       181: new           #452                // class net/minecraft/nbt/NbtOps$LongListCollector
+       184: dup
+       185: aload         7
+       187: invokevirtual #147                // Method net/minecraft/nbt/LongArrayTag.getAsLongArray:()[J
+       190: invokespecial #454                // Method net/minecraft/nbt/NbtOps$LongListCollector."<init>":([J)V
+       193: invokestatic  #435                // Method java/util/Optional.of:(Ljava/lang/Object;)Ljava/util/Optional;
+       196: areturn
+       197: invokestatic  #455                // Method java/util/Optional.empty:()Ljava/util/Optional;
+       200: areturn
+
+  public java.lang.Object remove(java.lang.Object, java.lang.String);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: checkcast     #164                // class net/minecraft/nbt/Tag
+         5: aload_2
+         6: invokevirtual #457                // Method remove:(Lnet/minecraft/nbt/Tag;Ljava/lang/String;)Lnet/minecraft/nbt/Tag;
+         9: areturn
+
+  public java.lang.Object createLongList(java.util.stream.LongStream);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #460                // Method createLongList:(Ljava/util/stream/LongStream;)Lnet/minecraft/nbt/Tag;
+         5: areturn
+
+  public com.mojang.serialization.DataResult getLongStream(java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: checkcast     #164                // class net/minecraft/nbt/Tag
+         5: invokevirtual #463                // Method getLongStream:(Lnet/minecraft/nbt/Tag;)Lcom/mojang/serialization/DataResult;
+         8: areturn
+
+  public java.lang.Object createIntList(java.util.stream.IntStream);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #465                // Method createIntList:(Ljava/util/stream/IntStream;)Lnet/minecraft/nbt/Tag;
+         5: areturn
+
+  public com.mojang.serialization.DataResult getIntStream(java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: checkcast     #164                // class net/minecraft/nbt/Tag
+         5: invokevirtual #468                // Method getIntStream:(Lnet/minecraft/nbt/Tag;)Lcom/mojang/serialization/DataResult;
+         8: areturn
+
+  public java.lang.Object createByteList(java.nio.ByteBuffer);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #470                // Method createByteList:(Ljava/nio/ByteBuffer;)Lnet/minecraft/nbt/Tag;
+         5: areturn
+
+  public com.mojang.serialization.DataResult getByteBuffer(java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: checkcast     #164                // class net/minecraft/nbt/Tag
+         5: invokevirtual #473                // Method getByteBuffer:(Lnet/minecraft/nbt/Tag;)Lcom/mojang/serialization/DataResult;
+         8: areturn
+
+  public java.lang.Object createList(java.util.stream.Stream);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #475                // Method createList:(Ljava/util/stream/Stream;)Lnet/minecraft/nbt/Tag;
+         5: areturn
+
+  public com.mojang.serialization.DataResult getList(java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: checkcast     #164                // class net/minecraft/nbt/Tag
+         5: invokevirtual #479                // Method getList:(Lnet/minecraft/nbt/Tag;)Lcom/mojang/serialization/DataResult;
+         8: areturn
+
+  public com.mojang.serialization.DataResult getStream(java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: checkcast     #164                // class net/minecraft/nbt/Tag
+         5: invokevirtual #482                // Method getStream:(Lnet/minecraft/nbt/Tag;)Lcom/mojang/serialization/DataResult;
+         8: areturn
+
+  public com.mojang.serialization.DataResult getMap(java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: checkcast     #164                // class net/minecraft/nbt/Tag
+         5: invokevirtual #485                // Method getMap:(Lnet/minecraft/nbt/Tag;)Lcom/mojang/serialization/DataResult;
+         8: areturn
+
+  public java.lang.Object createMap(java.util.stream.Stream);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #488                // Method createMap:(Ljava/util/stream/Stream;)Lnet/minecraft/nbt/Tag;
+         5: areturn
+
+  public com.mojang.serialization.DataResult getMapEntries(java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: checkcast     #164                // class net/minecraft/nbt/Tag
+         5: invokevirtual #491                // Method getMapEntries:(Lnet/minecraft/nbt/Tag;)Lcom/mojang/serialization/DataResult;
+         8: areturn
+
+  public com.mojang.serialization.DataResult getMapValues(java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: checkcast     #164                // class net/minecraft/nbt/Tag
+         5: invokevirtual #494                // Method getMapValues:(Lnet/minecraft/nbt/Tag;)Lcom/mojang/serialization/DataResult;
+         8: areturn
+
+  public com.mojang.serialization.DataResult mergeToMap(java.lang.Object, com.mojang.serialization.MapLike);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: checkcast     #164                // class net/minecraft/nbt/Tag
+         5: aload_2
+         6: invokevirtual #497                // Method mergeToMap:(Lnet/minecraft/nbt/Tag;Lcom/mojang/serialization/MapLike;)Lcom/mojang/serialization/DataResult;
+         9: areturn
+
+  public com.mojang.serialization.DataResult mergeToMap(java.lang.Object, java.util.Map);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: checkcast     #164                // class net/minecraft/nbt/Tag
+         5: aload_2
+         6: invokevirtual #501                // Method mergeToMap:(Lnet/minecraft/nbt/Tag;Ljava/util/Map;)Lcom/mojang/serialization/DataResult;
+         9: areturn
+
+  public com.mojang.serialization.DataResult mergeToMap(java.lang.Object, java.lang.Object, java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: checkcast     #164                // class net/minecraft/nbt/Tag
+         5: aload_2
+         6: checkcast     #164                // class net/minecraft/nbt/Tag
+         9: aload_3
+        10: checkcast     #164                // class net/minecraft/nbt/Tag
+        13: invokevirtual #504                // Method mergeToMap:(Lnet/minecraft/nbt/Tag;Lnet/minecraft/nbt/Tag;Lnet/minecraft/nbt/Tag;)Lcom/mojang/serialization/DataResult;
+        16: areturn
+
+  public com.mojang.serialization.DataResult mergeToList(java.lang.Object, java.util.List);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: checkcast     #164                // class net/minecraft/nbt/Tag
+         5: aload_2
+         6: invokevirtual #507                // Method mergeToList:(Lnet/minecraft/nbt/Tag;Ljava/util/List;)Lcom/mojang/serialization/DataResult;
+         9: areturn
+
+  public com.mojang.serialization.DataResult mergeToList(java.lang.Object, java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: checkcast     #164                // class net/minecraft/nbt/Tag
+         5: aload_2
+         6: checkcast     #164                // class net/minecraft/nbt/Tag
+         9: invokevirtual #511                // Method mergeToList:(Lnet/minecraft/nbt/Tag;Lnet/minecraft/nbt/Tag;)Lcom/mojang/serialization/DataResult;
+        12: areturn
+
+  public java.lang.Object createString(java.lang.String);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #514                // Method createString:(Ljava/lang/String;)Lnet/minecraft/nbt/Tag;
+         5: areturn
+
+  public com.mojang.serialization.DataResult getStringValue(java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: checkcast     #164                // class net/minecraft/nbt/Tag
+         5: invokevirtual #516                // Method getStringValue:(Lnet/minecraft/nbt/Tag;)Lcom/mojang/serialization/DataResult;
+         8: areturn
+
+  public java.lang.Object createBoolean(boolean);
+    Code:
+         0: aload_0
+         1: iload_1
+         2: invokevirtual #519                // Method createBoolean:(Z)Lnet/minecraft/nbt/Tag;
+         5: areturn
+
+  public com.mojang.serialization.DataResult getBooleanValue(java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: checkcast     #164                // class net/minecraft/nbt/Tag
+         5: invokevirtual #523                // Method getBooleanValue:(Lnet/minecraft/nbt/Tag;)Lcom/mojang/serialization/DataResult;
+         8: areturn
+
+  public java.lang.Object createDouble(double);
+    Code:
+         0: aload_0
+         1: dload_1
+         2: invokevirtual #526                // Method createDouble:(D)Lnet/minecraft/nbt/Tag;
+         5: areturn
+
+  public java.lang.Object createFloat(float);
+    Code:
+         0: aload_0
+         1: fload_1
+         2: invokevirtual #529                // Method createFloat:(F)Lnet/minecraft/nbt/Tag;
+         5: areturn
+
+  public java.lang.Object createLong(long);
+    Code:
+         0: aload_0
+         1: lload_1
+         2: invokevirtual #532                // Method createLong:(J)Lnet/minecraft/nbt/Tag;
+         5: areturn
+
+  public java.lang.Object createInt(int);
+    Code:
+         0: aload_0
+         1: iload_1
+         2: invokevirtual #535                // Method createInt:(I)Lnet/minecraft/nbt/Tag;
+         5: areturn
+
+  public java.lang.Object createShort(short);
+    Code:
+         0: aload_0
+         1: iload_1
+         2: invokevirtual #538                // Method createShort:(S)Lnet/minecraft/nbt/Tag;
+         5: areturn
+
+  public java.lang.Object createByte(byte);
+    Code:
+         0: aload_0
+         1: iload_1
+         2: invokevirtual #541                // Method createByte:(B)Lnet/minecraft/nbt/Tag;
+         5: areturn
+
+  public java.lang.Object createNumeric(java.lang.Number);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #544                // Method createNumeric:(Ljava/lang/Number;)Lnet/minecraft/nbt/Tag;
+         5: areturn
+
+  public com.mojang.serialization.DataResult getNumberValue(java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: checkcast     #164                // class net/minecraft/nbt/Tag
+         5: invokevirtual #213                // Method getNumberValue:(Lnet/minecraft/nbt/Tag;)Lcom/mojang/serialization/DataResult;
+         8: areturn
+
+  public java.lang.Object convertTo(com.mojang.serialization.DynamicOps, java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: aload_2
+         3: checkcast     #164                // class net/minecraft/nbt/Tag
+         6: invokevirtual #548                // Method convertTo:(Lcom/mojang/serialization/DynamicOps;Lnet/minecraft/nbt/Tag;)Ljava/lang/Object;
+         9: areturn
+
+  public java.lang.Object emptyList();
+    Code:
+         0: aload_0
+         1: invokevirtual #552                // Method emptyList:()Lnet/minecraft/nbt/Tag;
+         4: areturn
+
+  public java.lang.Object emptyMap();
+    Code:
+         0: aload_0
+         1: invokevirtual #285                // Method emptyMap:()Lnet/minecraft/nbt/Tag;
+         4: areturn
+
+  public java.lang.Object empty();
+    Code:
+         0: aload_0
+         1: invokevirtual #282                // Method empty:()Lnet/minecraft/nbt/Tag;
+         4: areturn
+
+  private static java.lang.String lambda$getList$0(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_0
+         1: invokestatic  #555                // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+         4: invokedynamic #560,  0            // InvokeDynamic #26:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+         9: areturn
+
+  private static java.lang.String lambda$getStream$0();
+    Code:
+         0: ldc_w         #564                // String Not a list
+         3: areturn
+
+  private static void lambda$createMap$0(net.minecraft.nbt.CompoundTag, com.mojang.datafixers.util.Pair);
+    Code:
+         0: aload_1
+         1: invokevirtual #566                // Method com/mojang/datafixers/util/Pair.getFirst:()Ljava/lang/Object;
+         4: checkcast     #164                // class net/minecraft/nbt/Tag
+         7: astore_2
+         8: aload_1
+         9: invokevirtual #571                // Method com/mojang/datafixers/util/Pair.getSecond:()Ljava/lang/Object;
+        12: checkcast     #164                // class net/minecraft/nbt/Tag
+        15: astore_3
+        16: aload_2
+        17: instanceof    #111                // class net/minecraft/nbt/StringTag
+        20: ifeq          51
+        23: aload_2
+        24: checkcast     #111                // class net/minecraft/nbt/StringTag
+        27: astore        5
+        29: aload         5
+        31: invokevirtual #113                // Method net/minecraft/nbt/StringTag.value:()Ljava/lang/String;
+        34: astore        6
+        36: aload         6
+        38: astore        4
+        40: aload_0
+        41: aload         4
+        43: aload_3
+        44: invokevirtual #259                // Method net/minecraft/nbt/CompoundTag.put:(Ljava/lang/String;Lnet/minecraft/nbt/Tag;)Lnet/minecraft/nbt/Tag;
+        47: pop
+        48: goto          85
+        51: new           #574                // class java/lang/UnsupportedOperationException
+        54: dup
+        55: aload_2
+        56: invokestatic  #555                // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+        59: invokedynamic #576,  0            // InvokeDynamic #27:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+        64: invokespecial #577                // Method java/lang/UnsupportedOperationException."<init>":(Ljava/lang/String;)V
+        67: athrow
+        68: astore        5
+        70: new           #29                 // class java/lang/MatchException
+        73: dup
+        74: aload         5
+        76: invokevirtual #160                // Method java/lang/Throwable.toString:()Ljava/lang/String;
+        79: aload         5
+        81: invokespecial #31                 // Method java/lang/MatchException."<init>":(Ljava/lang/String;Ljava/lang/Throwable;)V
+        84: athrow
+        85: return
+      Exception table:
+         from    to  target type
+            31    34    68   Class java/lang/Throwable
+
+  private static java.lang.String lambda$getMap$0(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_0
+         1: invokestatic  #555                // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+         4: invokedynamic #580,  0            // InvokeDynamic #28:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+         9: areturn
+
+  private static java.lang.String lambda$getMapEntries$1(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_0
+         1: invokestatic  #555                // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+         4: invokedynamic #580,  0            // InvokeDynamic #28:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+         9: areturn
+
+  private void lambda$getMapEntries$0(net.minecraft.nbt.CompoundTag, java.util.function.BiConsumer);
+    Code:
+         0: aload_1
+         1: invokevirtual #334                // Method net/minecraft/nbt/CompoundTag.entrySet:()Ljava/util/Set;
+         4: invokeinterface #315,  1          // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+         9: astore_3
+        10: aload_3
+        11: invokeinterface #276,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        16: ifeq          63
+        19: aload_3
+        20: invokeinterface #318,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        25: checkcast     #321                // class java/util/Map$Entry
+        28: astore        4
+        30: aload_2
+        31: aload_0
+        32: aload         4
+        34: invokeinterface #323,  1          // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        39: checkcast     #556                // class java/lang/String
+        42: invokevirtual #514                // Method createString:(Ljava/lang/String;)Lnet/minecraft/nbt/Tag;
+        45: aload         4
+        47: invokeinterface #326,  1          // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        52: checkcast     #164                // class net/minecraft/nbt/Tag
+        55: invokeinterface #581,  3          // InterfaceMethod java/util/function/BiConsumer.accept:(Ljava/lang/Object;Ljava/lang/Object;)V
+        60: goto          10
+        63: return
+
+  private static java.lang.String lambda$getMapValues$1(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_0
+         1: invokestatic  #555                // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+         4: invokedynamic #580,  0            // InvokeDynamic #28:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+         9: areturn
+
+  private com.mojang.datafixers.util.Pair lambda$getMapValues$0(java.util.Map$Entry);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokeinterface #323,  1          // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+         7: checkcast     #556                // class java/lang/String
+        10: invokevirtual #514                // Method createString:(Ljava/lang/String;)Lnet/minecraft/nbt/Tag;
+        13: aload_1
+        14: invokeinterface #326,  1          // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+        19: checkcast     #164                // class net/minecraft/nbt/Tag
+        22: invokestatic  #586                // Method com/mojang/datafixers/util/Pair.of:(Ljava/lang/Object;Ljava/lang/Object;)Lcom/mojang/datafixers/util/Pair;
+        25: areturn
+
+  private static java.lang.String lambda$mergeToMap$6(java.util.List);
+    Code:
+         0: aload_0
+         1: invokestatic  #555                // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+         4: invokedynamic #589,  0            // InvokeDynamic #29:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+         9: areturn
+
+  private static java.lang.String lambda$mergeToMap$5(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_0
+         1: invokestatic  #555                // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+         4: invokedynamic #590,  0            // InvokeDynamic #30:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+         9: areturn
+
+  private static java.lang.String lambda$mergeToMap$4(java.util.List);
+    Code:
+         0: aload_0
+         1: invokestatic  #555                // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+         4: invokedynamic #589,  0            // InvokeDynamic #29:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+         9: areturn
+
+  private static void lambda$mergeToMap$3(java.util.List, net.minecraft.nbt.CompoundTag, com.mojang.datafixers.util.Pair);
+    Code:
+         0: aload_2
+         1: invokevirtual #566                // Method com/mojang/datafixers/util/Pair.getFirst:()Ljava/lang/Object;
+         4: checkcast     #164                // class net/minecraft/nbt/Tag
+         7: astore_3
+         8: aload_3
+         9: instanceof    #111                // class net/minecraft/nbt/StringTag
+        12: ifeq          35
+        15: aload_3
+        16: checkcast     #111                // class net/minecraft/nbt/StringTag
+        19: astore        5
+        21: aload         5
+        23: invokevirtual #113                // Method net/minecraft/nbt/StringTag.value:()Ljava/lang/String;
+        26: astore        6
+        28: aload         6
+        30: astore        4
+        32: goto          44
+        35: aload_0
+        36: aload_3
+        37: invokeinterface #329,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+        42: pop
+        43: return
+        44: aload_1
+        45: aload         4
+        47: aload_2
+        48: invokevirtual #571                // Method com/mojang/datafixers/util/Pair.getSecond:()Ljava/lang/Object;
+        51: checkcast     #164                // class net/minecraft/nbt/Tag
+        54: invokevirtual #259                // Method net/minecraft/nbt/CompoundTag.put:(Ljava/lang/String;Lnet/minecraft/nbt/Tag;)Lnet/minecraft/nbt/Tag;
+        57: pop
+        58: goto          78
+        61: astore        5
+        63: new           #29                 // class java/lang/MatchException
+        66: dup
+        67: aload         5
+        69: invokevirtual #160                // Method java/lang/Throwable.toString:()Ljava/lang/String;
+        72: aload         5
+        74: invokespecial #31                 // Method java/lang/MatchException."<init>":(Ljava/lang/String;Ljava/lang/Throwable;)V
+        77: athrow
+        78: return
+      Exception table:
+         from    to  target type
+            23    26    61   Class java/lang/Throwable
+
+  private static java.lang.String lambda$mergeToMap$2(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_0
+         1: invokestatic  #555                // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+         4: invokedynamic #590,  0            // InvokeDynamic #30:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+         9: areturn
+
+  private static java.lang.String lambda$mergeToMap$1(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_0
+         1: invokestatic  #555                // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+         4: invokedynamic #591,  0            // InvokeDynamic #31:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+         9: areturn
+
+  private static java.lang.String lambda$mergeToMap$0(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_0
+         1: invokestatic  #555                // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+         4: invokedynamic #590,  0            // InvokeDynamic #30:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+         9: areturn
+
+  private static com.mojang.serialization.DataResult lambda$mergeToList$4(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_0
+         1: invokedynamic #592,  0            // InvokeDynamic #32:get:(Lnet/minecraft/nbt/Tag;)Ljava/util/function/Supplier;
+         6: aload_0
+         7: invokestatic  #251                // InterfaceMethod com/mojang/serialization/DataResult.error:(Ljava/util/function/Supplier;Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+        10: areturn
+
+  private static java.lang.String lambda$mergeToList$5(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_0
+         1: invokestatic  #555                // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+         4: invokedynamic #593,  0            // InvokeDynamic #33:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+         9: areturn
+
+  private static com.mojang.serialization.DataResult lambda$mergeToList$3(java.util.List, net.minecraft.nbt.NbtOps$ListCollector);
+    Code:
+         0: aload_1
+         1: aload_0
+         2: invokeinterface #594,  2          // InterfaceMethod net/minecraft/nbt/NbtOps$ListCollector.acceptAll:(Ljava/lang/Iterable;)Lnet/minecraft/nbt/NbtOps$ListCollector;
+         7: invokeinterface #600,  1          // InterfaceMethod net/minecraft/nbt/NbtOps$ListCollector.result:()Lnet/minecraft/nbt/Tag;
+        12: invokestatic  #224                // InterfaceMethod com/mojang/serialization/DataResult.success:(Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+        15: areturn
+
+  private static com.mojang.serialization.DataResult lambda$mergeToList$1(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_0
+         1: invokedynamic #603,  0            // InvokeDynamic #34:get:(Lnet/minecraft/nbt/Tag;)Ljava/util/function/Supplier;
+         6: aload_0
+         7: invokestatic  #251                // InterfaceMethod com/mojang/serialization/DataResult.error:(Ljava/util/function/Supplier;Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+        10: areturn
+
+  private static java.lang.String lambda$mergeToList$2(net.minecraft.nbt.Tag);
+    Code:
+         0: aload_0
+         1: invokestatic  #555                // Method java/lang/String.valueOf:(Ljava/lang/Object;)Ljava/lang/String;
+         4: invokedynamic #593,  0            // InvokeDynamic #33:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+         9: areturn
+
+  private static com.mojang.serialization.DataResult lambda$mergeToList$0(net.minecraft.nbt.Tag, net.minecraft.nbt.NbtOps$ListCollector);
+    Code:
+         0: aload_1
+         1: aload_0
+         2: invokeinterface #604,  2          // InterfaceMethod net/minecraft/nbt/NbtOps$ListCollector.accept:(Lnet/minecraft/nbt/Tag;)Lnet/minecraft/nbt/NbtOps$ListCollector;
+         7: invokeinterface #600,  1          // InterfaceMethod net/minecraft/nbt/NbtOps$ListCollector.result:()Lnet/minecraft/nbt/Tag;
+        12: invokestatic  #224                // InterfaceMethod com/mojang/serialization/DataResult.success:(Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+        15: areturn
+
+  private static java.lang.String lambda$getStringValue$0();
+    Code:
+         0: ldc_w         #607                // String Not a string
+         3: areturn
+
+  private static java.lang.Boolean lambda$getBooleanValue$0(java.lang.Number);
+    Code:
+         0: aload_0
+         1: invokevirtual #189                // Method java/lang/Number.doubleValue:()D
+         4: dconst_0
+         5: dcmpl
+         6: ifeq          13
+         9: iconst_1
+        10: goto          14
+        13: iconst_0
+        14: invokestatic  #609                // Method java/lang/Boolean.valueOf:(Z)Ljava/lang/Boolean;
+        17: areturn
+
+  private static com.mojang.serialization.DataResult lambda$getNumberValue$0();
+    Code:
+         0: invokedynamic #614,  0            // InvokeDynamic #35:get:()Ljava/util/function/Supplier;
+         5: invokestatic  #229                // InterfaceMethod com/mojang/serialization/DataResult.error:(Ljava/util/function/Supplier;)Lcom/mojang/serialization/DataResult;
+         8: areturn
+
+  private static java.lang.String lambda$getNumberValue$1();
+    Code:
+         0: ldc_w         #615                // String Not a number
+         3: areturn
+
+  static {};
+    Code:
+         0: new           #121                // class net/minecraft/nbt/NbtOps
+         3: dup
+         4: invokespecial #617                // Method "<init>":()V
+         7: putstatic     #618                // Field INSTANCE:Lnet/minecraft/nbt/NbtOps;
+        10: return
+}

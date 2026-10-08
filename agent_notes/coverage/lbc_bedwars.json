@@ -1,0 +1,191 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/bed_broken.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Кровати, победа и смерть",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/end1.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Кровати, победа и смерть",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/generator/copper.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Генераторы ресурсов и периодические вызовы",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/generator/diamond.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Генераторы ресурсов и периодические вызовы",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/generator/gold.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Генераторы ресурсов и периодические вызовы",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/generator/iron.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Генераторы ресурсов и периодические вызовы",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/generator/star.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Генераторы ресурсов и периодические вызовы",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/idnumberget.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Запуск и карта",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/start/check_bed_get_team.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Запуск и карта",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/start/swrg_spawn_place_beacon.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Запуск и карта",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/start/timer.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Запуск и карта",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/start.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Запуск и карта",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/start1.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Запуск и карта",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/start2.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Запуск и карта",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/start_player_tp.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Запуск и карта",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/tick.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Кровати, победа и смерть",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/tick_10s.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Генераторы ресурсов и периодические вызовы",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/tick_10t.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Генераторы ресурсов и периодические вызовы",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/tick_15s.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Генераторы ресурсов и периодические вызовы",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/tick_1s.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Генераторы ресурсов и периодические вызовы",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/tick_5s.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Генераторы ресурсов и периодические вызовы",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/player/died.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Кровати, победа и смерть",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/player/died_with_bed.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Кровати, победа и смерть",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/player/died_without_bed.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Кровати, победа и смерть",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/player/respawn.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Кровати, победа и смерть",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/tick_player_1s.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Кровати, победа и смерть",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/tick_player_1s_for_respawn.mcfunction",
+    "document": "agent_notes/lbc_bedwars.md",
+    "section": "Кровати, победа и смерть",
+    "status": "documented",
+    "note": "Поведение функции описано по исходному коду; макро- и внешние вызовы отмечены как границы."
+  }
+]

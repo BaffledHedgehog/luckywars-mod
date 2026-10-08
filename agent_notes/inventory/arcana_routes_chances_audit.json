@@ -1,0 +1,1833 @@
+{
+  "formula_helpers": {
+    "acid_chance": {
+      "intercept_percent": 8.0,
+      "per_tmp_percent": 7.0,
+      "target": "lbc:items/trinket_effects/charge_acid_ball",
+      "macro_key_mismatch": true
+    },
+    "bass_chance": {
+      "intercept_percent": 10.0,
+      "per_tmp_percent": 5.0,
+      "target": "lbc:workingitems/basscast",
+      "macro_key_mismatch": false
+    },
+    "blaze_chance": {
+      "intercept_percent": 17.5,
+      "per_tmp_percent": 7.5,
+      "target": "lbc:items/trinket_effects/charge_small_fireball",
+      "macro_key_mismatch": false
+    },
+    "ghast_chance": {
+      "intercept_percent": 10.0,
+      "per_tmp_percent": 5.0,
+      "target": "lbc:items/trinket_effects/charge_firework",
+      "macro_key_mismatch": false
+    },
+    "penis_chance": {
+      "intercept_percent": 7.5,
+      "per_tmp_percent": 2.5,
+      "target": "lbc:items/trinket_effects/charge_penis",
+      "macro_key_mismatch": false
+    },
+    "tnt_chance": {
+      "intercept_percent": 20.0,
+      "per_tmp_percent": 5.0,
+      "target": "lbc:items/trinket_effects/charge_tnt",
+      "macro_key_mismatch": false
+    },
+    "bedrcock": {
+      "intercept_percent": 10.0,
+      "per_tmp_percent": 10.0,
+      "target": "lbc:items/trinket_effects/bedrcock_arrow",
+      "macro_key_mismatch": false
+    },
+    "cocktail": {
+      "intercept_percent": 5.0,
+      "per_tmp_percent": 5.0,
+      "target": "lbc:items/trinket_effects/cocktail_1",
+      "macro_key_mismatch": false
+    },
+    "fourier": {
+      "intercept_percent": 10.0,
+      "per_tmp_percent": 5.0,
+      "target": "lbc:items/trinket_effects/fourier_1",
+      "macro_key_mismatch": false
+    },
+    "gneiss_stone": {
+      "intercept_percent": 8.0,
+      "per_tmp_percent": 2.0,
+      "target": "lbc:items/trinket_effects/gneiss_stone_1",
+      "macro_key_mismatch": false
+    },
+    "hedgehog_gauntlet": {
+      "intercept_percent": 8.0,
+      "per_tmp_percent": 2.0,
+      "target": "lbc:items/trinket_effects/hedgehog_gauntlet_1",
+      "macro_key_mismatch": false
+    },
+    "ice_gem": {
+      "intercept_percent": 9.0,
+      "per_tmp_percent": 1.0,
+      "target": "lbc:items/trinket_effects/ice_gem_1",
+      "macro_key_mismatch": false
+    },
+    "intercal": {
+      "intercept_percent": 10.0,
+      "per_tmp_percent": 5.0,
+      "target": "lbc:items/trinket_effects/intercal_hit",
+      "macro_key_mismatch": false
+    },
+    "polymorph": {
+      "intercept_percent": 0.1,
+      "per_tmp_percent": 0.1,
+      "target": "lbc:items/trinket_effects/polymorph_activate",
+      "macro_key_mismatch": false
+    },
+    "psycho_soul": {
+      "intercept_percent": 3.0,
+      "per_tmp_percent": 1.0,
+      "target": "lbc:items/trinket_effects/psycho_soul_activate",
+      "macro_key_mismatch": false
+    },
+    "rocket_spell": {
+      "intercept_percent": 4.0,
+      "per_tmp_percent": 1.0,
+      "target": "lbc:items/trinket_effects/rocket_spell_arrow",
+      "macro_key_mismatch": false
+    },
+    "rtp": {
+      "intercept_percent": 2.5,
+      "per_tmp_percent": 2.5,
+      "target": "lbc:items/trinket_effects/rtp_gas",
+      "macro_key_mismatch": false
+    },
+    "snow_pearl": {
+      "intercept_percent": 8.0,
+      "per_tmp_percent": 2.0,
+      "target": "lbc:items/trinket_effects/snow_pearl_1",
+      "macro_key_mismatch": false
+    },
+    "spawn_blaze": {
+      "intercept_percent": 40.0,
+      "per_tmp_percent": 10.0,
+      "target": "lbc:items/trinket_effects/summon_blaze",
+      "macro_key_mismatch": false
+    },
+    "sunprism": {
+      "intercept_percent": 0.04,
+      "per_tmp_percent": 0.01,
+      "target": "lbc:items/trinket_effects/sunprism_activate",
+      "macro_key_mismatch": false
+    },
+    "twilight_sparkle": {
+      "intercept_percent": 3.0,
+      "per_tmp_percent": 2.0,
+      "target": "lbc:items/trinket_effects/twilight_sparkle_activate",
+      "macro_key_mismatch": false
+    },
+    "volos": {
+      "intercept_percent": 4.0,
+      "per_tmp_percent": 1.0,
+      "target": "lbc:items/trinket_effects/modify_volos",
+      "macro_key_mismatch": false
+    }
+  },
+  "spell_routes": {
+    "select": [
+      {
+        "range": "1",
+        "context": "",
+        "target": "lbc:workingitems/evokercast",
+        "command": "execute if score spell lbc.math matches 1 run function lbc:workingitems/evokercast"
+      },
+      {
+        "range": "2..4",
+        "context": "",
+        "target": "lbc:workingitems/evokercast_upgraded_spelllib",
+        "command": "execute if score spell lbc.math matches 2..4 run function lbc:workingitems/evokercast_upgraded_spelllib"
+      },
+      {
+        "range": "5",
+        "context": "",
+        "target": "lbc:workingitems/basscast",
+        "command": "execute if score spell lbc.math matches 5 run function lbc:workingitems/basscast"
+      },
+      {
+        "range": "6..9",
+        "context": "",
+        "target": "lbc:workingitems/basscast_upgraded_spelllib",
+        "command": "execute if score spell lbc.math matches 6..9 run function lbc:workingitems/basscast_upgraded_spelllib"
+      },
+      {
+        "range": "10",
+        "context": "",
+        "target": "lbc:workingitems/corrupter",
+        "command": "execute if score spell lbc.math matches 10 run function lbc:workingitems/corrupter"
+      },
+      {
+        "range": "11..14",
+        "context": "",
+        "target": "lbc:workingitems/corrupter_upgraded_spelllib",
+        "command": "execute if score spell lbc.math matches 11..14 run function lbc:workingitems/corrupter_upgraded_spelllib"
+      },
+      {
+        "range": "15",
+        "context": "",
+        "target": "lbc:workingitems/endcast",
+        "command": "execute if score spell lbc.math matches 15 run function lbc:workingitems/endcast"
+      },
+      {
+        "range": "16",
+        "context": "",
+        "target": "lbc:workingitems/endcast_lib",
+        "command": "execute if score spell lbc.math matches 16 run function lbc:workingitems/endcast_lib"
+      },
+      {
+        "range": "17",
+        "context": "",
+        "target": "lbc:workingitems/lifestealer",
+        "command": "execute if score spell lbc.math matches 17 run function lbc:workingitems/lifestealer"
+      },
+      {
+        "range": "18",
+        "context": "",
+        "target": "lbc:workingitems/lifestealer_upgraded_mode_1",
+        "command": "execute if score spell lbc.math matches 18 run function lbc:workingitems/lifestealer_upgraded_mode_1"
+      },
+      {
+        "range": "19",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/lifestealer_upgraded_mode_2",
+        "command": "execute if score spell lbc.math matches 19 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/lifestealer_upgraded_mode_2"
+      },
+      {
+        "range": "20",
+        "context": "",
+        "target": "lbc:workingitems/foxuscast",
+        "command": "execute if score spell lbc.math matches 20 run function lbc:workingitems/foxuscast"
+      },
+      {
+        "range": "21..24",
+        "context": "",
+        "target": "lbc:workingitems/foxuscast_upgraded_lib",
+        "command": "execute if score spell lbc.math matches 21..24 run function lbc:workingitems/foxuscast_upgraded_lib"
+      },
+      {
+        "range": "25",
+        "context": "",
+        "target": "lbc:workingitems/bloodmagic",
+        "command": "execute if score spell lbc.math matches 25 run function lbc:workingitems/bloodmagic"
+      },
+      {
+        "range": "26",
+        "context": "",
+        "target": "lbc:workingitems/bloodmagic_upgraded",
+        "command": "execute if score spell lbc.math matches 26 run function lbc:workingitems/bloodmagic_upgraded"
+      },
+      {
+        "range": "27",
+        "context": "",
+        "target": "lbc:workingitems/badwiki",
+        "command": "execute if score spell lbc.math matches 27 run function lbc:workingitems/badwiki"
+      },
+      {
+        "range": "28..111",
+        "context": "",
+        "target": "lbc:workingitems/badwiki_lib",
+        "command": "execute if score spell lbc.math matches 28..111 run function lbc:workingitems/badwiki_lib"
+      },
+      {
+        "range": "112",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop2",
+        "command": "execute if score spell lbc.math matches 112 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop2"
+      },
+      {
+        "range": "113..115",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_end2_upgraded_lib_loop",
+        "command": "execute if score spell lbc.math matches 113..115 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_end2_upgraded_lib_loop"
+      },
+      {
+        "range": "116",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop3",
+        "command": "execute if score spell lbc.math matches 116 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop3"
+      },
+      {
+        "range": "117",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop3_upgraded_mode_default",
+        "command": "execute if score spell lbc.math matches 117 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop3_upgraded_mode_default"
+      },
+      {
+        "range": "118",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop3_upgraded_mode_uppest",
+        "command": "execute if score spell lbc.math matches 118 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop3_upgraded_mode_uppest"
+      },
+      {
+        "range": "119",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop3_upgraded_mode_clip",
+        "command": "execute if score spell lbc.math matches 119 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop3_upgraded_mode_clip"
+      },
+      {
+        "range": "120",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop5",
+        "command": "execute if score spell lbc.math matches 120 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop5"
+      },
+      {
+        "range": "121..122",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop5_upg_lib",
+        "command": "execute if score spell lbc.math matches 121..122 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop5_upg_lib"
+      },
+      {
+        "range": "123",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_preloop7_2",
+        "command": "execute if score spell lbc.math matches 123 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_preloop7_2"
+      },
+      {
+        "range": "124",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_preloop7_upgraded_lib",
+        "command": "execute if score spell lbc.math matches 124 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_preloop7_upgraded_lib"
+      },
+      {
+        "range": "125",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop4",
+        "command": "execute if score spell lbc.math matches 125 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop4"
+      },
+      {
+        "range": "126",
+        "context": "",
+        "target": "lbcr:raycast_loop4cd_upgraded2_blaze_head",
+        "command": "execute if score spell lbc.math matches 126 run function lbcr:raycast_loop4cd_upgraded2_blaze_head"
+      },
+      {
+        "range": "127",
+        "context": "",
+        "target": "lbc:workingitems/random_spell_lib",
+        "command": "execute if score spell lbc.math matches 127 run function lbc:workingitems/random_spell_lib"
+      },
+      {
+        "range": "129",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop9cd_upgraded_2_loop_mode_default",
+        "command": "execute if score spell lbc.math matches 129 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop9cd_upgraded_2_loop_mode_default"
+      },
+      {
+        "range": "130",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop9cd_upgraded_2_loop_mode_sniper",
+        "command": "execute if score spell lbc.math matches 130 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop9cd_upgraded_2_loop_mode_sniper"
+      },
+      {
+        "range": "131",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop9cd_upgraded_2_loop_mode_laser",
+        "command": "execute if score spell lbc.math matches 131 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop9cd_upgraded_2_loop_mode_laser"
+      },
+      {
+        "range": "132",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop9cd_upgraded_2_loop_mode_tank",
+        "command": "execute if score spell lbc.math matches 132 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop9cd_upgraded_2_loop_mode_tank"
+      },
+      {
+        "range": "133",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop9cd_upgraded_2_loop_mode_healer",
+        "command": "execute if score spell lbc.math matches 133 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop9cd_upgraded_2_loop_mode_healer"
+      },
+      {
+        "range": "134",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop8",
+        "command": "execute if score spell lbc.math matches 134 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop8"
+      },
+      {
+        "range": "135",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop8_upgraded",
+        "command": "execute if score spell lbc.math matches 135 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop8_upgraded"
+      },
+      {
+        "range": "136",
+        "context": "",
+        "target": "lbc:workingitems/psychowand",
+        "command": "execute if score spell lbc.math matches 136 run function lbc:workingitems/psychowand"
+      },
+      {
+        "range": "137..140",
+        "context": "",
+        "target": "lbc:workingitems/psychowand_upgraded_lib",
+        "command": "execute if score spell lbc.math matches 137..140 run function lbc:workingitems/psychowand_upgraded_lib"
+      },
+      {
+        "range": "141",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_preloop10",
+        "command": "execute if score spell lbc.math matches 141 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_preloop10"
+      },
+      {
+        "range": "142",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_preloop10cd_upgraded_mode_chain",
+        "command": "execute if score spell lbc.math matches 142 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_preloop10cd_upgraded_mode_chain"
+      },
+      {
+        "range": "143",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_preloop10cd_upgraded_mode_instant",
+        "command": "execute if score spell lbc.math matches 143 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_preloop10cd_upgraded_mode_instant"
+      },
+      {
+        "range": "144",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_preloop11_upgraded",
+        "command": "execute if score spell lbc.math matches 144 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_preloop11_upgraded"
+      },
+      {
+        "range": "145",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_preloop11_upgraded_lib",
+        "command": "execute if score spell lbc.math matches 145 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_preloop11_upgraded_lib"
+      },
+      {
+        "range": "146",
+        "context": "",
+        "target": "lbc:workingitems/omegaflag",
+        "command": "execute if score spell lbc.math matches 146 run function lbc:workingitems/omegaflag"
+      },
+      {
+        "range": "147",
+        "context": "",
+        "target": "lbc:workingitems/omegaflag_upgraded",
+        "command": "execute if score spell lbc.math matches 147 run function lbc:workingitems/omegaflag_upgraded"
+      },
+      {
+        "range": "148",
+        "context": "",
+        "target": "lbc:workingitems/neutralmage/select",
+        "command": "execute if score spell lbc.math matches 148 run function lbc:workingitems/neutralmage/select"
+      },
+      {
+        "range": "149",
+        "context": "",
+        "target": "lbc:workingitems/neutralmage/1",
+        "command": "execute if score spell lbc.math matches 149 run function lbc:workingitems/neutralmage/1"
+      },
+      {
+        "range": "150",
+        "context": "",
+        "target": "lbc:workingitems/neutralmage/2",
+        "command": "execute if score spell lbc.math matches 150 run function lbc:workingitems/neutralmage/2"
+      },
+      {
+        "range": "151",
+        "context": "",
+        "target": "lbc:workingitems/neutralmage/3",
+        "command": "execute if score spell lbc.math matches 151 run function lbc:workingitems/neutralmage/3"
+      },
+      {
+        "range": "152",
+        "context": "",
+        "target": "lbc:workingitems/neutralmage/4",
+        "command": "execute if score spell lbc.math matches 152 run function lbc:workingitems/neutralmage/4"
+      },
+      {
+        "range": "153",
+        "context": "",
+        "target": "lbc:workingitems/neutralmage/5",
+        "command": "execute if score spell lbc.math matches 153 run function lbc:workingitems/neutralmage/5"
+      },
+      {
+        "range": "154",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_lightning",
+        "command": "execute if score spell lbc.math matches 154 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_lightning"
+      },
+      {
+        "range": "155",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_lightning_mode_chain",
+        "command": "execute if score spell lbc.math matches 155 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_lightning_mode_chain"
+      },
+      {
+        "range": "156",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_lightning_mode_reforge",
+        "command": "execute if score spell lbc.math matches 156 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_lightning_mode_reforge"
+      },
+      {
+        "range": "157",
+        "context": "",
+        "target": "lbc:workingitems/exoperso",
+        "command": "execute if score spell lbc.math matches 157 run function lbc:workingitems/exoperso"
+      },
+      {
+        "range": "158",
+        "context": "",
+        "target": "lbc:workingitems/exoperso_upgraded",
+        "command": "execute if score spell lbc.math matches 158 run function lbc:workingitems/exoperso_upgraded"
+      },
+      {
+        "range": "159",
+        "context": "",
+        "target": "lbc:items/wands/danmaku_staff/click_2",
+        "command": "execute if score spell lbc.math matches 159 run function lbc:items/wands/danmaku_staff/click_2"
+      },
+      {
+        "range": "160",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/ruby_preloop",
+        "command": "execute if score spell lbc.math matches 160 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/ruby_preloop"
+      },
+      {
+        "range": "161",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/ruby_ray",
+        "command": "execute if score spell lbc.math matches 161 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/ruby_ray"
+      },
+      {
+        "range": "162",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/ruby_hole",
+        "command": "execute if score spell lbc.math matches 162 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/ruby_hole"
+      },
+      {
+        "range": "163",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/terra_preloop",
+        "command": "execute if score spell lbc.math matches 163 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/terra_preloop"
+      },
+      {
+        "range": "164",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/terra_preloop_upgraded",
+        "command": "execute if score spell lbc.math matches 164 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/terra_preloop_upgraded"
+      },
+      {
+        "range": "165",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/electro_preloop",
+        "command": "execute if score spell lbc.math matches 165 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/electro_preloop"
+      },
+      {
+        "range": "166",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/electro_ray",
+        "command": "execute if score spell lbc.math matches 166 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/electro_ray"
+      },
+      {
+        "range": "167",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/air_preloop",
+        "command": "execute if score spell lbc.math matches 167 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/air_preloop"
+      },
+      {
+        "range": "168",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/air_preloop_burst",
+        "command": "execute if score spell lbc.math matches 168 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/air_preloop_burst"
+      },
+      {
+        "range": "169",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/air_preloop_fast",
+        "command": "execute if score spell lbc.math matches 169 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/air_preloop_fast"
+      },
+      {
+        "range": "170",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/air_preloop_homing",
+        "command": "execute if score spell lbc.math matches 170 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/air_preloop_homing"
+      },
+      {
+        "range": "171",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/acid_preloop",
+        "command": "execute if score spell lbc.math matches 171 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/acid_preloop"
+      },
+      {
+        "range": "172",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/acid_preloop_upgraded_lib",
+        "command": "execute if score spell lbc.math matches 172 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/acid_preloop_upgraded_lib"
+      },
+      {
+        "range": "173",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/teleport_preloop",
+        "command": "execute if score spell lbc.math matches 173 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/teleport_preloop"
+      },
+      {
+        "range": "174",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/teleport_inverted",
+        "command": "execute if score spell lbc.math matches 174 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/teleport_inverted"
+      },
+      {
+        "range": "175",
+        "context": "",
+        "target": "lbc:workingitems/sauvojen_staffs/teleport_cloud",
+        "command": "execute if score spell lbc.math matches 175 run function lbc:workingitems/sauvojen_staffs/teleport_cloud"
+      },
+      {
+        "range": "176",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/stone_preloop",
+        "command": "execute if score spell lbc.math matches 176 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/stone_preloop"
+      },
+      {
+        "range": "177",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/stone_preloop_upgraded_default",
+        "command": "execute if score spell lbc.math matches 177 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/stone_preloop_upgraded_default"
+      },
+      {
+        "range": "178",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/stone_preloop_upgraded_spike",
+        "command": "execute if score spell lbc.math matches 178 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/stone_preloop_upgraded_spike"
+      },
+      {
+        "range": "179",
+        "context": "positioned ~ ~-1 ~",
+        "target": "lbc:workingitems/sauvojen_staffs/stone_preloop_upgraded_bridge",
+        "command": "execute if score spell lbc.math matches 179 positioned ~ ~-1 ~ run function lbc:workingitems/sauvojen_staffs/stone_preloop_upgraded_bridge"
+      },
+      {
+        "range": "180",
+        "context": "",
+        "target": "lbc:workingitems/sauvojen_staffs/stone_preloop_upgraded_shield",
+        "command": "execute if score spell lbc.math matches 180 run function lbc:workingitems/sauvojen_staffs/stone_preloop_upgraded_shield"
+      },
+      {
+        "range": "181",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/fire_preloop",
+        "command": "execute if score spell lbc.math matches 181 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/fire_preloop"
+      },
+      {
+        "range": "182",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/fire_preloop_upgraded_big",
+        "command": "execute if score spell lbc.math matches 182 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/fire_preloop_upgraded_big"
+      },
+      {
+        "range": "183",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/fire_preloop_upgraded_concentrated",
+        "command": "execute if score spell lbc.math matches 183 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/fire_preloop_upgraded_concentrated"
+      },
+      {
+        "range": "184",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/blind_preloop",
+        "command": "execute if score spell lbc.math matches 184 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/blind_preloop"
+      },
+      {
+        "range": "185",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/blind_preloop_upgraded_gatlingator",
+        "command": "execute if score spell lbc.math matches 185 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/blind_preloop_upgraded_gatlingator"
+      },
+      {
+        "range": "186",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/blind_preloop_upgraded_phantom",
+        "command": "execute if score spell lbc.math matches 186 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/blind_preloop_upgraded_phantom"
+      },
+      {
+        "range": "187",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/blind_preloop_upgraded_rain",
+        "command": "execute if score spell lbc.math matches 187 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/blind_preloop_upgraded_rain"
+      },
+      {
+        "range": "188",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/acidacid/click2",
+        "command": "execute if score spell lbc.math matches 188 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/acidacid/click2"
+      },
+      {
+        "range": "190",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_caust_lib",
+        "command": "execute if score spell lbc.math matches 190 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_caust_lib"
+      },
+      {
+        "range": "191",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_caust_lib_1",
+        "command": "execute if score spell lbc.math matches 191 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_caust_lib_1"
+      },
+      {
+        "range": "192",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_gatling_lib",
+        "command": "execute if score spell lbc.math matches 192 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_gatling_lib"
+      },
+      {
+        "range": "193",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_gatling_lib_1",
+        "command": "execute if score spell lbc.math matches 193 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_gatling_lib_1"
+      },
+      {
+        "range": "194",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_rifle",
+        "command": "execute if score spell lbc.math matches 194 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_rifle"
+      },
+      {
+        "range": "195",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/acidcorrupt/click_lib",
+        "command": "execute if score spell lbc.math matches 195 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/acidcorrupt/click_lib"
+      },
+      {
+        "range": "196",
+        "context": "",
+        "target": "lbc:workingitems/awaken_tuntija_wands/acidcorrupt/mode_reverse",
+        "command": "execute if score spell lbc.math matches 196 run function lbc:workingitems/awaken_tuntija_wands/acidcorrupt/mode_reverse"
+      },
+      {
+        "range": "197",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/acidcorrupt/mode_titul",
+        "command": "execute if score spell lbc.math matches 197 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/acidcorrupt/mode_titul"
+      },
+      {
+        "range": "198",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/acidcorrupt/mode_chuma",
+        "command": "execute if score spell lbc.math matches 198 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/acidcorrupt/mode_chuma"
+      },
+      {
+        "range": "199",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/exasperato/click2",
+        "command": "execute if score spell lbc.math matches 199 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/exasperato/click2"
+      },
+      {
+        "range": "200",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_default",
+        "command": "execute if score spell lbc.math matches 200 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_default"
+      },
+      {
+        "range": "201",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_chaos_area",
+        "command": "execute if score spell lbc.math matches 201 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_chaos_area"
+      },
+      {
+        "range": "202",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_electro_ray",
+        "command": "execute if score spell lbc.math matches 202 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_electro_ray"
+      },
+      {
+        "range": "203",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_nuke",
+        "command": "execute if score spell lbc.math matches 203 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_nuke"
+      },
+      {
+        "range": "204",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/exahoming_click_lib",
+        "command": "execute if score spell lbc.math matches 204 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/exahoming_click_lib"
+      },
+      {
+        "range": "205",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_curse",
+        "command": "execute if score spell lbc.math matches 205 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_curse"
+      },
+      {
+        "range": "206",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_destiny",
+        "command": "execute if score spell lbc.math matches 206 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_destiny"
+      },
+      {
+        "range": "207",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_sisyfus",
+        "command": "execute if score spell lbc.math matches 207 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_sisyfus"
+      },
+      {
+        "range": "208",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_default",
+        "command": "execute if score spell lbc.math matches 208 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_default"
+      },
+      {
+        "range": "209",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_invisible_charge",
+        "command": "execute if score spell lbc.math matches 209 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_invisible_charge"
+      },
+      {
+        "range": "210",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_mindblowing_ray",
+        "command": "execute if score spell lbc.math matches 210 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_mindblowing_ray"
+      },
+      {
+        "range": "211",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_spray",
+        "command": "execute if score spell lbc.math matches 211 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_spray"
+      },
+      {
+        "range": "212",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/boltbolt/click_lib",
+        "command": "execute if score spell lbc.math matches 212 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/boltbolt/click_lib"
+      },
+      {
+        "range": "213",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_snow_meteor",
+        "command": "execute if score spell lbc.math matches 213 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_snow_meteor"
+      },
+      {
+        "range": "214",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_watering",
+        "command": "execute if score spell lbc.math matches 214 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_watering"
+      },
+      {
+        "range": "215",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_wind_racer",
+        "command": "execute if score spell lbc.math matches 215 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_wind_racer"
+      },
+      {
+        "range": "216",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_default",
+        "command": "execute if score spell lbc.math matches 216 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_default"
+      },
+      {
+        "range": "217",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_ray",
+        "command": "execute if score spell lbc.math matches 217 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_ray"
+      },
+      {
+        "range": "218",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sniper_lib",
+        "command": "execute if score spell lbc.math matches 218 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sniper_lib"
+      },
+      {
+        "range": "219",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sphere",
+        "command": "execute if score spell lbc.math matches 219 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sphere"
+      },
+      {
+        "range": "220",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/fireblaze/click2",
+        "command": "execute if score spell lbc.math matches 220 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/fireblaze/click2"
+      },
+      {
+        "range": "221",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded_mode_kiuas",
+        "command": "execute if score spell lbc.math matches 221 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded_mode_kiuas"
+      },
+      {
+        "range": "222",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded_mode_mega",
+        "command": "execute if score spell lbc.math matches 222 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded_mode_mega"
+      },
+      {
+        "range": "223",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded_mode_pillars",
+        "command": "execute if score spell lbc.math matches 223 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded_mode_pillars"
+      },
+      {
+        "range": "224",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded_mode_world",
+        "command": "execute if score spell lbc.math matches 224 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded_mode_world"
+      },
+      {
+        "range": "225",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_default",
+        "command": "execute if score spell lbc.math matches 225 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_default"
+      },
+      {
+        "range": "226",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_avarice",
+        "command": "execute if score spell lbc.math matches 226 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_avarice"
+      },
+      {
+        "range": "227",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_silence",
+        "command": "execute if score spell lbc.math matches 227 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_silence"
+      },
+      {
+        "range": "228",
+        "context": "anchored eyes positioned ^ ^ ^8",
+        "target": "lbc:workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_the_end_pre",
+        "command": "execute if score spell lbc.math matches 228 anchored eyes positioned ^ ^ ^8 run function lbc:workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_the_end_pre"
+      },
+      {
+        "range": "229",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/avarice/click2_upgraded_default",
+        "command": "execute if score spell lbc.math matches 229 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/avarice/click2_upgraded_default"
+      },
+      {
+        "range": "230",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/avarice/click2_upgraded_black_hole",
+        "command": "execute if score spell lbc.math matches 230 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/avarice/click2_upgraded_black_hole"
+      },
+      {
+        "range": "231",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/avarice/click2_upgraded_divide",
+        "command": "execute if score spell lbc.math matches 231 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/avarice/click2_upgraded_divide"
+      },
+      {
+        "range": "232",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/avarice/click2_upgraded_expand",
+        "command": "execute if score spell lbc.math matches 232 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/avarice/click2_upgraded_expand"
+      },
+      {
+        "range": "233",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/stonekivi/loop",
+        "command": "execute if score spell lbc.math matches 233 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/stonekivi/loop"
+      },
+      {
+        "range": "234",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/stonekivi/loop_earth",
+        "command": "execute if score spell lbc.math matches 234 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/stonekivi/loop_earth"
+      },
+      {
+        "range": "235",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/stonekivi/loop_sun",
+        "command": "execute if score spell lbc.math matches 235 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/stonekivi/loop_sun"
+      },
+      {
+        "range": "236",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/stonekivi/comet",
+        "command": "execute if score spell lbc.math matches 236 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/stonekivi/comet"
+      },
+      {
+        "range": "237",
+        "context": "",
+        "target": "lbc:workingitems/awaken_tuntija_wands/bedrock/click_lib",
+        "command": "execute if score spell lbc.math matches 237 run function lbc:workingitems/awaken_tuntija_wands/bedrock/click_lib"
+      },
+      {
+        "range": "238",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_place_cube",
+        "command": "execute if score spell lbc.math matches 238 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_place_cube"
+      },
+      {
+        "range": "239",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_remove_cube",
+        "command": "execute if score spell lbc.math matches 239 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_remove_cube"
+      },
+      {
+        "range": "240",
+        "context": "",
+        "target": "lbc:workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_regen_lib",
+        "command": "execute if score spell lbc.math matches 240 run function lbc:workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_regen_lib"
+      },
+      {
+        "range": "241",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_remove",
+        "command": "execute if score spell lbc.math matches 241 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_remove"
+      },
+      {
+        "range": "242",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:items/wands/sauvojen_wand/cast_2",
+        "command": "execute if score spell lbc.math matches 242 anchored eyes positioned ^ ^ ^ run function lbc:items/wands/sauvojen_wand/cast_2"
+      }
+    ],
+    "select_wand": [
+      {
+        "range": "1",
+        "context": "",
+        "target": "lbc:workingitems/evokercast",
+        "command": "execute if score spell lbc.math matches 1 run function lbc:workingitems/evokercast"
+      },
+      {
+        "range": "2..4",
+        "context": "",
+        "target": "lbc:workingitems/evokercast_upgraded_spelllib",
+        "command": "execute if score spell lbc.math matches 2..4 run function lbc:workingitems/evokercast_upgraded_spelllib"
+      },
+      {
+        "range": "5",
+        "context": "",
+        "target": "lbc:workingitems/basscast",
+        "command": "execute if score spell lbc.math matches 5 run function lbc:workingitems/basscast"
+      },
+      {
+        "range": "6..9",
+        "context": "",
+        "target": "lbc:workingitems/basscast_upgraded_spelllib",
+        "command": "execute if score spell lbc.math matches 6..9 run function lbc:workingitems/basscast_upgraded_spelllib"
+      },
+      {
+        "range": "10",
+        "context": "",
+        "target": "lbc:workingitems/corrupter",
+        "command": "execute if score spell lbc.math matches 10 run function lbc:workingitems/corrupter"
+      },
+      {
+        "range": "11..14",
+        "context": "",
+        "target": "lbc:workingitems/corrupter_upgraded_spelllib",
+        "command": "execute if score spell lbc.math matches 11..14 run function lbc:workingitems/corrupter_upgraded_spelllib"
+      },
+      {
+        "range": "15",
+        "context": "",
+        "target": "lbc:workingitems/endcast",
+        "command": "execute if score spell lbc.math matches 15 run function lbc:workingitems/endcast"
+      },
+      {
+        "range": "16",
+        "context": "",
+        "target": "lbc:workingitems/endcast_lib",
+        "command": "execute if score spell lbc.math matches 16 run function lbc:workingitems/endcast_lib"
+      },
+      {
+        "range": "17",
+        "context": "",
+        "target": "lbc:workingitems/lifestealer",
+        "command": "execute if score spell lbc.math matches 17 run function lbc:workingitems/lifestealer"
+      },
+      {
+        "range": "18",
+        "context": "",
+        "target": "lbc:workingitems/lifestealer_upgraded_mode_1",
+        "command": "execute if score spell lbc.math matches 18 run function lbc:workingitems/lifestealer_upgraded_mode_1"
+      },
+      {
+        "range": "19",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/lifestealer_upgraded_mode_2",
+        "command": "execute if score spell lbc.math matches 19 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/lifestealer_upgraded_mode_2"
+      },
+      {
+        "range": "20",
+        "context": "",
+        "target": "lbc:workingitems/foxuscast",
+        "command": "execute if score spell lbc.math matches 20 run function lbc:workingitems/foxuscast"
+      },
+      {
+        "range": "21..24",
+        "context": "",
+        "target": "lbc:workingitems/foxuscast_upgraded_lib",
+        "command": "execute if score spell lbc.math matches 21..24 run function lbc:workingitems/foxuscast_upgraded_lib"
+      },
+      {
+        "range": "25",
+        "context": "",
+        "target": "lbc:workingitems/bloodmagic",
+        "command": "execute if score spell lbc.math matches 25 run function lbc:workingitems/bloodmagic"
+      },
+      {
+        "range": "26",
+        "context": "",
+        "target": "lbc:workingitems/bloodmagic_upgraded",
+        "command": "execute if score spell lbc.math matches 26 run function lbc:workingitems/bloodmagic_upgraded"
+      },
+      {
+        "range": "27",
+        "context": "",
+        "target": "lbc:workingitems/badwiki",
+        "command": "execute if score spell lbc.math matches 27 run function lbc:workingitems/badwiki"
+      },
+      {
+        "range": "28..111",
+        "context": "",
+        "target": "lbc:workingitems/badwiki_lib",
+        "command": "execute if score spell lbc.math matches 28..111 run function lbc:workingitems/badwiki_lib"
+      },
+      {
+        "range": "112",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop2",
+        "command": "execute if score spell lbc.math matches 112 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop2"
+      },
+      {
+        "range": "113..115",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_end2_upgraded_lib_loop",
+        "command": "execute if score spell lbc.math matches 113..115 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_end2_upgraded_lib_loop"
+      },
+      {
+        "range": "116",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop3",
+        "command": "execute if score spell lbc.math matches 116 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop3"
+      },
+      {
+        "range": "117",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop3_upgraded_mode_default",
+        "command": "execute if score spell lbc.math matches 117 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop3_upgraded_mode_default"
+      },
+      {
+        "range": "118",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop3_upgraded_mode_uppest",
+        "command": "execute if score spell lbc.math matches 118 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop3_upgraded_mode_uppest"
+      },
+      {
+        "range": "119",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop3_upgraded_mode_clip",
+        "command": "execute if score spell lbc.math matches 119 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop3_upgraded_mode_clip"
+      },
+      {
+        "range": "120",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop5",
+        "command": "execute if score spell lbc.math matches 120 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop5"
+      },
+      {
+        "range": "121..122",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop5_upg_lib",
+        "command": "execute if score spell lbc.math matches 121..122 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop5_upg_lib"
+      },
+      {
+        "range": "123",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_preloop7_2",
+        "command": "execute if score spell lbc.math matches 123 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_preloop7_2"
+      },
+      {
+        "range": "124",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_preloop7_upgraded_lib",
+        "command": "execute if score spell lbc.math matches 124 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_preloop7_upgraded_lib"
+      },
+      {
+        "range": "125",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop4",
+        "command": "execute if score spell lbc.math matches 125 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop4"
+      },
+      {
+        "range": "126",
+        "context": "",
+        "target": "lbcr:raycast_loop4cd_upgraded2_blaze_head",
+        "command": "execute if score spell lbc.math matches 126 run function lbcr:raycast_loop4cd_upgraded2_blaze_head"
+      },
+      {
+        "range": "127",
+        "context": "",
+        "target": "lbc:workingitems/random_spell_lib",
+        "command": "execute if score spell lbc.math matches 127 run function lbc:workingitems/random_spell_lib"
+      },
+      {
+        "range": "129",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop9cd_upgraded_2_loop_mode_default",
+        "command": "execute if score spell lbc.math matches 129 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop9cd_upgraded_2_loop_mode_default"
+      },
+      {
+        "range": "130",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop9cd_upgraded_2_loop_mode_sniper",
+        "command": "execute if score spell lbc.math matches 130 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop9cd_upgraded_2_loop_mode_sniper"
+      },
+      {
+        "range": "131",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop9cd_upgraded_2_loop_mode_laser",
+        "command": "execute if score spell lbc.math matches 131 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop9cd_upgraded_2_loop_mode_laser"
+      },
+      {
+        "range": "132",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop9cd_upgraded_2_loop_mode_tank",
+        "command": "execute if score spell lbc.math matches 132 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop9cd_upgraded_2_loop_mode_tank"
+      },
+      {
+        "range": "133",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop9cd_upgraded_2_loop_mode_healer",
+        "command": "execute if score spell lbc.math matches 133 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop9cd_upgraded_2_loop_mode_healer"
+      },
+      {
+        "range": "134",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop8",
+        "command": "execute if score spell lbc.math matches 134 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop8"
+      },
+      {
+        "range": "135",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_loop8_upgraded",
+        "command": "execute if score spell lbc.math matches 135 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_loop8_upgraded"
+      },
+      {
+        "range": "136",
+        "context": "",
+        "target": "lbc:workingitems/psychowand",
+        "command": "execute if score spell lbc.math matches 136 run function lbc:workingitems/psychowand"
+      },
+      {
+        "range": "137..140",
+        "context": "",
+        "target": "lbc:workingitems/psychowand_upgraded_lib",
+        "command": "execute if score spell lbc.math matches 137..140 run function lbc:workingitems/psychowand_upgraded_lib"
+      },
+      {
+        "range": "141",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_preloop10",
+        "command": "execute if score spell lbc.math matches 141 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_preloop10"
+      },
+      {
+        "range": "142",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_preloop10cd_upgraded_mode_chain",
+        "command": "execute if score spell lbc.math matches 142 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_preloop10cd_upgraded_mode_chain"
+      },
+      {
+        "range": "143",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_preloop10cd_upgraded_mode_instant",
+        "command": "execute if score spell lbc.math matches 143 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_preloop10cd_upgraded_mode_instant"
+      },
+      {
+        "range": "144",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_preloop11_upgraded",
+        "command": "execute if score spell lbc.math matches 144 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_preloop11_upgraded"
+      },
+      {
+        "range": "145",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_preloop11_upgraded_lib",
+        "command": "execute if score spell lbc.math matches 145 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_preloop11_upgraded_lib"
+      },
+      {
+        "range": "146",
+        "context": "",
+        "target": "lbc:workingitems/omegaflag",
+        "command": "execute if score spell lbc.math matches 146 run function lbc:workingitems/omegaflag"
+      },
+      {
+        "range": "147",
+        "context": "",
+        "target": "lbc:workingitems/omegaflag_upgraded",
+        "command": "execute if score spell lbc.math matches 147 run function lbc:workingitems/omegaflag_upgraded"
+      },
+      {
+        "range": "148",
+        "context": "",
+        "target": "lbc:workingitems/neutralmage/select",
+        "command": "execute if score spell lbc.math matches 148 run function lbc:workingitems/neutralmage/select"
+      },
+      {
+        "range": "149",
+        "context": "",
+        "target": "lbc:workingitems/neutralmage/1",
+        "command": "execute if score spell lbc.math matches 149 run function lbc:workingitems/neutralmage/1"
+      },
+      {
+        "range": "150",
+        "context": "",
+        "target": "lbc:workingitems/neutralmage/2",
+        "command": "execute if score spell lbc.math matches 150 run function lbc:workingitems/neutralmage/2"
+      },
+      {
+        "range": "151",
+        "context": "",
+        "target": "lbc:workingitems/neutralmage/3",
+        "command": "execute if score spell lbc.math matches 151 run function lbc:workingitems/neutralmage/3"
+      },
+      {
+        "range": "152",
+        "context": "",
+        "target": "lbc:workingitems/neutralmage/4",
+        "command": "execute if score spell lbc.math matches 152 run function lbc:workingitems/neutralmage/4"
+      },
+      {
+        "range": "153",
+        "context": "",
+        "target": "lbc:workingitems/neutralmage/5",
+        "command": "execute if score spell lbc.math matches 153 run function lbc:workingitems/neutralmage/5"
+      },
+      {
+        "range": "154",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_lightning",
+        "command": "execute if score spell lbc.math matches 154 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_lightning"
+      },
+      {
+        "range": "155",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_lightning_mode_chain",
+        "command": "execute if score spell lbc.math matches 155 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_lightning_mode_chain"
+      },
+      {
+        "range": "156",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbcr:raycast_lightning_mode_reforge",
+        "command": "execute if score spell lbc.math matches 156 anchored eyes positioned ^ ^ ^ run function lbcr:raycast_lightning_mode_reforge"
+      },
+      {
+        "range": "157",
+        "context": "",
+        "target": "lbc:workingitems/exoperso",
+        "command": "execute if score spell lbc.math matches 157 run function lbc:workingitems/exoperso"
+      },
+      {
+        "range": "158",
+        "context": "",
+        "target": "lbc:workingitems/exoperso_upgraded",
+        "command": "execute if score spell lbc.math matches 158 run function lbc:workingitems/exoperso_upgraded"
+      },
+      {
+        "range": "159",
+        "context": "",
+        "target": "lbc:items/wands/danmaku_staff/click_2",
+        "command": "execute if score spell lbc.math matches 159 run function lbc:items/wands/danmaku_staff/click_2"
+      },
+      {
+        "range": "160",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/ruby_preloop",
+        "command": "execute if score spell lbc.math matches 160 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/ruby_preloop"
+      },
+      {
+        "range": "161",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/ruby_ray",
+        "command": "execute if score spell lbc.math matches 161 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/ruby_ray"
+      },
+      {
+        "range": "162",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/ruby_hole",
+        "command": "execute if score spell lbc.math matches 162 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/ruby_hole"
+      },
+      {
+        "range": "163",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/terra_preloop",
+        "command": "execute if score spell lbc.math matches 163 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/terra_preloop"
+      },
+      {
+        "range": "164",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/terra_preloop_upgraded",
+        "command": "execute if score spell lbc.math matches 164 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/terra_preloop_upgraded"
+      },
+      {
+        "range": "165",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/electro_preloop",
+        "command": "execute if score spell lbc.math matches 165 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/electro_preloop"
+      },
+      {
+        "range": "166",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/electro_ray",
+        "command": "execute if score spell lbc.math matches 166 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/electro_ray"
+      },
+      {
+        "range": "167",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/air_preloop",
+        "command": "execute if score spell lbc.math matches 167 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/air_preloop"
+      },
+      {
+        "range": "168",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/air_preloop_burst",
+        "command": "execute if score spell lbc.math matches 168 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/air_preloop_burst"
+      },
+      {
+        "range": "169",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/air_preloop_fast",
+        "command": "execute if score spell lbc.math matches 169 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/air_preloop_fast"
+      },
+      {
+        "range": "170",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/air_preloop_homing",
+        "command": "execute if score spell lbc.math matches 170 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/air_preloop_homing"
+      },
+      {
+        "range": "171",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/acid_preloop",
+        "command": "execute if score spell lbc.math matches 171 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/acid_preloop"
+      },
+      {
+        "range": "172",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/acid_preloop_upgraded_lib",
+        "command": "execute if score spell lbc.math matches 172 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/acid_preloop_upgraded_lib"
+      },
+      {
+        "range": "173",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/teleport_preloop",
+        "command": "execute if score spell lbc.math matches 173 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/teleport_preloop"
+      },
+      {
+        "range": "174",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/teleport_inverted",
+        "command": "execute if score spell lbc.math matches 174 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/teleport_inverted"
+      },
+      {
+        "range": "175",
+        "context": "",
+        "target": "lbc:workingitems/sauvojen_staffs/teleport_cloud",
+        "command": "execute if score spell lbc.math matches 175 run function lbc:workingitems/sauvojen_staffs/teleport_cloud"
+      },
+      {
+        "range": "176",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/stone_preloop",
+        "command": "execute if score spell lbc.math matches 176 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/stone_preloop"
+      },
+      {
+        "range": "177",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/stone_preloop_upgraded_default",
+        "command": "execute if score spell lbc.math matches 177 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/stone_preloop_upgraded_default"
+      },
+      {
+        "range": "178",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/stone_preloop_upgraded_spike",
+        "command": "execute if score spell lbc.math matches 178 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/stone_preloop_upgraded_spike"
+      },
+      {
+        "range": "179",
+        "context": "positioned ~ ~-1 ~",
+        "target": "lbc:workingitems/sauvojen_staffs/stone_preloop_upgraded_bridge",
+        "command": "execute if score spell lbc.math matches 179 positioned ~ ~-1 ~ run function lbc:workingitems/sauvojen_staffs/stone_preloop_upgraded_bridge"
+      },
+      {
+        "range": "180",
+        "context": "",
+        "target": "lbc:workingitems/sauvojen_staffs/stone_preloop_upgraded_shield",
+        "command": "execute if score spell lbc.math matches 180 run function lbc:workingitems/sauvojen_staffs/stone_preloop_upgraded_shield"
+      },
+      {
+        "range": "181",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/fire_preloop",
+        "command": "execute if score spell lbc.math matches 181 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/fire_preloop"
+      },
+      {
+        "range": "182",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/fire_preloop_upgraded_big",
+        "command": "execute if score spell lbc.math matches 182 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/fire_preloop_upgraded_big"
+      },
+      {
+        "range": "183",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/fire_preloop_upgraded_concentrated",
+        "command": "execute if score spell lbc.math matches 183 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/fire_preloop_upgraded_concentrated"
+      },
+      {
+        "range": "184",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/blind_preloop",
+        "command": "execute if score spell lbc.math matches 184 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/blind_preloop"
+      },
+      {
+        "range": "185",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/blind_preloop_upgraded_gatlingator",
+        "command": "execute if score spell lbc.math matches 185 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/blind_preloop_upgraded_gatlingator"
+      },
+      {
+        "range": "186",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/blind_preloop_upgraded_phantom",
+        "command": "execute if score spell lbc.math matches 186 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/blind_preloop_upgraded_phantom"
+      },
+      {
+        "range": "187",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/sauvojen_staffs/blind_preloop_upgraded_rain",
+        "command": "execute if score spell lbc.math matches 187 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/sauvojen_staffs/blind_preloop_upgraded_rain"
+      },
+      {
+        "range": "188",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/acidacid/click2",
+        "command": "execute if score spell lbc.math matches 188 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/acidacid/click2"
+      },
+      {
+        "range": "189",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_default_lib",
+        "command": "execute if score spell lbc.math matches 189 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_default_lib"
+      },
+      {
+        "range": "190",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_caust_lib",
+        "command": "execute if score spell lbc.math matches 190 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_caust_lib"
+      },
+      {
+        "range": "191",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_caust_lib_1",
+        "command": "execute if score spell lbc.math matches 191 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_caust_lib_1"
+      },
+      {
+        "range": "192",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_gatling_lib",
+        "command": "execute if score spell lbc.math matches 192 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_gatling_lib"
+      },
+      {
+        "range": "193",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_gatling_lib_1",
+        "command": "execute if score spell lbc.math matches 193 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_gatling_lib_1"
+      },
+      {
+        "range": "194",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_rifle",
+        "command": "execute if score spell lbc.math matches 194 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/acidacid/click_upgraded_mode_rifle"
+      },
+      {
+        "range": "195",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/acidcorrupt/click_lib",
+        "command": "execute if score spell lbc.math matches 195 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/acidcorrupt/click_lib"
+      },
+      {
+        "range": "196",
+        "context": "",
+        "target": "lbc:workingitems/awaken_tuntija_wands/acidcorrupt/mode_reverse",
+        "command": "execute if score spell lbc.math matches 196 run function lbc:workingitems/awaken_tuntija_wands/acidcorrupt/mode_reverse"
+      },
+      {
+        "range": "197",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/acidcorrupt/mode_titul",
+        "command": "execute if score spell lbc.math matches 197 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/acidcorrupt/mode_titul"
+      },
+      {
+        "range": "198",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/acidcorrupt/mode_chuma",
+        "command": "execute if score spell lbc.math matches 198 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/acidcorrupt/mode_chuma"
+      },
+      {
+        "range": "199",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/exasperato/click2",
+        "command": "execute if score spell lbc.math matches 199 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/exasperato/click2"
+      },
+      {
+        "range": "200",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_default",
+        "command": "execute if score spell lbc.math matches 200 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_default"
+      },
+      {
+        "range": "201",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_chaos_area",
+        "command": "execute if score spell lbc.math matches 201 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_chaos_area"
+      },
+      {
+        "range": "202",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_electro_ray",
+        "command": "execute if score spell lbc.math matches 202 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_electro_ray"
+      },
+      {
+        "range": "203",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_nuke",
+        "command": "execute if score spell lbc.math matches 203 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/exasperato/click2_upgraded_mode_nuke"
+      },
+      {
+        "range": "204",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/exahoming_click_lib",
+        "command": "execute if score spell lbc.math matches 204 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/exahoming_click_lib"
+      },
+      {
+        "range": "205",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_curse",
+        "command": "execute if score spell lbc.math matches 205 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_curse"
+      },
+      {
+        "range": "206",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_destiny",
+        "command": "execute if score spell lbc.math matches 206 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_destiny"
+      },
+      {
+        "range": "207",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_sisyfus",
+        "command": "execute if score spell lbc.math matches 207 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_sisyfus"
+      },
+      {
+        "range": "208",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_default",
+        "command": "execute if score spell lbc.math matches 208 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_default"
+      },
+      {
+        "range": "209",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_invisible_charge",
+        "command": "execute if score spell lbc.math matches 209 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_invisible_charge"
+      },
+      {
+        "range": "210",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_mindblowing_ray",
+        "command": "execute if score spell lbc.math matches 210 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_mindblowing_ray"
+      },
+      {
+        "range": "211",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_spray",
+        "command": "execute if score spell lbc.math matches 211 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/psychoblind/click_upgraded_mode_spray"
+      },
+      {
+        "range": "212",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/boltbolt/click_lib",
+        "command": "execute if score spell lbc.math matches 212 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/boltbolt/click_lib"
+      },
+      {
+        "range": "213",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_snow_meteor",
+        "command": "execute if score spell lbc.math matches 213 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_snow_meteor"
+      },
+      {
+        "range": "214",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_watering",
+        "command": "execute if score spell lbc.math matches 214 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_watering"
+      },
+      {
+        "range": "215",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_wind_racer",
+        "command": "execute if score spell lbc.math matches 215 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/boltbolt/click_upgraded_mode_wind_racer"
+      },
+      {
+        "range": "216",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_default",
+        "command": "execute if score spell lbc.math matches 216 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_default"
+      },
+      {
+        "range": "217",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_ray",
+        "command": "execute if score spell lbc.math matches 217 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_ray"
+      },
+      {
+        "range": "218",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sniper_lib",
+        "command": "execute if score spell lbc.math matches 218 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sniper_lib"
+      },
+      {
+        "range": "219",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sphere",
+        "command": "execute if score spell lbc.math matches 219 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/erecto/click_upgraded_2_mode_sphere"
+      },
+      {
+        "range": "220",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/fireblaze/click2",
+        "command": "execute if score spell lbc.math matches 220 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/fireblaze/click2"
+      },
+      {
+        "range": "221",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded_mode_kiuas",
+        "command": "execute if score spell lbc.math matches 221 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded_mode_kiuas"
+      },
+      {
+        "range": "222",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded_mode_mega",
+        "command": "execute if score spell lbc.math matches 222 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded_mode_mega"
+      },
+      {
+        "range": "223",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded_mode_pillars",
+        "command": "execute if score spell lbc.math matches 223 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded_mode_pillars"
+      },
+      {
+        "range": "224",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded_mode_world",
+        "command": "execute if score spell lbc.math matches 224 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/fireblaze/click2_upgraded_mode_world"
+      },
+      {
+        "range": "225",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_default",
+        "command": "execute if score spell lbc.math matches 225 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_default"
+      },
+      {
+        "range": "226",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_avarice",
+        "command": "execute if score spell lbc.math matches 226 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_avarice"
+      },
+      {
+        "range": "227",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_silence",
+        "command": "execute if score spell lbc.math matches 227 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_silence"
+      },
+      {
+        "range": "228",
+        "context": "anchored eyes positioned ^ ^ ^8",
+        "target": "lbc:workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_the_end_pre",
+        "command": "execute if score spell lbc.math matches 228 anchored eyes positioned ^ ^ ^8 run function lbc:workingitems/awaken_tuntija_wands/consuming_wand_upgraded_mode_the_end_pre"
+      },
+      {
+        "range": "229",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/avarice/click2_upgraded_default",
+        "command": "execute if score spell lbc.math matches 229 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/avarice/click2_upgraded_default"
+      },
+      {
+        "range": "230",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/avarice/click2_upgraded_black_hole",
+        "command": "execute if score spell lbc.math matches 230 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/avarice/click2_upgraded_black_hole"
+      },
+      {
+        "range": "231",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/avarice/click2_upgraded_divide",
+        "command": "execute if score spell lbc.math matches 231 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/avarice/click2_upgraded_divide"
+      },
+      {
+        "range": "232",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/avarice/click2_upgraded_expand",
+        "command": "execute if score spell lbc.math matches 232 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/avarice/click2_upgraded_expand"
+      },
+      {
+        "range": "233",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/stonekivi/loop",
+        "command": "execute if score spell lbc.math matches 233 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/stonekivi/loop"
+      },
+      {
+        "range": "234",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/stonekivi/loop_earth",
+        "command": "execute if score spell lbc.math matches 234 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/stonekivi/loop_earth"
+      },
+      {
+        "range": "235",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/stonekivi/loop_sun",
+        "command": "execute if score spell lbc.math matches 235 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/stonekivi/loop_sun"
+      },
+      {
+        "range": "236",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/stonekivi/comet",
+        "command": "execute if score spell lbc.math matches 236 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/stonekivi/comet"
+      },
+      {
+        "range": "237",
+        "context": "",
+        "target": "lbc:workingitems/awaken_tuntija_wands/bedrock/click_lib",
+        "command": "execute if score spell lbc.math matches 237 run function lbc:workingitems/awaken_tuntija_wands/bedrock/click_lib"
+      },
+      {
+        "range": "238",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_place_cube",
+        "command": "execute if score spell lbc.math matches 238 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_place_cube"
+      },
+      {
+        "range": "239",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_remove_cube",
+        "command": "execute if score spell lbc.math matches 239 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_remove_cube"
+      },
+      {
+        "range": "240",
+        "context": "",
+        "target": "lbc:workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_regen_lib",
+        "command": "execute if score spell lbc.math matches 240 run function lbc:workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_regen_lib"
+      },
+      {
+        "range": "241",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_remove",
+        "command": "execute if score spell lbc.math matches 241 anchored eyes positioned ^ ^ ^ run function lbc:workingitems/awaken_tuntija_wands/bedrock/click_upgraded_mode_remove"
+      },
+      {
+        "range": "242",
+        "context": "anchored eyes positioned ^ ^ ^",
+        "target": "lbc:items/wands/sauvojen_wand/cast_2",
+        "command": "execute if score spell lbc.math matches 242 anchored eyes positioned ^ ^ ^ run function lbc:items/wands/sauvojen_wand/cast_2"
+      }
+    ]
+  },
+  "errors": [],
+  "documented_source_defects": [
+    "acid_chance stores tmp; acid_chance_storage reads tmpd",
+    "select has no ID189 route; select_wand has it"
+  ]
+}

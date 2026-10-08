@@ -1,0 +1,1502 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/homing_with_id.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/homing_with_id_slow.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_razbros.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_razbros_big.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_razbros_small.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_razbros_smallest.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_razbros_storage.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_small.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_smallest.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_very_small.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_very_very_small.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_power_razbros_small.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/random_debuff.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/random_luck_modifier.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/random_rot.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/random_rot_add_active.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/random_rot_down.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/random_rot_down1.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/random_rot_down2.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/random_rot_up.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_3.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_big.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_big_with_razbros.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_big_with_tag.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_data.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_data_razbros.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_power.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_pre.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_razbros.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_razbros_with_active.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_slow.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_slow1.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_slow_dragon.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_slow_obfuscated.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_slow_power.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_slow_vect.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_slow_vect_recur_100000.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_slow_vect_recur_50000.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_slow_vect_recur_low.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_slower.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_slower_vect.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_slowest_vect.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_storage.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_vect.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_vect_1.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_very_slow_vect.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_xz_active.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/reduce_count.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/reduce_count_l.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/reduce_count_s.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/reduce_motion_to_10x.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/reduce_motion_to_10x_rec.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/reforge.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/reforge_crafting_0.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/reforge_crafting_1.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/reforge_crafting_2.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/reforge_crafting_3.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/sqrt_loop.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_0_5.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_1.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_10.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_15.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_15_active.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_15_xz.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_2.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_20.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_20_active.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_2_.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_2_motion.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_30.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_35_active.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_5_y.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_7.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_7_y.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_razbros.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_razbros_big.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_razbros_small.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_razbros_smaller.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_razbros_up_active.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_razbros_withpre.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_razbros_withpre_small.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/abyss_end.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/area_effect_cloud_10t.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/big_fire_fill.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/check_pos_changes.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/config.mcfunction",
+    "coverage_status": "documented",
+    "section": "Загрузка и конфигурация",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/config_survival.mcfunction",
+    "coverage_status": "documented",
+    "section": "Загрузка и конфигурация",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/cook_health.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/cook_health_1.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/cook_health_11.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/damage_end.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/damage_end_loop.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/damage_with_tmp.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/damage_with_tmp_void.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/damage_with_tmp_void1.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/datapack_enable.mcfunction",
+    "coverage_status": "documented",
+    "section": "Главный тик и пауза времени",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/datapack_enable_e.mcfunction",
+    "coverage_status": "documented",
+    "section": "Главный тик и пауза времени",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/death_inject_before_announce.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effect_death.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effect_death_tellraw.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/end_resets.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/entities.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/get_random.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/get_team.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items_copypaster.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items_tick.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items_tick_act.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items_tick_act_m.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items_tick_act_m_check.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items_tick_tag.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items_tick_tag_2.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items_tick_tag_3.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/leave_death.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/leave_death_kest.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/load.mcfunction",
+    "coverage_status": "documented",
+    "section": "Загрузка и конфигурация",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/load_2.mcfunction",
+    "coverage_status": "documented",
+    "section": "Загрузка и конфигурация",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/load_aftertimestop.mcfunction",
+    "coverage_status": "documented",
+    "section": "Загрузка и конфигурация",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/load_scores_reload.mcfunction",
+    "coverage_status": "documented",
+    "section": "Загрузка и конфигурация",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/malevich_boom.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/markers_2t.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/markers_2t1.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/mobs_10s.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/mobs_1s.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/mobs_2t.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/mobs_5s.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/mobs_5t.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/mobs_5t_lbc.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/mobs_tick.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/mobs_tick_cultist.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/mobs_tick_lbc.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/mortisbreak.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/nodamage1_for_team.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/nodamage_for_team.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/only_end_resets.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/only_end_resets_once.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/only_end_resets_oncebadapple.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/player_speed.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_10s.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_10t.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_15s.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_15s_eatt.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_1s.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_1s_sprinted.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_2s.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_2t.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_5s.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_5t.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_sprint_end.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_tick.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_tick90s.mcfunction",
+    "coverage_status": "non_runtime",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/pre_player_5t.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectilestick.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectilestick_homing.mcfunction",
+    "coverage_status": "non_runtime",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectilestick_tnt.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycasters_1s.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycasters_5t.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector_area_cloud.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector_grimoire_dungeon.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector_imba.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector_instant.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector_kills.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector_legacy_rc.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector_other.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector_player.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector_player_check_skill.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector_player_check_skill_homing.mcfunction",
+    "coverage_status": "non_runtime",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector_rare.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector_tuntija.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/remove_tags.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/reset_gamerules.mcfunction",
+    "coverage_status": "documented",
+    "section": "Загрузка и конфигурация",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/reset_gamerules_nexus.mcfunction",
+    "coverage_status": "documented",
+    "section": "Загрузка и конфигурация",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/resets.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/resourcepacks.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/respawn.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/respawn2.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/respawn21.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/respawn_1.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/respawn_2.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/respawn_2pre.mcfunction",
+    "coverage_status": "non_runtime",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/respawnnovanity.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/respawnnovanity1.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/run_command.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/run_command1.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/scam_tick.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/scors.mcfunction",
+    "coverage_status": "documented",
+    "section": "Загрузка и конфигурация",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/start.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/start_after_all.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/start_bedwars.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/start_nov_event.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/start_nov_event_jedi.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/start_nov_event_pre.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/start_nov_event_sith.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/start_player.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/start_stand.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/start_stand_give.mcfunction",
+    "coverage_status": "documented",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/storage_fix.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/storage_fix_rec.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/storage_fix_rec_2.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick10s.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick10t.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick15s.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick15s_delete_rc.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick1s.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick1s_not_nexus.mcfunction",
+    "coverage_status": "non_runtime",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick1salways.mcfunction",
+    "coverage_status": "documented",
+    "section": "Главный тик и пауза времени",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick1salways_timestop.mcfunction",
+    "coverage_status": "documented",
+    "section": "Главный тик и пауза времени",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick2s.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick2smobs.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick2t.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick3s.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick4s.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick5s.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick5t.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick90s.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick90s_45s.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick90s_imprinted_in.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick90s_imprinted_in_sched.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick90s_imprinted_out.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick_nexus.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick_nexus_data.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick_nexus_player.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick_nexus_player_tp.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick_nexus_player_tp_2.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick_nexus_player_tp_3.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick_nexus_player_tp_borders.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick_nexus_player_tp_no_borders.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick_nexus_raycasters.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick_nexus_xp_trans.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick_not_timestopped.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/time_stop.mcfunction",
+    "coverage_status": "documented",
+    "section": "Главный тик и пауза времени",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/time_stop_powerful.mcfunction",
+    "coverage_status": "documented",
+    "section": "Главный тик и пауза времени",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/time_stopped_tick.mcfunction",
+    "coverage_status": "documented",
+    "section": "Главный тик и пауза времени",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/time_stopped_tickentity.mcfunction",
+    "coverage_status": "documented",
+    "section": "Главный тик и пауза времени",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/time_stopped_tickentity_data_restore2.mcfunction",
+    "coverage_status": "documented",
+    "section": "Главный тик и пауза времени",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/time_stopped_tickentity_data_save.mcfunction",
+    "coverage_status": "documented",
+    "section": "Главный тик и пауза времени",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/time_stopped_tickentity_data_save2.mcfunction",
+    "coverage_status": "documented",
+    "section": "Главный тик и пауза времени",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/time_stopped_tickentity_effects.mcfunction",
+    "coverage_status": "documented",
+    "section": "Главный тик и пауза времени",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/time_stopped_tickentity_timestop_marker.mcfunction",
+    "coverage_status": "documented",
+    "section": "Главный тик и пауза времени",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/timer.mcfunction",
+    "coverage_status": "documented",
+    "section": "Игроки, мобы и предметы",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/timestop_damage.mcfunction",
+    "coverage_status": "documented",
+    "section": "Главный тик и пауза времени",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/timestop_ret_particle.mcfunction",
+    "coverage_status": "documented",
+    "section": "Главный тик и пауза времени",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/timestop_return_motion.mcfunction",
+    "coverage_status": "documented",
+    "section": "Главный тик и пауза времени",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tp_nexus_rtp.mcfunction",
+    "coverage_status": "documented",
+    "section": "Raycaster и marker диспетчеры",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/ultra_reforge.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/win.mcfunction",
+    "coverage_status": "documented",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "focused_helper_reread": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/z.mcfunction",
+    "coverage_status": "documented",
+    "section": "Загрузка, scoreboard и правила измерений",
+    "focused_helper_reread": false
+  }
+]

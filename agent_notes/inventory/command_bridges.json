@@ -1,0 +1,827 @@
+[
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/transfer_1.mcfunction",
+    "line": 1,
+    "function": "swrg:transfer_1",
+    "command": "$$(transfer) \"d12.joinserver.xyz\" 25916 @s",
+    "roots": [
+      "$(transfer)"
+    ],
+    "parameters": [
+      "transfer"
+    ],
+    "callers": [
+      {
+        "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/transfer.mcfunction",
+        "line": 3,
+        "command": "function swrg:transfer_1 with storage lbc.math"
+      }
+    ],
+    "assignments": [
+      {
+        "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/transfer.mcfunction",
+        "line": 2,
+        "storage": "lbc.math",
+        "field": "transfer",
+        "value": "transfer",
+        "command": "data modify storage lbc.math transfer set value transfer"
+      }
+    ]
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/autorestart_3.mcfunction",
+    "line": 1,
+    "function": "swrg:core/autorestart_3",
+    "command": "$$(mew)",
+    "roots": [
+      "$(mew)"
+    ],
+    "parameters": [
+      "mew"
+    ],
+    "callers": [
+      {
+        "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/autorestart_2.mcfunction",
+        "line": 2,
+        "command": "function swrg:core/autorestart_3 with storage lbc.math"
+      }
+    ],
+    "assignments": [
+      {
+        "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/core/autorestart_2.mcfunction",
+        "line": 1,
+        "storage": "lbc.math",
+        "field": "mew",
+        "value": "restart",
+        "command": "data modify storage lbc.math mew set value restart"
+      }
+    ]
+  },
+  {
+    "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/clear1.mcfunction",
+    "line": 1,
+    "function": "swrg:maploader/clear1",
+    "command": "$$(mapclear)",
+    "roots": [
+      "$(mapclear)"
+    ],
+    "parameters": [
+      "mapclear"
+    ],
+    "callers": [
+      {
+        "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/alwayspreb.mcfunction",
+        "line": 15,
+        "command": "function swrg:maploader/clear1 with storage swrg:temp"
+      }
+    ],
+    "assignments": [
+      {
+        "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/maploader/map/alwayspreb.mcfunction",
+        "line": 13,
+        "storage": "swrg:temp",
+        "field": "mapclear",
+        "value": "\"mapclear includespecial\"",
+        "command": "data modify storage swrg:temp mapclear set value \"mapclear includespecial\""
+      }
+    ]
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/run_command.mcfunction",
+    "line": 1,
+    "function": "lbc:run_command",
+    "command": "$$(cmd)",
+    "roots": [
+      "$(cmd)"
+    ],
+    "parameters": [
+      "cmd"
+    ],
+    "callers": [
+      {
+        "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/player/skills/wind_rider.mcfunction",
+        "line": 5,
+        "command": "function lbc:run_command with storage lbc.math"
+      },
+      {
+        "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/player/skills/wind_rider_gay.mcfunction",
+        "line": 5,
+        "command": "function lbc:run_command with storage lbc.math"
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/ghosting_tick1.mcfunction",
+        "line": 5,
+        "command": "function lbc:run_command with storage lbc.math"
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/game/win_effects/wingoldensword1_boom2.mcfunction",
+        "line": 3,
+        "command": "function lbc:run_command with storage lbc.math"
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/midas_block.mcfunction",
+        "line": 12,
+        "command": "function lbc:run_command with storage lbc.math"
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/pulsar/ray_end.mcfunction",
+        "line": 2,
+        "command": "execute align xyz positioned ~.5 ~.5 ~.5 run function lbc:run_command with storage lbc.math"
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/6_move.mcfunction",
+        "line": 3,
+        "command": "function lbc:run_command with storage lbc.math"
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/halloween_mace/ability.mcfunction",
+        "line": 5,
+        "command": "function lbc:run_command with storage lbc.math"
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulhunter_mace/jump.mcfunction",
+        "line": 5,
+        "command": "function lbc:run_command with storage lbc.math"
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulhunter_mace/sprint_tick.mcfunction",
+        "line": 6,
+        "command": "function lbc:run_command with storage lbc.math"
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulhunter_mace/use_dash.mcfunction",
+        "line": 6,
+        "command": "function lbc:run_command with storage lbc.math"
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_2meditate.mcfunction",
+        "line": 5,
+        "command": "execute at @s as @e[type=#mobs,distance=..11] facing entity @s eyes positioned as @s rotated ~ ~ run function lbc:run_command with storage lbc.math"
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_2_notuser.mcfunction",
+        "line": 4,
+        "command": "function lbc:run_command with storage lbc.math"
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_2_onlyuser.mcfunction",
+        "line": 4,
+        "command": "function lbc:run_command with storage lbc.math"
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/3_tick_at.mcfunction",
+        "line": 3,
+        "command": "function lbc:run_command with storage lbc.math"
+      }
+    ],
+    "assignments": [
+      {
+        "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/player/skills/wind_rider.mcfunction",
+        "line": 1,
+        "storage": "lbc.math",
+        "field": "cmd",
+        "value": "\"motion add ^ ^-0.01 ^.1 @s\"",
+        "command": "data modify storage lbc.math cmd set value \"motion add ^ ^-0.01 ^.1 @s\""
+      },
+      {
+        "source": "world/datapacksdisabled/swarogskywars/data/swrg/function/game/player/skills/wind_rider_gay.mcfunction",
+        "line": 1,
+        "storage": "lbc.math",
+        "field": "cmd",
+        "value": "\"motion add ^ ^ ^.4 @s\"",
+        "command": "data modify storage lbc.math cmd set value \"motion add ^ ^ ^.4 @s\""
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/ghosting_tick1.mcfunction",
+        "line": 1,
+        "storage": "lbc.math",
+        "field": "cmd",
+        "value": "\"execute rotated ~ 0 run motion add ^ ^ ^.2 @s\"",
+        "command": "data modify storage lbc.math cmd set value \"execute rotated ~ 0 run motion add ^ ^ ^.2 @s\""
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/game/win_effects/wingoldensword1_boom2.mcfunction",
+        "line": 2,
+        "storage": "lbc.math",
+        "field": "cmd",
+        "value": "\"midasfr\"",
+        "command": "data modify storage lbc.math cmd set value \"midasfr\""
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/midas_block.mcfunction",
+        "line": 11,
+        "storage": "lbc.math",
+        "field": "cmd",
+        "value": "\"midas\"",
+        "command": "data modify storage lbc.math cmd set value \"midas\""
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/pulsar/ray_end.mcfunction",
+        "line": 1,
+        "storage": "lbc.math",
+        "field": "cmd",
+        "value": "\"pulsar\"",
+        "command": "data modify storage lbc.math cmd set value \"pulsar\""
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/6_move.mcfunction",
+        "line": 1,
+        "storage": "lbc.math",
+        "field": "cmd",
+        "value": "\"motion add ^ ^ ^.1 @s\"",
+        "command": "data modify storage lbc.math cmd set value \"motion add ^ ^ ^.1 @s\""
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/halloween_mace/ability.mcfunction",
+        "line": 4,
+        "storage": "lbc.math",
+        "field": "cmd",
+        "value": "\"execute as @s at @s positioned as @s rotated as @s run motion set ~ ~1 ~ @s\"",
+        "command": "data modify storage lbc.math cmd set value \"execute as @s at @s positioned as @s rotated as @s run motion set ~ ~1 ~ @s\""
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulhunter_mace/jump.mcfunction",
+        "line": 4,
+        "storage": "lbc.math",
+        "field": "cmd",
+        "value": "\"motion set ~ ~1.2 ~ @s\"",
+        "command": "data modify storage lbc.math cmd set value \"motion set ~ ~1.2 ~ @s\""
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulhunter_mace/sprint_tick.mcfunction",
+        "line": 2,
+        "storage": "lbc.math",
+        "field": "cmd",
+        "value": "\"motion add ^ ^ ^.2 @s\"",
+        "command": "data modify storage lbc.math cmd set value \"motion add ^ ^ ^.2 @s\""
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulhunter_mace/use_dash.mcfunction",
+        "line": 2,
+        "storage": "lbc.math",
+        "field": "cmd",
+        "value": "\"motion set ^ ^ ^3 @s\"",
+        "command": "data modify storage lbc.math cmd set value \"motion set ^ ^ ^3 @s\""
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_2meditate.mcfunction",
+        "line": 4,
+        "storage": "lbc.math",
+        "field": "cmd",
+        "value": "\"motion set ^ ^ ^10 @s\"",
+        "command": "data modify storage lbc.math cmd set value \"motion set ^ ^ ^10 @s\""
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_2_notuser.mcfunction",
+        "line": 3,
+        "storage": "lbc.math",
+        "field": "cmd",
+        "value": "\"motion add ^ ^ ^1 @e[distance=0.01..5,type=#mobs,tag=!spectator]\"",
+        "command": "data modify storage lbc.math cmd set value \"motion add ^ ^ ^1 @e[distance=0.01..5,type=#mobs,tag=!spectator]\""
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_2_onlyuser.mcfunction",
+        "line": 3,
+        "storage": "lbc.math",
+        "field": "cmd",
+        "value": "\"motion add ^ ^ ^1 @s\"",
+        "command": "data modify storage lbc.math cmd set value \"motion add ^ ^ ^1 @s\""
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/soulcorruptwand/metasola/3_tick_at.mcfunction",
+        "line": 1,
+        "storage": "lbc.math",
+        "field": "cmd",
+        "value": "\"execute facing entity @e[type=item_display,distance=..20,tag=metasola_3,limit=1] eyes rotated ~ 0 run motion add ^.074 ^.08 ^.08 @s\"",
+        "command": "data modify storage lbc.math cmd set value \"execute facing entity @e[type=item_display,distance=..20,tag=metasola_3,limit=1] eyes rotated ~ 0 run motion add ^.074 ^.08 ^.08 @s\""
+      }
+    ]
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/run_command1.mcfunction",
+    "line": 1,
+    "function": "lbc:run_command1",
+    "command": "$$(cmd1)",
+    "roots": [
+      "$(cmd1)"
+    ],
+    "parameters": [
+      "cmd1"
+    ],
+    "callers": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_2.mcfunction",
+        "line": 4,
+        "command": "function lbc:run_command1 with storage lbc.math"
+      }
+    ],
+    "assignments": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/event/halloween/vex_wand/cast_2.mcfunction",
+        "line": 3,
+        "storage": "lbc.math",
+        "field": "cmd1",
+        "value": "\"motion add ^ ^ ^1 @e[distance=..5,type=#mobs,tag=!spectator]\"",
+        "command": "data modify storage lbc.math cmd1 set value \"motion add ^ ^ ^1 @e[distance=..5,type=#mobs,tag=!spectator]\""
+      }
+    ]
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/pidor_yep.mcfunction",
+    "line": 2,
+    "function": "lbc:other/pidor_yep",
+    "command": "$$(clonetonexus)",
+    "roots": [
+      "$(clonetonexus)"
+    ],
+    "parameters": [
+      "clonetonexus"
+    ],
+    "callers": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/pidor.mcfunction",
+        "line": 4,
+        "command": "execute unless block ~ ~-0.6 ~ #airs_only run function lbc:other/pidor_yep with storage lbc.math"
+      }
+    ],
+    "assignments": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/pidor.mcfunction",
+        "line": 3,
+        "storage": "lbc.math",
+        "field": "clonetonexus",
+        "value": "clonetonexus",
+        "command": "data modify storage lbc.math clonetonexus set value clonetonexus"
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/supernovacore_newworld_pre.mcfunction",
+        "line": 1,
+        "storage": "lbc.math",
+        "field": "clonetonexus",
+        "value": "clonetonexus",
+        "command": "data modify storage lbc.math clonetonexus set value clonetonexus"
+      }
+    ]
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/supernovacore_newworld_clonestop.mcfunction",
+    "line": 1,
+    "function": "lbc:workingitems/supernovacore_newworld_clonestop",
+    "command": "$$(clonetonexus) stop",
+    "roots": [
+      "$(clonetonexus)"
+    ],
+    "parameters": [
+      "clonetonexus"
+    ],
+    "callers": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/supernovacore_newworld_pre.mcfunction",
+        "line": 2,
+        "command": "function lbc:workingitems/supernovacore_newworld_clonestop with storage lbc.math"
+      }
+    ],
+    "assignments": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/pidor.mcfunction",
+        "line": 3,
+        "storage": "lbc.math",
+        "field": "clonetonexus",
+        "value": "clonetonexus",
+        "command": "data modify storage lbc.math clonetonexus set value clonetonexus"
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/supernovacore_newworld_pre.mcfunction",
+        "line": 1,
+        "storage": "lbc.math",
+        "field": "clonetonexus",
+        "value": "clonetonexus",
+        "command": "data modify storage lbc.math clonetonexus set value clonetonexus"
+      }
+    ]
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/loop_sun_end_nerfed1.mcfunction",
+    "line": 1,
+    "function": "lbc:workingitems/awaken_tuntija_wands/stonekivi/loop_sun_end_nerfed1",
+    "command": "$$(command)",
+    "roots": [
+      "$(command)"
+    ],
+    "parameters": [
+      "command"
+    ],
+    "callers": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/loop_sun_end.mcfunction",
+        "line": 2,
+        "command": "return run function lbc:workingitems/awaken_tuntija_wands/stonekivi/loop_sun_end_nerfed1 with storage lbc.math"
+      }
+    ],
+    "assignments": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/loop_sun_end.mcfunction",
+        "line": 1,
+        "storage": "lbc.math",
+        "field": "command",
+        "value": "\"magmify\"",
+        "command": "data modify storage lbc.math command set value \"magmify\""
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/items/misc/huynya/click.mcfunction",
+        "line": 4,
+        "storage": "lbc.math",
+        "field": "command",
+        "value": "rotatemap",
+        "command": "data modify storage lbc.math command set value rotatemap"
+      }
+    ]
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/build_manager/open1.mcfunction",
+    "line": 1,
+    "function": "lbc:swrg_kit_integration/gui/build_manager/open1",
+    "command": "$execute as @s run buildmanager $(pass) @s",
+    "roots": [
+      "buildmanager"
+    ],
+    "parameters": [],
+    "callers": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/build_manager/open.mcfunction",
+        "line": 2,
+        "command": "function lbc:swrg_kit_integration/gui/build_manager/open1 with storage lbc.math"
+      }
+    ],
+    "assignments": []
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/game/levelup_select/levelups_remove_1.mcfunction",
+    "line": 1,
+    "function": "lbc:swrg_kit_integration/game/levelup_select/levelups_remove_1",
+    "command": "$$(regen) set 0 @s",
+    "roots": [
+      "$(regen)"
+    ],
+    "parameters": [
+      "regen"
+    ],
+    "callers": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/game/levelup_select/levelups_remove.mcfunction",
+        "line": 138,
+        "command": "function lbc:swrg_kit_integration/game/levelup_select/levelups_remove_1 with storage lbc.math"
+      }
+    ],
+    "assignments": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/game/levelup_select/levelups_remove.mcfunction",
+        "line": 137,
+        "storage": "lbc.math",
+        "field": "regen",
+        "value": "regen",
+        "command": "data modify storage lbc.math regen set value regen"
+      }
+    ]
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/game/skills/rainbow_aura/damaged_change_aqua.mcfunction",
+    "line": 4,
+    "function": "lbc:swrg_kit_integration/game/skills/rainbow_aura/damaged_change_aqua",
+    "command": "$$(o)regen add -0.025 @s",
+    "roots": [
+      "$(o)regen"
+    ],
+    "parameters": [
+      "o"
+    ],
+    "callers": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/game/skills/rainbow_aura/damaged.mcfunction",
+        "line": 5,
+        "command": "execute if entity @s[tag=aura_lime] run return run function lbc:swrg_kit_integration/game/skills/rainbow_aura/damaged_change_aqua with storage lbc.math"
+      }
+    ],
+    "assignments": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/game/skills/rainbow_aura/damaged.mcfunction",
+        "line": 3,
+        "storage": "lbc.math",
+        "field": "o",
+        "value": "\"\"",
+        "command": "data modify storage lbc.math o set value \"\""
+      }
+    ]
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/game/skills/rainbow_aura/damaged_change_lime.mcfunction",
+    "line": 3,
+    "function": "lbc:swrg_kit_integration/game/skills/rainbow_aura/damaged_change_lime",
+    "command": "$$(o)regen add 0.025 @s",
+    "roots": [
+      "$(o)regen"
+    ],
+    "parameters": [
+      "o"
+    ],
+    "callers": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/game/skills/rainbow_aura/damaged.mcfunction",
+        "line": 4,
+        "command": "execute if entity @s[tag=aura_yellow] run return run function lbc:swrg_kit_integration/game/skills/rainbow_aura/damaged_change_lime with storage lbc.math"
+      }
+    ],
+    "assignments": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/game/skills/rainbow_aura/damaged.mcfunction",
+        "line": 3,
+        "storage": "lbc.math",
+        "field": "o",
+        "value": "\"\"",
+        "command": "data modify storage lbc.math o set value \"\""
+      }
+    ]
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/bad_apple/display_tick1.mcfunction",
+    "line": 1,
+    "function": "lbc:other/imba/bad_apple/display_tick1",
+    "command": "$$(b)adapple start",
+    "roots": [
+      "$(b)adapple"
+    ],
+    "parameters": [
+      "b"
+    ],
+    "callers": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/bad_apple/display_tick.mcfunction",
+        "line": 10,
+        "command": "function lbc:other/imba/bad_apple/display_tick1 with storage lbc.math"
+      }
+    ],
+    "assignments": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/bad_apple/display_tick.mcfunction",
+        "line": 9,
+        "storage": "lbc.math",
+        "field": "b",
+        "value": "b",
+        "command": "data modify storage lbc.math b set value b"
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/bad_apple/end.mcfunction",
+        "line": 1,
+        "storage": "lbc.math",
+        "field": "b",
+        "value": "b",
+        "command": "data modify storage lbc.math b set value b"
+      }
+    ]
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/bad_apple/end1.mcfunction",
+    "line": 1,
+    "function": "lbc:other/imba/bad_apple/end1",
+    "command": "$$(b)adapple stop",
+    "roots": [
+      "$(b)adapple"
+    ],
+    "parameters": [
+      "b"
+    ],
+    "callers": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/bad_apple/end.mcfunction",
+        "line": 2,
+        "command": "function lbc:other/imba/bad_apple/end1 with storage lbc.math"
+      }
+    ],
+    "assignments": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/bad_apple/display_tick.mcfunction",
+        "line": 9,
+        "storage": "lbc.math",
+        "field": "b",
+        "value": "b",
+        "command": "data modify storage lbc.math b set value b"
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/bad_apple/end.mcfunction",
+        "line": 1,
+        "storage": "lbc.math",
+        "field": "b",
+        "value": "b",
+        "command": "data modify storage lbc.math b set value b"
+      }
+    ]
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/banhammer/ability_at.mcfunction",
+    "line": 40394,
+    "function": "lbc:items/swords/banhammer/ability_at",
+    "command": "$$(kick) @s \"был забанен Банхаммером\"",
+    "roots": [
+      "$(kick)"
+    ],
+    "parameters": [
+      "kick"
+    ],
+    "callers": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/banhammer/tick_fall_end.mcfunction",
+        "line": 3,
+        "command": "execute as @a[gamemode=!spectator,distance=..5.5] at @s if score #lbcskill swrg.math matches 1 unless score @s lbc.skill matches 12 run function lbc:items/swords/banhammer/ability_at with storage lbc.math"
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/banhammer/tick_fall_end.mcfunction",
+        "line": 4,
+        "command": "execute as @a[gamemode=!spectator,distance=..5.5] at @s unless score #lbcskill swrg.math matches 1 run function lbc:items/swords/banhammer/ability_at with storage lbc.math"
+      }
+    ],
+    "assignments": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/banhammer/tick_fall_end.mcfunction",
+        "line": 2,
+        "storage": "lbc.math",
+        "field": "kick",
+        "value": "kick",
+        "command": "data modify storage lbc.math kick set value kick"
+      }
+    ]
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/misc/huynya/click_m.mcfunction",
+    "line": 1,
+    "function": "lbc:items/misc/huynya/click_m",
+    "command": "$$(command)",
+    "roots": [
+      "$(command)"
+    ],
+    "parameters": [
+      "command"
+    ],
+    "callers": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/items/misc/huynya/click.mcfunction",
+        "line": 9,
+        "command": "execute if score @s x matches -16000..16000 if score @s z matches -16000..16000 positioned 0 160 0 run return run function lbc:items/misc/huynya/click_m with storage lbc.math"
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/items/misc/huynya/click.mcfunction",
+        "line": 10,
+        "command": "function lbc:items/misc/huynya/click_m with storage lbc.math"
+      }
+    ],
+    "assignments": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands/stonekivi/loop_sun_end.mcfunction",
+        "line": 1,
+        "storage": "lbc.math",
+        "field": "command",
+        "value": "\"magmify\"",
+        "command": "data modify storage lbc.math command set value \"magmify\""
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/items/misc/huynya/click.mcfunction",
+        "line": 4,
+        "storage": "lbc.math",
+        "field": "command",
+        "value": "rotatemap",
+        "command": "data modify storage lbc.math command set value rotatemap"
+      }
+    ]
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/antigravity/tick_10t_marker_at.mcfunction",
+    "line": 1,
+    "function": "lbc:drops/antigravity/tick_10t_marker_at",
+    "command": "$$(antigravity)",
+    "roots": [
+      "$(antigravity)"
+    ],
+    "parameters": [
+      "antigravity"
+    ],
+    "callers": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/antigravity/tick_10t_marker1.mcfunction",
+        "line": 4,
+        "command": "execute at @s run function lbc:drops/antigravity/tick_10t_marker_at with storage lbc.math"
+      }
+    ],
+    "assignments": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/antigravity/tick_10t_marker1.mcfunction",
+        "line": 3,
+        "storage": "lbc.math",
+        "field": "antigravity",
+        "value": "antigravity",
+        "command": "data modify storage lbc.math antigravity set value antigravity"
+      }
+    ]
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/end1.mcfunction",
+    "line": 1,
+    "function": "lbc:bedwars/game/end1",
+    "command": "$$(bedwars) stop",
+    "roots": [
+      "$(bedwars)"
+    ],
+    "parameters": [
+      "bedwars"
+    ],
+    "callers": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/only_end_resets.mcfunction",
+        "line": 5,
+        "command": "execute if score #gamemode swrg.math matches 3..4 run function lbc:bedwars/game/end1 with storage lbc.math"
+      }
+    ],
+    "assignments": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/only_end_resets.mcfunction",
+        "line": 4,
+        "storage": "lbc.math",
+        "field": "bedwars",
+        "value": "bedwars",
+        "command": "data modify storage lbc.math bedwars set value bedwars"
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/start.mcfunction",
+        "line": 15,
+        "storage": "lbc.math",
+        "field": "bedwars",
+        "value": "bedwars",
+        "command": "data modify storage lbc.math bedwars set value bedwars"
+      }
+    ]
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/start1.mcfunction",
+    "line": 1,
+    "function": "lbc:bedwars/game/start1",
+    "command": "$$(t)eaminit",
+    "roots": [
+      "$(t)eaminit"
+    ],
+    "parameters": [
+      "t"
+    ],
+    "callers": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/start.mcfunction",
+        "line": 16,
+        "command": "function lbc:bedwars/game/start1 with storage lbc.math"
+      }
+    ],
+    "assignments": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/start.mcfunction",
+        "line": 14,
+        "storage": "lbc.math",
+        "field": "t",
+        "value": "t",
+        "command": "data modify storage lbc.math t set value t"
+      }
+    ]
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/start1.mcfunction",
+    "line": 4,
+    "function": "lbc:bedwars/game/start1",
+    "command": "$$(bedwars) init",
+    "roots": [
+      "$(bedwars)"
+    ],
+    "parameters": [
+      "bedwars"
+    ],
+    "callers": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/start.mcfunction",
+        "line": 16,
+        "command": "function lbc:bedwars/game/start1 with storage lbc.math"
+      }
+    ],
+    "assignments": [
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/only_end_resets.mcfunction",
+        "line": 4,
+        "storage": "lbc.math",
+        "field": "bedwars",
+        "value": "bedwars",
+        "command": "data modify storage lbc.math bedwars set value bedwars"
+      },
+      {
+        "source": "world/datapacksdisabled/LBC/data/lbc/function/bedwars/game/start.mcfunction",
+        "line": 15,
+        "storage": "lbc.math",
+        "field": "bedwars",
+        "value": "bedwars",
+        "command": "data modify storage lbc.math bedwars set value bedwars"
+      }
+    ]
+  }
+]

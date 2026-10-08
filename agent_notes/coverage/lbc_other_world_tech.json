@@ -1,0 +1,1773 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/craft_white_wire.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/explode_wire.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/interacted_black.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/interacted_frame_at.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/interacted_green.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/interacted_red.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/interacted_white.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rc.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/spawn_blue_wire.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/spawn_cube.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/spawn_cube_save_coords.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/spawn_wire_black.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/tick_1s_player.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/tree_end.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/tree_end_1.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/tree_end_2.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/tree_end_3.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/tree_end_4.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/tree_end_all.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/tree_end_pre.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/tree_tick.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/tree_tick_move.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/tree_tick_move_macros.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/corrupter.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/corrupter_ray.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/corrupter_ray_end.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/nexus_compass.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click",
+    "status": "non_runtime",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/nexus_compass_2.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/nexus_compass_3.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/nexus_compass_4.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/roadgun.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/damage_area.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click / orb_gun",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/damage_area_rand_tentacle.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click / orb_gun",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/damage_area_rand_tentacle_2.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click / orb_gun",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/damage_area_rand_tentacle_2rc.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click / orb_gun",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/damage_at.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click / orb_gun",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/exp_remove_from_strg.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click / orb_gun",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/pre.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click / orb_gun",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/shoot.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click / orb_gun",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/shoot_cant.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click / orb_gun",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/shoot_rc.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click / orb_gun",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/susp_stews.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click / orb_gun",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/uncraft.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click / orb_gun",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/uncraft_at.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click / orb_gun",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/uncraft_f.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click / orb_gun",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/uncraft_f_2.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click / orb_gun",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/uncraft_f_3.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click / orb_gun",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/orb_gun/uncraft_f_loot_select.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / click / orb_gun",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/pulsar/pre.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "`lbc:other/nexus/click/pulsar/pre`",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/pulsar/ray.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "`lbc:other/nexus/click/pulsar/ray`",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/click/pulsar/ray_end.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "`lbc:other/nexus/click/pulsar/ray_end`",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/pulsar_end.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / rays",
+    "status": "non_runtime",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/pulsar_selector.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / rays",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/pulsar_tick.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / rays",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/pulsar_tick_black.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / rays",
+    "status": "non_runtime",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/pulsar_tick_final.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / rays",
+    "status": "non_runtime",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/pulsar_tick_final_2.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / rays",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/pulsar_tick_green.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / rays",
+    "status": "non_runtime",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/pulsar_tick_red.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / rays",
+    "status": "non_runtime",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/pulsar_tick_white.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / rays",
+    "status": "non_runtime",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/roadgun.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / rays",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/roadgun_2.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / rays",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/roadgun_end.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / rays",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/roadgun_sm_ray_2.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / rays",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/rays/sim_cube_t.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / rays",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/wires_other_worlds/black.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / wires_other_worlds",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/wires_other_worlds/black_at.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / wires_other_worlds",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/wires_other_worlds/black_at_pre.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / wires_other_worlds",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/wires_other_worlds/green.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / wires_other_worlds",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nexus/wires_other_worlds/red.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nexus / wires_other_worlds",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuke.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nuke",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuke1.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nuke",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuke1_at.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nuke",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuke1_at_bruh.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nuke",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuke1_at_bruh_2.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nuke",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuke1_bruh.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nuke",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuke1_old.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nuke",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuke_bruh.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nuke",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuke_eoe.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nuke",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuke_old.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nuke",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuket.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nuke",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuket_2.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nuke",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nuke/nuket_old.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / nuke",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/railroad/build_down.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / railroad",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/railroad/build_down_loop.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / railroad",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/railroad/build_straight.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / railroad",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/railroad/build_up.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / railroad",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/railroad/end.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / railroad",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/railroad/spawn.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / railroad",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/railroad/tick.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / railroad",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/railroad/tick_build.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / railroad",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/create_boss.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/test_create_boss.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/trade_arrows.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/trade_arrows_1.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/cyborg_boss/on_hit.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / cyborg_boss",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/cyborg_boss/run.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / cyborg_boss",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/cyborg_boss/setup.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / cyborg_boss",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/cyborg_boss/tick.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / cyborg_boss",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/cyborg_boss/wyvern.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / cyborg_boss",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/katana/attribute_from_storage.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / katana",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/katana/charge.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / katana",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/katana/charged.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / katana",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/katana/speed_based_change.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / katana",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/katana/speed_based_change_attr_strg.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / katana",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/katana/use.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / katana",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/ray/as_display.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / laser_minigun / ray",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/ray/cast.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / laser_minigun / ray",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/ray/check.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / laser_minigun / ray",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/ray/end.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / laser_minigun / ray",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/ray/hit.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / laser_minigun / ray",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/ray/hit_entity.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / laser_minigun / ray",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/ray/loop.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / laser_minigun / ray",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/ray/tp.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / laser_minigun / ray",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/ray/visual/run.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / laser_minigun / ray / visual",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/ray/visual/tick.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / laser_minigun / ray / visual",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/shoot/cast.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / laser_minigun / shoot",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/shoot/click.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / laser_minigun / shoot",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/shoot/full_rev.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / laser_minigun / shoot",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/shoot/rev_down.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / laser_minigun / shoot",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/shoot/run.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / laser_minigun / shoot",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/shoot/spin.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / laser_minigun / shoot",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/shoot/spin_sound.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / laser_minigun / shoot",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/laser_minigun/shoot/tick.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / laser_minigun / shoot",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/check_ammo.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/check_ammo_2.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/check_shift.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/check_shift_left.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/cooldown.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/cycle.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/cycle_left.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/uwu.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/acid/cast.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / acid",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/acid/check.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / acid",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/acid/hit_block.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / acid",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/acid/hit_entity.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / acid",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/acid/loop.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / acid",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/electric/cast.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / electric",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/electric/check.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / electric",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/electric/hit_block.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / electric",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/electric/hit_entity.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / electric",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/electric/loop.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / electric",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/explosive/cast.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / explosive",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/explosive/check.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / explosive",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/explosive/hit_block.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / explosive",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/explosive/hit_entity.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / explosive",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/explosive/loop.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / explosive",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/incendiary/cast.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / incendiary",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/incendiary/check.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / incendiary",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/incendiary/hit_block.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / incendiary",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/incendiary/hit_entity.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / incendiary",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/incendiary/loop.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / incendiary",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/standard/cast.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / standard",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/standard/check.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / standard",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/standard/hit_block.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / standard",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/standard/hit_entity.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / standard",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/standard/loop.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / standard",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/void/cast.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / void",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/void/check.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / void",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/void/hit_block.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / void",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/void/hit_entity.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / void",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/magnum/shoot/void/loop.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / magnum / shoot / void",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/supply_crate/land.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / supply_crate",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/supply_crate/open.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / supply_crate",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/supply_crate/run.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / supply_crate",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/supply_crate/tick.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / supply_crate",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/test_ray/as_display.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / test_ray",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/test_ray/check.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / test_ray",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/test_ray/click.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / test_ray",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/test_ray/end.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / test_ray",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/test_ray/hit.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / test_ray",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/test_ray/loop.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / test_ray",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/test_ray/tp.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / test_ray",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/test_ray/visual/run.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / test_ray / visual",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/techno/test_ray/visual/tick.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / techno / test_ray / visual",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/air/drop_as_item.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / create_wisp / air",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/air/run.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / create_wisp / air",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/air/spawn.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / create_wisp / air",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/fire/drop_as_item.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / create_wisp / fire",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/fire/run.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / create_wisp / fire",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/fire/spawn.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / create_wisp / fire",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/light/drop_as_item.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / create_wisp / light",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/light/run.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / create_wisp / light",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/light/spawn.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / create_wisp / light",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/nature/drop_as_item.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / create_wisp / nature",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/nature/run.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / create_wisp / nature",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/nature/spawn.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / create_wisp / nature",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/shadow/drop_as_item.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / create_wisp / shadow",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/shadow/run.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / create_wisp / shadow",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/shadow/spawn.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / create_wisp / shadow",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/water/drop_as_item.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / create_wisp / water",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/water/run.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / create_wisp / water",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/create_wisp/water/spawn.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / create_wisp / water",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/kill.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / delete_wisp",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/air/1.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / delete_wisp / air",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/air/all.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / delete_wisp / air",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/fire/1.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / delete_wisp / fire",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/fire/all.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / delete_wisp / fire",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/light/1.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / delete_wisp / light",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/light/all.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / delete_wisp / light",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/nature/1.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / delete_wisp / nature",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/nature/all.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / delete_wisp / nature",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/shadow/1.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / delete_wisp / shadow",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/shadow/all.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / delete_wisp / shadow",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/water/1.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / delete_wisp / water",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/delete_wisp/water/all.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / delete_wisp / water",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/tick.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/5_and_more.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / air",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/count.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / air",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/as_player/run.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / air / as_player",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/as_player/zap.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / air / as_player",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/as_display.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / air / zap",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/cast.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / air / zap",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/check.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / air / zap",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/end.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / air / zap",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/hit.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / air / zap",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/hit_entity.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / air / zap",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/loop.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / air / zap",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/run.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / air / zap",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/tp.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / air / zap",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/as_target/end.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / air / zap / as_target",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/as_target/run.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / air / zap / as_target",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/visual/run.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / air / zap / visual",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/air/zap/visual/tick.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / air / zap / visual",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/fire/5_and_more.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / fire",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/fire/5_and_more_2.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / fire",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/fire/count.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / fire",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/fire/particle.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / fire",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/light/count.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / light",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/light/remove_debuff.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / light",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/light/run.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / light",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/light/remove_debuff/1.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / light / remove_debuff",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/light/remove_debuff/2.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / light / remove_debuff",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/light/remove_debuff/3.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / light / remove_debuff",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/light/remove_debuff/4.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / light / remove_debuff",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/nature/5_and_more.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / nature",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/nature/count.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / nature",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/nature/give_buff.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / nature",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/nature/run.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / nature",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/shadow/check.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / shadow",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/shadow/consume_magic.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / shadow",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/shadow/consume_physical.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / shadow",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/shadow/count.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / shadow",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/shadow/tick.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / shadow",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/water/5_and_more.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / water",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/water/5_and_more_2.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / water",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/passive_effects/water/count.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / passive_effects / water",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/realign_wisps/assign_angle.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / realign_wisps",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/realign_wisps/count_wisps.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / realign_wisps",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/realign_wisps/start.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / realign_wisps",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/realign_wisps/teleport/angle.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / realign_wisps / teleport",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/realign_wisps/teleport/run.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / realign_wisps / teleport",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/wisp_book/realign_wisps/teleport/teleport.mcfunction",
+    "document": "agent_notes/lbc_other_world_tech.md",
+    "section": "Файлы: other / wisp_book / realign_wisps / teleport",
+    "status": "documented",
+    "note": "Manual semantic review against the source; see the linked section."
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "json_sources": 2874,
+  "errors": [
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/loot_table/reroll_9999/material_block.json",
+      "error": "Expecting value: line 1 column 1 (char 0)"
+    },
+    {
+      "source": "world/datapacksdisabled/swarogskywars/data/swrg/loot_table/locked_suffix_tournament.json",
+      "error": "Expecting value: line 1 column 1 (char 0)"
+    }
+  ]
+}

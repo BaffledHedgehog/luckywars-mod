@@ -1,0 +1,2053 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/afkartifact5t.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/bigjump.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/block_otverditel.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/colors.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/corrosion.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/damaged.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/explode.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/highspeed.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/kombojump.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/metabolism.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/noarrows.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/noarrows_old.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/noeffects1.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/noeffects1_old.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/nofluid.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/nofluid_old.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/nohp.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/nohp_old.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/nomagic.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/nomagic_old.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/notnt.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/notnt_old.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/ondamage.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/ondamage_old.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/reducecooldown.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/shield.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/smoke.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/speed.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/speedup.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/vampirism.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/weakall.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/when_jump.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/wolf.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/colors/black.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact / colors",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/colors/blue.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact / colors",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/colors/brown.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact / colors",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/colors/cyan.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact / colors",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/colors/gray.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact / colors",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/colors/green.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact / colors",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/colors/light_blue.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact / colors",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/colors/light_gray.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact / colors",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/colors/lime.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact / colors",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/colors/magenta.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact / colors",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/colors/orange.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact / colors",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/colors/pink.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact / colors",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/colors/purple.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact / colors",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/colors/red.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact / colors",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/colors/white.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact / colors",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/artifact/colors/yellow.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / artifact / colors",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/god_hedgehog/death_laser.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / god_hedgehog",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/god_hedgehog/hedgegod_eater_boom.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / god_hedgehog",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/god_hedgehog/hedgegod_eater_tick.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / god_hedgehog",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/god_hedgehog/hedgegod_eater_tick1.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / god_hedgehog",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/god_hedgehog/hedgegod_eater_tick2.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / god_hedgehog",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/god_hedgehog/hedgegod_eater_tick_size1.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / god_hedgehog",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/god_hedgehog/hedgegod_eater_tick_spawn_new.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / god_hedgehog",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/god_hedgehog/hedgegod_white_arrow_shoot.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / god_hedgehog",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/god_hedgehog/hedgegod_white_arrow_tick.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / god_hedgehog",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/god_hedgehog/laser_rc.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / god_hedgehog",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/god_hedgehog/spawn_dim_scrap.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / god_hedgehog",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/god_hedgehog/spawn_white_arrows.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / god_hedgehog",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/god_hedgehog/spawn_white_arrows1.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / god_hedgehog",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/god_hedgehog/spawn_white_arrows1at.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / god_hedgehog",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/god_hedgehog/spawn_white_arrows_form1.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / god_hedgehog",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/god_hedgehog/spawn_white_arrows_form2.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / god_hedgehog",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/god_hedgehog/spawn_white_arrows_form3.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / god_hedgehog",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/god_hedgehog/spawn_white_arrows_form4.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / god_hedgehog",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/god_hedgehog/tick.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / god_hedgehog",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/chain_lightning.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/chain_lightning_hit_at.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/chain_lightning_loop.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/chain_lightning_loop_at.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/chain_lightning_loop_end.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/chaos_hoe_rec.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/chaos_hoe_use.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/chaos_hoe_use_rc.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/chaos_hoe_use_rc_end.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/chaos_pic_use.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/chaos_pic_use_rc.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/chaos_sho_use.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/delta_ex_tick.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/dickcockgalactic.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/imbaxe_use.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/imbaxe_use_at.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/imbaxe_use_macro.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/midas_block.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/midas_block_entity.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/midas_block_entity_rec.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "non_runtime",
+    "note": "Проверен вспомогательный, не runtime-источник."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/midas_block_entity_rec_pre.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "non_runtime",
+    "note": "Проверен вспомогательный, не runtime-источник."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/most_spawn.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/most_tick.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/most_tick_column.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/most_tick_column_pre.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/most_tick_random_colon.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/most_tick_random_colon_2.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/most_tick_random_colon_select.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/most_tick_random_colon_select_2.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/most_tick_random_double_most_create.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/most_tick_random_double_most_create_2.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/most_tick_random_double_most_create_3.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/most_tick_random_double_most_create_loop.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/most_tick_random_double_most_create_loop_2.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/most_tick_random_double_most_create_loop_3.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/place_cum_slab.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/place_cum_slab_recur.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/place_cum_slab_spawn.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/time_stopped_lol.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/time_stopped_lol_mob.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/time_stopped_lol_player.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/time_stopped_lol_player_1.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/time_stopped_lol_player_tick.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/time_stopped_lol_player_tick_tp.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/time_stopped_lol_player_tick_tp_2.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/tmp.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/bad_apple/display_tick.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / bad_apple",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/bad_apple/display_tick1.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / bad_apple",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/bad_apple/display_tick_rand_rot.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / bad_apple",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/bad_apple/end.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / bad_apple",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/bad_apple/end1.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / bad_apple",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/bad_apple/item_tick.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / bad_apple",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/bad_apple/item_tick_spawn.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / bad_apple",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/bad_apple/players_second.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / bad_apple",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/bad_apple/spawn.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / bad_apple",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/blood_slab/place.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / blood_slab",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/blood_slab/place_recur.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / blood_slab",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/blood_slab/spawn.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / blood_slab",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/blood_slab/tick.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / blood_slab",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/blood_slab/tick_move.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / blood_slab",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/blood_slab/tick_random_mob_spawn.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / blood_slab",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cum_slab/afterdown.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cum_slab",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cum_slab/central.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cum_slab",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cum_slab/central_yes.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cum_slab",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cum_slab/down.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cum_slab",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cum_slab/down_yes.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cum_slab",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cum_slab/select.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cum_slab",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cast.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/correction_cunny.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/correction_cunny_uoh.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/correction_cunny_uoh_kanikani.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/correction_cunny_uoh_pasta_select.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/end.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/tick.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/tick1.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/0.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/1.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/10.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/11.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/12.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/13.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/14.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/15.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/16.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/17.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/18.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/19.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/2.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/20.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/21.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/3.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/3_grassifier.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/4.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/4_spawn_cunny.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/4_spawn_cunny_spawn.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/5.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/5_plapping.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/5_plapping_start.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/5_plapping_stop.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/6.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/6_move.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/6_seek.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/7.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/7_whip_create.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/8.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/8_ejaculation.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/9.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/9_platform.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/9_tp.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/cunnys/9_tp_at.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / cunnys",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/1.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/10.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/100.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/11.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/12.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/13.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/14.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/15.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/16.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/17.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/18.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/19.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/2.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/20.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/21.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/22.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/23.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/24.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/25.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/26.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/27.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/28.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/29.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/3.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/30.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/31.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/32.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/33.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/34.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/35.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/36.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/37.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/38.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/39.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/4.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/40.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/41.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/42.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/43.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/44.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/45.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/46.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/47.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/48.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/49.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/5.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/50.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/51.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/52.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/53.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/54.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/55.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/56.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/57.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/58.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/59.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/6.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/60.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/61.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/62.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/63.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/64.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/65.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/66.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/67.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/68.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/69.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/7.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/70.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/71.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/72.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/73.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/74.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/75.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/76.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/77.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/78.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/79.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/8.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/80.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/81.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/82.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/83.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/84.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/85.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/86.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/87.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/88.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/89.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/9.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/90.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/91.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/92.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/93.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/94.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/95.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/96.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/97.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/98.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/pasta/99.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / cunny_slab / pasta",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/runes/ansuz_cast.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / runes",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/runes/fehu_cast.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / runes",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/runes/fehu_cast_end.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / runes",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/runes/fehu_itemkiller.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / runes",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/runes/gifu_cast.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / runes",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/runes/gifu_cast_end.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / runes",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/runes/hagalaz_cast.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / runes",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/runes/kenaz_cast.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / runes",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/runes/nautiz_cast.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / runes",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/runes/raido_cast.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / runes",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/runes/thurisaz_cast.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / runes",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/runes/thurisaz_cast_others.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / runes",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/runes/thurisaz_gigant_tick.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / runes",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/runes/uruz_cast.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / runes",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/imba/runes/wunjo_cast.mcfunction",
+    "document": "agent_notes/lbc_other_imba.md",
+    "section": "Файлы: other / imba / runes",
+    "status": "documented",
+    "note": "Описано поведение по командам и условиям исходника."
+  }
+]

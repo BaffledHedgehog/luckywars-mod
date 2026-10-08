@@ -1,27 +1,24 @@
 {
-    "pools": [
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:comparator",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_name",
-                            "entity": "this",
-                            
-                            "name": {
-                                "nbt": "page0.s0.Name",
-                                "storage": "swrg:lang",
-                                "interpret": true,
-                                "source": "storage",
-                                "type": "nbt"
-                            }
-                        }
-                    ]
-                }
-            ]
+          "type": "minecraft:item",
+          "name": "minecraft:comparator",
+          "modifier": {
+            "entity": "this",
+            "name": {
+              "nbt": "page0.s0.Name",
+              "storage": "swrg:lang",
+              "interpret": true,
+              "source": "storage",
+              "type": "nbt"
+            },
+            "type": "minecraft:set_name"
+          }
         }
-    ]
+      ]
+    }
+  ]
 }

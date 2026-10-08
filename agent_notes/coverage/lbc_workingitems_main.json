@@ -1,0 +1,1899 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/aimbob_helmet.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Шлем AimBob",
+    "status": "documented",
+    "note": "Mechanism and called branch behavior checked from full source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ak47.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "AK47",
+    "status": "documented",
+    "note": "AK47 fire/impact/recoil branch and caller context checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ak47_block.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "AK47",
+    "status": "documented",
+    "note": "AK47 fire/impact/recoil branch and caller context checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ak47_entity.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "AK47",
+    "status": "documented",
+    "note": "AK47 fire/impact/recoil branch and caller context checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ak47_otdacha.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "AK47",
+    "status": "documented",
+    "note": "AK47 fire/impact/recoil branch and caller context checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ak47_otdacha_stalin.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "AK47",
+    "status": "documented",
+    "note": "AK47 fire/impact/recoil branch and caller context checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ak47_rec.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "AK47",
+    "status": "documented",
+    "note": "AK47 fire/impact/recoil branch and caller context checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/attackhelicopter.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Боевой вертолёт",
+    "status": "documented",
+    "note": "Mechanism and called branch behavior checked from full source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/attackhelicopter_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Боевой вертолёт",
+    "status": "documented",
+    "note": "Mechanism and called branch behavior checked from full source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/attackhelicopter_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Боевой вертолёт",
+    "status": "documented",
+    "note": "Mechanism and called branch behavior checked from full source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Прочие подтверждённые малые функции",
+    "status": "documented",
+    "note": "Механика и варианты сверены с полным файлом; общий предмет описан в русской секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/badwiki.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Badwiki: случайная палочка эффектов",
+    "status": "documented",
+    "note": "Все варианты броска/режима сведены в catalog JSON; gate, upgrade, tier, цена и ветви описаны по полным функциям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/badwiki_lib.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Badwiki: случайная палочка эффектов",
+    "status": "documented",
+    "note": "Все варианты броска/режима сведены в catalog JSON; gate, upgrade, tier, цена и ветви описаны по полным функциям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/badwiki_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Badwiki: случайная палочка эффектов",
+    "status": "documented",
+    "note": "Все варианты броска/режима сведены в catalog JSON; gate, upgrade, tier, цена и ветви описаны по полным функциям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/badwiki_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Badwiki: случайная палочка эффектов",
+    "status": "documented",
+    "note": "Все варианты броска/режима сведены в catalog JSON; gate, upgrade, tier, цена и ветви описаны по полным функциям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/badwiki_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Badwiki: случайная палочка эффектов",
+    "status": "documented",
+    "note": "Все варианты броска/режима сведены в catalog JSON; gate, upgrade, tier, цена и ветви описаны по полным функциям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/badwiki_upgraded_effect_change.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Badwiki: случайная палочка эффектов",
+    "status": "documented",
+    "note": "Все варианты броска/режима сведены в catalog JSON; gate, upgrade, tier, цена и ветви описаны по полным функциям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/badwiki_upgraded_effect_change_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Badwiki: случайная палочка эффектов",
+    "status": "documented",
+    "note": "Все варианты броска/режима сведены в catalog JSON; gate, upgrade, tier, цена и ветви описаны по полным функциям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/badwiki_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Badwiki: случайная палочка эффектов",
+    "status": "documented",
+    "note": "Все варианты броска/режима сведены в catalog JSON; gate, upgrade, tier, цена и ветви описаны по полным функциям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/badwiki_upgraded_pre_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Badwiki: случайная палочка эффектов",
+    "status": "documented",
+    "note": "Все варианты броска/режима сведены в catalog JSON; gate, upgrade, tier, цена и ветви описаны по полным функциям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/badwiki_upgraded_pre_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Badwiki: случайная палочка эффектов",
+    "status": "documented",
+    "note": "Все варианты броска/режима сведены в catalog JSON; gate, upgrade, tier, цена и ветви описаны по полным функциям."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Басовая палочка и ритм-комбо",
+    "status": "documented",
+    "note": "Random effects, timing state transitions, score reward, upgraded and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_combo.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Басовая палочка и ритм-комбо",
+    "status": "documented",
+    "note": "Random effects, timing state transitions, score reward, upgraded and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_combo_more.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Басовая палочка и ритм-комбо",
+    "status": "documented",
+    "note": "Random effects, timing state transitions, score reward, upgraded and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_combo_reset.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Басовая палочка и ритм-комбо",
+    "status": "documented",
+    "note": "Random effects, timing state transitions, score reward, upgraded and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_combo_second.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Басовая палочка и ритм-комбо",
+    "status": "documented",
+    "note": "Random effects, timing state transitions, score reward, upgraded and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_combo_start.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Басовая палочка и ритм-комбо",
+    "status": "documented",
+    "note": "Random effects, timing state transitions, score reward, upgraded and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_combo_succesful.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Басовая палочка и ритм-комбо",
+    "status": "documented",
+    "note": "Random effects, timing state transitions, score reward, upgraded and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_combo_succesful_damage.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Басовая палочка и ритм-комбо",
+    "status": "documented",
+    "note": "Random effects, timing state transitions, score reward, upgraded and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_combo_succesful_less.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Басовая палочка и ритм-комбо",
+    "status": "documented",
+    "note": "Random effects, timing state transitions, score reward, upgraded and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_combo_true.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Басовая палочка и ритм-комбо",
+    "status": "documented",
+    "note": "Random effects, timing state transitions, score reward, upgraded and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Басовая палочка и ритм-комбо",
+    "status": "documented",
+    "note": "Random effects, timing state transitions, score reward, upgraded and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Басовая палочка и ритм-комбо",
+    "status": "documented",
+    "note": "Random effects, timing state transitions, score reward, upgraded and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_upg_check.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Басовая палочка и ритм-комбо",
+    "status": "documented",
+    "note": "Random effects, timing state transitions, score reward, upgraded and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Басовая палочка и ритм-комбо",
+    "status": "documented",
+    "note": "Random effects, timing state transitions, score reward, upgraded and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Басовая палочка и ритм-комбо",
+    "status": "documented",
+    "note": "Random effects, timing state transitions, score reward, upgraded and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_upgraded_pre_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Басовая палочка и ритм-комбо",
+    "status": "documented",
+    "note": "Random effects, timing state transitions, score reward, upgraded and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_upgraded_pre_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Басовая палочка и ритм-комбо",
+    "status": "documented",
+    "note": "Random effects, timing state transitions, score reward, upgraded and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_upgraded_spelllib.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Басовая палочка и ритм-комбо",
+    "status": "documented",
+    "note": "Random effects, timing state transitions, score reward, upgraded and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/bloodmagic.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Кровавая магия",
+    "status": "documented",
+    "note": "Item action, mode/cost branches, and external hooks checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/bloodmagic_can_upgrade.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Кровавая магия",
+    "status": "documented",
+    "note": "Item action, mode/cost branches, and external hooks checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/bloodmagic_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Кровавая магия",
+    "status": "documented",
+    "note": "Item action, mode/cost branches, and external hooks checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/bloodmagic_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Кровавая магия",
+    "status": "documented",
+    "note": "Item action, mode/cost branches, and external hooks checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/bloodmagic_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Кровавая магия",
+    "status": "documented",
+    "note": "Item action, mode/cost branches, and external hooks checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/bloodmagic_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Кровавая магия",
+    "status": "documented",
+    "note": "Item action, mode/cost branches, and external hooks checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/coolsword.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Меч Cool Sword: случайные атаки",
+    "status": "documented",
+    "note": "Mechanism and called branch behavior checked from full source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/coolsword_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Меч Cool Sword: случайные атаки",
+    "status": "documented",
+    "note": "Mechanism and called branch behavior checked from full source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupter.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка порчи",
+    "status": "documented",
+    "note": "Item action, mode/cost branches, and external hooks checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupter_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка порчи",
+    "status": "documented",
+    "note": "Item action, mode/cost branches, and external hooks checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupter_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка порчи",
+    "status": "documented",
+    "note": "Item action, mode/cost branches, and external hooks checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupter_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка порчи",
+    "status": "documented",
+    "note": "Item action, mode/cost branches, and external hooks checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupter_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка порчи",
+    "status": "documented",
+    "note": "Item action, mode/cost branches, and external hooks checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupter_upgraded_pre_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка порчи",
+    "status": "documented",
+    "note": "Item action, mode/cost branches, and external hooks checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupter_upgraded_pre_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка порчи",
+    "status": "documented",
+    "note": "Item action, mode/cost branches, and external hooks checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupter_upgraded_spelllib.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка порчи",
+    "status": "documented",
+    "note": "Item action, mode/cost branches, and external hooks checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/cyberkatana.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Прочие подтверждённые малые функции",
+    "status": "documented",
+    "note": "Механика и варианты сверены с полным файлом; общий предмет описан в русской секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/cyberkatanaability.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Кибер-катана и заряд косы",
+    "status": "documented",
+    "note": "Mechanism and called branch behavior checked from full source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/death_skythe_kill.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Кибер-катана и заряд косы",
+    "status": "documented",
+    "note": "Mechanism and called branch behavior checked from full source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/devilsword.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Меч Дьявола: уровни Силы",
+    "status": "documented",
+    "note": "Mechanism and called branch behavior checked from full source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/divider.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Разделитель блоков",
+    "status": "documented",
+    "note": "Mechanism and called branch behavior checked from full source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/doublebow.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Двойной лук",
+    "status": "documented",
+    "note": "Mechanism and called branch behavior checked from full source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/doublebow_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Двойной лук",
+    "status": "documented",
+    "note": "Mechanism and called branch behavior checked from full source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/endcast.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Посох Эндера: телепортация",
+    "status": "documented",
+    "note": "Mechanism and called branch behavior checked from full source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/endcast_lib.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Посох Эндера: телепортация",
+    "status": "documented",
+    "note": "Mechanism and called branch behavior checked from full source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/endcast_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Посох Эндера: телепортация",
+    "status": "documented",
+    "note": "Mechanism and called branch behavior checked from full source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/endcast_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Посох Эндера: телепортация",
+    "status": "documented",
+    "note": "Mechanism and called branch behavior checked from full source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ender_whip_get_id.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Хлыст и меч Эндера",
+    "status": "documented",
+    "note": "Mechanism and called branch behavior checked from full source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ender_whip_teleport.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Хлыст и меч Эндера",
+    "status": "documented",
+    "note": "Mechanism and called branch behavior checked from full source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ender_whip_teleport_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Хлыст и меч Эндера",
+    "status": "documented",
+    "note": "Mechanism and called branch behavior checked from full source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/endersword.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Хлыст и меч Эндера",
+    "status": "documented",
+    "note": "Mechanism and called branch behavior checked from full source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/evokercast.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Посох заклинателя: формации клыков",
+    "status": "documented",
+    "note": "Three formations, target-position fanout, mode/cost and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/evokercast_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Посох заклинателя: формации клыков",
+    "status": "documented",
+    "note": "Three formations, target-position fanout, mode/cost and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/evokercast_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Посох заклинателя: формации клыков",
+    "status": "documented",
+    "note": "Three formations, target-position fanout, mode/cost and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/evokercast_pre_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Посох заклинателя: формации клыков",
+    "status": "documented",
+    "note": "Three formations, target-position fanout, mode/cost and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/evokercast_upg_check.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Посох заклинателя: формации клыков",
+    "status": "documented",
+    "note": "Three formations, target-position fanout, mode/cost and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/evokercast_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Посох заклинателя: формации клыков",
+    "status": "documented",
+    "note": "Three formations, target-position fanout, mode/cost and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/evokercast_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Посох заклинателя: формации клыков",
+    "status": "documented",
+    "note": "Three formations, target-position fanout, mode/cost and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/evokercast_upgraded_pre_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Посох заклинателя: формации клыков",
+    "status": "documented",
+    "note": "Three formations, target-position fanout, mode/cost and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/evokercast_upgraded_pre_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Посох заклинателя: формации клыков",
+    "status": "documented",
+    "note": "Three formations, target-position fanout, mode/cost and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/evokercast_upgraded_spelllib.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Посох заклинателя: формации клыков",
+    "status": "documented",
+    "note": "Three formations, target-position fanout, mode/cost and legacy differences checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/evolution.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Прочие подтверждённые малые функции",
+    "status": "documented",
+    "note": "Механика и варианты сверены с полным файлом; общий предмет описан в русской секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/evolutionpre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Прочие подтверждённые малые функции",
+    "status": "documented",
+    "note": "Механика и варианты сверены с полным файлом; общий предмет описан в русской секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exoperso.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Эксоперсо: наведение и взрыв",
+    "status": "documented",
+    "note": "Owner-linked ray lifecycle, mana/upgrade, collision, scheduled grant and rare branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exoperso2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Эксоперсо: наведение и взрыв",
+    "status": "documented",
+    "note": "Owner-linked ray lifecycle, mana/upgrade, collision, scheduled grant and rare branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exoperso2_upg.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Эксоперсо: наведение и взрыв",
+    "status": "documented",
+    "note": "Owner-linked ray lifecycle, mana/upgrade, collision, scheduled grant and rare branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exoperso4.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Эксоперсо: наведение и взрыв",
+    "status": "documented",
+    "note": "Owner-linked ray lifecycle, mana/upgrade, collision, scheduled grant and rare branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exoperso_check_upgrade.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Эксоперсо: наведение и взрыв",
+    "status": "documented",
+    "note": "Owner-linked ray lifecycle, mana/upgrade, collision, scheduled grant and rare branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exoperso_killed.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Эксоперсо: наведение и взрыв",
+    "status": "documented",
+    "note": "Owner-linked ray lifecycle, mana/upgrade, collision, scheduled grant and rare branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exoperso_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Эксоперсо: наведение и взрыв",
+    "status": "documented",
+    "note": "Owner-linked ray lifecycle, mana/upgrade, collision, scheduled grant and rare branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exoperso_removed.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Эксоперсо: наведение и взрыв",
+    "status": "documented",
+    "note": "Owner-linked ray lifecycle, mana/upgrade, collision, scheduled grant and rare branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exoperso_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Эксоперсо: наведение и взрыв",
+    "status": "documented",
+    "note": "Owner-linked ray lifecycle, mana/upgrade, collision, scheduled grant and rare branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exoperso_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Эксоперсо: наведение и взрыв",
+    "status": "documented",
+    "note": "Owner-linked ray lifecycle, mana/upgrade, collision, scheduled grant and rare branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exopersoexplode.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Эксоперсо: наведение и взрыв",
+    "status": "documented",
+    "note": "Owner-linked ray lifecycle, mana/upgrade, collision, scheduled grant and rare branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exopersoexplode1.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Эксоперсо: наведение и взрыв",
+    "status": "documented",
+    "note": "Owner-linked ray lifecycle, mana/upgrade, collision, scheduled grant and rare branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exopersoexplode_scheduled.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Эксоперсо: наведение и взрыв",
+    "status": "documented",
+    "note": "Owner-linked ray lifecycle, mana/upgrade, collision, scheduled grant and rare branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exopersoexplodeparticles.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Эксоперсо: наведение и взрыв",
+    "status": "documented",
+    "note": "Owner-linked ray lifecycle, mana/upgrade, collision, scheduled grant and rare branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exopersoexplodeparticles_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Эксоперсо: наведение и взрыв",
+    "status": "documented",
+    "note": "Owner-linked ray lifecycle, mana/upgrade, collision, scheduled grant and rare branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exopersoparticles.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Эксоперсо: наведение и взрыв",
+    "status": "documented",
+    "note": "Owner-linked ray lifecycle, mana/upgrade, collision, scheduled grant and rare branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exopersopre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Эксоперсо: наведение и взрыв",
+    "status": "documented",
+    "note": "Owner-linked ray lifecycle, mana/upgrade, collision, scheduled grant and rare branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exopersorc.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Эксоперсо: наведение и взрыв",
+    "status": "documented",
+    "note": "Owner-linked ray lifecycle, mana/upgrade, collision, scheduled grant and rare branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exopersorcall.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Эксоперсо: наведение и взрыв",
+    "status": "documented",
+    "note": "Owner-linked ray lifecycle, mana/upgrade, collision, scheduled grant and rare branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/falling_trollge.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Падающий тролль",
+    "status": "documented",
+    "note": "Projectile/event behavior and legacy/version branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/falling_trollge_shot.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Падающий тролль",
+    "status": "documented",
+    "note": "Projectile/event behavior and legacy/version branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fangs1.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Прочие подтверждённые малые функции",
+    "status": "documented",
+    "note": "Механика и варианты сверены с полным файлом; общий предмет описан в русской секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fangs2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Прочие подтверждённые малые функции",
+    "status": "documented",
+    "note": "Механика и варианты сверены с полным файлом; общий предмет описан в русской секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fangs3.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Прочие подтверждённые малые функции",
+    "status": "documented",
+    "note": "Механика и варианты сверены с полным файлом; общий предмет описан в русской секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fastbow.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Скоростной лук и миниган",
+    "status": "documented",
+    "note": "Projectile/event behavior and legacy/version branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fastbow_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Скоростной лук и миниган",
+    "status": "documented",
+    "note": "Projectile/event behavior and legacy/version branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fastfiredbow.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Арбалет Blaze и преобразование снаряда",
+    "status": "documented",
+    "note": "Projectile/event behavior and legacy/version branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fastfiredbow_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Арбалет Blaze и преобразование снаряда",
+    "status": "documented",
+    "note": "Projectile/event behavior and legacy/version branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fastghast.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Прочие подтверждённые малые функции",
+    "status": "documented",
+    "note": "Механика и варианты сверены с полным файлом; общий предмет описан в русской секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fastghast_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Прочие подтверждённые малые функции",
+    "status": "documented",
+    "note": "Механика и варианты сверены с полным файлом; общий предмет описан в русской секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/feather_greed.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Govno, Feather Greed и Feeding Sword",
+    "status": "documented",
+    "note": "Projectile/event behavior and legacy/version branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/feedingsword.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Govno, Feather Greed и Feeding Sword",
+    "status": "documented",
+    "note": "Projectile/event behavior and legacy/version branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fireworktnt.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Фейерверочный TNT-лук",
+    "status": "documented",
+    "note": "Projectile/event behavior and legacy/version branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fireworktnt_lol.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Фейерверочный TNT-лук",
+    "status": "documented",
+    "note": "Projectile/event behavior and legacy/version branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fireworktnt_more_tnt.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Фейерверочный TNT-лук",
+    "status": "documented",
+    "note": "Projectile/event behavior and legacy/version branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/foxuscast.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Посох Фокуса (Foxus)",
+    "status": "documented",
+    "note": "Механика и варианты сверены с полным файлом; общий предмет описан в русской секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/foxuscast_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Посох Фокуса (Foxus)",
+    "status": "documented",
+    "note": "Механика и варианты сверены с полным файлом; общий предмет описан в русской секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/foxuscast_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Посох Фокуса (Foxus)",
+    "status": "documented",
+    "note": "Механика и варианты сверены с полным файлом; общий предмет описан в русской секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/foxuscast_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Посох Фокуса (Foxus)",
+    "status": "documented",
+    "note": "Механика и варианты сверены с полным файлом; общий предмет описан в русской секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/foxuscast_upgraded_lib.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Посох Фокуса (Foxus)",
+    "status": "documented",
+    "note": "Механика и варианты сверены с полным файлом; общий предмет описан в русской секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/foxuscast_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Посох Фокуса (Foxus)",
+    "status": "documented",
+    "note": "Механика и варианты сверены с полным файлом; общий предмет описан в русской секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/foxuscast_upgraded_pre_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Посох Фокуса (Foxus)",
+    "status": "documented",
+    "note": "Механика и варианты сверены с полным файлом; общий предмет описан в русской секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/foxuscast_upgraded_pre_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Посох Фокуса (Foxus)",
+    "status": "documented",
+    "note": "Механика и варианты сверены с полным файлом; общий предмет описан в русской секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fragmentsword.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Fragment Sword и старая таблица Cool Sword",
+    "status": "documented",
+    "note": "Projectile/event behavior and legacy/version branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fragmentsword_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Fragment Sword и старая таблица Cool Sword",
+    "status": "documented",
+    "note": "Projectile/event behavior and legacy/version branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaara.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Песчаный амулет Gaara",
+    "status": "documented",
+    "note": "Russian behavior description covers trigger and branch semantics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaara1.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Песчаный амулет Gaara",
+    "status": "documented",
+    "note": "Russian behavior description covers trigger and branch semantics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaara1_1.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Песчаный амулет Gaara",
+    "status": "documented",
+    "note": "Russian behavior description covers trigger and branch semantics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaara1_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Песчаный амулет Gaara",
+    "status": "documented",
+    "note": "Russian behavior description covers trigger and branch semantics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaara1_3.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Песчаный амулет Gaara",
+    "status": "documented",
+    "note": "Russian behavior description covers trigger and branch semantics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaara1_31.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Песчаный амулет Gaara",
+    "status": "documented",
+    "note": "Russian behavior description covers trigger and branch semantics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaara1_32.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Песчаный амулет Gaara",
+    "status": "documented",
+    "note": "Russian behavior description covers trigger and branch semantics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaara1_321.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Песчаный амулет Gaara",
+    "status": "documented",
+    "note": "Russian behavior description covers trigger and branch semantics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaara1_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Песчаный амулет Gaara",
+    "status": "documented",
+    "note": "Russian behavior description covers trigger and branch semantics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/govno.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Govno, Feather Greed и Feeding Sword",
+    "status": "documented",
+    "note": "Projectile/event behavior and legacy/version branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/govno_default.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Govno, Feather Greed и Feeding Sword",
+    "status": "documented",
+    "note": "Projectile/event behavior and legacy/version branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/govno_govnomen.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Govno, Feather Greed и Feeding Sword",
+    "status": "documented",
+    "note": "Projectile/event behavior and legacy/version branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/govnoselect.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Govno, Feather Greed и Feeding Sword",
+    "status": "documented",
+    "note": "Projectile/event behavior and legacy/version branches checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gravitationsword.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Гравитационный меч, ледяные предметы и KFC",
+    "status": "documented",
+    "note": "Русское описание проверено по полному исходнику; вариации перечислены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gravitationsword_atmacro.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Гравитационный меч, ледяные предметы и KFC",
+    "status": "documented",
+    "note": "Русское описание проверено по полному исходнику; вариации перечислены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/handheld.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Гравитационный меч, ледяные предметы и KFC",
+    "status": "documented",
+    "note": "Русское описание проверено по полному исходнику; вариации перечислены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/iceshard.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Гравитационный меч, ледяные предметы и KFC",
+    "status": "documented",
+    "note": "Русское описание проверено по полному исходнику; вариации перечислены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/icesword.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Гравитационный меч, ледяные предметы и KFC",
+    "status": "documented",
+    "note": "Русское описание проверено по полному исходнику; вариации перечислены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/icesword_player.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Гравитационный меч, ледяные предметы и KFC",
+    "status": "documented",
+    "note": "Русское описание проверено по полному исходнику; вариации перечислены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/icesword_player_x5.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Гравитационный меч, ледяные предметы и KFC",
+    "status": "documented",
+    "note": "Русское описание проверено по полному исходнику; вариации перечислены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/kfc.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Гравитационный меч, ледяные предметы и KFC",
+    "status": "documented",
+    "note": "Русское описание проверено по полному исходнику; вариации перечислены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Похититель жизни",
+    "status": "documented",
+    "note": "Melee pulse, stand branches, mode2 ray, boolean selector result, heal and mana checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_adv.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Похититель жизни",
+    "status": "documented",
+    "note": "Melee pulse, stand branches, mode2 ray, boolean selector result, heal and mana checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_charge.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Похититель жизни",
+    "status": "documented",
+    "note": "Melee pulse, stand branches, mode2 ray, boolean selector result, heal and mana checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_no_stand.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Похититель жизни",
+    "status": "documented",
+    "note": "Melee pulse, stand branches, mode2 ray, boolean selector result, heal and mana checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Похититель жизни",
+    "status": "documented",
+    "note": "Melee pulse, stand branches, mode2 ray, boolean selector result, heal and mana checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Похититель жизни",
+    "status": "documented",
+    "note": "Melee pulse, stand branches, mode2 ray, boolean selector result, heal and mana checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_stand.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Похититель жизни",
+    "status": "documented",
+    "note": "Melee pulse, stand branches, mode2 ray, boolean selector result, heal and mana checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_stand_x2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Похититель жизни",
+    "status": "documented",
+    "note": "Melee pulse, stand branches, mode2 ray, boolean selector result, heal and mana checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Похититель жизни",
+    "status": "documented",
+    "note": "Melee pulse, stand branches, mode2 ray, boolean selector result, heal and mana checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_upgraded_mode_1.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Похититель жизни",
+    "status": "documented",
+    "note": "Melee pulse, stand branches, mode2 ray, boolean selector result, heal and mana checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_upgraded_mode_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Похититель жизни",
+    "status": "documented",
+    "note": "Melee pulse, stand branches, mode2 ray, boolean selector result, heal and mana checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Похититель жизни",
+    "status": "documented",
+    "note": "Melee pulse, stand branches, mode2 ray, boolean selector result, heal and mana checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_upgraded_pre_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Похититель жизни",
+    "status": "documented",
+    "note": "Melee pulse, stand branches, mode2 ray, boolean selector result, heal and mana checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_upgraded_pre_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Палочка Похититель жизни",
+    "status": "documented",
+    "note": "Melee pulse, stand branches, mode2 ray, boolean selector result, heal and mana checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/magnet.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Обувь, притяжение вещей и Mortis",
+    "status": "documented",
+    "note": "Русское описание механики и условий вызова сверено с полным исходником и вызывающим контекстом."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/mobgun.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Пушка мобов",
+    "status": "documented",
+    "note": "Русское описание функции включено в механику семейства и связано с вызывающей веткой."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/mobgun_random_lingering_potion.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Пушка мобов",
+    "status": "documented",
+    "note": "Русское описание функции включено в механику семейства и связано с вызывающей веткой."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/moisei_boots_tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Обувь, притяжение вещей и Mortis",
+    "status": "documented",
+    "note": "Русское описание механики и условий вызова сверено с полным исходником и вызывающим контекстом."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/moisei_boots_tick_explode.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Обувь, притяжение вещей и Mortis",
+    "status": "documented",
+    "note": "Русское описание механики и условий вызова сверено с полным исходником и вызывающим контекстом."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/moisei_boots_tick_place.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Обувь, притяжение вещей и Mortis",
+    "status": "documented",
+    "note": "Русское описание механики и условий вызова сверено с полным исходником и вызывающим контекстом."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/mortis.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Обувь, притяжение вещей и Mortis",
+    "status": "documented",
+    "note": "Русское описание механики и условий вызова сверено с полным исходником и вызывающим контекстом."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/mortisrc.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Обувь, притяжение вещей и Mortis",
+    "status": "documented",
+    "note": "Русское описание механики и условий вызова сверено с полным исходником и вызывающим контекстом."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/nitroboots.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Обувь, притяжение вещей и Mortis",
+    "status": "documented",
+    "note": "Русское описание механики и условий вызова сверено с полным исходником и вызывающим контекстом."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/nyaaahuwuuw.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Командные лечащие существа и предметы-пенисы",
+    "status": "documented",
+    "note": "Русское описание проверено по полному исходнику; вариации перечислены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/nyaaahuwuuw_healing.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Командные лечащие существа и предметы-пенисы",
+    "status": "documented",
+    "note": "Русское описание проверено по полному исходнику; вариации перечислены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/omegaflag.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Флаг Омеги и телепортация домой",
+    "status": "documented",
+    "note": "Русское описание механики и условий вызова сверено с полным исходником и вызывающим контекстом."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/omegaflag_particles.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Флаг Омеги и телепортация домой",
+    "status": "documented",
+    "note": "Русское описание функции включено в механику семейства и связано с вызывающей веткой."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/omegaflag_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Флаг Омеги и телепортация домой",
+    "status": "documented",
+    "note": "Русское описание функции включено в механику семейства и связано с вызывающей веткой."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/omegaflag_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Флаг Омеги и телепортация домой",
+    "status": "documented",
+    "note": "Русское описание функции включено в механику семейства и связано с вызывающей веткой."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/omegaflag_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Флаг Омеги и телепортация домой",
+    "status": "documented",
+    "note": "Русское описание функции включено в механику семейства и связано с вызывающей веткой."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/one_punch_get_damage.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Перчатка одного удара",
+    "status": "documented",
+    "note": "Русское описание механики и условий вызова сверено с полным исходником и вызывающим контекстом."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/penis_mob.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Командные лечащие существа и предметы-пенисы",
+    "status": "documented",
+    "note": "Русское описание проверено по полному исходнику; вариации перечислены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/penispenispenis.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Командные лечащие существа и предметы-пенисы",
+    "status": "documented",
+    "note": "Русское описание проверено по полному исходнику; вариации перечислены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/penispenispenis_random_penis_big_penis_small_penispenis.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Командные лечащие существа и предметы-пенисы",
+    "status": "documented",
+    "note": "Русское описание проверено по полному исходнику; вариации перечислены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/penispenispenis_random_penis_big_penis_small_penispenis_only_spawn.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Командные лечащие существа и предметы-пенисы",
+    "status": "documented",
+    "note": "Русское описание проверено по полному исходнику; вариации перечислены."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/penispenispenis_random_penis_big_penis_small_penispenis_penis_raycastpenis_penispenispenis.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Razor Pine и предметные снаряды",
+    "status": "documented",
+    "note": "Проверены механика, условия caller и числовые варианты; русское описание в соответствующей секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/penispenispenis_random_penis_big_penis_small_penispenis_penis_raycastpenis_penispenispenis_norc.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Razor Pine и предметные снаряды",
+    "status": "documented",
+    "note": "Проверены механика, условия caller и числовые варианты; русское описание в соответствующей секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantom.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Popit, платформа спасения и Ghost (phantom)",
+    "status": "documented",
+    "note": "Проверены механика, условия caller и числовые варианты; русское описание в соответствующей секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/platform.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Popit, платформа спасения и Ghost (phantom)",
+    "status": "documented",
+    "note": "Проверены механика, условия caller и числовые варианты; русское описание в соответствующей секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/popit.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Popit, платформа спасения и Ghost (phantom)",
+    "status": "documented",
+    "note": "Проверены механика, условия caller и числовые варианты; русское описание в соответствующей секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/popit_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Popit, платформа спасения и Ghost (phantom)",
+    "status": "documented",
+    "note": "Проверены механика, условия caller и числовые варианты; русское описание в соответствующей секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/psychowand.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Психо-палочка",
+    "status": "documented",
+    "note": "Six random branches/mode table, score status ticks, resource and low-HP conversion checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/psychowand_check_hp.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Психо-палочка",
+    "status": "documented",
+    "note": "Six random branches/mode table, score status ticks, resource and low-HP conversion checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/psychowand_check_hp_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Психо-палочка",
+    "status": "documented",
+    "note": "Six random branches/mode table, score status ticks, resource and low-HP conversion checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/psychowand_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Психо-палочка",
+    "status": "documented",
+    "note": "Six random branches/mode table, score status ticks, resource and low-HP conversion checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/psychowand_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Психо-палочка",
+    "status": "documented",
+    "note": "Six random branches/mode table, score status ticks, resource and low-HP conversion checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/psychowand_upgraded_lib.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Психо-палочка",
+    "status": "documented",
+    "note": "Six random branches/mode table, score status ticks, resource and low-HP conversion checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/psychowand_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Психо-палочка",
+    "status": "documented",
+    "note": "Six random branches/mode table, score status ticks, resource and low-HP conversion checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/psychowand_upgraded_pre2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Психо-палочка",
+    "status": "documented",
+    "note": "Six random branches/mode table, score status ticks, resource and low-HP conversion checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/psychowand_upgraded_pre_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Психо-палочка",
+    "status": "documented",
+    "note": "Six random branches/mode table, score status ticks, resource and low-HP conversion checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/railgun_bow.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Railgun Bow",
+    "status": "documented",
+    "note": "Проверены механика, условия caller и числовые варианты; русское описание в соответствующей секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/railgun_bow_effect_store.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Railgun Bow",
+    "status": "documented",
+    "note": "Проверены механика, условия caller и числовые варианты; русское описание в соответствующей секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/railgun_bow_effect_store_glackmojumba.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Railgun Bow",
+    "status": "documented",
+    "note": "Проверены механика, условия caller и числовые варианты; русское описание в соответствующей секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/random_spell.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Нестабильная книга заклинаний",
+    "status": "documented",
+    "note": "55 equal outcomes, unlock metadata, selected modes, nested 242 dispatch/reroll probability and empty result checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/random_spell_check.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Нестабильная книга заклинаний",
+    "status": "documented",
+    "note": "55 equal outcomes, unlock metadata, selected modes, nested 242 dispatch/reroll probability and empty result checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/random_spell_lib.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Нестабильная книга заклинаний",
+    "status": "documented",
+    "note": "55 equal outcomes, unlock metadata, selected modes, nested 242 dispatch/reroll probability and empty result checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/random_spell_lol.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Нестабильная книга заклинаний",
+    "status": "documented",
+    "note": "55 equal outcomes, unlock metadata, selected modes, nested 242 dispatch/reroll probability and empty result checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/random_spell_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Нестабильная книга заклинаний",
+    "status": "documented",
+    "note": "55 equal outcomes, unlock metadata, selected modes, nested 242 dispatch/reroll probability and empty result checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/random_spell_upgraded_change.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Нестабильная книга заклинаний",
+    "status": "documented",
+    "note": "55 equal outcomes, unlock metadata, selected modes, nested 242 dispatch/reroll probability and empty result checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/random_spell_upgraded_change_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Нестабильная книга заклинаний",
+    "status": "documented",
+    "note": "55 equal outcomes, unlock metadata, selected modes, nested 242 dispatch/reroll probability and empty result checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/random_spell_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Нестабильная книга заклинаний",
+    "status": "documented",
+    "note": "55 equal outcomes, unlock metadata, selected modes, nested 242 dispatch/reroll probability and empty result checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/random_spell_upgraded_pre_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Нестабильная книга заклинаний",
+    "status": "documented",
+    "note": "55 equal outcomes, unlock metadata, selected modes, nested 242 dispatch/reroll probability and empty result checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/razorpine.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Razor Pine и предметные снаряды",
+    "status": "documented",
+    "note": "Проверены механика, условия caller и числовые варианты; русское описание в соответствующей секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/razorpine2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Razor Pine и предметные снаряды",
+    "status": "documented",
+    "note": "Проверены механика, условия caller и числовые варианты; русское описание в соответствующей секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/razorpine_ammo_check.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Razor Pine и предметные снаряды",
+    "status": "documented",
+    "note": "Проверены механика, условия caller и числовые варианты; русское описание в соответствующей секции."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/reactive0.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Лук shish и реактивные аксессуары",
+    "status": "documented",
+    "note": "Russian mechanics section describes trigger, effects, limits, and dormant macro boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/reactive_shish.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Лук shish и реактивные аксессуары",
+    "status": "documented",
+    "note": "Russian mechanics section describes trigger, effects, limits, and dormant macro boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/reactive_shish_particles.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Лук shish и реактивные аксессуары",
+    "status": "documented",
+    "note": "Russian mechanics section describes trigger, effects, limits, and dormant macro boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/regeneration_belt.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Лук shish и реактивные аксессуары",
+    "status": "documented",
+    "note": "Russian mechanics section describes trigger, effects, limits, and dormant macro boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/regeneration_belt_rec.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Лук shish и реактивные аксессуары",
+    "status": "documented",
+    "note": "Russian mechanics section describes trigger, effects, limits, and dormant macro boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/regeneration_belt_rec_small.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Лук shish и реактивные аксессуары",
+    "status": "documented",
+    "note": "Russian mechanics section describes trigger, effects, limits, and dormant macro boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/seaguardian.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Страж моря, Shulker и TNT",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/seaguardian_1.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Страж моря, Shulker и TNT",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/seaguardian_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Страж моря, Shulker и TNT",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shish_bow.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Лук shish и реактивные аксессуары",
+    "status": "documented",
+    "note": "Russian mechanics section describes trigger, effects, limits, and dormant macro boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shish_bow_charging.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Лук shish и реактивные аксессуары",
+    "status": "documented",
+    "note": "Russian mechanics section describes trigger, effects, limits, and dormant macro boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shish_bow_charging_particle.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Лук shish и реактивные аксессуары",
+    "status": "documented",
+    "note": "Russian mechanics section describes trigger, effects, limits, and dormant macro boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shish_bow_charging_particle_full.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Лук shish и реактивные аксессуары",
+    "status": "documented",
+    "note": "Russian mechanics section describes trigger, effects, limits, and dormant macro boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shit_katana.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Катаны Shit и Vex",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, resources, target volumes, and outside handlers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shit_katana_gownomen.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Катаны Shit и Vex",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, resources, target volumes, and outside handlers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shit_katana_rc_getid.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Катаны Shit и Vex",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, resources, target volumes, and outside handlers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shit_katana_rc_getid_ulta.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Катаны Shit и Vex",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, resources, target volumes, and outside handlers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shit_ulta.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Катаны Shit и Vex",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, resources, target volumes, and outside handlers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shulkerbow.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Страж моря, Shulker и TNT",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shulkerbow_new.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Страж моря, Shulker и TNT",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shulkershell.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Страж моря, Shulker и TNT",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/spell.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Входы заклинаний и призыватель",
+    "status": "documented",
+    "note": "Функция и её вызывающие условия разобраны; полная таблица диспетчера и призывов в русском разделе/каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/spell1.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Входы заклинаний и призыватель",
+    "status": "documented",
+    "note": "Функция и её вызывающие условия разобраны; полная таблица диспетчера и призывов в русском разделе/каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/spell1_default.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Входы заклинаний и призыватель",
+    "status": "documented",
+    "note": "Функция и её вызывающие условия разобраны; полная таблица диспетчера и призывов в русском разделе/каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/spell1_default_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Входы заклинаний и призыватель",
+    "status": "documented",
+    "note": "Функция и её вызывающие условия разобраны; полная таблица диспетчера и призывов в русском разделе/каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/spell1_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Входы заклинаний и призыватель",
+    "status": "documented",
+    "note": "Функция и её вызывающие условия разобраны; полная таблица диспетчера и призывов в русском разделе/каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/spell1_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Входы заклинаний и призыватель",
+    "status": "documented",
+    "note": "Функция и её вызывающие условия разобраны; полная таблица диспетчера и призывов в русском разделе/каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/spell1_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Входы заклинаний и призыватель",
+    "status": "documented",
+    "note": "Функция и её вызывающие условия разобраны; полная таблица диспетчера и призывов в русском разделе/каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/spell_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Входы заклинаний и призыватель",
+    "status": "documented",
+    "note": "Функция и её вызывающие условия разобраны; полная таблица диспетчера и призывов в русском разделе/каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/spellsummoner.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Входы заклинаний и призыватель",
+    "status": "documented",
+    "note": "Функция и её вызывающие условия разобраны; полная таблица диспетчера и призывов в русском разделе/каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/spellsummoner_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Входы заклинаний и призыватель",
+    "status": "documented",
+    "note": "Функция и её вызывающие условия разобраны; полная таблица диспетчера и призывов в русском разделе/каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/supernovacore.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Supernova и глобальный переход в новую игру",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/supernovacore_checkpos.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Supernova и глобальный переход в новую игру",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/supernovacore_newworld.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Supernova и глобальный переход в новую игру",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/supernovacore_newworld_clonestop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Supernova и глобальный переход в новую игру",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/supernovacore_newworld_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Supernova и глобальный переход в новую игру",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/teleporthome.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Флаг Омеги и телепортация домой",
+    "status": "documented",
+    "note": "Русское описание механики и условий вызова сверено с полным исходником и вызывающим контекстом."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/teleporthome_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Флаг Омеги и телепортация домой",
+    "status": "documented",
+    "note": "Русское описание функции включено в механику семейства и связано с вызывающей веткой."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/terrasword.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Входы заклинаний и призыватель",
+    "status": "documented",
+    "note": "Функция и её вызывающие условия разобраны; полная таблица диспетчера и призывов в русском разделе/каталоге."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/tntbow.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Страж моря, Shulker и TNT",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/tntbow1.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Страж моря, Shulker и TNT",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/tntjump.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Страж моря, Shulker и TNT",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/vex_ulta.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Катаны Shit и Vex",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, resources, target volumes, and outside handlers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/vexsword.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Катаны Shit и Vex",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, resources, target volumes, and outside handlers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/vexsword_arrowl.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Катаны Shit и Vex",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, resources, target volumes, and outside handlers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/vexsword_arrowr.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Катаны Shit и Vex",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, resources, target volumes, and outside handlers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/vexsword_ulta.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Катаны Shit и Vex",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, resources, target volumes, and outside handlers."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/wyvern.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Страж моря, Shulker и TNT",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/yellow_bolt.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Жёлтый bolt и эффект yellow lightning",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/yellow_bolt_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Жёлтый bolt и эффект yellow lightning",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/yellow_bolt_spinning.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Жёлтый bolt и эффект yellow lightning",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/yellow_lightning.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Жёлтый bolt и эффект yellow lightning",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/yellow_lightning_asplayer.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Жёлтый bolt и эффект yellow lightning",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/yellow_lightning_ball.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Жёлтый bolt и эффект yellow lightning",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/yellow_lightning_ball_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Жёлтый bolt и эффект yellow lightning",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/yellow_lightning_hit.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Жёлтый bolt и эффект yellow lightning",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/yellow_lightning_hit_at.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Жёлтый bolt и эффект yellow lightning",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/yellow_lightning_sel.mcfunction",
+    "document": "agent_notes/lbc_workingitems_main.md",
+    "section": "Жёлтый bolt и эффект yellow lightning",
+    "status": "documented",
+    "note": "Russian mechanics section covers triggers, effects, geometry, and external boundaries."
+  }
+]

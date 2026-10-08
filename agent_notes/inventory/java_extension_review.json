@@ -1,0 +1,38 @@
+{
+  "source_root": "E:/servers_mew/cringe1_21_4_skywars",
+  "inventoried_source_count": 101,
+  "reviewed_inventoried_source_count": 101,
+  "reviewed_unique_source_count": 109,
+  "inventoried_sources_missing_review": [],
+  "additional_reviewed_sources": [
+    "e:/servers_mew/cringe1_21_4_skywars/mods/luckywarsignite/build-logic/settings.gradle.kts",
+    "e:/servers_mew/cringe1_21_4_skywars/mods/luckywarsignite/build-logic/src/main/kotlin/mod.base-conventions.gradle.kts",
+    "e:/servers_mew/cringe1_21_4_skywars/mods/luckywarsignite/gradle/libs.versions.toml",
+    "e:/servers_mew/cringe1_21_4_skywars/mods/luckywarsignite/settings.gradle.kts",
+    "e:/servers_mew/cringe1_21_4_skywars/world/datapacksdisabled/lbc/data/lbc/loot_table/malevich_rnd.json",
+    "e:/servers_mew/cringe1_21_4_skywars/world/datapacksdisabled/lbc/data/lbc/loot_table/metal_pipe.json",
+    "e:/servers_mew/cringe1_21_4_skywars/world/datapacksdisabled/lbc/data/lbc/loot_table/nexus_item_green.json",
+    "e:/servers_mew/cringe1_21_4_skywars/world/datapacksdisabled/lbc/data/lbc/loot_table/sauvojen_tuntija_terra.json"
+  ],
+  "reviews": [
+    {
+      "manifest": "plugin_commands_review.json",
+      "reviewed_file_count": 23,
+      "document": "COMMAND_IMPLEMENTATIONS.md"
+    },
+    {
+      "manifest": "plugin_items_review.json",
+      "reviewed_file_count": 69,
+      "document": "PLUGIN_ITEMS_AND_HOOKS.md"
+    },
+    {
+      "manifest": "plugin_runtime_review.json",
+      "reviewed_file_count": 31,
+      "document": "NATIVE_RUNTIME_OVERVIEW.md"
+    }
+  ],
+  "documents_changed_since_review": [],
+  "error_count": 0,
+  "errors": [],
+  "scope": "Manifest membership and current SHA only. Review records are source-level findings; neither semantic completeness nor live runtime is validated."
+}

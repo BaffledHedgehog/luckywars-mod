@@ -1,26 +1,24 @@
 {
-    "pools": [
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:iron_bars",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_name",
-                            "entity": "this",
-                            "name": {
-                                "nbt": "page7000.s14.Name",
-                                "storage": "swrg:lang",
-                                "interpret": true,
-                                "source": "storage",
-                                "type": "nbt"
-                            }
-                        }
-                    ]
-                }
-            ]
+          "type": "minecraft:item",
+          "name": "minecraft:iron_bars",
+          "modifier": {
+            "entity": "this",
+            "name": {
+              "nbt": "page7000.s14.Name",
+              "storage": "swrg:lang",
+              "interpret": true,
+              "source": "storage",
+              "type": "nbt"
+            },
+            "type": "minecraft:set_name"
+          }
         }
-    ]
+      ]
+    }
+  ]
 }

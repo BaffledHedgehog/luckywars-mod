@@ -1,0 +1,142 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast/destroy.mcfunction",
+    "document": "agent_notes/lbc_raycast.md",
+    "section": "`destroy`",
+    "status": "documented",
+    "note": "Manual review of all commands, lifetime scheduling, owner boundaries and void variants; downstream hit contracts remain in thematic docs."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast/sauvojen_acid.mcfunction",
+    "document": "agent_notes/lbc_raycast.md",
+    "section": "`sauvojen_acid`",
+    "status": "documented",
+    "note": "Manual review of all commands, lifetime scheduling, owner boundaries and void variants; downstream hit contracts remain in thematic docs."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast/sauvojen_air.mcfunction",
+    "document": "agent_notes/lbc_raycast.md",
+    "section": "`sauvojen_air`",
+    "status": "documented",
+    "note": "Manual review of all commands, lifetime scheduling, owner boundaries and void variants; downstream hit contracts remain in thematic docs."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast/sauvojen_blind.mcfunction",
+    "document": "agent_notes/lbc_raycast.md",
+    "section": "`sauvojen_blind`",
+    "status": "documented",
+    "note": "Manual review of all commands, lifetime scheduling, owner boundaries and void variants; downstream hit contracts remain in thematic docs."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast/sauvojen_electro.mcfunction",
+    "document": "agent_notes/lbc_raycast.md",
+    "section": "`sauvojen_electro`",
+    "status": "documented",
+    "note": "Manual review of all commands, lifetime scheduling, owner boundaries and void variants; downstream hit contracts remain in thematic docs."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast/sauvojen_fire.mcfunction",
+    "document": "agent_notes/lbc_raycast.md",
+    "section": "`sauvojen_fire`",
+    "status": "documented",
+    "note": "Manual review of all commands, lifetime scheduling, owner boundaries and void variants; downstream hit contracts remain in thematic docs."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast/sauvojen_ruby.mcfunction",
+    "document": "agent_notes/lbc_raycast.md",
+    "section": "`sauvojen_ruby`",
+    "status": "documented",
+    "note": "Manual review of all commands, lifetime scheduling, owner boundaries and void variants; downstream hit contracts remain in thematic docs."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast/sauvojen_stone.mcfunction",
+    "document": "agent_notes/lbc_raycast.md",
+    "section": "`sauvojen_stone`",
+    "status": "documented",
+    "note": "Manual review of all commands, lifetime scheduling, owner boundaries and void variants; downstream hit contracts remain in thematic docs."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast/sauvojen_teleport.mcfunction",
+    "document": "agent_notes/lbc_raycast.md",
+    "section": "`sauvojen_teleport`",
+    "status": "documented",
+    "note": "Manual review of all commands, lifetime scheduling, owner boundaries and void variants; downstream hit contracts remain in thematic docs."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast/sauvojen_terra.mcfunction",
+    "document": "agent_notes/lbc_raycast.md",
+    "section": "`sauvojen_terra`",
+    "status": "documented",
+    "note": "Manual review of all commands, lifetime scheduling, owner boundaries and void variants; downstream hit contracts remain in thematic docs."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast/select10t.mcfunction",
+    "document": "agent_notes/lbc_raycast.md",
+    "section": "`select10t`",
+    "status": "documented",
+    "note": "Manual review of all commands, lifetime scheduling, owner boundaries and void variants; downstream hit contracts remain in thematic docs."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast/select1s.mcfunction",
+    "document": "agent_notes/lbc_raycast.md",
+    "section": "`select1s`",
+    "status": "documented",
+    "note": "Manual review of all commands, lifetime scheduling, owner boundaries and void variants; downstream hit contracts remain in thematic docs."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast/select3s.mcfunction",
+    "document": "agent_notes/lbc_raycast.md",
+    "section": "`select3s`",
+    "status": "documented",
+    "note": "Manual review of all commands, lifetime scheduling, owner boundaries and void variants; downstream hit contracts remain in thematic docs."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast/select4s.mcfunction",
+    "document": "agent_notes/lbc_raycast.md",
+    "section": "`select4s`",
+    "status": "documented",
+    "note": "Manual review of all commands, lifetime scheduling, owner boundaries and void variants; downstream hit contracts remain in thematic docs."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast/voidcurse.mcfunction",
+    "document": "agent_notes/lbc_raycast.md",
+    "section": "`voidcurse`",
+    "status": "documented",
+    "note": "Manual review of all commands, lifetime scheduling, owner boundaries and void variants; downstream hit contracts remain in thematic docs."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast/voidcursed1.mcfunction",
+    "document": "agent_notes/lbc_raycast.md",
+    "section": "`voidcursed1`",
+    "status": "documented",
+    "note": "Manual review of all commands, lifetime scheduling, owner boundaries and void variants; downstream hit contracts remain in thematic docs."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast/voidcursed2.mcfunction",
+    "document": "agent_notes/lbc_raycast.md",
+    "section": "`voidcursed2`",
+    "status": "documented",
+    "note": "Manual review of all commands, lifetime scheduling, owner boundaries and void variants; downstream hit contracts remain in thematic docs."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast/voidcursed3.mcfunction",
+    "document": "agent_notes/lbc_raycast.md",
+    "section": "`voidcursed3`",
+    "status": "documented",
+    "note": "Manual review of all commands, lifetime scheduling, owner boundaries and void variants; downstream hit contracts remain in thematic docs."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast/voidcursed4.mcfunction",
+    "document": "agent_notes/lbc_raycast.md",
+    "section": "`voidcursed4`",
+    "status": "documented",
+    "note": "Manual review of all commands, lifetime scheduling, owner boundaries and void variants; downstream hit contracts remain in thematic docs."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast/voidcursed5.mcfunction",
+    "document": "agent_notes/lbc_raycast.md",
+    "section": "`voidcursed5`",
+    "status": "documented",
+    "note": "Manual review of all commands, lifetime scheduling, owner boundaries and void variants; downstream hit contracts remain in thematic docs."
+  }
+]

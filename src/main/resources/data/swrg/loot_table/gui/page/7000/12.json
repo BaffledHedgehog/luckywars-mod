@@ -1,32 +1,32 @@
 {
-    "pools": [
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:music_disc_11",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:jukebox_playable": "11"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "entity": "this",
-                            "name": {
-                                "nbt": "page7000.s12.Name",
-                                "storage": "swrg:lang",
-                                "interpret": true,
-                                "source": "storage",
-                                "type": "nbt"
-                            }
-                        }
-                    ]
-                }
-            ]
+          "type": "minecraft:item",
+          "name": "minecraft:music_disc_11",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:jukebox_playable": "11"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "entity": "this",
+              "name": {
+                "nbt": "page7000.s12.Name",
+                "storage": "swrg:lang",
+                "interpret": true,
+                "source": "storage",
+                "type": "nbt"
+              },
+              "type": "minecraft:set_name"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

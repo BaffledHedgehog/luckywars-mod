@@ -1,0 +1,1024 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gain/challenge.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "b909cd79bf6367941bc0a38a477f8bff82c718136f3a56b2af34efae33610cd7",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gain/challenge_completed.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "7fdb2dc0755c9ae849d6cb6fb248359195888543e572546d21ead27a67d78fb2",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gain/death_effect.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "d97ac8fe3f966a31d8b1819b1a67856abb3baa92faa7f4594f58d08c41bdad61",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gain/default_kill_effect.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "0a5dfb24435a14a804fdb6880407ba0d281a4f645a2c3ae1f6c89500121bd744",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gain/default_kit.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "375cbaead0998ca1cd3b09a1085f9eb61d5e8960c2ac890d25f24757e0c09c6a",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gain/default_skill.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "e0df28c765805e14187be7da08163ec9e2cf6335add1812f7e1854c3e16d3b74",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gain/kit.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "34ae486d7f931a601451fd6b842f53921cdc3e1db9a13faf63428ac235841af2",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gain/levelup.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "ded5aab3aad48467ed0850b62590be83d687affd36fd96de1bec783511fcdb07",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gain/skill.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "47a68bb366a04cff14ae0cef5a52fabcccead9c9a55a12354d17ae8faf5a649a",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gain/skill_acidman.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 1,
+    "sha256": "b33d3b7c72b24dd47c340bf180bfda541a4dcfc8d154ad600e710e646b51d398",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gain/skill_minigun.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 1,
+    "sha256": "a6e0f70fa8baa5816c472ab8874e861e405056fb346caddc9b426ec4f5b073ab",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gain/trinket.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "c807da54b6f90166f28d0aefc597634e6013f6c9c3653b603ec28b2e482117ea",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/build_manager/open.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "e57cc5dac68d1df039624c245ae91bf5f3e2f4016d1f9433094ad05e6d2cc704",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/build_manager/open1.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 1,
+    "sha256": "9b2baf4924a8c36fe7519338a0549fbed4ada64317ed93d3d7b05e3880847eb8",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/correct_negative_pick_tmp.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "empty": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/10000.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 121,
+    "sha256": "6afe197eb4c907166f73d1332263657ba45ce50d8bc37579e11ebd4e8795c5c5",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/10000_ranked.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 55,
+    "sha256": "7666c8720bff5317c83ab65781573d9a5a73c9ac066aae4f345b4b682c8919d2",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/10100.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 77,
+    "sha256": "8c0501e2de7076069b78e14e6d40a9168d59f5a7ad62c0f3ceb4a6af8c9e2c6c",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/10100_ranked.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 41,
+    "sha256": "5c72388f86711fcda892a319e5238aef1d8f760aed15815932bbfc36716452bf",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/11000.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 156,
+    "sha256": "38987297219ef64ad1c10631a3d6008a7019f4293be750b5676b9f612090db30",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/11000_ranked.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 99,
+    "sha256": "72646c3d124ba5ea8b0f3a2e7e0fa9eeecd10a70159cc38259f1d723ca11819f",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/11000_x.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 24,
+    "sha256": "2176acc3759f72958e74e6b94edbcf5f48751a0aaeb24df4cfa22d1f880a5a75",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/11000_x1.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 25,
+    "sha256": "5f0f0a78449fd47baa18b9c125b87670ea017d79482154e485fad24b5fa70e15",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/11100.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 83,
+    "sha256": "8552929c650af75acf65c3219e5766167d8bf3e387eb44e34ba24ba94e32437d",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/12000.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 32,
+    "sha256": "fd360d4d43fc9aa4b3df96fcb3539f8765ea0266adf221a197ef3b158d632b4c",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/12000_ranked.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 10,
+    "sha256": "cef73afde7c9ecf69eb9d68794b961c3a0507ee142985eb588d1923586502a21",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/8000.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 173,
+    "sha256": "08292bf6c33330fd707525cbe150e28153f3020d76f0bfc9c25879abf7684762",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/8000_ranked.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 106,
+    "sha256": "c47be47c35f973cdc935b72877ec8bc0145682f9f4f582fdbbd9982bfcfdcfe3",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/8000_x.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 24,
+    "sha256": "2176acc3759f72958e74e6b94edbcf5f48751a0aaeb24df4cfa22d1f880a5a75",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/8000_x1.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 25,
+    "sha256": "5f0f0a78449fd47baa18b9c125b87670ea017d79482154e485fad24b5fa70e15",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/8100.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 129,
+    "sha256": "f732691ad6a7b858380618561b0dd2ba8ea5a52b601dedaaa6931f3d6bacae73",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/8100_ranked.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 98,
+    "sha256": "38029927945d2eaeb5e155a2914d7a5598dbb048679aa670c4c0536bcf55debc",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/9000.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 116,
+    "sha256": "629e7fe81399f3008d2a4d1131a17eae9f0ae5b4a6bec82d71e84d6c060a4659",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/9000_ranked.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 56,
+    "sha256": "cfb8b85c72f31183edd6a0b9acaad22ef3307c1ae9f15a7016abcc4e788a3e16",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/9100.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 51,
+    "sha256": "bd1de9ba9f34fa5d3d1cd0593797e01fa34b8e728c70ceecb421e22bc71557de",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/page/9100_ranked.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 32,
+    "sha256": "b0acbd923062823edb503ed7dfd9604ed714309a56f509abf1776342755a18f1",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/reset_statholder.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 39,
+    "sha256": "346a1513c9d7654837231f9172f6879239aa3f0f50438d104c90709d77840988",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/10000.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 64,
+    "sha256": "8189678760b49794d4c2f1b813aa71285e049d8e02a34ddfc1c4dbecc0a78356",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/10000_ranked.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 33,
+    "sha256": "4b41e65813cbb9bab3792711f542c860f6bc767e94520489e9e396133892f741",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/10100.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 39,
+    "sha256": "f27eecd85b35df15ae656ca24fa07912aca957de73e5284aaed5267fa8fed438",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/10100_ranked.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 16,
+    "sha256": "f3dca3e2abe513c325ae680f8dea57002e9a80891801a515a1bfd7534b8a486d",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/11000.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 71,
+    "sha256": "0fa829aa0d995276bbf108d9c360ea20441fca895509dcd8cf433fb90cd1138b",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/11000_prex_2.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 107,
+    "sha256": "70d8cb4c6c7e6fa6b69dc8c9f19b0d310f209a8adef128747eb56e393136efea",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/11000_prex_3.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 105,
+    "sha256": "a9f6e423c6bf4cf2fd7bf09025568ee23cc51b6f1f71ab91c33d5162a4dd0f55",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/11000_ranked.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 11,
+    "sha256": "ae022cc6e2c634978e28ea5fc352ad12fb667d3366f0be96ff8ff07da4f7dd97",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/11100.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 11,
+    "sha256": "ff8aaaf63a627545f1fb9d6fb9301e84a65a7d02caa35fd1dc2615b81234a534",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/12000.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 31,
+    "sha256": "791698449c6f2ec7aa954cffecd36cb23bea9a84a347bd749ba25385246634fe",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/12000_ranked.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 19,
+    "sha256": "f1ab98b66058667e075f71a7e4a8102d649c344b3a976933bd1bb59f4e41837a",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/8000.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 74,
+    "sha256": "5d9854352a0e042806f272d22578fa759311c3d7c7d4b4ff5ef14b7c00403679",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/8000_prex_2.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 109,
+    "sha256": "774ade5fa9647119404c5ad4ced1370831bdf2cc9236cc5a4f65261c329d2dc6",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/8000_prex_3.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 110,
+    "sha256": "f588438c2eda76caa76fad8ab2f4203b843ca6851e484aec31ddf7e9a74bc0fb",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/8000_ranked.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 11,
+    "sha256": "42a066618c4e6cc806c98c03cea866e81f09811d0ef43857547e191861ddbad0",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/8100.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 29,
+    "sha256": "65fd0999e48a1902087960317f02776ef33be21182b5e35df20267d334697780",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/8100_ranked.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 9,
+    "sha256": "761709f2e9bd6b345ccb271915eee5ec93a6bfd8c62c552f4d61827cd881e874",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/9000.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 77,
+    "sha256": "695024fb2e69c49f87da16fdaec95b08b2876bd2affb9df96360471b4350515c",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/9000_ranked.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 33,
+    "sha256": "d27b696bec4f9ab16b792552cd6b8c4a9f9684ae37f487a6881b98e845fd705a",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/9100.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 16,
+    "sha256": "07f8e4e1a43391f3c47e789655377c0324f40cbbee41a81295e20c67aae535ff",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/select/9100_ranked.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 8,
+    "sha256": "60779b29b83c3ab06b2d0ac2f161aac3cdf048a4931b1abbed7dcb54446d4eb7",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_grant_wins.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 172,
+    "sha256": "df8a65bc677de8852dd09434e1649c09805db09c95ce673042dea83aed047b7d",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_grant_wins_levelup.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 6,
+    "sha256": "296bb2c17621c7906708b19e3887ec41522ce70edcbc97ccb0605ed86a2227c9",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_grant_wins_trinket.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 6,
+    "sha256": "537499cbbf27841c36c556f53de141311a1c9011e85952a88b7415c4dfae71a7",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_kit_add_pick.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 14,
+    "sha256": "5fba2acfdacdb6da8f9d485a026a6cb5767a04e3223c41d2da7506d6714f1e1a",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_kit_add_win.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 10,
+    "sha256": "1289c01ef7ba4782ae03d549e24cd49d8ca9c0175ef47d8ae5bb43997a9046e7",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_levelup_add_pick.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 10,
+    "sha256": "1406fc989d7ab88dbccd38a3b23bea368ac445c56f5cb10851789aaf8644bda9",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_levelup_add_win.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 10,
+    "sha256": "685d166d3503704d75b71abc0537792de8cc06df516910ba01b2745cb686961f",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_kit.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "b79d24ba70ef5f6adb6887ecbd2570a2ae22e9561c04bb613fdb04eb491325ac",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_kit_1.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "19cbd76ad3fe4e789e76a861516e723ac8064e1ee4c8c6ed0e2f70b22945fe36",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_kit_loop.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 28,
+    "sha256": "644cb68d1599019bf919d22d8c3495332dfee2abaa1c9e7f70ac5833e39862d0",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_levelup.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 5,
+    "sha256": "20f56e9d698090819877f7e7def905eb27e3666cb6e608ec06f8b46b15170668",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_levelup2.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 5,
+    "sha256": "3e56ceb2a3053e518855e08be47246b16dc79dc2522497ea30ef5f1dec9dbe73",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_levelup_loop.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 30,
+    "sha256": "a937071d1f4f1dee4531519bd05a598a806aa05193443f6f45a6578d8f3cdb97",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_skill.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "7a9b8266d2492d6f79f4328e1187d770589306b9049d3e78f6bb957c63e6a342",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_skill2.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "2aa8a8731c0d8378fbd63ffd7b62246749f3fe0cf31785a264aabaa82bff0d47",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_skill_loop.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 23,
+    "sha256": "52c3425c23adf7bdf145d91835c2d870d778e1ac2e18386a918e19ae8596c34f",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_trinket.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "5f1d17a20674ec7fe5e24df37240da0c77785cfb4881900d0d20ee8ad64e509f",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_trinket2.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "44b84a816f43af33525791927719e09f0ea3717af85997f62e98ee027c006f52",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_trinket_loop.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 30,
+    "sha256": "17dd142ee7222b38c2fcfff838f1182c70eedf4c74d4df471342c6fb8842160a",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_x_kit.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "32df246487b8072c23465b4ea5f9c3d808e737cafcb49c28af62f0f6b3dc7813",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_refresh_x_kit_loop.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 23,
+    "sha256": "0bf2b0b9e1aeb9eab2d8dfd02217282eee310111b3f1e864c7193e16cd5b29f8",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_skill_add_pick.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 14,
+    "sha256": "0a8f5f9c981b5d51a10d272063828ef95bce4c222f4ad6c129c1fc94303275c9",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_skill_add_win.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 14,
+    "sha256": "986d4ac4619fdb489b58fe685622beb1cc7e820cebdaa22fcf893a5fd3abafe3",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_trinket_add_pick.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 14,
+    "sha256": "b3cd502de3621293ce296c8a67480102768da14bdc5c9fe76d75c7ea37e97de7",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_trinket_add_win.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 15,
+    "sha256": "d8ad3779138d5cfd03030ad71cdd2fc0a5712e8581a0035c00d4fd0ed265c61f",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_x_kit_add_pick.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 14,
+    "sha256": "9cd2745cf23d516d3a5f5547d2a3d1e0bd23a28f3dd101277e04af771307cecf",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/gui/stats_x_kit_add_win.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 14,
+    "sha256": "b11d8bc60f995a136bb4fef6a97d2657baf10fdb2acfd826fc6a5c426e7ce56d",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/attribute_fix_item.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 73,
+    "sha256": "301de8860388ebcfc6c90366e3a2fc7f9a608e1a9ce1e3f5e4d6e747b02fb317",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/break_luck_key.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "4f25034069f08b82c899f8f5bba9322992a39368c8e8c2fa2667477b2069b5e8",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/break_luck_key1.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 1,
+    "sha256": "0b253153fed57bd90a2b0f4dcb3d596ccc102eaacd28bc2a6615a8c1fa38d78e",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/broken_totem.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "0cd9a5731277f48999a96b6f529823190986963013edf01d1623e20f6cbc3039",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/false_tumba.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 5,
+    "sha256": "428bc977476d1f732f2c0531f0a8447f04bda4b5dded1ecb2b5384865c03a696",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/gaara_tikva.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 7,
+    "sha256": "216c5b42f8faff6da7be6bd6ec5e8b80172eff82efa129efd379795a3532f5f5",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/govno_poprigun.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 19,
+    "sha256": "618944191564adf0f0d59bc12ac1ef65f66b5248d3f19002ebcddc9a4c6b6cf5",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/govno_poprigun_hit.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 7,
+    "sha256": "0e08fae5f60ec5fc6a775296f4570f096618a8be855da876a1d804943f182004",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/govno_poprigun_hit_wall.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 14,
+    "sha256": "ebc4506e1c1baa81f27a68eae07c870dbd330da6bdb07f7d77065611073a0b5a",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/govno_raskid.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "0794b5f81195b90243d7602dc4ec4945d34f0a01b17c73eadcec9d6e397c3e80",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/govno_raskid_def.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 6,
+    "sha256": "af31d128deaf70e2e450660abbaefa5239f604941c44b1d3414f184602b2ca46",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/govno_raskid_mega.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 6,
+    "sha256": "c1feb22b1f1e9fbd4949d8f315d5c5f666769ca2e587c4980aba82e1effdaee3",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/grapping_hook.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "1f0d8b42d206d48d86d50e82610171e7a1b00f4c2995384a9f6f70856b227db5",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/grapping_hook_add_vec.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "empty": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/grapping_hook_loop.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 6,
+    "sha256": "1c5c1355314b702ac21a90f030deda68aa3c695823597045678d2f0cba1a9663",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/grapping_hook_loop_end.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "955c87d965fc6536163d30605ef3d5e91b32f34446e91047fe1643b5c1ad8f49",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/grapping_hook_success.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 14,
+    "sha256": "0bf36ddb53ae71286c97834a625fa0d9b44fb213dd85981c0fbb11d75108d02e",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/grapping_hook_tick.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 12,
+    "sha256": "349dd14a76a438fa92ec1397fca72b349ac451a3511ae7c4409367b46e8e1f7d",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/grapping_hook_tick_particle.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "9f1449d18c789d21f12664fbfb28a69b369b7b7c15967a7b4db132f89d12fa02",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/grapping_hook_work.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 5,
+    "sha256": "73429bb0fb1a6ee4db083b27172220554ad3fdf32c1b331eac73ddd3d01807ff",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/multiply_2.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 27,
+    "sha256": "47c51e3c15641f650b9356e23007067b7419fc49becaa51052c4e883aeceeed8",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/multiply_3.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "31a889292ff9aa3d708d907aa7612a2a890dc296a03db8c315ce16c9b1942239",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/multiply_4.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 42,
+    "sha256": "235804ec9be0e9cd6b2edfffb15364fa2bbe40ad2a2755265a2f74eb13055b6c",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/multiply_5.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 10,
+    "sha256": "88942672dcb1fb8f296c698363858979573acd2c02d0aefafed86e2c3031dea6",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/multiply_select.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "4d4abc8cfafb60a8d573c2a8fdf5bfeb92891fa06fd8fbad4427e068bf757dc9",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/nanotrapik_tick.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "24c3e856871be87995a58359055ea95b4539a8703d6431fbb6b3ed6b23bcf506",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/nanotrapik_tick2.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "c42eac4cb7de27f233acc550d0d5b511d85d12b6cc9fa5d8aff99704dcbad8cc",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/smoke_bomb_explode.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "f894c7eb53f94a76fdee8b5d7ecf7ea2d8800a297c9ed12608b1f71a796262c4",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/smoke_bomb_explode1.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "983500c4ce76c29174ca4d72eeb743ed952a39af4ac827b7f54a33670ec23cd4",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/steampunk_pickaxe_use.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 5,
+    "sha256": "4568a491e8b3e92ab273ee990806fe85dde7ff8218e43c93fc6c28087a731a1d",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/steampunk_pickaxe_use_rc.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 17,
+    "sha256": "24541a7a0278d6bdf68750f99471a1c7ddfd99b9b5e6aff5d5cf62f3a19cdb54",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/steampunk_rocket.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 8,
+    "sha256": "67052b0becc7629ab3191359057253fb7856e8ff399abbff3f36bfec22c2c988",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/steampunk_sword.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 10,
+    "sha256": "5a457744c1ec6643172ef19ce1c88b06350a87e346974da6da84ecf2d58a8fe6",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/steampunk_sword1.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "50280918ce83f95231a201ca46d3698613349b20c2d06f5d291b27abb31027cd",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/steampunk_sword_1.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 7,
+    "sha256": "51caa59c980fd779f64631d701371b467d5eae8811bf3061d10a536506238a43",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/touhou_items/addmana.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "f2ae39bf3086f4c3552a27845484b88406d936447510cf9d7ebcc1da4bc14cfa",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/touhou_items/bomb.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 6,
+    "sha256": "93a80a214cd4b2f6fe969c0c2cd540c61d055e1a9ff283545b1b96ebd16bd290",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/touhou_items/give_bomb.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "fdb587eb4e49427f401cd52d1ba499f5dae62048eb0ae7c0cb9416881cf79ee4",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/touhou_items/give_life.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "d152cfdf4db6a53d32ce308f416377e6c496d76a8231a99a3c775b6d93d3852a",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/touhou_items/select.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 47,
+    "sha256": "f2706f30959bfc849810a695526ff2322150b130a78c4ba1e2b1836569997642",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/touhou_items/time_orbs_count.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "b21996797e9b2a4f6c624c225b1c646af044fc5ac244da4a407f825b9cd286a5",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/touhou_items/time_orbs_count_tell.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "5ee941380423cadb8039d061249f4ca2f406914518ebef59be2c6f2d1d8c58bc",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/touhou_items/time_orbs_give_clocks.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "b3eb9338487649e312c3bb136799488e4c255fcf89cd65648022bebd28147c8e",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/touhou_items/time_stop.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 22,
+    "sha256": "958a558510a9f2911358751559bd06c8458564664cfd2455c865e7e1de9e5c01",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/items/touhou_items/update_power.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 10,
+    "sha256": "3596b57b3457730100b707763afbef0c53120d23119a903bf6f1dab3f2fc99c5",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/blood_spawn.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "51d0257cfe1c8d581f6f32a4f2c5cb64b7341a934076d3c3a528b6d9a6cb4c3f",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/blood_spawn_1.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 11,
+    "sha256": "7c7b966f3b56063a8564b4b4c5b70ae4d153c99e532879b5335a0fdf62e35b31",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/bloodshed.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 12,
+    "sha256": "1c941fe313cb81a56d1c818a96c0d9614a2960b2a2adde0facfeb9b02ecd2d0e",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/bloodshed_particle.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "811d3e3aaf3eb58d6c235e12fd6343a106a360df0dadb2a3896e75786cec3f1e",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/bloodshed_player.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "289c7c1ac731e2c165fd24cfed11c9fd29d218f99a5aa478d5e9884546d6f3e5",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/hammerfalling.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "8c28df9f8d6a35d159fc6e3389028af76d44291d9d0b39fa286375a9079849e5",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/hammerfalling1.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "8c2556984c7724a21c95c33ed5a237d570e36bce0b89b5470fe826b22c8aac61",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/hammerfalling1aquash.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "f4da206e3e09c6260ea4c37f3df41718664573191c55bf5153d60c1a3301daaa",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/select.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "f0a713166cdb13b55743c7a21c066d7457ffb4b46ed9b4584fe290dca5946fe9",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/soul.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "62604039a42c3f6f5895a796ea7acde8f0a7a6590c1a70ea9027ecee6e4feebe",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/soul_particle.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "88fd52e82a3e2009351e24ef04c284f96fd36b73de17731bea6e85c005f368be",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/soul_spawn.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "ffa506676367c7f8f2d6d1939f31e26f0331d502aefdd87173cd8d46b7374710",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/soul_spawn_1.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 5,
+    "sha256": "b559a9ddb73e184e0da840d0b7fb890e05b2dbcfe22ce3391f058d97de8fd311",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/kill_effects/wagnerhammer.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "f69eab8c4bf6e3fe41ead482700d7722ea84d64f07a87d7ed2881a05a090528f",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/lang_en.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 5,
+    "sha256": "bbf9d9ff68204dda1feea8bef77af3ffd77b5c0ba67ad14e6cdc8f341d463d27",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/swrg_kit_integration/lang_ru.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 198,
+    "sha256": "b133a724f5a29b930b9d109eae4402cb7d657625d41371f5b3ade90095f87423",
+    "empty": false
+  }
+]

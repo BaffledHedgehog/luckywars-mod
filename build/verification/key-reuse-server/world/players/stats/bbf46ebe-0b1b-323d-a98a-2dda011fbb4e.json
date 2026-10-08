@@ -1,0 +1,11 @@
+{
+  "stats": {
+    "minecraft:custom": {
+      "minecraft:time_since_rest": 0,
+      "minecraft:damage_taken": 5000,
+      "minecraft:deaths": 5,
+      "minecraft:time_since_death": 0
+    }
+  },
+  "DataVersion": 5023
+}

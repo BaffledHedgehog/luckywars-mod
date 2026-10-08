@@ -1,30 +1,30 @@
 {
-    "pools": [
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:bow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_name",
-                            "entity": "this",
-                            "name": {
-                                "nbt": "skill.b2",
-                                "storage": "swrg:lang",
-                                "interpret": true,
-                                "source": "storage",
-                                "type": "nbt"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{HideFlags:127,rewardskill:6}"
-                        }
-                    ]
-                }
-            ]
+          "type": "minecraft:item",
+          "name": "minecraft:bow",
+          "modifier": [
+            {
+              "entity": "this",
+              "name": {
+                "nbt": "skill.b2",
+                "storage": "swrg:lang",
+                "interpret": true,
+                "source": "storage",
+                "type": "nbt"
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "tag": "{HideFlags:127,rewardskill:6}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

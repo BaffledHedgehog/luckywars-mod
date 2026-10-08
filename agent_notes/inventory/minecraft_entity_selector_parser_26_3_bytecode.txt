@@ -1,0 +1,1558 @@
+﻿Compiled from "EntitySelectorParser.java"
+public class net.minecraft.commands.arguments.selector.EntitySelectorParser implements net.fabricmc.fabric.api.command.v2.FabricEntitySelectorParser {
+  public static final char SYNTAX_SELECTOR_START;
+
+  private static final char SYNTAX_OPTIONS_START;
+
+  private static final char SYNTAX_OPTIONS_END;
+
+  public static final char SYNTAX_OPTIONS_KEY_VALUE_SEPARATOR;
+
+  private static final char SYNTAX_OPTIONS_SEPARATOR;
+
+  public static final char SYNTAX_NOT;
+
+  public static final char SYNTAX_TAG;
+
+  private static final char SELECTOR_NEAREST_PLAYER;
+
+  private static final char SELECTOR_ALL_PLAYERS;
+
+  private static final char SELECTOR_RANDOM_PLAYERS;
+
+  private static final char SELECTOR_CURRENT_ENTITY;
+
+  private static final char SELECTOR_ALL_ENTITIES;
+
+  private static final char SELECTOR_NEAREST_ENTITY;
+
+  public static final com.mojang.brigadier.exceptions.SimpleCommandExceptionType ERROR_INVALID_NAME_OR_UUID;
+
+  public static final com.mojang.brigadier.exceptions.DynamicCommandExceptionType ERROR_UNKNOWN_SELECTOR_TYPE;
+
+  public static final com.mojang.brigadier.exceptions.SimpleCommandExceptionType ERROR_SELECTORS_NOT_ALLOWED;
+
+  public static final com.mojang.brigadier.exceptions.SimpleCommandExceptionType ERROR_MISSING_SELECTOR_TYPE;
+
+  public static final com.mojang.brigadier.exceptions.SimpleCommandExceptionType ERROR_EXPECTED_END_OF_OPTIONS;
+
+  public static final com.mojang.brigadier.exceptions.DynamicCommandExceptionType ERROR_EXPECTED_OPTION_VALUE;
+
+  public static final java.util.function.BiConsumer<net.minecraft.world.phys.Vec3, java.util.List<? extends net.minecraft.world.entity.Entity>> ORDER_NEAREST;
+
+  public static final java.util.function.BiConsumer<net.minecraft.world.phys.Vec3, java.util.List<? extends net.minecraft.world.entity.Entity>> ORDER_FURTHEST;
+
+  public static final java.util.function.BiConsumer<net.minecraft.world.phys.Vec3, java.util.List<? extends net.minecraft.world.entity.Entity>> ORDER_RANDOM;
+
+  public static final java.util.function.BiFunction<com.mojang.brigadier.suggestion.SuggestionsBuilder, java.util.function.Consumer<com.mojang.brigadier.suggestion.SuggestionsBuilder>, java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions>> SUGGEST_NOTHING;
+
+  private final com.mojang.brigadier.StringReader reader;
+
+  private final boolean allowSelectors;
+
+  private int maxResults;
+
+  private boolean includesEntities;
+
+  private boolean worldLimited;
+
+  private net.minecraft.advancements.predicates.MinMaxBounds$Doubles distance;
+
+  private net.minecraft.advancements.predicates.MinMaxBounds$Ints level;
+
+  private java.lang.Double x;
+
+  private java.lang.Double y;
+
+  private java.lang.Double z;
+
+  private java.lang.Double deltaX;
+
+  private java.lang.Double deltaY;
+
+  private java.lang.Double deltaZ;
+
+  private net.minecraft.advancements.predicates.MinMaxBounds$FloatDegrees rotX;
+
+  private net.minecraft.advancements.predicates.MinMaxBounds$FloatDegrees rotY;
+
+  private final java.util.List<java.util.function.Predicate<net.minecraft.world.entity.Entity>> predicates;
+
+  private java.util.function.BiConsumer<net.minecraft.world.phys.Vec3, java.util.List<? extends net.minecraft.world.entity.Entity>> order;
+
+  private boolean currentEntity;
+
+  private java.lang.String playerName;
+
+  private int startPosition;
+
+  private java.util.UUID entityUUID;
+
+  private java.util.function.BiFunction<com.mojang.brigadier.suggestion.SuggestionsBuilder, java.util.function.Consumer<com.mojang.brigadier.suggestion.SuggestionsBuilder>, java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions>> suggestions;
+
+  private final net.minecraft.commands.arguments.selector.options.InvertableSetOptionState nameOption;
+
+  private final net.minecraft.commands.arguments.selector.options.SetOnceOptionState limitedOption;
+
+  private final net.minecraft.commands.arguments.selector.options.SetOnceOptionState sortedOption;
+
+  private final net.minecraft.commands.arguments.selector.options.InvertableSetOptionState gamemodeOption;
+
+  private final net.minecraft.commands.arguments.selector.options.InvertableSetOptionState teamOption;
+
+  private net.minecraft.world.entity.EntityType<?> type;
+
+  private final net.minecraft.commands.arguments.selector.options.InvertableSetOptionState typeOption;
+
+  private final net.minecraft.commands.arguments.selector.options.SetOnceOptionState scoresOption;
+
+  private final net.minecraft.commands.arguments.selector.options.SetOnceOptionState advancementsOption;
+
+  private boolean usesSelectors;
+
+  public net.minecraft.commands.arguments.selector.EntitySelectorParser(com.mojang.brigadier.StringReader, boolean);
+    Code:
+         0: aload_0
+         1: invokespecial #124                // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: new           #126                // class java/util/ArrayList
+         8: dup
+         9: invokespecial #127                // Method java/util/ArrayList."<init>":()V
+        12: putfield      #129                // Field predicates:Ljava/util/List;
+        15: aload_0
+        16: getstatic     #134                // Field net/minecraft/commands/arguments/selector/EntitySelector.ORDER_ARBITRARY:Ljava/util/function/BiConsumer;
+        19: putfield      #136                // Field order:Ljava/util/function/BiConsumer;
+        22: aload_0
+        23: getstatic     #138                // Field SUGGEST_NOTHING:Ljava/util/function/BiFunction;
+        26: putfield      #140                // Field suggestions:Ljava/util/function/BiFunction;
+        29: aload_0
+        30: new           #142                // class net/minecraft/commands/arguments/selector/options/InvertableSetOptionState
+        33: dup
+        34: invokespecial #143                // Method net/minecraft/commands/arguments/selector/options/InvertableSetOptionState."<init>":()V
+        37: putfield      #145                // Field nameOption:Lnet/minecraft/commands/arguments/selector/options/InvertableSetOptionState;
+        40: aload_0
+        41: new           #147                // class net/minecraft/commands/arguments/selector/options/SetOnceOptionState
+        44: dup
+        45: invokespecial #148                // Method net/minecraft/commands/arguments/selector/options/SetOnceOptionState."<init>":()V
+        48: putfield      #150                // Field limitedOption:Lnet/minecraft/commands/arguments/selector/options/SetOnceOptionState;
+        51: aload_0
+        52: new           #147                // class net/minecraft/commands/arguments/selector/options/SetOnceOptionState
+        55: dup
+        56: invokespecial #148                // Method net/minecraft/commands/arguments/selector/options/SetOnceOptionState."<init>":()V
+        59: putfield      #152                // Field sortedOption:Lnet/minecraft/commands/arguments/selector/options/SetOnceOptionState;
+        62: aload_0
+        63: new           #142                // class net/minecraft/commands/arguments/selector/options/InvertableSetOptionState
+        66: dup
+        67: invokespecial #143                // Method net/minecraft/commands/arguments/selector/options/InvertableSetOptionState."<init>":()V
+        70: putfield      #154                // Field gamemodeOption:Lnet/minecraft/commands/arguments/selector/options/InvertableSetOptionState;
+        73: aload_0
+        74: new           #142                // class net/minecraft/commands/arguments/selector/options/InvertableSetOptionState
+        77: dup
+        78: invokespecial #143                // Method net/minecraft/commands/arguments/selector/options/InvertableSetOptionState."<init>":()V
+        81: putfield      #156                // Field teamOption:Lnet/minecraft/commands/arguments/selector/options/InvertableSetOptionState;
+        84: aload_0
+        85: new           #142                // class net/minecraft/commands/arguments/selector/options/InvertableSetOptionState
+        88: dup
+        89: invokespecial #143                // Method net/minecraft/commands/arguments/selector/options/InvertableSetOptionState."<init>":()V
+        92: putfield      #158                // Field typeOption:Lnet/minecraft/commands/arguments/selector/options/InvertableSetOptionState;
+        95: aload_0
+        96: new           #147                // class net/minecraft/commands/arguments/selector/options/SetOnceOptionState
+        99: dup
+       100: invokespecial #148                // Method net/minecraft/commands/arguments/selector/options/SetOnceOptionState."<init>":()V
+       103: putfield      #160                // Field scoresOption:Lnet/minecraft/commands/arguments/selector/options/SetOnceOptionState;
+       106: aload_0
+       107: new           #147                // class net/minecraft/commands/arguments/selector/options/SetOnceOptionState
+       110: dup
+       111: invokespecial #148                // Method net/minecraft/commands/arguments/selector/options/SetOnceOptionState."<init>":()V
+       114: putfield      #162                // Field advancementsOption:Lnet/minecraft/commands/arguments/selector/options/SetOnceOptionState;
+       117: aload_0
+       118: aload_1
+       119: putfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+       122: aload_0
+       123: iload_2
+       124: putfield      #166                // Field allowSelectors:Z
+       127: return
+
+  public static <S> boolean allowSelectors(S);
+    Code:
+         0: aload_0
+         1: instanceof    #173                // class net/minecraft/server/permissions/PermissionSetSupplier
+         4: ifeq          33
+         7: aload_0
+         8: checkcast     #173                // class net/minecraft/server/permissions/PermissionSetSupplier
+        11: astore_1
+        12: aload_1
+        13: invokeinterface #177,  1          // InterfaceMethod net/minecraft/server/permissions/PermissionSetSupplier.permissions:()Lnet/minecraft/server/permissions/PermissionSet;
+        18: getstatic     #183                // Field net/minecraft/server/permissions/Permissions.COMMANDS_ENTITY_SELECTORS:Lnet/minecraft/server/permissions/Permission;
+        21: invokeinterface #189,  2          // InterfaceMethod net/minecraft/server/permissions/PermissionSet.hasPermission:(Lnet/minecraft/server/permissions/Permission;)Z
+        26: ifeq          33
+        29: iconst_1
+        30: goto          34
+        33: iconst_0
+        34: ireturn
+
+  public static boolean allowSelectors(net.minecraft.server.permissions.PermissionSetSupplier);
+    Code:
+         0: aload_0
+         1: invokeinterface #177,  1          // InterfaceMethod net/minecraft/server/permissions/PermissionSetSupplier.permissions:()Lnet/minecraft/server/permissions/PermissionSet;
+         6: getstatic     #183                // Field net/minecraft/server/permissions/Permissions.COMMANDS_ENTITY_SELECTORS:Lnet/minecraft/server/permissions/Permission;
+         9: invokeinterface #189,  2          // InterfaceMethod net/minecraft/server/permissions/PermissionSet.hasPermission:(Lnet/minecraft/server/permissions/Permission;)Z
+        14: ireturn
+
+  public net.minecraft.commands.arguments.selector.EntitySelector getSelector();
+    Code:
+         0: aload_0
+         1: getfield      #199                // Field deltaX:Ljava/lang/Double;
+         4: ifnonnull     21
+         7: aload_0
+         8: getfield      #201                // Field deltaY:Ljava/lang/Double;
+        11: ifnonnull     21
+        14: aload_0
+        15: getfield      #203                // Field deltaZ:Ljava/lang/Double;
+        18: ifnull        83
+        21: aload_0
+        22: aload_0
+        23: getfield      #199                // Field deltaX:Ljava/lang/Double;
+        26: ifnonnull     33
+        29: dconst_0
+        30: goto          40
+        33: aload_0
+        34: getfield      #199                // Field deltaX:Ljava/lang/Double;
+        37: invokevirtual #209                // Method java/lang/Double.doubleValue:()D
+        40: aload_0
+        41: getfield      #201                // Field deltaY:Ljava/lang/Double;
+        44: ifnonnull     51
+        47: dconst_0
+        48: goto          58
+        51: aload_0
+        52: getfield      #201                // Field deltaY:Ljava/lang/Double;
+        55: invokevirtual #209                // Method java/lang/Double.doubleValue:()D
+        58: aload_0
+        59: getfield      #203                // Field deltaZ:Ljava/lang/Double;
+        62: ifnonnull     69
+        65: dconst_0
+        66: goto          76
+        69: aload_0
+        70: getfield      #203                // Field deltaZ:Ljava/lang/Double;
+        73: invokevirtual #209                // Method java/lang/Double.doubleValue:()D
+        76: invokevirtual #213                // Method createAabb:(DDD)Lnet/minecraft/world/phys/AABB;
+        79: astore_1
+        80: goto          148
+        83: aload_0
+        84: getfield      #215                // Field distance:Lnet/minecraft/advancements/predicates/MinMaxBounds$Doubles;
+        87: ifnull        146
+        90: aload_0
+        91: getfield      #215                // Field distance:Lnet/minecraft/advancements/predicates/MinMaxBounds$Doubles;
+        94: invokevirtual #219                // Method net/minecraft/advancements/predicates/MinMaxBounds$Doubles.max:()Ljava/util/Optional;
+        97: invokevirtual #225                // Method java/util/Optional.isPresent:()Z
+       100: ifeq          146
+       103: aload_0
+       104: getfield      #215                // Field distance:Lnet/minecraft/advancements/predicates/MinMaxBounds$Doubles;
+       107: invokevirtual #219                // Method net/minecraft/advancements/predicates/MinMaxBounds$Doubles.max:()Ljava/util/Optional;
+       110: invokevirtual #229                // Method java/util/Optional.get:()Ljava/lang/Object;
+       113: checkcast     #205                // class java/lang/Double
+       116: invokevirtual #209                // Method java/lang/Double.doubleValue:()D
+       119: dstore_2
+       120: new           #231                // class net/minecraft/world/phys/AABB
+       123: dup
+       124: dload_2
+       125: dneg
+       126: dload_2
+       127: dneg
+       128: dload_2
+       129: dneg
+       130: dload_2
+       131: dconst_1
+       132: dadd
+       133: dload_2
+       134: dconst_1
+       135: dadd
+       136: dload_2
+       137: dconst_1
+       138: dadd
+       139: invokespecial #234                // Method net/minecraft/world/phys/AABB."<init>":(DDDDDD)V
+       142: astore_1
+       143: goto          148
+       146: aconst_null
+       147: astore_1
+       148: aload_0
+       149: getfield      #236                // Field x:Ljava/lang/Double;
+       152: ifnonnull     178
+       155: aload_0
+       156: getfield      #238                // Field y:Ljava/lang/Double;
+       159: ifnonnull     178
+       162: aload_0
+       163: getfield      #240                // Field z:Ljava/lang/Double;
+       166: ifnonnull     178
+       169: invokedynamic #259,  0            // InvokeDynamic #0:apply:()Ljava/util/function/Function;
+       174: astore_2
+       175: goto          185
+       178: aload_0
+       179: invokedynamic #266,  0            // InvokeDynamic #1:apply:(Lnet/minecraft/commands/arguments/selector/EntitySelectorParser;)Ljava/util/function/Function;
+       184: astore_2
+       185: new           #131                // class net/minecraft/commands/arguments/selector/EntitySelector
+       188: dup
+       189: aload_0
+       190: getfield      #270                // Field maxResults:I
+       193: aload_0
+       194: getfield      #272                // Field includesEntities:Z
+       197: aload_0
+       198: getfield      #274                // Field worldLimited:Z
+       201: aload_0
+       202: getfield      #129                // Field predicates:Ljava/util/List;
+       205: invokestatic  #280                // InterfaceMethod java/util/List.copyOf:(Ljava/util/Collection;)Ljava/util/List;
+       208: aload_0
+       209: getfield      #215                // Field distance:Lnet/minecraft/advancements/predicates/MinMaxBounds$Doubles;
+       212: aload_2
+       213: aload_1
+       214: aload_0
+       215: getfield      #136                // Field order:Ljava/util/function/BiConsumer;
+       218: aload_0
+       219: getfield      #282                // Field currentEntity:Z
+       222: aload_0
+       223: getfield      #284                // Field playerName:Ljava/lang/String;
+       226: aload_0
+       227: getfield      #286                // Field entityUUID:Ljava/util/UUID;
+       230: aload_0
+       231: getfield      #288                // Field type:Lnet/minecraft/world/entity/EntityType;
+       234: aload_0
+       235: getfield      #290                // Field usesSelectors:Z
+       238: invokespecial #293                // Method net/minecraft/commands/arguments/selector/EntitySelector."<init>":(IZZLjava/util/List;Lnet/minecraft/advancements/predicates/MinMaxBounds$Doubles;Ljava/util/function/Function;Lnet/minecraft/world/phys/AABB;Ljava/util/function/BiConsumer;ZLjava/lang/String;Ljava/util/UUID;Lnet/minecraft/world/entity/EntityType;Z)V
+       241: areturn
+
+  private net.minecraft.world.phys.AABB createAabb(double, double, double);
+    Code:
+         0: dload_1
+         1: dconst_0
+         2: dcmpg
+         3: ifge          10
+         6: iconst_1
+         7: goto          11
+        10: iconst_0
+        11: istore        7
+        13: dload_3
+        14: dconst_0
+        15: dcmpg
+        16: ifge          23
+        19: iconst_1
+        20: goto          24
+        23: iconst_0
+        24: istore        8
+        26: dload         5
+        28: dconst_0
+        29: dcmpg
+        30: ifge          37
+        33: iconst_1
+        34: goto          38
+        37: iconst_0
+        38: istore        9
+        40: iload         7
+        42: ifeq          49
+        45: dload_1
+        46: goto          50
+        49: dconst_0
+        50: dstore        10
+        52: iload         8
+        54: ifeq          61
+        57: dload_3
+        58: goto          62
+        61: dconst_0
+        62: dstore        12
+        64: iload         9
+        66: ifeq          74
+        69: dload         5
+        71: goto          75
+        74: dconst_0
+        75: dstore        14
+        77: iload         7
+        79: ifeq          86
+        82: dconst_0
+        83: goto          87
+        86: dload_1
+        87: dconst_1
+        88: dadd
+        89: dstore        16
+        91: iload         8
+        93: ifeq          100
+        96: dconst_0
+        97: goto          101
+       100: dload_3
+       101: dconst_1
+       102: dadd
+       103: dstore        18
+       105: iload         9
+       107: ifeq          114
+       110: dconst_0
+       111: goto          116
+       114: dload         5
+       116: dconst_1
+       117: dadd
+       118: dstore        20
+       120: new           #231                // class net/minecraft/world/phys/AABB
+       123: dup
+       124: dload         10
+       126: dload         12
+       128: dload         14
+       130: dload         16
+       132: dload         18
+       134: dload         20
+       136: invokespecial #234                // Method net/minecraft/world/phys/AABB."<init>":(DDDDDD)V
+       139: areturn
+
+  private void finalizePredicates();
+    Code:
+         0: aload_0
+         1: getfield      #312                // Field rotX:Lnet/minecraft/advancements/predicates/MinMaxBounds$FloatDegrees;
+         4: ifnull        30
+         7: aload_0
+         8: getfield      #129                // Field predicates:Ljava/util/List;
+        11: aload_0
+        12: aload_0
+        13: getfield      #312                // Field rotX:Lnet/minecraft/advancements/predicates/MinMaxBounds$FloatDegrees;
+        16: invokedynamic #327,  0            // InvokeDynamic #2:applyAsFloat:()Lnet/minecraft/util/ToFloatFunction;
+        21: invokevirtual #331                // Method createRotationPredicate:(Lnet/minecraft/advancements/predicates/MinMaxBounds$FloatDegrees;Lnet/minecraft/util/ToFloatFunction;)Ljava/util/function/Predicate;
+        24: invokeinterface #334,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+        29: pop
+        30: aload_0
+        31: getfield      #336                // Field rotY:Lnet/minecraft/advancements/predicates/MinMaxBounds$FloatDegrees;
+        34: ifnull        60
+        37: aload_0
+        38: getfield      #129                // Field predicates:Ljava/util/List;
+        41: aload_0
+        42: aload_0
+        43: getfield      #336                // Field rotY:Lnet/minecraft/advancements/predicates/MinMaxBounds$FloatDegrees;
+        46: invokedynamic #341,  0            // InvokeDynamic #3:applyAsFloat:()Lnet/minecraft/util/ToFloatFunction;
+        51: invokevirtual #331                // Method createRotationPredicate:(Lnet/minecraft/advancements/predicates/MinMaxBounds$FloatDegrees;Lnet/minecraft/util/ToFloatFunction;)Ljava/util/function/Predicate;
+        54: invokeinterface #334,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+        59: pop
+        60: aload_0
+        61: getfield      #343                // Field level:Lnet/minecraft/advancements/predicates/MinMaxBounds$Ints;
+        64: ifnull        83
+        67: aload_0
+        68: getfield      #129                // Field predicates:Ljava/util/List;
+        71: aload_0
+        72: invokedynamic #354,  0            // InvokeDynamic #4:test:(Lnet/minecraft/commands/arguments/selector/EntitySelectorParser;)Ljava/util/function/Predicate;
+        77: invokeinterface #334,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+        82: pop
+        83: return
+
+  private java.util.function.Predicate<net.minecraft.world.entity.Entity> createRotationPredicate(net.minecraft.advancements.predicates.MinMaxBounds$FloatDegrees, net.minecraft.util.ToFloatFunction<net.minecraft.world.entity.Entity>);
+    Code:
+         0: aload_1
+         1: invokevirtual #360                // Method net/minecraft/advancements/predicates/MinMaxBounds$FloatDegrees.min:()Ljava/util/Optional;
+         4: fconst_0
+         5: invokestatic  #366                // Method java/lang/Float.valueOf:(F)Ljava/lang/Float;
+         8: invokevirtual #369                // Method java/util/Optional.orElse:(Ljava/lang/Object;)Ljava/lang/Object;
+        11: checkcast     #362                // class java/lang/Float
+        14: invokevirtual #372                // Method java/lang/Float.floatValue:()F
+        17: invokestatic  #378                // Method net/minecraft/util/Mth.wrapDegrees:(F)F
+        20: fstore_3
+        21: aload_1
+        22: invokevirtual #379                // Method net/minecraft/advancements/predicates/MinMaxBounds$FloatDegrees.max:()Ljava/util/Optional;
+        25: ldc_w         #380                // float 359.0f
+        28: invokestatic  #366                // Method java/lang/Float.valueOf:(F)Ljava/lang/Float;
+        31: invokevirtual #369                // Method java/util/Optional.orElse:(Ljava/lang/Object;)Ljava/lang/Object;
+        34: checkcast     #362                // class java/lang/Float
+        37: invokevirtual #372                // Method java/lang/Float.floatValue:()F
+        40: invokestatic  #378                // Method net/minecraft/util/Mth.wrapDegrees:(F)F
+        43: fstore        4
+        45: aload_2
+        46: fload_3
+        47: fload         4
+        49: invokedynamic #388,  0            // InvokeDynamic #5:test:(Lnet/minecraft/util/ToFloatFunction;FF)Ljava/util/function/Predicate;
+        54: areturn
+
+  protected void parseSelector() throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: iconst_1
+         2: putfield      #290                // Field usesSelectors:Z
+         5: aload_0
+         6: aload_0
+         7: invokedynamic #405,  0            // InvokeDynamic #6:apply:(Lnet/minecraft/commands/arguments/selector/EntitySelectorParser;)Ljava/util/function/BiFunction;
+        12: putfield      #140                // Field suggestions:Ljava/util/function/BiFunction;
+        15: aload_0
+        16: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        19: invokevirtual #410                // Method com/mojang/brigadier/StringReader.canRead:()Z
+        22: ifne          36
+        25: getstatic     #412                // Field ERROR_MISSING_SELECTOR_TYPE:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;
+        28: aload_0
+        29: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        32: invokevirtual #418                // Method com/mojang/brigadier/exceptions/SimpleCommandExceptionType.createWithContext:(Lcom/mojang/brigadier/ImmutableStringReader;)Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        35: athrow
+        36: aload_0
+        37: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        40: invokevirtual #422                // Method com/mojang/brigadier/StringReader.getCursor:()I
+        43: istore_1
+        44: aload_0
+        45: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        48: invokevirtual #426                // Method com/mojang/brigadier/StringReader.read:()C
+        51: istore_2
+        52: iload_2
+        53: tableswitch   { // 97 to 115
+
+                      97: 173
+
+                      98: 299
+
+                      99: 299
+
+                     100: 299
+
+                     101: 253
+
+                     102: 299
+
+                     103: 299
+
+                     104: 299
+
+                     105: 299
+
+                     106: 299
+
+                     107: 299
+
+                     108: 299
+
+                     109: 299
+
+                     110: 277
+
+                     111: 299
+
+                     112: 144
+
+                     113: 299
+
+                     114: 204
+
+                     115: 233
+                 default: 299
+            }
+       144: aload_0
+       145: iconst_1
+       146: putfield      #270                // Field maxResults:I
+       149: aload_0
+       150: iconst_0
+       151: putfield      #272                // Field includesEntities:Z
+       154: aload_0
+       155: getstatic     #428                // Field ORDER_NEAREST:Ljava/util/function/BiConsumer;
+       158: putfield      #136                // Field order:Ljava/util/function/BiConsumer;
+       161: aload_0
+       162: getstatic     #433                // Field net/minecraft/world/entity/EntityTypes.PLAYER:Lnet/minecraft/world/entity/EntityType;
+       165: invokevirtual #437                // Method limitToType:(Lnet/minecraft/world/entity/EntityType;)V
+       168: iconst_0
+       169: istore_3
+       170: goto          327
+       173: aload_0
+       174: ldc_w         #438                // int 2147483647
+       177: putfield      #270                // Field maxResults:I
+       180: aload_0
+       181: iconst_0
+       182: putfield      #272                // Field includesEntities:Z
+       185: aload_0
+       186: getstatic     #134                // Field net/minecraft/commands/arguments/selector/EntitySelector.ORDER_ARBITRARY:Ljava/util/function/BiConsumer;
+       189: putfield      #136                // Field order:Ljava/util/function/BiConsumer;
+       192: aload_0
+       193: getstatic     #433                // Field net/minecraft/world/entity/EntityTypes.PLAYER:Lnet/minecraft/world/entity/EntityType;
+       196: invokevirtual #437                // Method limitToType:(Lnet/minecraft/world/entity/EntityType;)V
+       199: iconst_0
+       200: istore_3
+       201: goto          327
+       204: aload_0
+       205: iconst_1
+       206: putfield      #270                // Field maxResults:I
+       209: aload_0
+       210: iconst_0
+       211: putfield      #272                // Field includesEntities:Z
+       214: aload_0
+       215: getstatic     #440                // Field ORDER_RANDOM:Ljava/util/function/BiConsumer;
+       218: putfield      #136                // Field order:Ljava/util/function/BiConsumer;
+       221: aload_0
+       222: getstatic     #433                // Field net/minecraft/world/entity/EntityTypes.PLAYER:Lnet/minecraft/world/entity/EntityType;
+       225: invokevirtual #437                // Method limitToType:(Lnet/minecraft/world/entity/EntityType;)V
+       228: iconst_0
+       229: istore_3
+       230: goto          327
+       233: aload_0
+       234: iconst_1
+       235: putfield      #270                // Field maxResults:I
+       238: aload_0
+       239: iconst_1
+       240: putfield      #272                // Field includesEntities:Z
+       243: aload_0
+       244: iconst_1
+       245: putfield      #282                // Field currentEntity:Z
+       248: iconst_0
+       249: istore_3
+       250: goto          327
+       253: aload_0
+       254: ldc_w         #438                // int 2147483647
+       257: putfield      #270                // Field maxResults:I
+       260: aload_0
+       261: iconst_1
+       262: putfield      #272                // Field includesEntities:Z
+       265: aload_0
+       266: getstatic     #134                // Field net/minecraft/commands/arguments/selector/EntitySelector.ORDER_ARBITRARY:Ljava/util/function/BiConsumer;
+       269: putfield      #136                // Field order:Ljava/util/function/BiConsumer;
+       272: iconst_1
+       273: istore_3
+       274: goto          327
+       277: aload_0
+       278: iconst_1
+       279: putfield      #270                // Field maxResults:I
+       282: aload_0
+       283: iconst_1
+       284: putfield      #272                // Field includesEntities:Z
+       287: aload_0
+       288: getstatic     #428                // Field ORDER_NEAREST:Ljava/util/function/BiConsumer;
+       291: putfield      #136                // Field order:Ljava/util/function/BiConsumer;
+       294: iconst_1
+       295: istore_3
+       296: goto          327
+       299: aload_0
+       300: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+       303: iload_1
+       304: invokevirtual #444                // Method com/mojang/brigadier/StringReader.setCursor:(I)V
+       307: getstatic     #446                // Field ERROR_UNKNOWN_SELECTOR_TYPE:Lcom/mojang/brigadier/exceptions/DynamicCommandExceptionType;
+       310: aload_0
+       311: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+       314: iload_2
+       315: invokestatic  #451                // Method java/lang/String.valueOf:(C)Ljava/lang/String;
+       318: invokedynamic #463,  0            // InvokeDynamic #7:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+       323: invokevirtual #468                // Method com/mojang/brigadier/exceptions/DynamicCommandExceptionType.createWithContext:(Lcom/mojang/brigadier/ImmutableStringReader;Ljava/lang/Object;)Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+       326: athrow
+       327: iload_3
+       328: ifeq          346
+       331: aload_0
+       332: getfield      #129                // Field predicates:Ljava/util/List;
+       335: invokedynamic #475,  0            // InvokeDynamic #8:test:()Ljava/util/function/Predicate;
+       340: invokeinterface #334,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       345: pop
+       346: aload_0
+       347: aload_0
+       348: invokedynamic #480,  0            // InvokeDynamic #9:apply:(Lnet/minecraft/commands/arguments/selector/EntitySelectorParser;)Ljava/util/function/BiFunction;
+       353: putfield      #140                // Field suggestions:Ljava/util/function/BiFunction;
+       356: aload_0
+       357: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+       360: invokevirtual #410                // Method com/mojang/brigadier/StringReader.canRead:()Z
+       363: ifeq          399
+       366: aload_0
+       367: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+       370: invokevirtual #483                // Method com/mojang/brigadier/StringReader.peek:()C
+       373: bipush        91
+       375: if_icmpne     399
+       378: aload_0
+       379: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+       382: invokevirtual #486                // Method com/mojang/brigadier/StringReader.skip:()V
+       385: aload_0
+       386: aload_0
+       387: invokedynamic #491,  0            // InvokeDynamic #10:apply:(Lnet/minecraft/commands/arguments/selector/EntitySelectorParser;)Ljava/util/function/BiFunction;
+       392: putfield      #140                // Field suggestions:Ljava/util/function/BiFunction;
+       395: aload_0
+       396: invokevirtual #494                // Method parseOptions:()V
+       399: return
+
+  protected void parseNameOrUUID() throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+         4: invokevirtual #410                // Method com/mojang/brigadier/StringReader.canRead:()Z
+         7: ifeq          20
+        10: aload_0
+        11: aload_0
+        12: invokedynamic #504,  0            // InvokeDynamic #11:apply:(Lnet/minecraft/commands/arguments/selector/EntitySelectorParser;)Ljava/util/function/BiFunction;
+        17: putfield      #140                // Field suggestions:Ljava/util/function/BiFunction;
+        20: aload_0
+        21: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        24: invokevirtual #422                // Method com/mojang/brigadier/StringReader.getCursor:()I
+        27: istore_1
+        28: aload_0
+        29: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        32: invokevirtual #508                // Method com/mojang/brigadier/StringReader.readString:()Ljava/lang/String;
+        35: astore_2
+        36: aload_0
+        37: aload_2
+        38: invokestatic  #514                // Method java/util/UUID.fromString:(Ljava/lang/String;)Ljava/util/UUID;
+        41: putfield      #286                // Field entityUUID:Ljava/util/UUID;
+        44: aload_0
+        45: iconst_1
+        46: putfield      #272                // Field includesEntities:Z
+        49: goto          98
+        52: astore_3
+        53: aload_2
+        54: invokevirtual #517                // Method java/lang/String.isEmpty:()Z
+        57: ifne          69
+        60: aload_2
+        61: invokevirtual #520                // Method java/lang/String.length:()I
+        64: bipush        16
+        66: if_icmple     88
+        69: aload_0
+        70: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        73: iload_1
+        74: invokevirtual #444                // Method com/mojang/brigadier/StringReader.setCursor:(I)V
+        77: getstatic     #522                // Field ERROR_INVALID_NAME_OR_UUID:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;
+        80: aload_0
+        81: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        84: invokevirtual #418                // Method com/mojang/brigadier/exceptions/SimpleCommandExceptionType.createWithContext:(Lcom/mojang/brigadier/ImmutableStringReader;)Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        87: athrow
+        88: aload_0
+        89: iconst_0
+        90: putfield      #272                // Field includesEntities:Z
+        93: aload_0
+        94: aload_2
+        95: putfield      #284                // Field playerName:Ljava/lang/String;
+        98: aload_0
+        99: iconst_1
+       100: putfield      #270                // Field maxResults:I
+       103: return
+      Exception table:
+         from    to  target type
+            36    49    52   Class java/lang/IllegalArgumentException
+
+  protected void parseOptions() throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: aload_0
+         2: invokedynamic #530,  0            // InvokeDynamic #12:apply:(Lnet/minecraft/commands/arguments/selector/EntitySelectorParser;)Ljava/util/function/BiFunction;
+         7: putfield      #140                // Field suggestions:Ljava/util/function/BiFunction;
+        10: aload_0
+        11: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        14: invokevirtual #533                // Method com/mojang/brigadier/StringReader.skipWhitespace:()V
+        17: aload_0
+        18: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        21: invokevirtual #410                // Method com/mojang/brigadier/StringReader.canRead:()Z
+        24: ifeq          234
+        27: aload_0
+        28: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        31: invokevirtual #483                // Method com/mojang/brigadier/StringReader.peek:()C
+        34: bipush        93
+        36: if_icmpeq     234
+        39: aload_0
+        40: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        43: invokevirtual #533                // Method com/mojang/brigadier/StringReader.skipWhitespace:()V
+        46: aload_0
+        47: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        50: invokevirtual #422                // Method com/mojang/brigadier/StringReader.getCursor:()I
+        53: istore_1
+        54: aload_0
+        55: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        58: invokevirtual #508                // Method com/mojang/brigadier/StringReader.readString:()Ljava/lang/String;
+        61: astore_2
+        62: aload_0
+        63: aload_2
+        64: iload_1
+        65: invokestatic  #536                // Method net/minecraft/commands/arguments/selector/options/EntitySelectorOptions.get:(Lnet/minecraft/commands/arguments/selector/EntitySelectorParser;Ljava/lang/String;I)Lnet/minecraft/commands/arguments/selector/options/EntitySelectorOptions$Modifier;
+        68: astore_3
+        69: aload_0
+        70: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        73: invokevirtual #533                // Method com/mojang/brigadier/StringReader.skipWhitespace:()V
+        76: aload_0
+        77: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        80: invokevirtual #410                // Method com/mojang/brigadier/StringReader.canRead:()Z
+        83: ifeq          98
+        86: aload_0
+        87: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        90: invokevirtual #483                // Method com/mojang/brigadier/StringReader.peek:()C
+        93: bipush        61
+        95: if_icmpeq     118
+        98: aload_0
+        99: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+       102: iload_1
+       103: invokevirtual #444                // Method com/mojang/brigadier/StringReader.setCursor:(I)V
+       106: getstatic     #538                // Field ERROR_EXPECTED_OPTION_VALUE:Lcom/mojang/brigadier/exceptions/DynamicCommandExceptionType;
+       109: aload_0
+       110: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+       113: aload_2
+       114: invokevirtual #468                // Method com/mojang/brigadier/exceptions/DynamicCommandExceptionType.createWithContext:(Lcom/mojang/brigadier/ImmutableStringReader;Ljava/lang/Object;)Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+       117: athrow
+       118: aload_0
+       119: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+       122: invokevirtual #486                // Method com/mojang/brigadier/StringReader.skip:()V
+       125: aload_0
+       126: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+       129: invokevirtual #533                // Method com/mojang/brigadier/StringReader.skipWhitespace:()V
+       132: aload_0
+       133: getstatic     #138                // Field SUGGEST_NOTHING:Ljava/util/function/BiFunction;
+       136: putfield      #140                // Field suggestions:Ljava/util/function/BiFunction;
+       139: aload_3
+       140: aload_0
+       141: invokeinterface #542,  2          // InterfaceMethod net/minecraft/commands/arguments/selector/options/EntitySelectorOptions$Modifier.handle:(Lnet/minecraft/commands/arguments/selector/EntitySelectorParser;)V
+       146: aload_0
+       147: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+       150: invokevirtual #533                // Method com/mojang/brigadier/StringReader.skipWhitespace:()V
+       153: aload_0
+       154: aload_0
+       155: invokedynamic #547,  0            // InvokeDynamic #13:apply:(Lnet/minecraft/commands/arguments/selector/EntitySelectorParser;)Ljava/util/function/BiFunction;
+       160: putfield      #140                // Field suggestions:Ljava/util/function/BiFunction;
+       163: aload_0
+       164: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+       167: invokevirtual #410                // Method com/mojang/brigadier/StringReader.canRead:()Z
+       170: ifeq          231
+       173: aload_0
+       174: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+       177: invokevirtual #483                // Method com/mojang/brigadier/StringReader.peek:()C
+       180: bipush        44
+       182: if_icmpne     205
+       185: aload_0
+       186: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+       189: invokevirtual #486                // Method com/mojang/brigadier/StringReader.skip:()V
+       192: aload_0
+       193: aload_0
+       194: invokedynamic #530,  0            // InvokeDynamic #12:apply:(Lnet/minecraft/commands/arguments/selector/EntitySelectorParser;)Ljava/util/function/BiFunction;
+       199: putfield      #140                // Field suggestions:Ljava/util/function/BiFunction;
+       202: goto          231
+       205: aload_0
+       206: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+       209: invokevirtual #483                // Method com/mojang/brigadier/StringReader.peek:()C
+       212: bipush        93
+       214: if_icmpne     220
+       217: goto          234
+       220: getstatic     #549                // Field ERROR_EXPECTED_END_OF_OPTIONS:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;
+       223: aload_0
+       224: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+       227: invokevirtual #418                // Method com/mojang/brigadier/exceptions/SimpleCommandExceptionType.createWithContext:(Lcom/mojang/brigadier/ImmutableStringReader;)Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+       230: athrow
+       231: goto          17
+       234: aload_0
+       235: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+       238: invokevirtual #410                // Method com/mojang/brigadier/StringReader.canRead:()Z
+       241: ifeq          261
+       244: aload_0
+       245: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+       248: invokevirtual #486                // Method com/mojang/brigadier/StringReader.skip:()V
+       251: aload_0
+       252: getstatic     #138                // Field SUGGEST_NOTHING:Ljava/util/function/BiFunction;
+       255: putfield      #140                // Field suggestions:Ljava/util/function/BiFunction;
+       258: goto          272
+       261: getstatic     #549                // Field ERROR_EXPECTED_END_OF_OPTIONS:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;
+       264: aload_0
+       265: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+       268: invokevirtual #418                // Method com/mojang/brigadier/exceptions/SimpleCommandExceptionType.createWithContext:(Lcom/mojang/brigadier/ImmutableStringReader;)Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+       271: athrow
+       272: return
+
+  public boolean shouldInvertValue();
+    Code:
+         0: aload_0
+         1: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+         4: invokevirtual #533                // Method com/mojang/brigadier/StringReader.skipWhitespace:()V
+         7: aload_0
+         8: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        11: invokevirtual #410                // Method com/mojang/brigadier/StringReader.canRead:()Z
+        14: ifeq          45
+        17: aload_0
+        18: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        21: invokevirtual #483                // Method com/mojang/brigadier/StringReader.peek:()C
+        24: bipush        33
+        26: if_icmpne     45
+        29: aload_0
+        30: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        33: invokevirtual #486                // Method com/mojang/brigadier/StringReader.skip:()V
+        36: aload_0
+        37: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        40: invokevirtual #533                // Method com/mojang/brigadier/StringReader.skipWhitespace:()V
+        43: iconst_1
+        44: ireturn
+        45: iconst_0
+        46: ireturn
+
+  public boolean isTag();
+    Code:
+         0: aload_0
+         1: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+         4: invokevirtual #533                // Method com/mojang/brigadier/StringReader.skipWhitespace:()V
+         7: aload_0
+         8: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        11: invokevirtual #410                // Method com/mojang/brigadier/StringReader.canRead:()Z
+        14: ifeq          45
+        17: aload_0
+        18: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        21: invokevirtual #483                // Method com/mojang/brigadier/StringReader.peek:()C
+        24: bipush        35
+        26: if_icmpne     45
+        29: aload_0
+        30: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        33: invokevirtual #486                // Method com/mojang/brigadier/StringReader.skip:()V
+        36: aload_0
+        37: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        40: invokevirtual #533                // Method com/mojang/brigadier/StringReader.skipWhitespace:()V
+        43: iconst_1
+        44: ireturn
+        45: iconst_0
+        46: ireturn
+
+  public com.mojang.brigadier.StringReader getReader();
+    Code:
+         0: aload_0
+         1: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+         4: areturn
+
+  public void addPredicate(java.util.function.Predicate<net.minecraft.world.entity.Entity>);
+    Code:
+         0: aload_0
+         1: getfield      #129                // Field predicates:Ljava/util/List;
+         4: aload_1
+         5: invokeinterface #334,  2          // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+        10: pop
+        11: return
+
+  public void setWorldLimited();
+    Code:
+         0: aload_0
+         1: iconst_1
+         2: putfield      #274                // Field worldLimited:Z
+         5: return
+
+  public net.minecraft.advancements.predicates.MinMaxBounds$Doubles getDistance();
+    Code:
+         0: aload_0
+         1: getfield      #215                // Field distance:Lnet/minecraft/advancements/predicates/MinMaxBounds$Doubles;
+         4: areturn
+
+  public void setDistance(net.minecraft.advancements.predicates.MinMaxBounds$Doubles);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: putfield      #215                // Field distance:Lnet/minecraft/advancements/predicates/MinMaxBounds$Doubles;
+         5: return
+
+  public net.minecraft.advancements.predicates.MinMaxBounds$Ints getLevel();
+    Code:
+         0: aload_0
+         1: getfield      #343                // Field level:Lnet/minecraft/advancements/predicates/MinMaxBounds$Ints;
+         4: areturn
+
+  public void setLevel(net.minecraft.advancements.predicates.MinMaxBounds$Ints);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: putfield      #343                // Field level:Lnet/minecraft/advancements/predicates/MinMaxBounds$Ints;
+         5: return
+
+  public net.minecraft.advancements.predicates.MinMaxBounds$FloatDegrees getRotX();
+    Code:
+         0: aload_0
+         1: getfield      #312                // Field rotX:Lnet/minecraft/advancements/predicates/MinMaxBounds$FloatDegrees;
+         4: areturn
+
+  public void setRotX(net.minecraft.advancements.predicates.MinMaxBounds$FloatDegrees);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: putfield      #312                // Field rotX:Lnet/minecraft/advancements/predicates/MinMaxBounds$FloatDegrees;
+         5: return
+
+  public net.minecraft.advancements.predicates.MinMaxBounds$FloatDegrees getRotY();
+    Code:
+         0: aload_0
+         1: getfield      #336                // Field rotY:Lnet/minecraft/advancements/predicates/MinMaxBounds$FloatDegrees;
+         4: areturn
+
+  public void setRotY(net.minecraft.advancements.predicates.MinMaxBounds$FloatDegrees);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: putfield      #336                // Field rotY:Lnet/minecraft/advancements/predicates/MinMaxBounds$FloatDegrees;
+         5: return
+
+  public java.lang.Double getX();
+    Code:
+         0: aload_0
+         1: getfield      #236                // Field x:Ljava/lang/Double;
+         4: areturn
+
+  public java.lang.Double getY();
+    Code:
+         0: aload_0
+         1: getfield      #238                // Field y:Ljava/lang/Double;
+         4: areturn
+
+  public java.lang.Double getZ();
+    Code:
+         0: aload_0
+         1: getfield      #240                // Field z:Ljava/lang/Double;
+         4: areturn
+
+  public void setX(double);
+    Code:
+         0: aload_0
+         1: dload_1
+         2: invokestatic  #586                // Method java/lang/Double.valueOf:(D)Ljava/lang/Double;
+         5: putfield      #236                // Field x:Ljava/lang/Double;
+         8: return
+
+  public void setY(double);
+    Code:
+         0: aload_0
+         1: dload_1
+         2: invokestatic  #586                // Method java/lang/Double.valueOf:(D)Ljava/lang/Double;
+         5: putfield      #238                // Field y:Ljava/lang/Double;
+         8: return
+
+  public void setZ(double);
+    Code:
+         0: aload_0
+         1: dload_1
+         2: invokestatic  #586                // Method java/lang/Double.valueOf:(D)Ljava/lang/Double;
+         5: putfield      #240                // Field z:Ljava/lang/Double;
+         8: return
+
+  public void setDeltaX(double);
+    Code:
+         0: aload_0
+         1: dload_1
+         2: invokestatic  #586                // Method java/lang/Double.valueOf:(D)Ljava/lang/Double;
+         5: putfield      #199                // Field deltaX:Ljava/lang/Double;
+         8: return
+
+  public void setDeltaY(double);
+    Code:
+         0: aload_0
+         1: dload_1
+         2: invokestatic  #586                // Method java/lang/Double.valueOf:(D)Ljava/lang/Double;
+         5: putfield      #201                // Field deltaY:Ljava/lang/Double;
+         8: return
+
+  public void setDeltaZ(double);
+    Code:
+         0: aload_0
+         1: dload_1
+         2: invokestatic  #586                // Method java/lang/Double.valueOf:(D)Ljava/lang/Double;
+         5: putfield      #203                // Field deltaZ:Ljava/lang/Double;
+         8: return
+
+  public java.lang.Double getDeltaX();
+    Code:
+         0: aload_0
+         1: getfield      #199                // Field deltaX:Ljava/lang/Double;
+         4: areturn
+
+  public java.lang.Double getDeltaY();
+    Code:
+         0: aload_0
+         1: getfield      #201                // Field deltaY:Ljava/lang/Double;
+         4: areturn
+
+  public java.lang.Double getDeltaZ();
+    Code:
+         0: aload_0
+         1: getfield      #203                // Field deltaZ:Ljava/lang/Double;
+         4: areturn
+
+  public void setMaxResults(int);
+    Code:
+         0: aload_0
+         1: iload_1
+         2: putfield      #270                // Field maxResults:I
+         5: return
+
+  public void setIncludesEntities(boolean);
+    Code:
+         0: aload_0
+         1: iload_1
+         2: putfield      #272                // Field includesEntities:Z
+         5: return
+
+  public java.util.function.BiConsumer<net.minecraft.world.phys.Vec3, java.util.List<? extends net.minecraft.world.entity.Entity>> getOrder();
+    Code:
+         0: aload_0
+         1: getfield      #136                // Field order:Ljava/util/function/BiConsumer;
+         4: areturn
+
+  public void setOrder(java.util.function.BiConsumer<net.minecraft.world.phys.Vec3, java.util.List<? extends net.minecraft.world.entity.Entity>>);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: putfield      #136                // Field order:Ljava/util/function/BiConsumer;
+         5: return
+
+  public net.minecraft.commands.arguments.selector.EntitySelector parse() throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: aload_0
+         2: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+         5: invokevirtual #422                // Method com/mojang/brigadier/StringReader.getCursor:()I
+         8: putfield      #606                // Field startPosition:I
+        11: aload_0
+        12: aload_0
+        13: invokedynamic #611,  0            // InvokeDynamic #14:apply:(Lnet/minecraft/commands/arguments/selector/EntitySelectorParser;)Ljava/util/function/BiFunction;
+        18: putfield      #140                // Field suggestions:Ljava/util/function/BiFunction;
+        21: aload_0
+        22: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        25: invokevirtual #410                // Method com/mojang/brigadier/StringReader.canRead:()Z
+        28: ifeq          75
+        31: aload_0
+        32: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        35: invokevirtual #483                // Method com/mojang/brigadier/StringReader.peek:()C
+        38: bipush        64
+        40: if_icmpne     75
+        43: aload_0
+        44: getfield      #166                // Field allowSelectors:Z
+        47: ifne          61
+        50: getstatic     #613                // Field ERROR_SELECTORS_NOT_ALLOWED:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;
+        53: aload_0
+        54: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        57: invokevirtual #418                // Method com/mojang/brigadier/exceptions/SimpleCommandExceptionType.createWithContext:(Lcom/mojang/brigadier/ImmutableStringReader;)Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        60: athrow
+        61: aload_0
+        62: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+        65: invokevirtual #486                // Method com/mojang/brigadier/StringReader.skip:()V
+        68: aload_0
+        69: invokevirtual #615                // Method parseSelector:()V
+        72: goto          79
+        75: aload_0
+        76: invokevirtual #617                // Method parseNameOrUUID:()V
+        79: aload_0
+        80: invokevirtual #619                // Method finalizePredicates:()V
+        83: aload_0
+        84: invokevirtual #621                // Method getSelector:()Lnet/minecraft/commands/arguments/selector/EntitySelector;
+        87: areturn
+
+  private static void fillSelectorSuggestions(com.mojang.brigadier.suggestion.SuggestionsBuilder);
+    Code:
+         0: aload_0
+         1: ldc_w         #626                // String @p
+         4: ldc_w         #628                // String argument.entity.selector.nearestPlayer
+         7: invokestatic  #634                // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+        10: invokevirtual #640                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.suggest:(Ljava/lang/String;Lcom/mojang/brigadier/Message;)Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;
+        13: pop
+        14: aload_0
+        15: ldc_w         #642                // String @a
+        18: ldc_w         #644                // String argument.entity.selector.allPlayers
+        21: invokestatic  #634                // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+        24: invokevirtual #640                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.suggest:(Ljava/lang/String;Lcom/mojang/brigadier/Message;)Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;
+        27: pop
+        28: aload_0
+        29: ldc_w         #646                // String @r
+        32: ldc_w         #648                // String argument.entity.selector.randomPlayer
+        35: invokestatic  #634                // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+        38: invokevirtual #640                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.suggest:(Ljava/lang/String;Lcom/mojang/brigadier/Message;)Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;
+        41: pop
+        42: aload_0
+        43: ldc_w         #650                // String @s
+        46: ldc_w         #652                // String argument.entity.selector.self
+        49: invokestatic  #634                // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+        52: invokevirtual #640                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.suggest:(Ljava/lang/String;Lcom/mojang/brigadier/Message;)Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;
+        55: pop
+        56: aload_0
+        57: ldc_w         #654                // String @e
+        60: ldc_w         #656                // String argument.entity.selector.allEntities
+        63: invokestatic  #634                // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+        66: invokevirtual #640                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.suggest:(Ljava/lang/String;Lcom/mojang/brigadier/Message;)Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;
+        69: pop
+        70: aload_0
+        71: ldc_w         #658                // String @n
+        74: ldc_w         #660                // String argument.entity.selector.nearestEntity
+        77: invokestatic  #634                // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+        80: invokevirtual #640                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.suggest:(Ljava/lang/String;Lcom/mojang/brigadier/Message;)Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;
+        83: pop
+        84: return
+
+  private java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> suggestNameOrSelector(com.mojang.brigadier.suggestion.SuggestionsBuilder, java.util.function.Consumer<com.mojang.brigadier.suggestion.SuggestionsBuilder>);
+    Code:
+         0: aload_2
+         1: aload_1
+         2: invokeinterface #669,  2          // InterfaceMethod java/util/function/Consumer.accept:(Ljava/lang/Object;)V
+         7: aload_0
+         8: getfield      #166                // Field allowSelectors:Z
+        11: ifeq          18
+        14: aload_1
+        15: invokestatic  #671                // Method fillSelectorSuggestions:(Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;)V
+        18: aload_1
+        19: invokevirtual #675                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.buildFuture:()Ljava/util/concurrent/CompletableFuture;
+        22: areturn
+
+  private java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> suggestName(com.mojang.brigadier.suggestion.SuggestionsBuilder, java.util.function.Consumer<com.mojang.brigadier.suggestion.SuggestionsBuilder>);
+    Code:
+         0: aload_1
+         1: aload_0
+         2: getfield      #606                // Field startPosition:I
+         5: invokevirtual #681                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.createOffset:(I)Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;
+         8: astore_3
+         9: aload_2
+        10: aload_3
+        11: invokeinterface #669,  2          // InterfaceMethod java/util/function/Consumer.accept:(Ljava/lang/Object;)V
+        16: aload_1
+        17: aload_3
+        18: invokevirtual #684                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.add:(Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;)Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;
+        21: invokevirtual #675                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.buildFuture:()Ljava/util/concurrent/CompletableFuture;
+        24: areturn
+
+  private java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> suggestSelector(com.mojang.brigadier.suggestion.SuggestionsBuilder, java.util.function.Consumer<com.mojang.brigadier.suggestion.SuggestionsBuilder>);
+    Code:
+         0: aload_1
+         1: aload_1
+         2: invokevirtual #688                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.getStart:()I
+         5: iconst_1
+         6: isub
+         7: invokevirtual #681                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.createOffset:(I)Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;
+        10: astore_3
+        11: aload_3
+        12: invokestatic  #671                // Method fillSelectorSuggestions:(Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;)V
+        15: aload_1
+        16: aload_3
+        17: invokevirtual #684                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.add:(Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;)Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;
+        20: pop
+        21: aload_1
+        22: invokevirtual #675                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.buildFuture:()Ljava/util/concurrent/CompletableFuture;
+        25: areturn
+
+  private java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> suggestOpenOptions(com.mojang.brigadier.suggestion.SuggestionsBuilder, java.util.function.Consumer<com.mojang.brigadier.suggestion.SuggestionsBuilder>);
+    Code:
+         0: aload_1
+         1: bipush        91
+         3: invokestatic  #451                // Method java/lang/String.valueOf:(C)Ljava/lang/String;
+         6: invokevirtual #691                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.suggest:(Ljava/lang/String;)Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;
+         9: pop
+        10: aload_1
+        11: invokevirtual #675                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.buildFuture:()Ljava/util/concurrent/CompletableFuture;
+        14: areturn
+
+  private java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> suggestOptionsKeyOrClose(com.mojang.brigadier.suggestion.SuggestionsBuilder, java.util.function.Consumer<com.mojang.brigadier.suggestion.SuggestionsBuilder>);
+    Code:
+         0: aload_1
+         1: bipush        93
+         3: invokestatic  #451                // Method java/lang/String.valueOf:(C)Ljava/lang/String;
+         6: invokevirtual #691                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.suggest:(Ljava/lang/String;)Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;
+         9: pop
+        10: aload_0
+        11: aload_1
+        12: invokestatic  #695                // Method net/minecraft/commands/arguments/selector/options/EntitySelectorOptions.suggestNames:(Lnet/minecraft/commands/arguments/selector/EntitySelectorParser;Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;)V
+        15: aload_1
+        16: invokevirtual #675                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.buildFuture:()Ljava/util/concurrent/CompletableFuture;
+        19: areturn
+
+  private java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> suggestOptionsKey(com.mojang.brigadier.suggestion.SuggestionsBuilder, java.util.function.Consumer<com.mojang.brigadier.suggestion.SuggestionsBuilder>);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokestatic  #695                // Method net/minecraft/commands/arguments/selector/options/EntitySelectorOptions.suggestNames:(Lnet/minecraft/commands/arguments/selector/EntitySelectorParser;Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;)V
+         5: aload_1
+         6: invokevirtual #675                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.buildFuture:()Ljava/util/concurrent/CompletableFuture;
+         9: areturn
+
+  private java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> suggestOptionsNextOrClose(com.mojang.brigadier.suggestion.SuggestionsBuilder, java.util.function.Consumer<com.mojang.brigadier.suggestion.SuggestionsBuilder>);
+    Code:
+         0: aload_1
+         1: bipush        44
+         3: invokestatic  #451                // Method java/lang/String.valueOf:(C)Ljava/lang/String;
+         6: invokevirtual #691                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.suggest:(Ljava/lang/String;)Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;
+         9: pop
+        10: aload_1
+        11: bipush        93
+        13: invokestatic  #451                // Method java/lang/String.valueOf:(C)Ljava/lang/String;
+        16: invokevirtual #691                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.suggest:(Ljava/lang/String;)Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;
+        19: pop
+        20: aload_1
+        21: invokevirtual #675                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.buildFuture:()Ljava/util/concurrent/CompletableFuture;
+        24: areturn
+
+  private java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> suggestEquals(com.mojang.brigadier.suggestion.SuggestionsBuilder, java.util.function.Consumer<com.mojang.brigadier.suggestion.SuggestionsBuilder>);
+    Code:
+         0: aload_1
+         1: bipush        61
+         3: invokestatic  #451                // Method java/lang/String.valueOf:(C)Ljava/lang/String;
+         6: invokevirtual #691                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.suggest:(Ljava/lang/String;)Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;
+         9: pop
+        10: aload_1
+        11: invokevirtual #675                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.buildFuture:()Ljava/util/concurrent/CompletableFuture;
+        14: areturn
+
+  public boolean isCurrentEntity();
+    Code:
+         0: aload_0
+         1: getfield      #282                // Field currentEntity:Z
+         4: ireturn
+
+  public void setSuggestions(java.util.function.BiFunction<com.mojang.brigadier.suggestion.SuggestionsBuilder, java.util.function.Consumer<com.mojang.brigadier.suggestion.SuggestionsBuilder>, java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions>>);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: putfield      #140                // Field suggestions:Ljava/util/function/BiFunction;
+         5: return
+
+  public java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> fillSuggestions(com.mojang.brigadier.suggestion.SuggestionsBuilder, java.util.function.Consumer<com.mojang.brigadier.suggestion.SuggestionsBuilder>);
+    Code:
+         0: aload_0
+         1: getfield      #140                // Field suggestions:Ljava/util/function/BiFunction;
+         4: aload_1
+         5: aload_0
+         6: getfield      #164                // Field reader:Lcom/mojang/brigadier/StringReader;
+         9: invokevirtual #422                // Method com/mojang/brigadier/StringReader.getCursor:()I
+        12: invokevirtual #681                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.createOffset:(I)Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;
+        15: aload_2
+        16: invokeinterface #705,  3          // InterfaceMethod java/util/function/BiFunction.apply:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        21: checkcast     #707                // class java/util/concurrent/CompletableFuture
+        24: areturn
+
+  public net.minecraft.commands.arguments.selector.options.InvertableSetOptionState nameOption();
+    Code:
+         0: aload_0
+         1: getfield      #145                // Field nameOption:Lnet/minecraft/commands/arguments/selector/options/InvertableSetOptionState;
+         4: areturn
+
+  public net.minecraft.commands.arguments.selector.options.SetOnceOptionState limitedOption();
+    Code:
+         0: aload_0
+         1: getfield      #150                // Field limitedOption:Lnet/minecraft/commands/arguments/selector/options/SetOnceOptionState;
+         4: areturn
+
+  public net.minecraft.commands.arguments.selector.options.SetOnceOptionState sortedOption();
+    Code:
+         0: aload_0
+         1: getfield      #152                // Field sortedOption:Lnet/minecraft/commands/arguments/selector/options/SetOnceOptionState;
+         4: areturn
+
+  public net.minecraft.commands.arguments.selector.options.InvertableSetOptionState gamemodeOption();
+    Code:
+         0: aload_0
+         1: getfield      #154                // Field gamemodeOption:Lnet/minecraft/commands/arguments/selector/options/InvertableSetOptionState;
+         4: areturn
+
+  public net.minecraft.commands.arguments.selector.options.InvertableSetOptionState teamOption();
+    Code:
+         0: aload_0
+         1: getfield      #156                // Field teamOption:Lnet/minecraft/commands/arguments/selector/options/InvertableSetOptionState;
+         4: areturn
+
+  public void limitToType(net.minecraft.world.entity.EntityType<?>);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: putfield      #288                // Field type:Lnet/minecraft/world/entity/EntityType;
+         5: return
+
+  public net.minecraft.commands.arguments.selector.options.InvertableSetOptionState typeOption();
+    Code:
+         0: aload_0
+         1: getfield      #158                // Field typeOption:Lnet/minecraft/commands/arguments/selector/options/InvertableSetOptionState;
+         4: areturn
+
+  public net.minecraft.commands.arguments.selector.options.SetOnceOptionState scoresOption();
+    Code:
+         0: aload_0
+         1: getfield      #160                // Field scoresOption:Lnet/minecraft/commands/arguments/selector/options/SetOnceOptionState;
+         4: areturn
+
+  public net.minecraft.commands.arguments.selector.options.SetOnceOptionState advancementsOption();
+    Code:
+         0: aload_0
+         1: getfield      #162                // Field advancementsOption:Lnet/minecraft/commands/arguments/selector/options/SetOnceOptionState;
+         4: areturn
+
+  private static boolean lambda$createRotationPredicate$0(net.minecraft.util.ToFloatFunction, float, float, net.minecraft.world.entity.Entity);
+    Code:
+         0: aload_0
+         1: aload_3
+         2: invokeinterface #714,  2          // InterfaceMethod net/minecraft/util/ToFloatFunction.applyAsFloat:(Ljava/lang/Object;)F
+         7: invokestatic  #378                // Method net/minecraft/util/Mth.wrapDegrees:(F)F
+        10: fstore        4
+        12: fload_1
+        13: fload_2
+        14: fcmpl
+        15: ifle          38
+        18: fload         4
+        20: fload_1
+        21: fcmpl
+        22: ifge          32
+        25: fload         4
+        27: fload_2
+        28: fcmpg
+        29: ifgt          36
+        32: iconst_1
+        33: goto          37
+        36: iconst_0
+        37: ireturn
+        38: fload         4
+        40: fload_1
+        41: fcmpl
+        42: iflt          56
+        45: fload         4
+        47: fload_2
+        48: fcmpg
+        49: ifgt          56
+        52: iconst_1
+        53: goto          57
+        56: iconst_0
+        57: ireturn
+
+  private boolean lambda$finalizePredicates$0(net.minecraft.world.entity.Entity);
+    Code:
+         0: aload_1
+         1: instanceof    #719                // class net/minecraft/server/level/ServerPlayer
+         4: ifeq          30
+         7: aload_1
+         8: checkcast     #719                // class net/minecraft/server/level/ServerPlayer
+        11: astore_2
+        12: aload_0
+        13: getfield      #343                // Field level:Lnet/minecraft/advancements/predicates/MinMaxBounds$Ints;
+        16: aload_2
+        17: getfield      #722                // Field net/minecraft/server/level/ServerPlayer.experienceLevel:I
+        20: invokevirtual #726                // Method net/minecraft/advancements/predicates/MinMaxBounds$Ints.matches:(I)Z
+        23: ifeq          30
+        26: iconst_1
+        27: goto          31
+        30: iconst_0
+        31: ireturn
+
+  private net.minecraft.world.phys.Vec3 lambda$getSelector$1(net.minecraft.world.phys.Vec3);
+    Code:
+         0: new           #730                // class net/minecraft/world/phys/Vec3
+         3: dup
+         4: aload_0
+         5: getfield      #236                // Field x:Ljava/lang/Double;
+         8: ifnonnull     18
+        11: aload_1
+        12: getfield      #732                // Field net/minecraft/world/phys/Vec3.x:D
+        15: goto          25
+        18: aload_0
+        19: getfield      #236                // Field x:Ljava/lang/Double;
+        22: invokevirtual #209                // Method java/lang/Double.doubleValue:()D
+        25: aload_0
+        26: getfield      #238                // Field y:Ljava/lang/Double;
+        29: ifnonnull     39
+        32: aload_1
+        33: getfield      #734                // Field net/minecraft/world/phys/Vec3.y:D
+        36: goto          46
+        39: aload_0
+        40: getfield      #238                // Field y:Ljava/lang/Double;
+        43: invokevirtual #209                // Method java/lang/Double.doubleValue:()D
+        46: aload_0
+        47: getfield      #240                // Field z:Ljava/lang/Double;
+        50: ifnonnull     60
+        53: aload_1
+        54: getfield      #736                // Field net/minecraft/world/phys/Vec3.z:D
+        57: goto          67
+        60: aload_0
+        61: getfield      #240                // Field z:Ljava/lang/Double;
+        64: invokevirtual #209                // Method java/lang/Double.doubleValue:()D
+        67: invokespecial #739                // Method net/minecraft/world/phys/Vec3."<init>":(DDD)V
+        70: areturn
+
+  private static net.minecraft.world.phys.Vec3 lambda$getSelector$0(net.minecraft.world.phys.Vec3);
+    Code:
+         0: aload_0
+         1: areturn
+
+  private static java.util.concurrent.CompletableFuture lambda$static$7(com.mojang.brigadier.suggestion.SuggestionsBuilder, java.util.function.Consumer);
+    Code:
+         0: aload_0
+         1: invokevirtual #675                // Method com/mojang/brigadier/suggestion/SuggestionsBuilder.buildFuture:()Ljava/util/concurrent/CompletableFuture;
+         4: areturn
+
+  private static void lambda$static$6(net.minecraft.world.phys.Vec3, java.util.List);
+    Code:
+         0: aload_1
+         1: invokestatic  #752                // Method java/util/Collections.shuffle:(Ljava/util/List;)V
+         4: return
+
+  private static void lambda$static$4(net.minecraft.world.phys.Vec3, java.util.List);
+    Code:
+         0: aload_1
+         1: aload_0
+         2: invokedynamic #768,  0            // InvokeDynamic #15:compare:(Lnet/minecraft/world/phys/Vec3;)Ljava/util/Comparator;
+         7: invokeinterface #772,  2          // InterfaceMethod java/util/List.sort:(Ljava/util/Comparator;)V
+        12: return
+
+  private static int lambda$static$5(net.minecraft.world.phys.Vec3, net.minecraft.world.entity.Entity, net.minecraft.world.entity.Entity);
+    Code:
+         0: aload_2
+         1: aload_0
+         2: invokevirtual #776                // Method net/minecraft/world/entity/Entity.distanceToSqr:(Lnet/minecraft/world/phys/Vec3;)D
+         5: aload_1
+         6: aload_0
+         7: invokevirtual #776                // Method net/minecraft/world/entity/Entity.distanceToSqr:(Lnet/minecraft/world/phys/Vec3;)D
+        10: invokestatic  #781                // Method com/google/common/primitives/Doubles.compare:(DD)I
+        13: ireturn
+
+  private static void lambda$static$2(net.minecraft.world.phys.Vec3, java.util.List);
+    Code:
+         0: aload_1
+         1: aload_0
+         2: invokedynamic #788,  0            // InvokeDynamic #16:compare:(Lnet/minecraft/world/phys/Vec3;)Ljava/util/Comparator;
+         7: invokeinterface #772,  2          // InterfaceMethod java/util/List.sort:(Ljava/util/Comparator;)V
+        12: return
+
+  private static int lambda$static$3(net.minecraft.world.phys.Vec3, net.minecraft.world.entity.Entity, net.minecraft.world.entity.Entity);
+    Code:
+         0: aload_1
+         1: aload_0
+         2: invokevirtual #776                // Method net/minecraft/world/entity/Entity.distanceToSqr:(Lnet/minecraft/world/phys/Vec3;)D
+         5: aload_2
+         6: aload_0
+         7: invokevirtual #776                // Method net/minecraft/world/entity/Entity.distanceToSqr:(Lnet/minecraft/world/phys/Vec3;)D
+        10: invokestatic  #781                // Method com/google/common/primitives/Doubles.compare:(DD)I
+        13: ireturn
+
+  private static com.mojang.brigadier.Message lambda$static$1(java.lang.Object);
+    Code:
+         0: ldc_w         #792                // String argument.entity.options.valueless
+         3: iconst_1
+         4: anewarray     #4                  // class java/lang/Object
+         7: dup
+         8: iconst_0
+         9: aload_0
+        10: aastore
+        11: invokestatic  #796                // InterfaceMethod net/minecraft/network/chat/Component.translatableEscape:(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;
+        14: areturn
+
+  private static com.mojang.brigadier.Message lambda$static$0(java.lang.Object);
+    Code:
+         0: ldc_w         #799                // String argument.entity.selector.unknown
+         3: iconst_1
+         4: anewarray     #4                  // class java/lang/Object
+         7: dup
+         8: iconst_0
+         9: aload_0
+        10: aastore
+        11: invokestatic  #796                // InterfaceMethod net/minecraft/network/chat/Component.translatableEscape:(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;
+        14: areturn
+
+  static {};
+    Code:
+         0: new           #414                // class com/mojang/brigadier/exceptions/SimpleCommandExceptionType
+         3: dup
+         4: ldc_w         #802                // String argument.entity.invalid
+         7: invokestatic  #634                // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+        10: invokespecial #805                // Method com/mojang/brigadier/exceptions/SimpleCommandExceptionType."<init>":(Lcom/mojang/brigadier/Message;)V
+        13: putstatic     #522                // Field ERROR_INVALID_NAME_OR_UUID:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;
+        16: new           #465                // class com/mojang/brigadier/exceptions/DynamicCommandExceptionType
+        19: dup
+        20: invokedynamic #810,  0            // InvokeDynamic #17:apply:()Ljava/util/function/Function;
+        25: invokespecial #813                // Method com/mojang/brigadier/exceptions/DynamicCommandExceptionType."<init>":(Ljava/util/function/Function;)V
+        28: putstatic     #446                // Field ERROR_UNKNOWN_SELECTOR_TYPE:Lcom/mojang/brigadier/exceptions/DynamicCommandExceptionType;
+        31: new           #414                // class com/mojang/brigadier/exceptions/SimpleCommandExceptionType
+        34: dup
+        35: ldc_w         #815                // String argument.entity.selector.not_allowed
+        38: invokestatic  #634                // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+        41: invokespecial #805                // Method com/mojang/brigadier/exceptions/SimpleCommandExceptionType."<init>":(Lcom/mojang/brigadier/Message;)V
+        44: putstatic     #613                // Field ERROR_SELECTORS_NOT_ALLOWED:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;
+        47: new           #414                // class com/mojang/brigadier/exceptions/SimpleCommandExceptionType
+        50: dup
+        51: ldc_w         #817                // String argument.entity.selector.missing
+        54: invokestatic  #634                // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+        57: invokespecial #805                // Method com/mojang/brigadier/exceptions/SimpleCommandExceptionType."<init>":(Lcom/mojang/brigadier/Message;)V
+        60: putstatic     #412                // Field ERROR_MISSING_SELECTOR_TYPE:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;
+        63: new           #414                // class com/mojang/brigadier/exceptions/SimpleCommandExceptionType
+        66: dup
+        67: ldc_w         #819                // String argument.entity.options.unterminated
+        70: invokestatic  #634                // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+        73: invokespecial #805                // Method com/mojang/brigadier/exceptions/SimpleCommandExceptionType."<init>":(Lcom/mojang/brigadier/Message;)V
+        76: putstatic     #549                // Field ERROR_EXPECTED_END_OF_OPTIONS:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;
+        79: new           #465                // class com/mojang/brigadier/exceptions/DynamicCommandExceptionType
+        82: dup
+        83: invokedynamic #823,  0            // InvokeDynamic #18:apply:()Ljava/util/function/Function;
+        88: invokespecial #813                // Method com/mojang/brigadier/exceptions/DynamicCommandExceptionType."<init>":(Ljava/util/function/Function;)V
+        91: putstatic     #538                // Field ERROR_EXPECTED_OPTION_VALUE:Lcom/mojang/brigadier/exceptions/DynamicCommandExceptionType;
+        94: invokedynamic #831,  0            // InvokeDynamic #19:accept:()Ljava/util/function/BiConsumer;
+        99: putstatic     #428                // Field ORDER_NEAREST:Ljava/util/function/BiConsumer;
+       102: invokedynamic #835,  0            // InvokeDynamic #20:accept:()Ljava/util/function/BiConsumer;
+       107: putstatic     #837                // Field ORDER_FURTHEST:Ljava/util/function/BiConsumer;
+       110: invokedynamic #841,  0            // InvokeDynamic #21:accept:()Ljava/util/function/BiConsumer;
+       115: putstatic     #440                // Field ORDER_RANDOM:Ljava/util/function/BiConsumer;
+       118: invokedynamic #847,  0            // InvokeDynamic #22:apply:()Ljava/util/function/BiFunction;
+       123: putstatic     #138                // Field SUGGEST_NOTHING:Ljava/util/function/BiFunction;
+       126: return
+}

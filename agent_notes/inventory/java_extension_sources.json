@@ -1,0 +1,511 @@
+{
+  "source_root": "E:/servers_mew/cringe1_21_4_skywars",
+  "scope": "Inventory only; semantic review tracked separately",
+  "files": [
+    {
+      "source": "mods/luckywarsignite/build.gradle.kts",
+      "sha256": "84a4ec20c45e5271303a660a26646eb51d4aca3a659ae61e0024403b9a8b9b56",
+      "lines": 13
+    },
+    {
+      "source": "mods/luckywarsignite/gradle.properties",
+      "sha256": "c42865735f3f9494876b692e2437885ea055de1016d34980ad2110fa87e2f420",
+      "lines": 5
+    },
+    {
+      "source": "mods/luckywarsignite/src/main/java/me/luckywars/bedwars/mixin/MixinLevel.java",
+      "sha256": "872672137f683b6bc0270161ef447d5dcc574adbe74a6a5b7d26e56e2475b11c",
+      "lines": 53
+    },
+    {
+      "source": "mods/luckywarsignite/src/main/java/me/luckywars/bedwars/mixinhook/BedwarsHooks.java",
+      "sha256": "e05a876e9e8d9244a110c9b1c59e0bd227e45047b011855eaa432d95d1dde6c7",
+      "lines": 84
+    },
+    {
+      "source": "mods/luckywarsignite/src/main/resources/bedwars.mixins.json",
+      "sha256": "4c7f070deb20b48d7cf4b4cdc6559d56fcb7304c926feabd6228836c823696c4",
+      "lines": 10
+    },
+    {
+      "source": "mods/luckywarsignite/src/main/resources/ignite.mod.json",
+      "sha256": "0fe3f650de5bb3dc6b0905edf35eb819ee89037a8cf288b267d09f76a31d7c54",
+      "lines": 7
+    },
+    {
+      "source": "plugins/luckywars/build.gradle",
+      "sha256": "5ac877ea5f506082e07b32bf2e00c07eb348a07e6ea0641cfb967c0837d8c93d",
+      "lines": 69
+    },
+    {
+      "source": "plugins/luckywars/config.yml",
+      "sha256": "5172fb01fe37c69adc0011e6723499c4d4d2ba5bed6c47e2b5599b27383bf01c",
+      "lines": 14
+    },
+    {
+      "source": "plugins/luckywars/settings.gradle",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lines": 0
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/ability/abilities/TerraWand.java",
+      "sha256": "2c93840c0d3362b5613f7f8fc590546b2a8a6459871911698ef4e4119d2586e5",
+      "lines": 41
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/ability/ItemCustomData.java",
+      "sha256": "3b3afd332a4e26c7d7221e481907216e024a70ad2abb26537672e0c7679b4899",
+      "lines": 66
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/ability/UsableItem.java",
+      "sha256": "dee519a7d5b4ed8607e01303b6e08cc398149124af74fd03e823b258d346e211",
+      "lines": 29
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/ability/UsableItemManager.java",
+      "sha256": "665b54ac805f872d05bfd543f153f620a8d601372766f24ea707ff629b06ecc8",
+      "lines": 101
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/badapple/BadAppleCommand.java",
+      "sha256": "b0f8ab62ec220aa7a16fe04d374705226404d2711f719e675213546b7a399b82",
+      "lines": 41
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/badapple/BadAppleService.java",
+      "sha256": "91c9111eea0a98a520b9b5abe72d0c64838596fcb7dd4966a8ee59b164f6ef22",
+      "lines": 793
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/badapple/DiffBinFrameProvider.java",
+      "sha256": "0e7382e27c0838afa8474ce8df4394eb6366aeeb4a8e26d34637f949c3e89796",
+      "lines": 130
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/badapple/FrameProvider.java",
+      "sha256": "3c005f6029ebf73e36a03569d04e53b7e571da8c685b6447aab87b6e6ade130e",
+      "lines": 19
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/badapple/SafeFrameProvider.java",
+      "sha256": "872fb4cbcbc440eaf723cd0781453ab88d44f66684411cc0a871516bc0b4d022",
+      "lines": 40
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/bedwars/BeaconEffectsManager.java",
+      "sha256": "bdacaf89a9c2d9218f809eba5e496b8095b75fa9f6b956377e41d85a3ed22ca0",
+      "lines": 114
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/bedwars/BedwarsBootstrap.java",
+      "sha256": "20758a0f328e9f18a9351870f217dc3e530d03a522bdf2796095a61dc566f709",
+      "lines": 81
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/bedwars/BedwarsCommand.java",
+      "sha256": "b3314223d97b480d80c2c9206d3cfecf05420971e108024dda0a20adaa892686",
+      "lines": 75
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/bedwars/BedwarsDropsListener.java",
+      "sha256": "8d26d47c3673590b679efce77c8c1cf4c3ff1d9bdd2baf92e9c0899ff19ceaad",
+      "lines": 101
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/bedwars/BedwarsProtectorPlugin.java",
+      "sha256": "fb74e51eecfdc57c42428b3369e944e215e363407b6a82fe2ac1738264e8fac1",
+      "lines": 29
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/bedwars/BedwarsRegionManager.java",
+      "sha256": "c672e2b0256c27e33b6cd799a1f1aa9fac309769cc834ea59b8e22e681adf20e",
+      "lines": 159
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/bedwars/BedwarsShopGui.java",
+      "sha256": "19aad05d4a813645866d477022d913fa59f69f2a5649c410e2724b7d688e71d1",
+      "lines": 728
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/bedwars/BedwarsShopListener.java",
+      "sha256": "1b1e4ba6710bae9e920ed9a72b5ee27e51ea3d3076fab34fdbd44a349a2d3b16",
+      "lines": 150
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/bedwars/MapClearCommand.java",
+      "sha256": "85399deeb77e0c75f23c212e2e0fd58c6be8a9b6116c3a4474405abc4e62b20f",
+      "lines": 473
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/bedwars/ProtectionListener.java",
+      "sha256": "2d644e8e30f8be3f795d6de74c80f85e9197eda228e0e5c1e05eab67d9a2f6fa",
+      "lines": 309
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/bedwars/ShopMobIgnoreListener.java",
+      "sha256": "26a672497130714ff2d020966b8554fb7a7ec3dcbb44e54b6b7ad9e8211b3a23",
+      "lines": 69
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/bedwars/TeamChestManager.java",
+      "sha256": "950084f9729847660a077c974cbcbb71bc8aa9e48e02400e4645d28b2e477067",
+      "lines": 145
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/bedwars/TeamInitCommand.java",
+      "sha256": "292763f086099331487067445df8f37ecee1edff6782732d7bdf76f6fdcb7deb",
+      "lines": 570
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/bedwars/TeamZombieEggListener.java",
+      "sha256": "9754d8033f0a2943a682586ad6a7aed9044eda56461f29663a4c8de83cc23300",
+      "lines": 126
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/bedwars/util/CurrencyUtil.java",
+      "sha256": "8ed267a9b5376ab2a8106918c435c7fcc18164b2ad4f89f039ea7bc91070bebd",
+      "lines": 178
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/bedwars/util/DyeColorOfTeam.java",
+      "sha256": "9e0dca70944a365f33bd07d1bb40e03a2e074d21459bfe8a05bc4764ecca9890",
+      "lines": 225
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/bedwars/util/EnchantOps.java",
+      "sha256": "fb63a5cbba7db9bfe0eab3a91011d63010aa7c6f42c80533f796db179896cc36",
+      "lines": 170
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/bedwars/util/InventoryUtil.java",
+      "sha256": "779d68f6a074826ff192c6b05c493d419bd975f8a0b72a984c3acbe54d564387",
+      "lines": 78
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/bedwars/util/ItemTag.java",
+      "sha256": "9f3d902d72a9b0d675a3d60d4a8a52df10f372f1ced50be159826b04fc3fec26",
+      "lines": 128
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/bedwars/util/LootUtil.java",
+      "sha256": "a24b09a1a4ace80ee07d3883292d0fcd690c6a5487efc0c29d391b1d1ed40898",
+      "lines": 70
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/BuildManagerImpl.java",
+      "sha256": "eff238ce07fd2fceb0021e825452ebdb3396990cce5eeea0d0b7e791cb101e06",
+      "lines": 627
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/command/AntigravityCommand.java",
+      "sha256": "4359f26a66d30ae8ee74519106cfd08ef5e57749c48e33fa7981fb420e1e95c6",
+      "lines": 123
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/command/CommandRegistry.java",
+      "sha256": "4e63749e4dabc75de6c3e3d7e76d3d39574dda58c21bb6385aa5d3599013039c",
+      "lines": 207
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/command/DevCommand.java",
+      "sha256": "8b0bdf2aa494db8e128dd451bb9ef88f6c746533c359265e38a71472117a9c24",
+      "lines": 41
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/command/MidasCommand.java",
+      "sha256": "bbbc99638f43407418646759f6fbb2fbc2f8fb0ab85e354b85211296684f247a",
+      "lines": 274
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/command/MotionBrigadier.java",
+      "sha256": "10a12010147304a520c04c53aa9f95dcbf70f0753271cd72e0ee570a333c7d7f",
+      "lines": 455
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/command/NexusCloneCommand.java",
+      "sha256": "8eabeef093587986c3763ee4be292d73cbcff19fc97df8af78cb87064add9ef1",
+      "lines": 251
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/command/PulsarCommand.java",
+      "sha256": "9bf633aaa8c7ee667f5cecfcdb837fe5de207202ffba5e5ea32a1a9a237f25e5",
+      "lines": 211
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/command/Regeneration.java",
+      "sha256": "bb685b0f6047091f053ed7aa54caea1a2a4d2dca649716ade250f0996275d7c1",
+      "lines": 683
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/config/GameSettings.java",
+      "sha256": "8494a80bb6d2be336db19a104847029f4e3d4938761261479ac639dd722d2b98",
+      "lines": 265
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/config/GameValues.java",
+      "sha256": "7981468c3bd7d20567ad0f8c49e14ec94fd393d1fb285cc67d8e4128c5e207f4",
+      "lines": 67
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/game/ChestLootFiller.java",
+      "sha256": "f8e50e75d3351a90881e4a8c86c60095852a3c2f9fa41807e9b03d50abbe6543",
+      "lines": 82
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/game/GameManager.java",
+      "sha256": "e5fe305d68c3a00d4178ece83c7d188b8dde6f970a508bb242add1b42be2ecee",
+      "lines": 918
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/game/GameStage.java",
+      "sha256": "142aae96050cfb7ff12e201657746e398663660a8b417e0ba16dfcf190427fc1",
+      "lines": 25
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/game/GameState.java",
+      "sha256": "5fef2aae12749e3a84c64f13b1c8bcddb79e8915a8c7ec8a4ab43474470259ef",
+      "lines": 103
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/game/loadout/Loadout.java",
+      "sha256": "5a0b2bd32fce4313e365e49d897c8c7b34005a4a6447270aed5c64c940e657a3",
+      "lines": 87
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/game/Match.java",
+      "sha256": "876cba1f6bea55fd7ebbccee4b421634540f3c0a3bc0a8ee8b5df0ec91ffd00d",
+      "lines": 136
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/game/stage/StageEvents.java",
+      "sha256": "8b3c49176d4a91a23d680b9bce22952fb5f5105ab633afef648da7b2ca833635",
+      "lines": 226
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/gui/GuiItems.java",
+      "sha256": "ede28e18b67def1da272fcd899c0540b3f8527fee8e57d9ba0838b15b593e6ad",
+      "lines": 155
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/gui/GuiManager.java",
+      "sha256": "22a0dd8ea38959029f815c6e81ffbb6de2a4355468f7d2d1f8117e222acd3877",
+      "lines": 560
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/gui/MapRegistry.java",
+      "sha256": "9cac3ce8e8ad0d9c8cd302cdf702a779d0f70cc978f18afa9686965afdc785e0",
+      "lines": 226
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/item/Malevich.java",
+      "sha256": "7669319f573463e92a3be011afd70b91caae74b9c0261bd6ed4fe58d8e2a2afc",
+      "lines": 374
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/item/MetalPipe.java",
+      "sha256": "23145a25944f0683548905468e8074d0e5cef03f8ae468d0fa2f1924449f3557",
+      "lines": 162
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/item/NexusCompass.java",
+      "sha256": "c4937ef1232dfcb27b42831a3d9478d58ad71123af4d2f5928360f648715aba6",
+      "lines": 210
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/item/RocketArmor.java",
+      "sha256": "0edfdc616409ac954ecb57f39dc65455b82b8e3838ea5f5c890a3cc5ef8c42d3",
+      "lines": 326
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/legacy/EmbeddedDatapackInstaller.java",
+      "sha256": "adb0c0c02962b380b293b947b43d4e2ac36fac4aa8e94502f6ace70cffed1834",
+      "lines": 136
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/legacy/LegacyDatapackAudit.java",
+      "sha256": "ff72eaa79436aa7c1983ab181a9dcaf94dcba9744863022773a65b013cf26ca8",
+      "lines": 68
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/legacy/LegacyFunctionRuntime.java",
+      "sha256": "5580d5f3386741f51b60c3f4ca9ebc993e7aaf04ba9d6290bb7f65f6958e8197",
+      "lines": 693
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/legacy/LegacyResourceSnapshot.java",
+      "sha256": "3b2e23c260464b8993ad8d8f0728cb890da47f034eb6872ff72848d1015d5545",
+      "lines": 43
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/legacy/swrg/SwrgLegacyMapLoader.java",
+      "sha256": "2c1f3d1a87ca5b78f1179028df87ecc09e735ae8ab2eb9ef7c94bc05d95722db",
+      "lines": 888
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/lobby/LobbyManager.java",
+      "sha256": "ce0d7a9fbb1ec8daae51628b5e7d9baa07efd87030fede6fc1c92eb011e5ae29",
+      "lines": 187
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/MagmifyService.java",
+      "sha256": "12fc3be97a76bb5ef5ef957dcc892e4f2c26e4797506873f6f2e0323082bfb32",
+      "lines": 874
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/mana/ManaService.java",
+      "sha256": "00b132bf3e6d3cca1cb5d04efb439ca490f6aa0f4e9aac64ada40f307a999818",
+      "lines": 194
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/perk/PerkCategory.java",
+      "sha256": "38fb2fa7b58f22e15e9bd54ab8630c503675b1f795d7777aacf62a6836699637",
+      "lines": 49
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/perk/PerkData.java",
+      "sha256": "1836d215a9d2841100d462c842f088c7c26bbe63f9a6bbbc6dc6ce6a06f3a0bd",
+      "lines": 167
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/perk/PerkOption.java",
+      "sha256": "b4b15228f976464c6ec5d99a9d976ffce8faff2605a0d6172336b37870581639",
+      "lines": 69
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/perk/PerkRegistry.java",
+      "sha256": "ae358459c0ba369e84b1787ac189a429e91c83dd6b16e78e2f40d37b323250c8",
+      "lines": 325
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/perk/PerkService.java",
+      "sha256": "54d9bd1283a2b7f6fc9d38bcca5612e3c745c4cec595c0964eda62ed917ef68d",
+      "lines": 223
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/PhysicalObjectPhysics.java",
+      "sha256": "324a47b26e31fdf7ac6bcf6e39ea1db402402533acb226729d6b9a4d51460e36",
+      "lines": 632
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/projectile/MagicProjectile.java",
+      "sha256": "5a1032691a7d5d636bc9ac697877f1c3101482450f8840d60a2baa297cbbb863",
+      "lines": 91
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/projectile/MagicProjectiles.java",
+      "sha256": "18754d33203bbe964d45345b817e046d55c8ca9ff0a1db1996b6c4064484c5ad",
+      "lines": 310
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/projectile/MagicProjectileType.java",
+      "sha256": "a8b83c84d29a6d4441077937d774adc9be3b124aeb6f821c346b4a55b037d194",
+      "lines": 54
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/projectile/types/ElectroProjectile.java",
+      "sha256": "ce259dc4b6aaa7ba8a1afcc9c1fd1b8087212d50ddb87807fe09ca44ffba2cb3",
+      "lines": 94
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/projectile/types/TerraProjectile.java",
+      "sha256": "2a8ea7f4446bd692003df43482879e2b21a56648732f1a30f43227717275416c",
+      "lines": 98
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/RotateMapService.java",
+      "sha256": "a27401bdbdc285bf302b2ccf76ae4695c7865c998e7a657ab76a8561386a1083",
+      "lines": 239
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/SigmaWarsMain.java",
+      "sha256": "e2ff679a9f920cad2eb3ae97389a5adf2777a3fa04e76f6e21c16b52bfd3f934",
+      "lines": 241
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/swrg/SwrgNativeService.java",
+      "sha256": "0b4f23feddffaadad0346adbfe5986d2591f6a448982516ad28d99065a79bd5d",
+      "lines": 14244
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/text/SwrgText.java",
+      "sha256": "5611b91563b8fd7f3fd4b057e03ed9272aee0c619c18006ae1d7c8efedd95e2f",
+      "lines": 101
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/ui/ActionBarService.java",
+      "sha256": "686e3d556fd406d2ae8c9580c25acfd62df76a919d7f209ec4f8e4e2cb42e950",
+      "lines": 176
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/ui/CoreUiElements.java",
+      "sha256": "3fa041a38702661a19224722951b81402b5c5c6d0779d68f8fbddbde0fcfc893",
+      "lines": 110
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/ui/LegacyUiElements.java",
+      "sha256": "636ab8a19efa9e660a02201970a6187f2ce970eebfaed7a8bfa3ab50564cf55b",
+      "lines": 440
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/ui/TitleChannel.java",
+      "sha256": "7e04e573de67533ec58677ebb55fc544fe2a45e7cfef0d116b66c1f6d42398b8",
+      "lines": 65
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/ui/UiCounters.java",
+      "sha256": "cc65837028283b4408c6dc8bd2541dc6190d7437cf398f8385f3189d381df772",
+      "lines": 92
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/ui/UiElement.java",
+      "sha256": "6687273ab27d2ef184ac2c5ef0c3df39cea6e89b0fd08577fa4252bc6bbc61f7",
+      "lines": 54
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/ui/UiHeld.java",
+      "sha256": "5e9a013a8cd4dd31bd7e77826f204824923258b93f06dd701360bb3a766ff86b",
+      "lines": 85
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/ui/UiIcons.java",
+      "sha256": "7739203275fd2da69a885df059bd5b3685493b9ee7a95b7f60658d0ea9e06ae6",
+      "lines": 133
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/ui/UiKeys.java",
+      "sha256": "750230b916b3fa03e51e0c05b9b837cae5c96037fcb824a15d2801b53df33813",
+      "lines": 145
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/ui/UiOrder.java",
+      "sha256": "21be5fcd3697126842b5d67cf428989016a106d37dbd7090e5c1f94623738245",
+      "lines": 46
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/ui/UiRows.java",
+      "sha256": "6b37522a578d21a5f388544d54b8753aae5da651bf17b2cb546ee83e654571fc",
+      "lines": 131
+    },
+    {
+      "source": "plugins/luckywars/src/main/java/me/luckywars/util/BlockSets.java",
+      "sha256": "e79f73112842a3d660ebd1aa38ab0909575e416b907ca8e39d3b33f026ff9fe0",
+      "lines": 127
+    },
+    {
+      "source": "plugins/luckywars/src/main/resources/config.yml",
+      "sha256": "a4a1df36b9596ec03d9ec75163e2932b08543219b77f478a391400eae86941ff",
+      "lines": 14
+    },
+    {
+      "source": "plugins/luckywars/src/main/resources/plugin.yml",
+      "sha256": "81412963c8c217adf0085966b0722453231570c18986e90f82ea41136ad05ad0",
+      "lines": 65
+    },
+    {
+      "source": "plugins/luckywars/src/main/resources/values.yml",
+      "sha256": "8085c24e10b0adf9c0cb7d32348612c3ccbfbc0066ccb13a3334cbf4bcdcf7cd",
+      "lines": 100
+    }
+  ]
+}

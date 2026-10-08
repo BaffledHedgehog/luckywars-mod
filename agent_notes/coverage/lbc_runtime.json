@@ -1,0 +1,1752 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/abyss_end.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/area_effect_cloud_10t.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/big_fire_fill.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/check_pos_changes.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/config.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Загрузка и конфигурация",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/config_survival.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Загрузка и конфигурация",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/cook_health.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/cook_health_1.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/cook_health_11.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/damage_end.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/damage_end_loop.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/damage_with_tmp.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/damage_with_tmp_void.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/damage_with_tmp_void1.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/datapack_enable.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Главный тик и пауза времени",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/datapack_enable_e.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Главный тик и пауза времени",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/death_inject_before_announce.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effect_death.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effect_death_tellraw.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/end_resets.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/entities.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/get_random.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/get_team.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/homing_with_id.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/homing_with_id_slow.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items_copypaster.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items_tick.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items_tick_act.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items_tick_act_m.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items_tick_act_m_check.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items_tick_tag.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items_tick_tag_2.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items_tick_tag_3.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/leave_death.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/leave_death_kest.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/load.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Загрузка и конфигурация",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/load_2.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Загрузка и конфигурация",
+    "status": "documented",
+    "note": "Manual macro contract; no literal callers, load bypasses macro, en/ru targets are no-op."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/load_aftertimestop.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Загрузка и конфигурация",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/load_scores_reload.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Загрузка и конфигурация",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/malevich_boom.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/markers_2t.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/markers_2t1.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/mobs_10s.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/mobs_1s.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/mobs_2t.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/mobs_5s.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/mobs_5t.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/mobs_5t_lbc.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/mobs_tick.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/mobs_tick_cultist.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/mobs_tick_lbc.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/mortisbreak.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/nodamage1_for_team.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/nodamage_for_team.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/only_end_resets.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/only_end_resets_once.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/only_end_resets_oncebadapple.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/player_speed.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_10s.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_10t.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_15s.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_15s_eatt.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_1s.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_1s_sprinted.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_2s.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_2t.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_5s.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_5t.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_sprint_end.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_tick.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/players_tick90s.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "non_runtime",
+    "note": "Empty or comment-only .mcfunction; callable no-op, no active command effect."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/pre_player_5t.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectilestick.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectilestick_homing.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "non_runtime",
+    "note": "Empty or comment-only .mcfunction; callable no-op, no active command effect."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/projectilestick_tnt.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_razbros.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_razbros_big.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_razbros_small.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_razbros_smallest.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_razbros_storage.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_small.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_smallest.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_very_small.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_very_very_small.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_power_razbros_small.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/random_debuff.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/random_luck_modifier.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/random_rot.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/random_rot_add_active.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/random_rot_down.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/random_rot_down1.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/random_rot_down2.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/random_rot_up.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_3.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_big.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_big_with_razbros.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_big_with_tag.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_data.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_data_razbros.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_power.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_pre.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_razbros.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_razbros_with_active.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_slow.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_slow1.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_slow_dragon.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_slow_obfuscated.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_slow_power.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_slow_vect.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_slow_vect_recur_100000.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_slow_vect_recur_50000.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_slow_vect_recur_low.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_slower.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_slower_vect.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_slowest_vect.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_storage.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_vect.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_vect_1.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_very_slow_vect.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycast_vpered_xz_active.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycasters_1s.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycasters_5t.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector_area_cloud.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector_grimoire_dungeon.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector_imba.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector_instant.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector_kills.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector_legacy_rc.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector_other.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector_player.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector_player_check_skill.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector_player_check_skill_homing.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "non_runtime",
+    "note": "Empty or comment-only .mcfunction; callable no-op, no active command effect."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector_rare.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/raycastselector_tuntija.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/reduce_count.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/reduce_count_l.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/reduce_count_s.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/reduce_motion_to_10x.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/reduce_motion_to_10x_rec.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/reforge.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/reforge_crafting_0.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/reforge_crafting_1.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/reforge_crafting_2.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/reforge_crafting_3.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/remove_tags.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/reset_gamerules.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Загрузка и конфигурация",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/reset_gamerules_nexus.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Загрузка и конфигурация",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/resets.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/resourcepacks.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/respawn.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/respawn2.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/respawn21.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/respawn_1.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/respawn_2.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/respawn_2pre.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "non_runtime",
+    "note": "Empty or comment-only .mcfunction; callable no-op, no active command effect."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/respawnnovanity.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/respawnnovanity1.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/run_command.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/run_command1.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/scam_tick.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/scors.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Загрузка и конфигурация",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/sqrt_loop.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/start.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/start_after_all.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/start_bedwars.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/start_nov_event.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/start_nov_event_jedi.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/start_nov_event_pre.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/start_nov_event_sith.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/start_player.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/start_stand.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/start_stand_give.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Старт матча, reset и смерть/возрождение",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/storage_fix.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/storage_fix_rec.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/storage_fix_rec_2.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick10s.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick10t.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick15s.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick15s_delete_rc.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick1s.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick1s_not_nexus.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "non_runtime",
+    "note": "Empty or comment-only .mcfunction; callable no-op, no active command effect."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick1salways.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Главный тик и пауза времени",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick1salways_timestop.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Главный тик и пауза времени",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick2s.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick2smobs.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick2t.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick3s.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick4s.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick5s.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick5t.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick90s.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick90s_45s.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick90s_imprinted_in.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick90s_imprinted_in_sched.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick90s_imprinted_out.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick_nexus.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick_nexus_data.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick_nexus_player.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick_nexus_player_tp.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick_nexus_player_tp_2.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick_nexus_player_tp_3.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick_nexus_player_tp_borders.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick_nexus_player_tp_no_borders.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick_nexus_raycasters.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick_nexus_xp_trans.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tick_not_timestopped.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/time_stop.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Главный тик и пауза времени",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/time_stop_powerful.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Главный тик и пауза времени",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/time_stopped_tick.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Главный тик и пауза времени",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/time_stopped_tickentity.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Главный тик и пауза времени",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/time_stopped_tickentity_data_restore2.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Главный тик и пауза времени",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/time_stopped_tickentity_data_save.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Главный тик и пауза времени",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/time_stopped_tickentity_data_save2.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Главный тик и пауза времени",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/time_stopped_tickentity_effects.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Главный тик и пауза времени",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/time_stopped_tickentity_timestop_marker.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Главный тик и пауза времени",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/timer.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Игроки, мобы и предметы",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/timestop_damage.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Главный тик и пауза времени",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/timestop_ret_particle.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Главный тик и пауза времени",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/timestop_return_motion.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Главный тик и пауза времени",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/tp_nexus_rtp.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Raycaster и marker диспетчеры",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/ultra_reforge.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_0_5.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_1.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_10.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_15.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_15_active.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_15_xz.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_2.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_20.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_20_active.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_2_.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_2_motion.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_30.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_35_active.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_5_y.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_7.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_7_y.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_razbros.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_razbros_big.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_razbros_small.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_razbros_smaller.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_razbros_up_active.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_razbros_withpre.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_razbros_withpre_small.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/win.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Лучи, random-разброс и общие служебные функции",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/z.mcfunction",
+    "document": "agent_notes/lbc_runtime.md",
+    "section": "Загрузка, scoreboard и правила измерений",
+    "status": "documented",
+    "note": "Source-specific behavior and caller context are described in the linked section; external child packages are marked as dependencies."
+  }
+]

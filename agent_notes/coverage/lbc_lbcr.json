@@ -1,0 +1,2431 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/acid_get_id.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Залп кислотной палочки и жёлтый снаряд",
+    "status": "documented",
+    "note": "Projectile count/lifetime/spread, ignited mode and special target geometry/source attribution checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/acid_get_id_2.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Залп кислотной палочки и жёлтый снаряд",
+    "status": "documented",
+    "note": "Projectile count/lifetime/spread, ignited mode and special target geometry/source attribution checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/acid_get_id_22.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Залп кислотной палочки и жёлтый снаряд",
+    "status": "documented",
+    "note": "Projectile count/lifetime/spread, ignited mode and special target geometry/source attribution checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/blind-wand_effects.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Воздушный, слепящий и электрический лучи",
+    "status": "documented",
+    "note": "Flight step, collision/target selectors, hit effects, timers and external upgrade boundary described."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/communism.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Подчинение мобов и Communism ray",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damage_10_hp.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damage_10_hpmax.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damage_10_speed.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damage_with_id_yelow.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Залп кислотной палочки и жёлтый снаряд",
+    "status": "documented",
+    "note": "Projectile count/lifetime/spread, ignited mode and special target geometry/source attribution checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Общие обработчики урона `damagewithid`",
+    "status": "documented",
+    "note": "Фактический результат, execution position, селектор и caller wrapper описаны в разделе."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid10.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid2.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотный contact damage: семья `damagewithid2*`",
+    "status": "documented",
+    "note": "Сравнены effect dispatcher, radius/owner guards, условие горения, damage/status values и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid2_1.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотный contact damage: семья `damagewithid2*`",
+    "status": "documented",
+    "note": "Сравнены effect dispatcher, radius/owner guards, условие горения, damage/status values и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid2_1_player.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотный contact damage: семья `damagewithid2*`",
+    "status": "documented",
+    "note": "Сравнены effect dispatcher, radius/owner guards, условие горения, damage/status values и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid2_increased.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотный contact damage: семья `damagewithid2*`",
+    "status": "documented",
+    "note": "Сравнены effect dispatcher, radius/owner guards, условие горения, damage/status values и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid2_increased_big.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотный contact damage: семья `damagewithid2*`",
+    "status": "documented",
+    "note": "Сравнены effect dispatcher, radius/owner guards, условие горения, damage/status values и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid2_increased_big_very.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотный contact damage: семья `damagewithid2*`",
+    "status": "documented",
+    "note": "Сравнены effect dispatcher, radius/owner guards, условие горения, damage/status values и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid2_increased_big_very_burst.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотный contact damage: семья `damagewithid2*`",
+    "status": "documented",
+    "note": "Сравнены effect dispatcher, radius/owner guards, условие горения, damage/status values и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid2_increased_big_very_caust.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотный contact damage: семья `damagewithid2*`",
+    "status": "documented",
+    "note": "Сравнены effect dispatcher, radius/owner guards, условие горения, damage/status values и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid2_lite.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотный contact damage: семья `damagewithid2*`",
+    "status": "documented",
+    "note": "Сравнены effect dispatcher, radius/owner guards, условие горения, damage/status values и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid2_lite_big.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотный contact damage: семья `damagewithid2*`",
+    "status": "documented",
+    "note": "Сравнены effect dispatcher, radius/owner guards, условие горения, damage/status values и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid2_lite_big_very.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотный contact damage: семья `damagewithid2*`",
+    "status": "documented",
+    "note": "Сравнены effect dispatcher, radius/owner guards, условие горения, damage/status values и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid2_lite_big_very_burst.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотный contact damage: семья `damagewithid2*`",
+    "status": "documented",
+    "note": "Сравнены effect dispatcher, radius/owner guards, условие горения, damage/status values и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid2_lite_big_very_caust.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотный contact damage: семья `damagewithid2*`",
+    "status": "documented",
+    "note": "Сравнены effect dispatcher, radius/owner guards, условие горения, damage/status values и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid2big.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотный contact damage: семья `damagewithid2*`",
+    "status": "documented",
+    "note": "Сравнены effect dispatcher, radius/owner guards, условие горения, damage/status values и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid2big_very.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотный contact damage: семья `damagewithid2*`",
+    "status": "documented",
+    "note": "Сравнены effect dispatcher, radius/owner guards, условие горения, damage/status values и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid2big_very_burst.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотный contact damage: семья `damagewithid2*`",
+    "status": "documented",
+    "note": "Сравнены effect dispatcher, radius/owner guards, условие горения, damage/status values и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid2big_very_caust.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотный contact damage: семья `damagewithid2*`",
+    "status": "documented",
+    "note": "Сравнены effect dispatcher, radius/owner guards, условие горения, damage/status values и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid3.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid4.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid4_1.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid5.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid7.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Дополнительные damage и team helpers",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid7_check_blinded.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Дополнительные damage и team helpers",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid7_kill.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Дополнительные damage и team helpers",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid7_kill2.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Дополнительные damage и team helpers",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid8.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid8_1.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid9.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid9_rad.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid_10health.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Дополнительные damage и team helpers",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid_10maxhealth.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Дополнительные damage и team helpers",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid_10speed.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Дополнительные damage и team helpers",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid_9.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Дополнительные damage и team helpers",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid_bigr.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid_bigr_8.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid_dzibdzun.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid_extreme.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid_psycho.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid_psycho_2.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid_psycho_at.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid_psycho_killl.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/damagewithid_s.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Дополнительные damage и team helpers",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/daraycastwithid_psycho.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/dmg_byentity_1pt.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Общие обработчики урона `damagewithid`",
+    "status": "documented",
+    "note": "Фактический результат, execution position, селектор и caller wrapper описаны в разделе."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/dmg_byentity_7.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "`dmg_bypl_*`: общие атаки игрока по целям",
+    "status": "documented",
+    "note": "Raw hit amount, target filters, identity immunity, special vampire branch and executor cleanup examined."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/dmg_bypl_0_25nocd.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "`dmg_bypl_*`: общие атаки игрока по целям",
+    "status": "documented",
+    "note": "Raw hit amount, target filters, identity immunity, special vampire branch and executor cleanup examined."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/dmg_bypl_0_5nocd.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "`dmg_bypl_*`: общие атаки игрока по целям",
+    "status": "documented",
+    "note": "Raw hit amount, target filters, identity immunity, special vampire branch and executor cleanup examined."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/dmg_bypl_11.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "`dmg_bypl_*`: общие атаки игрока по целям",
+    "status": "documented",
+    "note": "Raw hit amount, target filters, identity immunity, special vampire branch and executor cleanup examined."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/dmg_bypl_1nocd.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "`dmg_bypl_*`: общие атаки игрока по целям",
+    "status": "documented",
+    "note": "Raw hit amount, target filters, identity immunity, special vampire branch and executor cleanup examined."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/dmg_bypl_1nocd_vampire.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "`dmg_bypl_*`: общие атаки игрока по целям",
+    "status": "documented",
+    "note": "Raw hit amount, target filters, identity immunity, special vampire branch and executor cleanup examined."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/dmg_bypl_1nocd_vampire_a.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "`dmg_bypl_*`: общие атаки игрока по целям",
+    "status": "documented",
+    "note": "Raw hit amount, target filters, identity immunity, special vampire branch and executor cleanup examined."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/dmg_bypl_3nocd.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "`dmg_bypl_*`: общие атаки игрока по целям",
+    "status": "documented",
+    "note": "Raw hit amount, target filters, identity immunity, special vampire branch and executor cleanup examined."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/dmg_bypl_8.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Луч призмы `raycast_loop7`",
+    "status": "documented",
+    "note": "Described short beam, movement/obstruction branches, colored glass conversion, target damage and per-color values."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/dmg_bypl_8_1.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Луч призмы `raycast_loop7`",
+    "status": "documented",
+    "note": "Described short beam, movement/obstruction branches, colored glass conversion, target damage and per-color values."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/dmg_bypl_8nocd.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "`dmg_bypl_*`: общие атаки игрока по целям",
+    "status": "documented",
+    "note": "Raw hit amount, target filters, identity immunity, special vampire branch and executor cleanup examined."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/dmgwithid_un.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/dmgwithid_un_playeronly.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/dmgwithid_un_playeronly_0_8_0.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Залп кислотной палочки и жёлтый снаряд",
+    "status": "documented",
+    "note": "Projectile count/lifetime/spread, ignited mode and special target geometry/source attribution checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/explodewithid.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Эффекты TNT-луча и «сетки»",
+    "status": "documented",
+    "note": "Validated recursion distance, hit/team filter, fuse type/timing, terrain effect and non-lbcr event boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/explodewithid_big.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Эффекты TNT-луча и «сетки»",
+    "status": "documented",
+    "note": "Validated recursion distance, hit/team filter, fuse type/timing, terrain effect and non-lbcr event boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/kill.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "`dmg_bypl_*`: общие атаки игрока по целям",
+    "status": "documented",
+    "note": "Raw hit amount, target filters, identity immunity, special vampire branch and executor cleanup examined."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/megahedgehog_spawn.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Озадаченный ёж: помощники и улучшенные режимы",
+    "status": "documented",
+    "note": "Followed impact through timer dispatcher to attack/heal/lazer helpers; full mode differences and 60-passenger wall stack are tabulated."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/molnia_prelomlenie_pre.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/placeflowers.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Земляные лучи и установка растений",
+    "status": "documented",
+    "note": "Movement, collision/block results, combat payload and owner/team filters verified."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/placeflowers_nk.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Земляные лучи и установка растений",
+    "status": "documented",
+    "note": "Movement, collision/block results, combat payload and owner/team filters verified."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/placegrass.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Земляные лучи и установка растений",
+    "status": "documented",
+    "note": "Movement, collision/block results, combat payload and owner/team filters verified."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/podchinenie.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Подчинение мобов и Communism ray",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/podchinenie_1.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Подчинение мобов и Communism ray",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/podchinenie_3.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Подчинение мобов и Communism ray",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/podchinenie_blaze.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Подчинение мобов и Communism ray",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/podchinenie_communism.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Подчинение мобов и Communism ray",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/podchinenie_hedgehog.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Озадаченный ёж: помощники и улучшенные режимы",
+    "status": "documented",
+    "note": "Followed impact through timer dispatcher to attack/heal/lazer helpers; full mode differences and 60-passenger wall stack are tabulated."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/podchinenie_simbiont.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Подчинение мобов и Communism ray",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/podchinenie_simbiont2.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Подчинение мобов и Communism ray",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/podchinenie_simbiont_storage.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Подчинение мобов и Communism ray",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/podchinenie_with_players.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Подчинение мобов и Communism ray",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/railgun.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Последовательность Railgun и эффекты",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/railgun_effect.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Последовательность Railgun и эффекты",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/railgun_lol.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Последовательность Railgun и эффекты",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/railgun_lol_kiuas.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Последовательность Railgun и эффекты",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/random_debuff.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/random_debuff_tr.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Legacy Wand activation: `raycast` и `raycast_left`",
+    "status": "documented",
+    "note": "Compared caller hand selection and every per-item custom_data, mana/stopper gate and target branch."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_acid.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотные raycasters",
+    "status": "documented",
+    "note": "Examined fire-state checks, recursion distance, damage branches and marker lifetime changes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_acid2.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотные raycasters",
+    "status": "documented",
+    "note": "Examined fire-state checks, recursion distance, damage branches and marker lifetime changes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_acid2_check_if_fire.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотные raycasters",
+    "status": "documented",
+    "note": "Examined fire-state checks, recursion distance, damage branches and marker lifetime changes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_acid2_inair.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотные raycasters",
+    "status": "documented",
+    "note": "Examined fire-state checks, recursion distance, damage branches and marker lifetime changes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_acid2_inair2.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотные raycasters",
+    "status": "documented",
+    "note": "Examined fire-state checks, recursion distance, damage branches and marker lifetime changes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_acid2_inair2_player.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотные raycasters",
+    "status": "documented",
+    "note": "Examined fire-state checks, recursion distance, damage branches and marker lifetime changes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_acid2_inair_player.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотные raycasters",
+    "status": "documented",
+    "note": "Examined fire-state checks, recursion distance, damage branches and marker lifetime changes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_acid2_not_on_fire.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотные raycasters",
+    "status": "documented",
+    "note": "Examined fire-state checks, recursion distance, damage branches and marker lifetime changes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_acid2_on_fire.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотные raycasters",
+    "status": "documented",
+    "note": "Examined fire-state checks, recursion distance, damage branches and marker lifetime changes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_acid2_player.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотные raycasters",
+    "status": "documented",
+    "note": "Examined fire-state checks, recursion distance, damage branches and marker lifetime changes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_acid_not_on_fire.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотные raycasters",
+    "status": "documented",
+    "note": "Examined fire-state checks, recursion distance, damage branches and marker lifetime changes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_acid_on_fire.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотные raycasters",
+    "status": "documented",
+    "note": "Examined fire-state checks, recursion distance, damage branches and marker lifetime changes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_acidbig.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотные raycasters",
+    "status": "documented",
+    "note": "Examined fire-state checks, recursion distance, damage branches and marker lifetime changes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_acidbig_check_if_fire.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотные raycasters",
+    "status": "documented",
+    "note": "Examined fire-state checks, recursion distance, damage branches and marker lifetime changes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_acidbig_check_if_fire_very.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотные raycasters",
+    "status": "documented",
+    "note": "Examined fire-state checks, recursion distance, damage branches and marker lifetime changes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_acidbig_not_on_fire.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотные raycasters",
+    "status": "documented",
+    "note": "Examined fire-state checks, recursion distance, damage branches and marker lifetime changes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_acidbig_not_on_fire_very.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотные raycasters",
+    "status": "documented",
+    "note": "Examined fire-state checks, recursion distance, damage branches and marker lifetime changes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_acidbig_not_on_fire_very_burst.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотные raycasters",
+    "status": "documented",
+    "note": "Examined fire-state checks, recursion distance, damage branches and marker lifetime changes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_acidbig_not_on_fire_very_caust.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотные raycasters",
+    "status": "documented",
+    "note": "Examined fire-state checks, recursion distance, damage branches and marker lifetime changes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_acidbig_on_fire.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотные raycasters",
+    "status": "documented",
+    "note": "Examined fire-state checks, recursion distance, damage branches and marker lifetime changes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_acidbig_on_fire_very.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотные raycasters",
+    "status": "documented",
+    "note": "Examined fire-state checks, recursion distance, damage branches and marker lifetime changes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_acidbig_on_fire_very_burst.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотные raycasters",
+    "status": "documented",
+    "note": "Examined fire-state checks, recursion distance, damage branches and marker lifetime changes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_acidbig_on_fire_very_caust.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Кислотные raycasters",
+    "status": "documented",
+    "note": "Examined fire-state checks, recursion distance, damage branches and marker lifetime changes."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_air.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Воздушный, слепящий и электрический лучи",
+    "status": "documented",
+    "note": "Flight step, collision/target selectors, hit effects, timers and external upgrade boundary described."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_air_explode.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Воздушный, слепящий и электрический лучи",
+    "status": "documented",
+    "note": "Flight step, collision/target selectors, hit effects, timers and external upgrade boundary described."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_airplayer.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Воздушный, слепящий и электрический лучи",
+    "status": "documented",
+    "note": "Flight step, collision/target selectors, hit effects, timers and external upgrade boundary described."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_arrow.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_blind.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Воздушный, слепящий и электрический лучи",
+    "status": "documented",
+    "note": "Flight step, collision/target selectors, hit effects, timers and external upgrade boundary described."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_blind_effects.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Воздушный, слепящий и электрический лучи",
+    "status": "documented",
+    "note": "Flight step, collision/target selectors, hit effects, timers and external upgrade boundary described."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_blindwand.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Воздушный, слепящий и электрический лучи",
+    "status": "documented",
+    "note": "Flight step, collision/target selectors, hit effects, timers and external upgrade boundary described."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_blindwand_phantom.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Воздушный, слепящий и электрический лучи",
+    "status": "documented",
+    "note": "Flight step, collision/target selectors, hit effects, timers and external upgrade boundary described."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_electro.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Воздушный, слепящий и электрический лучи",
+    "status": "documented",
+    "note": "Flight step, collision/target selectors, hit effects, timers and external upgrade boundary described."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_electro42.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Воздушный, слепящий и электрический лучи",
+    "status": "documented",
+    "note": "Flight step, collision/target selectors, hit effects, timers and external upgrade boundary described."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_electro42_nk.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Воздушный, слепящий и электрический лучи",
+    "status": "documented",
+    "note": "Flight step, collision/target selectors, hit effects, timers and external upgrade boundary described."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_electro_electroprovod.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Воздушный, слепящий и электрический лучи",
+    "status": "documented",
+    "note": "Flight step, collision/target selectors, hit effects, timers and external upgrade boundary described."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_electro_electroprovod_check.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Воздушный, слепящий и электрический лучи",
+    "status": "documented",
+    "note": "Flight step, collision/target selectors, hit effects, timers and external upgrade boundary described."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_electro_electroprovod_check_upgrade.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Воздушный, слепящий и электрический лучи",
+    "status": "documented",
+    "note": "Flight step, collision/target selectors, hit effects, timers and external upgrade boundary described."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_electro_electroprovod_damage.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Воздушный, слепящий и электрический лучи",
+    "status": "documented",
+    "note": "Flight step, collision/target selectors, hit effects, timers and external upgrade boundary described."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end2.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Impact завершения луча `end2–end6`, `end9`",
+    "status": "documented",
+    "note": "Terminal action, stop condition, resource/advancement effects and child handler checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end2_check_wall_upgrade.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Impact завершения луча `end2–end6`, `end9`",
+    "status": "documented",
+    "note": "Terminal action, stop condition, resource/advancement effects and child handler checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end2_check_wall_upgrade_rc.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Impact завершения луча `end2–end6`, `end9`",
+    "status": "documented",
+    "note": "Terminal action, stop condition, resource/advancement effects and child handler checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end2_check_wall_upgrade_rc2.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Impact завершения луча `end2–end6`, `end9`",
+    "status": "documented",
+    "note": "Terminal action, stop condition, resource/advancement effects and child handler checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end2_check_wall_upgrade_rc2end.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Impact завершения луча `end2–end6`, `end9`",
+    "status": "documented",
+    "note": "Terminal action, stop condition, resource/advancement effects and child handler checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end2_mode_break.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end2_mode_horizontal.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end2_mode_stair.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end2_mode_vertical.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end2_upgraded.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end2_upgraded_lib.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end2_upgraded_lib_loop.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end3.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Impact завершения луча `end2–end6`, `end9`",
+    "status": "documented",
+    "note": "Terminal action, stop condition, resource/advancement effects and child handler checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end3_upg.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end3_uppest.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end4.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Impact завершения луча `end2–end6`, `end9`",
+    "status": "documented",
+    "note": "Terminal action, stop condition, resource/advancement effects and child handler checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end4_blaze_nyam.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Impact завершения луча `end2–end6`, `end9`",
+    "status": "documented",
+    "note": "Terminal action, stop condition, resource/advancement effects and child handler checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end5.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Impact завершения луча `end2–end6`, `end9`",
+    "status": "documented",
+    "note": "Terminal action, stop condition, resource/advancement effects and child handler checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end5_upg.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Impact завершения луча `end2–end6`, `end9`",
+    "status": "documented",
+    "note": "Terminal action, stop condition, resource/advancement effects and child handler checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end5_upg_big.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Impact завершения луча `end2–end6`, `end9`",
+    "status": "documented",
+    "note": "Terminal action, stop condition, resource/advancement effects and child handler checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end5_upg_lib.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end5_upg_rain.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Impact завершения луча `end2–end6`, `end9`",
+    "status": "documented",
+    "note": "Terminal action, stop condition, resource/advancement effects and child handler checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end6.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Impact завершения луча `end2–end6`, `end9`",
+    "status": "documented",
+    "note": "Terminal action, stop condition, resource/advancement effects and child handler checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end6_left.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Impact завершения луча `end2–end6`, `end9`",
+    "status": "documented",
+    "note": "Terminal action, stop condition, resource/advancement effects and child handler checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end8.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Луч овечьего посоха (Raycast 8)",
+    "status": "documented",
+    "note": "Фактический результат, execution position, селектор и caller wrapper описаны в разделе."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end8_mob.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Луч овечьего посоха (Raycast 8)",
+    "status": "documented",
+    "note": "Фактический результат, execution position, селектор и caller wrapper описаны в разделе."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end8_mob_check.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Луч овечьего посоха (Raycast 8)",
+    "status": "documented",
+    "note": "Фактический результат, execution position, селектор и caller wrapper описаны в разделе."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end8_mob_sheep_blackhole.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Луч овечьего посоха (Raycast 8)",
+    "status": "documented",
+    "note": "Фактический результат, execution position, селектор и caller wrapper описаны в разделе."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end8_mob_sheep_blackhole2.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Луч овечьего посоха (Raycast 8)",
+    "status": "documented",
+    "note": "Фактический результат, execution position, селектор и caller wrapper описаны в разделе."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end8_mob_sheep_blackhole_player.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Луч овечьего посоха (Raycast 8)",
+    "status": "documented",
+    "note": "Фактический результат, execution position, селектор и caller wrapper описаны в разделе."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end8_upgraded.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Луч овечьего посоха (Raycast 8)",
+    "status": "documented",
+    "note": "Фактический результат, execution position, селектор и caller wrapper описаны в разделе."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end9.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Озадаченный ёж: помощники и улучшенные режимы",
+    "status": "documented",
+    "note": "Followed impact through timer dispatcher to attack/heal/lazer helpers; full mode differences and 60-passenger wall stack are tabulated."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end9_mode_default.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Озадаченный ёж: помощники и улучшенные режимы",
+    "status": "documented",
+    "note": "Followed impact through timer dispatcher to attack/heal/lazer helpers; full mode differences and 60-passenger wall stack are tabulated."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end9_mode_healer.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Озадаченный ёж: помощники и улучшенные режимы",
+    "status": "documented",
+    "note": "Followed impact through timer dispatcher to attack/heal/lazer helpers; full mode differences and 60-passenger wall stack are tabulated."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end9_mode_laser.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Озадаченный ёж: помощники и улучшенные режимы",
+    "status": "documented",
+    "note": "Followed impact through timer dispatcher to attack/heal/lazer helpers; full mode differences and 60-passenger wall stack are tabulated."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end9_mode_sniper.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Озадаченный ёж: помощники и улучшенные режимы",
+    "status": "documented",
+    "note": "Followed impact through timer dispatcher to attack/heal/lazer helpers; full mode differences and 60-passenger wall stack are tabulated."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end9_mode_tank.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Озадаченный ёж: помощники и улучшенные режимы",
+    "status": "documented",
+    "note": "Followed impact through timer dispatcher to attack/heal/lazer helpers; full mode differences and 60-passenger wall stack are tabulated."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end_with_tp.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Impact завершения луча `end2–end6`, `end9`",
+    "status": "documented",
+    "note": "Terminal action, stop condition, resource/advancement effects and child handler checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end_with_tp_homing.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Impact завершения луча `end2–end6`, `end9`",
+    "status": "documented",
+    "note": "Terminal action, stop condition, resource/advancement effects and child handler checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end_with_tp_homing_soft.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Impact завершения луча `end2–end6`, `end9`",
+    "status": "documented",
+    "note": "Terminal action, stop condition, resource/advancement effects and child handler checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_end_with_tp_remove_tag.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Impact завершения луча `end2–end6`, `end9`",
+    "status": "documented",
+    "note": "Terminal action, stop condition, resource/advancement effects and child handler checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_gavno.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Пускатель говна и коса смерти",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_gavno1.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Пускатель говна и коса смерти",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_gavno1_pre.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Пускатель говна и коса смерти",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_gavno_mega.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Пускатель говна и коса смерти",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_gavno_mega1.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Пускатель говна и коса смерти",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_gavno_mega1_1.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Пускатель говна и коса смерти",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_gavno_mega1_at.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Пускатель говна и коса смерти",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_gavno_mega_pre.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Пускатель говна и коса смерти",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_hoholend.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_left.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Legacy Wand activation: `raycast` и `raycast_left`",
+    "status": "documented",
+    "note": "Compared caller hand selection and every per-item custom_data, mana/stopper gate and target branch."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_lightning.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_lightning_bolt.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_lightning_bolt_end.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_lightning_mode_chain.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_lightning_mode_default.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_lightning_mode_reforge.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_lightning_mode_reforge_end.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_lightningpre.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_lightningpre_upgraded.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_lightningpre_upgraded_2.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_lightningpre_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_lightnings.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_lightnings_chan.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_lightnings_check.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_lightnings_upg.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop14.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Коса смерти, земляной и древесный лучи",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop2.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop2_upgraded.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop2cd.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop2cd_upgraded.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop2cd_upgraded2.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop2cd_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop3.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop3_upgraded_mode_clip.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop3_upgraded_mode_default.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop3_upgraded_mode_uppest.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop3cd.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop3cd_upgraded.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop3cd_upgraded2.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop3cd_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop4.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop4cd.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop4cd_upgrade.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop4cd_upgraded.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop4cd_upgraded2.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop4cd_upgraded2_blaze_head.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop4cd_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop5.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop5_upg.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop5_upg_lib.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop5cd.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop5cd_upgrade.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop5cd_upgraded.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop5cd_upgraded_2.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop5cd_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop6.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop6_left.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Каменная стена и улучшенные режимы телепорта",
+    "status": "documented",
+    "note": "Verified flight steps, collision selectors, mode transitions, cost timing and terminal behavior."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop7.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Луч призмы `raycast_loop7`",
+    "status": "documented",
+    "note": "Described short beam, movement/obstruction branches, colored glass conversion, target damage and per-color values."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop7_prikol.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Луч призмы `raycast_loop7`",
+    "status": "documented",
+    "note": "Described short beam, movement/obstruction branches, colored glass conversion, target damage and per-color values."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop7_stabilize.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Луч призмы `raycast_loop7`",
+    "status": "documented",
+    "note": "Described short beam, movement/obstruction branches, colored glass conversion, target damage and per-color values."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop7_stabilized.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Луч призмы `raycast_loop7`",
+    "status": "documented",
+    "note": "Described short beam, movement/obstruction branches, colored glass conversion, target damage and per-color values."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop8.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Луч овечьего посоха (Raycast 8)",
+    "status": "documented",
+    "note": "Фактический результат, execution position, селектор и caller wrapper описаны в разделе."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop8_upgraded.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Луч овечьего посоха (Raycast 8)",
+    "status": "documented",
+    "note": "Фактический результат, execution position, селектор и caller wrapper описаны в разделе."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop8cd.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Луч овечьего посоха (Raycast 8)",
+    "status": "documented",
+    "note": "Фактический результат, execution position, селектор и caller wrapper описаны в разделе."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop8cd_upgraded.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Луч овечьего посоха (Raycast 8)",
+    "status": "documented",
+    "note": "Фактический результат, execution position, селектор и caller wrapper описаны в разделе."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop8cd_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Луч овечьего посоха (Raycast 8)",
+    "status": "documented",
+    "note": "Фактический результат, execution position, селектор и caller wrapper описаны в разделе."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop9.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Озадаченный ёж: помощники и улучшенные режимы",
+    "status": "documented",
+    "note": "Followed impact through timer dispatcher to attack/heal/lazer helpers; full mode differences and 60-passenger wall stack are tabulated."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop9cd.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Озадаченный ёж: помощники и улучшенные режимы",
+    "status": "documented",
+    "note": "Followed impact through timer dispatcher to attack/heal/lazer helpers; full mode differences and 60-passenger wall stack are tabulated."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop9cd_upgrade.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Озадаченный ёж: помощники и улучшенные режимы",
+    "status": "documented",
+    "note": "Followed impact through timer dispatcher to attack/heal/lazer helpers; full mode differences and 60-passenger wall stack are tabulated."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop9cd_upgraded.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Озадаченный ёж: помощники и улучшенные режимы",
+    "status": "documented",
+    "note": "Followed impact through timer dispatcher to attack/heal/lazer helpers; full mode differences and 60-passenger wall stack are tabulated."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop9cd_upgraded_2.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Озадаченный ёж: помощники и улучшенные режимы",
+    "status": "documented",
+    "note": "Followed impact through timer dispatcher to attack/heal/lazer helpers; full mode differences and 60-passenger wall stack are tabulated."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop9cd_upgraded_2_loop.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Озадаченный ёж: помощники и улучшенные режимы",
+    "status": "documented",
+    "note": "Followed impact through timer dispatcher to attack/heal/lazer helpers; full mode differences and 60-passenger wall stack are tabulated."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop9cd_upgraded_2_loop_mode_default.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Озадаченный ёж: помощники и улучшенные режимы",
+    "status": "documented",
+    "note": "Followed impact through timer dispatcher to attack/heal/lazer helpers; full mode differences and 60-passenger wall stack are tabulated."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop9cd_upgraded_2_loop_mode_healer.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Озадаченный ёж: помощники и улучшенные режимы",
+    "status": "documented",
+    "note": "Followed impact through timer dispatcher to attack/heal/lazer helpers; full mode differences and 60-passenger wall stack are tabulated."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop9cd_upgraded_2_loop_mode_laser.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Озадаченный ёж: помощники и улучшенные режимы",
+    "status": "documented",
+    "note": "Followed impact through timer dispatcher to attack/heal/lazer helpers; full mode differences and 60-passenger wall stack are tabulated."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop9cd_upgraded_2_loop_mode_sniper.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Озадаченный ёж: помощники и улучшенные режимы",
+    "status": "documented",
+    "note": "Followed impact through timer dispatcher to attack/heal/lazer helpers; full mode differences and 60-passenger wall stack are tabulated."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop9cd_upgraded_2_loop_mode_tank.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Озадаченный ёж: помощники и улучшенные режимы",
+    "status": "documented",
+    "note": "Followed impact through timer dispatcher to attack/heal/lazer helpers; full mode differences and 60-passenger wall stack are tabulated."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loop9cd_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Озадаченный ёж: помощники и улучшенные режимы",
+    "status": "documented",
+    "note": "Followed impact through timer dispatcher to attack/heal/lazer helpers; full mode differences and 60-passenger wall stack are tabulated."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loophohol.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_loophoholpre.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_molnia.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_molnia_chain.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_molnia_chain_end.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_molnia_chain_end_check.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_molnia_cunny.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_molnia_cunny_2.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_molnia_cunny_2_loli.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_molnia_cunny_2_milf.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_molnia_cunny_2_sound.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_molnia_cunny_mom.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_molnia_phantom.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_molnia_phantom_particle.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Молниеносная палочка и её режимы",
+    "status": "documented",
+    "note": "Cast mode conditions, recursive reach, terminal spawns/damage, resource differences and external effect boundary checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop10.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Схемы запуска молниеносных снарядов",
+    "status": "documented",
+    "note": "Verified projectile count/lifetimes/owner propagation, mode routes, random deviations and instant-mode cost exception."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop10_angry.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Схемы запуска молниеносных снарядов",
+    "status": "documented",
+    "note": "Verified projectile count/lifetimes/owner propagation, mode routes, random deviations and instant-mode cost exception."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop10_setbonus.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Схемы запуска молниеносных снарядов",
+    "status": "documented",
+    "note": "Verified projectile count/lifetimes/owner propagation, mode routes, random deviations and instant-mode cost exception."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop10_wtot.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Схемы запуска молниеносных снарядов",
+    "status": "documented",
+    "note": "Verified projectile count/lifetimes/owner propagation, mode routes, random deviations and instant-mode cost exception."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop10cd.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Схемы запуска молниеносных снарядов",
+    "status": "documented",
+    "note": "Verified projectile count/lifetimes/owner propagation, mode routes, random deviations and instant-mode cost exception."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop10cd_upgraded.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Схемы запуска молниеносных снарядов",
+    "status": "documented",
+    "note": "Verified projectile count/lifetimes/owner propagation, mode routes, random deviations and instant-mode cost exception."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop10cd_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Схемы запуска молниеносных снарядов",
+    "status": "documented",
+    "note": "Verified projectile count/lifetimes/owner propagation, mode routes, random deviations and instant-mode cost exception."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop10cd_upgraded_mode_chain.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Схемы запуска молниеносных снарядов",
+    "status": "documented",
+    "note": "Verified projectile count/lifetimes/owner propagation, mode routes, random deviations and instant-mode cost exception."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop10cd_upgraded_mode_instant.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Схемы запуска молниеносных снарядов",
+    "status": "documented",
+    "note": "Verified projectile count/lifetimes/owner propagation, mode routes, random deviations and instant-mode cost exception."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop10cd_upgraded_mode_instant_loop.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Схемы запуска молниеносных снарядов",
+    "status": "documented",
+    "note": "Verified projectile count/lifetimes/owner propagation, mode routes, random deviations and instant-mode cost exception."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop10cd_upgraded_mode_instant_loop_pre.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Схемы запуска молниеносных снарядов",
+    "status": "documented",
+    "note": "Verified projectile count/lifetimes/owner propagation, mode routes, random deviations and instant-mode cost exception."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop10cd_upgraded_mode_instant_loop_razbros.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Схемы запуска молниеносных снарядов",
+    "status": "documented",
+    "note": "Verified projectile count/lifetimes/owner propagation, mode routes, random deviations and instant-mode cost exception."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop10cd_upgraded_mode_instant_loop_razbros2.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Схемы запуска молниеносных снарядов",
+    "status": "documented",
+    "note": "Verified projectile count/lifetimes/owner propagation, mode routes, random deviations and instant-mode cost exception."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop10cd_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Схемы запуска молниеносных снарядов",
+    "status": "documented",
+    "note": "Verified projectile count/lifetimes/owner propagation, mode routes, random deviations and instant-mode cost exception."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop10magnum.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Схемы запуска молниеносных снарядов",
+    "status": "documented",
+    "note": "Verified projectile count/lifetimes/owner propagation, mode routes, random deviations and instant-mode cost exception."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop10magnumx2.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Схемы запуска молниеносных снарядов",
+    "status": "documented",
+    "note": "Verified projectile count/lifetimes/owner propagation, mode routes, random deviations and instant-mode cost exception."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop11.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Залп кислотной палочки и жёлтый снаряд",
+    "status": "documented",
+    "note": "Projectile count/lifetime/spread, ignited mode and special target geometry/source attribution checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop11_2.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Залп кислотной палочки и жёлтый снаряд",
+    "status": "documented",
+    "note": "Projectile count/lifetime/spread, ignited mode and special target geometry/source attribution checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop11_upgraded.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Залп кислотной палочки и жёлтый снаряд",
+    "status": "documented",
+    "note": "Projectile count/lifetime/spread, ignited mode and special target geometry/source attribution checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop11_upgraded_lib.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Залп кислотной палочки и жёлтый снаряд",
+    "status": "documented",
+    "note": "Projectile count/lifetime/spread, ignited mode and special target geometry/source attribution checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop11cd.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Залп кислотной палочки и жёлтый снаряд",
+    "status": "documented",
+    "note": "Projectile count/lifetime/spread, ignited mode and special target geometry/source attribution checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop11cd_upgraded.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Залп кислотной палочки и жёлтый снаряд",
+    "status": "documented",
+    "note": "Projectile count/lifetime/spread, ignited mode and special target geometry/source attribution checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop11cd_upgraded_2.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Залп кислотной палочки и жёлтый снаряд",
+    "status": "documented",
+    "note": "Projectile count/lifetime/spread, ignited mode and special target geometry/source attribution checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop11cd_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Залп кислотной палочки и жёлтый снаряд",
+    "status": "documented",
+    "note": "Projectile count/lifetime/spread, ignited mode and special target geometry/source attribution checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop12.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Коса смерти, земляной и древесный лучи",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop13.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Коса смерти, земляной и древесный лучи",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop14.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Коса смерти, земляной и древесный лучи",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop7.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Нестабильная призма (`prisma`)",
+    "status": "documented",
+    "note": "Compared launch variants, copied identity, recursive movement/collision, hit payload, cost and external HSV helper boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop7_2.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Нестабильная призма (`prisma`)",
+    "status": "documented",
+    "note": "Compared launch variants, copied identity, recursive movement/collision, hit payload, cost and external HSV helper boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop7_2_upgraded.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Нестабильная призма (`prisma`)",
+    "status": "documented",
+    "note": "Compared launch variants, copied identity, recursive movement/collision, hit payload, cost and external HSV helper boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop7_2_upgraded_check.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Нестабильная призма (`prisma`)",
+    "status": "documented",
+    "note": "Compared launch variants, copied identity, recursive movement/collision, hit payload, cost and external HSV helper boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop7_2_upgraded_get_color.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Нестабильная призма (`prisma`)",
+    "status": "documented",
+    "note": "Compared launch variants, copied identity, recursive movement/collision, hit payload, cost and external HSV helper boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop7_2_upgraded_reverse.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop7_2_upgraded_rotate.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Нестабильная призма (`prisma`)",
+    "status": "documented",
+    "note": "Compared launch variants, copied identity, recursive movement/collision, hit payload, cost and external HSV helper boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop7_2_upgraded_rotate_down.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Нестабильная призма (`prisma`)",
+    "status": "documented",
+    "note": "Compared launch variants, copied identity, recursive movement/collision, hit payload, cost and external HSV helper boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop7_2_upgraded_rotate_x.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Нестабильная призма (`prisma`)",
+    "status": "documented",
+    "note": "Compared launch variants, copied identity, recursive movement/collision, hit payload, cost and external HSV helper boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop7_2_upgraded_rotate_z.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Нестабильная призма (`prisma`)",
+    "status": "documented",
+    "note": "Compared launch variants, copied identity, recursive movement/collision, hit payload, cost and external HSV helper boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop7_2_upgradeddmg.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Нестабильная призма (`prisma`)",
+    "status": "documented",
+    "note": "Compared launch variants, copied identity, recursive movement/collision, hit payload, cost and external HSV helper boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop7_upgraded.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Нестабильная призма (`prisma`)",
+    "status": "documented",
+    "note": "Compared launch variants, copied identity, recursive movement/collision, hit payload, cost and external HSV helper boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_preloop7_upgraded_lib.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Нестабильная призма (`prisma`)",
+    "status": "documented",
+    "note": "Compared launch variants, copied identity, recursive movement/collision, hit payload, cost and external HSV helper boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_ruby.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_shetka.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Эффекты TNT-луча и «сетки»",
+    "status": "documented",
+    "note": "Validated recursion distance, hit/team filter, fuse type/timing, terrain effect and non-lbcr event boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_shetka_end.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Эффекты TNT-луча и «сетки»",
+    "status": "documented",
+    "note": "Validated recursion distance, hit/team filter, fuse type/timing, terrain effect and non-lbcr event boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_stone.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Лучи телепортации и камня",
+    "status": "documented",
+    "note": "Movement, collision/block results, combat payload and owner/team filters verified."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_stone_end.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Лучи телепортации и камня",
+    "status": "documented",
+    "note": "Movement, collision/block results, combat payload and owner/team filters verified."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_stone_kill.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Лучи телепортации и камня",
+    "status": "documented",
+    "note": "Movement, collision/block results, combat payload and owner/team filters verified."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_stone_nokill.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Лучи телепортации и камня",
+    "status": "documented",
+    "note": "Movement, collision/block results, combat payload and owner/team filters verified."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_stone_nokill_dmg.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Лучи телепортации и камня",
+    "status": "documented",
+    "note": "Movement, collision/block results, combat payload and owner/team filters verified."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_stone_wand.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Лучи телепортации и камня",
+    "status": "documented",
+    "note": "Movement, collision/block results, combat payload and owner/team filters verified."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_stoneplayer.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Лучи телепортации и камня",
+    "status": "documented",
+    "note": "Movement, collision/block results, combat payload and owner/team filters verified."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_teleport.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Лучи телепортации и камня",
+    "status": "documented",
+    "note": "Movement, collision/block results, combat payload and owner/team filters verified."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_teleport_tp.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Лучи телепортации и камня",
+    "status": "documented",
+    "note": "Movement, collision/block results, combat payload and owner/team filters verified."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_teleport_wand.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Лучи телепортации и камня",
+    "status": "documented",
+    "note": "Movement, collision/block results, combat payload and owner/team filters verified."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_teleport_wand_fast.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Лучи телепортации и камня",
+    "status": "documented",
+    "note": "Movement, collision/block results, combat payload and owner/team filters verified."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_teleport_wand_inverted.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Лучи телепортации и камня",
+    "status": "documented",
+    "note": "Movement, collision/block results, combat payload and owner/team filters verified."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_teleportplayer.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Лучи телепортации и камня",
+    "status": "documented",
+    "note": "Movement, collision/block results, combat payload and owner/team filters verified."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_terra.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Земляные лучи и установка растений",
+    "status": "documented",
+    "note": "Movement, collision/block results, combat payload and owner/team filters verified."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_terra_fast.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Земляные лучи и установка растений",
+    "status": "documented",
+    "note": "Movement, collision/block results, combat payload and owner/team filters verified."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_terra_fast_end.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Земляные лучи и установка растений",
+    "status": "documented",
+    "note": "Movement, collision/block results, combat payload and owner/team filters verified."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_terrameditator.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Земляные лучи и установка растений",
+    "status": "documented",
+    "note": "Movement, collision/block results, combat payload and owner/team filters verified."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_terratuntija.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Земляные лучи и установка растений",
+    "status": "documented",
+    "note": "Movement, collision/block results, combat payload and owner/team filters verified."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_tnt.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Эффекты TNT-луча и «сетки»",
+    "status": "documented",
+    "note": "Validated recursion distance, hit/team filter, fuse type/timing, terrain effect and non-lbcr event boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_tnt_fast.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Эффекты TNT-луча и «сетки»",
+    "status": "documented",
+    "note": "Validated recursion distance, hit/team filter, fuse type/timing, terrain effect and non-lbcr event boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_tnt_homing.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Эффекты TNT-луча и «сетки»",
+    "status": "documented",
+    "note": "Validated recursion distance, hit/team filter, fuse type/timing, terrain effect and non-lbcr event boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_tnt_kill.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Эффекты TNT-луча и «сетки»",
+    "status": "documented",
+    "note": "Validated recursion distance, hit/team filter, fuse type/timing, terrain effect and non-lbcr event boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_tnt_kill_big.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Эффекты TNT-луча и «сетки»",
+    "status": "documented",
+    "note": "Validated recursion distance, hit/team filter, fuse type/timing, terrain effect and non-lbcr event boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_upgraded.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Диспетчер улучшенных предметов",
+    "status": "documented",
+    "note": "Exact upgraded item allow-list and hand-specific conditions/cost thresholds documented; absent upgraded-left beam dependency noted."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_upgraded_left.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Диспетчер улучшенных предметов",
+    "status": "documented",
+    "note": "Exact upgraded item allow-list and hand-specific conditions/cost thresholds documented; absent upgraded-left beam dependency noted."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_witch_rabbit.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_witch_rabbit_spawn.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_witch_snake.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_witch_snake_spawn.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_woodifier_loop.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Коса смерти, земляной и древесный лучи",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/raycast_woodifier_loop_fill.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Коса смерти, земляной и древесный лучи",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/shishgun.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Эффекты TNT-луча и «сетки»",
+    "status": "documented",
+    "note": "Validated recursion distance, hit/team filter, fuse type/timing, terrain effect and non-lbcr event boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/shishgun_break.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Эффекты TNT-луча и «сетки»",
+    "status": "documented",
+    "note": "Validated recursion distance, hit/team filter, fuse type/timing, terrain effect and non-lbcr event boundary."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/stoningwithid.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Лучи телепортации и камня",
+    "status": "documented",
+    "note": "Movement, collision/block results, combat payload and owner/team filters verified."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/terra_id_get.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/vampirism.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Другие снаряды и контакт с блоками",
+    "status": "documented",
+    "note": ""
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/wand_teleport_kickdown.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/wand_teleport_kickup.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Варианты direct damage и случайных debuff",
+    "status": "documented",
+    "note": "Damage/status payload, source attribution, selector geometry, protection tags and cleanup checked."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbcr/function/yellow_bolt_rc.mcfunction",
+    "document": "agent_notes/lbc_lbcr.md",
+    "section": "Залп кислотной палочки и жёлтый снаряд",
+    "status": "documented",
+    "note": "Projectile count/lifetime/spread, ignited mode and special target geometry/source attribution checked."
+  }
+]

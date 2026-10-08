@@ -1,0 +1,79 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/ui/beam.mcfunction",
+    "document": "agent_notes/lbc_ui.md",
+    "section": "Отладочная команда: `beam`",
+    "status": "documented",
+    "note": "Manually reviewed UI display conditions, exact fields and macro behavior; no ability effect inferred from display."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/ui/charging.mcfunction",
+    "document": "agent_notes/lbc_ui.md",
+    "section": "Заряды: `charging`",
+    "status": "documented",
+    "note": "Manually reviewed UI display conditions, exact fields and macro behavior; no ability effect inferred from display."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/ui/cooldown.mcfunction",
+    "document": "agent_notes/lbc_ui.md",
+    "section": "Откаты: `cooldown`",
+    "status": "documented",
+    "note": "Manually reviewed UI display conditions, exact fields and macro behavior; no ability effect inferred from display."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/ui/cooldown_soulhunter_mace.mcfunction",
+    "document": "agent_notes/lbc_ui.md",
+    "section": "Soulhunter Mace: `cooldown_soulhunter_mace`",
+    "status": "documented",
+    "note": "Manually reviewed UI display conditions, exact fields and macro behavior; no ability effect inferred from display."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/ui/count_arrows.mcfunction",
+    "document": "agent_notes/lbc_ui.md",
+    "section": "Стрелы: `count_arrows`",
+    "status": "documented",
+    "note": "Manually reviewed UI display conditions, exact fields and macro behavior; no ability effect inferred from display."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/ui/display_shadow_wisp_charges.mcfunction",
+    "document": "agent_notes/lbc_ui.md",
+    "section": "Shadow Wisp: `display_shadow_wisp_charges`",
+    "status": "documented",
+    "note": "Manually reviewed UI display conditions, exact fields and macro behavior; no ability effect inferred from display."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/ui/display_shadow_wisp_charges_2.mcfunction",
+    "document": "agent_notes/lbc_ui.md",
+    "section": "Shadow Wisp macro: `display_shadow_wisp_charges_2`",
+    "status": "documented",
+    "note": "Manually reviewed UI display conditions, exact fields and macro behavior; no ability effect inferred from display."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/ui/get_data.mcfunction",
+    "document": "agent_notes/lbc_ui.md",
+    "section": "Сборка панели: `get_data`",
+    "status": "documented",
+    "note": "Manually reviewed UI display conditions, exact fields and macro behavior; no ability effect inferred from display."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/ui/get_data_nanobots.mcfunction",
+    "document": "agent_notes/lbc_ui.md",
+    "section": "Nanobots: `get_data_nanobots`",
+    "status": "documented",
+    "note": "Manually reviewed UI display conditions, exact fields and macro behavior; no ability effect inferred from display."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/ui/get_data_touhou_skill.mcfunction",
+    "document": "agent_notes/lbc_ui.md",
+    "section": "Touhou: `get_data_touhou_skill`",
+    "status": "documented",
+    "note": "Manually reviewed UI display conditions, exact fields and macro behavior; no ability effect inferred from display."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/ui/nexus_coldown.mcfunction",
+    "document": "agent_notes/lbc_ui.md",
+    "section": "Nexus: `nexus_coldown`",
+    "status": "documented",
+    "note": "Manually reviewed UI display conditions, exact fields and macro behavior; no ability effect inferred from display."
+  }
+]

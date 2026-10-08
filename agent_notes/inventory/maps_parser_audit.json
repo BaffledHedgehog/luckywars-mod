@@ -1,0 +1,20 @@
+{
+  "checked": 1456,
+  "errors": [],
+  "tag_counts": {
+    "10": 148905950,
+    "9": 148826555,
+    "3": 595092639,
+    "8": 256880,
+    "6": 70935,
+    "1": 38598,
+    "2": 14516,
+    "11": 11188,
+    "4": 9985,
+    "5": 19335,
+    "7": 37
+  },
+  "byte_arrays": 37,
+  "unsigned_byte_array_values_ge128": 0,
+  "scope": "All inventoried NBT consumed fully; strings strict UTF-8; original SHA, catalogue sizes/counts and palette indices checked."
+}

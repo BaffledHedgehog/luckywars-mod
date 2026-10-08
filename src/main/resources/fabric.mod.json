@@ -5,6 +5,7 @@
   "name": "SkyWars 2",
   "description": "Server-side SkyWars project built with Fabric and Polymer.",
   "environment": "server",
+  "mixins": ["skywars2.mixins.json"],
   "entrypoints": {
     "server": ["me.skywars2.SkyWars2"]
   },

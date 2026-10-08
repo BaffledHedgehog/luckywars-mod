@@ -1,0 +1,5 @@
+﻿from pathlib import Path
+p=Path('agent_notes/lbc_other_imba.md'); s=p.read_text(encoding='utf8')
+s=s.replace('Макрос ставит один вощёный знак с подсветкой и обеими текстовыми сторонами, создаёт loot-barrel под исходной точкой и четыре marker-луча на расстоянии 5 по сторонам света. Все 100 файлов', 'Макрос ставит один вощёный знак с подсветкой и обеими текстовыми сторонами. Отдельно над ним вызывается `fill ... barrel{LootTable:"lbc:imba/cunny_slabs"} replace #airs`: бочка появляется только если нижний блок входит в `#airs`. Здесь не создаются лучевые markers и не очищается предмет — это отдельная функция `end`, не вызываемая из этой сборки. Все 100 файлов')
+s=s.replace('[переход к сборке](../world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/correction_cunny.mcfunction).','[переход к сборке](../world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/correction_cunny.mcfunction), [отдельная `end`-функция](../world/datapacksdisabled/LBC/data/lbc/function/other/imba/cunny_slab/end.mcfunction).')
+p.write_text(s,encoding='utf8')

@@ -1,0 +1,118 @@
+{
+  "arrays": [
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_storage_nbttags.mcfunction",
+      "sha256": "ae1790e0fe22bcafd2605d907afdffc8e7ded4c1ff99522e55e8da0ab06e566e",
+      "count": 1049,
+      "unique": 1049,
+      "repeated": [],
+      "first": [
+        "accessory",
+        "1"
+      ],
+      "last": [
+        "zombietnt",
+        "1"
+      ]
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_storage_names.mcfunction",
+      "sha256": "0e1f9d9c95fa10c3b75650bb3f3f1f0c9af8805ce1ea369a08b777f9aac4cf50",
+      "count": 11682,
+      "unique": 11677,
+      "repeated": [
+        {
+          "value": "death.attack.cactus",
+          "occurrences": 2
+        },
+        {
+          "value": "death.attack.arrow.item",
+          "occurrences": 2
+        },
+        {
+          "value": "death.attack.arrow",
+          "occurrences": 2
+        },
+        {
+          "value": "subtitles.event.mob_effect.raid_omen",
+          "occurrences": 2
+        },
+        {
+          "value": "death.attack.generic",
+          "occurrences": 2
+        }
+      ],
+      "first": "randchanted_sword",
+      "last": "upgrade.minecraft.netherite_upgrade"
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_storage_hex.mcfunction",
+      "sha256": "8f52a9f90387266cb471328c5ecb2fa88b53e518422fcfb586d38ae32623fc86",
+      "count": 16,
+      "unique": 16,
+      "repeated": [],
+      "first": "0",
+      "last": "F"
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_storage_sound.mcfunction",
+      "sha256": "f3182578e94b9bf84e56dc92b64362c2afca9205a48915b5e1d597cbad251268",
+      "count": 1735,
+      "unique": 1735,
+      "repeated": [],
+      "first": "lbcsounds.yametekudasai",
+      "last": "minecraft:weather.rain.above"
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_storage_attribute.mcfunction",
+      "sha256": "178097e7da2a3cc4e0af292cb9041f905546468c58bf8650321550d205ed02d0",
+      "count": 32,
+      "unique": 32,
+      "repeated": [],
+      "first": "minecraft:armor",
+      "last": "minecraft:water_movement_efficiency"
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/drops/tmt/set_storage_enchantment.mcfunction",
+      "sha256": "698a0325afc4baf73acab2c87626e35d7244875fdc01e67aae520f1dc903bc46",
+      "count": 42,
+      "unique": 42,
+      "repeated": [],
+      "first": "minecraft:aqua_affinity",
+      "last": "minecraft:wind_burst"
+    }
+  ],
+  "attempts": [
+    {
+      "chance": 1.0,
+      "function": "select_random_attribute",
+      "count": 1
+    },
+    {
+      "chance": 0.2,
+      "function": "select_random_attribute",
+      "count": 4
+    },
+    {
+      "chance": 0.1,
+      "function": "select_random_attribute",
+      "count": 8
+    },
+    {
+      "chance": 0.05,
+      "function": "select_random_attribute",
+      "count": 16
+    },
+    {
+      "chance": 0.2,
+      "function": "select_random_enchantment",
+      "count": 4
+    },
+    {
+      "chance": 0.1,
+      "function": "select_random_enchantment",
+      "count": 17
+    }
+  ],
+  "errors": []
+}

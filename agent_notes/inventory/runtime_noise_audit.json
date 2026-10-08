@@ -1,0 +1,571 @@
+{
+  "files": 26,
+  "errors": [],
+  "rows": [
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion.mcfunction",
+      "sha256": "9bd1809c106f039f1824b2647a3afb1d522f32d38bc5cc079525f70e303a4b97",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Motion",
+        "axes": [
+          0,
+          1,
+          2
+        ],
+        "ranges": [
+          "-6000..6000",
+          "0..10000",
+          "-6000..6000"
+        ],
+        "read_scale": null,
+        "write_scale": "0.0001",
+        "additive": false,
+        "extras": []
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_small.mcfunction",
+      "sha256": "7417cf34311a8e79ac1d3955b4bd8889691f9ee9a2163af08ed3e034224e1d14",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Motion",
+        "axes": [
+          0,
+          1,
+          2
+        ],
+        "ranges": [
+          "-50..50",
+          "-50..50",
+          "-50..50"
+        ],
+        "read_scale": null,
+        "write_scale": "0.01",
+        "additive": false,
+        "extras": []
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_smallest.mcfunction",
+      "sha256": "02a3f6e7cab01480dffe2dea5e3ebca95bfec55c510d397090ce4c6c59cb3da7",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Motion",
+        "axes": [
+          0,
+          1,
+          2
+        ],
+        "ranges": [
+          "-2500..2500",
+          "-500..500",
+          "-2500..2500"
+        ],
+        "read_scale": null,
+        "write_scale": "0.001",
+        "additive": false,
+        "extras": []
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_very_small.mcfunction",
+      "sha256": "7b2d36346e2e739d0356431f1497403c2ac8a9ce62d6f85a556eb60374fee391",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Motion",
+        "axes": [
+          0,
+          1,
+          2
+        ],
+        "ranges": [
+          "-10..10",
+          "-10..10",
+          "-10..10"
+        ],
+        "read_scale": null,
+        "write_scale": "0.01",
+        "additive": false,
+        "extras": []
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_very_very_small.mcfunction",
+      "sha256": "433907b4769b4cfa4d4ac8b75dd9e53e48cda3fbadd759013d52fbf66df97767",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Motion",
+        "axes": [
+          0,
+          1,
+          2
+        ],
+        "ranges": [
+          "-100..100",
+          "-100..100",
+          "-100..100"
+        ],
+        "read_scale": null,
+        "write_scale": "0.0004",
+        "additive": false,
+        "extras": []
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_razbros.mcfunction",
+      "sha256": "e86db7b16cab718b35aea06b1e36c072a1edffb2131383d10d93ba34d44777cd",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Motion",
+        "axes": [
+          0,
+          1,
+          2
+        ],
+        "ranges": [
+          "-10..10",
+          "-10..10",
+          "-10..10"
+        ],
+        "read_scale": "10",
+        "write_scale": "0.1",
+        "additive": true,
+        "extras": []
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_razbros_small.mcfunction",
+      "sha256": "98110d86061033d52a7bf02de6e385698889acb2ce3b49d014c93145ec3e5381",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Motion",
+        "axes": [
+          0,
+          1,
+          2
+        ],
+        "ranges": [
+          "-4..4",
+          "-4..4",
+          "-4..4"
+        ],
+        "read_scale": "10",
+        "write_scale": "0.1",
+        "additive": true,
+        "extras": []
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_razbros_big.mcfunction",
+      "sha256": "16f368a439de21a7eda5e75c43dc4ef30e3e67e20ed8f4a821ef0523b2ce739e",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Motion",
+        "axes": [
+          0,
+          1,
+          2
+        ],
+        "ranges": [
+          "-1500..1500",
+          "-1500..1500",
+          "-1500..1500"
+        ],
+        "read_scale": "1000",
+        "write_scale": "0.001",
+        "additive": true,
+        "extras": []
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_motion_razbros_smallest.mcfunction",
+      "sha256": "7c58587079da8e680c9414d6154ca0253592523f3a098d496dc47b798faae250",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Motion",
+        "axes": [
+          0,
+          1,
+          2
+        ],
+        "ranges": [
+          "-100..100",
+          "-100..100",
+          "-100..100"
+        ],
+        "read_scale": "10000",
+        "write_scale": "0.0001",
+        "additive": true,
+        "extras": []
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/rand_power_razbros_small.mcfunction",
+      "sha256": "1dc03d50a25ab0ad5c6c9a6c8d6f15b1087d7ecd3026946e33218d884fdc70b9",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Motion",
+        "axes": [
+          0,
+          1,
+          2
+        ],
+        "ranges": [
+          "-30..30",
+          "-5..5",
+          "-30..30"
+        ],
+        "read_scale": "1000",
+        "write_scale": "0.001",
+        "additive": true,
+        "extras": []
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_0_5.mcfunction",
+      "sha256": "772c57b71bc5a1188cfcb1016c27bf4843355a9eeb270379f6989e4a9e582842",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Pos",
+        "axes": [
+          0,
+          1,
+          2
+        ],
+        "ranges": [
+          "-50..50",
+          "-50..50",
+          "-50..50"
+        ],
+        "read_scale": "100",
+        "write_scale": "0.01",
+        "additive": true,
+        "extras": []
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_1.mcfunction",
+      "sha256": "0716dc1a2508560fdb886e249020f5280c829197450ac94eb3bda53dac0f18b6",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Pos",
+        "axes": [
+          0,
+          1,
+          2
+        ],
+        "ranges": [
+          "-1..1",
+          "-1..1",
+          "-1..1"
+        ],
+        "read_scale": "1",
+        "write_scale": "1",
+        "additive": true,
+        "extras": []
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_10.mcfunction",
+      "sha256": "55648cea7b8d2a12464788d497ffc0f38ac3b53f21be4aaf43d15a522c30c439",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Pos",
+        "axes": [
+          0,
+          2
+        ],
+        "ranges": [
+          "-10..10",
+          "-10..10"
+        ],
+        "read_scale": "1",
+        "write_scale": "1",
+        "additive": true,
+        "extras": []
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_15.mcfunction",
+      "sha256": "6ee1fe75c315e7f9fc293d09c32e7f633cd1402c393e08eb1f21277d60860609",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Pos",
+        "axes": [
+          0,
+          1,
+          2
+        ],
+        "ranges": [
+          "-15..15",
+          "-15..15",
+          "-15..15"
+        ],
+        "read_scale": "1",
+        "write_scale": "1",
+        "additive": true,
+        "extras": []
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_15_active.mcfunction",
+      "sha256": "6da96b31b0cb3c4bfb9e85fbe6d11511500d73d761ee30c8c37e913c6ca0bf05",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Pos",
+        "axes": [
+          0,
+          2
+        ],
+        "ranges": [
+          "-15..15",
+          "-15..15"
+        ],
+        "read_scale": "1",
+        "write_scale": "1",
+        "additive": true,
+        "extras": [
+          "tag @s add active"
+        ]
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_15_xz.mcfunction",
+      "sha256": "f4a1576a3973bab5eee0c44a4328d6c32180c60ad001f66401287bbaea95017d",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Pos",
+        "axes": [
+          0,
+          2
+        ],
+        "ranges": [
+          "-15..15",
+          "-15..15"
+        ],
+        "read_scale": "1",
+        "write_scale": "1",
+        "additive": true,
+        "extras": []
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_2.mcfunction",
+      "sha256": "a581758a618d7be1e523da1c6c27dc92c863653d19c17a9d4e796640624e123e",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Pos",
+        "axes": [
+          0,
+          2
+        ],
+        "ranges": [
+          "-2..2",
+          "-2..2"
+        ],
+        "read_scale": "1",
+        "write_scale": "1",
+        "additive": true,
+        "extras": []
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_20.mcfunction",
+      "sha256": "fd253391ff46b8ebd1fbe91e94926bc22ebceaf7971f94c78f038efda893d1de",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Pos",
+        "axes": [
+          0,
+          2
+        ],
+        "ranges": [
+          "-20..20",
+          "-20..20"
+        ],
+        "read_scale": "1",
+        "write_scale": "1",
+        "additive": true,
+        "extras": []
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_20_active.mcfunction",
+      "sha256": "60a770ea5a1e3a67c0aad3e7fa0e1552a94da48c1e29531cc1a53bb629f0db17",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Pos",
+        "axes": [
+          0,
+          2
+        ],
+        "ranges": [
+          "-20..20",
+          "-20..20"
+        ],
+        "read_scale": "1",
+        "write_scale": "1",
+        "additive": true,
+        "extras": [
+          "tag @s add active"
+        ]
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_2_.mcfunction",
+      "sha256": "1edb7faca7c7933c04e7b15b380e90f6ca70280f511963dcc1af89d6332a092b",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Pos",
+        "axes": [
+          0,
+          1,
+          2
+        ],
+        "ranges": [
+          "-200..200",
+          "0..200",
+          "-200..200"
+        ],
+        "read_scale": "100",
+        "write_scale": "0.01",
+        "additive": true,
+        "extras": [
+          "tag @s remove doubledcurr"
+        ]
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_2_motion.mcfunction",
+      "sha256": "799a0b884b3fb337d253254bdd455abe0f722002c4aeb8fe01a232144192dd14",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Pos",
+        "axes": [
+          0,
+          1,
+          2
+        ],
+        "ranges": [
+          "-200..200",
+          "0..200",
+          "-200..200"
+        ],
+        "read_scale": "100",
+        "write_scale": "0.01",
+        "additive": true,
+        "extras": [
+          "function lbc:rand_motion_razbros_big",
+          "tag @s remove doubledcurr"
+        ]
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_30.mcfunction",
+      "sha256": "ffa5d5653fe2c94366366501a04f3b8efa85d7729830c26164e747bdca67bc62",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Pos",
+        "axes": [
+          0,
+          2
+        ],
+        "ranges": [
+          "-30..30",
+          "-30..30"
+        ],
+        "read_scale": "1",
+        "write_scale": "1",
+        "additive": true,
+        "extras": []
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_35_active.mcfunction",
+      "sha256": "b5ca75e433af3839cf322f90fc7d14fc091a150e05552b1c3b337b1db18194c8",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Pos",
+        "axes": [
+          0,
+          1,
+          2
+        ],
+        "ranges": [
+          "-35..35",
+          "-35..35",
+          "-35..35"
+        ],
+        "read_scale": "1",
+        "write_scale": "1",
+        "additive": true,
+        "extras": [
+          "tag @s add active"
+        ]
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_5_y.mcfunction",
+      "sha256": "e3bb9430744f406b6323c551ab353623665e916cc0d7fa5513a256d7a8b99450",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Pos",
+        "axes": [
+          0,
+          2
+        ],
+        "ranges": [
+          "-5..5",
+          "-5..5"
+        ],
+        "read_scale": "1",
+        "write_scale": "1",
+        "additive": true,
+        "extras": []
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_7.mcfunction",
+      "sha256": "fbd4a08cc749e60b7120cc7ba7b1c5000dfebf8ef077513d51f8ba91335308bb",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Pos",
+        "axes": [
+          0,
+          1,
+          2
+        ],
+        "ranges": [
+          "-7..7",
+          "-7..7",
+          "-7..7"
+        ],
+        "read_scale": "1",
+        "write_scale": "1",
+        "additive": true,
+        "extras": []
+      }
+    },
+    {
+      "source": "world/datapacksdisabled/LBC/data/lbc/function/universal_pos_razb_7_y.mcfunction",
+      "sha256": "30b985138aab21c0b66af2bedc00256848ef0634b47d2267a954beac3d3f084e",
+      "complete_command_match": true,
+      "parameters": {
+        "field": "Pos",
+        "axes": [
+          0,
+          2
+        ],
+        "ranges": [
+          "-7..7",
+          "-7..7"
+        ],
+        "read_scale": "1",
+        "write_scale": "1",
+        "additive": true,
+        "extras": []
+      }
+    }
+  ]
+}

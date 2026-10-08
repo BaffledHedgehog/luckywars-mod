@@ -1,0 +1,1523 @@
+{
+  "schemaVersion": 1,
+  "reference": {
+    "kind": "read-only external resource pack",
+    "langFiles": [
+      "assets/minecraft/lang/ru_ru.json",
+      "assets/minecraft/lang/en_us.json"
+    ],
+    "sha256Before": {
+      "ru_ru": "4a7152343a6bee72fc016c1f0dc938c1311ab960825c2a03f0e7e8d578a05262",
+      "en_us": "c5d9db74f2c341db3cb024aa205a7f4c9ffd23bacc4ff075f769a915276b5897"
+    },
+    "sha256After": {
+      "ru_ru": "4a7152343a6bee72fc016c1f0dc938c1311ab960825c2a03f0e7e8d578a05262",
+      "en_us": "c5d9db74f2c341db3cb024aa205a7f4c9ffd23bacc4ff075f769a915276b5897"
+    }
+  },
+  "reviewCounts": {
+    "explicitExistingKeys": 147,
+    "newModuleAndTemplateKeysPerLocale": {
+      "ru_ru": 385,
+      "en_us": 384
+    },
+    "removedAlreadyTranslatedKeysPerLocale": 86
+  },
+  "componentConvention": {
+    "translationKey": "Use full translation-key literals with Component.translatable; this includes swrg.* and unprefixed legacy item/skill keys such as golden_pumpkin, wind_runner_skill and dualist_skill. The localization checker recognizes full literals in arrays and switches.",
+    "styles": "Legacy GUI storage values were swrg:lang translations with explicit color and italic=false. Use custom_name components plus raw lore components so SGui does not clear those styles.",
+    "arguments": "Most reused legacy keys take no arguments. Append dynamic values as separately styled Components only where the original display had a trailing value/prefix; do not pass ignored arguments."
+  },
+  "reusedKeys": [
+    {
+      "existingKey": "swrg.gui.back",
+      "replaces": [
+        "skywars2.common.back"
+      ],
+      "sites": [
+        "map back button",
+        "shared menu back button"
+      ],
+      "arguments": "none",
+      "style": "red, italic=false"
+    },
+    {
+      "existingKey": "swrg.gui.balance",
+      "replaces": [
+        "skywars2.gui.hub.balance",
+        "skywars2.gui.shop.balance.title"
+      ],
+      "sites": [
+        "hub balance lore",
+        "key shop balance heading"
+      ],
+      "arguments": "no translation args; append numeric balances and swrg.gui.coins/memcoins components in the hub; use the trailing-colon prefix alone for the key shop heading",
+      "style": "white, italic=false"
+    },
+    {
+      "existingKey": "swrg.gui.coins",
+      "replaces": [
+        "skywars2.common.coins"
+      ],
+      "sites": [
+        "hub balance lore",
+        "key shop price currency"
+      ],
+      "arguments": "none",
+      "style": "italic=false"
+    },
+    {
+      "existingKey": "swrg.gui.keys",
+      "replaces": [
+        "skywars2.gui.stats.keys"
+      ],
+      "sites": [
+        "stats key-count lore"
+      ],
+      "arguments": "no translation args; append colon and existing dynamic key-count list component",
+      "style": "white, italic=false"
+    },
+    {
+      "existingKey": "swrg.gui.memcoins",
+      "replaces": [
+        "skywars2.common.memcoins"
+      ],
+      "sites": [
+        "hub balance lore",
+        "key shop price currency"
+      ],
+      "arguments": "none",
+      "style": "italic=false"
+    },
+    {
+      "existingKey": "swrg.gui.previous",
+      "replaces": [
+        "skywars2.gui.maps.previous"
+      ],
+      "sites": [
+        "map pagination"
+      ],
+      "arguments": "none",
+      "style": "red, italic=false"
+    },
+    {
+      "existingKey": "swrg.gui.next",
+      "replaces": [
+        "skywars2.gui.maps.next"
+      ],
+      "sites": [
+        "map pagination"
+      ],
+      "arguments": "none",
+      "style": "red, italic=false"
+    },
+    {
+      "existingKey": "swrg.gui.reset",
+      "replaces": [],
+      "sites": [
+        "LBC selection reset"
+      ],
+      "arguments": "none",
+      "style": "red, italic=false"
+    },
+    {
+      "existingKey": "swrg.gui.select",
+      "replaces": [
+        "skywars2.gui.hub.selected",
+        "skywars2.common.selected"
+      ],
+      "sites": [
+        "hub selected kit/skill lore",
+        "selected map marker"
+      ],
+      "arguments": "append selected value; no translation args",
+      "style": "green, italic=false"
+    },
+    {
+      "existingKey": "swrg.page0.s0",
+      "replaces": [
+        "skywars2.gui.hub.settings",
+        "skywars2.gui.settings.title"
+      ],
+      "sites": [
+        "hub settings button",
+        "settings page title"
+      ],
+      "arguments": "none",
+      "style": "red, italic=false"
+    },
+    {
+      "existingKey": "swrg.page0.s1",
+      "replaces": [
+        "skywars2.gui.hub.quick"
+      ],
+      "sites": [
+        "hub quick-start button"
+      ],
+      "arguments": "none",
+      "style": "green, italic=false"
+    },
+    {
+      "existingKey": "swrg.page0.s2",
+      "replaces": [
+        "skywars2.gui.hub.maps",
+        "skywars2.gui.maps.title"
+      ],
+      "sites": [
+        "hub map button",
+        "map page title"
+      ],
+      "arguments": "none",
+      "style": "aqua, italic=false"
+    },
+    {
+      "existingKey": "swrg.page0.s6",
+      "replaces": [
+        "skywars2.gui.hub.shop"
+      ],
+      "sites": [
+        "hub key shop button"
+      ],
+      "arguments": "none",
+      "style": "yellow, italic=false"
+    },
+    {
+      "existingKey": "swrg.page0.s7",
+      "replaces": [
+        "skywars2.gui.cosmetics.title"
+      ],
+      "sites": [
+        "hub cosmetics button",
+        "cosmetics page title"
+      ],
+      "arguments": "none",
+      "style": "yellow, italic=false"
+    },
+    {
+      "existingKey": "swrg.page0.s12",
+      "replaces": [
+        "skywars2.gui.hub.vanilla_kits",
+        "skywars2.gui.kits.title"
+      ],
+      "sites": [
+        "hub kits button",
+        "kit page title"
+      ],
+      "arguments": "none",
+      "style": "gold, italic=false"
+    },
+    {
+      "existingKey": "swrg.page0.s13",
+      "replaces": [
+        "skywars2.gui.hub.cases",
+        "skywars2.gui.cases.title"
+      ],
+      "sites": [
+        "hub cases button",
+        "cases page title"
+      ],
+      "arguments": "none",
+      "style": "light_purple, italic=false"
+    },
+    {
+      "existingKey": "swrg.page0.s14",
+      "replaces": [
+        "skywars2.gui.hub.vanilla_skills",
+        "skywars2.gui.skills.title"
+      ],
+      "sites": [
+        "hub skills button",
+        "skills page title"
+      ],
+      "arguments": "none",
+      "style": "aqua, italic=false"
+    },
+    {
+      "existingKey": "swrg.page0.s22",
+      "replaces": [
+        "skywars2.gui.lbc.kits"
+      ],
+      "sites": [
+        "hub LBC kits button",
+        "LBC kits page title",
+        "LBC selector category item"
+      ],
+      "arguments": "none",
+      "style": "white, italic=false"
+    },
+    {
+      "existingKey": "swrg.page0.s23",
+      "replaces": [
+        "skywars2.gui.lbc.skills"
+      ],
+      "sites": [
+        "hub LBC skills button",
+        "LBC skills page title",
+        "LBC selector category item"
+      ],
+      "arguments": "none",
+      "style": "white, italic=false"
+    },
+    {
+      "existingKey": "swrg.page0.s24",
+      "replaces": [
+        "skywars2.gui.lbc.challenge"
+      ],
+      "sites": [
+        "hub LBC challenge button",
+        "LBC challenge page title",
+        "LBC selector category item"
+      ],
+      "arguments": "none",
+      "style": "white, italic=false"
+    },
+    {
+      "existingKey": "swrg.page1000.s26",
+      "replaces": [
+        "skywars2.gui.settings.reset"
+      ],
+      "sites": [
+        "settings restore defaults button"
+      ],
+      "arguments": "none",
+      "style": "green, italic=false"
+    },
+    {
+      "existingKey": "swrg.stat.profile",
+      "replaces": [
+        "skywars2.gui.stats.title"
+      ],
+      "sites": [
+        "hub stats button",
+        "stats page title"
+      ],
+      "arguments": "no args; append player name after the original trailing space in the stats title",
+      "style": "green, italic=false"
+    },
+    {
+      "existingKey": "swrg.stat.game_played",
+      "replaces": [
+        "skywars2.gui.stats.games"
+      ],
+      "sites": [
+        "stats games count name"
+      ],
+      "arguments": "no args; append numeric game count after original trailing text",
+      "style": "green, italic=false"
+    },
+    {
+      "existingKey": "swrg.kit.a1",
+      "replaces": [
+        "skywars2.gui.kits.name (mapped kit ids)"
+      ],
+      "sites": [
+        "kit id 1 name"
+      ],
+      "arguments": "none",
+      "style": "aqua, italic=false"
+    },
+    {
+      "existingKey": "swrg.kit.a2",
+      "replaces": [
+        "skywars2.gui.kits.name (mapped kit ids)"
+      ],
+      "sites": [
+        "kit id 2 name"
+      ],
+      "arguments": "none",
+      "style": "aqua, italic=false"
+    },
+    {
+      "existingKey": "swrg.kit.a3",
+      "replaces": [
+        "skywars2.gui.kits.name (mapped kit ids)"
+      ],
+      "sites": [
+        "kit id 3 name"
+      ],
+      "arguments": "none",
+      "style": "aqua, italic=false"
+    },
+    {
+      "existingKey": "swrg.kit.a4",
+      "replaces": [
+        "skywars2.gui.kits.name (mapped kit ids)"
+      ],
+      "sites": [
+        "kit id 4 name"
+      ],
+      "arguments": "none",
+      "style": "aqua, italic=false"
+    },
+    {
+      "existingKey": "swrg.kit.a5",
+      "replaces": [
+        "skywars2.gui.kits.name (mapped kit ids)"
+      ],
+      "sites": [
+        "kit id 5 name"
+      ],
+      "arguments": "none",
+      "style": "aqua, italic=false"
+    },
+    {
+      "existingKey": "swrg.kit.a6",
+      "replaces": [
+        "skywars2.gui.kits.name (mapped kit ids)"
+      ],
+      "sites": [
+        "kit id 6 name"
+      ],
+      "arguments": "none",
+      "style": "aqua, italic=false"
+    },
+    {
+      "existingKey": "swrg.kit.a7",
+      "replaces": [
+        "skywars2.gui.kits.name (mapped kit ids)"
+      ],
+      "sites": [
+        "kit id 7 name"
+      ],
+      "arguments": "none",
+      "style": "aqua, italic=false"
+    },
+    {
+      "existingKey": "swrg.kit.b1",
+      "replaces": [
+        "skywars2.gui.kits.name (mapped kit ids)"
+      ],
+      "sites": [
+        "kit id 8 name"
+      ],
+      "arguments": "none",
+      "style": "gold, italic=false"
+    },
+    {
+      "existingKey": "swrg.kit.b2",
+      "replaces": [
+        "skywars2.gui.kits.name (mapped kit ids)"
+      ],
+      "sites": [
+        "kit id 9 name"
+      ],
+      "arguments": "none",
+      "style": "gold, italic=false"
+    },
+    {
+      "existingKey": "swrg.kit.b3",
+      "replaces": [
+        "skywars2.gui.kits.name (mapped kit ids)"
+      ],
+      "sites": [
+        "kit id 10 name"
+      ],
+      "arguments": "none",
+      "style": "gold, italic=false"
+    },
+    {
+      "existingKey": "swrg.kit.b4",
+      "replaces": [
+        "skywars2.gui.kits.name (mapped kit ids)"
+      ],
+      "sites": [
+        "kit id 11 name"
+      ],
+      "arguments": "none",
+      "style": "gold, italic=false"
+    },
+    {
+      "existingKey": "swrg.kit.b5",
+      "replaces": [
+        "skywars2.gui.kits.name (mapped kit ids)"
+      ],
+      "sites": [
+        "kit id 12 name"
+      ],
+      "arguments": "none",
+      "style": "gold, italic=false"
+    },
+    {
+      "existingKey": "swrg.kit.c1",
+      "replaces": [
+        "skywars2.gui.kits.name (mapped kit ids)"
+      ],
+      "sites": [
+        "kit id 13 name"
+      ],
+      "arguments": "none",
+      "style": "light_purple, italic=false"
+    },
+    {
+      "existingKey": "swrg.kit.c2",
+      "replaces": [
+        "skywars2.gui.kits.name (mapped kit ids)"
+      ],
+      "sites": [
+        "kit id 14 name"
+      ],
+      "arguments": "none",
+      "style": "light_purple, italic=false"
+    },
+    {
+      "existingKey": "swrg.kit.c3",
+      "replaces": [
+        "skywars2.gui.kits.name (mapped kit ids)"
+      ],
+      "sites": [
+        "kit id 15 name"
+      ],
+      "arguments": "none",
+      "style": "light_purple, italic=false"
+    },
+    {
+      "existingKey": "swrg.kit.c4",
+      "replaces": [
+        "skywars2.gui.kits.name (mapped kit ids)"
+      ],
+      "sites": [
+        "kit id 16 name"
+      ],
+      "arguments": "none",
+      "style": "light_purple, italic=false"
+    },
+    {
+      "existingKey": "swrg.kit.c5",
+      "replaces": [
+        "skywars2.gui.kits.name (mapped kit ids)"
+      ],
+      "sites": [
+        "kit id 17 name"
+      ],
+      "arguments": "none",
+      "style": "light_purple, italic=false"
+    },
+    {
+      "existingKey": "swrg.kit.d1",
+      "replaces": [
+        "skywars2.gui.kits.name (mapped kit ids)"
+      ],
+      "sites": [
+        "kit id 18 name"
+      ],
+      "arguments": "none",
+      "style": "red, italic=false"
+    },
+    {
+      "existingKey": "swrg.kit.d2",
+      "replaces": [
+        "skywars2.gui.kits.name (mapped kit ids)"
+      ],
+      "sites": [
+        "kit id 20 name"
+      ],
+      "arguments": "none",
+      "style": "red, italic=false"
+    },
+    {
+      "existingKey": "swrg.kit.d3",
+      "replaces": [
+        "skywars2.gui.kits.name (mapped kit ids)"
+      ],
+      "sites": [
+        "kit id 21 name"
+      ],
+      "arguments": "none",
+      "style": "red, italic=false"
+    },
+    {
+      "existingKey": "swrg.skill.a1",
+      "replaces": [
+        "skywars2.gui.skills.name.spider"
+      ],
+      "sites": [
+        "skill id 1 name"
+      ],
+      "arguments": "none",
+      "style": "aqua, italic=false"
+    },
+    {
+      "existingKey": "swrg.skill.a2",
+      "replaces": [
+        "skywars2.gui.skills.name.heavy"
+      ],
+      "sites": [
+        "skill id 2 name"
+      ],
+      "arguments": "none",
+      "style": "aqua, italic=false"
+    },
+    {
+      "existingKey": "swrg.skill.a3",
+      "replaces": [
+        "skywars2.gui.skills.name.runner"
+      ],
+      "sites": [
+        "skill id 3 name"
+      ],
+      "arguments": "none",
+      "style": "aqua, italic=false"
+    },
+    {
+      "existingKey": "swrg.skill.a4",
+      "replaces": [
+        "skywars2.gui.skills.name.omnivore"
+      ],
+      "sites": [
+        "skill id 4 name"
+      ],
+      "arguments": "none",
+      "style": "aqua, italic=false"
+    },
+    {
+      "existingKey": "swrg.skill.b1",
+      "replaces": [
+        "skywars2.gui.skills.name.berserker"
+      ],
+      "sites": [
+        "skill id 5 name"
+      ],
+      "arguments": "none",
+      "style": "gold, italic=false"
+    },
+    {
+      "existingKey": "swrg.skill.b2",
+      "replaces": [
+        "skywars2.gui.skills.name.archer"
+      ],
+      "sites": [
+        "skill id 6 name"
+      ],
+      "arguments": "none",
+      "style": "gold, italic=false"
+    },
+    {
+      "existingKey": "swrg.skill.b3",
+      "replaces": [
+        "skywars2.gui.skills.name.fury"
+      ],
+      "sites": [
+        "skill id 7 name"
+      ],
+      "arguments": "none",
+      "style": "gold, italic=false"
+    },
+    {
+      "existingKey": "swrg.skill.c1",
+      "replaces": [
+        "skywars2.gui.skills.name.phoenix"
+      ],
+      "sites": [
+        "skill id 8 name"
+      ],
+      "arguments": "none",
+      "style": "light_purple, italic=false"
+    },
+    {
+      "existingKey": "swrg.skill.c2",
+      "replaces": [
+        "skywars2.gui.skills.name.maniac"
+      ],
+      "sites": [
+        "skill id 9 name"
+      ],
+      "arguments": "none",
+      "style": "light_purple, italic=false"
+    },
+    {
+      "existingKey": "swrg.skill.d1",
+      "replaces": [
+        "skywars2.gui.skills.name.thunderer"
+      ],
+      "sites": [
+        "skill id 10 name"
+      ],
+      "arguments": "none",
+      "style": "red, italic=false"
+    },
+    {
+      "existingKey": "swrg.skill.d2",
+      "replaces": [
+        "skywars2.gui.skills.name.vampire"
+      ],
+      "sites": [
+        "skill id 11 name"
+      ],
+      "arguments": "none",
+      "style": "red, italic=false"
+    },
+    {
+      "existingKey": "wind_runner_skill",
+      "replaces": [
+        "skywars2.gui.skills.name.wind_wings"
+      ],
+      "sites": [
+        "skill id 12 Wind Wings name"
+      ],
+      "arguments": "none",
+      "style": "white, italic=false"
+    },
+    {
+      "existingKey": "wind_runner_skill.lore.1",
+      "replaces": [
+        "original skill lore row from skywars2.gui.skills.item"
+      ],
+      "sites": [
+        "skill id 12 Wind Wings lore"
+      ],
+      "arguments": "none",
+      "style": "gray, italic=false"
+    },
+    {
+      "existingKey": "swrg.title.stage1.event1",
+      "replaces": [
+        "skywars2.event.stage_one",
+        "skywars2.event.one.1"
+      ],
+      "sites": [
+        "stage-one event 1 announcement"
+      ],
+      "arguments": "none; the legacy announcement is complete text",
+      "style": "green, italic=false"
+    },
+    {
+      "existingKey": "swrg.title.stage1.event2",
+      "replaces": [
+        "skywars2.event.stage_one",
+        "skywars2.event.one.2"
+      ],
+      "sites": [
+        "stage-one event 2 announcement"
+      ],
+      "arguments": "none; the legacy announcement is complete text",
+      "style": "green, italic=false"
+    },
+    {
+      "existingKey": "swrg.title.stage1.event3",
+      "replaces": [
+        "skywars2.event.stage_one",
+        "skywars2.event.one.3"
+      ],
+      "sites": [
+        "stage-one event 3 announcement"
+      ],
+      "arguments": "none; the legacy announcement is complete text",
+      "style": "green, italic=false"
+    },
+    {
+      "existingKey": "swrg.title.stage1.event4",
+      "replaces": [
+        "skywars2.event.stage_one",
+        "skywars2.event.one.4"
+      ],
+      "sites": [
+        "stage-one event 4 announcement"
+      ],
+      "arguments": "none; the legacy announcement is complete text",
+      "style": "green, italic=false"
+    },
+    {
+      "existingKey": "swrg.title.stage1.event5",
+      "replaces": [
+        "skywars2.event.stage_one",
+        "skywars2.event.one.5"
+      ],
+      "sites": [
+        "stage-one event 5 announcement"
+      ],
+      "arguments": "none; the legacy announcement is complete text",
+      "style": "green, italic=false"
+    },
+    {
+      "existingKey": "swrg.title.stage1.event6",
+      "replaces": [
+        "skywars2.event.stage_one",
+        "skywars2.event.one.6"
+      ],
+      "sites": [
+        "stage-one event 6 announcement"
+      ],
+      "arguments": "none; the legacy announcement is complete text",
+      "style": "green, italic=false"
+    },
+    {
+      "existingKey": "swrg.title.stage1.event7",
+      "replaces": [
+        "skywars2.event.stage_one",
+        "skywars2.event.one.7"
+      ],
+      "sites": [
+        "stage-one event 7 announcement"
+      ],
+      "arguments": "none; the legacy announcement is complete text",
+      "style": "green, italic=false"
+    },
+    {
+      "existingKey": "swrg.title.stage1.event8",
+      "replaces": [
+        "skywars2.event.stage_one",
+        "skywars2.event.one.8"
+      ],
+      "sites": [
+        "stage-one event 8 announcement"
+      ],
+      "arguments": "none; the legacy announcement is complete text",
+      "style": "green, italic=false"
+    },
+    {
+      "existingKey": "swrg.title.stage2.event1",
+      "replaces": [
+        "skywars2.event.stage_two",
+        "skywars2.event.two.1"
+      ],
+      "sites": [
+        "stage-two event 1 announcement"
+      ],
+      "arguments": "none; the legacy announcement is complete text",
+      "style": "red, italic=false"
+    },
+    {
+      "existingKey": "swrg.title.stage2.event2",
+      "replaces": [
+        "skywars2.event.stage_two",
+        "skywars2.event.two.2"
+      ],
+      "sites": [
+        "stage-two event 2 announcement"
+      ],
+      "arguments": "none; the legacy announcement is complete text",
+      "style": "red, italic=false"
+    },
+    {
+      "existingKey": "swrg.title.stage2.event3",
+      "replaces": [
+        "skywars2.event.stage_two",
+        "skywars2.event.two.3"
+      ],
+      "sites": [
+        "stage-two event 3 announcement"
+      ],
+      "arguments": "none; the legacy announcement is complete text",
+      "style": "red, italic=false"
+    },
+    {
+      "existingKey": "swrg.title.stage2.event4",
+      "replaces": [
+        "skywars2.event.stage_two",
+        "skywars2.event.two.4"
+      ],
+      "sites": [
+        "stage-two event 4 announcement"
+      ],
+      "arguments": "none; the legacy announcement is complete text",
+      "style": "red, italic=false"
+    },
+    {
+      "existingKey": "swrg.title.stage2.event5",
+      "replaces": [
+        "skywars2.event.stage_two",
+        "skywars2.event.two.5"
+      ],
+      "sites": [
+        "stage-two event 5 announcement"
+      ],
+      "arguments": "none; the legacy announcement is complete text",
+      "style": "red, italic=false"
+    },
+    {
+      "existingKey": "swrg.title.stage2.event6",
+      "replaces": [
+        "skywars2.event.stage_two",
+        "skywars2.event.two.6"
+      ],
+      "sites": [
+        "stage-two event 6 announcement"
+      ],
+      "arguments": "none; the legacy announcement is complete text",
+      "style": "red, italic=false"
+    },
+    {
+      "existingKey": "swrg.title.stage2.event7",
+      "replaces": [
+        "skywars2.event.stage_two",
+        "skywars2.event.two.7"
+      ],
+      "sites": [
+        "stage-two event 7 announcement"
+      ],
+      "arguments": "none; the legacy announcement is complete text",
+      "style": "red, italic=false"
+    },
+    {
+      "existingKey": "swrg.title.draw",
+      "replaces": [
+        "skywars2.game.draw"
+      ],
+      "sites": [
+        "draw outcome announcement"
+      ],
+      "arguments": "none",
+      "style": "green; original italic state unspecified"
+    },
+    {
+      "existingKey": "swrg.lore.skill.a1.0",
+      "replaces": [
+        "original skill lore row from skywars2.gui.skills.item"
+      ],
+      "sites": [
+        "skill a1 original lore row 0"
+      ],
+      "arguments": "none",
+      "style": "gray, italic=false"
+    },
+    {
+      "existingKey": "swrg.lore.skill.a2.0",
+      "replaces": [
+        "original skill lore row from skywars2.gui.skills.item"
+      ],
+      "sites": [
+        "skill a2 original lore row 0"
+      ],
+      "arguments": "none",
+      "style": "gray, italic=false"
+    },
+    {
+      "existingKey": "swrg.lore.skill.a3.0",
+      "replaces": [
+        "original skill lore row from skywars2.gui.skills.item"
+      ],
+      "sites": [
+        "skill a3 original lore row 0"
+      ],
+      "arguments": "none",
+      "style": "gray, italic=false"
+    },
+    {
+      "existingKey": "swrg.lore.skill.a4.0",
+      "replaces": [
+        "original skill lore row from skywars2.gui.skills.item"
+      ],
+      "sites": [
+        "skill a4 original lore row 0"
+      ],
+      "arguments": "none",
+      "style": "gray, italic=false"
+    },
+    {
+      "existingKey": "swrg.lore.skill.b1.0",
+      "replaces": [
+        "original skill lore row from skywars2.gui.skills.item"
+      ],
+      "sites": [
+        "skill b1 original lore row 0"
+      ],
+      "arguments": "none",
+      "style": "gray, italic=false"
+    },
+    {
+      "existingKey": "swrg.lore.skill.b2.0",
+      "replaces": [
+        "original skill lore row from skywars2.gui.skills.item"
+      ],
+      "sites": [
+        "skill b2 original lore row 0"
+      ],
+      "arguments": "none",
+      "style": "gray, italic=false"
+    },
+    {
+      "existingKey": "swrg.lore.skill.b3.0",
+      "replaces": [
+        "original skill lore row from skywars2.gui.skills.item"
+      ],
+      "sites": [
+        "skill b3 original lore row 0"
+      ],
+      "arguments": "none",
+      "style": "gray, italic=false"
+    },
+    {
+      "existingKey": "swrg.lore.skill.c1.0",
+      "replaces": [
+        "original skill lore row from skywars2.gui.skills.item"
+      ],
+      "sites": [
+        "skill c1 original lore row 0"
+      ],
+      "arguments": "none",
+      "style": "gray, italic=false"
+    },
+    {
+      "existingKey": "swrg.lore.skill.c2.0",
+      "replaces": [
+        "original skill lore row from skywars2.gui.skills.item"
+      ],
+      "sites": [
+        "skill c2 original lore row 0"
+      ],
+      "arguments": "none",
+      "style": "gray, italic=false"
+    },
+    {
+      "existingKey": "swrg.lore.skill.d1.0",
+      "replaces": [
+        "original skill lore row from skywars2.gui.skills.item"
+      ],
+      "sites": [
+        "skill d1 original lore row 0"
+      ],
+      "arguments": "none",
+      "style": "gray, italic=false"
+    },
+    {
+      "existingKey": "swrg.lore.skill.d2.0",
+      "replaces": [
+        "original skill lore row from skywars2.gui.skills.item"
+      ],
+      "sites": [
+        "skill d2 original lore row 0"
+      ],
+      "arguments": "none",
+      "style": "gray, italic=false"
+    },
+    {
+      "existingKey": "dualist_skill",
+      "replaces": [
+        "skywars2.gui.skills.name.vex"
+      ],
+      "sites": [
+        "skill id 13 Vex name"
+      ],
+      "arguments": "none",
+      "style": "white, italic=false"
+    },
+    {
+      "existingKey": "dualist_skill.lore",
+      "replaces": [
+        "original skill lore row from skywars2.gui.skills.item"
+      ],
+      "sites": [
+        "skill id 13 Vex original lore"
+      ],
+      "arguments": "none",
+      "style": "gray, italic=false"
+    },
+    {
+      "existingKey": "golden_pumpkin",
+      "replaces": [
+        "generated kit item name"
+      ],
+      "sites": [
+        "kit id 22 Halloween name"
+      ],
+      "arguments": "none",
+      "style": "white, italic=false"
+    },
+    {
+      "existingKey": "golden_pumpkin.lore",
+      "replaces": [
+        "original kit lore descriptor formerly represented by skywars2.gui.kits.item"
+      ],
+      "sites": [
+        "kit id 22 Halloween original lore"
+      ],
+      "arguments": "none",
+      "style": "gray, italic=false"
+    },
+    {
+      "existingKey": "mace",
+      "replaces": [
+        "generated kit item name"
+      ],
+      "sites": [
+        "kit id 23 Mace name"
+      ],
+      "arguments": "none",
+      "style": "white, italic=false"
+    },
+    {
+      "existingKey": "mace.lore.1",
+      "replaces": [
+        "original kit lore descriptor formerly represented by skywars2.gui.kits.item"
+      ],
+      "sites": [
+        "kit id 23 Mace original lore row 1"
+      ],
+      "arguments": "none",
+      "style": "gray, italic=false"
+    },
+    {
+      "existingKey": "mace.lore.2",
+      "replaces": [
+        "original kit lore descriptor formerly represented by skywars2.gui.kits.item"
+      ],
+      "sites": [
+        "kit id 23 Mace original lore row 2"
+      ],
+      "arguments": "none",
+      "style": "gray, italic=false"
+    },
+    {
+      "existingKey": "mace.lore.3",
+      "replaces": [
+        "original kit lore descriptor formerly represented by skywars2.gui.kits.item"
+      ],
+      "sites": [
+        "kit id 23 Mace original lore row 3"
+      ],
+      "arguments": "none",
+      "style": "gray, italic=false"
+    },
+    {
+      "existingKey": "mace.lore.4",
+      "replaces": [
+        "original kit lore descriptor formerly represented by skywars2.gui.kits.item"
+      ],
+      "sites": [
+        "kit id 23 Mace original lore row 4"
+      ],
+      "arguments": "none",
+      "style": "gray, italic=false"
+    },
+    {
+      "existingKey": "wind_charge",
+      "replaces": [
+        "generated kit item name"
+      ],
+      "sites": [
+        "kit id 24 Wind Charge name"
+      ],
+      "arguments": "none",
+      "style": "white, italic=false"
+    },
+    {
+      "existingKey": "wind_charge.lore",
+      "replaces": [
+        "original kit lore descriptor formerly represented by skywars2.gui.kits.item"
+      ],
+      "sites": [
+        "kit id 24 Wind Charge original lore"
+      ],
+      "arguments": "none",
+      "style": "gray, italic=false"
+    }
+  ],
+  "kitLore": {
+    "existingKeyPattern": "swrg.lore.kit.<original-id>.<row>",
+    "replacementBehavior": "Replace each matched kit description with only its original resource-pack lore rows in original order. Do not append per-item status rows; menu header explains that unlock availability is not connected. Synthetic kit id 19 keeps its own current translated description.",
+    "knownDifferences": [
+      {
+        "kitId": 5,
+        "existingKey": "swrg.lore.kit.a5.1",
+        "referenceText": "bread x6",
+        "currentGrant": "bread x8",
+        "handling": "Keep the original resource-pack lore and report the mechanic mismatch; do not silently rewrite the established wording."
+      },
+      {
+        "kitId": 9,
+        "existingKey": "swrg.lore.kit.b2.0",
+        "referenceText": "gilded blackstone x8",
+        "currentGrant": "gilded blackstone x16",
+        "handling": "Keep the original resource-pack lore and report the mechanic mismatch; do not silently rewrite the established wording."
+      }
+    ],
+    "rows": [
+      {
+        "existingKey": "swrg.lore.kit.a1.0",
+        "replaces": "skywars2.gui.kits.item.tnt",
+        "kitId": 1,
+        "row": 0
+      },
+      {
+        "existingKey": "swrg.lore.kit.a1.1",
+        "replaces": "skywars2.gui.kits.item.tnt",
+        "kitId": 1,
+        "row": 1
+      },
+      {
+        "existingKey": "swrg.lore.kit.a1.2",
+        "replaces": "skywars2.gui.kits.item.tnt",
+        "kitId": 1,
+        "row": 2
+      },
+      {
+        "existingKey": "swrg.lore.kit.a2.0",
+        "replaces": "skywars2.gui.kits.item.wolf",
+        "kitId": 2,
+        "row": 0
+      },
+      {
+        "existingKey": "swrg.lore.kit.a2.1",
+        "replaces": "skywars2.gui.kits.item.wolf",
+        "kitId": 2,
+        "row": 1
+      },
+      {
+        "existingKey": "swrg.lore.kit.a3.0",
+        "replaces": "skywars2.gui.kits.item.potions",
+        "kitId": 3,
+        "row": 0
+      },
+      {
+        "existingKey": "swrg.lore.kit.a3.1",
+        "replaces": "skywars2.gui.kits.item.potions",
+        "kitId": 3,
+        "row": 1
+      },
+      {
+        "existingKey": "swrg.lore.kit.a3.2",
+        "replaces": "skywars2.gui.kits.item.potions",
+        "kitId": 3,
+        "row": 2
+      },
+      {
+        "existingKey": "swrg.lore.kit.a4.0",
+        "replaces": "skywars2.gui.kits.item.wood_sword",
+        "kitId": 4,
+        "row": 0
+      },
+      {
+        "existingKey": "swrg.lore.kit.a4.1",
+        "replaces": "skywars2.gui.kits.item.wood_sword",
+        "kitId": 4,
+        "row": 1
+      },
+      {
+        "existingKey": "swrg.lore.kit.a5.0",
+        "replaces": "skywars2.gui.kits.item.food",
+        "kitId": 5,
+        "row": 0
+      },
+      {
+        "existingKey": "swrg.lore.kit.a5.1",
+        "replaces": "skywars2.gui.kits.item.food",
+        "kitId": 5,
+        "row": 1
+      },
+      {
+        "existingKey": "swrg.lore.kit.a5.2",
+        "replaces": "skywars2.gui.kits.item.food",
+        "kitId": 5,
+        "row": 2
+      },
+      {
+        "existingKey": "swrg.lore.kit.a6.0",
+        "replaces": "skywars2.gui.kits.item.chain_thorns",
+        "kitId": 6,
+        "row": 0
+      },
+      {
+        "existingKey": "swrg.lore.kit.a7.0",
+        "replaces": "skywars2.gui.kits.item.gold_protection",
+        "kitId": 7,
+        "row": 0
+      },
+      {
+        "existingKey": "swrg.lore.kit.b1.0",
+        "replaces": "skywars2.gui.kits.item.poison",
+        "kitId": 8,
+        "row": 0
+      },
+      {
+        "existingKey": "swrg.lore.kit.b1.1",
+        "replaces": "skywars2.gui.kits.item.poison",
+        "kitId": 8,
+        "row": 1
+      },
+      {
+        "existingKey": "swrg.lore.kit.b1.2",
+        "replaces": "skywars2.gui.kits.item.poison",
+        "kitId": 8,
+        "row": 2
+      },
+      {
+        "existingKey": "swrg.lore.kit.b2.0",
+        "replaces": "skywars2.gui.kits.item.gilded",
+        "kitId": 9,
+        "row": 0
+      },
+      {
+        "existingKey": "swrg.lore.kit.b2.1",
+        "replaces": "skywars2.gui.kits.item.gilded",
+        "kitId": 9,
+        "row": 1
+      },
+      {
+        "existingKey": "swrg.lore.kit.b2.2",
+        "replaces": "skywars2.gui.kits.item.gilded",
+        "kitId": 9,
+        "row": 2
+      },
+      {
+        "existingKey": "swrg.lore.kit.b2.3",
+        "replaces": "skywars2.gui.kits.item.gilded",
+        "kitId": 9,
+        "row": 3
+      },
+      {
+        "existingKey": "swrg.lore.kit.b3.0",
+        "replaces": "skywars2.gui.kits.item.shield",
+        "kitId": 10,
+        "row": 0
+      },
+      {
+        "existingKey": "swrg.lore.kit.b4.0",
+        "replaces": "skywars2.gui.kits.item.enchanting",
+        "kitId": 11,
+        "row": 0
+      },
+      {
+        "existingKey": "swrg.lore.kit.b4.1",
+        "replaces": "skywars2.gui.kits.item.enchanting",
+        "kitId": 11,
+        "row": 1
+      },
+      {
+        "existingKey": "swrg.lore.kit.b4.2",
+        "replaces": "skywars2.gui.kits.item.enchanting",
+        "kitId": 11,
+        "row": 2
+      },
+      {
+        "existingKey": "swrg.lore.kit.b4.3",
+        "replaces": "skywars2.gui.kits.item.enchanting",
+        "kitId": 11,
+        "row": 3
+      },
+      {
+        "existingKey": "swrg.lore.kit.b5.0",
+        "replaces": "skywars2.gui.kits.item.poison_potions",
+        "kitId": 12,
+        "row": 0
+      },
+      {
+        "existingKey": "swrg.lore.kit.b5.1",
+        "replaces": "skywars2.gui.kits.item.poison_potions",
+        "kitId": 12,
+        "row": 1
+      },
+      {
+        "existingKey": "swrg.lore.kit.b5.2",
+        "replaces": "skywars2.gui.kits.item.poison_potions",
+        "kitId": 12,
+        "row": 2
+      },
+      {
+        "existingKey": "swrg.lore.kit.b5.3",
+        "replaces": "skywars2.gui.kits.item.poison_potions",
+        "kitId": 12,
+        "row": 3
+      },
+      {
+        "existingKey": "swrg.lore.kit.b5.4",
+        "replaces": "skywars2.gui.kits.item.poison_potions",
+        "kitId": 12,
+        "row": 4
+      },
+      {
+        "existingKey": "swrg.lore.kit.c1.0",
+        "replaces": "skywars2.gui.kits.item.gold_tools",
+        "kitId": 13,
+        "row": 0
+      },
+      {
+        "existingKey": "swrg.lore.kit.c1.1",
+        "replaces": "skywars2.gui.kits.item.gold_tools",
+        "kitId": 13,
+        "row": 1
+      },
+      {
+        "existingKey": "swrg.lore.kit.c2.0",
+        "replaces": "skywars2.gui.kits.item.crossbow",
+        "kitId": 14,
+        "row": 0
+      },
+      {
+        "existingKey": "swrg.lore.kit.c2.1",
+        "replaces": "skywars2.gui.kits.item.crossbow",
+        "kitId": 14,
+        "row": 1
+      },
+      {
+        "existingKey": "swrg.lore.kit.c3.0",
+        "replaces": "skywars2.gui.kits.item.invisibility",
+        "kitId": 15,
+        "row": 0
+      },
+      {
+        "existingKey": "swrg.lore.kit.c4.0",
+        "replaces": "skywars2.gui.kits.item.fire_lava",
+        "kitId": 16,
+        "row": 0
+      },
+      {
+        "existingKey": "swrg.lore.kit.c4.1",
+        "replaces": "skywars2.gui.kits.item.fire_lava",
+        "kitId": 16,
+        "row": 1
+      },
+      {
+        "existingKey": "swrg.lore.kit.c4.2",
+        "replaces": "skywars2.gui.kits.item.fire_lava",
+        "kitId": 16,
+        "row": 2
+      },
+      {
+        "existingKey": "swrg.lore.kit.c4.3",
+        "replaces": "skywars2.gui.kits.item.fire_lava",
+        "kitId": 16,
+        "row": 3
+      },
+      {
+        "existingKey": "swrg.lore.kit.c5.0",
+        "replaces": "skywars2.gui.kits.item.cake_slime",
+        "kitId": 17,
+        "row": 0
+      },
+      {
+        "existingKey": "swrg.lore.kit.c5.1",
+        "replaces": "skywars2.gui.kits.item.cake_slime",
+        "kitId": 17,
+        "row": 1
+      },
+      {
+        "existingKey": "swrg.lore.kit.c5.2",
+        "replaces": "skywars2.gui.kits.item.cake_slime",
+        "kitId": 17,
+        "row": 2
+      },
+      {
+        "existingKey": "swrg.lore.kit.c5.3",
+        "replaces": "skywars2.gui.kits.item.cake_slime",
+        "kitId": 17,
+        "row": 3
+      },
+      {
+        "existingKey": "swrg.lore.kit.c5.4",
+        "replaces": "skywars2.gui.kits.item.cake_slime",
+        "kitId": 17,
+        "row": 4
+      },
+      {
+        "existingKey": "swrg.lore.kit.d1.0",
+        "replaces": "skywars2.gui.kits.item.special_mage",
+        "kitId": 18,
+        "row": 0
+      },
+      {
+        "existingKey": "swrg.lore.kit.d2.0",
+        "replaces": "skywars2.gui.kits.item.golden",
+        "kitId": 20,
+        "row": 0
+      },
+      {
+        "existingKey": "swrg.lore.kit.d2.1",
+        "replaces": "skywars2.gui.kits.item.golden",
+        "kitId": 20,
+        "row": 1
+      },
+      {
+        "existingKey": "swrg.lore.kit.d2.2",
+        "replaces": "skywars2.gui.kits.item.golden",
+        "kitId": 20,
+        "row": 2
+      },
+      {
+        "existingKey": "swrg.lore.kit.d2.3",
+        "replaces": "skywars2.gui.kits.item.golden",
+        "kitId": 20,
+        "row": 3
+      },
+      {
+        "existingKey": "swrg.lore.kit.d3.0",
+        "replaces": "skywars2.gui.kits.item.oak_slab",
+        "kitId": 21,
+        "row": 0
+      },
+      {
+        "existingKey": "swrg.lore.kit.d3.1",
+        "replaces": "skywars2.gui.kits.item.oak_slab",
+        "kitId": 21,
+        "row": 1
+      }
+    ],
+    "additionalLegacyItems": [
+      {
+        "itemId": 22,
+        "name": "golden_pumpkin",
+        "lore": [
+          "golden_pumpkin.lore"
+        ],
+        "style": "white name, gray lore, italic=false"
+      },
+      {
+        "itemId": 23,
+        "name": "mace",
+        "lore": [
+          "mace.lore.1",
+          "mace.lore.2",
+          "mace.lore.3",
+          "mace.lore.4"
+        ],
+        "style": "white name, gray lore, italic=false"
+      },
+      {
+        "itemId": 24,
+        "name": "wind_charge",
+        "lore": [
+          "wind_charge.lore"
+        ],
+        "style": "white name, gray lore, italic=false"
+      }
+    ]
+  },
+  "unmapped": [
+    {
+      "key": "skywars2.gui.kits.item.empty",
+      "reason": "Current slot 19 is an empty selection, not a translated legacy kit."
+    },
+    {
+      "key": "skywars2.gui.lbc.trinkets",
+      "reason": "swrg.page0.s20 is an incomplete 'Trinkets! Choose ' prefix; the current fixed category label has no corresponding quantity to append."
+    },
+    {
+      "key": "skywars2.gui.lbc.levelups",
+      "reason": "swrg.page0.s21 is an incomplete 'Level-Ups! Choose ' prefix; the current fixed category label has no corresponding quantity to append."
+    },
+    {
+      "key": "skywars2.gui.event.*",
+      "reason": "Short event names and OFF/random/value controls serve the adjustable settings menu; full legacy announcement lines serve a different purpose."
+    },
+    {
+      "key": "skywars2.gui.maps.*",
+      "reason": "Map names, availability, capacity and dynamic page counts are current UI data without equivalent legacy strings."
+    },
+    {
+      "key": "skywars2.gui.settings.*",
+      "reason": "Live adjustable setting labels, values and descriptions do not match fixed legacy settings text; no ignored dynamic arguments are passed."
+    },
+    {
+      "key": "skywars2.gui.hub.title/status",
+      "reason": "Current lobby title and runtime status have no direct equivalent in the legacy GUI."
+    }
+  ],
+  "templatePolicy": "The template locale files at assets/skywars2/lang mirror the missing-only module locale entries. They contain no keys already provided by the read-only reference pack and no aliases or copied reference translations.",
+  "skillLore": {
+    "replacementBehavior": "Each matched skill uses exactly its original legacy description row(s) in original order and style, with no appended per-item status; the menu header explains that unlock availability is not connected.",
+    "rows": [
+      "swrg.lore.skill.a1.0",
+      "swrg.lore.skill.a2.0",
+      "swrg.lore.skill.a3.0",
+      "swrg.lore.skill.a4.0",
+      "swrg.lore.skill.b1.0",
+      "swrg.lore.skill.b2.0",
+      "swrg.lore.skill.b3.0",
+      "swrg.lore.skill.c1.0",
+      "swrg.lore.skill.c2.0",
+      "swrg.lore.skill.d1.0",
+      "swrg.lore.skill.d2.0",
+      "wind_runner_skill.lore.1",
+      "dualist_skill.lore"
+    ]
+  }
+}

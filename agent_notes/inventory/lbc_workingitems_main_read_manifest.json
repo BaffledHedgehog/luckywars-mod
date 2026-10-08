@@ -1,0 +1,1899 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/aimbob_helmet.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "5b952f819612b9423ff3f91542883b2ead5696375d540d298ef03ca1fbe7f3d2",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ak47.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 10,
+    "sha256": "e600e115fe02af6e616a3b869b937a52204b13ac1278fd989832927820e22603",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ak47_block.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "061f0f7791d27af494de9cd5145389dfff5fb486ec6e08e9493e018e9c51e8f3",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ak47_entity.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "79d3c7731b73a97011721e9f6b5903068edb7e3a5d0776202a89a65e46ac3ba7",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ak47_otdacha.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 1,
+    "sha256": "33b0318635d117ae11115cabd66f0a2c08a6ee28ef9e0dc7ee0d03a39f4d7191",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ak47_otdacha_stalin.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 5,
+    "sha256": "7c5c0fb4b92f4b0fb858aebe675ec36bbf94cfaf060672d55e9deb43dc687e1f",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ak47_rec.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 7,
+    "sha256": "a892f9a58b5729c14478c6a78138bb78bfb56e4bd9827f8fad1864e3ce8f48c8",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/attackhelicopter.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 21,
+    "sha256": "284b71945dbeb6c594c7577bb3eb0c640fe29806898cda29203e18aac536b027",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/attackhelicopter_left.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 22,
+    "sha256": "b09fc277c4f8ce4cb8806810b5b01c37d51fb95b38dcd506f1852b7c37d289a0",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/attackhelicopter_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "11d67cbdcd413a8483bd80c63677bdc8198e85ea51bee9c71393feb13bba7bce",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/awaken_tuntija_wands.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "empty": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/badwiki.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 92,
+    "sha256": "1a7aadfcb236d64819fb7c10d22c86af9ad9dcafd62f8b7e072eaed89ea15f1b",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/badwiki_lib.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 90,
+    "sha256": "4d4b0034fd03fb03985ca4f923a91113b95ab73afd2ed86c71be2faba533d321",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/badwiki_old.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 86,
+    "sha256": "4eb8bc5449a6b135f442446efc87f85e237a360d03bb1a5acb07de2b3dfa5673",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/badwiki_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "afe7396abff1c1a26474d4f95a70881899ba000a908db8170bd5cc9e2d5525d0",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/badwiki_upgraded.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 30,
+    "sha256": "9a113a44540bfa6c7d753d9c6c02433f72a3b60d2fd16a259c4ac3c337911139",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/badwiki_upgraded_effect_change.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 34,
+    "sha256": "1cdf4ff6730003c5a6d51c9382fca3a12ee8c0f07a7139bd075ee74be526ce22",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/badwiki_upgraded_effect_change_left.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 34,
+    "sha256": "7a179da38e22a23d882aa4c3dc2b97adcb2ee86191054fa0506b06e4a6e341af",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/badwiki_upgraded_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "57eb761ef29d950b6a5f3e2091ac4121c7826520f825d347c5c808bd86da7ed5",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/badwiki_upgraded_pre_2.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 13,
+    "sha256": "40b599d2ab16586549af73a25787c4b2897d7bc0167c6452d2c7659adb1225e5",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/badwiki_upgraded_pre_left.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "562ffae039124bea9d3c5d1d65a3c8e711f4d5891326f963c987797fe3ce7083",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 14,
+    "sha256": "07b9448c72fa26fe3d0353d9340cd530648febd261eb8cd0301242bfd0c88bd8",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_combo.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "4cc8dccc6945c5036d2291f58b80c117c30dba53fdab7acdb9e9394a867d6b16",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_combo_more.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 16,
+    "sha256": "372405aace755a09e8593c10bcf38dd11f58fa2e249099b5340db0cb50f2ff95",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_combo_reset.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "8c74fde3f4321667d5ac2add92521f2c800b069a85e10e9fa055729dac49a485",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_combo_second.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "990947fe27191ba981df140cf0f7211ea161d7a9b4290d01af059078c184f876",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_combo_start.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "af1e488a470050f57a475002fa8075e25f98e7b25167ee963c8b1e7e9a8c10b3",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_combo_succesful.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 9,
+    "sha256": "6269dd58558215ab959cadaef1012fe4d4b42563933ebae3efc0ab718a0cedc9",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_combo_succesful_damage.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 1,
+    "sha256": "608933fa9847471562a518246a1f1cc1021edc88e454c56fb906cbfd1da8a2f3",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_combo_succesful_less.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 6,
+    "sha256": "c2678afff4d307b58f2f64d6d08b4630b9f3dd19f01b09e3a1d99ec727d92a85",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_combo_true.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "ec210a3108e3aa71c80872529bdffcd003389fb331daeef7d923adb7c3816784",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_old.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 13,
+    "sha256": "f9cff638791814bf6f8b559e51d7dbc918c0973d68479b8b3854acc20abd2789",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "d08c2dd9d744fe1b47e7e32767cde11a0d772e24c317a146d27d31fb61d93678",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_upg_check.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 1,
+    "sha256": "6c7e43167987db1a121a42b47a5d2648bf48e507cc05b90adf3e0c6d13a83dd9",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_upgraded.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 14,
+    "sha256": "91b93326b6fc342ce4aad778cec48348122bde9591f98ed664841ef78c896d53",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_upgraded_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 6,
+    "sha256": "6c65edecca9911cbcaf53f322e83698ceb2e006f6743deac62635a83453b0b9b",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_upgraded_pre_2.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "fe06614ffc79b371532bf856caa482b4b68fbf3b0f6c90d2f168f02e188352ef",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_upgraded_pre_left.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 7,
+    "sha256": "5bd0daafc21cd66c20e53117653fca75f43835a9334f8c927bff0ce4e7c5b4f8",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/basscast_upgraded_spelllib.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 9,
+    "sha256": "94719a8d60b08dcec7a9c9b2a46a9421ff3991e7cb7bfa729354a0f18807255f",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/bloodmagic.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 13,
+    "sha256": "6a508af2ed42410832a3b209acfde73d08e92fbd3b4f9424db3f7838555d3a0d",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/bloodmagic_can_upgrade.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 7,
+    "sha256": "2e8a2d42344685b888933a29a3083f7bb6672a256a24a57686ebe37f9bdd7e7c",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/bloodmagic_old.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 10,
+    "sha256": "d0f0071c7aa75bfb0eeb7f3474a49451d704d476d622dd8512f2a50e12217c8c",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/bloodmagic_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "69848137c346c759050f6c89b65fcba60cd3edf31117e4ad74974e204696e343",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/bloodmagic_upgraded.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 8,
+    "sha256": "14f1cfbfe2ec33381a3736b83a3221edcb8b8b8e92db0c04997e55d0d98c0fa8",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/bloodmagic_upgraded_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "0cbf1131a4a1554d495abfcabd7bcc29ea6d8bf56881e1387a25313552b65625",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/coolsword.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 18,
+    "sha256": "f270b3c44b2dc3aef7997d99ff13d336a0b1deab9248e328f3bd7e3ec7ffcf68",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/coolsword_old.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 77,
+    "sha256": "43c863a4193c76ab20bc85b2d4f3f5d69442557ff1c91f2a0fb9ec10cf78268a",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupter.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 14,
+    "sha256": "0ab909172ee285b9e8bb51174955d5197633f226d7fcefc51c3eaadc759fa3ed",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupter_old.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 15,
+    "sha256": "94ee0a2aa88399f41806541f8f3b0732b1f2805b83afd7fcba7e9877a7b419b3",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupter_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "9d23f4f7baa0d71457793b237f0db2e69f5e1547369e1687e66ddf5380f08997",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupter_upgraded.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 15,
+    "sha256": "0a3501db544c05506ca341b30960062d7ddc712c10e84b936fe4cc9ef67bc94c",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupter_upgraded_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 6,
+    "sha256": "eaa58d5083a30f63029d6a2a8f6a24167caf578026c0c05eb173185716ab0f75",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupter_upgraded_pre_2.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "6d31ac91e06ccb96aafbe020f4d2182f00e88950ac1f1b0cbb988beee96c6a35",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupter_upgraded_pre_left.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 7,
+    "sha256": "4fd9604b34a44500343b6e2333e2e46b9cdfd18ca095d666bb3dc475737d147a",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupter_upgraded_spelllib.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 11,
+    "sha256": "1ecea511ba2d19ffc08956a77e0e725aad137254e3d95f21ef72f0404942c683",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/cyberkatana.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 11,
+    "sha256": "5d9433012a4f7aa214ec400bef53d0eb5c4b2735fb6ffac4629ed57dbb19232d",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/cyberkatanaability.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 7,
+    "sha256": "c0f0af497af2b2c594e56e8cb2e92ec5f9940e224d28f437c34fb9d70af49410",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/death_skythe_kill.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 8,
+    "sha256": "d279a3336b101c5fe6797fef240c75e56c26c2e671874656cc5a9d72d51a6fc2",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/devilsword.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 14,
+    "sha256": "dabd253734481626423df7707cc8f8b63e71e8644f9baf1f225570c4a5eda478",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/divider.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 35,
+    "sha256": "49905db86e549769ab951728f92a9dfead715ecbe9a39459d4954faf0df2d91f",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/doublebow.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 16,
+    "sha256": "6a72ed5d9ff7b3d41863a0a2232c705fb0285500e8cda6b5556309f0e13b7d3c",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/doublebow_old.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 16,
+    "sha256": "e78411b3cd661b29ac6ea0282613071f41e236f9e6e10009f42fe4e597fc6bca",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/endcast.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 13,
+    "sha256": "d1449a1881120a6c4ac363e2a27092f7261c6b6597e312f83dafeb8f5525163a",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/endcast_lib.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 9,
+    "sha256": "645caaf5477c1202423de07ed246870216ed41dbe779dc61c9efe4a16a6be532",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/endcast_old.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 7,
+    "sha256": "651b9bc6918de11f40b911e9a3b15b3db98bbf027af49e5f916e0c8fa7c5103d",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/endcast_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "5f92e71e4431b4d28e9f84ac90c74e248f80c7de64d8adab627fda5a762be6dc",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ender_whip_get_id.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "17e723d6f6fcc5551068ab199448e9196548ee1af9ed26952ddbabb1a880546e",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ender_whip_teleport.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 12,
+    "sha256": "204d9a59f7ae53357af3eb314aa300205e262b82171d9847a53bac22d03185a9",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ender_whip_teleport_left.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 12,
+    "sha256": "2e64b182d6423713682aac50cab69f057ff08b78266eb3c166ad1985d42026bd",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/endersword.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 10,
+    "sha256": "82e854ae4c6e6bb794d7478c6e311f8d68203b9c469f195e6b288cee3ed98038",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/evokercast.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 7,
+    "sha256": "1dbdc7205930eb7afc180793e444b5808c8ba33600d3fed27aff309017d6c609",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/evokercast_old.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 9,
+    "sha256": "494123c5bdc22f40785fa7ec706a90e0983f588287460acc5a54ab1a15bf2f5d",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/evokercast_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "645bd08cadd9268f80e1ae8f99ee994503f2a28c238fa9f3aa5924f3f0bbbaf6",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/evokercast_pre_old.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "empty": true
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/evokercast_upg_check.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "7c1948df4bdf01a6c02a1fb545630be953cb2c529ecc9e910e5b207160bc9800",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/evokercast_upgraded.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 9,
+    "sha256": "eb296f285cf58997f90df7b431593010d29e60f161b3a2123d7940ff7b185318",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/evokercast_upgraded_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 5,
+    "sha256": "fe812e31f558c8f04ff3dbd57dd400700290521d84d36308aff787f5083a18cf",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/evokercast_upgraded_pre_2.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "3370495fff9ac2e2b9168998cbfef9f41f1fb1f14e4e2af06c5943eafd826626",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/evokercast_upgraded_pre_left.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 6,
+    "sha256": "b8a97b7138deeca2bfac2086c20ad3b12288c2a7cbcf115b3b59a2ecebae8a2b",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/evokercast_upgraded_spelllib.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 5,
+    "sha256": "6282230a2f2b425e4d32963af4b43810b68d3f4e39d27058398e72527262b17b",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/evolution.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 12,
+    "sha256": "a4a555fbc77082b5069e3b25cf8a31e13a45864ebce1caffe30b43227c7a3b42",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/evolutionpre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 34,
+    "sha256": "86e9902d9350f3fea1a95be570097100622541caafc489b191b45f6f5d31a669",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exoperso.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 6,
+    "sha256": "3cbfc29d8a83c4fde9c2ddd978947d078955d5003b03ec7bf83dee8e774f5021",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exoperso2.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "aa95dde1df20ccdb30f3f30fbda89d16331baa4e778df6b742b033f63ffca6ae",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exoperso2_upg.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 5,
+    "sha256": "c2d7ed94698243d44bb677345f021ccc6245f536c4c2b3efacadf1c6751fc1e7",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exoperso4.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 5,
+    "sha256": "dd97209b79fe54387a5ffb1e6ff75cb52926cf0a2b5f8e98158bf7644d61a06f",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exoperso_check_upgrade.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 7,
+    "sha256": "a4bbbf9c99be0855b93076b44ac3446157b23ca111c34e8ba243dc4fff6c52bc",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exoperso_killed.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 5,
+    "sha256": "832913a5b2d48fe6a51a7ada14822e24588bdd4e15d52b8c3ff6a88647b30174",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exoperso_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "ce77d56aa561d2da3e416d29683d79973c26e5c676dad8734ba7ff8e378f3498",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exoperso_removed.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "53fedb7a0ce8a3db8fad97a7e57684184c71bfbbc8f0f4db6a94d0fbfe7af80e",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exoperso_upgraded.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 5,
+    "sha256": "b7f19918b93e65c909d28e4cd5def68f09c6d691c026709a708f085afa308546",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exoperso_upgraded_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "164e361c51f2861a31a40cb7eed1069bee54f32f47ac2c6318e32bdc9cacbafe",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exopersoexplode.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 45,
+    "sha256": "f7280fbd6f72991c769d395fc3666df3c189c25571d84c020a419ca9b371657d",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exopersoexplode1.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 41,
+    "sha256": "e95ea1adf7cfd8cf262eb957d345d636348a7421a5b2b614a803241692c47e50",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exopersoexplode_scheduled.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "d39aeaab73721e4e1876193153d72dc171030c0c939129df1bb89161437e96a5",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exopersoexplodeparticles.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 9,
+    "sha256": "8d6fc3b79e933774d3b1a833c658ad70ffeb9651f77401a69a3ded3eb2ce0b79",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exopersoexplodeparticles_2.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 9,
+    "sha256": "2ca1c7754a4ada96e9cf0dd7e19f8f48d177713cf87a12b139704f8d52e0f14f",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exopersoparticles.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "3ad5c56e28c1d0613127cfe18948223ea00f595218a32a33ed0db30f3d80ac02",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exopersopre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 1,
+    "sha256": "a616dd940fc3e9e629f896a19dffd9fe8cc0b514ae2b91fb971f15332deee655",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exopersorc.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 1,
+    "sha256": "e3f720a671e53b613e5bea88aa17b49b0732e03b1f10373b007fdbbc306817d9",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/exopersorcall.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 6,
+    "sha256": "4aad6f5d5b73e2e99f0eec863e40f83d202a83b42a4bbba9ba40c88bbb25693d",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/falling_trollge.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "046423f0193c89b0fd1138a0ba896ca2ecddbbd6e57cfe87c0504c1cb62bca38",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/falling_trollge_shot.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "4bcb44af02eebc150b7af14002433d188c1a4d356cd3fc4574c0d9f450a57fe4",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fangs1.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 5,
+    "sha256": "9c8fb758d9e7dda9f1fc50ab8a52da1866c1d504fb916d4506fd6d45e4d14002",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fangs2.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 38,
+    "sha256": "14768333e8bdf2b0748ba49d7e64d6f3f9d557e5164d6bd9ed0830cfdd26b5c7",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fangs3.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 54,
+    "sha256": "85d4ff6e2efc2bd23e72afbed753fc17302c826fe1430b8d28436afd21a535ac",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fastbow.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 6,
+    "sha256": "7f2a0a19737bc69195e946b271af86835f5c18c7eb0447b53b9f16479417c8b0",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fastbow_old.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "3f57165e0acc2e1030ea365d4bae131950d05f7c80e4058d1afb06291f44b132",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fastfiredbow.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 13,
+    "sha256": "d33fe35d9b92030715d61465effdf5f713faba4430de959fedf03418190461b7",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fastfiredbow_old.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 14,
+    "sha256": "36e2c13c082de5a83e963df62d8102219b9b575b9ce92a00b487312c5f3a5baa",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fastghast.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "b9ab6820f00a703734697085ebdaf57cfe4bdaf29f9e35da18a3e93cf013efbb",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fastghast_old.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "723afef8e8a14c0961d4f47849b5271784cff8000d8279dffc663077d9fac5da",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/feather_greed.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "3869a270e2cf3e0779c83296d6941b7b34486c9be63a46b202ec12842d4b9121",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/feedingsword.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "f9337c237099a5ad8a0e0be68e9f18fd40b2efc1bdda7578259d2ac91c8bf6c7",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fireworktnt.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 47,
+    "sha256": "c22bed28b272294cb3b639db57449f79f14d0a9565be8ecfa17aba6c29ba7788",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fireworktnt_lol.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 13,
+    "sha256": "d57958b6978b5ed4cacae20cd3f17d41e39395d0728bac01cf4ff806368e5dd2",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fireworktnt_more_tnt.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 89,
+    "sha256": "f5d1f4c897931e13c6d8b7da453fa14d1526028b9c96699a265b6645d59511f0",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/foxuscast.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 30,
+    "sha256": "35fc04625429ed52e24eacf8def0bd683f794b244bf0c3e9bf9c383e33ef1a4e",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/foxuscast_old.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 24,
+    "sha256": "b95d07a7082459d3611819e685e125c548fddcdf12947470652fc9e28f435766",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/foxuscast_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "24c009ed368572082c54e0e83624280cfb915729a78fd0fe63deefaa3ded2da3",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/foxuscast_upgraded.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 30,
+    "sha256": "5e18b049172e6b8299d607cc345dd8c77b63875eeed30ccdb9fd4dc7cf5262b9",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/foxuscast_upgraded_lib.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 25,
+    "sha256": "71c8623ca269b8ee01cbb38b95355eb58ca0a01dc3bb5e229115401f7574654c",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/foxuscast_upgraded_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 6,
+    "sha256": "88a50cb48ca200b2e01beacce7550ed3e56764f2de5b5f936fe0fa19544e75f2",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/foxuscast_upgraded_pre_2.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "1472c3ce72e83f0061e7b087d104da57bc5235e17c8cd6dab7871863e8aff1d8",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/foxuscast_upgraded_pre_left.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 7,
+    "sha256": "6a8285adae353b4fdd043e5d8dba8d856feeea207ed2e6b2a22e2df4b83d5c19",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fragmentsword.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 34,
+    "sha256": "5712e528219d0c7cfad1c5275875d7a7152d4d675c99c6acb3d5a96c5cbb9ccf",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/fragmentsword_old.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 77,
+    "sha256": "64fdfd336c6f70d66dbfdd03c891b4db16ad581c1f237528e2ff5aa0e1b60986",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaara.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "52be89f1e47e466ee882644b3d1e824627ce6dd7a518e4f87f608cbfac924e5f",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaara1.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 8,
+    "sha256": "8fc1abceb031b638a80002f56bf5f1d2abad3dd3e21e9c4a20bf29f5b48fd3e5",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaara1_1.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 14,
+    "sha256": "4d51d16b90893a5b83903223a48c16bb721955a09809059121844ffc277ae886",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaara1_2.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "8bf07c82b40695dc39898a356e3586ccb5d9d235789db75a1e11206bff191848",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaara1_3.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "dcf6b9d0df54b11d96505e237752e2a5c4f7139bb0fa5a930f47b0eb1d64657e",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaara1_31.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "2ff21a85990eb87f18329726058abd5380fe960c55cd0822ae7bf6570dd4c360",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaara1_32.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 5,
+    "sha256": "b376e03821051db00cae94ffc7f9619fd8dc0642087bfcc7be187ddc987f0b9b",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaara1_321.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "b835ad8e4ecbfccf5efde68f6be668b58be2241cc82d7339d46eb1f0a23f574e",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gaara1_old.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 23,
+    "sha256": "c6157630901036924b45fbdb8988297d0af19689424f52fb590ed46c857dfcbf",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/govno.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "63e215a5d4fe667460189235963b535dec87467144455eee76661a4468e7aa16",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/govno_default.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 7,
+    "sha256": "daea79f6c6db19d242b41e9351b252cb414445d2e01e9a6a2aa32918d44b3d89",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/govno_govnomen.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 6,
+    "sha256": "5e1aa4c34d1718608ae3e1c4ef29aaafd434b15d9e626bbce1ec6d7db1f35699",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/govnoselect.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 10,
+    "sha256": "7c2acf059cf2ad36c3c0bdb5c7e7ba15f37039a95429bd00a18967ee4bcca6b6",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gravitationsword.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 9,
+    "sha256": "017c17bb0b6cafb2fa0cc47690760b82e9c65f8f45029d310a98337121e979f4",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/gravitationsword_atmacro.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 17,
+    "sha256": "72eabcc1596043c1c8a5a529c2fea2412f7e01d34cbfae6d094d89fc8928807c",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/handheld.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 1,
+    "sha256": "4c05d205461fb80a1553f4a77f8a48d0dce30f47672549b15d7f8fd13e0ce000",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/iceshard.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 12,
+    "sha256": "4a36466be76e91daf1b545f876e51a01b4899fefcffdd99a04e2baa4e96c4b81",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/icesword.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "247f66f0f98b841bdc965426f9e06f02766d4a31638629888af54fedefcd2a4f",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/icesword_player.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 16,
+    "sha256": "20ca81e388ff64772da93081ca191d13599914fd6bbf0d6fe23a438134a5f714",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/icesword_player_x5.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 5,
+    "sha256": "aeeb1222456b38b0be41abf058d274373734d83bfa14f2b6016643c3137292c6",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/kfc.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 8,
+    "sha256": "358e79ea0c0ee5dae34efb9cc7304629e12ea8144aac3e048ea1638bad3c547c",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 16,
+    "sha256": "1134fd6799b044f45b4afdbccad81a87375225752313a4f6b04e374bb678d9d3",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_adv.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 33,
+    "sha256": "38708cf8fa50d5c251ec6ae6c8e870fc91fda173599376ce5dcff8dce08ca70d",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_charge.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 6,
+    "sha256": "57ad594a05653ae31d711ae32c808added457dd6c3d5bb2ad8e7cd14953721bf",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_no_stand.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "c88bfa2b1ca66db79c90f88aef83af1a29ff8a1cc80aab360202a8e06e49e008",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_old.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 12,
+    "sha256": "0fe0ef5e5b50ea095d9c4b668b3a564b2e11ecdce1c9ce015cb43a1bd72d212a",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "ba4ac251f92c77d8dbb01dccd7d84fad94530bc81f0f64edc2a21ba93ef95251",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_stand.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "84656bcb0a7e15e033eccc0f686efb3fb5516b49a07b33427ce5f10133f6e27b",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_stand_x2.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "4572f3931133919b81b2603e8135420fb07ae234b7fa88fa2b7faa5d3af06710",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_upgraded.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 6,
+    "sha256": "5819e1c5ef15e6b29afd55c74794d0c3b0e96d7f9a1faccfdddc2fa14a2104ae",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_upgraded_mode_1.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 12,
+    "sha256": "4b05c18b48e12afefef783f391e777cf8f11e7d76f8c754e3161702bb03a2ec1",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_upgraded_mode_2.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 6,
+    "sha256": "e2790a185eb371b0f97ceb8f1eda7eb77155274cb7643da71f29149ac6933331",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_upgraded_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "d407346c2d5eebd5925af646d3e60e6cc96e670f13fca675a35bee6116486d76",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_upgraded_pre_2.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "fac50207049456f2e93cf3bab90b11786f9b2e4c8c6a891b53c6396fc16dd6e1",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/lifestealer_upgraded_pre_left.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 5,
+    "sha256": "ad7883cd40571f4a68b2edcac8efe4fa310b07a7db6cf741c856ac89d0495c27",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/magnet.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "f4c37bfc3122e284b0828f490dbb707034a022fe410a257e5221bc6627f84822",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/mobgun.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 130,
+    "sha256": "fa84f45d819c5bccaac1a68a20f5075e655c06981e23dd06544244d0568aa357",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/mobgun_random_lingering_potion.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 92,
+    "sha256": "b5ca613e1fab9a50b94dfdb5a5a987b8af4af57d5a22a4e974b71d08614a7588",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/moisei_boots_tick.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 17,
+    "sha256": "af4ed301c5ef950ce2d2e2cec014f1bfd904c21ecda34f8365a973667062b249",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/moisei_boots_tick_explode.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 10,
+    "sha256": "2954f52097b0923926e3e62db7ab5ce9ae0609da0af3916d9e5edd3594b00525",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/moisei_boots_tick_place.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 16,
+    "sha256": "6c7b9730c62ce1dde11ffa7e83a4823666099b3e8c4c564486370c3f5cf1ec41",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/mortis.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 14,
+    "sha256": "37a3d7750aa2b24e2de084f9c89bd964d8cc72169fa4640e1c002c260d42b25c",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/mortisrc.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "96c9d29a892cae166e865e1fa546e9cacda0bc7676aee100ab5caf7d9653d9cf",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/nitroboots.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 12,
+    "sha256": "62a44de375dd2da9f9aa46206661f9c228ca8ecde3b06e481d958a0767e3d3ac",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/nyaaahuwuuw.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 67,
+    "sha256": "d7c2f93ca8c98070066c5a964e80bce0e19d6680d1375f589c78ffe8fc6ece4c",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/nyaaahuwuuw_healing.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "f40d2f3004c66faaa724b16a60def127ba831b29b0f73a2720697c3b4326d608",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/omegaflag.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 12,
+    "sha256": "a2f9777472d2675089cd41af55af8df14d5b2a202c44d92e92ac42fc3409506c",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/omegaflag_particles.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 6,
+    "sha256": "b683ddbc3763d76345cef3dad2e943508b5e3414e1613a8a32fed2bf5e7ec0c7",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/omegaflag_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "bffadff0acbad778c83726879c095f0d1eb77cd023cd6d0f36d3e84eca8f5d07",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/omegaflag_upgraded.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 7,
+    "sha256": "559c19102d23a556e0f777d164334c17e7dfe15a00d63620142be4c3ec038fbe",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/omegaflag_upgraded_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "b540c93e018f5331d8da98c08e113f04626060c611d8003cbc4f69ac51bba8eb",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/one_punch_get_damage.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 5,
+    "sha256": "3034645f5eacfa533fad4f0a22fdb36e6cbd8b575332ff28c4f0abdd24d73196",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/penis_mob.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 7,
+    "sha256": "5bc6fbdca1d6d8b1b8ebe1adbf900735ec98d11af7928fe1b4d66e2e8d54afc6",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/penispenispenis.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "a75a4ae0f015bbe11d71ae3b221ca822a0f226e896e54f921feca5bec29960dd",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/penispenispenis_random_penis_big_penis_small_penispenis.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 15,
+    "sha256": "b4241669c0c13c3329dbb61f555c4727f9dec182ae6035049fe678ecf379532a",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/penispenispenis_random_penis_big_penis_small_penispenis_only_spawn.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 8,
+    "sha256": "d0a8c97af34c86ca5f261e1b5047d47b26608cc00b3f940dfa9813683f0cf41c",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/penispenispenis_random_penis_big_penis_small_penispenis_penis_raycastpenis_penispenispenis.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "508d1893b341e15f22b26f1e2879ceaac9c629bef0b97b67d8469464749c19af",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/penispenispenis_random_penis_big_penis_small_penispenis_penis_raycastpenis_penispenispenis_norc.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "8333ed69d78d622d23098b4e242b6c4d5f88a82bf0e7ea04af1676ef22951171",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantom.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 5,
+    "sha256": "07029c9cae2bbb5339473cd74fbd9c55f3e5e1e729876a697318998ad79aaf4c",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/platform.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 7,
+    "sha256": "8a864b471c914e6177bc6c92b11d382b7505b8a2402484596e4d5e21192e6834",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/popit.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 34,
+    "sha256": "166dabd38c06aa73fe7b0c9bd2879316545731d11167e45d6c743aa64213006f",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/popit_2.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 22,
+    "sha256": "a4716fe075b9dbd8fc479b94a9f4a543c5ead06ac7f8d0cc504d14ffbc2917af",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/psychowand.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 10,
+    "sha256": "6b431979cff334706862cf58c589676c08a9f27088393d2fd109462acb61e021",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/psychowand_check_hp.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "54611e1fba901fd492c99bd1fac664605921a3a7fc5c93d080e6aaea73e2af04",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/psychowand_check_hp_2.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "9c2dfb28c7da4da5a8eed62ceeed0df103e1b1f7195557adf469e3babd582ea7",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/psychowand_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "3d0558eac5e3bc035aa9522fd239dbabcf8f8a2b751b07b6c0101cc3a809443b",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/psychowand_upgraded.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 12,
+    "sha256": "566d0a6c8733a89dc3221287837eebec0cd381ec66caca07793f922b316df129",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/psychowand_upgraded_lib.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 8,
+    "sha256": "90f18c0f44f2c8d00bba339ce43d422016c999950486d3058cc9a1d4f3191d8d",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/psychowand_upgraded_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 6,
+    "sha256": "aac779d1ff77cb904e45d81588f78f51a38fa3ada41113b6e63cd83e44c90474",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/psychowand_upgraded_pre2.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "2fbe4571b4a4e78fbc9b53a56feddd219eca681abf3629db377393cad07c3099",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/psychowand_upgraded_pre_left.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 7,
+    "sha256": "5c163222ee073583ca1ce77a0ba1f5801bf62217c4c8b3b44c5b3337e1a5cb92",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/railgun_bow.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 23,
+    "sha256": "405a9c0cf845b0f60cf782ca11e5e54244479cb4729a57f23e41014334b3f2e2",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/railgun_bow_effect_store.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "e64a2b1348cb3135c9807049d6ab627a16a961014ef950dfe7d0788e28fc1ed6",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/railgun_bow_effect_store_glackmojumba.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 66,
+    "sha256": "5d447e6096de67e8d0fd03dfd3450b4d49b3b260301a7a96571e769193b9e6b8",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/random_spell.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 71,
+    "sha256": "3014c2307d91190e636cff12c735a4fbbd79015180e0d8d3aefe1485b020c129",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/random_spell_check.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 56,
+    "sha256": "75c5393aeb9497027d832d98d41d35bb68e42162a547322f04ce332841061ff9",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/random_spell_lib.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 60,
+    "sha256": "5da6d0daf37e804459e429943235010beb503be6c82980488e6f97fa3ce5c574",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/random_spell_lol.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 167,
+    "sha256": "1db73c64a6713d7e743caebf893dfec4f9470b1913b073e31b9d29d500374ee2",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/random_spell_upgraded.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 71,
+    "sha256": "8c936eff0ce08fcf5c884b5deedf20a651015a2fc79870f93ee3df84f9ca1a5b",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/random_spell_upgraded_change.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 58,
+    "sha256": "97527b2c20b9330f5ee2cfccb80eb8b4e5df945c6db20a3905138b3daed809bd",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/random_spell_upgraded_change_left.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 58,
+    "sha256": "05bf82238f03a2fe5815a471c39f9a7e7c509d48bc39526af456d475fecb64be",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/random_spell_upgraded_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "1e3a7775862dc33fd1d635fd692a2b180a5cc3da8e6728637993aca61f1a4f0e",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/random_spell_upgraded_pre_left.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "588c4f0c5b9990269033d6ad3bb605f67c7b992fea58e3d0ddacdb3c21aea31c",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/razorpine.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 71,
+    "sha256": "98cfb42bd94df4ca27a2d0e9542e11f9c76193e8b905a058a1bb6c2b64a66557",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/razorpine2.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 52,
+    "sha256": "27e0e157c8140b3d57a2f59aff3e19f1c48e96fa85a1500ec31c44996239faee",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/razorpine_ammo_check.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 7,
+    "sha256": "343a01ebd1ba88d9a21fd2ee5679daeb29e55de9ad5570c8dbb959e6012b452d",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/reactive0.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "01323977efcfcc876302a5a6ef32eec80a3f1d1ccec3ddede1c52531eb06567c",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/reactive_shish.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "5b076ea1dc2c5fd6d56f3f58bf5d28e5989dbde2a69029f4e51225eb50a6d236",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/reactive_shish_particles.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "5ca0e5bfb90bc1b484756fa147823d2e931b68d77558f5ce5d3ebaa17fc4db70",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/regeneration_belt.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 9,
+    "sha256": "f021a0a31657378d56835ee0dfb954e4ada383fd101269f6f1c02363d98964c4",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/regeneration_belt_rec.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "6981ecbdbafb51db7143879116abd0b22f6ce96ed2cc7d8a38b875080d952d4a",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/regeneration_belt_rec_small.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "e40476120850116387158d4b3324b44112c71ee59efcd7e95edeef6336ec4383",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/seaguardian.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "89e4ea31779141fe653cf1b9718e57f278b328395de93630b1341dc76e2496db",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/seaguardian_1.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 6,
+    "sha256": "58381477c546d938146ef433e07823417fc9d0848c08415b85c2a6b991c9a927",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/seaguardian_2.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 5,
+    "sha256": "c326697ebfe2fb782f7d8d9b92d5f75005b940ebfa71f4b63ce481601fc66042",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shish_bow.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 11,
+    "sha256": "9cf0e3b597b80bd7259f75defe828456e676dd14c53904dc23f3108f99e87bd9",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shish_bow_charging.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "fbb322ccf964333175d07f70bf6611c16f22c2921b7c37b661d73e61b4dae053",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shish_bow_charging_particle.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 11,
+    "sha256": "1c07cf7511eb698c375a4bd1d2b27a40d2b8cd548368498aa517fcaf737c06c2",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shish_bow_charging_particle_full.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "a37387f8c9e811d0f5af3c962b29f4323e0b06b70c6551e2ab57edfb02f6ed79",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shit_katana.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 14,
+    "sha256": "c7f4c195b138a89a81a4e32c07e5b1a2d0aeaff215f9aa427e5c79ed586ce618",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shit_katana_gownomen.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 9,
+    "sha256": "3cb890ccef0aa25081de8128ccd0b35e341b80326fca73da19a80bad27e452fc",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shit_katana_rc_getid.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "ce55ce77c1dc4f5e8425a263b980d8fd4bf136408844242abaeff3c9b7c3fa9a",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shit_katana_rc_getid_ulta.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "1cef5c76c9c6101e7f277a3393aba9c098de70e78c0345dc14b65b9b60d52e28",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shit_ulta.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 9,
+    "sha256": "5434fe507703888e130c9ca3217f2ed6360eb05fd9560eec3d9e5a65766adfb3",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shulkerbow.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 14,
+    "sha256": "50fb5ea9a7cb9f53aa2e349f859be69e6f9dcf7bcbefa6b112ff2e1ee26e5170",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shulkerbow_new.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 16,
+    "sha256": "db31faf72dd7edcd1f276930333320d1a32914c682501a6effc08de17bd269d1",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shulkershell.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 6,
+    "sha256": "28bdaadfa271ae2c670dd6e99dfdca5ab015c1aa3118196d8df1650c25af8054",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/spell.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 5,
+    "sha256": "6e1626a1ba653e918fdd42a485360006113c8da888484902f6eee33928b873d5",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/spell1.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 9,
+    "sha256": "29f387521ee377010308e5bf819b0c8d372f406fd064ef41bf46700d643b833d",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/spell1_default.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 114,
+    "sha256": "f96b0af185d52fd8a18a6f15c1d9ecefd7678e725d0449673b3e39f9793f9773",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/spell1_default_left.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 98,
+    "sha256": "1fc3c74097023eafe4a7aedd15fb1c45e53efee3c6f8308efbd2e5207be83fe7",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/spell1_left.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "65ef42b260171e33ec9f9231f324c2f425bfa9e0b3d66fd242ab4b144bfeaa43",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/spell1_upgraded.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 44,
+    "sha256": "1d49d92ffef0bb1974c0fce6a574e6146d59cc9f7e902a83bddd614be3b8286a",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/spell1_upgraded_left.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 42,
+    "sha256": "a3157c04668ca00c2b825ca5a490ca6ac1be3c8621c3a5bac8d7569c5e681dc8",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/spell_left.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "38482c493d6ff764bda0668a6f9e55d7f18ec7370f9857c3b04aa12d9411140c",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/spellsummoner.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 12,
+    "sha256": "92b5784f958bdcbce9a7a62b8f402f22cc7fb8c6d1383fe2ca1f59f1f2093a2f",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/spellsummoner_left.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 11,
+    "sha256": "8ed81ee2bf34496a5c8f79dc6018b2a854435d9a8ddb8319029cbe5864452726",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/supernovacore.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 9,
+    "sha256": "70c1229d111dba803454da23cd603a9105c27846ebe275cd666995fb4d30042d",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/supernovacore_checkpos.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 8,
+    "sha256": "989673411609015d6d6d24017c1916ac011fe2f4cfe4bed96749e316015d2ae6",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/supernovacore_newworld.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 77,
+    "sha256": "f304fc2c0500069cd0db48dcc31abc8aac5f0eb0142fc99de2715c807e2e4532",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/supernovacore_newworld_clonestop.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 1,
+    "sha256": "99a2bb08a2ce5d081b18a152835956d66472408e5ec048e8206ad896891d1c57",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/supernovacore_newworld_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 10,
+    "sha256": "57b34b803aaa1ec3cea61a21b0c32572841a9b47faed5b36d065b8af27d9fccc",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/teleporthome.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "c0d7c0de714b89e455780373ac57ba69407f1d299e3ee640b57bedbc417bc7e1",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/teleporthome_left.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "34d1df24da53b4fb7859d2c01954f1cdd9731e11cf8bed619d9425843b7f19f1",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/terrasword.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "a0f1e9bea78ff1b3c2914f8bf5cabe34ecc65151c891f303f50b9e6c09ba2bc4",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/tntbow.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 5,
+    "sha256": "1574eb6cfff5c40af9fc2827ea9453cad442f06b546210b6687be4a80a2e3b65",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/tntbow1.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 8,
+    "sha256": "06d156fbb9c9e79b44dea9c85bec7da611ccd758fa265f895541c2375cb05438",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/tntjump.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "0205265ec35e0230a50fe53ad0fe3d07c8e22c95c8881e831a314eea4afb130f",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/vex_ulta.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 16,
+    "sha256": "cde8a2fdf8cc8e157dd5b2d7b4ef9539f38fffc695c2bcef3172de40a7b48c65",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/vexsword.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 9,
+    "sha256": "b9ac6e9af1cd4c1963a6b23a42b44ff98452706a193a7c6980b77d4161f6c532",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/vexsword_arrowl.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "e45183fa8e3fcfd39c3bbfbfc887521ed15a5269ea94f2045819df508a2489e1",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/vexsword_arrowr.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "e45183fa8e3fcfd39c3bbfbfc887521ed15a5269ea94f2045819df508a2489e1",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/vexsword_ulta.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 1,
+    "sha256": "feb4d6ca83497838c5ae69746e5148ce8b55a0a4e28a7745f67b763650eeb270",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/wyvern.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 10,
+    "sha256": "d81f052ff22c60dfb043851e61b95963258447696596e5fa3d84f7d226690f38",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/yellow_bolt.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 9,
+    "sha256": "9c51f3be899723867b465fda1c1d2d2cc2ef72de26afca1a5c49e7db76777c2a",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/yellow_bolt_end.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "3cec74b62c9ce7bc9fb07c9c4f65b936553de72b7ff218fb2c595b8a83ef63fe",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/yellow_bolt_spinning.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "7f778b9a81e293c76e53e1b24262bcb729179bf928c98fcc2afdebcd2406d7b9",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/yellow_lightning.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 4,
+    "sha256": "44d5a9bdc513c0e5cd66e491b834cede6bc183209ce6c6b39188ea38b5dd2818",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/yellow_lightning_asplayer.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 8,
+    "sha256": "d46dfe2a12199b297b0d81189eab8ed860bb5eb26a47f905d6b629ebdd071c88",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/yellow_lightning_ball.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 7,
+    "sha256": "169159e89a89eebd5f22688fb8c886862933998120c94160a907b9c74e595fd1",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/yellow_lightning_ball_pre.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 1,
+    "sha256": "31fc06cbdf974dea9ce4d242a132e54b6b3e947bec96db312413f6047b2527d6",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/yellow_lightning_hit.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 3,
+    "sha256": "a90f3fd62346028a0582858e74c51f6814755d9b5b1bbb242cd72ccb6ed0fff2",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/yellow_lightning_hit_at.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 2,
+    "sha256": "2b5bdc7c2d1bf2a57762c31d82223128ac8ecff6ef424a594b15f926cb164c29",
+    "empty": false
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/yellow_lightning_sel.mcfunction",
+    "read_status": "read_and_compared",
+    "lines": 1,
+    "sha256": "6f4c2940f4c308f400099a7ec48a6eac067dbb93438900e44ca60de76bc8d634",
+    "empty": false
+  }
+]

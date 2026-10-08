@@ -1,0 +1,10 @@
+[
+  {
+    "resource": "data/minecraft/tags/function/load.json",
+    "identical": false,
+    "sources": [
+      "world/datapacksdisabled/LBC/data/minecraft/tags/function/load.json",
+      "world/datapacksdisabled/swarogskywars/data/minecraft/tags/function/load.json"
+    ]
+  }
+]

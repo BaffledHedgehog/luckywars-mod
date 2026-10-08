@@ -1,0 +1,6 @@
+{
+  "required": true,
+  "package": "me.skywars2.mixin",
+  "mixins": ["ArenaBlockMixin", "LobbyInventoryPacketMixin", "LobbyItemPickupMixin"],
+  "injectors": {"defaultRequire": 1}
+}

@@ -1,0 +1,14 @@
+{
+  "stats": {
+    "minecraft:picked_up": {
+      "minecraft:diamond": 1
+    },
+    "minecraft:custom": {
+      "minecraft:time_since_rest": 0,
+      "minecraft:damage_taken": 25000,
+      "minecraft:deaths": 25,
+      "minecraft:time_since_death": 0
+    }
+  },
+  "DataVersion": 5023
+}

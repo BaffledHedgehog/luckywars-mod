@@ -1,0 +1,352 @@
+﻿{
+    "source_root":  "E:/servers_mew/cringe1_21_4_skywars",
+    "generated_for":  "PLUGIN_ITEMS_AND_HOOKS.md",
+    "claim_scope":  "Personally inspected source/configuration; registration statuses are static source findings, not runtime verification. Full review records and SHA-256 for each file.",
+    "files":  [
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/SigmaWarsMain.java",
+                      "sha256":  "e2ff679a9f920cad2eb3ae97389a5adf2777a3fa04e76f6e21c16b52bfd3f934",
+                      "registration":  "entrypoint; onEnable wires native services and calls BedwarsBootstrap"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/ability/ItemCustomData.java",
+                      "sha256":  "3b3afd332a4e26c7d7221e481907216e024a70ad2abb26537672e0c7679b4899",
+                      "registration":  "read; registration not found in inspected SigmaWarsMain/BedwarsBootstrap callsites"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/ability/UsableItem.java",
+                      "sha256":  "dee519a7d5b4ed8607e01303b6e08cc398149124af74fd03e823b258d346e211",
+                      "registration":  "read; registration not found in inspected SigmaWarsMain/BedwarsBootstrap callsites"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/ability/UsableItemManager.java",
+                      "sha256":  "665b54ac805f872d05bfd543f153f620a8d601372766f24ea707ff629b06ecc8",
+                      "registration":  "confirmed register() called by SigmaWarsMain; manager/service registers as documented"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/ability/abilities/TerraWand.java",
+                      "sha256":  "2c93840c0d3362b5613f7f8fc590546b2a8a6459871911698ef4e4119d2586e5",
+                      "registration":  "read; registration not found in inspected SigmaWarsMain/BedwarsBootstrap callsites"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/item/Malevich.java",
+                      "sha256":  "7669319f573463e92a3be011afd70b91caae74b9c0261bd6ed4fe58d8e2a2afc",
+                      "registration":  "confirmed new + PluginManager.registerEvents in SigmaWarsMain"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/item/MetalPipe.java",
+                      "sha256":  "23145a25944f0683548905468e8074d0e5cef03f8ae468d0fa2f1924449f3557",
+                      "registration":  "confirmed new + PluginManager.registerEvents in SigmaWarsMain"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/item/NexusCompass.java",
+                      "sha256":  "c4937ef1232dfcb27b42831a3d9478d58ad71123af4d2f5928360f648715aba6",
+                      "registration":  "confirmed new + PluginManager.registerEvents in SigmaWarsMain"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/item/RocketArmor.java",
+                      "sha256":  "0edfdc616409ac954ecb57f39dc65455b82b8e3838ea5f5c890a3cc5ef8c42d3",
+                      "registration":  "confirmed new + PluginManager.registerEvents in SigmaWarsMain"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/mana/ManaService.java",
+                      "sha256":  "00b132bf3e6d3cca1cb5d04efb439ca490f6aa0f4e9aac64ada40f307a999818",
+                      "registration":  "confirmed register() called by SigmaWarsMain; manager/service registers as documented"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/projectile/MagicProjectile.java",
+                      "sha256":  "5a1032691a7d5d636bc9ac697877f1c3101482450f8840d60a2baa297cbbb863",
+                      "registration":  "read; registration not found in inspected SigmaWarsMain/BedwarsBootstrap callsites"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/projectile/MagicProjectileType.java",
+                      "sha256":  "a8b83c84d29a6d4441077937d774adc9be3b124aeb6f821c346b4a55b037d194",
+                      "registration":  "read; registration not found in inspected SigmaWarsMain/BedwarsBootstrap callsites"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/projectile/MagicProjectiles.java",
+                      "sha256":  "18754d33203bbe964d45345b817e046d55c8ca9ff0a1db1996b6c4064484c5ad",
+                      "registration":  "confirmed register() called by SigmaWarsMain; manager/service registers as documented"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/projectile/types/ElectroProjectile.java",
+                      "sha256":  "ce259dc4b6aaa7ba8a1afcc9c1fd1b8087212d50ddb87807fe09ca44ffba2cb3",
+                      "registration":  "class present; no builtin registerType reference found; no runtime claim"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/projectile/types/TerraProjectile.java",
+                      "sha256":  "2a8ea7f4446bd692003df43482879e2b21a56648732f1a30f43227717275416c",
+                      "registration":  "read; registration not found in inspected SigmaWarsMain/BedwarsBootstrap callsites"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/perk/PerkCategory.java",
+                      "sha256":  "38fb2fa7b58f22e15e9bd54ab8630c503675b1f795d7777aacf62a6836699637",
+                      "registration":  "read; registration not found in inspected SigmaWarsMain/BedwarsBootstrap callsites"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/perk/PerkData.java",
+                      "sha256":  "1836d215a9d2841100d462c842f088c7c26bbe63f9a6bbbc6dc6ce6a06f3a0bd",
+                      "registration":  "read; registration not found in inspected SigmaWarsMain/BedwarsBootstrap callsites"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/perk/PerkOption.java",
+                      "sha256":  "b4b15228f976464c6ec5d99a9d976ffce8faff2605a0d6172336b37870581639",
+                      "registration":  "read; registration not found in inspected SigmaWarsMain/BedwarsBootstrap callsites"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/perk/PerkRegistry.java",
+                      "sha256":  "ae358459c0ba369e84b1787ac189a429e91c83dd6b16e78e2f40d37b323250c8",
+                      "registration":  "read; registration not found in inspected SigmaWarsMain/BedwarsBootstrap callsites"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/perk/PerkService.java",
+                      "sha256":  "54d9bd1283a2b7f6fc9d38bcca5612e3c745c4cec595c0964eda62ed917ef68d",
+                      "registration":  "confirmed register() called by SigmaWarsMain; manager/service registers as documented"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/bedwars/BeaconEffectsManager.java",
+                      "sha256":  "bdacaf89a9c2d9218f809eba5e496b8095b75fa9f6b956377e41d85a3ed22ca0",
+                      "registration":  "confirmed constructed/registered or started by BedwarsBootstrap"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/bedwars/BedwarsBootstrap.java",
+                      "sha256":  "20758a0f328e9f18a9351870f217dc3e530d03a522bdf2796095a61dc566f709",
+                      "registration":  "confirmed called by SigmaWarsMain; registers listed Bedwars listeners and BeaconEffects task"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/bedwars/BedwarsCommand.java",
+                      "sha256":  "b3314223d97b480d80c2c9206d3cfecf05420971e108024dda0a20adaa892686",
+                      "registration":  "read; registration not found in inspected SigmaWarsMain/BedwarsBootstrap callsites"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/bedwars/BedwarsDropsListener.java",
+                      "sha256":  "8d26d47c3673590b679efce77c8c1cf4c3ff1d9bdd2baf92e9c0899ff19ceaad",
+                      "registration":  "confirmed constructed/registered or started by BedwarsBootstrap"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/bedwars/BedwarsProtectorPlugin.java",
+                      "sha256":  "fb74e51eecfdc57c42428b3369e944e215e363407b6a82fe2ac1738264e8fac1",
+                      "registration":  "alternate JavaPlugin class exists; plugin.yml main is SigmaWarsMain, not this class"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/bedwars/BedwarsRegionManager.java",
+                      "sha256":  "c672e2b0256c27e33b6cd799a1f1aa9fac309769cc834ea59b8e22e681adf20e",
+                      "registration":  "confirmed constructed/registered or started by BedwarsBootstrap"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/bedwars/BedwarsShopGui.java",
+                      "sha256":  "19aad05d4a813645866d477022d913fa59f69f2a5649c410e2724b7d688e71d1",
+                      "registration":  "read; registration not found in inspected SigmaWarsMain/BedwarsBootstrap callsites"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/bedwars/BedwarsShopListener.java",
+                      "sha256":  "1b1e4ba6710bae9e920ed9a72b5ee27e51ea3d3076fab34fdbd44a349a2d3b16",
+                      "registration":  "confirmed constructed/registered or started by BedwarsBootstrap"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/bedwars/ProtectionListener.java",
+                      "sha256":  "2d644e8e30f8be3f795d6de74c80f85e9197eda228e0e5c1e05eab67d9a2f6fa",
+                      "registration":  "confirmed constructed/registered or started by BedwarsBootstrap"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/bedwars/ShopMobIgnoreListener.java",
+                      "sha256":  "26a672497130714ff2d020966b8554fb7a7ec3dcbb44e54b6b7ad9e8211b3a23",
+                      "registration":  "confirmed constructed/registered or started by BedwarsBootstrap"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/bedwars/TeamChestManager.java",
+                      "sha256":  "950084f9729847660a077c974cbcbb71bc8aa9e48e02400e4645d28b2e477067",
+                      "registration":  "confirmed constructed/registered or started by BedwarsBootstrap"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/bedwars/TeamInitCommand.java",
+                      "sha256":  "292763f086099331487067445df8f37ecee1edff6782732d7bdf76f6fdcb7deb",
+                      "registration":  "read; registration not found in inspected SigmaWarsMain/BedwarsBootstrap callsites"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/bedwars/TeamZombieEggListener.java",
+                      "sha256":  "9754d8033f0a2943a682586ad6a7aed9044eda56461f29663a4c8de83cc23300",
+                      "registration":  "confirmed constructed/registered or started by BedwarsBootstrap"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/bedwars/util/ItemTag.java",
+                      "sha256":  "9f3d902d72a9b0d675a3d60d4a8a52df10f372f1ced50be159826b04fc3fec26",
+                      "registration":  "read; registration not found in inspected SigmaWarsMain/BedwarsBootstrap callsites"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/bedwars/util/LootUtil.java",
+                      "sha256":  "a24b09a1a4ace80ee07d3883292d0fcd690c6a5487efc0c29d391b1d1ed40898",
+                      "registration":  "read; registration not found in inspected SigmaWarsMain/BedwarsBootstrap callsites"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/resources/plugin.yml",
+                      "sha256":  "81412963c8c217adf0085966b0722453231570c18986e90f82ea41136ad05ad0",
+                      "registration":  "descriptor main SigmaWarsMain; contains bootstrapper name with no matching source class found"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/config/GameValues.java",
+                      "sha256":  "7981468c3bd7d20567ad0f8c49e14ec94fd393d1fb285cc67d8e4128c5e207f4",
+                      "registration":  "read; registration not found in inspected SigmaWarsMain/BedwarsBootstrap callsites"
+                  },
+                  {
+                      "path":  "mods/luckywarsignite/src/main/java/me/luckywars/bedwars/mixin/MixinLevel.java",
+                      "sha256":  "872672137f683b6bc0270161ef447d5dcc574adbe74a6a5b7d26e56e2475b11c",
+                      "registration":  "mod source/config links mixin; plugin reflectively wires BedwarsHooks; live injection unverified"
+                  },
+                  {
+                      "path":  "mods/luckywarsignite/src/main/java/me/luckywars/bedwars/mixinhook/BedwarsHooks.java",
+                      "sha256":  "e05a876e9e8d9244a110c9b1c59e0bd227e45047b011855eaa432d95d1dde6c7",
+                      "registration":  "mod source/config links mixin; plugin reflectively wires BedwarsHooks; live injection unverified"
+                  },
+                  {
+                      "path":  "mods/luckywarsignite/src/main/resources/bedwars.mixins.json",
+                      "sha256":  "4c7f070deb20b48d7cf4b4cdc6559d56fcb7304c926feabd6228836c823696c4",
+                      "registration":  "mod source/config links mixin; plugin reflectively wires BedwarsHooks; live injection unverified"
+                  },
+                  {
+                      "path":  "mods/luckywarsignite/src/main/resources/ignite.mod.json",
+                      "sha256":  "0fe3f650de5bb3dc6b0905edf35eb819ee89037a8cf288b267d09f76a31d7c54",
+                      "registration":  "mod source/config links mixin; plugin reflectively wires BedwarsHooks; live injection unverified"
+                  },
+                  {
+                      "path":  "mods/luckywarsignite/build.gradle.kts",
+                      "sha256":  "84a4ec20c45e5271303a660a26646eb51d4aca3a659ae61e0024403b9a8b9b56",
+                      "registration":  "read; registration not found in inspected SigmaWarsMain/BedwarsBootstrap callsites"
+                  },
+                  {
+                      "path":  "world/datapacksdisabled/LBC/data/lbc/loot_table/metal_pipe.json",
+                      "sha256":  "b85607c4a22d53f2797253a4311dd91b918c261d48d479da93a584d300b1470f",
+                      "registration":  "datapack item/loot source cross-check; does not itself prove runtime load"
+                  },
+                  {
+                      "path":  "world/datapacksdisabled/LBC/data/lbc/loot_table/nexus_item_green.json",
+                      "sha256":  "9a315e87757834505e4b9598fbae8dfa06c4e17002095ae04f84aea6a7c3abcc",
+                      "registration":  "datapack item/loot source cross-check; does not itself prove runtime load"
+                  },
+                  {
+                      "path":  "world/datapacksdisabled/LBC/data/lbc/loot_table/malevich_rnd.json",
+                      "sha256":  "7bcc4a6a01ccd67ea9a07e908ed29df6306576a110a54c43b90ee680b83f6cd7",
+                      "registration":  "datapack item/loot source cross-check; does not itself prove runtime load"
+                  },
+                  {
+                      "path":  "world/datapacksdisabled/LBC/data/lbc/loot_table/sauvojen_tuntija_terra.json",
+                      "sha256":  "386070183c1ad9f86701937238ad07d809839f80359695819ed5d3362fd6a07c",
+                      "registration":  "datapack item/loot source cross-check; does not itself prove runtime load"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/bedwars/util/CurrencyUtil.java",
+                      "sha256":  "8ed267a9b5376ab2a8106918c435c7fcc18164b2ad4f89f039ea7bc91070bebd",
+                      "registration":  "read in full; support dependency for shop/UI/projectile behavior; registration chain described in PLUGIN_ITEMS_AND_HOOKS.md"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/bedwars/util/DyeColorOfTeam.java",
+                      "sha256":  "9e0dca70944a365f33bd07d1bb40e03a2e074d21459bfe8a05bc4764ecca9890",
+                      "registration":  "read in full; support dependency for shop/UI/projectile behavior; registration chain described in PLUGIN_ITEMS_AND_HOOKS.md"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/bedwars/util/EnchantOps.java",
+                      "sha256":  "fb63a5cbba7db9bfe0eab3a91011d63010aa7c6f42c80533f796db179896cc36",
+                      "registration":  "read in full; support dependency for shop/UI/projectile behavior; registration chain described in PLUGIN_ITEMS_AND_HOOKS.md"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/bedwars/util/InventoryUtil.java",
+                      "sha256":  "779d68f6a074826ff192c6b05c493d419bd975f8a0b72a984c3acbe54d564387",
+                      "registration":  "read in full; support dependency for shop/UI/projectile behavior; registration chain described in PLUGIN_ITEMS_AND_HOOKS.md"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/ui/TitleChannel.java",
+                      "sha256":  "7e04e573de67533ec58677ebb55fc544fe2a45e7cfef0d116b66c1f6d42398b8",
+                      "registration":  "read in full; support dependency for shop/UI/projectile behavior; registration chain described in PLUGIN_ITEMS_AND_HOOKS.md"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/ui/UiCounters.java",
+                      "sha256":  "cc65837028283b4408c6dc8bd2541dc6190d7437cf398f8385f3189d381df772",
+                      "registration":  "read in full; support dependency for shop/UI/projectile behavior; registration chain described in PLUGIN_ITEMS_AND_HOOKS.md"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/ui/UiElement.java",
+                      "sha256":  "6687273ab27d2ef184ac2c5ef0c3df39cea6e89b0fd08577fa4252bc6bbc61f7",
+                      "registration":  "read in full; support dependency for shop/UI/projectile behavior; registration chain described in PLUGIN_ITEMS_AND_HOOKS.md"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/ui/UiHeld.java",
+                      "sha256":  "5e9a013a8cd4dd31bd7e77826f204824923258b93f06dd701360bb3a766ff86b",
+                      "registration":  "read in full; support dependency for shop/UI/projectile behavior; registration chain described in PLUGIN_ITEMS_AND_HOOKS.md"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/ui/UiIcons.java",
+                      "sha256":  "7739203275fd2da69a885df059bd5b3685493b9ee7a95b7f60658d0ea9e06ae6",
+                      "registration":  "read in full; support dependency for shop/UI/projectile behavior; registration chain described in PLUGIN_ITEMS_AND_HOOKS.md"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/ui/UiKeys.java",
+                      "sha256":  "750230b916b3fa03e51e0c05b9b837cae5c96037fcb824a15d2801b53df33813",
+                      "registration":  "read in full; support dependency for shop/UI/projectile behavior; registration chain described in PLUGIN_ITEMS_AND_HOOKS.md"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/ui/UiOrder.java",
+                      "sha256":  "21be5fcd3697126842b5d67cf428989016a106d37dbd7090e5c1f94623738245",
+                      "registration":  "read in full; support dependency for shop/UI/projectile behavior; registration chain described in PLUGIN_ITEMS_AND_HOOKS.md"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/ui/UiRows.java",
+                      "sha256":  "6b37522a578d21a5f388544d54b8753aae5da651bf17b2cb546ee83e654571fc",
+                      "registration":  "read in full; support dependency for shop/UI/projectile behavior; registration chain described in PLUGIN_ITEMS_AND_HOOKS.md"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/ui/ActionBarService.java",
+                      "sha256":  "686e3d556fd406d2ae8c9580c25acfd62df76a919d7f209ec4f8e4e2cb42e950",
+                      "registration":  "read in full; support dependency for shop/UI/projectile behavior; registration chain described in PLUGIN_ITEMS_AND_HOOKS.md"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/ui/CoreUiElements.java",
+                      "sha256":  "3fa041a38702661a19224722951b81402b5c5c6d0779d68f8fbddbde0fcfc893",
+                      "registration":  "read in full; support dependency for shop/UI/projectile behavior; registration chain described in PLUGIN_ITEMS_AND_HOOKS.md"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/ui/LegacyUiElements.java",
+                      "sha256":  "636ab8a19efa9e660a02201970a6187f2ce970eebfaed7a8bfa3ab50564cf55b",
+                      "registration":  "read in full; support dependency for shop/UI/projectile behavior; registration chain described in PLUGIN_ITEMS_AND_HOOKS.md"
+                  },
+                  {
+                      "path":  "plugins/luckywars/src/main/java/me/luckywars/util/BlockSets.java",
+                      "sha256":  "e79f73112842a3d660ebd1aa38ab0909575e416b907ca8e39d3b33f026ff9fe0",
+                      "registration":  "read in full; support dependency for shop/UI/projectile behavior; registration chain described in PLUGIN_ITEMS_AND_HOOKS.md"
+                  },
+                  {
+                      "path":  "plugins/luckywars/build.gradle",
+                      "sha256":  "5ac877ea5f506082e07b32bf2e00c07eb348a07e6ea0641cfb967c0837d8c93d",
+                      "registration":  "read in full; build/config evidence for effective Paper target/version catalog; no runtime verification"
+                  },
+                  {
+                      "path":  "plugins/luckywars/settings.gradle",
+                      "sha256":  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                      "registration":  "read in full; build/config evidence for effective Paper target/version catalog; no runtime verification"
+                  },
+                  {
+                      "path":  "mods/luckywarsignite/gradle/libs.versions.toml",
+                      "sha256":  "c01f690b68920c3e747ac2f011156b044041eb808875da173483c245107d5799",
+                      "registration":  "read in full; build/config evidence for effective Paper target/version catalog; no runtime verification"
+                  },
+                  {
+                      "path":  "mods/luckywarsignite/settings.gradle.kts",
+                      "sha256":  "2afdb184ec0e14065f77c155ddaf3734de37496f289b98eb10f36e0b23c21a28",
+                      "registration":  "read in full; build/config evidence for effective Paper target/version catalog; no runtime verification"
+                  },
+                  {
+                      "path":  "mods/luckywarsignite/build-logic/settings.gradle.kts",
+                      "sha256":  "d9c212646b384e9980958eeb9773c9effc0a251fd7acf375a33db15306fb2754",
+                      "registration":  "read in full; build/config evidence for effective Paper target/version catalog; no runtime verification"
+                  },
+                  {
+                      "path":  "mods/luckywarsignite/build-logic/src/main/kotlin/mod.base-conventions.gradle.kts",
+                      "sha256":  "959f62a53e61643e95d9430e8e6cfc8c416a834e781024895cfdebb1cea42e5f",
+                      "registration":  "read in full; support dependency for shop/UI/projectile behavior; registration chain described in PLUGIN_ITEMS_AND_HOOKS.md"
+                  },
+                  {
+                      "path":  "mods/luckywarsignite/gradle.properties",
+                      "sha256":  "c42865735f3f9494876b692e2437885ea055de1016d34980ad2110fa87e2f420",
+                      "registration":  "read in full; build/config evidence for effective Paper target/version catalog; no runtime verification"
+                  }
+              ]
+}

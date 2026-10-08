@@ -1,0 +1,212 @@
+﻿Classfile jar:file:///E:/servers_mew/skywars2_last/libraries/com/mojang/datafixerupper/10.0.21/datafixerupper-10.0.21.jar!/com/mojang/serialization/Codec$12.class
+  Last modified 5 ��� 2026?�.; size 2610 bytes
+  SHA-256 checksum 19cfda6f32ae7a636eb551c10b980a625ec2dce70b03ed1430ee3a0a73fcf774
+  Compiled from "Codec.java"
+class com.mojang.serialization.Codec$12 extends java.lang.Object implements com.mojang.serialization.codecs.PrimitiveCodec<java.lang.Integer>
+  minor version: 0
+  major version: 61
+  flags: (0x0020) ACC_SUPER
+  this_class: #36                         // com/mojang/serialization/Codec$12
+  super_class: #2                         // java/lang/Object
+  interfaces: 1, fields: 0, methods: 5, attributes: 6
+Constant pool:
+   #1 = Methodref          #2.#3          // java/lang/Object."<init>":()V
+   #2 = Class              #4             // java/lang/Object
+   #3 = NameAndType        #5:#6          // "<init>":()V
+   #4 = Utf8               java/lang/Object
+   #5 = Utf8               <init>
+   #6 = Utf8               ()V
+   #7 = InterfaceMethodref #8.#9          // com/mojang/serialization/DynamicOps.getNumberValue:(Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+   #8 = Class              #10            // com/mojang/serialization/DynamicOps
+   #9 = NameAndType        #11:#12        // getNumberValue:(Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+  #10 = Utf8               com/mojang/serialization/DynamicOps
+  #11 = Utf8               getNumberValue
+  #12 = Utf8               (Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+  #13 = InvokeDynamic      #0:#14         // #0:apply:()Ljava/util/function/Function;
+  #14 = NameAndType        #15:#16        // apply:()Ljava/util/function/Function;
+  #15 = Utf8               apply
+  #16 = Utf8               ()Ljava/util/function/Function;
+  #17 = InterfaceMethodref #18.#19        // com/mojang/serialization/DataResult.map:(Ljava/util/function/Function;)Lcom/mojang/serialization/DataResult;
+  #18 = Class              #20            // com/mojang/serialization/DataResult
+  #19 = NameAndType        #21:#22        // map:(Ljava/util/function/Function;)Lcom/mojang/serialization/DataResult;
+  #20 = Utf8               com/mojang/serialization/DataResult
+  #21 = Utf8               map
+  #22 = Utf8               (Ljava/util/function/Function;)Lcom/mojang/serialization/DataResult;
+  #23 = Methodref          #24.#25        // java/lang/Integer.intValue:()I
+  #24 = Class              #26            // java/lang/Integer
+  #25 = NameAndType        #27:#28        // intValue:()I
+  #26 = Utf8               java/lang/Integer
+  #27 = Utf8               intValue
+  #28 = Utf8               ()I
+  #29 = InterfaceMethodref #8.#30         // com/mojang/serialization/DynamicOps.createInt:(I)Ljava/lang/Object;
+  #30 = NameAndType        #31:#32        // createInt:(I)Ljava/lang/Object;
+  #31 = Utf8               createInt
+  #32 = Utf8               (I)Ljava/lang/Object;
+  #33 = String             #34            // Int
+  #34 = Utf8               Int
+  #35 = Methodref          #36.#37        // com/mojang/serialization/Codec$12.write:(Lcom/mojang/serialization/DynamicOps;Ljava/lang/Integer;)Ljava/lang/Object;
+  #36 = Class              #38            // com/mojang/serialization/Codec$12
+  #37 = NameAndType        #39:#40        // write:(Lcom/mojang/serialization/DynamicOps;Ljava/lang/Integer;)Ljava/lang/Object;
+  #38 = Utf8               com/mojang/serialization/Codec$12
+  #39 = Utf8               write
+  #40 = Utf8               (Lcom/mojang/serialization/DynamicOps;Ljava/lang/Integer;)Ljava/lang/Object;
+  #41 = Class              #42            // com/mojang/serialization/codecs/PrimitiveCodec
+  #42 = Utf8               com/mojang/serialization/codecs/PrimitiveCodec
+  #43 = Utf8               Code
+  #44 = Utf8               LineNumberTable
+  #45 = Utf8               LocalVariableTable
+  #46 = Utf8               this
+  #47 = Utf8               Lcom/mojang/serialization/Codec$12;
+  #48 = Utf8               read
+  #49 = Utf8               (Lcom/mojang/serialization/DynamicOps;Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+  #50 = Utf8               ops
+  #51 = Utf8               Lcom/mojang/serialization/DynamicOps;
+  #52 = Utf8               input
+  #53 = Utf8               Ljava/lang/Object;
+  #54 = Utf8               LocalVariableTypeTable
+  #55 = Utf8               Lcom/mojang/serialization/DynamicOps<TT;>;
+  #56 = Utf8               TT;
+  #57 = Utf8               Signature
+  #58 = Utf8               <T:Ljava/lang/Object;>(Lcom/mojang/serialization/DynamicOps<TT;>;TT;)Lcom/mojang/serialization/DataResult<Ljava/lang/Integer;>;
+  #59 = Utf8               value
+  #60 = Utf8               Ljava/lang/Integer;
+  #61 = Utf8               <T:Ljava/lang/Object;>(Lcom/mojang/serialization/DynamicOps<TT;>;Ljava/lang/Integer;)TT;
+  #62 = Utf8               toString
+  #63 = Utf8               ()Ljava/lang/String;
+  #64 = Utf8               (Lcom/mojang/serialization/DynamicOps;Ljava/lang/Object;)Ljava/lang/Object;
+  #65 = Utf8               Ljava/lang/Object;Lcom/mojang/serialization/codecs/PrimitiveCodec<Ljava/lang/Integer;>;
+  #66 = Utf8               SourceFile
+  #67 = Utf8               Codec.java
+  #68 = Utf8               EnclosingMethod
+  #69 = Class              #70            // com/mojang/serialization/Codec
+  #70 = Utf8               com/mojang/serialization/Codec
+  #71 = Utf8               NestHost
+  #72 = Utf8               BootstrapMethods
+  #73 = MethodHandle       6:#74          // REF_invokeStatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;
+  #74 = Methodref          #75.#76        // java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;
+  #75 = Class              #77            // java/lang/invoke/LambdaMetafactory
+  #76 = NameAndType        #78:#79        // metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;
+  #77 = Utf8               java/lang/invoke/LambdaMetafactory
+  #78 = Utf8               metafactory
+  #79 = Utf8               (Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;
+  #80 = MethodType         #81            //  (Ljava/lang/Object;)Ljava/lang/Object;
+  #81 = Utf8               (Ljava/lang/Object;)Ljava/lang/Object;
+  #82 = MethodHandle       5:#83          // REF_invokeVirtual java/lang/Number.intValue:()I
+  #83 = Methodref          #84.#25        // java/lang/Number.intValue:()I
+  #84 = Class              #85            // java/lang/Number
+  #85 = Utf8               java/lang/Number
+  #86 = MethodType         #87            //  (Ljava/lang/Number;)Ljava/lang/Integer;
+  #87 = Utf8               (Ljava/lang/Number;)Ljava/lang/Integer;
+  #88 = Utf8               InnerClasses
+  #89 = Class              #90            // java/lang/invoke/MethodHandles$Lookup
+  #90 = Utf8               java/lang/invoke/MethodHandles$Lookup
+  #91 = Class              #92            // java/lang/invoke/MethodHandles
+  #92 = Utf8               java/lang/invoke/MethodHandles
+  #93 = Utf8               Lookup
+{
+  com.mojang.serialization.Codec$12();
+    descriptor: ()V
+    flags: (0x0000)
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return
+      LineNumberTable:
+        line 558: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lcom/mojang/serialization/Codec$12;
+
+  public <T extends java.lang.Object> com.mojang.serialization.DataResult<java.lang.Integer> read(com.mojang.serialization.DynamicOps<T>, T);
+    descriptor: (Lcom/mojang/serialization/DynamicOps;Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=2, locals=3, args_size=3
+         0: aload_1
+         1: aload_2
+         2: invokeinterface #7,  2            // InterfaceMethod com/mojang/serialization/DynamicOps.getNumberValue:(Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;
+         7: invokedynamic #13,  0             // InvokeDynamic #0:apply:()Ljava/util/function/Function;
+        12: invokeinterface #17,  2           // InterfaceMethod com/mojang/serialization/DataResult.map:(Ljava/util/function/Function;)Lcom/mojang/serialization/DataResult;
+        17: areturn
+      LineNumberTable:
+        line 561: 0
+        line 562: 2
+        line 563: 12
+        line 561: 17
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      18     0  this   Lcom/mojang/serialization/Codec$12;
+            0      18     1   ops   Lcom/mojang/serialization/DynamicOps;
+            0      18     2 input   Ljava/lang/Object;
+      LocalVariableTypeTable:
+        Start  Length  Slot  Name   Signature
+            0      18     1   ops   Lcom/mojang/serialization/DynamicOps<TT;>;
+            0      18     2 input   TT;
+    Signature: #58                          // <T:Ljava/lang/Object;>(Lcom/mojang/serialization/DynamicOps<TT;>;TT;)Lcom/mojang/serialization/DataResult<Ljava/lang/Integer;>;
+
+  public <T extends java.lang.Object> T write(com.mojang.serialization.DynamicOps<T>, java.lang.Integer);
+    descriptor: (Lcom/mojang/serialization/DynamicOps;Ljava/lang/Integer;)Ljava/lang/Object;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=2, locals=3, args_size=3
+         0: aload_1
+         1: aload_2
+         2: invokevirtual #23                 // Method java/lang/Integer.intValue:()I
+         5: invokeinterface #29,  2           // InterfaceMethod com/mojang/serialization/DynamicOps.createInt:(I)Ljava/lang/Object;
+        10: areturn
+      LineNumberTable:
+        line 568: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      11     0  this   Lcom/mojang/serialization/Codec$12;
+            0      11     1   ops   Lcom/mojang/serialization/DynamicOps;
+            0      11     2 value   Ljava/lang/Integer;
+      LocalVariableTypeTable:
+        Start  Length  Slot  Name   Signature
+            0      11     1   ops   Lcom/mojang/serialization/DynamicOps<TT;>;
+    Signature: #61                          // <T:Ljava/lang/Object;>(Lcom/mojang/serialization/DynamicOps<TT;>;Ljava/lang/Integer;)TT;
+
+  public java.lang.String toString();
+    descriptor: ()Ljava/lang/String;
+    flags: (0x0001) ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: ldc           #33                 // String Int
+         2: areturn
+      LineNumberTable:
+        line 573: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       3     0  this   Lcom/mojang/serialization/Codec$12;
+
+  public java.lang.Object write(com.mojang.serialization.DynamicOps, java.lang.Object);
+    descriptor: (Lcom/mojang/serialization/DynamicOps;Ljava/lang/Object;)Ljava/lang/Object;
+    flags: (0x1041) ACC_PUBLIC, ACC_BRIDGE, ACC_SYNTHETIC
+    Code:
+      stack=3, locals=3, args_size=3
+         0: aload_0
+         1: aload_1
+         2: aload_2
+         3: checkcast     #24                 // class java/lang/Integer
+         6: invokevirtual #35                 // Method write:(Lcom/mojang/serialization/DynamicOps;Ljava/lang/Integer;)Ljava/lang/Object;
+         9: areturn
+      LineNumberTable:
+        line 558: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      10     0  this   Lcom/mojang/serialization/Codec$12;
+}
+Signature: #65                          // Ljava/lang/Object;Lcom/mojang/serialization/codecs/PrimitiveCodec<Ljava/lang/Integer;>;
+SourceFile: "Codec.java"
+EnclosingMethod: #69.#0                 // com.mojang.serialization.Codec
+NestHost: class com/mojang/serialization/Codec
+BootstrapMethods:
+  0: #73 REF_invokeStatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;
+    Method arguments:
+      #80 (Ljava/lang/Object;)Ljava/lang/Object;
+      #82 REF_invokeVirtual java/lang/Number.intValue:()I
+      #86 (Ljava/lang/Number;)Ljava/lang/Integer;
+InnerClasses:
+  #36;                                    // class com/mojang/serialization/Codec$12
+  public static final #93= #89 of #91;    // Lookup=class java/lang/invoke/MethodHandles$Lookup of class java/lang/invoke/MethodHandles

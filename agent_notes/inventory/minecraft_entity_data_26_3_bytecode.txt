@@ -1,0 +1,193 @@
+Compiled from "EntityDataAccessor.java"
+public class net.minecraft.server.commands.data.EntityDataAccessor implements net.minecraft.server.commands.data.DataAccessor {
+  private static final org.slf4j.Logger LOGGER;
+
+  private static final com.mojang.brigadier.exceptions.SimpleCommandExceptionType ERROR_NO_PLAYERS;
+
+  public static final net.minecraft.server.commands.ArgProvider$Factory<net.minecraft.server.commands.data.DataAccessor> PROVIDER;
+
+  private final net.minecraft.world.entity.Entity entity;
+
+  public net.minecraft.server.commands.data.EntityDataAccessor(net.minecraft.world.entity.Entity);
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: aload_1
+         6: putfield      #7                  // Field entity:Lnet/minecraft/world/entity/Entity;
+         9: return
+
+  public void setData(net.minecraft.nbt.CompoundTag) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: getfield      #7                  // Field entity:Lnet/minecraft/world/entity/Entity;
+         4: instanceof    #13                 // class net/minecraft/world/entity/player/Player
+         7: ifeq          17
+        10: getstatic     #15                 // Field ERROR_NO_PLAYERS:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;
+        13: invokevirtual #19                 // Method com/mojang/brigadier/exceptions/SimpleCommandExceptionType.create:()Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        16: athrow
+        17: aload_0
+        18: getfield      #7                  // Field entity:Lnet/minecraft/world/entity/Entity;
+        21: invokevirtual #25                 // Method net/minecraft/world/entity/Entity.getUUID:()Ljava/util/UUID;
+        24: astore_2
+        25: new           #31                 // class net/minecraft/util/ProblemReporter$ScopedCollector
+        28: dup
+        29: aload_0
+        30: getfield      #7                  // Field entity:Lnet/minecraft/world/entity/Entity;
+        33: invokevirtual #33                 // Method net/minecraft/world/entity/Entity.problemPath:()Lnet/minecraft/util/ProblemReporter$PathElement;
+        36: getstatic     #37                 // Field LOGGER:Lorg/slf4j/Logger;
+        39: invokespecial #41                 // Method net/minecraft/util/ProblemReporter$ScopedCollector."<init>":(Lnet/minecraft/util/ProblemReporter$PathElement;Lorg/slf4j/Logger;)V
+        42: astore_3
+        43: aload_0
+        44: getfield      #7                  // Field entity:Lnet/minecraft/world/entity/Entity;
+        47: aload_3
+        48: aload_0
+        49: getfield      #7                  // Field entity:Lnet/minecraft/world/entity/Entity;
+        52: invokevirtual #44                 // Method net/minecraft/world/entity/Entity.registryAccess:()Lnet/minecraft/core/RegistryAccess;
+        55: aload_1
+        56: invokestatic  #48                 // Method net/minecraft/world/level/storage/TagValueInput.create:(Lnet/minecraft/util/ProblemReporter;Lnet/minecraft/core/HolderLookup$Provider;Lnet/minecraft/nbt/CompoundTag;)Lnet/minecraft/world/level/storage/ValueInput;
+        59: invokevirtual #53                 // Method net/minecraft/world/entity/Entity.load:(Lnet/minecraft/world/level/storage/ValueInput;)V
+        62: aload_0
+        63: getfield      #7                  // Field entity:Lnet/minecraft/world/entity/Entity;
+        66: aload_2
+        67: invokevirtual #57                 // Method net/minecraft/world/entity/Entity.setUUID:(Ljava/util/UUID;)V
+        70: aload_0
+        71: getfield      #7                  // Field entity:Lnet/minecraft/world/entity/Entity;
+        74: invokevirtual #61                 // Method net/minecraft/world/entity/Entity.postDataManipulated:()V
+        77: aload_3
+        78: invokevirtual #64                 // Method net/minecraft/util/ProblemReporter$ScopedCollector.close:()V
+        81: goto          105
+        84: astore        4
+        86: aload_3
+        87: invokevirtual #64                 // Method net/minecraft/util/ProblemReporter$ScopedCollector.close:()V
+        90: goto          102
+        93: astore        5
+        95: aload         4
+        97: aload         5
+        99: invokevirtual #69                 // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+       102: aload         4
+       104: athrow
+       105: return
+      Exception table:
+         from    to  target type
+            43    77    84   Class java/lang/Throwable
+            86    90    93   Class java/lang/Throwable
+
+  public net.minecraft.nbt.CompoundTag getData();
+    Code:
+         0: aload_0
+         1: getfield      #7                  // Field entity:Lnet/minecraft/world/entity/Entity;
+         4: invokestatic  #73                 // Method net/minecraft/advancements/predicates/NbtPredicate.getEntityTagToCompare:(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/nbt/CompoundTag;
+         7: areturn
+
+  public net.minecraft.network.chat.Component getModifiedSuccess();
+    Code:
+         0: ldc           #79                 // String commands.data.entity.modified
+         2: iconst_1
+         3: anewarray     #2                  // class java/lang/Object
+         6: dup
+         7: iconst_0
+         8: aload_0
+         9: getfield      #7                  // Field entity:Lnet/minecraft/world/entity/Entity;
+        12: invokevirtual #81                 // Method net/minecraft/world/entity/Entity.getDisplayName:()Lnet/minecraft/network/chat/Component;
+        15: aastore
+        16: invokestatic  #85                 // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;
+        19: areturn
+
+  public net.minecraft.network.chat.Component getPrintSuccess(net.minecraft.nbt.Tag);
+    Code:
+         0: ldc           #91                 // String commands.data.entity.query
+         2: iconst_2
+         3: anewarray     #2                  // class java/lang/Object
+         6: dup
+         7: iconst_0
+         8: aload_0
+         9: getfield      #7                  // Field entity:Lnet/minecraft/world/entity/Entity;
+        12: invokevirtual #81                 // Method net/minecraft/world/entity/Entity.getDisplayName:()Lnet/minecraft/network/chat/Component;
+        15: aastore
+        16: dup
+        17: iconst_1
+        18: aload_1
+        19: invokestatic  #93                 // Method net/minecraft/nbt/NbtUtils.toPrettyComponent:(Lnet/minecraft/nbt/Tag;)Lnet/minecraft/network/chat/Component;
+        22: aastore
+        23: invokestatic  #85                 // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;
+        26: areturn
+
+  public net.minecraft.network.chat.Component getPrintSuccess(net.minecraft.commands.arguments.NbtPathArgument$NbtPath, double, int);
+    Code:
+         0: ldc           #99                 // String commands.data.entity.get
+         2: iconst_4
+         3: anewarray     #2                  // class java/lang/Object
+         6: dup
+         7: iconst_0
+         8: aload_1
+         9: invokevirtual #101                // Method net/minecraft/commands/arguments/NbtPathArgument$NbtPath.asString:()Ljava/lang/String;
+        12: aastore
+        13: dup
+        14: iconst_1
+        15: aload_0
+        16: getfield      #7                  // Field entity:Lnet/minecraft/world/entity/Entity;
+        19: invokevirtual #81                 // Method net/minecraft/world/entity/Entity.getDisplayName:()Lnet/minecraft/network/chat/Component;
+        22: aastore
+        23: dup
+        24: iconst_2
+        25: getstatic     #107                // Field java/util/Locale.ROOT:Ljava/util/Locale;
+        28: ldc           #113                // String %.2f
+        30: iconst_1
+        31: anewarray     #2                  // class java/lang/Object
+        34: dup
+        35: iconst_0
+        36: dload_2
+        37: invokestatic  #115                // Method java/lang/Double.valueOf:(D)Ljava/lang/Double;
+        40: aastore
+        41: invokestatic  #121                // Method java/lang/String.format:(Ljava/util/Locale;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+        44: aastore
+        45: dup
+        46: iconst_3
+        47: iload         4
+        49: invokestatic  #127                // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;
+        52: aastore
+        53: invokestatic  #85                 // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;
+        56: areturn
+
+  private static net.minecraft.server.commands.ArgProvider lambda$static$0(java.lang.String);
+    Code:
+         0: ldc           #132                // String entity
+         2: aload_0
+         3: invokedynamic #133,  0            // InvokeDynamic #0:get:(Ljava/lang/String;)Ljava/util/function/Supplier;
+         8: aload_0
+         9: invokedynamic #137,  0            // InvokeDynamic #1:apply:(Ljava/lang/String;)Lnet/minecraft/server/commands/InCommandFunction;
+        14: invokestatic  #141                // InterfaceMethod net/minecraft/server/commands/ArgProvider.create:(Ljava/lang/String;Ljava/util/function/Supplier;Lnet/minecraft/server/commands/InCommandFunction;)Lnet/minecraft/server/commands/ArgProvider;
+        17: areturn
+
+  private static net.minecraft.server.commands.data.DataAccessor lambda$static$2(java.lang.String, com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: new           #8                  // class net/minecraft/server/commands/data/EntityDataAccessor
+         3: dup
+         4: aload_1
+         5: aload_0
+         6: invokestatic  #146                // Method net/minecraft/commands/arguments/EntityArgument.getEntity:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/world/entity/Entity;
+         9: invokespecial #152                // Method "<init>":(Lnet/minecraft/world/entity/Entity;)V
+        12: areturn
+
+  private static com.mojang.brigadier.builder.ArgumentBuilder lambda$static$1(java.lang.String);
+    Code:
+         0: aload_0
+         1: invokestatic  #155                // Method net/minecraft/commands/arguments/EntityArgument.entity:()Lnet/minecraft/commands/arguments/EntityArgument;
+         4: invokestatic  #158                // Method net/minecraft/commands/Commands.argument:(Ljava/lang/String;Lcom/mojang/brigadier/arguments/ArgumentType;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+         7: areturn
+
+  static {};
+    Code:
+         0: invokestatic  #164                // Method com/mojang/logging/LogUtils.getLogger:()Lorg/slf4j/Logger;
+         3: putstatic     #37                 // Field LOGGER:Lorg/slf4j/Logger;
+         6: new           #20                 // class com/mojang/brigadier/exceptions/SimpleCommandExceptionType
+         9: dup
+        10: ldc           #170                // String commands.data.entity.invalid
+        12: invokestatic  #172                // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+        15: invokespecial #175                // Method com/mojang/brigadier/exceptions/SimpleCommandExceptionType."<init>":(Lcom/mojang/brigadier/Message;)V
+        18: putstatic     #15                 // Field ERROR_NO_PLAYERS:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;
+        21: invokedynamic #178,  0            // InvokeDynamic #2:create:()Lnet/minecraft/server/commands/ArgProvider$Factory;
+        26: putstatic     #181                // Field PROVIDER:Lnet/minecraft/server/commands/ArgProvider$Factory;
+        29: return
+}

@@ -1,57 +1,58 @@
 {
-    "type":"empty", "pools": [
+  "type": "empty",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:wooden_sword",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_display": {
-                                    "hidden_components": [
-                                        "minecraft:attribute_modifiers"
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "entity": "this",
-                            "lore": [
-                                {
-                                    "nbt": "lore.kit.a4.Lore[0]",
-                                    "storage": "swrg:lang",
-                                    "interpret": true,
-                                    "source": "storage",
-                                    "type": "nbt"
-                                },
-                                {
-                                    "nbt": "lore.kit.a4.Lore[1]",
-                                    "storage": "swrg:lang",
-                                    "interpret": true,
-                                    "source": "storage",
-                                    "type": "nbt"
-                                }
-                            ],
-                            "mode": "replace_all"
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "entity": "this",
-                            "name": {
-                                "nbt": "kit.a4",
-                                "storage": "swrg:lang",
-                                "interpret": true,
-                                "source": "storage",
-                                "type": "nbt"
-                            }
-                        }
-                    ]
+          "type": "minecraft:item",
+          "name": "minecraft:wooden_sword",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:attribute_modifiers"
+                  ]
                 }
-            ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "entity": "this",
+              "lore": [
+                {
+                  "nbt": "lore.kit.a4.Lore[0]",
+                  "storage": "swrg:lang",
+                  "interpret": true,
+                  "source": "storage",
+                  "type": "nbt"
+                },
+                {
+                  "nbt": "lore.kit.a4.Lore[1]",
+                  "storage": "swrg:lang",
+                  "interpret": true,
+                  "source": "storage",
+                  "type": "nbt"
+                }
+              ],
+              "mode": "replace_all",
+              "type": "minecraft:set_lore"
+            },
+            {
+              "entity": "this",
+              "name": {
+                "nbt": "kit.a4",
+                "storage": "swrg:lang",
+                "interpret": true,
+                "source": "storage",
+                "type": "nbt"
+              },
+              "type": "minecraft:set_name"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

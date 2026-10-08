@@ -1,0 +1,324 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/cumming.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Сущности, временные изменения и ghosting",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/cumming1.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Сущности, временные изменения и ghosting",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_add_mana.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Диспетчер и периодические счётчики",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_add_manamax.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Диспетчер и периодические счётчики",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_add_manaregen.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Диспетчер и периодические счётчики",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_big_explosion.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Счётчики эффектов попадания и мира",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_chain_lightning.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Счётчики эффектов попадания и мира",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_dimshifting.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Счётчики эффектов попадания и мира",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_evoker.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Счётчики эффектов попадания и мира",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_evokerarrow.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Счётчики эффектов попадания и мира",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_explosion.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Счётчики эффектов попадания и мира",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_firebreak.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Счётчики эффектов попадания и мира",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_gravity_curse.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Диспетчер и периодические счётчики",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_gravity_curse_end.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Диспетчер и периодические счётчики",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_hedgehog_boom.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Счётчики эффектов попадания и мира",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_kiuaskivi.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Счётчики эффектов попадания и мира",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_lightarrow.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Счётчики эффектов попадания и мира",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_lightning_bolt.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Счётчики эффектов попадания и мира",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_nuking.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Счётчики эффектов попадания и мира",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_remove_mana.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Диспетчер и периодические счётчики",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_rtp_4.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Диспетчер и периодические счётчики",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_shock.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Счётчики эффектов попадания и мира",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_shock_potion.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Токсичные area-cloud эффекты и отдельные эффекты",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_small_explosion.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Счётчики эффектов попадания и мира",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_snus.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Диспетчер и периодические счётчики",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_stand_arrow_hit.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Счётчики эффектов попадания и мира",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_timestop.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Счётчики эффектов попадания и мира",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_traps.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Счётчики эффектов попадания и мира",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_vacuum.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Счётчики эффектов попадания и мира",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/effect_witch_gens_reset.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Счётчики эффектов попадания и мира",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/ghosting_end.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Сущности, временные изменения и ghosting",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/ghosting_second.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Сущности, временные изменения и ghosting",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/ghosting_second_vex.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Сущности, временные изменения и ghosting",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/ghosting_tick.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Сущности, временные изменения и ghosting",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/ghosting_tick1.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Сущности, временные изменения и ghosting",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/gremuch_tick.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Токсичные area-cloud эффекты и отдельные эффекты",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/phosphin_tick.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Токсичные area-cloud эффекты и отдельные эффекты",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/rtp_1.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Диспетчер и периодические счётчики",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/rtp_2.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Диспетчер и периодические счётчики",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/rtp_3.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Диспетчер и периодические счётчики",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/sulfur_tick.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Токсичные area-cloud эффекты и отдельные эффекты",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/termit_tick.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Токсичные area-cloud эффекты и отдельные эффекты",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/termit_tick_storage.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Токсичные area-cloud эффекты и отдельные эффекты",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/tick.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Диспетчер и периодические счётчики",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/tick_1s.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Диспетчер и периодические счётчики",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/effects/tick_5t.mcfunction",
+    "document": "agent_notes/lbc_effects.md",
+    "section": "Диспетчер и периодические счётчики",
+    "status": "documented",
+    "note": "Описаны вызовы, эффект на одном срабатывании, временной цикл и локальное окончание; внешние children помечены зависимостями."
+  }
+]

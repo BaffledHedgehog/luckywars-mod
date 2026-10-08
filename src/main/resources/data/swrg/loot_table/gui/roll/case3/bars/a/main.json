@@ -1,89 +1,87 @@
 {
-    "pools": [
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "swrg:gui/roll/case3/bars/a/16"
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "swrg:gui/roll/case3/bars/a/15"
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "swrg:gui/roll/case3/bars/a/14"
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "swrg:gui/roll/case3/bars/a/13"
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "swrg:gui/roll/case3/bars/a/12"
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "swrg:gui/roll/case3/bars/a/11"
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "swrg:gui/roll/case3/bars/a/10"
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "swrg:gui/roll/case3/bars/a/9"
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "swrg:gui/roll/case3/bars/a/8"
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "swrg:gui/roll/case3/bars/a/7"
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "swrg:gui/roll/case3/bars/a/6"
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "swrg:gui/roll/case3/bars/a/5"
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "swrg:gui/roll/case3/bars/a/4"
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "swrg:gui/roll/case3/bars/a/3"
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "swrg:gui/roll/case3/bars/a/2"
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "swrg:gui/roll/case3/bars/a/1"
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "swrg:gui/roll/case3/bars/a/16"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "swrg:gui/roll/case3/bars/a/15"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "swrg:gui/roll/case3/bars/a/14"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "swrg:gui/roll/case3/bars/a/13"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "swrg:gui/roll/case3/bars/a/12"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "swrg:gui/roll/case3/bars/a/11"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "swrg:gui/roll/case3/bars/a/10"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "swrg:gui/roll/case3/bars/a/9"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "swrg:gui/roll/case3/bars/a/8"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "swrg:gui/roll/case3/bars/a/7"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "swrg:gui/roll/case3/bars/a/6"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "swrg:gui/roll/case3/bars/a/5"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "swrg:gui/roll/case3/bars/a/4"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "swrg:gui/roll/case3/bars/a/3"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "swrg:gui/roll/case3/bars/a/2"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "swrg:gui/roll/case3/bars/a/1"
         }
+      ]
+    }
+  ],
+  "modifier": {
+    "entity": "this",
+    "lore": [
+      {
+        "nbt": "rare.a",
+        "storage": "swrg:lang",
+        "interpret": true,
+        "source": "storage",
+        "type": "nbt"
+      }
     ],
-    "functions": [
-        {
-            "function": "minecraft:set_lore",
-            "entity": "this",
-            "lore": [
-                {
-                    "nbt": "rare.a",
-                    "storage": "swrg:lang",
-                    "interpret": true,
-                    "source": "storage",
-                    "type": "nbt"
-                }
-            ],
-            "mode": "replace_all"
-        }
-    ]
+    "mode": "replace_all",
+    "type": "minecraft:set_lore"
+  }
 }

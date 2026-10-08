@@ -1,0 +1,1612 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/add_armor.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:add_armor`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/add_armor1.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:add_armor1`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/add_armor2.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:add_armor2`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/add_armor3.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:add_armor3`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/add_armor4.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:add_armor4`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/add_damage.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:add_damage`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/add_lore_rocket.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:add_lore_rocket`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/add_upgrade_desc.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:add_upgrade_desc`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/append_upgradable.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:append_upgradable`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/chainmail_boots.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/chainmail_boots`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/chainmail_chestplate.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/chainmail_chestplate`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/chainmail_helmet.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/chainmail_helmet`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/chainmail_leggings.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/chainmail_leggings`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/diamond_boots.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/diamond_boots`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/diamond_chestplate.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/diamond_chestplate`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/diamond_helmet.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/diamond_helmet`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/diamond_leggings.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/diamond_leggings`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/golden_boots.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/golden_boots`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/golden_chestplate.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/golden_chestplate`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/golden_helmet.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/golden_helmet`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/golden_leggings.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/golden_leggings`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/iron_boots.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/iron_boots`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/iron_chestplate.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/iron_chestplate`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/iron_helmet.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/iron_helmet`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/iron_leggings.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/iron_leggings`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/leather_boots.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/leather_boots`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/leather_chestplate.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/leather_chestplate`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/leather_helmet.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/leather_helmet`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/leather_leggings.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/leather_leggings`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/netherite_boots.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/netherite_boots`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/netherite_chestplate.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/netherite_chestplate`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/netherite_helmet.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/netherite_helmet`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/netherite_leggings.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/netherite_leggings`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/attributefix/turtle_helmet.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:attributefix/turtle_helmet`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/count.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:count`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/count_reduce.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:count_reduce`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/crossbow_uncharge.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:crossbow_uncharge`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/down_armor.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:down_armor`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/down_armor_chest.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:down_armor_chest`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/down_armor_feet.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:down_armor_feet`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/down_armor_head.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:down_armor_head`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/down_armor_legs.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:down_armor_legs`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/down_durability.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:down_durability`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/down_resistance.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:down_resistance`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/fartus_upgrade.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:fartus_upgrade`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/kakashki_fartus_damage_buff.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:kakashki_fartus_damage_buff`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/magnum_switch_mode.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:magnum_switch_mode`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/one_punch.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:one_punch`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/remove_name_lore.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:remove_name_lore`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/rotate_laser_minigun.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:rotate_laser_minigun`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/academy_acid.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/academy_acid`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/academy_acid_tuntija.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/academy_acid_tuntija`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/academy_acidacid.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/academy_acidacid`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/academy_acidcorrupt.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/academy_acidcorrupt`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/academy_air.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/academy_air`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/academy_badwiki.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/academy_badwiki`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/academy_bass.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/academy_bass`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/academy_bedrock.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/academy_bedrock`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/academy_big_stone.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/academy_big_stone`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/academy_blaze.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/academy_blaze`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/academy_blazefire.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/academy_blazefire`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/academy_blind.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/academy_blind`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/academy_boltbolt.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/academy_boltbolt`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/academy_confuse.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/academy_confuse`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/academy_consuming.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/academy_consuming`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/academy_corruption.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/academy_corruption`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/academy_danmaku.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/academy_danmaku`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/academy_dublicating.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/academy_dublicating`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/academy_electro.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/academy_electro`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/academy_ender_random.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/academy_ender_random`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/academy_erecto.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/academy_erecto`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/academy_exasperato.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/academy_exasperato`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/antimagic_armor.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/antimagic_armor`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/assasin.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/assasin`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/babylon_gate.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/babylon_gate`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/banhammer.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/banhammer`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/barrier.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/barrier`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/barrier_and_heal.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/barrier_and_heal`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/berserker.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/berserker`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/black_hole.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/black_hole`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/black_hole_2.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/black_hole_2`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/black_hole_max.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/black_hole_max`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/blaze.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/blaze`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/blood_academy.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/blood_academy`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/chaos.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/chaos`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/chaos_full.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/chaos_full`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/death_skytche.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/death_skytche`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/devilstomach.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/devilstomach`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/double.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/double`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/erosion.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/erosion`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/evoker_academy.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/evoker_academy`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/exahoming_academy.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/exahoming_academy`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/exoperso_academy.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/exoperso_academy`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/falling_stars_academy.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/falling_stars_academy`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/fartus_nadristailo.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/fartus_nadristailo`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/firework.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/firework`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/flesh.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/flesh`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/gaycaster_academy.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/gaycaster_academy`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/ghast.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/ghast`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/glass.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/glass`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/hammer.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/hammer`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/heal.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/heal`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/hedgehog_academy.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/hedgehog_academy`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/ice_wand_academy.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/ice_wand_academy`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/infinite_quiver.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/infinite_quiver`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/jaakivi.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/jaakivi`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/kiuaskivi.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/kiuaskivi`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/lightning_upgraded.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/lightning_upgraded`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/madoka_bow.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/madoka_bow`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/mage.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/mage`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/magnet.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/magnet`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/mana_belt.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/mana_belt`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/miniguns.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/miniguns`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/moisei_boots.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/moisei_boots`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/multiplying.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/multiplying`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/mystical_artifact.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/mystical_artifact`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/nano.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/nano`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/neutral.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/neutral`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/neutral_wand_academy.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/neutral_wand_academy`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/nyauwu.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/nyauwu`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/omegaflag_academy.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/omegaflag_academy`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/op_hoe.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/op_hoe`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/paladin.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/paladin`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/penis_gun.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/penis_gun`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/phantom.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/phantom`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/poleaxe.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/poleaxe`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/polymorph_wand_academy.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/polymorph_wand_academy`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/popit.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/popit`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/prism_academy.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/prism_academy`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/prism_psycho.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/prism_psycho`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/psychoblind_academy.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/psychoblind_academy`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/railgun.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/railgun`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/railshish.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/railshish`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/randchanted.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/randchanted`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/randchanted_axe.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/randchanted_axe`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/randchanted_bow.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/randchanted_bow`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/regeneration_belt.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/regeneration_belt`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/ruby_upgraded.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/ruby_upgraded`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/sand_amulet.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/sand_amulet`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/save_platform.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/save_platform`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/shitty.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/shitty`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/shitty_full.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/shitty_full`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/shulker.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/shulker`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/shulker_bow.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/shulker_bow`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/shulker_full.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/shulker_full`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/sickle.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/sickle`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/snow_wand_academy.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/snow_wand_academy`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/socializm.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/socializm`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/steampunk.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/steampunk`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/stfire_academy.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/stfire_academy`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/ststone_academy.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/ststone_academy`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/tannerkivi.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/tannerkivi`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/techno.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/techno`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/techno_full.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/techno_full`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/technomk2.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/technomk2`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/tnt_jacket.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/tnt_jacket`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/tomahawk.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/tomahawk`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/traveller.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/traveller`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/swrg_unlocks/tweak_academy.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:swrg_unlocks/tweak_academy`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/testdaeris.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:testdaeris`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/tiers/a.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:tiers/a`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/tiers/b.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:tiers/b`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/tiers/c.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:tiers/c`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/tiers/d.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:tiers/d`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/tiers/f.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:tiers/f`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/tiers/ff.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:tiers/ff`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/tiers/k.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:tiers/k`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/tiers/s.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:tiers/s`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/tiers/ss.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:tiers/ss`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/tiers/u.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:tiers/u`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/tiers/x.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:tiers/x`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/item_modifier/unbreakable.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "item_modifier `lbc:unbreakable`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/below.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:below`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/bow_or_crossbow.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:bow_or_crossbow`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance001.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance001`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance0_00000000000001.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance0_00000000000001`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance0_015625.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance0_015625`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance0_03125.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance0_03125`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance0_0625.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance0_0625`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance0_125.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance0_125`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance0_25.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance0_25`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance0_5.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance0_5`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance0_8.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance0_8`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance1.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance1`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance10.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance10`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance15.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance15`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance1_5.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance1_5`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance20.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance20`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance25.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance25`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance3.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance3`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance30.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance30`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance35.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance35`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance4.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance4`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance40.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance40`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance45.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance45`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance5.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance5`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance50.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance50`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance6.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance6`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance60.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance60`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance7.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance7`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance70.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance70`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance75.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance75`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance80.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance80`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance85.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance85`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance90.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance90`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance95.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance95`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance96.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance96`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance98.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance98`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance99.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance99`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance_from_hunger.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance_from_hunger`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/chance_from_nausea.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:chance_from_nausea`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/diamond_armor.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:diamond_armor`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/imprinted.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:imprinted`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/is_sprinting.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:is_sprinting`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/jump.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:jump`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/looking_at_scare.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:looking_at_scare`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/nexus.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:nexus`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/on_fire.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:on_fire`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/on_ground.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:on_ground`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/overworld.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:overworld`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/reactive_boots.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:reactive_boots`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/same_id.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:same_id`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/same_id_mob.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:same_id_mob`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/same_team.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:same_team`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/see_sky.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:see_sky`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/smallhealthinfire.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:smallhealthinfire`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/sneak.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:sneak`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/swimming.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:swimming`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/the_end.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:the_end`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/predicate/the_nether.json",
+    "document": "agent_notes/lbc_predicates_modifiers.md",
+    "section": "predicate `lbc:the_nether`",
+    "status": "documented",
+    "note": "Complete predicate condition or ordered item mutations with exact parameters and literal resource references."
+  }
+]

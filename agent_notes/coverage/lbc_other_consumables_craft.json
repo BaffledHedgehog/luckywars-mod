@@ -1,0 +1,1549 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/ananta.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/ananta_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_acid.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_acid_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_air.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_air_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_blind.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_blind_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_booom.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_booom_1.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_dust.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_dust_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_electro.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_electro_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_electroshield.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_electroshield_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_electrosword.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_electrosword_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_fire.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_fire_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_mana.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_mana_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_potion.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_potion_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_railgun.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_railgun_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_reforge.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_spell.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_spell_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_spruce_leaves.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_stone.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_stone_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_swargia.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_swargia_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_techno_armor.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_teleport.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_teleport_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_terra.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/crafted_terra_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/cyberpunk_boots.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/cyberpunk_boots_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/cyberpunk_chestplate.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/cyberpunk_chestplate_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/cyberpunk_helmet.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/cyberpunk_helmet_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/cyberpunk_leggings.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/cyberpunk_leggings_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/divide_by_metal_pipe.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/divide_by_metal_pipe_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/fartus_nadristailo.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/fartus_nadristailo_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/fevgalea_star.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/fevgalea_star_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/fotja.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/fotja_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/gaycaster.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/gaycaster_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/ice_wand.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/ice_wand_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/inventory_craft_check.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/inventory_make_unbreakable.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/mellstroy_mask.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/mellstroy_mask_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/nyauwu_boots.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/nyauwu_boots_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/nyauwu_chestplate.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/nyauwu_chestplate_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/nyauwu_helmet.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/nyauwu_helmet_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/nyauwu_leggings.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/nyauwu_leggings_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/overload_armor.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/reroll_machine.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/rocket_boots_add_ability.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/rocket_boots_add_ability_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/shish_wall_wand.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/shish_wall_wand_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/shulker_upgraded.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/shulker_upgraded_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/shulker_upgraded_lukcy.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/shulker_upgraded_lukcy_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/soulhunter_mace.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/soulhunter_mace_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/stand_clocks.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/stand_clocks_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/swargia.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft/swargia_inv.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Рецепты из выброшенных предметов и crafting slots",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/banana.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/bedrock_apple.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/big_explode.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/book.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/buffs.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/chaos_explode.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/cum.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/damage.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/danmaku.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/danmaku_1.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/diamond_apple.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/diamond_beef.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/diamond_berries.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/diamond_carrot.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/diamond_chicken.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/diamond_fish.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/diamond_mutton.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/diamond_porkchop.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/diamond_potato.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/diamond_rabbit.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/diamond_stew.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/evoker.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/explode.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/fire.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/gain_bucket.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/glowing.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/golden_beef.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/golden_beetroot.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/golden_berries.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/golden_bread.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/golden_cake.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/golden_chicken.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/golden_chorus.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/golden_cookie.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/golden_fish.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/golden_kelp.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/golden_melon.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/golden_mutton.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/golden_pie.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/golden_porkchop.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/golden_potato.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/golden_rabbit.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/golden_stew.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/haste.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/human_eye.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/human_flesh.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/kfc_chick/all_up_attributes.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/kfc_chick/all_up_mana.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/kfc_chick/all_up_scores_no_mana.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/kfc_chick/blevota.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/kfc_chick/chick_alive.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/kfc_chick/gigaponos.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/kfc_chick/gigaponos_mega.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/kfc_chick/healing.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/kfc_chick/jesus_food.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/kfc_chick/overfeed.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/kfc_chick/ponos.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/kfc_chick/random_item_remove.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/kfc_chick/satan_food.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/kfc_chick/strength.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/kfc_chick/tasty.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/kfc_chick/the_win_button.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/kfc_chick/ultradreest.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/kfc_chick/xp_up.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/kfc_chick/xp_up_2.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/kfc_chick/xp_up_3.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/kfc_chick/yumyum.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/kfc_chick.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/lava.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/lightning.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/multiverse_fish.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/netherite_apple.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/netherite_carrot.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/netherite_fish.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/netherite_potato.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/netherite_stew.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/netherstar_fish.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/oreshek.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/oreshek_explode.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/oreshek_zelensky.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/poison.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/polymorph.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/psycho.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/regeneration.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/shit.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/slab.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/slab_at_entity.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/slab_at_item.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/slab_at_mob.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/slab_at_player.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/snow.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/strength.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/teleport.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/teleport2.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/transdimensional_fish.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/weakness.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/wither.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/eatables/yellow_lightings_bottle.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Употребляемые предметы",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/greed/avarice_diamond_near.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: greed",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/greed/avarice_diamond_near1.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: greed",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/greed/avarice_diamond_near_greed.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: greed",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/greed/avarice_diamond_near_no_greed.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: greed",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/greed/avarice_diamond_rand_pos.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: greed",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/greed/avarice_diamond_rand_pos_coldwn.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: greed",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/greed/avarice_diamond_rand_pos_coldwn2.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: greed",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/greed/avarice_diamond_spawn.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: greed",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/greed/damage.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: greed",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/greed/damage1.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: greed",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/greed/damage2.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: greed",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/greed/exterminate.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: greed",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/greed/fill.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: greed",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/greed/pickup.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: greed",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/greed/summon.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: greed",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/kapusta/check.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: kapusta",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/kapusta/explode.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: kapusta",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/kapusta/explode_2.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: kapusta",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/kapusta/explode_new_kapusta.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: kapusta",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/kapusta/explode_new_kapusta_1.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: kapusta",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/kapusta/explode_new_kapusta_2.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: kapusta",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/kapusta/throw.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: kapusta",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/kapusta/tick.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: kapusta",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/mana_potions/bad.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: mana potions",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/mana_potions/select.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: mana potions",
+    "status": "non_runtime",
+    "note": "Проверенный пустой файл: только пустой результат при ручном вызове; автоматического caller/reward не найдено."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana/explode.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: negative mana",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana/tentacle.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: negative mana",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana/tentacle_2.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: negative mana",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana/tentacle_2_1.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: negative mana",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana/tentacle_big.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: negative mana",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana/tentacle_big_2.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: negative mana",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana/tentacle_big_2_1.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: negative mana",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana/tentacle_damage.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: negative mana",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana/tentacle_damage_restore_hp.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: negative mana",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana/tentacle_full_set.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: negative mana",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana/tentacle_full_set_2.mcfunction",
+    "document": "agent_notes/lbc_other_consumables_craft.md",
+    "section": "Семейство: negative mana",
+    "status": "documented",
+    "note": "Описаны вход/условия, буквальный результат и расход по source."
+  }
+]

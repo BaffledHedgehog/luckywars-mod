@@ -22,9 +22,20 @@ dependencies {
     implementation "eu.pb4:polymer-core:${project.polymer_version}"
     implementation "eu.pb4:polymer-resource-pack:${project.polymer_version}"
     implementation "eu.pb4:polymer-virtual-entity:${project.polymer_version}"
+    implementation include("eu.pb4:sgui:2.2.1+26.3")
 }
 
 processResources {
+    // Legacy assets stay in the working tree; their registries/advancements must not run
+    // alongside the new controller or override Minecraft 26.3's built-in dimensions.
+    include 'fabric.mod.json', 'skywars2.mixins.json', 'data/skywars2/**', 'data/swrg/structure/**',
+            'data/swrg/loot_table/chests/**', 'data/swrg/loot_table/game/**',
+            'data/swrg/loot_table/gui/**', 'data/swrg/item_modifier/select.json',
+            'data/lbc/loot_table/gui/page/8000/**', 'data/lbc/loot_table/gui/page/8100/**',
+            'data/lbc/loot_table/gui/page/9000/**', 'data/lbc/loot_table/gui/page/9100/**',
+            'data/lbc/loot_table/gui/page/10000/**', 'data/lbc/loot_table/gui/page/10100/**',
+            'data/lbc/loot_table/gui/page/11000/**', 'data/lbc/loot_table/gui/page/11100/**',
+            'data/lbc/loot_table/gui/page/12000/**', 'skywars2/**', 'assets/**'
     inputs.property 'version', project.version
     filesMatching('fabric.mod.json') {
         expand version: project.version

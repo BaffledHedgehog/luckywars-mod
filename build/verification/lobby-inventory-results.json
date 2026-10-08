@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "seconds": 32.16,
+  "checks": [
+    "lock in lobby",
+    "lock while loading",
+    "native SGui purchase",
+    "match move and pickup",
+    "return to lobby"
+  ]
+}

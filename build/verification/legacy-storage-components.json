@@ -1,0 +1,5097 @@
+{
+  "en": {
+    "lang": "en",
+    "entity.lobby": {
+      "text": "SkyWars Menu",
+      "color": "green",
+      "italic": false
+    },
+    "item.compass": {
+      "Name": {
+        "text": "Locator",
+        "color": "yellow",
+        "italic": false
+      }
+    },
+    "item.kit12_0": {
+      "Name": {
+        "text": "Splash potion of desiccation",
+        "italic": false
+      }
+    },
+    "item.kit12_1": {
+      "Name": {
+        "text": "Splash potion of nausea",
+        "italic": false
+      }
+    },
+    "item.kit12_2": {
+      "Name": {
+        "text": "Splash potion of blindness",
+        "italic": false
+      }
+    },
+    "item.kit18": {
+      "Name": {
+        "text": "Anonymous mask",
+        "color": "red",
+        "italic": false
+      }
+    },
+    "gui.balance": {
+      "text": "Balance: ",
+      "color": "white",
+      "italic": false
+    },
+    "gui.reset": {
+      "Name": {
+        "text": "Reset",
+        "color": "red",
+        "italic": false
+      }
+    },
+    "gui.keys": {
+      "text": "Keys",
+      "color": "white",
+      "italic": false
+    },
+    "gui.previous": {
+      "Name": {
+        "text": "Previous",
+        "color": "red",
+        "italic": false
+      }
+    },
+    "gui.next": {
+      "Name": {
+        "text": "Next",
+        "color": "red",
+        "italic": false
+      }
+    },
+    "gui.select": {
+      "text": "Selected",
+      "color": "green",
+      "italic": false
+    },
+    "gui.locked": {
+      "text": "Locked",
+      "color": "red",
+      "italic": false
+    },
+    "gui.coins": {
+      "text": "Coins",
+      "italic": false
+    },
+    "gui.memcoins": {
+      "text": "MemCoins",
+      "italic": false
+    },
+    "stat.profile": {
+      "text": "Player statistics ",
+      "color": "green",
+      "italic": false
+    },
+    "stat.game_played": {
+      "text": "Games played: ",
+      "color": "green",
+      "italic": false
+    },
+    "stat.winrate": {
+      "text": "Winrate: ",
+      "color": "green",
+      "italic": false
+    },
+    "stat.kd": {
+      "text": "K/D: ",
+      "color": "green",
+      "italic": false
+    },
+    "reward.kill": {
+      "text": "Player Elimination +50 coins",
+      "color": "gold",
+      "italic": false
+    },
+    "reward.stage1": {
+      "text": "The first event was experienced +20 coins",
+      "color": "gold",
+      "italic": false
+    },
+    "reward.stage2": {
+      "text": "The second event was experienced +40 coins",
+      "color": "gold",
+      "italic": false
+    },
+    "reward.win": {
+      "text": "Winning the game +100 coins",
+      "color": "gold",
+      "italic": false
+    },
+    "reward.start_game": {
+      "text": "Game started +10 coins",
+      "color": "gold",
+      "italic": false
+    },
+    "title.stage1.event1": {
+      "text": "All players get the Speed Effect II!",
+      "color": "green"
+    },
+    "title.stage1.event2": {
+      "text": "All players get the Haste effect II!",
+      "color": "green"
+    },
+    "title.stage1.event3": {
+      "text": "New loot has been generated in chests!",
+      "color": "green"
+    },
+    "title.stage1.event4": {
+      "text": "All players get Jump Boost IV!",
+      "color": "green"
+    },
+    "title.stage1.event5": {
+      "text": "All players get the Health Boost V!!",
+      "color": "green"
+    },
+    "title.stage1.event6": {
+      "text": "Top loot has been generated in the chests!",
+      "color": "green"
+    },
+    "title.stage1.event7": {
+      "text": "All players get an Invisibility effect",
+      "color": "green"
+    },
+    "title.stage1.event8": {
+      "text": "All players get a Glowing effect",
+      "color": "green"
+    },
+    "title.stage2.event1": {
+      "text": "Withers was summoned!",
+      "color": "red"
+    },
+    "title.stage2.event2": {
+      "text": "Ender dragons was summoned!",
+      "color": "red"
+    },
+    "title.stage2.event3": {
+      "text": "The Withering Analfication event has begun!",
+      "color": "red"
+    },
+    "title.stage2.event4": {
+      "text": "The Dynamite Rain event has started!",
+      "color": "red"
+    },
+    "title.stage2.event5": {
+      "text": "The Narrowing of the Zone event has begun!",
+      "color": "red"
+    },
+    "title.stage2.event6": {
+      "text": "All players get a Levitation effect",
+      "color": "red"
+    },
+    "title.reset_settings": {
+      "text": "Settings restored to default",
+      "color": "green"
+    },
+    "title.no_players": {
+      "text": "Not enough players to start",
+      "color": "red"
+    },
+    "title.start_in5sec": {
+      "text": "The game will start in 5 seconds",
+      "color": "green"
+    },
+    "title.map_not_ready": {
+      "text": "To start, you need to down the map",
+      "color": "red"
+    },
+    "title.mapload_complete": {
+      "text": "The map was loaded successfully",
+      "color": "green"
+    },
+    "title.gametimer": [
+      {
+        "text": "Game event in [",
+        "color": "gold"
+      },
+      {
+        "score": {
+          "name": "#gametimer",
+          "objective": "swrg.math"
+        },
+        "color": "light_purple"
+      },
+      {
+        "text": "]",
+        "color": "gold"
+      }
+    ],
+    "title.player_win": [
+      {
+        "text": "Player ",
+        "color": "dark_green"
+      },
+      {
+        "selector": "@p[gamemode=!spectator]",
+        "bold": true,
+        "color": "white"
+      },
+      {
+        "text": " wins the game"
+      }
+    ],
+    "title.draw": {
+      "text": "DRAW!",
+      "color": "green"
+    },
+    "page0.s0": {
+      "Name": {
+        "text": "Settings",
+        "color": "red",
+        "italic": false
+      }
+    },
+    "page0.s1": {
+      "Name": {
+        "text": "Start game",
+        "color": "green",
+        "italic": false
+      }
+    },
+    "page0.s2": {
+      "Name": {
+        "text": "Map selection",
+        "color": "aqua",
+        "italic": false
+      }
+    },
+    "page0.s6": {
+      "text": "Store",
+      "color": "gold",
+      "italic": false
+    },
+    "page0.s7": {
+      "Name": {
+        "text": "Сosmetic",
+        "color": "yellow",
+        "italic": false
+      }
+    },
+    "page0.s9": {
+      "Name": {
+        "text": "Select Team (BEDWARS only)",
+        "color": "yellow",
+        "italic": false
+      }
+    },
+    "page0.s12": {
+      "Name": {
+        "text": "Kits",
+        "color": "gold",
+        "italic": false
+      }
+    },
+    "page0.s13": {
+      "Name": {
+        "text": "Cases",
+        "color": "light_purple",
+        "italic": false
+      }
+    },
+    "page0.s14": {
+      "Name": {
+        "text": "Skills",
+        "color": "aqua",
+        "italic": false
+      }
+    },
+    "page0.s17": {
+      "Name": {
+        "text": "Open Build Manager",
+        "color": "aqua",
+        "italic": false
+      }
+    },
+    "page0.s17_old": {
+      "Name": {
+        "text": "Connect to our Govnovival Server! (CLICK)",
+        "color": "aqua",
+        "italic": false
+      }
+    },
+    "page0.s26": {
+      "Name": {
+        "text": "Map information",
+        "color": "aqua",
+        "italic": false
+      },
+      "Lore": [
+        [
+          {
+            "text": "Main developer - ",
+            "color": "green",
+            "italic": false
+          },
+          {
+            "text": "_Swarog",
+            "color": "aqua",
+            "italic": false
+          }
+        ],
+        [
+          {
+            "text": "Developer of lucky blocks - ",
+            "color": "green",
+            "italic": false
+          },
+          {
+            "text": "BaffledHedgehog",
+            "color": "aqua",
+            "italic": false
+          }
+        ],
+        {
+          "text": "Discord Server: https://discord.gg/RVqrP3ZaYV",
+          "color": "aqua",
+          "italic": false,
+          "underlined": true
+        },
+        {
+          "text": "Planet Minecraft: planetminecraft.com/member/swarog",
+          "color": "dark_green",
+          "italic": false,
+          "underlined": true
+        }
+      ]
+    },
+    "page1000.s0-1": {
+      "Name": [
+        {
+          "text": "PvP system - 1.8",
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": " "
+        }
+      ]
+    },
+    "page1000.s0-2": {
+      "Name": [
+        {
+          "text": "PvP system - 1.9",
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": " "
+        }
+      ]
+    },
+    "page1000.s1-1": {
+      "Name": {
+        "text": "Time - day",
+        "italic": false
+      }
+    },
+    "page1000.s1-2": {
+      "Name": {
+        "text": "Time - evening",
+        "italic": false
+      }
+    },
+    "page1000.s1-3": {
+      "Name": {
+        "text": "Time - night",
+        "italic": false
+      }
+    },
+    "page1000.s2-1": {
+      "Name": {
+        "text": "Gamemode - Skywars",
+        "italic": false
+      }
+    },
+    "page1000.s2-2": {
+      "Name": {
+        "text": "Gamemode - Lucky Blocks Skywars",
+        "italic": false
+      },
+      "Lore": [
+        [
+          {
+            "text": "Author: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "BaffledHedgehog",
+            "color": "green",
+            "italic": false
+          }
+        ],
+        {
+          "text": "Resource pack required!",
+          "color": "red",
+          "bold": true,
+          "italic": false
+        }
+      ]
+    },
+    "page1000.s2-3": {
+      "Name": {
+        "text": "Gamemode - Bed Wars",
+        "italic": false
+      },
+      "Lore": [
+        [
+          {
+            "text": "Author: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "BaffledHedgehog",
+            "color": "green",
+            "italic": false
+          }
+        ],
+        {
+          "text": "Resource pack required!",
+          "color": "red",
+          "bold": true,
+          "italic": false
+        }
+      ]
+    },
+    "page1000.s2-4": {
+      "Name": {
+        "text": "Gamemode - Lucky Blocks Bed Wars",
+        "italic": false
+      },
+      "Lore": [
+        [
+          {
+            "text": "Author: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "BaffledHedgehog",
+            "color": "green",
+            "italic": false
+          }
+        ],
+        {
+          "text": "Resource pack required!",
+          "color": "red",
+          "bold": true,
+          "italic": false
+        }
+      ]
+    },
+    "page1000.s3-0": {
+      "Name": {
+        "text": "Kits - OFF",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s3-1": {
+      "Name": {
+        "text": "Kits - ON",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s4-0": {
+      "Name": {
+        "text": "Skills - OFF",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s4-1": {
+      "Name": {
+        "text": "Skills - On",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s5-0": {
+      "Name": {
+        "text": "First event - OFF",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s5-1": {
+      "Name": {
+        "text": "First event - Random",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s5-2": {
+      "Name": {
+        "text": "First event - Speed II",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s5-3": {
+      "Name": {
+        "text": "First event - Haste II",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s5-4": {
+      "Name": {
+        "text": "First event - Filling chests",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s5-5": {
+      "Name": {
+        "text": "First event - Jump Boost IV",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s5-6": {
+      "Name": {
+        "text": "First event - Heath Boost V",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s5-7": {
+      "Name": {
+        "text": "First event - Top loot in chests",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s5-8": {
+      "Name": {
+        "text": "First event - Invisibility",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s5-9": {
+      "Name": {
+        "text": "First event - Glowing",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s6-0": {
+      "Name": {
+        "text": "Second event - OFF",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s6-1": {
+      "Name": {
+        "text": "Second event - Random",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s6-2": {
+      "Name": {
+        "text": "Second event - Withers summoning",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s6-3": {
+      "Name": {
+        "text": "Second event - Ender dragons summoning",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s6-4": {
+      "Name": {
+        "text": "Second event - Withering Death",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s6-5": {
+      "Name": {
+        "text": "Second event - Dynamite Rain",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s6-6": {
+      "Name": {
+        "text": "Second event - Narrowing of the Zone",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s6-7": {
+      "Name": {
+        "text": "Second event - Levitation",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s7-0": {
+      "Name": {
+        "text": "Displaying HP - OFF",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s7-1": {
+      "Name": {
+        "text": "Displaying HP - Under nickname",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s7-2": {
+      "Name": {
+        "text": "Displaying HP - Tab-list",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s7-3": {
+      "Name": {
+        "text": "Displaying HP - Under nickname and tab-list",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s25": {
+      "Name": {
+        "text": "Language",
+        "color": "green",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "This global function applies to the entire map",
+          "color": "red",
+          "bold": true,
+          "italic": false
+        }
+      ]
+    },
+    "page1000.s26": {
+      "Name": {
+        "text": "Restore settings",
+        "color": "green",
+        "italic": false
+      }
+    },
+    "page5000.s0": {
+      "text": "Classic case",
+      "color": "green",
+      "italic": false
+    },
+    "page5000.s1": {
+      "text": "Kits case",
+      "color": "yellow",
+      "italic": false
+    },
+    "page5000.s2": {
+      "text": "Skills case",
+      "color": "aqua",
+      "italic": false
+    },
+    "page5000.s3": {
+      "text": "Cosmetics case",
+      "color": "light_purple",
+      "italic": false
+    },
+    "page6000.s0": {
+      "Name": {
+        "text": "Classic case",
+        "color": "green",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Keys х1",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Price: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "100",
+            "color": "gold",
+            "italic": false
+          }
+        ]
+      ]
+    },
+    "page6000.s1": {
+      "Name": {
+        "text": "Classic case",
+        "color": "green",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Keys х5",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Price: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "400 ",
+            "color": "gold",
+            "italic": false
+          },
+          {
+            "text": "500",
+            "color": "gold",
+            "italic": false,
+            "strikethrough": true
+          }
+        ]
+      ]
+    },
+    "page6000.s2": {
+      "Name": {
+        "text": "Classic case",
+        "color": "green",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Keys х10",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Price: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "700 ",
+            "color": "gold",
+            "italic": false
+          },
+          {
+            "text": "1000",
+            "color": "gold",
+            "italic": false,
+            "strikethrough": true
+          }
+        ]
+      ]
+    },
+    "page6000.s3": {
+      "Name": {
+        "text": "Kits case",
+        "color": "yellow",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Keys х1",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Price: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "150",
+            "color": "gold",
+            "italic": false
+          }
+        ]
+      ]
+    },
+    "page6000.s4": {
+      "Name": {
+        "text": "Kits case",
+        "color": "yellow",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Keys х5",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Price: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "600 ",
+            "color": "gold",
+            "italic": false
+          },
+          {
+            "text": "750",
+            "color": "gold",
+            "italic": false,
+            "strikethrough": true
+          }
+        ]
+      ]
+    },
+    "page6000.s5": {
+      "Name": {
+        "text": "Kits case",
+        "color": "yellow",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Keys х10",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Price: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "1050 ",
+            "color": "gold",
+            "italic": false
+          },
+          {
+            "text": "1500",
+            "color": "gold",
+            "italic": false,
+            "strikethrough": true
+          }
+        ]
+      ]
+    },
+    "page6000.s6": {
+      "Name": {
+        "text": "Skills case",
+        "color": "aqua",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Keys х1",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Price: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "150",
+            "color": "gold",
+            "italic": false
+          }
+        ]
+      ]
+    },
+    "page6000.s7": {
+      "Name": {
+        "text": "Skills case",
+        "color": "aqua",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Keys х5",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Price: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "600 ",
+            "color": "gold",
+            "italic": false
+          },
+          {
+            "text": "750",
+            "color": "gold",
+            "italic": false,
+            "strikethrough": true
+          }
+        ]
+      ]
+    },
+    "page6000.s8": {
+      "Name": {
+        "text": "Skills case",
+        "color": "aqua",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Keys х10",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Price: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "1050 ",
+            "color": "gold",
+            "italic": false
+          },
+          {
+            "text": "1500",
+            "color": "gold",
+            "italic": false,
+            "strikethrough": true
+          }
+        ]
+      ]
+    },
+    "page6000.s9": {
+      "Name": {
+        "text": "Cosmetics case",
+        "color": "light_purple",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Keys х1",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Price: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "200",
+            "color": "gold",
+            "italic": false
+          }
+        ]
+      ]
+    },
+    "page6000.s10": {
+      "Name": {
+        "text": "Cosmetics case",
+        "color": "light_purple",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Keys х5",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Price: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "800 ",
+            "color": "gold",
+            "italic": false
+          },
+          {
+            "text": "1000",
+            "color": "gold",
+            "italic": false,
+            "strikethrough": true
+          }
+        ]
+      ]
+    },
+    "page6000.s11": {
+      "Name": {
+        "text": "Cosmetics case",
+        "color": "light_purple",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Keys х10",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Price: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "1400 ",
+            "color": "gold",
+            "italic": false
+          },
+          {
+            "text": "2000",
+            "color": "gold",
+            "italic": false,
+            "strikethrough": true
+          }
+        ]
+      ]
+    },
+    "page6000.s12": {
+      "Name": {
+        "text": "Pandora's Key",
+        "color": "light_purple",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "You can use it to open Event Box",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Price: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "100 Memcoins",
+            "color": "gold",
+            "italic": false
+          }
+        ]
+      ]
+    },
+    "page6000.s13": {
+      "Name": {
+        "text": "Pandora's Key x5",
+        "color": "light_purple",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "You can use it to open Event Box",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Price: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "400 ",
+            "color": "gold",
+            "italic": false
+          },
+          {
+            "text": "500",
+            "color": "gold",
+            "italic": false,
+            "strikethrough": true
+          },
+          {
+            "text": " Memcoins",
+            "color": "gold",
+            "italic": false,
+            "strikethrough": false
+          }
+        ]
+      ]
+    },
+    "page6000.s14": {
+      "Name": {
+        "text": "Pandora's Key x10",
+        "color": "light_purple",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "You can use it to open Event Box",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Price: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "750 ",
+            "color": "gold",
+            "italic": false
+          },
+          {
+            "text": "1000",
+            "color": "gold",
+            "italic": false,
+            "strikethrough": true
+          },
+          {
+            "text": " Memcoins",
+            "color": "gold",
+            "italic": false,
+            "strikethrough": false
+          }
+        ]
+      ]
+    },
+    "page7000.s12": {
+      "Name": {
+        "text": "Death sounds",
+        "color": "gray",
+        "italic": false
+      }
+    },
+    "page7000.s14": {
+      "Name": {
+        "text": "Starting cell",
+        "color": "gray",
+        "italic": false
+      }
+    },
+    "page7200.s0": {
+      "Name": {
+        "text": "Classic",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "rare.a": {
+      "text": "Common",
+      "color": "aqua",
+      "italic": false
+    },
+    "rare.b": {
+      "text": "Rare",
+      "color": "gold",
+      "italic": false
+    },
+    "rare.c": {
+      "text": "Epic",
+      "color": "light_purple",
+      "italic": false
+    },
+    "rare.d": {
+      "text": "Legendary",
+      "color": "red",
+      "italic": false
+    },
+    "kit.a1": {
+      "text": "Bomber",
+      "color": "aqua",
+      "italic": false
+    },
+    "kit.a2": {
+      "text": "Dog lover",
+      "color": "aqua",
+      "italic": false
+    },
+    "kit.a3": {
+      "text": "Alchemist",
+      "color": "aqua",
+      "italic": false
+    },
+    "kit.a4": {
+      "text": "Batter",
+      "color": "aqua",
+      "italic": false
+    },
+    "kit.a5": {
+      "text": "Glutton",
+      "color": "aqua",
+      "italic": false
+    },
+    "kit.a6": {
+      "text": "Hedgehog",
+      "color": "aqua",
+      "italic": false
+    },
+    "kit.a7": {
+      "text": "Persistent",
+      "color": "aqua",
+      "italic": false
+    },
+    "kit.b1": {
+      "text": "Spider",
+      "color": "gold",
+      "italic": false
+    },
+    "kit.b2": {
+      "text": "Piglin",
+      "color": "gold",
+      "italic": false
+    },
+    "kit.b3": {
+      "text": "Shieldman",
+      "color": "gold",
+      "italic": false
+    },
+    "kit.b4": {
+      "text": "Wizard",
+      "color": "gold",
+      "italic": false
+    },
+    "kit.b5": {
+      "text": "Datura",
+      "color": "gold",
+      "italic": false
+    },
+    "kit.c1": {
+      "text": "Toolmaker",
+      "color": "light_purple",
+      "italic": false
+    },
+    "kit.c2": {
+      "text": "Pyrotechnic",
+      "color": "light_purple",
+      "italic": false
+    },
+    "kit.c3": {
+      "text": "A secretive killer",
+      "color": "light_purple",
+      "italic": false
+    },
+    "kit.c4": {
+      "text": "Phoenix",
+      "color": "light_purple",
+      "italic": false
+    },
+    "kit.c5": {
+      "text": "King of Parties",
+      "color": "light_purple",
+      "italic": false
+    },
+    "kit.d1": {
+      "text": "Anonymous",
+      "color": "red",
+      "italic": false
+    },
+    "kit.d2": {
+      "text": "Golden Fighter",
+      "color": "red",
+      "italic": false
+    },
+    "kit.d3": {
+      "text": "Half-blocks",
+      "color": "red",
+      "italic": false
+    },
+    "lore.kit.a1": {
+      "Lore": [
+        {
+          "text": "- TNT x8",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Flint and steel",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Golden chestplate",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.a2": {
+      "Lore": [
+        {
+          "text": "- Wolf spawn egg x2",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Bone x16",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.a3": {
+      "Lore": [
+        {
+          "text": "- Potion of swiftness",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Potion of regeneration",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Potion of healing",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.a4": {
+      "Lore": [
+        {
+          "text": "- Wooden sword (Knockback I)",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Leather Tunic",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.a5": {
+      "Lore": [
+        {
+          "text": "- Golden apple",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Bread х6",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Golden carrot х2",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.a6": {
+      "Lore": [
+        {
+          "text": "- Chainmail chestplate (Thorns IV)",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.a7": {
+      "Lore": [
+        {
+          "text": "- Golden chestplate (Protection IV Knockback Resistance)",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.b1": {
+      "Lore": [
+        {
+          "text": "- Potion of poison",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Cobweb x7",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- String x64",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.b2": {
+      "Lore": [
+        {
+          "text": "- Gilded blackstone х8",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Gravel х16",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Gold ingot х16",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Potion of fire resistance",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.b3": {
+      "Lore": [
+        {
+          "text": "- Shield",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.b4": {
+      "Lore": [
+        {
+          "text": "- Enchanting table",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Bookshelf х6",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Lapis х20",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- 20 levels of xp",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.b5": {
+      "Lore": [
+        {
+          "text": "- Splash potion of poison",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Splash potion of withering ",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Splash potion of nausea",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Splash potion of blindness",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Milk bucket х2",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.c1": {
+      "Lore": [
+        {
+          "text": "- Golden axe",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Golden pickaxe",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.c2": {
+      "Lore": [
+        {
+          "text": "- Crossbow",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Fireworks Crafting Kit",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.c3": {
+      "Lore": [
+        {
+          "text": "- Potion of invisibility",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.c4": {
+      "Lore": [
+        {
+          "text": "- Stone sword (Fire Aspect II)",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Potion of fire resistance",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Lava bucket",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Flint and Steel",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.c5": {
+      "Lore": [
+        {
+          "text": "- Cake x2",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Slime block х8",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Honey block х8",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Fireworks х8",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Golden sword",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.d1": {
+      "Lore": [
+        {
+          "text": "- Anonymous mask",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.d2": {
+      "Lore": [
+        {
+          "text": "- Golden sword (Fire Aspect I)",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Golden apple",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Golden armor",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Gold ore x10",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.d3": {
+      "Lore": [
+        {
+          "text": "- Oak slab (Sharpness V)",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Cobblestone slab x16",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "skill.a1": {
+      "text": "Spider",
+      "color": "aqua",
+      "italic": false
+    },
+    "skill.a2": {
+      "text": "Heavyweight",
+      "color": "aqua",
+      "italic": false
+    },
+    "skill.a3": {
+      "text": "Runner",
+      "color": "aqua",
+      "italic": false
+    },
+    "skill.a4": {
+      "text": "Omnivorous",
+      "color": "aqua",
+      "italic": false
+    },
+    "skill.b1": {
+      "text": "Berserk",
+      "color": "gold",
+      "italic": false
+    },
+    "skill.b2": {
+      "text": "Shooter",
+      "color": "gold",
+      "italic": false
+    },
+    "skill.b3": {
+      "text": "Furious",
+      "color": "gold",
+      "italic": false
+    },
+    "skill.c1": {
+      "text": "Phoenix",
+      "color": "light_purple",
+      "italic": false
+    },
+    "skill.c2": {
+      "text": "Maniac",
+      "color": "light_purple",
+      "italic": false
+    },
+    "skill.d1": {
+      "text": "Thunderer",
+      "color": "red",
+      "italic": false
+    },
+    "skill.d2": {
+      "text": "Vampire",
+      "color": "red",
+      "italic": false
+    },
+    "lore.skill.a1": {
+      "Lore": [
+        {
+          "text": "- Imposes the effect of poisoning on the offender",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.skill.a2": {
+      "Lore": [
+        {
+          "text": "- Causes damage to enemies when falling",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.skill.a3": {
+      "Lore": [
+        {
+          "text": "- Gets a speed effect when taking damag",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.skill.a4": {
+      "Lore": [
+        {
+          "text": "- Any food eaten gives satiety and relieves hunger",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.skill.b1": {
+      "Lore": [
+        {
+          "text": "- Gains resistance to damage with a small amount o",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.skill.b2": {
+      "Lore": [
+        {
+          "text": "- Gets an arrow when it hits the target",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.skill.b3": {
+      "Lore": [
+        {
+          "text": "-Gets the effect of force with a small amount of hp",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.skill.c1": {
+      "Lore": [
+        {
+          "text": "-Gains strength and resistance to damage when lit",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.skill.c2": {
+      "Lore": [
+        {
+          "text": "- With a 100% chance, it blinds the victim when attacking",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.skill.d1": {
+      "Lore": [
+        {
+          "text": "- Summons lightning when taking damage and when attacking",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.skill.d2": {
+      "Lore": [
+        {
+          "text": "- Attack: Regeneration II (5 sec.) and 25% for Instant Health I",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "reward.kit": [
+      {
+        "text": "Received ",
+        "color": "green"
+      },
+      {
+        "nbt": "Items[{Slot:2b}].components.minecraft:lore[]",
+        "block": "~ ~ ~",
+        "interpret": true
+      },
+      {
+        "text": " kit "
+      },
+      {
+        "nbt": "Items[{Slot:2b}].components.minecraft:custom_name",
+        "block": "~ ~ ~",
+        "interpret": true
+      }
+    ],
+    "reward.skill": [
+      {
+        "text": "Received ",
+        "color": "green"
+      },
+      {
+        "nbt": "Items[{Slot:2b}].components.minecraft:lore[]",
+        "block": "~ ~ ~",
+        "interpret": true
+      },
+      {
+        "text": " skill "
+      },
+      {
+        "nbt": "Items[{Slot:2b}].components.minecraft:custom_name",
+        "block": "~ ~ ~",
+        "interpret": true
+      }
+    ],
+    "reward.coin": [
+      {
+        "text": "Received ",
+        "color": "green"
+      },
+      {
+        "nbt": "Items[{Slot:2b}].components.minecraft:lore[]",
+        "block": "~ ~ ~",
+        "interpret": true
+      },
+      {
+        "text": " item "
+      },
+      {
+        "nbt": "Items[{Slot:2b}].components.minecraft:custom_name",
+        "block": "~ ~ ~",
+        "interpret": true
+      }
+    ],
+    "reward.memcoin": [
+      {
+        "text": "Received ",
+        "color": "green"
+      },
+      {
+        "nbt": "Items[{Slot:2b}].components.minecraft:lore[]",
+        "block": "~ ~ ~",
+        "interpret": true
+      },
+      {
+        "text": " item "
+      },
+      {
+        "nbt": "Items[{Slot:2b}].components.minecraft:custom_name",
+        "block": "~ ~ ~",
+        "interpret": true
+      }
+    ],
+    "reward.bar": [
+      {
+        "text": "Received ",
+        "color": "green"
+      },
+      {
+        "nbt": "Items[{Slot:2b}].components.minecraft:lore[]",
+        "block": "~ ~ ~",
+        "interpret": true
+      },
+      {
+        "text": " item - cell "
+      },
+      {
+        "nbt": "Items[{Slot:2b}].components.minecraft:custom_name",
+        "block": "~ ~ ~",
+        "interpret": true
+      }
+    ],
+    "reward.sound": [
+      {
+        "text": "Received ",
+        "color": "green"
+      },
+      {
+        "nbt": "Items[{Slot:2b}].components.minecraft:lore[]",
+        "block": "~ ~ ~",
+        "interpret": true
+      },
+      {
+        "text": " item - death sound "
+      },
+      {
+        "nbt": "Items[{Slot:2b}].components.minecraft:custom_name",
+        "block": "~ ~ ~",
+        "interpret": true
+      }
+    ],
+    "lefthand_on": {
+      "Name": {
+        "text": "Wands in left hand - Working",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "lefthand_off": {
+      "Name": {
+        "text": "Wands in left hand - Not Working",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "lives_1": {
+      "Name": {
+        "text": "Classic (1 live)",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "lives_2": {
+      "Name": {
+        "text": "2 Lives (1 respawn after death!)",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "lives_3": {
+      "Name": {
+        "text": "3 Lives",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "lives_4": {
+      "Name": {
+        "text": "4 Lives",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "lives_5": {
+      "Name": {
+        "text": "Five Lives!",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "no_borders_on": {
+      "Name": {
+        "text": "No Map Borders - On",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "no_borders_off": {
+      "Name": {
+        "text": "No Map Borders - Off",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_0": {
+      "Name": {
+        "text": "Luck Modifier: Random",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_1": {
+      "Name": {
+        "text": "Luck Modifier: Disabled",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_2": {
+      "Name": {
+        "text": "Luck Modifier: 100% Neko + Loli",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_3": {
+      "Name": {
+        "text": "Luck Modifier: Lot of Traps",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_4": {
+      "Name": {
+        "text": "Luck Modifier: Rasengans-Fireworks",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_5": {
+      "Name": {
+        "text": "Luck Modifier: No typed loot, only tactical&random shit",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_6": {
+      "Name": {
+        "text": "Luck Modifier: Mystical Artifact Overfill",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_7": {
+      "Name": {
+        "text": "Luck Modifier: Baffled Luck",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_8": {
+      "Name": {
+        "text": "Luck Modifier: Sword Art",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_9": {
+      "Name": {
+        "text": "Luck Modifier: Full Random 1-64",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_10": {
+      "Name": {
+        "text": "Luck Modifier: Magic Potions Overfill",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_11": {
+      "Name": {
+        "text": "Luck Modifier: Trees!",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_12": {
+      "Name": {
+        "text": "Luck Modifier: Lucky Block Imba Version",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s13-0": {
+      "Name": {
+        "text": "Lucky Kits - OFF",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s13-1": {
+      "Name": {
+        "text": "Lucky Kits - ON",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s14-0": {
+      "Name": {
+        "text": "Lucky Skills - OFF",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s14-1": {
+      "Name": {
+        "text": "Lucky Skills - On",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s15-0": {
+      "Name": {
+        "text": "Lucky level-ups - OFF",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s15-1": {
+      "Name": {
+        "text": "Lucky level-ups - On",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s16-1": {
+      "Name": {
+        "text": "Lucky level-ups per player - 1",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s16-2": {
+      "Name": {
+        "text": "Lucky level-ups per player - 2",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s16-3": {
+      "Name": {
+        "text": "Lucky level-ups per player - 3",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s16-4": {
+      "Name": {
+        "text": "Lucky level-ups per player - 4",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s16-5": {
+      "Name": {
+        "text": "Lucky level-ups per player - 5",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s16-6": {
+      "Name": {
+        "text": "Lucky level-ups per player - 6",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s16-7": {
+      "Name": {
+        "text": "Lucky level-ups per player - 7",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s16-8": {
+      "Name": {
+        "text": "Lucky level-ups per player - 8",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s16-9": {
+      "Name": {
+        "text": "Lucky level-ups per player - 9",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s16-10": {
+      "Name": {
+        "text": "Lucky level-ups per player - 10",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s16-11": {
+      "Name": {
+        "text": "Lucky level-ups per player - 11",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s16-12": {
+      "Name": {
+        "text": "Lucky level-ups per player - 12 (MAX)",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "title.quickstart": {
+      "text": "Quick start launched!",
+      "color": "green",
+      "italic": false
+    },
+    "page1000.s19-0": {
+      "Name": {
+        "text": "Prefixes: Random SFW only",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s19-1": {
+      "Name": {
+        "text": "Prefixes: Random NSFW only",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s19-2": {
+      "Name": {
+        "text": "Prefixes: Random Mixed",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s19-3": {
+      "Name": {
+        "text": "Prefixes: Disabled",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s19-4": {
+      "Name": {
+        "text": "Prefixes: Cosmetics unlock (WIP)",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s20-0": {
+      "Name": {
+        "text": "Server Auto-Restart (every 10 games): OFF",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s20-1": {
+      "Name": {
+        "text": "Server Auto-Restart (every 10 games): ON",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s22-0": {
+      "Name": {
+        "text": "Lucky-Challenge Power Ups: OFF",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s22-1": {
+      "Name": {
+        "text": "Lucky-Challenge Power Ups: ON",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s24-0": {
+      "Name": {
+        "text": "Default Health: 2",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s24-1": {
+      "Name": {
+        "text": "Default Health: 10",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s24-2": {
+      "Name": {
+        "text": "Default Health: 20",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s24-3": {
+      "Name": {
+        "text": "Default Health: 40",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s24-4": {
+      "Name": {
+        "text": "Default Health: 60",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s23-0": {
+      "Name": {
+        "text": "Imba-drop chance: 0%",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s23-1": {
+      "Name": {
+        "text": "Imba-drop chance: 0.001%",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s23-2": {
+      "Name": {
+        "text": "Imba-drop chance: 0.01%",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s23-3": {
+      "Name": {
+        "text": "Imba-drop chance: 0.1%",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s23-4": {
+      "Name": {
+        "text": "Imba-drop chance: 0.4% (legacy default)",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s23-5": {
+      "Name": {
+        "text": "Imba-drop chance: 1%",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s23-6": {
+      "Name": {
+        "text": "Imba-drop chance: 10%",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s21": {
+      "Name": {
+        "text": "RESTART SERVER IMMEDIATELY (IF LAGGY!)",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-0": {
+      "Name": {
+        "text": "Lucky Trinkets per player - 0",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-1": {
+      "Name": {
+        "text": "Lucky Trinkets per player - 1",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-2": {
+      "Name": {
+        "text": "Lucky Trinkets per player - 2",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-3": {
+      "Name": {
+        "text": "Lucky Trinkets per player - 3",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-4": {
+      "Name": {
+        "text": "Lucky Trinkets per player - 4",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-5": {
+      "Name": {
+        "text": "Lucky Trinkets per player - 5",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-6": {
+      "Name": {
+        "text": "Lucky Trinkets per player - 6",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-7": {
+      "Name": {
+        "text": "Lucky Trinkets per player - 7",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-8": {
+      "Name": {
+        "text": "Lucky Trinkets per player - 8",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-9": {
+      "Name": {
+        "text": "Lucky Trinkets per player - 9",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-10": {
+      "Name": {
+        "text": "Lucky Trinkets per player - 10",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-11": {
+      "Name": {
+        "text": "Lucky Trinkets per player - 11",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-12": {
+      "Name": {
+        "text": "Lucky Trinkets per player - 12 (MAX)",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page0.s20": {
+      "Name": {
+        "text": "Trinkets! Choose ",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page0.s201": {
+      "Name": {
+        "text": ", you can choose it in any way - different or stack same ones",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page0.s21": {
+      "Name": {
+        "text": "Level-Ups! Choose ",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page0.s211": {
+      "Name": {
+        "text": " different!",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page0.s22": {
+      "Name": {
+        "text": "Super-Kit!",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page0.s23": {
+      "Name": {
+        "text": "Super-Skill!",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page0.s24": {
+      "Name": {
+        "text": "-_\\Challenges/_-",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page0.17": {
+      "Name": {
+        "text": "Try also Govnovevania!! (CLICK!)",
+        "color": "aqua",
+        "italic": false
+      }
+    }
+  },
+  "ru": {
+    "lang": "ru",
+    "entity.lobby": {
+      "text": "Меню СкайВарса",
+      "color": "green",
+      "italic": false
+    },
+    "item.compass": {
+      "Name": {
+        "text": "Локатор",
+        "color": "yellow",
+        "italic": false
+      }
+    },
+    "item.kit12_0": {
+      "Name": {
+        "text": "Взрывное зелье иссушения",
+        "italic": false
+      }
+    },
+    "item.kit12_1": {
+      "Name": {
+        "text": "Взрывное зелье тошноты",
+        "italic": false
+      }
+    },
+    "item.kit12_2": {
+      "Name": {
+        "text": "Взрывное зелье слепоты",
+        "italic": false
+      }
+    },
+    "item.kit18": {
+      "text": "Маска анонима",
+      "color": "red",
+      "italic": false
+    },
+    "gui.balance": {
+      "text": "Баланс: ",
+      "color": "white",
+      "italic": false
+    },
+    "gui.reset": {
+      "Name": {
+        "text": "Сброс",
+        "color": "red",
+        "italic": false
+      }
+    },
+    "gui.keys": {
+      "text": "Ключи",
+      "color": "white",
+      "italic": false
+    },
+    "gui.back": {
+      "Name": {
+        "text": "Назад",
+        "color": "red",
+        "italic": false
+      }
+    },
+    "gui.next": {
+      "Name": {
+        "text": "Вперёд",
+        "color": "red",
+        "italic": false
+      }
+    },
+    "gui.select": {
+      "text": "Выбрано",
+      "color": "green",
+      "italic": false
+    },
+    "gui.locked": {
+      "text": "Недоступно",
+      "color": "red",
+      "italic": false
+    },
+    "gui.coins": {
+      "text": "Монеты",
+      "italic": false
+    },
+    "gui.memcoins": {
+      "text": "Мемкоины",
+      "italic": false
+    },
+    "stat.profile": {
+      "text": "Статистика игрока ",
+      "color": "green",
+      "italic": false
+    },
+    "stat.game_played": {
+      "text": "Сыграно игр: ",
+      "color": "green",
+      "italic": false
+    },
+    "stat.winrate": {
+      "text": "Процент побед: ",
+      "color": "green",
+      "italic": false
+    },
+    "stat.kd": {
+      "text": "У/С: ",
+      "color": "green",
+      "italic": false
+    },
+    "reward.kill": {
+      "text": "Ликвидация игрока +50 монет",
+      "color": "gold",
+      "italic": false
+    },
+    "reward.stage1": {
+      "text": "Пережито первое событие +20 монет",
+      "color": "gold",
+      "italic": false
+    },
+    "reward.stage2": {
+      "text": "Пережито второе событие +40 монет",
+      "color": "gold",
+      "italic": false
+    },
+    "reward.win": {
+      "text": "Победа в игре +100 монет",
+      "color": "gold",
+      "italic": false
+    },
+    "reward.start_game": {
+      "text": "Старт игры +10 монет",
+      "color": "gold",
+      "italic": false
+    },
+    "title.stage1.event1": {
+      "text": "Все игроки получают эффект скорости II!",
+      "color": "green"
+    },
+    "title.stage1.event2": {
+      "text": "Все игроки получают эффект спешки II!",
+      "color": "green"
+    },
+    "title.stage1.event3": {
+      "text": "В сундуках сгенерирован новый лут!",
+      "color": "green"
+    },
+    "title.stage1.event4": {
+      "text": "Все игроки получают эффект прыгучести IV!",
+      "color": "green"
+    },
+    "title.stage1.event5": {
+      "text": "Все игроки получают эффект прилив здоровья V!",
+      "color": "green"
+    },
+    "title.stage1.event6": {
+      "text": "В сундуках сгенерирован топовый лут!",
+      "color": "green"
+    },
+    "title.stage1.event7": {
+      "text": "Все игроки получают эффект невидимости",
+      "color": "green"
+    },
+    "title.stage1.event8": {
+      "text": "Все игроки получают эффект свечения",
+      "color": "green"
+    },
+    "title.stage2.event1": {
+      "text": "Призваны визеры!",
+      "color": "red"
+    },
+    "title.stage2.event2": {
+      "text": "Призваны драконы!",
+      "color": "red"
+    },
+    "title.stage2.event3": {
+      "text": "Началось событие Иссушающая смерть!",
+      "color": "red"
+    },
+    "title.stage2.event4": {
+      "text": "Началось событие Динамит с небес!",
+      "color": "red"
+    },
+    "title.stage2.event5": {
+      "text": "Началось событие Сужение зоны!",
+      "color": "red"
+    },
+    "title.stage2.event6": {
+      "text": "Все игроки получают эффект левитации!",
+      "color": "red"
+    },
+    "title.stage2.event7": {
+      "text": "Началось событие Аирдроп!",
+      "color": "red"
+    },
+    "title.reset_settings": {
+      "text": "Настройки восстановлены по умолчанию",
+      "color": "green"
+    },
+    "title.no_players": {
+      "text": "Недостаточно игроков для старта",
+      "color": "red"
+    },
+    "title.start_in5sec": {
+      "text": "Игра начнётся через 5 секунд",
+      "color": "green"
+    },
+    "title.map_not_ready": {
+      "text": "Для старта необходимо загрузить карту",
+      "color": "red"
+    },
+    "title.mapload_complete": {
+      "text": "Карта успешно загружена",
+      "color": "green"
+    },
+    "title.gametimer": [
+      {
+        "text": "Игровое событие через [",
+        "color": "gold"
+      },
+      {
+        "score": {
+          "name": "#gametimer",
+          "objective": "swrg.math"
+        },
+        "color": "light_purple"
+      },
+      {
+        "text": "]",
+        "color": "gold"
+      }
+    ],
+    "title.gametimerb": [
+      {
+        "text": "Игра длится [",
+        "color": "gold"
+      },
+      {
+        "score": {
+          "name": "#gametimer",
+          "objective": "swrg.math"
+        },
+        "color": "light_purple"
+      },
+      {
+        "text": "]",
+        "color": "gold"
+      }
+    ],
+    "title.player_win": [
+      {
+        "text": "Игрок ",
+        "color": "dark_green"
+      },
+      {
+        "selector": "@p[gamemode=!spectator]",
+        "bold": true,
+        "color": "white"
+      },
+      {
+        "text": " побеждает в игре"
+      }
+    ],
+    "title.draw": {
+      "text": "НИЧЬЯ",
+      "color": "green"
+    },
+    "page0.s0": {
+      "Name": {
+        "text": "Настройки | Settings",
+        "color": "red",
+        "italic": false
+      }
+    },
+    "page0.s1": {
+      "Name": {
+        "text": "Начать игру",
+        "color": "green",
+        "italic": false
+      }
+    },
+    "page0.s2": {
+      "Name": {
+        "text": "Выбор карты",
+        "color": "aqua",
+        "italic": false
+      }
+    },
+    "page0.s6": {
+      "text": "Магазин",
+      "color": "gold",
+      "italic": false
+    },
+    "page0.s7": {
+      "Name": {
+        "text": "Косметика",
+        "color": "yellow",
+        "italic": false
+      }
+    },
+    "page0.s9": {
+      "Name": {
+        "text": "Выбор команды (Только BEDWARS)",
+        "color": "yellow",
+        "italic": false
+      }
+    },
+    "page0.s12": {
+      "Name": {
+        "text": "Наборы",
+        "color": "gold",
+        "italic": false
+      }
+    },
+    "page0.s13": {
+      "Name": {
+        "text": "Кейсы",
+        "color": "light_purple",
+        "italic": false
+      }
+    },
+    "page0.s14": {
+      "Name": {
+        "text": "Навыки",
+        "color": "aqua",
+        "italic": false
+      }
+    },
+    "page0.s26": {
+      "Name": {
+        "text": "Информация о карте",
+        "color": "aqua",
+        "italic": false
+      },
+      "Lore": [
+        [
+          {
+            "text": "Основной разработчик - ",
+            "color": "green",
+            "italic": false
+          },
+          {
+            "text": "_Swarog",
+            "color": "aqua",
+            "italic": false
+          }
+        ],
+        [
+          {
+            "text": "Автор Лаки Блоков - ",
+            "color": "green",
+            "italic": false
+          },
+          {
+            "text": "BaffledHedgehog",
+            "color": "aqua",
+            "italic": false
+          }
+        ],
+        {
+          "text": "Discord Server: https://discord.gg/RVqrP3ZaYV",
+          "color": "blue",
+          "italic": false,
+          "underlined": true
+        },
+        {
+          "text": "Planet Minecraft: planetminecraft.com/member/swarog",
+          "color": "dark_green",
+          "italic": false,
+          "underlined": true
+        }
+      ]
+    },
+    "page1000.s0-1": {
+      "Name": [
+        {
+          "text": "Система ПВП 1.8 (Глэк)",
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": " "
+        }
+      ]
+    },
+    "page1000.s0-2": {
+      "Name": [
+        {
+          "text": "Система ПВП 1.9",
+          "color": "white",
+          "italic": false
+        },
+        {
+          "text": " "
+        }
+      ]
+    },
+    "page1000.s1-1": {
+      "Name": {
+        "text": "Время суток - день",
+        "italic": false
+      }
+    },
+    "page1000.s1-2": {
+      "Name": {
+        "text": "Время суток - вечер",
+        "italic": false
+      }
+    },
+    "page1000.s1-3": {
+      "Name": {
+        "text": "Время суток - ночь",
+        "italic": false
+      }
+    },
+    "page1000.s2-1": {
+      "Name": {
+        "text": "Режим - Скайварс",
+        "italic": false
+      }
+    },
+    "page1000.s2-2": {
+      "Name": {
+        "text": "Режим - Скайварс с Лаки Блоками",
+        "italic": false
+      },
+      "Lore": [
+        [
+          {
+            "text": "Автор: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "BaffledHedgehog",
+            "color": "green",
+            "italic": false
+          }
+        ],
+        {
+          "text": "Для игры необходим ресурс-пак!",
+          "color": "red",
+          "bold": true,
+          "italic": false
+        }
+      ]
+    },
+    "page1000.s2-3": {
+      "Name": {
+        "text": "Режим - Бедварс",
+        "italic": false
+      },
+      "Lore": [
+        [
+          {
+            "text": "Автор: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "BaffledHedgehog",
+            "color": "green",
+            "italic": false
+          }
+        ],
+        {
+          "text": "Для игры необходим ресурс-пак!",
+          "color": "red",
+          "bold": true,
+          "italic": false
+        }
+      ]
+    },
+    "page1000.s2-4": {
+      "Name": {
+        "text": "Режим - Бедварс с Лаки Блоками",
+        "italic": false
+      },
+      "Lore": [
+        [
+          {
+            "text": "Автор: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "BaffledHedgehog",
+            "color": "green",
+            "italic": false
+          }
+        ],
+        {
+          "text": "Для игры необходим ресурс-пак!",
+          "color": "red",
+          "bold": true,
+          "italic": false
+        }
+      ]
+    },
+    "page1000.s3-0": {
+      "Name": {
+        "text": "Наборы - ВЫКЛ",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s3-1": {
+      "Name": {
+        "text": "Наборы - ВКЛ",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s4-0": {
+      "Name": {
+        "text": "Навыки - ВЫКЛ",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s4-1": {
+      "Name": {
+        "text": "Навыки - ВКЛ",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s5-0": {
+      "Name": {
+        "text": "1-ое событие - ВЫКЛ",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s5-1": {
+      "Name": {
+        "text": "1-ое событие - Случайно",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s5-2": {
+      "Name": {
+        "text": "1-ое событие - Скорость II",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s5-3": {
+      "Name": {
+        "text": "1-ое событие - Cпешка II",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s5-4": {
+      "Name": {
+        "text": "1-ое событие - Заполнение сундуков",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s5-5": {
+      "Name": {
+        "text": "1-ое событие - Прыгучесть IV",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s5-6": {
+      "Name": {
+        "text": "1-ое событие - Прилив здоровья V",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s5-7": {
+      "Name": {
+        "text": "1-ое событие - Топовый лут в сундуках",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s5-8": {
+      "Name": {
+        "text": "1-ое событие - Невидимость",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s5-9": {
+      "Name": {
+        "text": "1-ое событие - Свечение",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s6-0": {
+      "Name": {
+        "text": "2-ое событие - ВЫКЛ",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s6-1": {
+      "Name": {
+        "text": "2-ое событие - Случайно",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s6-2": {
+      "Name": {
+        "text": "2-ое событие - Призыв визеров",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s6-3": {
+      "Name": {
+        "text": "2-ое событие - Призыв драконов",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s6-4": {
+      "Name": {
+        "text": "2-ое событие - Иссушающая смерть",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s6-5": {
+      "Name": {
+        "text": "2-ое событие - Динамит с небес",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s6-6": {
+      "Name": {
+        "text": "2-ое событие - Сужение зоны",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s6-7": {
+      "Name": {
+        "text": "2-ое событие - Левитация",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s6-8": {
+      "Name": {
+        "text": "2-ое событие - Аирдроп",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s7-0": {
+      "Name": {
+        "text": "Отображение ХП - ВЫКЛ",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s7-1": {
+      "Name": {
+        "text": "Отображение ХП - Под ником",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s7-2": {
+      "Name": {
+        "text": "Отображение ХП - В табе",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s7-3": {
+      "Name": {
+        "text": "Отображение ХП - Под ником и в табе",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s12-0": {
+      "Name": {
+        "text": "Урон от динамита - без защиты",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s12-1": {
+      "Name": {
+        "text": "Урон от динамита - защита 1",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s12-2": {
+      "Name": {
+        "text": "Урон от динамита - защита 2",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s12-3": {
+      "Name": {
+        "text": "Урон от динамита - защита 3",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s12-4": {
+      "Name": {
+        "text": "Урон от динамита - защита 4",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s25": {
+      "Name": {
+        "text": "Язык | Language",
+        "color": "green",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Эта глобальная функция применяется ко всей карте",
+          "color": "red",
+          "bold": true,
+          "italic": false
+        }
+      ]
+    },
+    "page1000.s26": {
+      "Name": {
+        "text": "Восстановить настройки",
+        "color": "green",
+        "italic": false
+      }
+    },
+    "page5000.s0": {
+      "text": "Классический кейс",
+      "color": "green",
+      "italic": false
+    },
+    "page5000.s1": {
+      "text": "Кейс с наборами",
+      "color": "yellow",
+      "italic": false
+    },
+    "page5000.s2": {
+      "text": "Кейс с навыками",
+      "color": "aqua",
+      "italic": false
+    },
+    "page5000.s3": {
+      "text": "Кейс с косметикой",
+      "color": "light_purple",
+      "italic": false
+    },
+    "page6000.s0": {
+      "Name": {
+        "text": "Классический кейс",
+        "color": "green",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Ключи х1",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Цена: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "100",
+            "color": "gold",
+            "italic": false
+          }
+        ]
+      ]
+    },
+    "page6000.s1": {
+      "Name": {
+        "text": "Классический кейс",
+        "color": "green",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Ключи х5",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Цена: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "400 ",
+            "color": "gold",
+            "italic": false
+          },
+          {
+            "text": "500",
+            "color": "gold",
+            "italic": false,
+            "strikethrough": true
+          }
+        ]
+      ]
+    },
+    "page6000.s2": {
+      "Name": {
+        "text": "Классический кейс",
+        "color": "green",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Ключи х10",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Цена: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "700 ",
+            "color": "gold",
+            "italic": false
+          },
+          {
+            "text": "1000",
+            "color": "gold",
+            "italic": false,
+            "strikethrough": true
+          }
+        ]
+      ]
+    },
+    "page6000.s3": {
+      "Name": {
+        "text": "Кейс с наборами",
+        "color": "yellow",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Ключи х1",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Цена: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "150",
+            "color": "gold",
+            "italic": false
+          }
+        ]
+      ]
+    },
+    "page6000.s4": {
+      "Name": {
+        "text": "Кейс с наборами",
+        "color": "yellow",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Ключи х5",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Цена: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "600 ",
+            "color": "gold",
+            "italic": false
+          },
+          {
+            "text": "750",
+            "color": "gold",
+            "italic": false,
+            "strikethrough": true
+          }
+        ]
+      ]
+    },
+    "page6000.s5": {
+      "Name": {
+        "text": "Кейс с наборами",
+        "color": "yellow",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Ключи х10",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Цена: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "1050 ",
+            "color": "gold",
+            "italic": false
+          },
+          {
+            "text": "1500",
+            "color": "gold",
+            "italic": false,
+            "strikethrough": true
+          }
+        ]
+      ]
+    },
+    "page6000.s6": {
+      "Name": {
+        "text": "Кейс с навыками",
+        "color": "aqua",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Ключи х1",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Цена: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "150",
+            "color": "gold",
+            "italic": false
+          }
+        ]
+      ]
+    },
+    "page6000.s7": {
+      "Name": {
+        "text": "Кейс с навыками",
+        "color": "aqua",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Ключи х5",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Цена: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "600 ",
+            "color": "gold",
+            "italic": false
+          },
+          {
+            "text": "750",
+            "color": "gold",
+            "italic": false,
+            "strikethrough": true
+          }
+        ]
+      ]
+    },
+    "page6000.s8": {
+      "Name": {
+        "text": "Кейс с навыками",
+        "color": "aqua",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Ключи х10",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Цена: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "1050 ",
+            "color": "gold",
+            "italic": false
+          },
+          {
+            "text": "1500",
+            "color": "gold",
+            "italic": false,
+            "strikethrough": true
+          }
+        ]
+      ]
+    },
+    "page6000.s9": {
+      "Name": {
+        "text": "Кейс с косметикой",
+        "color": "light_purple",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Ключи х1",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Цена: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "200",
+            "color": "gold",
+            "italic": false
+          }
+        ]
+      ]
+    },
+    "page6000.s10": {
+      "Name": {
+        "text": "Кейс с косметикой",
+        "color": "light_purple",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Ключи х5",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Цена: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "800 ",
+            "color": "gold",
+            "italic": false
+          },
+          {
+            "text": "1000",
+            "color": "gold",
+            "italic": false,
+            "strikethrough": true
+          }
+        ]
+      ]
+    },
+    "page6000.s11": {
+      "Name": {
+        "text": "Кейс с косметикой",
+        "color": "light_purple",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Ключи х10",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Цена: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "1400 ",
+            "color": "gold",
+            "italic": false
+          },
+          {
+            "text": "2000",
+            "color": "gold",
+            "italic": false,
+            "strikethrough": true
+          }
+        ]
+      ]
+    },
+    "page6000.s12": {
+      "Name": {
+        "text": "Ключ Пандоры x1",
+        "color": "light_purple",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Используется, чтобы открыть Ивент-Ящик",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Цена: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "100 Мемкоинов",
+            "color": "gold",
+            "italic": false
+          }
+        ]
+      ]
+    },
+    "page6000.s13": {
+      "Name": {
+        "text": "Ключ Пандоры x5",
+        "color": "light_purple",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Используется, чтобы открыть Ивент-Ящик",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Цена: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "400 ",
+            "color": "gold",
+            "italic": false
+          },
+          {
+            "text": "500",
+            "color": "gold",
+            "italic": false,
+            "strikethrough": true
+          },
+          {
+            "text": " Мемкоинов",
+            "color": "gold",
+            "italic": false,
+            "strikethrough": false
+          }
+        ]
+      ]
+    },
+    "page6000.s14": {
+      "Name": {
+        "text": "Ключ Пандоры x10",
+        "color": "light_purple",
+        "italic": false
+      },
+      "Lore": [
+        {
+          "text": "Используется, чтобы открыть Ивент-Ящик",
+          "color": "white",
+          "italic": false
+        },
+        [
+          {
+            "text": "Цена: ",
+            "color": "white",
+            "italic": false
+          },
+          {
+            "text": "750 ",
+            "color": "gold",
+            "italic": false
+          },
+          {
+            "text": "1000",
+            "color": "gold",
+            "italic": false,
+            "strikethrough": true
+          },
+          {
+            "text": " Мемкоинов",
+            "color": "gold",
+            "italic": false,
+            "strikethrough": false
+          }
+        ]
+      ]
+    },
+    "page7000.s12": {
+      "Name": {
+        "text": "Предсмертные звуки",
+        "color": "gray",
+        "italic": false
+      }
+    },
+    "page7000.s14": {
+      "Name": {
+        "text": "Стартовая клетка",
+        "color": "gray",
+        "italic": false
+      }
+    },
+    "page7200.s0": {
+      "Name": {
+        "text": "Классика",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "rare.a": {
+      "text": "Обычный",
+      "color": "aqua",
+      "italic": false
+    },
+    "rare.b": {
+      "text": "Редкий",
+      "color": "gold",
+      "italic": false
+    },
+    "rare.c": {
+      "text": "Эпический",
+      "color": "light_purple",
+      "italic": false
+    },
+    "rare.d": {
+      "text": "Легендарный",
+      "color": "red",
+      "italic": false
+    },
+    "kit.a1": {
+      "text": "Подрывник",
+      "color": "aqua",
+      "italic": false
+    },
+    "kit.a2": {
+      "text": "Собачник",
+      "color": "aqua",
+      "italic": false
+    },
+    "kit.a3": {
+      "text": "Алхимик",
+      "color": "aqua",
+      "italic": false
+    },
+    "kit.a4": {
+      "text": "Отбивающий",
+      "color": "aqua",
+      "italic": false
+    },
+    "kit.a5": {
+      "text": "Обжора",
+      "color": "aqua",
+      "italic": false
+    },
+    "kit.a6": {
+      "text": "Ёж",
+      "color": "aqua",
+      "italic": false
+    },
+    "kit.a7": {
+      "text": "Стойкий",
+      "color": "aqua",
+      "italic": false
+    },
+    "kit.b1": {
+      "text": "Паук",
+      "color": "gold",
+      "italic": false
+    },
+    "kit.b2": {
+      "text": "Пиглин",
+      "color": "gold",
+      "italic": false
+    },
+    "kit.b3": {
+      "text": "Щитовик",
+      "color": "gold",
+      "italic": false
+    },
+    "kit.b4": {
+      "text": "Чародей",
+      "color": "gold",
+      "italic": false
+    },
+    "kit.b5": {
+      "text": "Дурман",
+      "color": "gold",
+      "italic": false
+    },
+    "kit.c1": {
+      "text": "Инструментальщик",
+      "color": "light_purple",
+      "italic": false
+    },
+    "kit.c2": {
+      "text": "Пиротехник",
+      "color": "light_purple",
+      "italic": false
+    },
+    "kit.c3": {
+      "text": "Скрытный убийца",
+      "color": "light_purple",
+      "italic": false
+    },
+    "kit.c4": {
+      "text": "Феникс",
+      "color": "light_purple",
+      "italic": false
+    },
+    "kit.c5": {
+      "text": "Король вечеринок",
+      "color": "light_purple",
+      "italic": false
+    },
+    "kit.d1": {
+      "text": "Аноним",
+      "color": "red",
+      "italic": false
+    },
+    "kit.d2": {
+      "text": "Златой боец",
+      "color": "red",
+      "italic": false
+    },
+    "kit.d3": {
+      "text": "Полублоки",
+      "color": "red",
+      "italic": false
+    },
+    "lore.kit.a1": {
+      "Lore": [
+        {
+          "text": "- Динамит x8",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Зажигалка",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Золотой нагрудник",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.a2": {
+      "Lore": [
+        {
+          "text": "- Яйцо призыва волка x2",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Кости x16",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.a3": {
+      "Lore": [
+        {
+          "text": "- Зелье скорости",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Зелье регенерации",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Зелье исцеления",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.a4": {
+      "Lore": [
+        {
+          "text": "- Деревянный меч (Отдача I)",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Кожаная куртка",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.a5": {
+      "Lore": [
+        {
+          "text": "- Золотое яблоко",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Хлеб х6",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Золотая морковь х2",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.a6": {
+      "Lore": [
+        {
+          "text": "- Кольчужный нагрудник (Шипы IV)",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.a7": {
+      "Lore": [
+        {
+          "text": "- Золотой нагрудник (Защита IV Сопротивление к отбрасыванию)",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.b1": {
+      "Lore": [
+        {
+          "text": "- Зелье отравления",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Паутина x7",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Нитки x64",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.b2": {
+      "Lore": [
+        {
+          "text": "- Золочёный чернит х8",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Гравий х16",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Золотые слитки х16",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Зелье огнестойкости",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.b3": {
+      "Lore": [
+        {
+          "text": "- Щит",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.b4": {
+      "Lore": [
+        {
+          "text": "- Чародейский стол",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Книжные полки х6",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Лазурит х20",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- 20 уровней опыта",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.b5": {
+      "Lore": [
+        {
+          "text": "- Зелье отравления",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Зелье иссушения ",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Зелье тошноты",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Зелье слепоты",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Ведро молока х2",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.c1": {
+      "Lore": [
+        {
+          "text": "- Золотой топор",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Золотая кирка",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.c2": {
+      "Lore": [
+        {
+          "text": "- Арбалет",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Набор для создания фейерверков",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.c3": {
+      "Lore": [
+        {
+          "text": "- Зелье невидимости",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.c4": {
+      "Lore": [
+        {
+          "text": "- Каменный меч (Заговор огня II)",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Зелье огнестойкости",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Ведро лавы",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Зажигалка",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.c5": {
+      "Lore": [
+        {
+          "text": "- Торт x2",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Блок слизи х8",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Блоки мёда х8",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Фейерверки х8",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Золотой меч",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.d1": {
+      "Lore": [
+        {
+          "text": "- Маска анонима",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.d2": {
+      "Lore": [
+        {
+          "text": "- Золотой меч (Заговор огня I)",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Золотое яблоко",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Набор золотой брони",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Золотая руда x10",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.kit.d3": {
+      "Lore": [
+        {
+          "text": "- Дубовая плита (Острота V)",
+          "color": "gray",
+          "italic": false
+        },
+        {
+          "text": "- Булыжная плита x16",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "skill.a1": {
+      "text": "Паук",
+      "color": "aqua",
+      "italic": false
+    },
+    "skill.a2": {
+      "text": "Тяжеловес",
+      "color": "aqua",
+      "italic": false
+    },
+    "skill.a3": {
+      "text": "Бегун",
+      "color": "aqua",
+      "italic": false
+    },
+    "skill.a4": {
+      "text": "Всеядный",
+      "color": "aqua",
+      "italic": false
+    },
+    "skill.b1": {
+      "text": "Берсерк",
+      "color": "gold",
+      "italic": false
+    },
+    "skill.b2": {
+      "text": "Стрелок",
+      "color": "gold",
+      "italic": false
+    },
+    "skill.b3": {
+      "text": "Яростный",
+      "color": "gold",
+      "italic": false
+    },
+    "skill.c1": {
+      "text": "Феникс",
+      "color": "light_purple",
+      "italic": false
+    },
+    "skill.c2": {
+      "text": "Маньяк",
+      "color": "light_purple",
+      "italic": false
+    },
+    "skill.d1": {
+      "text": "Громовержец",
+      "color": "red",
+      "italic": false
+    },
+    "skill.d2": {
+      "text": "Вампир",
+      "color": "red",
+      "italic": false
+    },
+    "lore.skill.a1": {
+      "Lore": [
+        {
+          "text": "- Накладывает эффект отравления на обидчика",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.skill.a2": {
+      "Lore": [
+        {
+          "text": "- При падении наносит противникам урон",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.skill.a3": {
+      "Lore": [
+        {
+          "text": "- Получает эффект скорости при получении урона",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.skill.a4": {
+      "Lore": [
+        {
+          "text": "- Любая съеденная еда даёт насыщение и снимает голод",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.skill.b1": {
+      "Lore": [
+        {
+          "text": "- Получает сопротивление к урону при малом количестве хп",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.skill.b2": {
+      "Lore": [
+        {
+          "text": "- Получает стрелу при попадании в цель",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.skill.b3": {
+      "Lore": [
+        {
+          "text": "- Получает эффект силы при малом количестве хп",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.skill.c1": {
+      "Lore": [
+        {
+          "text": "- Получает силу и сопротивление к урону, когда горит",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.skill.c2": {
+      "Lore": [
+        {
+          "text": "- Накладывает тьму на жертву при атаке",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.skill.d1": {
+      "Lore": [
+        {
+          "text": "- Призывает молнии при получении урона и при атаке",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "lore.skill.d2": {
+      "Lore": [
+        {
+          "text": "- Шанс 100% Регенерация 2 на 5 с. и 25% Моментальное исцеление 1 при атаке",
+          "color": "gray",
+          "italic": false
+        }
+      ]
+    },
+    "reward.kit": [
+      {
+        "text": "Получен ",
+        "color": "green"
+      },
+      {
+        "nbt": "Items[{Slot:2b}].components.minecraft:lore[]",
+        "block": "~ ~ ~",
+        "interpret": true
+      },
+      {
+        "text": " набор "
+      },
+      {
+        "nbt": "Items[{Slot:2b}].components.minecraft:custom_name",
+        "block": "~ ~ ~",
+        "interpret": true
+      }
+    ],
+    "reward.skill": [
+      {
+        "text": "Получен ",
+        "color": "green"
+      },
+      {
+        "nbt": "Items[{Slot:2b}].components.minecraft:lore[]",
+        "block": "~ ~ ~",
+        "interpret": true
+      },
+      {
+        "text": " навык "
+      },
+      {
+        "nbt": "Items[{Slot:2b}].components.minecraft:custom_name",
+        "block": "~ ~ ~",
+        "interpret": true
+      }
+    ],
+    "reward.coin": [
+      {
+        "text": "Получен ",
+        "color": "green"
+      },
+      {
+        "nbt": "Items[{Slot:2b}].components.minecraft:lore[]",
+        "block": "~ ~ ~",
+        "interpret": true
+      },
+      {
+        "text": " предмет "
+      },
+      {
+        "nbt": "Items[{Slot:2b}].components.minecraft:custom_name",
+        "block": "~ ~ ~",
+        "interpret": true
+      }
+    ],
+    "reward.memcoin": [
+      {
+        "text": "Получен ",
+        "color": "green"
+      },
+      {
+        "nbt": "Items[{Slot:2b}].components.minecraft:lore[]",
+        "block": "~ ~ ~",
+        "interpret": true
+      },
+      {
+        "text": " предмет "
+      },
+      {
+        "nbt": "Items[{Slot:2b}].components.minecraft:custom_name",
+        "block": "~ ~ ~",
+        "interpret": true
+      }
+    ],
+    "reward.bar": [
+      {
+        "text": "Получен ",
+        "color": "green"
+      },
+      {
+        "nbt": "Items[{Slot:2b}].components.minecraft:lore[]",
+        "block": "~ ~ ~",
+        "interpret": true
+      },
+      {
+        "text": " предмет - клетка "
+      },
+      {
+        "nbt": "Items[{Slot:2b}].components.minecraft:custom_name",
+        "block": "~ ~ ~",
+        "interpret": true
+      }
+    ],
+    "reward.sound": [
+      {
+        "text": "Получен ",
+        "color": "green"
+      },
+      {
+        "nbt": "Items[{Slot:2b}].components.minecraft:lore[]",
+        "block": "~ ~ ~",
+        "interpret": true
+      },
+      {
+        "text": " предмет - предсмертный звук "
+      },
+      {
+        "nbt": "Items[{Slot:2b}].components.minecraft:custom_name",
+        "block": "~ ~ ~",
+        "interpret": true
+      }
+    ],
+    "lefthand_on": {
+      "Name": {
+        "text": "Жезлы в левой руке - Работают",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "lefthand_off": {
+      "Name": {
+        "text": "Жезлы в левой руке - Не работают",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "lives_1": {
+      "Name": {
+        "text": "Классический (1 жизнь)",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "lives_2": {
+      "Name": {
+        "text": "2 Жизни (1 возрождение после смерти!)",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "lives_3": {
+      "Name": {
+        "text": "3 Жизни",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "lives_4": {
+      "Name": {
+        "text": "4 Жизни",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "lives_5": {
+      "Name": {
+        "text": "Пять Жизней!",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "no_borders_on": {
+      "Name": {
+        "text": "Нет границ карты - Вкл",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "no_borders_off": {
+      "Name": {
+        "text": "Нет границ карты - Выкл",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_0": {
+      "Name": {
+        "text": "Модификатор Удачи: Случайный",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_1": {
+      "Name": {
+        "text": "Модификатор Удачи: Выключено",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_2": {
+      "Name": {
+        "text": "Модификатор Удачи: 100% Неко+Лоли",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_3": {
+      "Name": {
+        "text": "Модификатор Удачи: Ловушки!",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_4": {
+      "Name": {
+        "text": "Модификатор Удачи: Расенганы-фейерверки",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_5": {
+      "Name": {
+        "text": "Модификатор Удачи: Нет типизированного лута",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_6": {
+      "Name": {
+        "text": "Модификатор Удачи: Оверфилл мистических артефактов",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_7": {
+      "Name": {
+        "text": "Модификатор Удачи: Удача Баффледа",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_8": {
+      "Name": {
+        "text": "Модификатор Удачи: Искусство Меча",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_9": {
+      "Name": {
+        "text": "Модификатор Удачи: Случайный предмет 1-64",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_10": {
+      "Name": {
+        "text": "Модификатор Удачи: Оверфил волшебных зелей",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_11": {
+      "Name": {
+        "text": "Модификатор Удачи: Деревья!",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "cfg_lucky_modifier_12": {
+      "Name": {
+        "text": "Модификатор Удачи: Лаки Блок v.Имба",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s13-0": {
+      "Name": {
+        "text": "Лаки-Наборы - ВЫКЛ",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s13-1": {
+      "Name": {
+        "text": "Лаки-Наборы - ВКЛ",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s14-0": {
+      "Name": {
+        "text": "Лаки-Навыки - ВЫКЛ",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s14-1": {
+      "Name": {
+        "text": "Лаки-Навыки - ВКЛ",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s15-0": {
+      "Name": {
+        "text": "Лаки-Прокачка персонажа - ВЫКЛ",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s15-1": {
+      "Name": {
+        "text": "Лаки-Прокачка персонажа - ВКЛ",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page0.s19": {
+      "Name": {
+        "text": "Открывается за выполнение ДОСТИЖЕНИЙ",
+        "color": "aqua",
+        "italic": false
+      }
+    },
+    "page0.s25": {
+      "Name": {
+        "text": "Открывается за выполнение ДОСТИЖЕНИЙ",
+        "color": "aqua",
+        "italic": false
+      }
+    },
+    "page1000.s16-1": {
+      "Name": {
+        "text": "Макс. кол-во улучшений персонажа - 1",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s16-2": {
+      "Name": {
+        "text": "Макс. кол-во улучшений персонажа - 2",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s16-3": {
+      "Name": {
+        "text": "Макс. кол-во улучшений персонажа - 3",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s16-4": {
+      "Name": {
+        "text": "Макс. кол-во улучшений персонажа - 4",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s16-5": {
+      "Name": {
+        "text": "Макс. кол-во улучшений персонажа - 5",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s16-6": {
+      "Name": {
+        "text": "Макс. кол-во улучшений персонажа - 6",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s16-7": {
+      "Name": {
+        "text": "Макс. кол-во улучшений персонажа - 7",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s16-8": {
+      "Name": {
+        "text": "Макс. кол-во улучшений персонажа - 8",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s16-9": {
+      "Name": {
+        "text": "Макс. кол-во улучшений персонажа - 9",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s16-10": {
+      "Name": {
+        "text": "Макс. кол-во улучшений персонажа - 10",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s16-11": {
+      "Name": {
+        "text": "Макс. кол-во улучшений персонажа - 11",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s16-12": {
+      "Name": {
+        "text": "Макс. кол-во улучшений персонажа - 12 (МАКС)",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "title.quickstart": {
+      "text": "Быстрая игра запущена!",
+      "color": "green",
+      "italic": false
+    },
+    "page1000.s19-0": {
+      "Name": {
+        "text": "Префиксы: Случайные SFW",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s19-1": {
+      "Name": {
+        "text": "Префиксы: Cлучайные NSFW",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s19-2": {
+      "Name": {
+        "text": "Префиксы: Случайные",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s19-3": {
+      "Name": {
+        "text": "Префиксы: Выключены",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s19-4": {
+      "Name": {
+        "text": "Префиксы: Нужно открывать (WIP)",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s20-0": {
+      "Name": {
+        "text": "Авто-Рестарт сервера (каждые 10 каток): ВЫКЛ",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s20-1": {
+      "Name": {
+        "text": "Авто-Рестарт сервера (каждые 10 каток): ВКЛ",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s22-0": {
+      "Name": {
+        "text": "Бонусы Лаки-Испытаний: ВЫКЛ",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s22-1": {
+      "Name": {
+        "text": "Бонусы Лаки-Испытаний: ВКЛ",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s21": {
+      "Name": {
+        "text": "РЕСТАРТ СЕРВЕРА (ЕСЛИ ЛАГИ!)",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-0": {
+      "Name": {
+        "text": "Макс. кол-во тринкетов для выбора - ВЫКЛ",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-1": {
+      "Name": {
+        "text": "Макс. кол-во тринкетов для выбора - 1",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-2": {
+      "Name": {
+        "text": "Макс. кол-во тринкетов для выбора - 2",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-3": {
+      "Name": {
+        "text": "Макс. кол-во тринкетов для выбора - 3",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-4": {
+      "Name": {
+        "text": "Макс. кол-во тринкетов для выбора - 4",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-5": {
+      "Name": {
+        "text": "Макс. кол-во тринкетов для выбора - 5",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-6": {
+      "Name": {
+        "text": "Макс. кол-во тринкетов для выбора - 6",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-7": {
+      "Name": {
+        "text": "Макс. кол-во тринкетов для выбора - 7",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-8": {
+      "Name": {
+        "text": "Макс. кол-во тринкетов для выбора - 8",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-9": {
+      "Name": {
+        "text": "Макс. кол-во тринкетов для выбора - 9",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-10": {
+      "Name": {
+        "text": "Макс. кол-во тринкетов для выбора - 10",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-11": {
+      "Name": {
+        "text": "Макс. кол-во тринкетов для выбора - 11",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s17-12": {
+      "Name": {
+        "text": "Макс. кол-во тринкетов для выбора - 12 (МАКС.)",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page0.s17": {
+      "Name": {
+        "text": "Менеджер Билдов",
+        "color": "aqua",
+        "italic": false
+      }
+    },
+    "page1000.s23-0": {
+      "Name": {
+        "text": "Шанс имба-дропа: 0%",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s23-1": {
+      "Name": {
+        "text": "Шанс имба-дропа: 0.001%",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s23-2": {
+      "Name": {
+        "text": "Шанс имба-дропа: 0.01%",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s23-3": {
+      "Name": {
+        "text": "Шанс имба-дропа: 0.1%",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s23-4": {
+      "Name": {
+        "text": "Шанс имба-дропа: 0.4% (Стандарт)",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s23-5": {
+      "Name": {
+        "text": "Шанс имба-дропа: 1%",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s23-6": {
+      "Name": {
+        "text": "Шанс имба-дропа: 10%",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s24-0": {
+      "Name": {
+        "text": "Здоровье игроков: 2",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s24-1": {
+      "Name": {
+        "text": "Здоровье игроков: 10",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s24-2": {
+      "Name": {
+        "text": "Здоровье игроков: 20",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s24-3": {
+      "Name": {
+        "text": "Здоровье игроков: 40",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page1000.s24-4": {
+      "Name": {
+        "text": "Здоровье игроков: 60",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page0.s20": {
+      "Name": {
+        "text": "Тринкеты! Выберите ",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page0.s201": {
+      "Name": {
+        "text": ", любым способом - можно стакать одинаковые",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page0.s21": {
+      "Name": {
+        "text": "Улучшения! Выберите ",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page0.s211": {
+      "Name": {
+        "text": " разных!",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page0.s22": {
+      "Name": {
+        "text": "Супер-Набор!",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page0.s23": {
+      "Name": {
+        "text": "Супер-Навык!",
+        "color": "white",
+        "italic": false
+      }
+    },
+    "page0.s24": {
+      "Name": {
+        "text": "-_\\Испытания/_-",
+        "color": "white",
+        "italic": false
+      }
+    }
+  }
+}

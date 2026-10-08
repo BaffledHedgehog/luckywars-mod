@@ -1,0 +1,773 @@
+﻿Compiled from "FallbackResourceManager.java"
+public class net.minecraft.server.packs.resources.FallbackResourceManager implements net.minecraft.server.packs.resources.ResourceManager {
+  private static final org.slf4j.Logger LOGGER;
+
+  private final java.util.List<net.minecraft.server.packs.resources.FallbackResourceManager$PackEntry> fallbacks;
+
+  private final net.minecraft.server.packs.PackType type;
+
+  private final java.lang.String namespace;
+
+  public net.minecraft.server.packs.resources.FallbackResourceManager(net.minecraft.server.packs.PackType, java.lang.String);
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: new           #7                  // class java/util/ArrayList
+         8: dup
+         9: invokespecial #9                  // Method java/util/ArrayList."<init>":()V
+        12: putfield      #10                 // Field fallbacks:Ljava/util/List;
+        15: aload_0
+        16: aload_1
+        17: putfield      #16                 // Field type:Lnet/minecraft/server/packs/PackType;
+        20: aload_0
+        21: aload_2
+        22: putfield      #20                 // Field namespace:Ljava/lang/String;
+        25: return
+
+  public void push(net.minecraft.server.packs.PackResources);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokeinterface #24,  1           // InterfaceMethod net/minecraft/server/packs/PackResources.packId:()Ljava/lang/String;
+         7: aload_1
+         8: aconst_null
+         9: invokevirtual #30                 // Method pushInternal:(Ljava/lang/String;Lnet/minecraft/server/packs/PackResources;Lnet/minecraft/server/packs/PackResources$Filter;)V
+        12: return
+
+  public void push(net.minecraft.server.packs.PackResources, net.minecraft.server.packs.PackResources$Filter);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokeinterface #24,  1           // InterfaceMethod net/minecraft/server/packs/PackResources.packId:()Ljava/lang/String;
+         7: aload_1
+         8: aload_2
+         9: invokevirtual #30                 // Method pushInternal:(Ljava/lang/String;Lnet/minecraft/server/packs/PackResources;Lnet/minecraft/server/packs/PackResources$Filter;)V
+        12: return
+
+  public void pushFilterOnly(java.lang.String, net.minecraft.server.packs.PackResources$Filter);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: aconst_null
+         3: aload_2
+         4: invokevirtual #30                 // Method pushInternal:(Ljava/lang/String;Lnet/minecraft/server/packs/PackResources;Lnet/minecraft/server/packs/PackResources$Filter;)V
+         7: return
+
+  private void pushInternal(java.lang.String, net.minecraft.server.packs.PackResources, net.minecraft.server.packs.PackResources$Filter);
+    Code:
+         0: aload_0
+         1: getfield      #10                 // Field fallbacks:Ljava/util/List;
+         4: new           #34                 // class net/minecraft/server/packs/resources/FallbackResourceManager$PackEntry
+         7: dup
+         8: aload_1
+         9: aload_2
+        10: aload_3
+        11: invokespecial #36                 // Method net/minecraft/server/packs/resources/FallbackResourceManager$PackEntry."<init>":(Ljava/lang/String;Lnet/minecraft/server/packs/PackResources;Lnet/minecraft/server/packs/PackResources$Filter;)V
+        14: invokeinterface #38,  2           // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+        19: pop
+        20: return
+
+  public java.util.Set<java.lang.String> getNamespaces();
+    Code:
+         0: aload_0
+         1: getfield      #20                 // Field namespace:Ljava/lang/String;
+         4: invokestatic  #44                 // Method com/google/common/collect/ImmutableSet.of:(Ljava/lang/Object;)Lcom/google/common/collect/ImmutableSet;
+         7: areturn
+
+  public java.util.Optional<net.minecraft.server.packs.resources.Resource> getResource(net.minecraft.resources.Identifier);
+    Code:
+         0: aload_0
+         1: getfield      #10                 // Field fallbacks:Ljava/util/List;
+         4: invokeinterface #50,  1           // InterfaceMethod java/util/List.size:()I
+         9: iconst_1
+        10: isub
+        11: istore_2
+        12: iload_2
+        13: iflt          115
+        16: aload_0
+        17: getfield      #10                 // Field fallbacks:Ljava/util/List;
+        20: iload_2
+        21: invokeinterface #54,  2           // InterfaceMethod java/util/List.get:(I)Ljava/lang/Object;
+        26: checkcast     #34                 // class net/minecraft/server/packs/resources/FallbackResourceManager$PackEntry
+        29: astore_3
+        30: aload_3
+        31: getfield      #58                 // Field net/minecraft/server/packs/resources/FallbackResourceManager$PackEntry.resources:Lnet/minecraft/server/packs/PackResources;
+        34: astore        4
+        36: aload         4
+        38: ifnull        82
+        41: aload         4
+        43: aload_0
+        44: getfield      #16                 // Field type:Lnet/minecraft/server/packs/PackType;
+        47: aload_1
+        48: invokeinterface #62,  3           // InterfaceMethod net/minecraft/server/packs/PackResources.getResource:(Lnet/minecraft/server/packs/PackType;Lnet/minecraft/resources/Identifier;)Lnet/minecraft/server/packs/resources/IoSupplier;
+        53: astore        5
+        55: aload         5
+        57: ifnull        82
+        60: aload_0
+        61: aload_1
+        62: iload_2
+        63: invokevirtual #66                 // Method createStackMetadataFinder:(Lnet/minecraft/resources/Identifier;I)Lnet/minecraft/server/packs/resources/IoSupplier;
+        66: astore        6
+        68: aload         4
+        70: aload_1
+        71: aload         5
+        73: aload         6
+        75: invokestatic  #70                 // Method createResource:(Lnet/minecraft/server/packs/PackResources;Lnet/minecraft/resources/Identifier;Lnet/minecraft/server/packs/resources/IoSupplier;Lnet/minecraft/server/packs/resources/IoSupplier;)Lnet/minecraft/server/packs/resources/Resource;
+        78: invokestatic  #74                 // Method java/util/Optional.of:(Ljava/lang/Object;)Ljava/util/Optional;
+        81: areturn
+        82: aload_3
+        83: aload_1
+        84: invokevirtual #79                 // Method net/minecraft/server/packs/resources/FallbackResourceManager$PackEntry.isFiltered:(Lnet/minecraft/resources/Identifier;)Z
+        87: ifeq          109
+        90: getstatic     #83                 // Field LOGGER:Lorg/slf4j/Logger;
+        93: ldc           #87                 // String Resource {} not found, but was filtered by pack {}
+        95: aload_1
+        96: aload_3
+        97: getfield      #89                 // Field net/minecraft/server/packs/resources/FallbackResourceManager$PackEntry.name:Ljava/lang/String;
+       100: invokeinterface #92,  4           // InterfaceMethod org/slf4j/Logger.warn:(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+       105: invokestatic  #98                 // Method java/util/Optional.empty:()Ljava/util/Optional;
+       108: areturn
+       109: iinc          2, -1
+       112: goto          12
+       115: invokestatic  #98                 // Method java/util/Optional.empty:()Ljava/util/Optional;
+       118: areturn
+
+  private static net.minecraft.server.packs.resources.Resource createResource(net.minecraft.server.packs.PackResources, net.minecraft.resources.Identifier, net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream>, net.minecraft.server.packs.resources.IoSupplier<net.minecraft.server.packs.resources.ResourceMetadata>);
+    Code:
+         0: new           #102                // class net/minecraft/server/packs/resources/Resource
+         3: dup
+         4: aload_0
+         5: aload_1
+         6: aload_0
+         7: aload_2
+         8: invokestatic  #104                // Method wrapForDebug:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/server/packs/PackResources;Lnet/minecraft/server/packs/resources/IoSupplier;)Lnet/minecraft/server/packs/resources/IoSupplier;
+        11: aload_3
+        12: invokespecial #108                // Method net/minecraft/server/packs/resources/Resource."<init>":(Lnet/minecraft/server/packs/PackResources;Lnet/minecraft/server/packs/resources/IoSupplier;Lnet/minecraft/server/packs/resources/IoSupplier;)V
+        15: areturn
+
+  private static net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> wrapForDebug(net.minecraft.resources.Identifier, net.minecraft.server.packs.PackResources, net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream>);
+    Code:
+         0: getstatic     #83                 // Field LOGGER:Lorg/slf4j/Logger;
+         3: invokeinterface #111,  1          // InterfaceMethod org/slf4j/Logger.isDebugEnabled:()Z
+         8: ifeq          20
+        11: aload_2
+        12: aload_0
+        13: aload_1
+        14: invokedynamic #115,  0            // InvokeDynamic #0:get:(Lnet/minecraft/server/packs/resources/IoSupplier;Lnet/minecraft/resources/Identifier;Lnet/minecraft/server/packs/PackResources;)Lnet/minecraft/server/packs/resources/IoSupplier;
+        19: areturn
+        20: aload_2
+        21: areturn
+
+  public java.util.List<net.minecraft.server.packs.resources.Resource> getResourceStack(net.minecraft.resources.Identifier);
+    Code:
+         0: aload_1
+         1: invokestatic  #118                // Method getMetadataLocation:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/resources/Identifier;
+         4: astore_2
+         5: new           #7                  // class java/util/ArrayList
+         8: dup
+         9: invokespecial #9                  // Method java/util/ArrayList."<init>":()V
+        12: astore_3
+        13: iconst_0
+        14: istore        4
+        16: aconst_null
+        17: astore        5
+        19: aload_0
+        20: getfield      #10                 // Field fallbacks:Ljava/util/List;
+        23: invokeinterface #50,  1           // InterfaceMethod java/util/List.size:()I
+        28: iconst_1
+        29: isub
+        30: istore        6
+        32: iload         6
+        34: iflt          165
+        37: aload_0
+        38: getfield      #10                 // Field fallbacks:Ljava/util/List;
+        41: iload         6
+        43: invokeinterface #54,  2           // InterfaceMethod java/util/List.get:(I)Ljava/lang/Object;
+        48: checkcast     #34                 // class net/minecraft/server/packs/resources/FallbackResourceManager$PackEntry
+        51: astore        7
+        53: aload         7
+        55: getfield      #58                 // Field net/minecraft/server/packs/resources/FallbackResourceManager$PackEntry.resources:Lnet/minecraft/server/packs/PackResources;
+        58: astore        8
+        60: aload         8
+        62: ifnull        128
+        65: aload         8
+        67: aload_0
+        68: getfield      #16                 // Field type:Lnet/minecraft/server/packs/PackType;
+        71: aload_1
+        72: invokeinterface #62,  3           // InterfaceMethod net/minecraft/server/packs/PackResources.getResource:(Lnet/minecraft/server/packs/PackType;Lnet/minecraft/resources/Identifier;)Lnet/minecraft/server/packs/resources/IoSupplier;
+        77: astore        9
+        79: aload         9
+        81: ifnull        128
+        84: iload         4
+        86: ifeq          97
+        89: getstatic     #122                // Field net/minecraft/server/packs/resources/ResourceMetadata.EMPTY_SUPPLIER:Lnet/minecraft/server/packs/resources/IoSupplier;
+        92: astore        10
+        94: goto          108
+        97: aload_0
+        98: aload         8
+       100: aload_2
+       101: invokedynamic #128,  0            // InvokeDynamic #1:get:(Lnet/minecraft/server/packs/resources/FallbackResourceManager;Lnet/minecraft/server/packs/PackResources;Lnet/minecraft/resources/Identifier;)Lnet/minecraft/server/packs/resources/IoSupplier;
+       106: astore        10
+       108: aload_3
+       109: new           #102                // class net/minecraft/server/packs/resources/Resource
+       112: dup
+       113: aload         8
+       115: aload         9
+       117: aload         10
+       119: invokespecial #108                // Method net/minecraft/server/packs/resources/Resource."<init>":(Lnet/minecraft/server/packs/PackResources;Lnet/minecraft/server/packs/resources/IoSupplier;Lnet/minecraft/server/packs/resources/IoSupplier;)V
+       122: invokeinterface #38,  2           // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       127: pop
+       128: aload         7
+       130: aload_1
+       131: invokevirtual #79                 // Method net/minecraft/server/packs/resources/FallbackResourceManager$PackEntry.isFiltered:(Lnet/minecraft/resources/Identifier;)Z
+       134: ifeq          147
+       137: aload         7
+       139: getfield      #89                 // Field net/minecraft/server/packs/resources/FallbackResourceManager$PackEntry.name:Ljava/lang/String;
+       142: astore        5
+       144: goto          165
+       147: aload         7
+       149: aload_2
+       150: invokevirtual #79                 // Method net/minecraft/server/packs/resources/FallbackResourceManager$PackEntry.isFiltered:(Lnet/minecraft/resources/Identifier;)Z
+       153: ifeq          159
+       156: iconst_1
+       157: istore        4
+       159: iinc          6, -1
+       162: goto          32
+       165: aload_3
+       166: invokeinterface #131,  1          // InterfaceMethod java/util/List.isEmpty:()Z
+       171: ifeq          192
+       174: aload         5
+       176: ifnull        192
+       179: getstatic     #83                 // Field LOGGER:Lorg/slf4j/Logger;
+       182: ldc           #87                 // String Resource {} not found, but was filtered by pack {}
+       184: aload_1
+       185: aload         5
+       187: invokeinterface #92,  4           // InterfaceMethod org/slf4j/Logger.warn:(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V
+       192: aload_3
+       193: invokestatic  #134                // Method com/google/common/collect/Lists.reverse:(Ljava/util/List;)Ljava/util/List;
+       196: areturn
+
+  private static boolean isMetadata(net.minecraft.resources.Identifier);
+    Code:
+         0: aload_0
+         1: invokevirtual #140                // Method net/minecraft/resources/Identifier.getPath:()Ljava/lang/String;
+         4: ldc           #145                // String .mcmeta
+         6: invokevirtual #147                // Method java/lang/String.endsWith:(Ljava/lang/String;)Z
+         9: ireturn
+
+  private static net.minecraft.resources.Identifier getIdentifierFromMetadata(net.minecraft.resources.Identifier);
+    Code:
+         0: aload_0
+         1: invokevirtual #140                // Method net/minecraft/resources/Identifier.getPath:()Ljava/lang/String;
+         4: iconst_0
+         5: aload_0
+         6: invokevirtual #140                // Method net/minecraft/resources/Identifier.getPath:()Ljava/lang/String;
+         9: invokevirtual #153                // Method java/lang/String.length:()I
+        12: ldc           #145                // String .mcmeta
+        14: invokevirtual #153                // Method java/lang/String.length:()I
+        17: isub
+        18: invokevirtual #156                // Method java/lang/String.substring:(II)Ljava/lang/String;
+        21: astore_1
+        22: aload_0
+        23: aload_1
+        24: invokevirtual #160                // Method net/minecraft/resources/Identifier.withPath:(Ljava/lang/String;)Lnet/minecraft/resources/Identifier;
+        27: areturn
+
+  private static net.minecraft.resources.Identifier getMetadataLocation(net.minecraft.resources.Identifier);
+    Code:
+         0: aload_0
+         1: aload_0
+         2: invokevirtual #140                // Method net/minecraft/resources/Identifier.getPath:()Ljava/lang/String;
+         5: invokedynamic #164,  0            // InvokeDynamic #2:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+        10: invokevirtual #160                // Method net/minecraft/resources/Identifier.withPath:(Ljava/lang/String;)Lnet/minecraft/resources/Identifier;
+        13: areturn
+
+  public java.util.Map<net.minecraft.resources.Identifier, net.minecraft.server.packs.resources.Resource> listResources(java.lang.String, net.minecraft.server.packs.resources.ResourceManager$Selector);
+    Code:
+         0: new           #168                // class java/util/HashMap
+         3: dup
+         4: invokespecial #170                // Method java/util/HashMap."<init>":()V
+         7: astore_3
+         8: new           #168                // class java/util/HashMap
+        11: dup
+        12: invokespecial #170                // Method java/util/HashMap."<init>":()V
+        15: astore        4
+        17: aload_0
+        18: getfield      #10                 // Field fallbacks:Ljava/util/List;
+        21: invokeinterface #50,  1           // InterfaceMethod java/util/List.size:()I
+        26: istore        5
+        28: iconst_0
+        29: istore        6
+        31: iload         6
+        33: iload         5
+        35: if_icmpge     128
+        38: aload_0
+        39: getfield      #10                 // Field fallbacks:Ljava/util/List;
+        42: iload         6
+        44: invokeinterface #54,  2           // InterfaceMethod java/util/List.get:(I)Ljava/lang/Object;
+        49: checkcast     #34                 // class net/minecraft/server/packs/resources/FallbackResourceManager$PackEntry
+        52: astore        7
+        54: aload         7
+        56: aload_3
+        57: invokeinterface #171,  1          // InterfaceMethod java/util/Map.keySet:()Ljava/util/Set;
+        62: invokevirtual #177                // Method net/minecraft/server/packs/resources/FallbackResourceManager$PackEntry.filterAll:(Ljava/util/Collection;)V
+        65: aload         7
+        67: aload         4
+        69: invokeinterface #171,  1          // InterfaceMethod java/util/Map.keySet:()Ljava/util/Set;
+        74: invokevirtual #177                // Method net/minecraft/server/packs/resources/FallbackResourceManager$PackEntry.filterAll:(Ljava/util/Collection;)V
+        77: aload         7
+        79: getfield      #58                 // Field net/minecraft/server/packs/resources/FallbackResourceManager$PackEntry.resources:Lnet/minecraft/server/packs/PackResources;
+        82: astore        8
+        84: aload         8
+        86: ifnull        122
+        89: iload         6
+        91: istore        9
+        93: aload         8
+        95: aload_0
+        96: getfield      #16                 // Field type:Lnet/minecraft/server/packs/PackType;
+        99: aload_0
+       100: getfield      #20                 // Field namespace:Ljava/lang/String;
+       103: aload_1
+       104: aload_2
+       105: aload         4
+       107: aload         8
+       109: iload         9
+       111: aload_3
+       112: invokedynamic #181,  0            // InvokeDynamic #3:accept:(Lnet/minecraft/server/packs/resources/ResourceManager$Selector;Ljava/util/Map;Lnet/minecraft/server/packs/PackResources;ILjava/util/Map;)Lnet/minecraft/server/packs/PackResources$ResourceOutput;
+       117: invokeinterface #185,  5          // InterfaceMethod net/minecraft/server/packs/PackResources.listResources:(Lnet/minecraft/server/packs/PackType;Ljava/lang/String;Ljava/lang/String;Lnet/minecraft/server/packs/PackResources$ResourceOutput;)V
+       122: iinc          6, 1
+       125: goto          31
+       128: new           #189                // class java/util/TreeMap
+       131: dup
+       132: invokespecial #191                // Method java/util/TreeMap."<init>":()V
+       135: astore        6
+       137: aload_3
+       138: aload         4
+       140: aload         6
+       142: invokedynamic #192,  0            // InvokeDynamic #4:accept:(Ljava/util/Map;Ljava/util/Map;)Ljava/util/function/BiConsumer;
+       147: invokeinterface #195,  2          // InterfaceMethod java/util/Map.forEach:(Ljava/util/function/BiConsumer;)V
+       152: aload         6
+       154: areturn
+
+  private net.minecraft.server.packs.resources.IoSupplier<net.minecraft.server.packs.resources.ResourceMetadata> createStackMetadataFinder(net.minecraft.resources.Identifier, int);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: iload_2
+         3: invokedynamic #199,  0            // InvokeDynamic #5:get:(Lnet/minecraft/server/packs/resources/FallbackResourceManager;Lnet/minecraft/resources/Identifier;I)Lnet/minecraft/server/packs/resources/IoSupplier;
+         8: areturn
+
+  private static net.minecraft.server.packs.resources.IoSupplier<net.minecraft.server.packs.resources.ResourceMetadata> convertToMetadata(net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream>);
+    Code:
+         0: aload_0
+         1: invokedynamic #202,  0            // InvokeDynamic #6:get:(Lnet/minecraft/server/packs/resources/IoSupplier;)Lnet/minecraft/server/packs/resources/IoSupplier;
+         6: areturn
+
+  private static net.minecraft.server.packs.resources.ResourceMetadata parseMetadata(net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream>) throws java.io.IOException;
+    Code:
+         0: aload_0
+         1: invokeinterface #205,  1          // InterfaceMethod net/minecraft/server/packs/resources/IoSupplier.get:()Ljava/lang/Object;
+         6: checkcast     #210                // class java/io/InputStream
+         9: astore_1
+        10: aload_1
+        11: invokestatic  #212                // InterfaceMethod net/minecraft/server/packs/resources/ResourceMetadata.fromJsonStream:(Ljava/io/InputStream;)Lnet/minecraft/server/packs/resources/ResourceMetadata;
+        14: astore_2
+        15: aload_1
+        16: ifnull        23
+        19: aload_1
+        20: invokevirtual #216                // Method java/io/InputStream.close:()V
+        23: aload_2
+        24: areturn
+        25: astore_2
+        26: aload_1
+        27: ifnull        43
+        30: aload_1
+        31: invokevirtual #216                // Method java/io/InputStream.close:()V
+        34: goto          43
+        37: astore_3
+        38: aload_2
+        39: aload_3
+        40: invokevirtual #221                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+        43: aload_2
+        44: athrow
+      Exception table:
+         from    to  target type
+            10    15    25   Class java/lang/Throwable
+            30    34    37   Class java/lang/Throwable
+
+  private static void applyPackFiltersToExistingResources(net.minecraft.server.packs.resources.FallbackResourceManager$PackEntry, java.util.Map<net.minecraft.resources.Identifier, net.minecraft.server.packs.resources.FallbackResourceManager$EntryStack>);
+    Code:
+         0: aload_1
+         1: invokeinterface #225,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+         6: invokeinterface #229,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        11: astore_2
+        12: aload_2
+        13: invokeinterface #235,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        18: ifeq          77
+        21: aload_2
+        22: invokeinterface #240,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        27: checkcast     #243                // class net/minecraft/server/packs/resources/FallbackResourceManager$EntryStack
+        30: astore_3
+        31: aload_0
+        32: aload_3
+        33: getfield      #245                // Field net/minecraft/server/packs/resources/FallbackResourceManager$EntryStack.fileLocation:Lnet/minecraft/resources/Identifier;
+        36: invokevirtual #79                 // Method net/minecraft/server/packs/resources/FallbackResourceManager$PackEntry.isFiltered:(Lnet/minecraft/resources/Identifier;)Z
+        39: ifeq          54
+        42: aload_3
+        43: getfield      #249                // Field net/minecraft/server/packs/resources/FallbackResourceManager$EntryStack.fileSources:Ljava/util/List;
+        46: invokeinterface #252,  1          // InterfaceMethod java/util/List.clear:()V
+        51: goto          74
+        54: aload_0
+        55: aload_3
+        56: invokevirtual #255                // Method net/minecraft/server/packs/resources/FallbackResourceManager$EntryStack.metadataLocation:()Lnet/minecraft/resources/Identifier;
+        59: invokevirtual #79                 // Method net/minecraft/server/packs/resources/FallbackResourceManager$PackEntry.isFiltered:(Lnet/minecraft/resources/Identifier;)Z
+        62: ifeq          74
+        65: aload_3
+        66: getfield      #259                // Field net/minecraft/server/packs/resources/FallbackResourceManager$EntryStack.metaSources:Ljava/util/Map;
+        69: invokeinterface #263,  1          // InterfaceMethod java/util/Map.clear:()V
+        74: goto          12
+        77: return
+
+  private void listPackResources(net.minecraft.server.packs.resources.FallbackResourceManager$PackEntry, java.lang.String, net.minecraft.server.packs.resources.ResourceManager$Selector, java.util.Map<net.minecraft.resources.Identifier, net.minecraft.server.packs.resources.FallbackResourceManager$EntryStack>);
+    Code:
+         0: aload_1
+         1: getfield      #58                 // Field net/minecraft/server/packs/resources/FallbackResourceManager$PackEntry.resources:Lnet/minecraft/server/packs/PackResources;
+         4: astore        5
+         6: aload         5
+         8: ifnonnull     12
+        11: return
+        12: aload         5
+        14: aload_0
+        15: getfield      #16                 // Field type:Lnet/minecraft/server/packs/PackType;
+        18: aload_0
+        19: getfield      #20                 // Field namespace:Ljava/lang/String;
+        22: aload_2
+        23: aload_3
+        24: aload         4
+        26: aload         5
+        28: invokedynamic #264,  0            // InvokeDynamic #7:accept:(Lnet/minecraft/server/packs/resources/ResourceManager$Selector;Ljava/util/Map;Lnet/minecraft/server/packs/PackResources;)Lnet/minecraft/server/packs/PackResources$ResourceOutput;
+        33: invokeinterface #185,  5          // InterfaceMethod net/minecraft/server/packs/PackResources.listResources:(Lnet/minecraft/server/packs/PackType;Ljava/lang/String;Ljava/lang/String;Lnet/minecraft/server/packs/PackResources$ResourceOutput;)V
+        38: return
+
+  public java.util.Map<net.minecraft.resources.Identifier, java.util.List<net.minecraft.server.packs.resources.Resource>> listResourceStacks(java.lang.String, net.minecraft.server.packs.resources.ResourceManager$Selector);
+    Code:
+         0: new           #168                // class java/util/HashMap
+         3: dup
+         4: invokespecial #170                // Method java/util/HashMap."<init>":()V
+         7: astore_3
+         8: aload_0
+         9: getfield      #10                 // Field fallbacks:Ljava/util/List;
+        12: invokeinterface #267,  1          // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+        17: astore        4
+        19: aload         4
+        21: invokeinterface #235,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        26: ifeq          59
+        29: aload         4
+        31: invokeinterface #240,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        36: checkcast     #34                 // class net/minecraft/server/packs/resources/FallbackResourceManager$PackEntry
+        39: astore        5
+        41: aload         5
+        43: aload_3
+        44: invokestatic  #268                // Method applyPackFiltersToExistingResources:(Lnet/minecraft/server/packs/resources/FallbackResourceManager$PackEntry;Ljava/util/Map;)V
+        47: aload_0
+        48: aload         5
+        50: aload_1
+        51: aload_2
+        52: aload_3
+        53: invokevirtual #272                // Method listPackResources:(Lnet/minecraft/server/packs/resources/FallbackResourceManager$PackEntry;Ljava/lang/String;Lnet/minecraft/server/packs/resources/ResourceManager$Selector;Ljava/util/Map;)V
+        56: goto          19
+        59: new           #189                // class java/util/TreeMap
+        62: dup
+        63: invokespecial #191                // Method java/util/TreeMap."<init>":()V
+        66: astore        4
+        68: aload_3
+        69: invokeinterface #225,  1          // InterfaceMethod java/util/Map.values:()Ljava/util/Collection;
+        74: invokeinterface #229,  1          // InterfaceMethod java/util/Collection.iterator:()Ljava/util/Iterator;
+        79: astore        5
+        81: aload         5
+        83: invokeinterface #235,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+        88: ifeq          250
+        91: aload         5
+        93: invokeinterface #240,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        98: checkcast     #243                // class net/minecraft/server/packs/resources/FallbackResourceManager$EntryStack
+       101: astore        6
+       103: aload         6
+       105: getfield      #249                // Field net/minecraft/server/packs/resources/FallbackResourceManager$EntryStack.fileSources:Ljava/util/List;
+       108: invokeinterface #131,  1          // InterfaceMethod java/util/List.isEmpty:()Z
+       113: ifeq          119
+       116: goto          81
+       119: new           #7                  // class java/util/ArrayList
+       122: dup
+       123: invokespecial #9                  // Method java/util/ArrayList."<init>":()V
+       126: astore        7
+       128: aload         6
+       130: getfield      #249                // Field net/minecraft/server/packs/resources/FallbackResourceManager$EntryStack.fileSources:Ljava/util/List;
+       133: invokeinterface #267,  1          // InterfaceMethod java/util/List.iterator:()Ljava/util/Iterator;
+       138: astore        8
+       140: aload         8
+       142: invokeinterface #235,  1          // InterfaceMethod java/util/Iterator.hasNext:()Z
+       147: ifeq          232
+       150: aload         8
+       152: invokeinterface #240,  1          // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+       157: checkcast     #276                // class net/minecraft/server/packs/resources/FallbackResourceManager$ResourceWithSource
+       160: astore        9
+       162: aload         9
+       164: getfield      #278                // Field net/minecraft/server/packs/resources/FallbackResourceManager$ResourceWithSource.source:Lnet/minecraft/server/packs/PackResources;
+       167: astore        10
+       169: aload         6
+       171: getfield      #259                // Field net/minecraft/server/packs/resources/FallbackResourceManager$EntryStack.metaSources:Ljava/util/Map;
+       174: aload         10
+       176: invokeinterface #281,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+       181: checkcast     #206                // class net/minecraft/server/packs/resources/IoSupplier
+       184: astore        11
+       186: aload         11
+       188: ifnull        199
+       191: aload         11
+       193: invokestatic  #284                // Method convertToMetadata:(Lnet/minecraft/server/packs/resources/IoSupplier;)Lnet/minecraft/server/packs/resources/IoSupplier;
+       196: goto          202
+       199: getstatic     #122                // Field net/minecraft/server/packs/resources/ResourceMetadata.EMPTY_SUPPLIER:Lnet/minecraft/server/packs/resources/IoSupplier;
+       202: astore        12
+       204: aload         7
+       206: aload         10
+       208: aload         6
+       210: getfield      #245                // Field net/minecraft/server/packs/resources/FallbackResourceManager$EntryStack.fileLocation:Lnet/minecraft/resources/Identifier;
+       213: aload         9
+       215: getfield      #287                // Field net/minecraft/server/packs/resources/FallbackResourceManager$ResourceWithSource.resource:Lnet/minecraft/server/packs/resources/IoSupplier;
+       218: aload         12
+       220: invokestatic  #70                 // Method createResource:(Lnet/minecraft/server/packs/PackResources;Lnet/minecraft/resources/Identifier;Lnet/minecraft/server/packs/resources/IoSupplier;Lnet/minecraft/server/packs/resources/IoSupplier;)Lnet/minecraft/server/packs/resources/Resource;
+       223: invokeinterface #38,  2           // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       228: pop
+       229: goto          140
+       232: aload         4
+       234: aload         6
+       236: getfield      #245                // Field net/minecraft/server/packs/resources/FallbackResourceManager$EntryStack.fileLocation:Lnet/minecraft/resources/Identifier;
+       239: aload         7
+       241: invokeinterface #290,  3          // InterfaceMethod java/util/SortedMap.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+       246: pop
+       247: goto          81
+       250: aload         4
+       252: areturn
+
+  public java.util.stream.Stream<net.minecraft.server.packs.PackResources> listPacks();
+    Code:
+         0: aload_0
+         1: getfield      #10                 // Field fallbacks:Ljava/util/List;
+         4: invokeinterface #296,  1          // InterfaceMethod java/util/List.stream:()Ljava/util/stream/Stream;
+         9: invokedynamic #300,  0            // InvokeDynamic #8:apply:()Ljava/util/function/Function;
+        14: invokeinterface #304,  2          // InterfaceMethod java/util/stream/Stream.map:(Ljava/util/function/Function;)Ljava/util/stream/Stream;
+        19: invokedynamic #310,  0            // InvokeDynamic #9:test:()Ljava/util/function/Predicate;
+        24: invokeinterface #314,  2          // InterfaceMethod java/util/stream/Stream.filter:(Ljava/util/function/Predicate;)Ljava/util/stream/Stream;
+        29: areturn
+
+  private static net.minecraft.server.packs.PackResources lambda$listPacks$0(net.minecraft.server.packs.resources.FallbackResourceManager$PackEntry);
+    Code:
+         0: aload_0
+         1: getfield      #58                 // Field net/minecraft/server/packs/resources/FallbackResourceManager$PackEntry.resources:Lnet/minecraft/server/packs/PackResources;
+         4: areturn
+
+  private static void lambda$listPackResources$0(net.minecraft.server.packs.resources.ResourceManager$Selector, java.util.Map, net.minecraft.server.packs.PackResources, net.minecraft.resources.Identifier, net.minecraft.server.packs.resources.IoSupplier);
+    Code:
+         0: aload_3
+         1: invokestatic  #318                // Method isMetadata:(Lnet/minecraft/resources/Identifier;)Z
+         4: ifeq          56
+         7: aload_3
+         8: invokestatic  #321                // Method getIdentifierFromMetadata:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/resources/Identifier;
+        11: astore        5
+        13: aload_0
+        14: aload         5
+        16: invokeinterface #324,  2          // InterfaceMethod net/minecraft/server/packs/resources/ResourceManager$Selector.isIncluded:(Lnet/minecraft/resources/Identifier;)Z
+        21: ifne          25
+        24: return
+        25: aload_1
+        26: aload         5
+        28: invokedynamic #329,  0            // InvokeDynamic #10:apply:()Ljava/util/function/Function;
+        33: invokeinterface #330,  3          // InterfaceMethod java/util/Map.computeIfAbsent:(Ljava/lang/Object;Ljava/util/function/Function;)Ljava/lang/Object;
+        38: checkcast     #243                // class net/minecraft/server/packs/resources/FallbackResourceManager$EntryStack
+        41: getfield      #259                // Field net/minecraft/server/packs/resources/FallbackResourceManager$EntryStack.metaSources:Ljava/util/Map;
+        44: aload_2
+        45: aload         4
+        47: invokeinterface #334,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        52: pop
+        53: goto          101
+        56: aload_0
+        57: aload_3
+        58: invokeinterface #324,  2          // InterfaceMethod net/minecraft/server/packs/resources/ResourceManager$Selector.isIncluded:(Lnet/minecraft/resources/Identifier;)Z
+        63: ifne          67
+        66: return
+        67: aload_1
+        68: aload_3
+        69: invokedynamic #329,  0            // InvokeDynamic #10:apply:()Ljava/util/function/Function;
+        74: invokeinterface #330,  3          // InterfaceMethod java/util/Map.computeIfAbsent:(Ljava/lang/Object;Ljava/util/function/Function;)Ljava/lang/Object;
+        79: checkcast     #243                // class net/minecraft/server/packs/resources/FallbackResourceManager$EntryStack
+        82: getfield      #249                // Field net/minecraft/server/packs/resources/FallbackResourceManager$EntryStack.fileSources:Ljava/util/List;
+        85: new           #276                // class net/minecraft/server/packs/resources/FallbackResourceManager$ResourceWithSource
+        88: dup
+        89: aload_2
+        90: aload         4
+        92: invokespecial #335                // Method net/minecraft/server/packs/resources/FallbackResourceManager$ResourceWithSource."<init>":(Lnet/minecraft/server/packs/PackResources;Lnet/minecraft/server/packs/resources/IoSupplier;)V
+        95: invokeinterface #38,  2           // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+       100: pop
+       101: return
+
+  private static net.minecraft.server.packs.resources.ResourceMetadata lambda$convertToMetadata$0(net.minecraft.server.packs.resources.IoSupplier) throws java.io.IOException;
+    Code:
+         0: aload_0
+         1: invokestatic  #338                // Method parseMetadata:(Lnet/minecraft/server/packs/resources/IoSupplier;)Lnet/minecraft/server/packs/resources/ResourceMetadata;
+         4: areturn
+
+  private net.minecraft.server.packs.resources.ResourceMetadata lambda$createStackMetadataFinder$0(net.minecraft.resources.Identifier, int) throws java.io.IOException;
+    Code:
+         0: aload_1
+         1: invokestatic  #118                // Method getMetadataLocation:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/resources/Identifier;
+         4: astore_3
+         5: aload_0
+         6: getfield      #10                 // Field fallbacks:Ljava/util/List;
+         9: invokeinterface #50,  1           // InterfaceMethod java/util/List.size:()I
+        14: iconst_1
+        15: isub
+        16: istore        4
+        18: iload         4
+        20: iload_2
+        21: if_icmplt     95
+        24: aload_0
+        25: getfield      #10                 // Field fallbacks:Ljava/util/List;
+        28: iload         4
+        30: invokeinterface #54,  2           // InterfaceMethod java/util/List.get:(I)Ljava/lang/Object;
+        35: checkcast     #34                 // class net/minecraft/server/packs/resources/FallbackResourceManager$PackEntry
+        38: astore        5
+        40: aload         5
+        42: getfield      #58                 // Field net/minecraft/server/packs/resources/FallbackResourceManager$PackEntry.resources:Lnet/minecraft/server/packs/PackResources;
+        45: astore        6
+        47: aload         6
+        49: ifnull        77
+        52: aload         6
+        54: aload_0
+        55: getfield      #16                 // Field type:Lnet/minecraft/server/packs/PackType;
+        58: aload_3
+        59: invokeinterface #62,  3           // InterfaceMethod net/minecraft/server/packs/PackResources.getResource:(Lnet/minecraft/server/packs/PackType;Lnet/minecraft/resources/Identifier;)Lnet/minecraft/server/packs/resources/IoSupplier;
+        64: astore        7
+        66: aload         7
+        68: ifnull        77
+        71: aload         7
+        73: invokestatic  #338                // Method parseMetadata:(Lnet/minecraft/server/packs/resources/IoSupplier;)Lnet/minecraft/server/packs/resources/ResourceMetadata;
+        76: areturn
+        77: aload         5
+        79: aload_3
+        80: invokevirtual #79                 // Method net/minecraft/server/packs/resources/FallbackResourceManager$PackEntry.isFiltered:(Lnet/minecraft/resources/Identifier;)Z
+        83: ifeq          89
+        86: goto          95
+        89: iinc          4, -1
+        92: goto          18
+        95: getstatic     #342                // Field net/minecraft/server/packs/resources/ResourceMetadata.EMPTY:Lnet/minecraft/server/packs/resources/ResourceMetadata;
+        98: areturn
+
+  private static void lambda$listResources$1(java.util.Map, java.util.Map, net.minecraft.resources.Identifier, net.minecraft.server.packs.resources.FallbackResourceManager$1ResourceWithSourceAndIndex);
+    Code:
+         0: aload_2
+         1: invokestatic  #118                // Method getMetadataLocation:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/resources/Identifier;
+         4: astore        5
+         6: aload_0
+         7: aload         5
+         9: invokeinterface #281,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        14: checkcast     #346                // class net/minecraft/server/packs/resources/FallbackResourceManager$1ResourceWithSourceAndIndex
+        17: astore        6
+        19: aload         6
+        21: ifnull        49
+        24: aload         6
+        26: getfield      #348                // Field net/minecraft/server/packs/resources/FallbackResourceManager$1ResourceWithSourceAndIndex.packIndex:I
+        29: aload_3
+        30: getfield      #348                // Field net/minecraft/server/packs/resources/FallbackResourceManager$1ResourceWithSourceAndIndex.packIndex:I
+        33: if_icmplt     49
+        36: aload         6
+        38: getfield      #352                // Field net/minecraft/server/packs/resources/FallbackResourceManager$1ResourceWithSourceAndIndex.resource:Lnet/minecraft/server/packs/resources/IoSupplier;
+        41: invokestatic  #284                // Method convertToMetadata:(Lnet/minecraft/server/packs/resources/IoSupplier;)Lnet/minecraft/server/packs/resources/IoSupplier;
+        44: astore        4
+        46: goto          54
+        49: getstatic     #122                // Field net/minecraft/server/packs/resources/ResourceMetadata.EMPTY_SUPPLIER:Lnet/minecraft/server/packs/resources/IoSupplier;
+        52: astore        4
+        54: aload_1
+        55: aload_2
+        56: aload_3
+        57: getfield      #353                // Field net/minecraft/server/packs/resources/FallbackResourceManager$1ResourceWithSourceAndIndex.packResources:Lnet/minecraft/server/packs/PackResources;
+        60: aload_2
+        61: aload_3
+        62: getfield      #352                // Field net/minecraft/server/packs/resources/FallbackResourceManager$1ResourceWithSourceAndIndex.resource:Lnet/minecraft/server/packs/resources/IoSupplier;
+        65: aload         4
+        67: invokestatic  #70                 // Method createResource:(Lnet/minecraft/server/packs/PackResources;Lnet/minecraft/resources/Identifier;Lnet/minecraft/server/packs/resources/IoSupplier;Lnet/minecraft/server/packs/resources/IoSupplier;)Lnet/minecraft/server/packs/resources/Resource;
+        70: invokeinterface #334,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        75: pop
+        76: return
+
+  private static void lambda$listResources$0(net.minecraft.server.packs.resources.ResourceManager$Selector, java.util.Map, net.minecraft.server.packs.PackResources, int, java.util.Map, net.minecraft.resources.Identifier, net.minecraft.server.packs.resources.IoSupplier);
+    Code:
+         0: aload         5
+         2: invokestatic  #318                // Method isMetadata:(Lnet/minecraft/resources/Identifier;)Z
+         5: ifeq          45
+         8: aload_0
+         9: aload         5
+        11: invokestatic  #321                // Method getIdentifierFromMetadata:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/resources/Identifier;
+        14: invokeinterface #324,  2          // InterfaceMethod net/minecraft/server/packs/resources/ResourceManager$Selector.isIncluded:(Lnet/minecraft/resources/Identifier;)Z
+        19: ifeq          77
+        22: aload_1
+        23: aload         5
+        25: new           #346                // class net/minecraft/server/packs/resources/FallbackResourceManager$1ResourceWithSourceAndIndex
+        28: dup
+        29: aload_2
+        30: aload         6
+        32: iload_3
+        33: invokespecial #356                // Method net/minecraft/server/packs/resources/FallbackResourceManager$1ResourceWithSourceAndIndex."<init>":(Lnet/minecraft/server/packs/PackResources;Lnet/minecraft/server/packs/resources/IoSupplier;I)V
+        36: invokeinterface #334,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        41: pop
+        42: goto          77
+        45: aload_0
+        46: aload         5
+        48: invokeinterface #324,  2          // InterfaceMethod net/minecraft/server/packs/resources/ResourceManager$Selector.isIncluded:(Lnet/minecraft/resources/Identifier;)Z
+        53: ifeq          77
+        56: aload         4
+        58: aload         5
+        60: new           #346                // class net/minecraft/server/packs/resources/FallbackResourceManager$1ResourceWithSourceAndIndex
+        63: dup
+        64: aload_2
+        65: aload         6
+        67: iload_3
+        68: invokespecial #356                // Method net/minecraft/server/packs/resources/FallbackResourceManager$1ResourceWithSourceAndIndex."<init>":(Lnet/minecraft/server/packs/PackResources;Lnet/minecraft/server/packs/resources/IoSupplier;I)V
+        71: invokeinterface #334,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        76: pop
+        77: return
+
+  private net.minecraft.server.packs.resources.ResourceMetadata lambda$getResourceStack$0(net.minecraft.server.packs.PackResources, net.minecraft.resources.Identifier) throws java.io.IOException;
+    Code:
+         0: aload_1
+         1: aload_0
+         2: getfield      #16                 // Field type:Lnet/minecraft/server/packs/PackType;
+         5: aload_2
+         6: invokeinterface #62,  3           // InterfaceMethod net/minecraft/server/packs/PackResources.getResource:(Lnet/minecraft/server/packs/PackType;Lnet/minecraft/resources/Identifier;)Lnet/minecraft/server/packs/resources/IoSupplier;
+        11: astore_3
+        12: aload_3
+        13: ifnull        23
+        16: aload_3
+        17: invokestatic  #338                // Method parseMetadata:(Lnet/minecraft/server/packs/resources/IoSupplier;)Lnet/minecraft/server/packs/resources/ResourceMetadata;
+        20: goto          26
+        23: getstatic     #342                // Field net/minecraft/server/packs/resources/ResourceMetadata.EMPTY:Lnet/minecraft/server/packs/resources/ResourceMetadata;
+        26: areturn
+
+  private static java.io.InputStream lambda$wrapForDebug$0(net.minecraft.server.packs.resources.IoSupplier, net.minecraft.resources.Identifier, net.minecraft.server.packs.PackResources) throws java.io.IOException;
+    Code:
+         0: new           #359                // class net/minecraft/server/packs/resources/FallbackResourceManager$LeakedResourceWarningInputStream
+         3: dup
+         4: aload_0
+         5: invokeinterface #205,  1          // InterfaceMethod net/minecraft/server/packs/resources/IoSupplier.get:()Ljava/lang/Object;
+        10: checkcast     #210                // class java/io/InputStream
+        13: aload_1
+        14: aload_2
+        15: invokeinterface #24,  1           // InterfaceMethod net/minecraft/server/packs/PackResources.packId:()Ljava/lang/String;
+        20: invokespecial #361                // Method net/minecraft/server/packs/resources/FallbackResourceManager$LeakedResourceWarningInputStream."<init>":(Ljava/io/InputStream;Lnet/minecraft/resources/Identifier;Ljava/lang/String;)V
+        23: areturn
+
+  static {};
+    Code:
+         0: invokestatic  #364                // Method com/mojang/logging/LogUtils.getLogger:()Lorg/slf4j/Logger;
+         3: putstatic     #83                 // Field LOGGER:Lorg/slf4j/Logger;
+         6: return
+}

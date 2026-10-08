@@ -1,0 +1,1507 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/absurd_child.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/absurd_child_tick.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/absurd_child_tick_1.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/absurd_child_tick_2.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/absurd_child_tick_random_msg.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/aimbob_apple.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/areas.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/arrowgive.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Наведение, снаряды и попадания",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/arrowgive_pre.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Наведение, снаряды и попадания",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/bad_apple.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/big_fireball_byid.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/blazehead.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/blazehead1.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/blazestorm.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/blownedbow.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Наведение, снаряды и попадания",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/blownedbow_old.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Наведение, снаряды и попадания",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/compressedtnt.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Взрывы, огонь и воздействие на блоки",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft_flying_boots.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Крафт, сборка и преобразование предметов",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft_flying_boots_inv.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Крафт, сборка и преобразование предметов",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft_ground.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Крафт, сборка и преобразование предметов",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft_uniwand_with_grimoire.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Крафт, сборка и преобразование предметов",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft_uniwand_with_grimoire_get_tags.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Крафт, сборка и преобразование предметов",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft_uniwand_with_grimoire_tier_check.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Крафт, сборка и преобразование предметов",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/craft_uniwand_with_grimoire_value_check.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Крафт, сборка и преобразование предметов",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/datafixer.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Служебный исправитель контейнеров",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/datafixer.py",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Служебный исправитель контейнеров",
+    "status": "non_runtime",
+    "note": "Пустой или вспомогательный источник, runtime-команд нет."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/death.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/death_compass_attack.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/death_compass_check.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/delta_tnt.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Взрывы, огонь и воздействие на блоки",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/deviltotem.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/deviltotem0.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/dildomet.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/dildomet_inv.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drown.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drown2.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/drownpre.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "non_runtime",
+    "note": "Пустой или вспомогательный источник, runtime-команд нет."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/dynamite.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/effect_allseeingeye.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/effect_allseeingeye_shaped_player.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/effect_gigaponos.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/effect_living_legend.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/effect_nomagic.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/effect_shifting.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/effect_skill_issue.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/effect_skill_issue_2-0.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/effect_skill_issue_2.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/effect_skill_issue_gangbang.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/effect_void_resistance.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/extraheal.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/fakepig.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/fakepig1.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/falling_power.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/falling_power_data.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/fire.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Взрывы, огонь и воздействие на блоки",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/fire2.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Взрывы, огонь и воздействие на блоки",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/fire_drop_kfc.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/fire_pre.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Взрывы, огонь и воздействие на блоки",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/firedbow.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Взрывы, огонь и воздействие на блоки",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/firedbow_old.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Взрывы, огонь и воздействие на блоки",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/food_counter.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/give.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/give_shulker.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/gownoleggings.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/groundbam.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Взрывы, огонь и воздействие на блоки",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/groundbam_fire.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Взрывы, огонь и воздействие на блоки",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/groundbam_no.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Взрывы, огонь и воздействие на блоки",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/groundbreak.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/groundbreak_light.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/hedgehog.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/hedgehog_boom.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/hedgehogarrow.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Наведение, снаряды и попадания",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/hedgehogarrow_upg.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Наведение, снаряды и попадания",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/hedgehoghealer.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/hedgehoglaser.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/hedgehogsniper.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/hohlopitek.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/ice.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/idgive.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/idgivenoreset.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/infinite_totem.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/infinitestewused.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/infinitestewused_old.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/infinitestewused_old_sch.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/kill_rand_hihihiha.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/killanvil.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/killcart.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/konserva.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/lightning.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/liquidvoiddamage.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/liquidvoiddamage_recur.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/luckyblockspawn.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/malevich_fill.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/manaregen.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/manaregen_belt_stacked.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/manaregen_hit.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/manaregen_inwater.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "non_runtime",
+    "note": "Пустой или вспомогательный источник, runtime-команд нет."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/manaregen_mage_armor.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/manaregen_mana_belts.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/manaregen_mana_boost.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/manaregen_true.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/manaregen_true_pre.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/maxmana.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/metal_pipe.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/metal_pipe_2.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/metal_pipe_in_air.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/mirror.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/mom.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana_1.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana_2.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana_3.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana_4.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana_5.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana_5_helmet.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/negative_mana_resist.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/nitroboots.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "non_runtime",
+    "note": "Пустой или вспомогательный источник, runtime-команд нет."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/pidor.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/pidor_clone_rand.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/pidor_yep.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/pidor_yep_2.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/pidor_yep_3.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/ponos.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/powerhelmet.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/purify.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/random_mob_spawn.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/rasengan.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Наведение, снаряды и попадания",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/raycast_spike.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Наведение, снаряды и попадания",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/raycast_spike_loop.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Наведение, снаряды и попадания",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/raycastarrow.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Наведение, снаряды и попадания",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/raycastfireball.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Наведение, снаряды и попадания",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/raycastfireball_2.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Наведение, снаряды и попадания",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/raycastfireball_2_big.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Наведение, снаряды и попадания",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/raycastfireballbig.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Наведение, снаряды и попадания",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/raycastfireballchick.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Наведение, снаряды и попадания",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/raycastfireballchick_2.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Наведение, снаряды и попадания",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/reactive_boots.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/reactive_boots2.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/reactive_shish_place.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/reactiveboots.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/reactiveboots_mega.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/realdrownpre.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sand_blow.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sand_blow_fill_big.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/sand_blow_fill_small.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shishfill.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shishgun.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shishgun_inv.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shitkatana.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shitkatana_inv.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/shock.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/silverfish_tick.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/small_fireball_byid.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/snus.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/socializm.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/socializm_inv.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/spawn_birch.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/spawnfireball.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/spawnfireballchick.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/speed_up.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/stalin_shoot.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/stalin_shoot_pre.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/stalin_shoot_pre2.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/stopnuke.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/stopper.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/stopper_destroy.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/stopper_magic.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/stopper_magic_destroy.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/stopper_marker_destroy.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/stopper_player_remove_smth.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/stopperactivate.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/stopperactivate_magic.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/stopperbreaked.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/stopperbreaked_magic.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/stopperbreaked_magicasitem.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/stopperbreakedasitem.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/stoppernuke.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Сущности, события и прочие механики",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/supernova.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/supernova_inv.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/target_curse.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/target_curse_rc.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/teleport_chebosraki.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/teleport_chebosraki_2.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/transform.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Крафт, сборка и преобразование предметов",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/transformation.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Крафт, сборка и преобразование предметов",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/transformation_old.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Крафт, сборка и преобразование предметов",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/transformator.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Крафт, сборка и преобразование предметов",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/transformator_explode.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Крафт, сборка и преобразование предметов",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/transformator_particle.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Крафт, сборка и преобразование предметов",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/transformator_shoot.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Крафт, сборка и преобразование предметов",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/transformpre.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Крафт, сборка и преобразование предметов",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/twitching.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/twitching_bottle_fill.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/twitching_bow.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/twitching_bow_arrow_motion.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/twitching_crossbow.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/twitching_ender_pearl.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/twitching_ender_pearl_left.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/twitching_pearl_sel.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/twitching_random.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/twitching_random_potion.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/twitching_random_potion_motion.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/twitching_random_potion_rc_lingering.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/twitching_random_potion_rc_lingering_left.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/twitching_random_potion_rc_splash.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/twitching_random_potion_rc_splash_left.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/twitching_random_snowball_motion.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/twitching_random_snowball_motion_big.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/twitching_snowball.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/twitching_snowball_left.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/twitching_snowball_sel.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/twitching_sound.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Мана, экипировка и состояния игрока",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/unstablearea.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/unstablearea_rc.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/other/waterpower.mcfunction",
+    "document": "agent_notes/lbc_other_main.md",
+    "section": "Расходники, защита и эффекты",
+    "status": "documented",
+    "note": "Проверены команды, контекст/caller и фактический результат."
+  }
+]

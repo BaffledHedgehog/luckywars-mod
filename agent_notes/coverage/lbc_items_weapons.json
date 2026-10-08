@@ -1,0 +1,1794 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/bows/charge_add.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Общие луки",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/bows/charge_query.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Общие луки",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/bows/charge_query_crossbow.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Общие луки",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/bows/kaname_bow/chest_loot_spawn.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Madoka Bow",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/bows/kaname_bow/fall.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Madoka Bow",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/bows/kaname_bow/hit.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Madoka Bow",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/bows/kaname_bow/hit_adv.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Madoka Bow",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/bows/kaname_bow/hit_find.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Madoka Bow",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/bows/kaname_bow/hit_find_offhand.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Madoka Bow",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/bows/kaname_bow/hit_find_stor.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Madoka Bow",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/bows/kaname_bow/shoot.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Madoka Bow",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/bows/kaname_bow/spec_in_norm.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Madoka Bow",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/bows/kaname_bow/tick.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Madoka Bow",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/crossbow/imba_fast_crossbow.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Улучшенные арбалеты",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/crossbow/imba_fast_crossbow_shoot.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Улучшенные арбалеты",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/crossbow/imba_gatlingator_crossbow.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Улучшенные арбалеты",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/crossbow/imba_gatlingator_crossbow_shoot.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Улучшенные арбалеты",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/crossbow/imba_shotgun_crossbow.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Улучшенные арбалеты",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/crossbow/imba_shotgun_crossbow_at.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Улучшенные арбалеты",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/crossbow/imba_sniper_crossbow.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Улучшенные арбалеты",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/crossbow/imba_super_shotgun_crossbow.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Улучшенные арбалеты",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/shields/energy_shield.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Щиты",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/shields/energy_shield_2.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Щиты",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/shields/energy_shield_proj.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Щиты",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/shields/energy_shield_rayc.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Щиты",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/shields/holyshield.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Щиты",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/shields/shield_block.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Щиты",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/shields/shield_block_2.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Щиты",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/change_mode.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "SLR (магический стрелок)",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/click.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "SLR (магический стрелок)",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/dmg_with_id_electro.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "SLR (магический стрелок)",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/dmg_with_id_explode.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "SLR (магический стрелок)",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/dmg_with_id_poison.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "SLR (магический стрелок)",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/dmg_with_id_standart.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "SLR (магический стрелок)",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/dmg_with_id_standart_head.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "SLR (магический стрелок)",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/electro.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "SLR (магический стрелок)",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/explode.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "SLR (магический стрелок)",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/explode_mob.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "SLR (магический стрелок)",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/kb.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "SLR (магический стрелок)",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/poison.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "SLR (магический стрелок)",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/raycast_electro.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "SLR (магический стрелок)",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/raycast_explode.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "SLR (магический стрелок)",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/raycast_poison.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "SLR (магический стрелок)",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/raycast_standart.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "SLR (магический стрелок)",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/shooter/slr/shoot.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "SLR (магический стрелок)",
+    "status": "documented",
+    "note": "Описан в первом пакете механик; остальные функции задания исследуются отдельно."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/banhammer/ability.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Мечи: Banhammer и Blazefire",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/banhammer/ability_at.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Мечи: Banhammer и Blazefire",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/banhammer/hurt.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Мечи: Banhammer и Blazefire",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/banhammer/rc.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Мечи: Banhammer и Blazefire",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/banhammer/rc_end.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Мечи: Banhammer и Blazefire",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/banhammer/tick_fall.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Мечи: Banhammer и Blazefire",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/banhammer/tick_fall_end.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Мечи: Banhammer и Blazefire",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/banhammer/tick_fall_end_advancement.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Мечи: Banhammer и Blazefire",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/blazefire_sword/click.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Мечи: Banhammer и Blazefire",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/blazefire_sword/tick_5t.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Мечи: Banhammer и Blazefire",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/blazefire_sword/tick_5t_rc.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Мечи: Banhammer и Blazefire",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/blazefire_sword/tick_5t_rc_damaged.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Мечи: Banhammer и Blazefire",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/chaos_sword_imba/homing_sword.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Chaos Sword, Triple Golden Sword и Kara",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/chaos_sword_imba/homing_sword_2.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Chaos Sword, Triple Golden Sword и Kara",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/chaos_sword_imba/homing_sword_break.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Chaos Sword, Triple Golden Sword и Kara",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/chaos_sword_imba/homing_sword_break_pre.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Chaos Sword, Triple Golden Sword и Kara",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/chaos_sword_imba/homing_sword_break_raycheck.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Chaos Sword, Triple Golden Sword и Kara",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/chaos_sword_imba/homing_sword_dmg.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Chaos Sword, Triple Golden Sword и Kara",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/chaos_sword_imba/homing_sword_dmg_mob.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Chaos Sword, Triple Golden Sword и Kara",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/chaos_sword_imba.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Chaos Sword, Triple Golden Sword и Kara",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/chaos_sword_imba_pre.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Chaos Sword, Triple Golden Sword и Kara",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/click_charged.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Fevgalea Star",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/click_charged_shift.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Fevgalea Star",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/click_select.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Fevgalea Star",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/click_uncharged.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Fevgalea Star",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/click_uncharged_shift.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Fevgalea Star",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/click_uncharged_shift_damage.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Fevgalea Star",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/click_uncharged_shift_rc.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Fevgalea Star",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/damage_100hp.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Fevgalea Star",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/hit.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Fevgalea Star",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/hit_shoot.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Fevgalea Star",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/rain_projectile_spawn.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Fevgalea Star",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/star_charge_1.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Fevgalea Star",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/star_charge_2.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Fevgalea Star",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/star_charge_3.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Fevgalea Star",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/star_charge_select.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Fevgalea Star",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/star_rain_tick.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Fevgalea Star",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/star_rain_waterdrops_spawn.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Fevgalea Star",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/fevgalea_star/star_raindrop_tick.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Fevgalea Star",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/get_penised.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Fish-разрушители (ручные функции)",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/get_penised_2.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Fish-разрушители (ручные функции)",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/get_penised_3.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Fish-разрушители (ручные функции)",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/get_penised_4.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Fish-разрушители (ручные функции)",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/get_penised_5.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Fish-разрушители (ручные функции)",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/imba_kara_slab/hit.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Chaos Sword, Triple Golden Sword и Kara",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/imba_kara_slab/tick_kara.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Chaos Sword, Triple Golden Sword и Kara",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/imba_kara_slab/tick_kara_central.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Chaos Sword, Triple Golden Sword и Kara",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/piston_sword/click.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Piston Sword, Ruchka и WTF",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/piston_sword/ray.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Piston Sword, Ruchka и WTF",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/piston_sword/ray_2.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Piston Sword, Ruchka и WTF",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/piston_sword/ray_2_r.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Piston Sword, Ruchka и WTF",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/piston_sword/ray_2_r_blocked.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Piston Sword, Ruchka и WTF",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/piston_sword/ray_pre.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Piston Sword, Ruchka и WTF",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/ruchka.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Piston Sword, Ruchka и WTF",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/triple_golden_sword/click.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Chaos Sword, Triple Golden Sword и Kara",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/triple_golden_sword/damage.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Chaos Sword, Triple Golden Sword и Kara",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/triple_golden_sword/tick.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Chaos Sword, Triple Golden Sword и Kara",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/triple_golden_sword/tick_2.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Chaos Sword, Triple Golden Sword и Kara",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/triple_golden_sword/tick_2_mob.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Chaos Sword, Triple Golden Sword и Kara",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/triple_golden_sword/tick_2_player.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Chaos Sword, Triple Golden Sword и Kara",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/triple_golden_sword/tick_loop.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Chaos Sword, Triple Golden Sword и Kara",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/triple_golden_sword/tick_loop_mob.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Chaos Sword, Triple Golden Sword и Kara",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/triple_golden_sword/triple_sword_spawn.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Chaos Sword, Triple Golden Sword и Kara",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/wtf_item/hit.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Piston Sword, Ruchka и WTF",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/wtf_item/random_sound.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Piston Sword, Ruchka и WTF",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/wtf_item/random_sound_low.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Piston Sword, Ruchka и WTF",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/wtf_item/spawn.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Piston Sword, Ruchka и WTF",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/swords/wtf_item/tick.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Piston Sword, Ruchka и WTF",
+    "status": "documented",
+    "note": "Описан в групповом разделе по общей механике и таблицам различий."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/bomb_tick.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/bomb_tick_2.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/bomb_tick_2_fast.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/bomb_tick_fast.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/bomb_tick_fast_scale.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/click.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/click_2.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/click_bomb.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/damage.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/detect_rec.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/projectile_tick.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_1.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_10.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_10_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_10l.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_10l_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_1_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_1l.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_1l_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_2.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_2_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_2l.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_2l_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_3.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_3_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_3l.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_3l_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_4.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_4_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_4l.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_4l_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_5.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_5_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_5l.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_5l_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_6.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_6_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_6l.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_6l_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_7.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_7_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_7l.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_7l_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_8.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_8_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_8l.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_8l_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_9.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_9_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_9l.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_9l_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/shoot_homing.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/tick.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/tick_left.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/tick_left_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/tick_right.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/danmaku_staff/tick_right_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Danmaku Staff и его volleys",
+    "status": "documented",
+    "note": "Снарядные ряды описаны таблицей фактических отличий; helper-функции описаны по циклу."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/cast.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/cast_2.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/cast_2_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/cast_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_kill.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_acid.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_acid_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_acid_upgraded_change_model.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_air.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_air_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_air_upgraded_change_model.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_blind.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_blind_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_blind_upgraded_change_model.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_electro.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_electro_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_electro_upgraded_change_model.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_fire.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_fire_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_fire_upgraded_change_model.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_ruby.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_ruby_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_ruby_upgraded_change_model.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_stone.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_stone_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_stone_upgraded_change_model.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_teleport.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_teleport_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_teleport_upgraded_change_model.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_terra.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_terra_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_terra_upgraded_change_model.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/flying_wand_tick_upgraded.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen Wand: random wand and upgraded modes",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/acid_ball_spawn.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/acid_ball_spawn1.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/damaged.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/damaged_acid.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/fail.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/fail1.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/loop_particle.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/loop_particle_1.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/loop_particle_12.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/loop_particle_white.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/meditator_tick.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_acid.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_acid_tick.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_acid_tick_baller.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_acid_tick_baller1.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_acid_tick_baller_ball.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_acid_tick_baller_ball_block_corrupt.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_acid_tick_baller_ball_block_corrupt1.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_air.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_air1.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_air_explode.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_air_tick.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_electro_tick.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_electro_tick_at.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_electro_tick_at_dmg.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_electro_tick_at_dmgpre.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_electro_tick_at_loop.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_electro_tick_at_loop_dmg.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_electro_tick_at_loop_dmg_pre.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_electro_tick_at_loop_pre.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_fire.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_ruby.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_stone.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_terra_spawn.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_terra_spawn1.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_terra_spawn1_setup.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/phase_terra_tick.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/start.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/stop.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/tick.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/tick_blind.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/tick_blind_1.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/tick_blind_1at.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/tick_blind_check.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/tick_blind_face.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/tick_blind_picture.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/tick_blind_up.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/sauvojen_wand/meditate/tick_ok.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Sauvojen meditation (upgrade attempt)",
+    "status": "documented",
+    "note": "Source role and numeric behavior described in grouped wand/meditation mechanics."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/uniwand/cast.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Uni Wand",
+    "status": "documented",
+    "note": "Loop semantics and mana/spellcount edge cases described."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/uniwand/cast_loop.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Uni Wand",
+    "status": "documented",
+    "note": "Loop semantics and mana/spellcount edge cases described."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/items/wands/uniwand/click.mcfunction",
+    "document": "agent_notes/lbc_items_weapons.md",
+    "section": "Uni Wand",
+    "status": "documented",
+    "note": "Loop semantics and mana/spellcount edge cases described."
+  }
+]

@@ -1,0 +1,2018 @@
+[
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/banana_palm/click.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/big_bob/click.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/boss_helicopter/shoot.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Босс-вертолёт",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/boss_helicopter/shoot_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Босс-вертолёт",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/boss_helicopter/tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Босс-вертолёт",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/clock_fragment/jump_10s.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/clock_fragment/jump_1s.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/clock_fragment/jump_2s.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/clock_fragment/jump_5s.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/clock_fragment/select.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/clock_fragment/select_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupted_pentagram/ahriman.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Corrupted Pentagram",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupted_pentagram/ahriman_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Corrupted Pentagram",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupted_pentagram/ahriman_3.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Corrupted Pentagram",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupted_pentagram/ahriman_exploded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Corrupted Pentagram",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupted_pentagram/belial.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Corrupted Pentagram",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupted_pentagram/belial_exploded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Corrupted Pentagram",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupted_pentagram/belial_mob.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Corrupted Pentagram",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupted_pentagram/explode.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Corrupted Pentagram",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupted_pentagram/lamashtu.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Corrupted Pentagram",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupted_pentagram/lamashtu_exploded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Corrupted Pentagram",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupted_pentagram/sigyl_bafomet.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Corrupted Pentagram",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupted_pentagram/spawn.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Corrupted Pentagram",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/corrupted_pentagram/tick_1s.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Corrupted Pentagram",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/cunny_item/select.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/cunny_item/select1.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/cunny_item/select_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/devilswordattacks/1.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/devilswordattacks/2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/devilswordattacks/3.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/devilswordattacks/4.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/devilswordattacks/5.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/devilswordattacks/6.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/epicswordattacks/absorption.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/epicswordattacks/arrows.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/epicswordattacks/bounce.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/epicswordattacks/bounce_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/epicswordattacks/evoker.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/epicswordattacks/explode.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/epicswordattacks/explode_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/epicswordattacks/flame.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/epicswordattacks/flame_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/epicswordattacks/flash.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/epicswordattacks/flash_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/epicswordattacks/heal.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/epicswordattacks/heal_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/epicswordattacks/instantdamage.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/epicswordattacks/instantdamage_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/epicswordattacks/invisibility.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/epicswordattacks/randomtp.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/epicswordattacks/resistance.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/epicswordattacks/screamer.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/epicswordattacks/speed.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/epicswordattacks/strength.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/epicswordattacks/water.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/epicswordattacks/weakness.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/firtusnadristailo/banan_impact.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Firtusnadristailo",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/firtusnadristailo/banan_impact_homing.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Firtusnadristailo",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/firtusnadristailo/banan_impact_homing_det_rec.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Firtusnadristailo",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/firtusnadristailo/banan_impact_rerot.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Firtusnadristailo",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/firtusnadristailo/banan_impact_success.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Firtusnadristailo",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/firtusnadristailo/cast.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Firtusnadristailo",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/firtusnadristailo/cast_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Firtusnadristailo",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/firtusnadristailo/cast_banan.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Firtusnadristailo",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/firtusnadristailo/cast_banan_shoot.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Firtusnadristailo",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/firtusnadristailo/cast_banan_shoot_homing.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Firtusnadristailo",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/firtusnadristailo/cast_etiketka.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Firtusnadristailo",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/firtusnadristailo/cast_etiketka_shoot.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Firtusnadristailo",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/firtusnadristailo/cast_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Firtusnadristailo",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/firtusnadristailo/check_upgrade.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Firtusnadristailo",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/firtusnadristailo/check_upgrade_set.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Firtusnadristailo",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/firtusnadristailo/etiketka/etiketka_damage.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Firtusnadristailo",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/firtusnadristailo/etiketka/etiketka_damage_at.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Firtusnadristailo",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/firtusnadristailo/etiketka/etiketka_detect_rec.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Firtusnadristailo",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/firtusnadristailo/etiketka/etiketka_tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Firtusnadristailo",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/firtusnadristailo/piss_particle.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Firtusnadristailo",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/firtusnadristailo/sword_tick_1s.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Firtusnadristailo",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/firtusnadristailo/sword_tick_1s_damagebuff.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Firtusnadristailo",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/crystal/explode/as_crystal.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/crystal/explode/damage.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/crystal/explode/damage_with_id.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/crystal/explode/run.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/crystal/run.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/crystal/shatter.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/crystal/shatter_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/crystal/spawn/check_block.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/crystal/spawn/check_more_blocks.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/crystal/spawn/final.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/crystal/spawn/pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/crystal/spawn/run.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/crystal/tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/projectile/cast.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/projectile/impact/damage.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/projectile/impact/damage_with_id.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/projectile/impact/return_kb_attribute.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/projectile/impact/run.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/projectile/motion_debug.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/projectile/motion_debug_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/projectile/mount.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/projectile/run.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/projectile/tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/shatter/damage.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/shatter/run.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/use.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/use_shift.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/ice_wand/use_shift_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Ice Wand",
+    "status": "documented",
+    "note": "Разобраны casts, оба shift, projectile lifecycle, crystal placement, damage и cleanup."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/icesword/pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/imba/bastion_create.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/imba/diamond_area.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/imba/diamond_area_kill.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/imba/diamond_area_spawn.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/imba/diamond_area_tick_1s.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/imba/diamond_area_tick_1s_mob.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/imba/end_portal.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/imba/funny_tnt.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/imba/mystical_tree_end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/imba/mystical_tree_move.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/imba/mystical_tree_move_macros.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/imba/mystical_tree_tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/imba/nether_portal.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/imba/place_ground.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/imba/place_swastika.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/metal_divider/click.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/metal_divider/click_at.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/neutralmage/1.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Neutral Mage",
+    "status": "documented",
+    "note": "Описаны selection/mode, costs, пять снарядов, upgrade progress и неоднозначная world-origin Motion-формула."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/neutralmage/2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Neutral Mage",
+    "status": "documented",
+    "note": "Описаны selection/mode, costs, пять снарядов, upgrade progress и неоднозначная world-origin Motion-формула."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/neutralmage/3.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Neutral Mage",
+    "status": "documented",
+    "note": "Описаны selection/mode, costs, пять снарядов, upgrade progress и неоднозначная world-origin Motion-формула."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/neutralmage/4.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Neutral Mage",
+    "status": "documented",
+    "note": "Описаны selection/mode, costs, пять снарядов, upgrade progress и неоднозначная world-origin Motion-формула."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/neutralmage/5.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Neutral Mage",
+    "status": "documented",
+    "note": "Описаны selection/mode, costs, пять снарядов, upgrade progress и неоднозначная world-origin Motion-формула."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/neutralmage/check_upgrade.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Neutral Mage",
+    "status": "documented",
+    "note": "Описаны selection/mode, costs, пять снарядов, upgrade progress и неоднозначная world-origin Motion-формула."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/neutralmage/select.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Neutral Mage",
+    "status": "documented",
+    "note": "Описаны selection/mode, costs, пять снарядов, upgrade progress и неоднозначная world-origin Motion-формула."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/neutralmage/select_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Neutral Mage",
+    "status": "documented",
+    "note": "Описаны selection/mode, costs, пять снарядов, upgrade progress и неоднозначная world-origin Motion-формула."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/neutralmage/select_upgraded.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Neutral Mage",
+    "status": "documented",
+    "note": "Описаны selection/mode, costs, пять снарядов, upgrade progress и неоднозначная world-origin Motion-формула."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/neutralmage/select_upgraded_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Neutral Mage",
+    "status": "documented",
+    "note": "Описаны selection/mode, costs, пять снарядов, upgrade progress и неоднозначная world-origin Motion-формула."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/neutralmage/select_upgraded_pre_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Neutral Mage",
+    "status": "documented",
+    "note": "Описаны selection/mode, costs, пять снарядов, upgrade progress и неоднозначная world-origin Motion-формула."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/neutralmage/select_upgraded_pre_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Neutral Mage",
+    "status": "documented",
+    "note": "Описаны selection/mode, costs, пять снарядов, upgrade progress и неоднозначная world-origin Motion-формула."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/penis_cultus/spawn_random_penis.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/penis_cultus/use.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Расходники, усиливающие касты и небольшие боевые таблицы",
+    "status": "documented",
+    "note": "Описаны selector/custom_data route, непосредственный результат, цена/cleanup и внешние loot/helper границы."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifes/1.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifes/1_stand.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifes/1_stand_x2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifes/2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifes/2_stand.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifes/2_stand_x2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifes/3.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifes/3_stand.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifes/3_stand_x2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifes/4.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifes/4_stand.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifes/4_stand_x2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifes/5.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifes/5_stand.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifes/5_stand_x2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifes/rc_vpered.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifes/start.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifes/start_default.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifes/start_default_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifes/start_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifes/start_stand.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifes/start_stand_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifes/start_stand_x2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifes/start_stand_x2_left.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifesleft/1.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifesleft/2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifesleft/3.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifesleft/4.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifesleft/5.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/phantomknifesleft/start.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Phantom Knives",
+    "status": "documented",
+    "note": "Распакованы default/stand/x2 variants, направления/amount arrows, owner metadata и trigger counters."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/psychowand/fantomsounds.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/psychowand/lookback.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/psychowand/lookbackloop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/psychowand/scare.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/psychowand/scaredloop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/raycast_spells/anvils.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/raycast_spells/anvils_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/raycast_spells/creepers.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/raycast_spells/creepers_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/raycast_spells/destroy_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/raycast_spells/firestorm.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/raycast_spells/firestorm_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/raycast_spells/heal.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/raycast_spells/heal_imba.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/raycast_spells/heal_imba_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/raycast_spells/heal_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/raycast_spells/lava.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/raycast_spells/lava_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/raycast_spells/lightning_bolt.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/raycast_spells/lightning_bolt_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/raycast_spells/select.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/raycast_spells/skeletons.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/raycast_spells/skeletons_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/raycast_spells/tnt.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/raycast_spells/tnt_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/raycast_spells/wither.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/raycast_spells/wither_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shish_wall_wand/cast.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shish_wall_wand/check.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shish_wall_wand/end.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/shish_wall_wand/loop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Imba: блоковые и marker-эффекты",
+    "status": "documented",
+    "note": "Кастовая цепочка, конечные действия, обработка тиком и внешние границы описаны."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/siggewinne_syringe/buff_mob.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Siggewinne Syringe",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/siggewinne_syringe/buffed_mob_particles.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Siggewinne Syringe",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/siggewinne_syringe/buffs_init.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Siggewinne Syringe",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/siggewinne_syringe/drop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Siggewinne Syringe",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/siggewinne_syringe/remove_buffs.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Siggewinne Syringe",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/siggewinne_syringe/super_guardian_damage.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Siggewinne Syringe",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/siggewinne_syringe/tick_5t.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Siggewinne Syringe",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/snow_wand/cast.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Snow Wand",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/snow_wand/loop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Snow Wand",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/snow_wand/run.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Snow Wand",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/snow_wand/summon.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Snow Wand",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/snow_wand/tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Snow Wand",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/snow_wand/upgraded/cast.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Snow Wand",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/snow_wand/upgraded/check.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Snow Wand",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/snow_wand/upgraded/loop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Snow Wand",
+    "status": "documented",
+    "note": "Поведение сверено с цепочкой вызовов и описано."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/anger.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Реализация и вариантное поведение сверены; вызовы внешних raycast/tick consumers оставлены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/blaze.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Реализация и вариантное поведение сверены; вызовы внешних raycast/tick consumers оставлены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/chaos/2s.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/chaos/2s_yes.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/chaos/fangs.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/chaos/fireshoot.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/chaos/get_electro.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/chaos/get_evoker.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/chaos/get_fireshot.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/chaos/get_resistance.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/chaos/get_speed.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/chaos/get_splash.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/chaos/get_strength.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/chaos/get_stun.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/chaos/get_terra.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/chaos/get_tridents.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/chaos/stun.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/chaos/tridentshoot.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/hypocrisy_2s.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/luck_arrow_blow.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/luck_arrow_blow_at.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/luck_arrow_blow_dop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/luck_arrow_spam.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/luck_arrow_spam_yes.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/obsession_tick.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/omnipresence_teleport.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/omnipresence_teleport_yes.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/omnipresence_teleport_yes_2.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/stranger_3s.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/stranger_3s_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/stranger_3splus1.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/stranger_3splus1at.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/stranger_3splus1atloop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/cultists/stranger_3splus1atloopdmg.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Конкретная cultist ветвь и ее tick/hurt/schedule dispatcher описаны; попадания стрел делегированы общему runtime."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/eliteskeletons.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Реализация и вариантное поведение сверены; вызовы внешних raycast/tick consumers оставлены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/ghast.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Реализация и вариантное поведение сверены; вызовы внешних raycast/tick consumers оставлены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/ghostrider.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Реализация и вариантное поведение сверены; вызовы внешних raycast/tick consumers оставлены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/guardians.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Реализация и вариантное поведение сверены; вызовы внешних raycast/tick consumers оставлены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/psychovex.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Реализация и вариантное поведение сверены; вызовы внешних raycast/tick consumers оставлены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/psychovex_spawn.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Реализация и вариантное поведение сверены; вызовы внешних raycast/tick consumers оставлены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/psychovex_spawn_pre.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Реализация и вариантное поведение сверены; вызовы внешних raycast/tick consumers оставлены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/razoritel.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Реализация и вариантное поведение сверены; вызовы внешних raycast/tick consumers оставлены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/skeletons.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Реализация и вариантное поведение сверены; вызовы внешних raycast/tick consumers оставлены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/summoner/vexes.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Summoner и Cultists",
+    "status": "documented",
+    "note": "Реализация и вариантное поведение сверены; вызовы внешних raycast/tick consumers оставлены как зависимости."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop10.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop10_imba.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "non_runtime",
+    "note": "Файл пустой или содержит только комментарии; при прямом вызове не выполняет команд."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop10_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop11.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop11_imba.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "non_runtime",
+    "note": "Файл пустой или содержит только комментарии; при прямом вызове не выполняет команд."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop11_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop12.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop12_imba.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop12_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop13.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop13_imba.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "non_runtime",
+    "note": "Файл пустой или содержит только комментарии; при прямом вызове не выполняет команд."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop13_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop14.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop14_imba.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "non_runtime",
+    "note": "Файл пустой или содержит только комментарии; при прямом вызове не выполняет команд."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop14_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop15.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop15_imba.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "non_runtime",
+    "note": "Файл пустой или содержит только комментарии; при прямом вызове не выполняет команд."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop15_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop16.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop16_imba.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "non_runtime",
+    "note": "Файл пустой или содержит только комментарии; при прямом вызове не выполняет команд."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop16_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop8.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop8_imba.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "non_runtime",
+    "note": "Файл пустой или содержит только комментарии; при прямом вызове не выполняет команд."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop8_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop9.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop9_imba.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "non_runtime",
+    "note": "Файл пустой или содержит только комментарии; при прямом вызове не выполняет команд."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop9_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop_imba.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  },
+  {
+    "source": "world/datapacksdisabled/LBC/data/lbc/function/workingitems/unstable_spellbook/raycast_loop_old.mcfunction",
+    "document": "agent_notes/lbc_workingitems_other.md",
+    "section": "Unstable Spellbook: предметы, loop и варианты старых кастов",
+    "status": "documented",
+    "note": "Описаны custom_data dispatch, loop gate/limit, variant differences, расход и конечные helper dependencies."
+  }
+]

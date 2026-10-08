@@ -1,0 +1,927 @@
+﻿Compiled from "AttributeCommand.java"
+public class net.minecraft.server.commands.AttributeCommand {
+  private static final com.mojang.brigadier.exceptions.DynamicCommandExceptionType ERROR_NOT_LIVING_ENTITY;
+
+  private static final com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType ERROR_NO_SUCH_ATTRIBUTE;
+
+  private static final com.mojang.brigadier.exceptions.Dynamic3CommandExceptionType ERROR_NO_SUCH_MODIFIER;
+
+  private static final com.mojang.brigadier.exceptions.Dynamic3CommandExceptionType ERROR_MODIFIER_ALREADY_PRESENT;
+
+  public net.minecraft.server.commands.AttributeCommand();
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return
+
+  public static void register(com.mojang.brigadier.CommandDispatcher<net.minecraft.commands.CommandSourceStack>, net.minecraft.commands.CommandBuildContext);
+    Code:
+         0: aload_0
+         1: ldc           #7                  // String attribute
+         3: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+         6: getstatic     #15                 // Field net/minecraft/commands/Commands.LEVEL_GAMEMASTERS:Lnet/minecraft/server/permissions/PermissionCheck;
+         9: invokestatic  #19                 // Method net/minecraft/commands/Commands.hasPermission:(Lnet/minecraft/server/permissions/PermissionCheck;)Lnet/minecraft/server/permissions/PermissionProviderCheck;
+        12: invokevirtual #23                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.requires:(Ljava/util/function/Predicate;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        15: checkcast     #24                 // class com/mojang/brigadier/builder/LiteralArgumentBuilder
+        18: ldc           #29                 // String target
+        20: invokestatic  #31                 // Method net/minecraft/commands/arguments/EntityArgument.entity:()Lnet/minecraft/commands/arguments/EntityArgument;
+        23: invokestatic  #37                 // Method net/minecraft/commands/Commands.argument:(Ljava/lang/String;Lcom/mojang/brigadier/arguments/ArgumentType;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+        26: ldc           #7                  // String attribute
+        28: aload_1
+        29: getstatic     #41                 // Field net/minecraft/core/registries/Registries.ATTRIBUTE:Lnet/minecraft/resources/ResourceKey;
+        32: invokestatic  #47                 // Method net/minecraft/commands/arguments/ResourceArgument.resource:(Lnet/minecraft/commands/CommandBuildContext;Lnet/minecraft/resources/ResourceKey;)Lnet/minecraft/commands/arguments/ResourceArgument;
+        35: invokestatic  #37                 // Method net/minecraft/commands/Commands.argument:(Ljava/lang/String;Lcom/mojang/brigadier/arguments/ArgumentType;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+        38: ldc           #53                 // String get
+        40: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+        43: invokedynamic #55,  0             // InvokeDynamic #0:run:()Lcom/mojang/brigadier/Command;
+        48: invokevirtual #59                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        51: checkcast     #24                 // class com/mojang/brigadier/builder/LiteralArgumentBuilder
+        54: ldc           #63                 // String scale
+        56: invokestatic  #65                 // Method com/mojang/brigadier/arguments/DoubleArgumentType.doubleArg:()Lcom/mojang/brigadier/arguments/DoubleArgumentType;
+        59: invokestatic  #37                 // Method net/minecraft/commands/Commands.argument:(Ljava/lang/String;Lcom/mojang/brigadier/arguments/ArgumentType;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+        62: invokedynamic #71,  0             // InvokeDynamic #1:run:()Lcom/mojang/brigadier/Command;
+        67: invokevirtual #72                 // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        70: invokevirtual #75                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        73: invokevirtual #79                 // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+        76: checkcast     #73                 // class com/mojang/brigadier/builder/RequiredArgumentBuilder
+        79: ldc           #80                 // String base
+        81: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+        84: ldc           #82                 // String set
+        86: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+        89: ldc           #84                 // String value
+        91: invokestatic  #65                 // Method com/mojang/brigadier/arguments/DoubleArgumentType.doubleArg:()Lcom/mojang/brigadier/arguments/DoubleArgumentType;
+        94: invokestatic  #37                 // Method net/minecraft/commands/Commands.argument:(Ljava/lang/String;Lcom/mojang/brigadier/arguments/ArgumentType;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+        97: invokedynamic #86,  0             // InvokeDynamic #2:run:()Lcom/mojang/brigadier/Command;
+       102: invokevirtual #72                 // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       105: invokevirtual #75                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       108: invokevirtual #75                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       111: checkcast     #24                 // class com/mojang/brigadier/builder/LiteralArgumentBuilder
+       114: ldc           #53                 // String get
+       116: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+       119: invokedynamic #87,  0             // InvokeDynamic #3:run:()Lcom/mojang/brigadier/Command;
+       124: invokevirtual #59                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       127: checkcast     #24                 // class com/mojang/brigadier/builder/LiteralArgumentBuilder
+       130: ldc           #63                 // String scale
+       132: invokestatic  #65                 // Method com/mojang/brigadier/arguments/DoubleArgumentType.doubleArg:()Lcom/mojang/brigadier/arguments/DoubleArgumentType;
+       135: invokestatic  #37                 // Method net/minecraft/commands/Commands.argument:(Ljava/lang/String;Lcom/mojang/brigadier/arguments/ArgumentType;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+       138: invokedynamic #88,  0             // InvokeDynamic #4:run:()Lcom/mojang/brigadier/Command;
+       143: invokevirtual #72                 // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       146: invokevirtual #75                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       149: invokevirtual #75                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       152: checkcast     #24                 // class com/mojang/brigadier/builder/LiteralArgumentBuilder
+       155: ldc           #89                 // String reset
+       157: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+       160: invokedynamic #91,  0             // InvokeDynamic #5:run:()Lcom/mojang/brigadier/Command;
+       165: invokevirtual #59                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       168: invokevirtual #75                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       171: invokevirtual #79                 // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       174: checkcast     #73                 // class com/mojang/brigadier/builder/RequiredArgumentBuilder
+       177: ldc           #92                 // String modifier
+       179: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+       182: ldc           #94                 // String add
+       184: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+       187: ldc           #96                 // String id
+       189: invokestatic  #98                 // Method net/minecraft/commands/arguments/IdentifierArgument.id:()Lnet/minecraft/commands/arguments/IdentifierArgument;
+       192: invokestatic  #37                 // Method net/minecraft/commands/Commands.argument:(Ljava/lang/String;Lcom/mojang/brigadier/arguments/ArgumentType;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+       195: ldc           #84                 // String value
+       197: invokestatic  #65                 // Method com/mojang/brigadier/arguments/DoubleArgumentType.doubleArg:()Lcom/mojang/brigadier/arguments/DoubleArgumentType;
+       200: invokestatic  #37                 // Method net/minecraft/commands/Commands.argument:(Ljava/lang/String;Lcom/mojang/brigadier/arguments/ArgumentType;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+       203: ldc           #103                // String add_value
+       205: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+       208: invokedynamic #105,  0            // InvokeDynamic #6:run:()Lcom/mojang/brigadier/Command;
+       213: invokevirtual #59                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       216: invokevirtual #79                 // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       219: checkcast     #73                 // class com/mojang/brigadier/builder/RequiredArgumentBuilder
+       222: ldc           #106                // String add_multiplied_base
+       224: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+       227: invokedynamic #108,  0            // InvokeDynamic #7:run:()Lcom/mojang/brigadier/Command;
+       232: invokevirtual #59                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       235: invokevirtual #79                 // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       238: checkcast     #73                 // class com/mojang/brigadier/builder/RequiredArgumentBuilder
+       241: ldc           #109                // String add_multiplied_total
+       243: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+       246: invokedynamic #111,  0            // InvokeDynamic #8:run:()Lcom/mojang/brigadier/Command;
+       251: invokevirtual #59                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       254: invokevirtual #79                 // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       257: invokevirtual #79                 // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       260: invokevirtual #75                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       263: invokevirtual #75                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       266: checkcast     #24                 // class com/mojang/brigadier/builder/LiteralArgumentBuilder
+       269: ldc           #112                // String remove
+       271: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+       274: ldc           #96                 // String id
+       276: invokestatic  #98                 // Method net/minecraft/commands/arguments/IdentifierArgument.id:()Lnet/minecraft/commands/arguments/IdentifierArgument;
+       279: invokestatic  #37                 // Method net/minecraft/commands/Commands.argument:(Ljava/lang/String;Lcom/mojang/brigadier/arguments/ArgumentType;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+       282: invokedynamic #114,  0            // InvokeDynamic #9:getSuggestions:()Lcom/mojang/brigadier/suggestion/SuggestionProvider;
+       287: invokevirtual #118                // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.suggests:(Lcom/mojang/brigadier/suggestion/SuggestionProvider;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+       290: invokedynamic #122,  0            // InvokeDynamic #10:run:()Lcom/mojang/brigadier/Command;
+       295: invokevirtual #72                 // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       298: invokevirtual #75                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       301: invokevirtual #75                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       304: checkcast     #24                 // class com/mojang/brigadier/builder/LiteralArgumentBuilder
+       307: ldc           #84                 // String value
+       309: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+       312: ldc           #53                 // String get
+       314: invokestatic  #9                  // Method net/minecraft/commands/Commands.literal:(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;
+       317: ldc           #96                 // String id
+       319: invokestatic  #98                 // Method net/minecraft/commands/arguments/IdentifierArgument.id:()Lnet/minecraft/commands/arguments/IdentifierArgument;
+       322: invokestatic  #37                 // Method net/minecraft/commands/Commands.argument:(Ljava/lang/String;Lcom/mojang/brigadier/arguments/ArgumentType;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+       325: invokedynamic #123,  0            // InvokeDynamic #11:getSuggestions:()Lcom/mojang/brigadier/suggestion/SuggestionProvider;
+       330: invokevirtual #118                // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.suggests:(Lcom/mojang/brigadier/suggestion/SuggestionProvider;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+       333: invokedynamic #124,  0            // InvokeDynamic #12:run:()Lcom/mojang/brigadier/Command;
+       338: invokevirtual #72                 // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       341: checkcast     #73                 // class com/mojang/brigadier/builder/RequiredArgumentBuilder
+       344: ldc           #63                 // String scale
+       346: invokestatic  #65                 // Method com/mojang/brigadier/arguments/DoubleArgumentType.doubleArg:()Lcom/mojang/brigadier/arguments/DoubleArgumentType;
+       349: invokestatic  #37                 // Method net/minecraft/commands/Commands.argument:(Ljava/lang/String;Lcom/mojang/brigadier/arguments/ArgumentType;)Lcom/mojang/brigadier/builder/RequiredArgumentBuilder;
+       352: invokedynamic #125,  0            // InvokeDynamic #13:run:()Lcom/mojang/brigadier/Command;
+       357: invokevirtual #72                 // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.executes:(Lcom/mojang/brigadier/Command;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       360: invokevirtual #79                 // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       363: invokevirtual #75                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       366: invokevirtual #75                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       369: invokevirtual #75                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       372: invokevirtual #79                 // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       375: invokevirtual #79                 // Method com/mojang/brigadier/builder/RequiredArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       378: invokevirtual #75                 // Method com/mojang/brigadier/builder/LiteralArgumentBuilder.then:(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;
+       381: checkcast     #24                 // class com/mojang/brigadier/builder/LiteralArgumentBuilder
+       384: invokevirtual #126                // Method com/mojang/brigadier/CommandDispatcher.register:(Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;)Lcom/mojang/brigadier/tree/LiteralCommandNode;
+       387: pop
+       388: return
+
+  private static net.minecraft.world.entity.ai.attributes.AttributeInstance getAttributeInstance(net.minecraft.world.entity.Entity, net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute>) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: invokestatic  #132                // Method getLivingEntity:(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/world/entity/LivingEntity;
+         4: invokevirtual #138                // Method net/minecraft/world/entity/LivingEntity.getAttributes:()Lnet/minecraft/world/entity/ai/attributes/AttributeMap;
+         7: aload_1
+         8: invokevirtual #144                // Method net/minecraft/world/entity/ai/attributes/AttributeMap.getInstance:(Lnet/minecraft/core/Holder;)Lnet/minecraft/world/entity/ai/attributes/AttributeInstance;
+        11: astore_2
+        12: aload_2
+        13: ifnonnull     31
+        16: getstatic     #150                // Field ERROR_NO_SUCH_ATTRIBUTE:Lcom/mojang/brigadier/exceptions/Dynamic2CommandExceptionType;
+        19: aload_0
+        20: invokevirtual #154                // Method net/minecraft/world/entity/Entity.getDisplayName:()Lnet/minecraft/network/chat/Component;
+        23: aload_1
+        24: invokestatic  #160                // Method getAttributeDescription:(Lnet/minecraft/core/Holder;)Lnet/minecraft/network/chat/Component;
+        27: invokevirtual #164                // Method com/mojang/brigadier/exceptions/Dynamic2CommandExceptionType.create:(Ljava/lang/Object;Ljava/lang/Object;)Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        30: athrow
+        31: aload_2
+        32: areturn
+
+  private static net.minecraft.world.entity.LivingEntity getLivingEntity(net.minecraft.world.entity.Entity) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: instanceof    #139                // class net/minecraft/world/entity/LivingEntity
+         4: ifeq          15
+         7: aload_0
+         8: checkcast     #139                // class net/minecraft/world/entity/LivingEntity
+        11: astore_1
+        12: goto          26
+        15: getstatic     #170                // Field ERROR_NOT_LIVING_ENTITY:Lcom/mojang/brigadier/exceptions/DynamicCommandExceptionType;
+        18: aload_0
+        19: invokevirtual #154                // Method net/minecraft/world/entity/Entity.getDisplayName:()Lnet/minecraft/network/chat/Component;
+        22: invokevirtual #174                // Method com/mojang/brigadier/exceptions/DynamicCommandExceptionType.create:(Ljava/lang/Object;)Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        25: athrow
+        26: aload_1
+        27: areturn
+
+  private static net.minecraft.world.entity.LivingEntity getEntityWithAttribute(net.minecraft.world.entity.Entity, net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute>) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: invokestatic  #132                // Method getLivingEntity:(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/world/entity/LivingEntity;
+         4: astore_2
+         5: aload_2
+         6: invokevirtual #138                // Method net/minecraft/world/entity/LivingEntity.getAttributes:()Lnet/minecraft/world/entity/ai/attributes/AttributeMap;
+         9: aload_1
+        10: invokevirtual #179                // Method net/minecraft/world/entity/ai/attributes/AttributeMap.hasAttribute:(Lnet/minecraft/core/Holder;)Z
+        13: ifne          31
+        16: getstatic     #150                // Field ERROR_NO_SUCH_ATTRIBUTE:Lcom/mojang/brigadier/exceptions/Dynamic2CommandExceptionType;
+        19: aload_0
+        20: invokevirtual #154                // Method net/minecraft/world/entity/Entity.getDisplayName:()Lnet/minecraft/network/chat/Component;
+        23: aload_1
+        24: invokestatic  #160                // Method getAttributeDescription:(Lnet/minecraft/core/Holder;)Lnet/minecraft/network/chat/Component;
+        27: invokevirtual #164                // Method com/mojang/brigadier/exceptions/Dynamic2CommandExceptionType.create:(Ljava/lang/Object;Ljava/lang/Object;)Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        30: athrow
+        31: aload_2
+        32: areturn
+
+  private static int getAttributeValue(net.minecraft.commands.CommandSourceStack, net.minecraft.world.entity.Entity, net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute>, double) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_1
+         1: aload_2
+         2: invokestatic  #183                // Method getEntityWithAttribute:(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/Holder;)Lnet/minecraft/world/entity/LivingEntity;
+         5: astore        5
+         7: aload         5
+         9: aload_2
+        10: invokevirtual #187                // Method net/minecraft/world/entity/LivingEntity.getAttributeValue:(Lnet/minecraft/core/Holder;)D
+        13: dstore        6
+        15: aload_0
+        16: aload_2
+        17: aload_1
+        18: dload         6
+        20: invokedynamic #191,  0            // InvokeDynamic #14:get:(Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/Entity;D)Ljava/util/function/Supplier;
+        25: iconst_0
+        26: invokevirtual #194                // Method net/minecraft/commands/CommandSourceStack.sendSuccess:(Ljava/util/function/Supplier;Z)V
+        29: dload         6
+        31: dload_3
+        32: dmul
+        33: d2i
+        34: ireturn
+
+  private static int getAttributeBase(net.minecraft.commands.CommandSourceStack, net.minecraft.world.entity.Entity, net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute>, double) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_1
+         1: aload_2
+         2: invokestatic  #183                // Method getEntityWithAttribute:(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/Holder;)Lnet/minecraft/world/entity/LivingEntity;
+         5: astore        5
+         7: aload         5
+         9: aload_2
+        10: invokevirtual #200                // Method net/minecraft/world/entity/LivingEntity.getAttributeBaseValue:(Lnet/minecraft/core/Holder;)D
+        13: dstore        6
+        15: aload_0
+        16: aload_2
+        17: aload_1
+        18: dload         6
+        20: invokedynamic #203,  0            // InvokeDynamic #15:get:(Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/Entity;D)Ljava/util/function/Supplier;
+        25: iconst_0
+        26: invokevirtual #194                // Method net/minecraft/commands/CommandSourceStack.sendSuccess:(Ljava/util/function/Supplier;Z)V
+        29: dload         6
+        31: dload_3
+        32: dmul
+        33: d2i
+        34: ireturn
+
+  private static int getAttributeModifier(net.minecraft.commands.CommandSourceStack, net.minecraft.world.entity.Entity, net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute>, net.minecraft.resources.Identifier, double) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_1
+         1: aload_2
+         2: invokestatic  #183                // Method getEntityWithAttribute:(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/Holder;)Lnet/minecraft/world/entity/LivingEntity;
+         5: astore        6
+         7: aload         6
+         9: invokevirtual #138                // Method net/minecraft/world/entity/LivingEntity.getAttributes:()Lnet/minecraft/world/entity/ai/attributes/AttributeMap;
+        12: astore        7
+        14: aload         7
+        16: aload_2
+        17: aload_3
+        18: invokevirtual #204                // Method net/minecraft/world/entity/ai/attributes/AttributeMap.hasModifier:(Lnet/minecraft/core/Holder;Lnet/minecraft/resources/Identifier;)Z
+        21: ifne          40
+        24: getstatic     #208                // Field ERROR_NO_SUCH_MODIFIER:Lcom/mojang/brigadier/exceptions/Dynamic3CommandExceptionType;
+        27: aload_1
+        28: invokevirtual #154                // Method net/minecraft/world/entity/Entity.getDisplayName:()Lnet/minecraft/network/chat/Component;
+        31: aload_2
+        32: invokestatic  #160                // Method getAttributeDescription:(Lnet/minecraft/core/Holder;)Lnet/minecraft/network/chat/Component;
+        35: aload_3
+        36: invokevirtual #212                // Method com/mojang/brigadier/exceptions/Dynamic3CommandExceptionType.create:(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        39: athrow
+        40: aload         7
+        42: aload_2
+        43: aload_3
+        44: invokevirtual #217                // Method net/minecraft/world/entity/ai/attributes/AttributeMap.getModifierValue:(Lnet/minecraft/core/Holder;Lnet/minecraft/resources/Identifier;)D
+        47: dstore        8
+        49: aload_0
+        50: aload_3
+        51: aload_2
+        52: aload_1
+        53: dload         8
+        55: invokedynamic #221,  0            // InvokeDynamic #16:get:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/Entity;D)Ljava/util/function/Supplier;
+        60: iconst_0
+        61: invokevirtual #194                // Method net/minecraft/commands/CommandSourceStack.sendSuccess:(Ljava/util/function/Supplier;Z)V
+        64: dload         8
+        66: dload         4
+        68: dmul
+        69: d2i
+        70: ireturn
+
+  private static java.util.stream.Stream<net.minecraft.resources.Identifier> getAttributeModifiers(net.minecraft.world.entity.Entity, net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute>) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokestatic  #224                // Method getAttributeInstance:(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/Holder;)Lnet/minecraft/world/entity/ai/attributes/AttributeInstance;
+         5: astore_2
+         6: aload_2
+         7: invokevirtual #228                // Method net/minecraft/world/entity/ai/attributes/AttributeInstance.getModifiers:()Ljava/util/Set;
+        10: invokeinterface #234,  1          // InterfaceMethod java/util/Set.stream:()Ljava/util/stream/Stream;
+        15: invokedynamic #240,  0            // InvokeDynamic #17:apply:()Ljava/util/function/Function;
+        20: invokeinterface #244,  2          // InterfaceMethod java/util/stream/Stream.map:(Ljava/util/function/Function;)Ljava/util/stream/Stream;
+        25: areturn
+
+  private static int setAttributeBase(net.minecraft.commands.CommandSourceStack, net.minecraft.world.entity.Entity, net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute>, double) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_1
+         1: aload_2
+         2: invokestatic  #224                // Method getAttributeInstance:(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/Holder;)Lnet/minecraft/world/entity/ai/attributes/AttributeInstance;
+         5: dload_3
+         6: invokevirtual #250                // Method net/minecraft/world/entity/ai/attributes/AttributeInstance.setBaseValue:(D)V
+         9: aload_0
+        10: aload_2
+        11: aload_1
+        12: dload_3
+        13: invokedynamic #254,  0            // InvokeDynamic #18:get:(Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/Entity;D)Ljava/util/function/Supplier;
+        18: iconst_0
+        19: invokevirtual #194                // Method net/minecraft/commands/CommandSourceStack.sendSuccess:(Ljava/util/function/Supplier;Z)V
+        22: iconst_1
+        23: ireturn
+
+  private static int resetAttributeBase(net.minecraft.commands.CommandSourceStack, net.minecraft.world.entity.Entity, net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute>) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_1
+         1: invokestatic  #132                // Method getLivingEntity:(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/world/entity/LivingEntity;
+         4: astore_3
+         5: aload_3
+         6: invokevirtual #138                // Method net/minecraft/world/entity/LivingEntity.getAttributes:()Lnet/minecraft/world/entity/ai/attributes/AttributeMap;
+         9: aload_2
+        10: invokevirtual #255                // Method net/minecraft/world/entity/ai/attributes/AttributeMap.resetBaseValue:(Lnet/minecraft/core/Holder;)Z
+        13: ifne          31
+        16: getstatic     #150                // Field ERROR_NO_SUCH_ATTRIBUTE:Lcom/mojang/brigadier/exceptions/Dynamic2CommandExceptionType;
+        19: aload_1
+        20: invokevirtual #154                // Method net/minecraft/world/entity/Entity.getDisplayName:()Lnet/minecraft/network/chat/Component;
+        23: aload_2
+        24: invokestatic  #160                // Method getAttributeDescription:(Lnet/minecraft/core/Holder;)Lnet/minecraft/network/chat/Component;
+        27: invokevirtual #164                // Method com/mojang/brigadier/exceptions/Dynamic2CommandExceptionType.create:(Ljava/lang/Object;Ljava/lang/Object;)Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        30: athrow
+        31: aload_3
+        32: aload_2
+        33: invokevirtual #200                // Method net/minecraft/world/entity/LivingEntity.getAttributeBaseValue:(Lnet/minecraft/core/Holder;)D
+        36: dstore        4
+        38: aload_0
+        39: aload_2
+        40: aload_1
+        41: dload         4
+        43: invokedynamic #258,  0            // InvokeDynamic #19:get:(Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/Entity;D)Ljava/util/function/Supplier;
+        48: iconst_0
+        49: invokevirtual #194                // Method net/minecraft/commands/CommandSourceStack.sendSuccess:(Ljava/util/function/Supplier;Z)V
+        52: iconst_1
+        53: ireturn
+
+  private static int addModifier(net.minecraft.commands.CommandSourceStack, net.minecraft.world.entity.Entity, net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute>, net.minecraft.resources.Identifier, double, net.minecraft.world.entity.ai.attributes.AttributeModifier$Operation) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_1
+         1: aload_2
+         2: invokestatic  #224                // Method getAttributeInstance:(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/Holder;)Lnet/minecraft/world/entity/ai/attributes/AttributeInstance;
+         5: astore        7
+         7: new           #259                // class net/minecraft/world/entity/ai/attributes/AttributeModifier
+        10: dup
+        11: aload_3
+        12: dload         4
+        14: aload         6
+        16: invokespecial #261                // Method net/minecraft/world/entity/ai/attributes/AttributeModifier."<init>":(Lnet/minecraft/resources/Identifier;DLnet/minecraft/world/entity/ai/attributes/AttributeModifier$Operation;)V
+        19: astore        8
+        21: aload         7
+        23: aload_3
+        24: invokevirtual #264                // Method net/minecraft/world/entity/ai/attributes/AttributeInstance.hasModifier:(Lnet/minecraft/resources/Identifier;)Z
+        27: ifeq          46
+        30: getstatic     #267                // Field ERROR_MODIFIER_ALREADY_PRESENT:Lcom/mojang/brigadier/exceptions/Dynamic3CommandExceptionType;
+        33: aload_1
+        34: invokevirtual #154                // Method net/minecraft/world/entity/Entity.getDisplayName:()Lnet/minecraft/network/chat/Component;
+        37: aload_2
+        38: invokestatic  #160                // Method getAttributeDescription:(Lnet/minecraft/core/Holder;)Lnet/minecraft/network/chat/Component;
+        41: aload_3
+        42: invokevirtual #212                // Method com/mojang/brigadier/exceptions/Dynamic3CommandExceptionType.create:(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        45: athrow
+        46: aload         7
+        48: aload         8
+        50: invokevirtual #270                // Method net/minecraft/world/entity/ai/attributes/AttributeInstance.addPermanentModifier:(Lnet/minecraft/world/entity/ai/attributes/AttributeModifier;)V
+        53: aload_0
+        54: aload_3
+        55: aload_2
+        56: aload_1
+        57: invokedynamic #274,  0            // InvokeDynamic #20:get:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/Entity;)Ljava/util/function/Supplier;
+        62: iconst_0
+        63: invokevirtual #194                // Method net/minecraft/commands/CommandSourceStack.sendSuccess:(Ljava/util/function/Supplier;Z)V
+        66: iconst_1
+        67: ireturn
+
+  private static int removeModifier(net.minecraft.commands.CommandSourceStack, net.minecraft.world.entity.Entity, net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute>, net.minecraft.resources.Identifier) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_1
+         1: aload_2
+         2: invokestatic  #224                // Method getAttributeInstance:(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/Holder;)Lnet/minecraft/world/entity/ai/attributes/AttributeInstance;
+         5: astore        4
+         7: aload         4
+         9: aload_3
+        10: invokevirtual #277                // Method net/minecraft/world/entity/ai/attributes/AttributeInstance.removeModifier:(Lnet/minecraft/resources/Identifier;)Z
+        13: ifeq          31
+        16: aload_0
+        17: aload_3
+        18: aload_2
+        19: aload_1
+        20: invokedynamic #280,  0            // InvokeDynamic #21:get:(Lnet/minecraft/resources/Identifier;Lnet/minecraft/core/Holder;Lnet/minecraft/world/entity/Entity;)Ljava/util/function/Supplier;
+        25: iconst_0
+        26: invokevirtual #194                // Method net/minecraft/commands/CommandSourceStack.sendSuccess:(Ljava/util/function/Supplier;Z)V
+        29: iconst_1
+        30: ireturn
+        31: getstatic     #208                // Field ERROR_NO_SUCH_MODIFIER:Lcom/mojang/brigadier/exceptions/Dynamic3CommandExceptionType;
+        34: aload_1
+        35: invokevirtual #154                // Method net/minecraft/world/entity/Entity.getDisplayName:()Lnet/minecraft/network/chat/Component;
+        38: aload_2
+        39: invokestatic  #160                // Method getAttributeDescription:(Lnet/minecraft/core/Holder;)Lnet/minecraft/network/chat/Component;
+        42: aload_3
+        43: invokevirtual #212                // Method com/mojang/brigadier/exceptions/Dynamic3CommandExceptionType.create:(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Lcom/mojang/brigadier/exceptions/CommandSyntaxException;
+        46: athrow
+
+  private static net.minecraft.network.chat.Component getAttributeDescription(net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute>);
+    Code:
+         0: aload_0
+         1: invokeinterface #281,  1          // InterfaceMethod net/minecraft/core/Holder.value:()Ljava/lang/Object;
+         6: checkcast     #286                // class net/minecraft/world/entity/ai/attributes/Attribute
+         9: invokevirtual #288                // Method net/minecraft/world/entity/ai/attributes/Attribute.getDescriptionId:()Ljava/lang/String;
+        12: invokestatic  #292                // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+        15: areturn
+
+  private static net.minecraft.network.chat.Component lambda$removeModifier$0(net.minecraft.resources.Identifier, net.minecraft.core.Holder, net.minecraft.world.entity.Entity);
+    Code:
+         0: ldc_w         #298                // String commands.attribute.modifier.remove.success
+         3: iconst_3
+         4: anewarray     #2                  // class java/lang/Object
+         7: dup
+         8: iconst_0
+         9: aload_0
+        10: invokestatic  #300                // InterfaceMethod net/minecraft/network/chat/Component.translationArg:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/network/chat/Component;
+        13: aastore
+        14: dup
+        15: iconst_1
+        16: aload_1
+        17: invokestatic  #160                // Method getAttributeDescription:(Lnet/minecraft/core/Holder;)Lnet/minecraft/network/chat/Component;
+        20: aastore
+        21: dup
+        22: iconst_2
+        23: aload_2
+        24: invokevirtual #154                // Method net/minecraft/world/entity/Entity.getDisplayName:()Lnet/minecraft/network/chat/Component;
+        27: aastore
+        28: invokestatic  #304                // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;
+        31: areturn
+
+  private static net.minecraft.network.chat.Component lambda$addModifier$0(net.minecraft.resources.Identifier, net.minecraft.core.Holder, net.minecraft.world.entity.Entity);
+    Code:
+         0: ldc_w         #307                // String commands.attribute.modifier.add.success
+         3: iconst_3
+         4: anewarray     #2                  // class java/lang/Object
+         7: dup
+         8: iconst_0
+         9: aload_0
+        10: invokestatic  #300                // InterfaceMethod net/minecraft/network/chat/Component.translationArg:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/network/chat/Component;
+        13: aastore
+        14: dup
+        15: iconst_1
+        16: aload_1
+        17: invokestatic  #160                // Method getAttributeDescription:(Lnet/minecraft/core/Holder;)Lnet/minecraft/network/chat/Component;
+        20: aastore
+        21: dup
+        22: iconst_2
+        23: aload_2
+        24: invokevirtual #154                // Method net/minecraft/world/entity/Entity.getDisplayName:()Lnet/minecraft/network/chat/Component;
+        27: aastore
+        28: invokestatic  #304                // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;
+        31: areturn
+
+  private static net.minecraft.network.chat.Component lambda$resetAttributeBase$0(net.minecraft.core.Holder, net.minecraft.world.entity.Entity, double);
+    Code:
+         0: ldc_w         #309                // String commands.attribute.base_value.reset.success
+         3: iconst_3
+         4: anewarray     #2                  // class java/lang/Object
+         7: dup
+         8: iconst_0
+         9: aload_0
+        10: invokestatic  #160                // Method getAttributeDescription:(Lnet/minecraft/core/Holder;)Lnet/minecraft/network/chat/Component;
+        13: aastore
+        14: dup
+        15: iconst_1
+        16: aload_1
+        17: invokevirtual #154                // Method net/minecraft/world/entity/Entity.getDisplayName:()Lnet/minecraft/network/chat/Component;
+        20: aastore
+        21: dup
+        22: iconst_2
+        23: dload_2
+        24: invokestatic  #311                // Method java/lang/Double.valueOf:(D)Ljava/lang/Double;
+        27: aastore
+        28: invokestatic  #304                // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;
+        31: areturn
+
+  private static net.minecraft.network.chat.Component lambda$setAttributeBase$0(net.minecraft.core.Holder, net.minecraft.world.entity.Entity, double);
+    Code:
+         0: ldc_w         #317                // String commands.attribute.base_value.set.success
+         3: iconst_3
+         4: anewarray     #2                  // class java/lang/Object
+         7: dup
+         8: iconst_0
+         9: aload_0
+        10: invokestatic  #160                // Method getAttributeDescription:(Lnet/minecraft/core/Holder;)Lnet/minecraft/network/chat/Component;
+        13: aastore
+        14: dup
+        15: iconst_1
+        16: aload_1
+        17: invokevirtual #154                // Method net/minecraft/world/entity/Entity.getDisplayName:()Lnet/minecraft/network/chat/Component;
+        20: aastore
+        21: dup
+        22: iconst_2
+        23: dload_2
+        24: invokestatic  #311                // Method java/lang/Double.valueOf:(D)Ljava/lang/Double;
+        27: aastore
+        28: invokestatic  #304                // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;
+        31: areturn
+
+  private static net.minecraft.network.chat.Component lambda$getAttributeModifier$0(net.minecraft.resources.Identifier, net.minecraft.core.Holder, net.minecraft.world.entity.Entity, double);
+    Code:
+         0: ldc_w         #319                // String commands.attribute.modifier.value.get.success
+         3: iconst_4
+         4: anewarray     #2                  // class java/lang/Object
+         7: dup
+         8: iconst_0
+         9: aload_0
+        10: invokestatic  #300                // InterfaceMethod net/minecraft/network/chat/Component.translationArg:(Lnet/minecraft/resources/Identifier;)Lnet/minecraft/network/chat/Component;
+        13: aastore
+        14: dup
+        15: iconst_1
+        16: aload_1
+        17: invokestatic  #160                // Method getAttributeDescription:(Lnet/minecraft/core/Holder;)Lnet/minecraft/network/chat/Component;
+        20: aastore
+        21: dup
+        22: iconst_2
+        23: aload_2
+        24: invokevirtual #154                // Method net/minecraft/world/entity/Entity.getDisplayName:()Lnet/minecraft/network/chat/Component;
+        27: aastore
+        28: dup
+        29: iconst_3
+        30: dload_3
+        31: invokestatic  #311                // Method java/lang/Double.valueOf:(D)Ljava/lang/Double;
+        34: aastore
+        35: invokestatic  #304                // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;
+        38: areturn
+
+  private static net.minecraft.network.chat.Component lambda$getAttributeBase$0(net.minecraft.core.Holder, net.minecraft.world.entity.Entity, double);
+    Code:
+         0: ldc_w         #321                // String commands.attribute.base_value.get.success
+         3: iconst_3
+         4: anewarray     #2                  // class java/lang/Object
+         7: dup
+         8: iconst_0
+         9: aload_0
+        10: invokestatic  #160                // Method getAttributeDescription:(Lnet/minecraft/core/Holder;)Lnet/minecraft/network/chat/Component;
+        13: aastore
+        14: dup
+        15: iconst_1
+        16: aload_1
+        17: invokevirtual #154                // Method net/minecraft/world/entity/Entity.getDisplayName:()Lnet/minecraft/network/chat/Component;
+        20: aastore
+        21: dup
+        22: iconst_2
+        23: dload_2
+        24: invokestatic  #311                // Method java/lang/Double.valueOf:(D)Ljava/lang/Double;
+        27: aastore
+        28: invokestatic  #304                // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;
+        31: areturn
+
+  private static net.minecraft.network.chat.Component lambda$getAttributeValue$0(net.minecraft.core.Holder, net.minecraft.world.entity.Entity, double);
+    Code:
+         0: ldc_w         #323                // String commands.attribute.value.get.success
+         3: iconst_3
+         4: anewarray     #2                  // class java/lang/Object
+         7: dup
+         8: iconst_0
+         9: aload_0
+        10: invokestatic  #160                // Method getAttributeDescription:(Lnet/minecraft/core/Holder;)Lnet/minecraft/network/chat/Component;
+        13: aastore
+        14: dup
+        15: iconst_1
+        16: aload_1
+        17: invokevirtual #154                // Method net/minecraft/world/entity/Entity.getDisplayName:()Lnet/minecraft/network/chat/Component;
+        20: aastore
+        21: dup
+        22: iconst_2
+        23: dload_2
+        24: invokestatic  #311                // Method java/lang/Double.valueOf:(D)Ljava/lang/Double;
+        27: aastore
+        28: invokestatic  #304                // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;
+        31: areturn
+
+  private static int lambda$register$13(com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: invokevirtual #325                // Method com/mojang/brigadier/context/CommandContext.getSource:()Ljava/lang/Object;
+         4: checkcast     #195                // class net/minecraft/commands/CommandSourceStack
+         7: aload_0
+         8: ldc           #29                 // String target
+        10: invokestatic  #330                // Method net/minecraft/commands/arguments/EntityArgument.getEntity:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/world/entity/Entity;
+        13: aload_0
+        14: ldc           #7                  // String attribute
+        16: invokestatic  #334                // Method net/minecraft/commands/arguments/ResourceArgument.getAttribute:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/core/Holder$Reference;
+        19: aload_0
+        20: ldc           #96                 // String id
+        22: invokestatic  #338                // Method net/minecraft/commands/arguments/IdentifierArgument.getId:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/resources/Identifier;
+        25: aload_0
+        26: ldc           #63                 // String scale
+        28: invokestatic  #342                // Method com/mojang/brigadier/arguments/DoubleArgumentType.getDouble:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)D
+        31: invokestatic  #346                // Method getAttributeModifier:(Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/Holder;Lnet/minecraft/resources/Identifier;D)I
+        34: ireturn
+
+  private static int lambda$register$12(com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: invokevirtual #325                // Method com/mojang/brigadier/context/CommandContext.getSource:()Ljava/lang/Object;
+         4: checkcast     #195                // class net/minecraft/commands/CommandSourceStack
+         7: aload_0
+         8: ldc           #29                 // String target
+        10: invokestatic  #330                // Method net/minecraft/commands/arguments/EntityArgument.getEntity:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/world/entity/Entity;
+        13: aload_0
+        14: ldc           #7                  // String attribute
+        16: invokestatic  #334                // Method net/minecraft/commands/arguments/ResourceArgument.getAttribute:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/core/Holder$Reference;
+        19: aload_0
+        20: ldc           #96                 // String id
+        22: invokestatic  #338                // Method net/minecraft/commands/arguments/IdentifierArgument.getId:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/resources/Identifier;
+        25: dconst_1
+        26: invokestatic  #346                // Method getAttributeModifier:(Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/Holder;Lnet/minecraft/resources/Identifier;D)I
+        29: ireturn
+
+  private static java.util.concurrent.CompletableFuture lambda$register$11(com.mojang.brigadier.context.CommandContext, com.mojang.brigadier.suggestion.SuggestionsBuilder) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: ldc           #29                 // String target
+         3: invokestatic  #330                // Method net/minecraft/commands/arguments/EntityArgument.getEntity:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/world/entity/Entity;
+         6: aload_0
+         7: ldc           #7                  // String attribute
+         9: invokestatic  #334                // Method net/minecraft/commands/arguments/ResourceArgument.getAttribute:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/core/Holder$Reference;
+        12: invokestatic  #350                // Method getAttributeModifiers:(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/Holder;)Ljava/util/stream/Stream;
+        15: aload_1
+        16: invokestatic  #354                // InterfaceMethod net/minecraft/commands/SharedSuggestionProvider.suggestResource:(Ljava/util/stream/Stream;Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;)Ljava/util/concurrent/CompletableFuture;
+        19: areturn
+
+  private static int lambda$register$10(com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: invokevirtual #325                // Method com/mojang/brigadier/context/CommandContext.getSource:()Ljava/lang/Object;
+         4: checkcast     #195                // class net/minecraft/commands/CommandSourceStack
+         7: aload_0
+         8: ldc           #29                 // String target
+        10: invokestatic  #330                // Method net/minecraft/commands/arguments/EntityArgument.getEntity:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/world/entity/Entity;
+        13: aload_0
+        14: ldc           #7                  // String attribute
+        16: invokestatic  #334                // Method net/minecraft/commands/arguments/ResourceArgument.getAttribute:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/core/Holder$Reference;
+        19: aload_0
+        20: ldc           #96                 // String id
+        22: invokestatic  #338                // Method net/minecraft/commands/arguments/IdentifierArgument.getId:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/resources/Identifier;
+        25: invokestatic  #360                // Method removeModifier:(Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/Holder;Lnet/minecraft/resources/Identifier;)I
+        28: ireturn
+
+  private static java.util.concurrent.CompletableFuture lambda$register$9(com.mojang.brigadier.context.CommandContext, com.mojang.brigadier.suggestion.SuggestionsBuilder) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: ldc           #29                 // String target
+         3: invokestatic  #330                // Method net/minecraft/commands/arguments/EntityArgument.getEntity:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/world/entity/Entity;
+         6: aload_0
+         7: ldc           #7                  // String attribute
+         9: invokestatic  #334                // Method net/minecraft/commands/arguments/ResourceArgument.getAttribute:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/core/Holder$Reference;
+        12: invokestatic  #350                // Method getAttributeModifiers:(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/Holder;)Ljava/util/stream/Stream;
+        15: aload_1
+        16: invokestatic  #354                // InterfaceMethod net/minecraft/commands/SharedSuggestionProvider.suggestResource:(Ljava/util/stream/Stream;Lcom/mojang/brigadier/suggestion/SuggestionsBuilder;)Ljava/util/concurrent/CompletableFuture;
+        19: areturn
+
+  private static int lambda$register$8(com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: invokevirtual #325                // Method com/mojang/brigadier/context/CommandContext.getSource:()Ljava/lang/Object;
+         4: checkcast     #195                // class net/minecraft/commands/CommandSourceStack
+         7: aload_0
+         8: ldc           #29                 // String target
+        10: invokestatic  #330                // Method net/minecraft/commands/arguments/EntityArgument.getEntity:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/world/entity/Entity;
+        13: aload_0
+        14: ldc           #7                  // String attribute
+        16: invokestatic  #334                // Method net/minecraft/commands/arguments/ResourceArgument.getAttribute:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/core/Holder$Reference;
+        19: aload_0
+        20: ldc           #96                 // String id
+        22: invokestatic  #338                // Method net/minecraft/commands/arguments/IdentifierArgument.getId:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/resources/Identifier;
+        25: aload_0
+        26: ldc           #84                 // String value
+        28: invokestatic  #342                // Method com/mojang/brigadier/arguments/DoubleArgumentType.getDouble:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)D
+        31: getstatic     #363                // Field net/minecraft/world/entity/ai/attributes/AttributeModifier$Operation.ADD_MULTIPLIED_TOTAL:Lnet/minecraft/world/entity/ai/attributes/AttributeModifier$Operation;
+        34: invokestatic  #369                // Method addModifier:(Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/Holder;Lnet/minecraft/resources/Identifier;DLnet/minecraft/world/entity/ai/attributes/AttributeModifier$Operation;)I
+        37: ireturn
+
+  private static int lambda$register$7(com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: invokevirtual #325                // Method com/mojang/brigadier/context/CommandContext.getSource:()Ljava/lang/Object;
+         4: checkcast     #195                // class net/minecraft/commands/CommandSourceStack
+         7: aload_0
+         8: ldc           #29                 // String target
+        10: invokestatic  #330                // Method net/minecraft/commands/arguments/EntityArgument.getEntity:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/world/entity/Entity;
+        13: aload_0
+        14: ldc           #7                  // String attribute
+        16: invokestatic  #334                // Method net/minecraft/commands/arguments/ResourceArgument.getAttribute:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/core/Holder$Reference;
+        19: aload_0
+        20: ldc           #96                 // String id
+        22: invokestatic  #338                // Method net/minecraft/commands/arguments/IdentifierArgument.getId:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/resources/Identifier;
+        25: aload_0
+        26: ldc           #84                 // String value
+        28: invokestatic  #342                // Method com/mojang/brigadier/arguments/DoubleArgumentType.getDouble:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)D
+        31: getstatic     #373                // Field net/minecraft/world/entity/ai/attributes/AttributeModifier$Operation.ADD_MULTIPLIED_BASE:Lnet/minecraft/world/entity/ai/attributes/AttributeModifier$Operation;
+        34: invokestatic  #369                // Method addModifier:(Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/Holder;Lnet/minecraft/resources/Identifier;DLnet/minecraft/world/entity/ai/attributes/AttributeModifier$Operation;)I
+        37: ireturn
+
+  private static int lambda$register$6(com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: invokevirtual #325                // Method com/mojang/brigadier/context/CommandContext.getSource:()Ljava/lang/Object;
+         4: checkcast     #195                // class net/minecraft/commands/CommandSourceStack
+         7: aload_0
+         8: ldc           #29                 // String target
+        10: invokestatic  #330                // Method net/minecraft/commands/arguments/EntityArgument.getEntity:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/world/entity/Entity;
+        13: aload_0
+        14: ldc           #7                  // String attribute
+        16: invokestatic  #334                // Method net/minecraft/commands/arguments/ResourceArgument.getAttribute:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/core/Holder$Reference;
+        19: aload_0
+        20: ldc           #96                 // String id
+        22: invokestatic  #338                // Method net/minecraft/commands/arguments/IdentifierArgument.getId:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/resources/Identifier;
+        25: aload_0
+        26: ldc           #84                 // String value
+        28: invokestatic  #342                // Method com/mojang/brigadier/arguments/DoubleArgumentType.getDouble:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)D
+        31: getstatic     #376                // Field net/minecraft/world/entity/ai/attributes/AttributeModifier$Operation.ADD_VALUE:Lnet/minecraft/world/entity/ai/attributes/AttributeModifier$Operation;
+        34: invokestatic  #369                // Method addModifier:(Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/Holder;Lnet/minecraft/resources/Identifier;DLnet/minecraft/world/entity/ai/attributes/AttributeModifier$Operation;)I
+        37: ireturn
+
+  private static int lambda$register$5(com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: invokevirtual #325                // Method com/mojang/brigadier/context/CommandContext.getSource:()Ljava/lang/Object;
+         4: checkcast     #195                // class net/minecraft/commands/CommandSourceStack
+         7: aload_0
+         8: ldc           #29                 // String target
+        10: invokestatic  #330                // Method net/minecraft/commands/arguments/EntityArgument.getEntity:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/world/entity/Entity;
+        13: aload_0
+        14: ldc           #7                  // String attribute
+        16: invokestatic  #334                // Method net/minecraft/commands/arguments/ResourceArgument.getAttribute:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/core/Holder$Reference;
+        19: invokestatic  #379                // Method resetAttributeBase:(Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/Holder;)I
+        22: ireturn
+
+  private static int lambda$register$4(com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: invokevirtual #325                // Method com/mojang/brigadier/context/CommandContext.getSource:()Ljava/lang/Object;
+         4: checkcast     #195                // class net/minecraft/commands/CommandSourceStack
+         7: aload_0
+         8: ldc           #29                 // String target
+        10: invokestatic  #330                // Method net/minecraft/commands/arguments/EntityArgument.getEntity:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/world/entity/Entity;
+        13: aload_0
+        14: ldc           #7                  // String attribute
+        16: invokestatic  #334                // Method net/minecraft/commands/arguments/ResourceArgument.getAttribute:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/core/Holder$Reference;
+        19: aload_0
+        20: ldc           #63                 // String scale
+        22: invokestatic  #342                // Method com/mojang/brigadier/arguments/DoubleArgumentType.getDouble:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)D
+        25: invokestatic  #383                // Method getAttributeBase:(Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/Holder;D)I
+        28: ireturn
+
+  private static int lambda$register$3(com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: invokevirtual #325                // Method com/mojang/brigadier/context/CommandContext.getSource:()Ljava/lang/Object;
+         4: checkcast     #195                // class net/minecraft/commands/CommandSourceStack
+         7: aload_0
+         8: ldc           #29                 // String target
+        10: invokestatic  #330                // Method net/minecraft/commands/arguments/EntityArgument.getEntity:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/world/entity/Entity;
+        13: aload_0
+        14: ldc           #7                  // String attribute
+        16: invokestatic  #334                // Method net/minecraft/commands/arguments/ResourceArgument.getAttribute:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/core/Holder$Reference;
+        19: dconst_1
+        20: invokestatic  #383                // Method getAttributeBase:(Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/Holder;D)I
+        23: ireturn
+
+  private static int lambda$register$2(com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: invokevirtual #325                // Method com/mojang/brigadier/context/CommandContext.getSource:()Ljava/lang/Object;
+         4: checkcast     #195                // class net/minecraft/commands/CommandSourceStack
+         7: aload_0
+         8: ldc           #29                 // String target
+        10: invokestatic  #330                // Method net/minecraft/commands/arguments/EntityArgument.getEntity:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/world/entity/Entity;
+        13: aload_0
+        14: ldc           #7                  // String attribute
+        16: invokestatic  #334                // Method net/minecraft/commands/arguments/ResourceArgument.getAttribute:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/core/Holder$Reference;
+        19: aload_0
+        20: ldc           #84                 // String value
+        22: invokestatic  #342                // Method com/mojang/brigadier/arguments/DoubleArgumentType.getDouble:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)D
+        25: invokestatic  #387                // Method setAttributeBase:(Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/Holder;D)I
+        28: ireturn
+
+  private static int lambda$register$1(com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: invokevirtual #325                // Method com/mojang/brigadier/context/CommandContext.getSource:()Ljava/lang/Object;
+         4: checkcast     #195                // class net/minecraft/commands/CommandSourceStack
+         7: aload_0
+         8: ldc           #29                 // String target
+        10: invokestatic  #330                // Method net/minecraft/commands/arguments/EntityArgument.getEntity:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/world/entity/Entity;
+        13: aload_0
+        14: ldc           #7                  // String attribute
+        16: invokestatic  #334                // Method net/minecraft/commands/arguments/ResourceArgument.getAttribute:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/core/Holder$Reference;
+        19: aload_0
+        20: ldc           #63                 // String scale
+        22: invokestatic  #342                // Method com/mojang/brigadier/arguments/DoubleArgumentType.getDouble:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)D
+        25: invokestatic  #390                // Method getAttributeValue:(Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/Holder;D)I
+        28: ireturn
+
+  private static int lambda$register$0(com.mojang.brigadier.context.CommandContext) throws com.mojang.brigadier.exceptions.CommandSyntaxException;
+    Code:
+         0: aload_0
+         1: invokevirtual #325                // Method com/mojang/brigadier/context/CommandContext.getSource:()Ljava/lang/Object;
+         4: checkcast     #195                // class net/minecraft/commands/CommandSourceStack
+         7: aload_0
+         8: ldc           #29                 // String target
+        10: invokestatic  #330                // Method net/minecraft/commands/arguments/EntityArgument.getEntity:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/world/entity/Entity;
+        13: aload_0
+        14: ldc           #7                  // String attribute
+        16: invokestatic  #334                // Method net/minecraft/commands/arguments/ResourceArgument.getAttribute:(Lcom/mojang/brigadier/context/CommandContext;Ljava/lang/String;)Lnet/minecraft/core/Holder$Reference;
+        19: dconst_1
+        20: invokestatic  #390                // Method getAttributeValue:(Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/core/Holder;D)I
+        23: ireturn
+
+  private static com.mojang.brigadier.Message lambda$static$3(java.lang.Object, java.lang.Object, java.lang.Object);
+    Code:
+         0: ldc_w         #392                // String commands.attribute.failed.modifier_already_present
+         3: iconst_3
+         4: anewarray     #2                  // class java/lang/Object
+         7: dup
+         8: iconst_0
+         9: aload_2
+        10: aastore
+        11: dup
+        12: iconst_1
+        13: aload_1
+        14: aastore
+        15: dup
+        16: iconst_2
+        17: aload_0
+        18: aastore
+        19: invokestatic  #394                // InterfaceMethod net/minecraft/network/chat/Component.translatableEscape:(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;
+        22: areturn
+
+  private static com.mojang.brigadier.Message lambda$static$2(java.lang.Object, java.lang.Object, java.lang.Object);
+    Code:
+         0: ldc_w         #397                // String commands.attribute.failed.no_modifier
+         3: iconst_3
+         4: anewarray     #2                  // class java/lang/Object
+         7: dup
+         8: iconst_0
+         9: aload_1
+        10: aastore
+        11: dup
+        12: iconst_1
+        13: aload_0
+        14: aastore
+        15: dup
+        16: iconst_2
+        17: aload_2
+        18: aastore
+        19: invokestatic  #394                // InterfaceMethod net/minecraft/network/chat/Component.translatableEscape:(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;
+        22: areturn
+
+  private static com.mojang.brigadier.Message lambda$static$1(java.lang.Object, java.lang.Object);
+    Code:
+         0: ldc_w         #399                // String commands.attribute.failed.no_attribute
+         3: iconst_2
+         4: anewarray     #2                  // class java/lang/Object
+         7: dup
+         8: iconst_0
+         9: aload_0
+        10: aastore
+        11: dup
+        12: iconst_1
+        13: aload_1
+        14: aastore
+        15: invokestatic  #394                // InterfaceMethod net/minecraft/network/chat/Component.translatableEscape:(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;
+        18: areturn
+
+  private static com.mojang.brigadier.Message lambda$static$0(java.lang.Object);
+    Code:
+         0: ldc_w         #401                // String commands.attribute.failed.entity
+         3: iconst_1
+         4: anewarray     #2                  // class java/lang/Object
+         7: dup
+         8: iconst_0
+         9: aload_0
+        10: aastore
+        11: invokestatic  #394                // InterfaceMethod net/minecraft/network/chat/Component.translatableEscape:(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;
+        14: areturn
+
+  static {};
+    Code:
+         0: new           #175                // class com/mojang/brigadier/exceptions/DynamicCommandExceptionType
+         3: dup
+         4: invokedynamic #403,  0            // InvokeDynamic #22:apply:()Ljava/util/function/Function;
+         9: invokespecial #404                // Method com/mojang/brigadier/exceptions/DynamicCommandExceptionType."<init>":(Ljava/util/function/Function;)V
+        12: putstatic     #170                // Field ERROR_NOT_LIVING_ENTITY:Lcom/mojang/brigadier/exceptions/DynamicCommandExceptionType;
+        15: new           #165                // class com/mojang/brigadier/exceptions/Dynamic2CommandExceptionType
+        18: dup
+        19: invokedynamic #407,  0            // InvokeDynamic #23:apply:()Lcom/mojang/brigadier/exceptions/Dynamic2CommandExceptionType$Function;
+        24: invokespecial #410                // Method com/mojang/brigadier/exceptions/Dynamic2CommandExceptionType."<init>":(Lcom/mojang/brigadier/exceptions/Dynamic2CommandExceptionType$Function;)V
+        27: putstatic     #150                // Field ERROR_NO_SUCH_ATTRIBUTE:Lcom/mojang/brigadier/exceptions/Dynamic2CommandExceptionType;
+        30: new           #213                // class com/mojang/brigadier/exceptions/Dynamic3CommandExceptionType
+        33: dup
+        34: invokedynamic #413,  0            // InvokeDynamic #24:apply:()Lcom/mojang/brigadier/exceptions/Dynamic3CommandExceptionType$Function;
+        39: invokespecial #416                // Method com/mojang/brigadier/exceptions/Dynamic3CommandExceptionType."<init>":(Lcom/mojang/brigadier/exceptions/Dynamic3CommandExceptionType$Function;)V
+        42: putstatic     #208                // Field ERROR_NO_SUCH_MODIFIER:Lcom/mojang/brigadier/exceptions/Dynamic3CommandExceptionType;
+        45: new           #213                // class com/mojang/brigadier/exceptions/Dynamic3CommandExceptionType
+        48: dup
+        49: invokedynamic #419,  0            // InvokeDynamic #25:apply:()Lcom/mojang/brigadier/exceptions/Dynamic3CommandExceptionType$Function;
+        54: invokespecial #416                // Method com/mojang/brigadier/exceptions/Dynamic3CommandExceptionType."<init>":(Lcom/mojang/brigadier/exceptions/Dynamic3CommandExceptionType$Function;)V
+        57: putstatic     #267                // Field ERROR_MODIFIER_ALREADY_PRESENT:Lcom/mojang/brigadier/exceptions/Dynamic3CommandExceptionType;
+        60: return
+}

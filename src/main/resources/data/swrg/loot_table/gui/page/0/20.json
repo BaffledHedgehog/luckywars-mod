@@ -1,45 +1,45 @@
 {
-    "pools": [
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:item",
+          "name": "minecraft:dragon_egg",
+          "modifier": [
+            {
+              "entity": "this",
+              "name": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:dragon_egg",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_name",
-                            "entity": "this",
-                            "name": [
-                                {
-                                    "nbt": "page0.s20.Name",
-                                    "storage": "swrg:lang",
-                                    "interpret": true,
-                                    "source": "storage",
-                                    "type": "nbt"
-                                },
-                                {
-                                    "score": {
-                                        "name": "#lbctrinket",
-                                        "objective": "swrg.math"
-                                    }
-                                },
-                                {
-                                    "nbt": "page0.s201.Name",
-                                    "storage": "swrg:lang",
-                                    "interpret": true,
-                                    "source": "storage",
-                                    "type": "nbt"
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{Enchantments:[{id:\"minecraft:fortune\",lvl:5}]}"
-                        }
-                    ]
+                  "nbt": "page0.s20.Name",
+                  "storage": "swrg:lang",
+                  "interpret": true,
+                  "source": "storage",
+                  "type": "nbt"
+                },
+                {
+                  "score": {
+                    "name": "#lbctrinket",
+                    "objective": "swrg.math"
+                  }
+                },
+                {
+                  "nbt": "page0.s201.Name",
+                  "storage": "swrg:lang",
+                  "interpret": true,
+                  "source": "storage",
+                  "type": "nbt"
                 }
-            ]
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "tag": "{Enchantments:[{id:\"minecraft:fortune\",lvl:5}]}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

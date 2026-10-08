@@ -1,0 +1,83 @@
+﻿Compiled from "UniformGenerator.java"
+public final class net.minecraft.world.level.storage.loot.providers.number.floats.UniformGenerator extends java.lang.Record implements net.minecraft.world.level.storage.loot.providers.number.floats.ContextFloatProvider, net.minecraft.world.level.storage.loot.providers.number.RangeProvider<net.minecraft.world.level.storage.loot.providers.number.floats.ContextFloatProvider> {
+  private final net.minecraft.core.Holder<net.minecraft.world.level.storage.loot.providers.number.floats.ContextFloatProvider> min;
+
+  private final net.minecraft.core.Holder<net.minecraft.world.level.storage.loot.providers.number.floats.ContextFloatProvider> max;
+
+  public static final com.mojang.serialization.MapCodec<net.minecraft.world.level.storage.loot.providers.number.floats.UniformGenerator> MAP_CODEC;
+
+  public net.minecraft.world.level.storage.loot.providers.number.floats.UniformGenerator(net.minecraft.core.Holder<net.minecraft.world.level.storage.loot.providers.number.floats.ContextFloatProvider>, net.minecraft.core.Holder<net.minecraft.world.level.storage.loot.providers.number.floats.ContextFloatProvider>);
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Record."<init>":()V
+         4: aload_0
+         5: aload_1
+         6: putfield      #7                  // Field min:Lnet/minecraft/core/Holder;
+         9: aload_0
+        10: aload_2
+        11: putfield      #13                 // Field max:Lnet/minecraft/core/Holder;
+        14: return
+
+  public com.mojang.serialization.MapCodec<net.minecraft.world.level.storage.loot.providers.number.floats.UniformGenerator> codec();
+    Code:
+         0: getstatic     #16                 // Field MAP_CODEC:Lcom/mojang/serialization/MapCodec;
+         3: areturn
+
+  public float getFloatUnsafe(net.minecraft.world.level.storage.loot.LootContext);
+    Code:
+         0: aload_1
+         1: invokevirtual #20                 // Method net/minecraft/world/level/storage/loot/LootContext.getRandom:()Lnet/minecraft/util/RandomSource;
+         4: aload_0
+         5: invokevirtual #26                 // Method min:()Lnet/minecraft/core/Holder;
+         8: invokeinterface #29,  1           // InterfaceMethod net/minecraft/core/Holder.value:()Ljava/lang/Object;
+        13: checkcast     #35                 // class net/minecraft/world/level/storage/loot/providers/number/floats/ContextFloatProvider
+        16: aload_1
+        17: invokeinterface #37,  2           // InterfaceMethod net/minecraft/world/level/storage/loot/providers/number/floats/ContextFloatProvider.getFloatUnsafe:(Lnet/minecraft/world/level/storage/loot/LootContext;)F
+        22: aload_0
+        23: invokevirtual #41                 // Method max:()Lnet/minecraft/core/Holder;
+        26: invokeinterface #29,  1           // InterfaceMethod net/minecraft/core/Holder.value:()Ljava/lang/Object;
+        31: checkcast     #35                 // class net/minecraft/world/level/storage/loot/providers/number/floats/ContextFloatProvider
+        34: aload_1
+        35: invokeinterface #37,  2           // InterfaceMethod net/minecraft/world/level/storage/loot/providers/number/floats/ContextFloatProvider.getFloatUnsafe:(Lnet/minecraft/world/level/storage/loot/LootContext;)F
+        40: invokestatic  #43                 // Method net/minecraft/util/Mth.nextFloat:(Lnet/minecraft/util/RandomSource;FF)F
+        43: freturn
+
+  public final java.lang.String toString();
+    Code:
+         0: aload_0
+         1: invokedynamic #49,  0             // InvokeDynamic #0:toString:(Lnet/minecraft/world/level/storage/loot/providers/number/floats/UniformGenerator;)Ljava/lang/String;
+         6: areturn
+
+  public final int hashCode();
+    Code:
+         0: aload_0
+         1: invokedynamic #53,  0             // InvokeDynamic #0:hashCode:(Lnet/minecraft/world/level/storage/loot/providers/number/floats/UniformGenerator;)I
+         6: ireturn
+
+  public final boolean equals(java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokedynamic #57,  0             // InvokeDynamic #0:equals:(Lnet/minecraft/world/level/storage/loot/providers/number/floats/UniformGenerator;Ljava/lang/Object;)Z
+         7: ireturn
+
+  public net.minecraft.core.Holder<net.minecraft.world.level.storage.loot.providers.number.floats.ContextFloatProvider> min();
+    Code:
+         0: aload_0
+         1: getfield      #7                  // Field min:Lnet/minecraft/core/Holder;
+         4: areturn
+
+  public net.minecraft.core.Holder<net.minecraft.world.level.storage.loot.providers.number.floats.ContextFloatProvider> max();
+    Code:
+         0: aload_0
+         1: getfield      #13                 // Field max:Lnet/minecraft/core/Holder;
+         4: areturn
+
+  static {};
+    Code:
+         0: getstatic     #61                 // Field net/minecraft/world/level/storage/loot/providers/number/floats/ContextFloatProviders.CODEC:Lcom/mojang/serialization/Codec;
+         3: invokedynamic #67,  0             // InvokeDynamic #1:create:()Lnet/minecraft/world/level/storage/loot/providers/number/RangeProvider$Factory;
+         8: invokestatic  #71                 // InterfaceMethod net/minecraft/world/level/storage/loot/providers/number/RangeProvider.mapCodec:(Lcom/mojang/serialization/Codec;Lnet/minecraft/world/level/storage/loot/providers/number/RangeProvider$Factory;)Lcom/mojang/serialization/MapCodec;
+        11: putstatic     #16                 // Field MAP_CODEC:Lcom/mojang/serialization/MapCodec;
+        14: return
+}
