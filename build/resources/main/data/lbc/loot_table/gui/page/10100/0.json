@@ -1,0 +1,151 @@
+{
+  "type": "minecraft:empty",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:item_model": "lbc:score_items"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "entity": "this",
+              "name": {
+                "translate": "lbcskill.25",
+                "italic": false,
+                "color": "white"
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                {
+                  "translate": "lbcskill.25.lore.1",
+                  "italic": false,
+                  "color": "gray"
+                },
+                {
+                  "translate": "lbcskill.25.lore.2",
+                  "italic": false,
+                  "color": "gray"
+                },
+                {
+                  "translate": "lbcskill.25.lore.3",
+                  "italic": false,
+                  "color": "gray"
+                },
+                {
+                  "translate": "lbcskill.25.lore.4",
+                  "italic": false,
+                  "color": "gray"
+                },
+                {
+                  "translate": "lbcskill.25.lore.5",
+                  "italic": false,
+                  "color": "gray"
+                },
+                {
+                  "translate": "lbcskill.25.lore.6",
+                  "italic": false,
+                  "color": "gray"
+                },
+                {
+                  "translate": "lbcskill.25.lore.7",
+                  "italic": false,
+                  "color": "gray"
+                },
+                {
+                  "translate": "lbcskill.25.lore.8",
+                  "italic": false,
+                  "color": "gray"
+                },
+                {
+                  "translate": "lbcskill.25.lore.9",
+                  "italic": false,
+                  "color": "gray"
+                },
+                {
+                  "translate": "lbcskill.25.lore.10",
+                  "italic": false,
+                  "color": "gray"
+                },
+                {
+                  "translate": "lbcskill.25.lore.11",
+                  "italic": false,
+                  "color": "gray"
+                },
+                {
+                  "translate": "lbcskill.25.lore.12",
+                  "italic": false,
+                  "color": "gray"
+                },
+                {
+                  "translate": "lbcskill.25.lore.13",
+                  "italic": false,
+                  "color": "gray"
+                },
+                [
+                  {
+                    "translate": "pick_rate",
+                    "italic": false,
+                    "color": "gold"
+                  },
+                  {
+                    "storage": "stats:stats",
+                    "nbt": "pick_rate_skill[27]",
+                    "italic": false,
+                    "color": "yellow"
+                  },
+                  {
+                    "translate": "pick_count",
+                    "italic": false,
+                    "color": "gold"
+                  },
+                  {
+                    "storage": "stats:stats",
+                    "nbt": "pick_count_skill[27]",
+                    "italic": false,
+                    "color": "yellow"
+                  }
+                ],
+                [
+                  {
+                    "translate": "win_rate",
+                    "italic": false,
+                    "color": "gold"
+                  },
+                  {
+                    "storage": "stats:stats",
+                    "nbt": "win_rate_skill[27]",
+                    "italic": false,
+                    "color": "yellow"
+                  },
+                  {
+                    "translate": "win_count",
+                    "italic": false,
+                    "color": "gold"
+                  },
+                  {
+                    "storage": "stats:stats",
+                    "nbt": "win_count_skill[27]",
+                    "italic": false,
+                    "color": "yellow"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

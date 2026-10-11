@@ -1,0 +1,59 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:light_blue_shulker_box",
+          "modifier": [
+            {
+              "entity": "this",
+              "name": {
+                "nbt": "page5000.s2",
+                "storage": "swrg:lang",
+                "interpret": true,
+                "source": "storage",
+                "type": "nbt"
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "entity": "this",
+              "lore": [
+                {
+                  "nbt": "gui.keys",
+                  "storage": "swrg:lang",
+                  "interpret": true,
+                  "extra": [
+                    {
+                      "text": ": ",
+                      "extra": [
+                        {
+                          "score": {
+                            "name": "@s",
+                            "objective": "swrg.keys2"
+                          },
+                          "type": "score"
+                        }
+                      ],
+                      "type": "text"
+                    }
+                  ],
+                  "source": "storage",
+                  "type": "nbt"
+                }
+              ],
+              "mode": "replace_all",
+              "type": "minecraft:set_lore"
+            },
+            {
+              "components": {},
+              "type": "minecraft:set_components"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

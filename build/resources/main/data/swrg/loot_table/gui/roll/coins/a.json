@@ -1,0 +1,59 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:sunflower",
+          "modifier": [
+            {
+              "tag": "{HideFlags:127,rewardcoin:1}",
+              "type": "minecraft:set_custom_data"
+            },
+            {
+              "components": {
+                "item_model": "lbc:coin_a"
+              },
+              "type": "minecraft:set_components"
+            }
+          ]
+        }
+      ],
+      "modifier": [
+        {
+          "entity": "this",
+          "lore": [
+            {
+              "nbt": "rare.a",
+              "storage": "swrg:lang",
+              "interpret": true,
+              "source": "storage",
+              "type": "nbt"
+            }
+          ],
+          "mode": "replace_all",
+          "type": "minecraft:set_lore"
+        },
+        {
+          "entity": "this",
+          "name": {
+            "nbt": "gui.coins",
+            "storage": "swrg:lang",
+            "interpret": true,
+            "color": "aqua",
+            "extra": [
+              {
+                "text": " x20",
+                "type": "text"
+              }
+            ],
+            "source": "storage",
+            "type": "nbt"
+          },
+          "type": "minecraft:set_name"
+        }
+      ]
+    }
+  ]
+}

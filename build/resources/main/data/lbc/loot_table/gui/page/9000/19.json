@@ -1,0 +1,110 @@
+{
+  "type": "minecraft:empty",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:leather_helmet",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:item_model": "lbc:armors/clownmask",
+                "minecraft:equippable": {
+                  "slot": "head",
+                  "asset_id": "lbc:clown_mask"
+                },
+                "minecraft:max_damage": 25
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "entity": "this",
+              "name": {
+                "translate": "lbckit.19",
+                "italic": false,
+                "color": "white"
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                {
+                  "translate": "lbckit.19.lore.1",
+                  "italic": false,
+                  "color": "gray"
+                },
+                {
+                  "translate": "lbckit.19.lore.2",
+                  "italic": false,
+                  "color": "gray"
+                },
+                {
+                  "translate": "lbckit.19.lore.3",
+                  "italic": false,
+                  "color": "gray"
+                },
+                [
+                  {
+                    "translate": "pick_rate",
+                    "italic": false,
+                    "color": "gold"
+                  },
+                  {
+                    "storage": "stats:stats",
+                    "nbt": "pick_rate_kit[19]",
+                    "italic": false,
+                    "color": "yellow"
+                  },
+                  {
+                    "translate": "pick_count",
+                    "italic": false,
+                    "color": "gold"
+                  },
+                  {
+                    "storage": "stats:stats",
+                    "nbt": "pick_count_kit[19]",
+                    "italic": false,
+                    "color": "yellow"
+                  }
+                ],
+                [
+                  {
+                    "translate": "win_rate",
+                    "italic": false,
+                    "color": "gold"
+                  },
+                  {
+                    "storage": "stats:stats",
+                    "nbt": "win_rate_kit[19]",
+                    "italic": false,
+                    "color": "yellow"
+                  },
+                  {
+                    "translate": "win_count",
+                    "italic": false,
+                    "color": "gold"
+                  },
+                  {
+                    "storage": "stats:stats",
+                    "nbt": "win_count_kit[19]",
+                    "italic": false,
+                    "color": "yellow"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{clown_mask:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

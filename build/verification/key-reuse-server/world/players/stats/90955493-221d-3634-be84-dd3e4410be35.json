@@ -1,13 +1,16 @@
 {
   "stats": {
-    "minecraft:picked_up": {
-      "minecraft:diamond": 1
-    },
     "minecraft:custom": {
       "minecraft:time_since_rest": 0,
-      "minecraft:damage_taken": 25000,
-      "minecraft:deaths": 25,
+      "minecraft:damage_taken": 233000,
+      "minecraft:deaths": 35,
       "minecraft:time_since_death": 0
+    },
+    "minecraft:picked_up": {
+      "minecraft:diamond": 3
+    },
+    "minecraft:killed_by": {
+      "minecraft:player": 2
     }
   },
   "DataVersion": 5023

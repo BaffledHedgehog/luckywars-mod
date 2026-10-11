@@ -1,0 +1,29 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "weight": 10,
+          "value": "swrg:gui/roll/coins/d"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "weight": 90,
+          "value": "swrg:gui/roll/coins/c"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "weight": 350,
+          "value": "swrg:gui/roll/coins/b"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "weight": 550,
+          "value": "swrg:gui/roll/coins/a"
+        }
+      ]
+    }
+  ]
+}

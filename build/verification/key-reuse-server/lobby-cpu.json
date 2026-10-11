@@ -1,0 +1,23 @@
+{
+  "retainedProbeEntities": 512,
+  "players": 2,
+  "callsPerSample": 200000,
+  "cleanupCpuNanosPerCall": [
+    781.25,
+    468.75,
+    468.75,
+    468.75,
+    546.875,
+    390.625,
+    468.75
+  ],
+  "inventoryCpuNanosPerTwoPlayers": [
+    390.625,
+    390.625,
+    312.5,
+    390.625,
+    312.5,
+    312.5,
+    390.625
+  ]
+}

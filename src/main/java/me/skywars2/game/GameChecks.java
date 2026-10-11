@@ -32,6 +32,7 @@ import java.util.UUID;
 public final class GameChecks {
     private static final Map<UUID, int[]> baseline = new LinkedHashMap<>();
     private static SlotBasedGui staleMenu;
+    private static eu.pb4.sgui.api.elements.GuiElement staleShopButton;
     private static ServerPlayer stalePlayer;
     private static GameConfigSnapshot fastConfigSnapshot;
     private static WatchState watcher;
@@ -39,6 +40,7 @@ public final class GameChecks {
     private static Runnable deferredCheck;
     private static int deferredTicks;
     private static final String[] BOT_NAMES = {"TestAlpha", "TestBeta"};
+    private static final int CPU_SAMPLE_CALLS = 200_000;
     private GameChecks() {}
 
     private record GameConfigSnapshot(int lives, int countdownSeconds, int stageOneSeconds,
@@ -81,6 +83,23 @@ public final class GameChecks {
                     require(game.inLobby(), "Lobby is ready");
                     require(game.maps().level() != null, "Arena dimension exists");
                     require(game.maps().catalog().stream().filter(MapManager.MapInfo::available).count() == 42, "42 complete maps");
+                    for (var entity : game.maps().level().getAllEntities()) {
+                        if (!entity.entityTags().contains("swrg.lobby")) continue;
+                        require(entity.getCustomName() != null, "Lobby menu entity retains its source name");
+                        translation(entity.getCustomName(), "swrg.entity.lobby");
+                        requireLegacyStyle(entity.getCustomName(), net.minecraft.ChatFormatting.GREEN, "Lobby entity name style");
+                    }
+                    var labels = java.util.stream.StreamSupport.stream(game.maps().level().getAllEntities().spliterator(), false)
+                            .filter(entity -> entity instanceof net.minecraft.world.entity.Display.TextDisplay
+                                    && entity.entityTags().contains("swrg.quickstart"))
+                            .map(entity -> (net.minecraft.world.entity.Display.TextDisplay) entity)
+                            .sorted(java.util.Comparator.comparingDouble((net.minecraft.world.entity.Display.TextDisplay label) -> label.getY()).reversed())
+                            .toList();
+                    require(labels.size() == 3, "Three source quickstart labels survive lobby placement");
+                    String[] labelKeys = {"swrg.lobby.quickstart.title", "swrg.lobby.quickstart.map", "swrg.lobby.quickstart.hint"};
+                    for (int index = 0; index < labels.size(); index++) translation(labels.get(index).getText(), labelKeys[index]);
+                    require(java.util.Objects.equals(labels.getFirst().getText().getStyle().getColor(),
+                            net.minecraft.network.chat.TextColor.fromLegacyFormat(net.minecraft.ChatFormatting.YELLOW)), "Quickstart title retains source yellow");
                     for (var player : game.server().getPlayerList().getPlayers()) {
                         require(player.level() == game.maps().level(), "Player in arena");
                         require(player.gameMode.getGameModeForPlayer() == GameType.ADVENTURE, "Lobby adventure mode");
@@ -91,8 +110,10 @@ public final class GameChecks {
                     snapshot(game);
                 }
                 case "menus" -> checkMenus(game);
+                case "menu-navigation" -> checkMenuNavigation(game);
                 case "design-export" -> exportMenuDesign(game);
                 case "lobby-inventory" -> checkLobbyInventory(game);
+                case "lobby-cpu" -> measureLobbyCpu(game);
                 case "inventory-unlocked" -> checkUnlockedInventory(game);
                 case "kill-reward" -> {
                     require(game.playing(), "Kill reward requires an active match");
@@ -242,8 +263,23 @@ public final class GameChecks {
         var arena = game.maps().level();
         var kept = new net.minecraft.world.entity.decoration.ArmorStand(arena, 2, 128, 2);
         kept.entityTags().add("map_object"); arena.addFreshEntity(kept);
+        var taggedAfterLoad = new net.minecraft.world.entity.decoration.ArmorStand(arena, 4, 128, 2);
+        require(arena.addFreshEntity(taggedAfterLoad), "Post-load tag probe added");
+        taggedAfterLoad.entityTags().add("strict_map_object");
+        var retagged = new net.minecraft.world.entity.decoration.ArmorStand(arena, 5, 128, 2);
+        retagged.entityTags().add("map_object");
+        require(arena.addFreshEntity(retagged), "Retained tag-change probe added");
+        game.maps().cleanupLobbyEntities();
+        require(!retagged.isRemoved(), "Tag-change probe initially retained");
+        retagged.entityTags().clear();
+        // Force a complete audit window after direct tag mutation; no load event fires.
+        for (int tick = 0; tick < 20; tick++) game.maps().cleanupLobbyEntities();
+        require(retagged.isRemoved(), "Direct tag mutation is caught within twenty lobby ticks");
+        require(!taggedAfterLoad.isRemoved(), "Source tag assigned after load callback is respected");
         var removed = new net.minecraft.world.entity.decoration.ArmorStand(arena, 3, 128, 2);
         arena.addFreshEntity(removed);
+        game.maps().cleanupLobbyEntities();
+        require(removed.isRemoved(), "New untagged entity is removed before the next periodic audit");
         var overworld = game.server().overworld();
         boolean alreadyForced = overworld.getForceLoadedChunks().contains(net.minecraft.world.level.ChunkPos.pack(0, 0));
         overworld.setChunkForced(0, 0, true);
@@ -260,13 +296,61 @@ public final class GameChecks {
                     other.level().dimension().identifier(), overworld.getForceLoadedChunks().contains(net.minecraft.world.level.ChunkPos.pack(0, 0)),
                     visibleOther, overworld.getEntity(other.getUUID()) != null, other.isRemoved());
             require(!kept.isRemoved(), "Arena map_object preserved");
+            require(!taggedAfterLoad.isRemoved(), "Arena tag assigned after addFreshEntity preserved");
             require(removed.isRemoved(), "Untagged arena entity removed");
             require(other.isRemoved(), "Tags do not protect entities in other dimensions");
             require(player.getRemainingFireTicks() <= 0, "Lobby fire extinguished without powder snow");
             kept.discard();
+            taggedAfterLoad.discard();
             if (!alreadyForced) overworld.setChunkForced(0, 0, false);
             SkyWars2.LOGGER.info("[check] PASS lobby-rules");
         };
+    }
+
+    /** Controlled operator benchmark, not a measurement of total server CPU/MSPT. */
+    private static void measureLobbyCpu(GameController game) {
+        require(game.inLobby(), "Lobby CPU benchmark requires ready lobby");
+        require(game.server().getPlayerList().getPlayers().size() == 2, "Benchmark requires exactly two test players");
+        var probes = new java.util.ArrayList<net.minecraft.world.entity.decoration.ArmorStand>();
+        var output = new com.google.gson.JsonObject();
+        try {
+            for (int index = 0; index < 512; index++) {
+                var probe = new net.minecraft.world.entity.decoration.ArmorStand(game.maps().level(), 2, 128, 2);
+                probe.entityTags().add("map_object");
+                require(game.maps().level().addFreshEntity(probe), "CPU benchmark probe added");
+                probes.add(probe);
+            }
+            output.addProperty("retainedProbeEntities", probes.size());
+            output.addProperty("players", 2);
+            output.addProperty("callsPerSample", CPU_SAMPLE_CALLS);
+            output.add("cleanupCpuNanosPerCall", measureCpu(game.maps()::cleanupLobbyEntities));
+            output.add("inventoryCpuNanosPerTwoPlayers", measureCpu(() -> {
+                for (var player : game.server().getPlayerList().getPlayers()) game.enforceLobbyInventory(player);
+            }));
+            require(probes.stream().noneMatch(net.minecraft.world.entity.Entity::isRemoved), "CPU probes remain whitelisted");
+            java.nio.file.Files.writeString(java.nio.file.Path.of("lobby-cpu.json"),
+                    new com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(output), StandardCharsets.UTF_8);
+            SkyWars2.LOGGER.info("[check] lobby-cpu {}", output);
+        } catch (java.io.IOException error) {
+            throw new IllegalStateException("Cannot write CPU benchmark", error);
+        } finally {
+            probes.forEach(net.minecraft.world.entity.Entity::discard);
+        }
+        SkyWars2.LOGGER.info("[check] PASS lobby-cpu");
+    }
+
+    private static com.google.gson.JsonArray measureCpu(Runnable work) {
+        var bean = java.lang.management.ManagementFactory.getThreadMXBean();
+        require(bean.isCurrentThreadCpuTimeSupported(), "JVM supports current-thread CPU timing");
+        if (!bean.isThreadCpuTimeEnabled()) bean.setThreadCpuTimeEnabled(true);
+        for (int iteration = 0; iteration < 8000; iteration++) work.run();
+        var samples = new com.google.gson.JsonArray();
+        for (int sample = 0; sample < 7; sample++) {
+            long started = bean.getCurrentThreadCpuTime();
+            for (int iteration = 0; iteration < CPU_SAMPLE_CALLS; iteration++) work.run();
+            samples.add((bean.getCurrentThreadCpuTime() - started) / (double) CPU_SAMPLE_CALLS);
+        }
+        return samples;
     }
 
     private static void snapshot(GameController game) {
@@ -677,8 +761,10 @@ public final class GameChecks {
         require(dualistLore != null && dualistLore.lines().size() == 1, "Legacy Vex skill lore has exactly its original description row");
         translation(dualistLore.lines().getFirst(), "dualist_skill.lore");
         requireLegacyStyle(dualistLore.lines().getFirst(), net.minecraft.ChatFormatting.GRAY, "Legacy Vex skill lore style");
+        checkDynamicDesign(game, player, profile);
 
         int previousCoins = profile.coins;
+        int previousMemcoins = profile.memcoins;
         int[] previousKeys = profile.keys.clone();
         try {
             profile.coins = 1000;
@@ -715,9 +801,12 @@ public final class GameChecks {
 
             stalePlayer = player;
             staleMenu = currentGui(player);
-            require(staleMenu.getGuiElement(0) != null, "Keep real keyshop callback for stale-menu suite");
+            staleShopButton = staleMenu.getGuiElement(0);
+            require(staleShopButton != null && staleShopButton.getItemStack().is(Items.TRIAL_KEY),
+                    "Keep real keyshop callback for stale-menu suite");
         } finally {
             profile.coins = previousCoins;
+            profile.memcoins = previousMemcoins;
             System.arraycopy(previousKeys, 0, profile.keys, 0, profile.keys.length);
             game.players().save();
         }
@@ -725,15 +814,18 @@ public final class GameChecks {
 
     private static void checkStaleMenu(GameController game) {
         require(game.stage() == GameController.Stage.COUNTDOWN, "Stale menu check requires countdown stage");
-        require(staleMenu != null && stalePlayer != null, "Run /skywars check menus in the lobby first");
+        require(staleMenu != null && stalePlayer != null && staleShopButton != null, "Run /skywars check menus in the lobby first");
         require(game.server().getPlayerList().getPlayer(stalePlayer.getUUID()) != null, "Stale-menu test player remains online");
         PlayerStore.Profile profile = game.players().get(stalePlayer.getUUID());
         int coins = profile.coins;
         int[] keys = profile.keys.clone();
-        click(staleMenu, 0);
+        // The live menu is reused during navigation; retain the actual old button,
+        // rather than looking up whichever new page now occupies slot 0.
+        staleShopButton.getGuiCallback().click(0, ClickType.MOUSE_LEFT, ContainerInput.PICKUP, staleMenu);
         require(profile.coins == coins, "Stale keyshop callback cannot charge during countdown");
         require(java.util.Arrays.equals(profile.keys, keys), "Stale keyshop callback cannot grant keys during countdown");
         staleMenu = null;
+        staleShopButton = null;
         stalePlayer = null;
     }
 
@@ -782,11 +874,140 @@ public final class GameChecks {
                 "Native compass packet opens the main menu during loading");
     }
 
+    private static void checkMenuNavigation(GameController game) {
+        require(game.inLobby(), "Navigation checks require the ready lobby");
+        var player = game.server().getPlayerList().getPlayers().getFirst();
+        game.menus().open(player, GameMenus.Page.SETTINGS);
+        require(currentGui(player).getGuiElement(25) == null, "Global language button removed");
+        int containerId = player.containerMenu.containerId;
+        game.menus().open(player, GameMenus.Page.MAPS);
+        String[] pages = {"2000", "2000b", "2100", "2200"};
+        for (int repeat = 0; repeat < 8; repeat++) {
+            for (int index = 0; index < pages.length; index++) {
+                translation(currentGui(player).getGuiElement(0).getItemStack().getHoverName(), "swrg.gui.map." + pages[index] + ".0");
+                if (index + 1 < pages.length) inventoryClick(player, 26, 0, ContainerInput.PICKUP);
+                require(player.containerMenu.containerId == containerId, "Navigation preserves the open container ID");
+                requireLobbyInventory(player);
+            }
+            require(currentGui(player).getGuiElement(26) == null, "Last map page has no next button");
+            for (int index = 1; index < pages.length; index++) inventoryClick(player, 18, 0, ContainerInput.PICKUP);
+        }
+        var profile = game.players().get(player.getUUID());
+        int kit = profile.lbcKit, skill = profile.lbcSkill, trinket = profile.lbcTrinket;
+        int[] levelups = profile.levelups.clone();
+        try {
+            for (var page : new GameMenus.Page[] {GameMenus.Page.LBC_KITS, GameMenus.Page.LBC_SKILLS,
+                    GameMenus.Page.LBC_LEVELUPS, GameMenus.Page.LBC_TRINKETS}) {
+                profile.lbcKit = 3; profile.lbcSkill = 4; profile.lbcTrinket = 5;
+                java.util.Arrays.fill(profile.levelups, 6);
+                game.menus().open(player, page);
+                requireItem(currentGui(player), 25, Items.BARRIER, "Perk reset appears on first page: " + page);
+                if (page != GameMenus.Page.LBC_SKILLS) {
+                    String model = switch (page) {
+                        case LBC_KITS -> "lbc:broken_totem";
+                        case LBC_LEVELUPS -> "lbc:luck_clover";
+                        default -> "lbc:trinket_0";
+                    };
+                    require(net.minecraft.resources.Identifier.parse(model).equals(currentGui(player).getGuiElement(0)
+                            .getItemStack().get(DataComponents.ITEM_MODEL)), "Loot codec preserves source item model: " + model);
+                }
+                inventoryClick(player, 26, 0, ContainerInput.PICKUP);
+                requireItem(currentGui(player), 25, Items.BARRIER, "Perk reset appears on second page: " + page);
+                require(currentGui(player).getGuiElement(26) == null, "Last perk page has no next button");
+                if (page != GameMenus.Page.LBC_TRINKETS)
+                    require(currentGui(player).getGuiElement(0) != null, "Second perk page contains its source cards: " + page);
+                inventoryClick(player, 25, 0, ContainerInput.PICKUP);
+                switch (page) {
+                    case LBC_KITS -> require(profile.lbcKit == 0 && profile.lbcSkill == 4 && profile.lbcTrinket == 5,
+                            "Kit reset preserves other perk selections");
+                    case LBC_SKILLS -> require(profile.lbcSkill == 0 && profile.lbcKit == 3 && profile.lbcTrinket == 5,
+                            "Skill reset preserves other perk selections");
+                    case LBC_TRINKETS -> require(profile.lbcTrinket == 0 && profile.lbcKit == 3 && profile.lbcSkill == 4,
+                            "Trinket reset preserves other perk selections");
+                    case LBC_LEVELUPS -> require(java.util.Arrays.stream(profile.levelups).allMatch(value -> value == 0)
+                            && profile.lbcKit == 3 && profile.lbcSkill == 4, "Levelup reset preserves other perk selections");
+                    default -> { }
+                }
+                var saved = PlayerStore.load().get(player.getUUID());
+                require(saved.lbcKit == profile.lbcKit && saved.lbcSkill == profile.lbcSkill
+                        && saved.lbcTrinket == profile.lbcTrinket && java.util.Arrays.equals(saved.levelups, profile.levelups),
+                        "Perk reset persists to disk: " + page);
+                inventoryClick(player, 18, 0, ContainerInput.PICKUP);
+                inventoryClick(player, 18, 0, ContainerInput.PICKUP);
+                requireLobbyInventory(player);
+            }
+        } finally {
+            profile.lbcKit = kit; profile.lbcSkill = skill; profile.lbcTrinket = trinket;
+            System.arraycopy(levelups, 0, profile.levelups, 0, levelups.length);
+            game.players().save();
+            game.menus().open(player);
+        }
+    }
+
     private static void inventoryClick(ServerPlayer player, int slot, int button, ContainerInput input) {
         var menu = player.containerMenu;
         player.connection.handleContainerClick(new net.minecraft.network.protocol.game.ServerboundContainerClickPacket(
                 menu.containerId, menu.getStateId(), (short) slot, (byte) button, input,
                 new it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap<>(), net.minecraft.network.HashedStack.EMPTY));
+    }
+
+    private static void checkDynamicDesign(GameController game, ServerPlayer player, PlayerStore.Profile profile) {
+        int kit = profile.kit, skill = profile.skill;
+        int games = profile.games, wins = profile.wins, kills = profile.kills, deaths = profile.deaths;
+        try {
+            profile.kit = 0; profile.skill = 0;
+            for (var page : new GameMenus.Page[] {GameMenus.Page.VANILLA_KITS, GameMenus.Page.VANILLA_SKILLS}) {
+                game.menus().open(player, page);
+                var before = currentGui(player).getGuiElement(0).getItemStack().get(DataComponents.LORE);
+                click(currentGui(player), 0);
+                var selected = currentGui(player).getGuiElement(0).getItemStack();
+                var after = selected.get(DataComponents.LORE);
+                require(Boolean.TRUE.equals(selected.get(DataComponents.ENCHANTMENT_GLINT_OVERRIDE)), "Selected source item glints: " + page);
+                require(after != null && before != null && after.lines().size() == before.lines().size() + 1,
+                        "Selection prepends one row without removing source lore: " + page);
+                translation(after.lines().getFirst(), "swrg.gui.select");
+                for (int index = 0; index < before.lines().size(); index++) {
+                    require(after.lines().get(index + 1).equals(before.lines().get(index)), "Selection retains exact source lore row " + index);
+                }
+            }
+            profile.games = 3; profile.wins = 1; profile.kills = 1;
+            for (int divisor : new int[] {20, 8}) {
+                profile.deaths = divisor;
+                game.menus().open(player);
+                var lore = currentGui(player).getGuiElement(8).getItemStack().get(DataComponents.LORE);
+                require(lore != null && lore.lines().size() == 3, "Profile chooses exactly one conditional KD row");
+                require(lore.lines().get(1).getString().endsWith("33"), "Source winrate retains integer precision");
+                require(lore.lines().get(2).getString().endsWith(divisor == 20 ? "0.05" : "0.12"), "Source KD retains two decimals");
+                click(currentGui(player), 8);
+                var stats = currentGui(player);
+                requireItem(stats, 8, Items.PLAYER_HEAD, "Statistics retains original profile head");
+                requireItem(stats, 18, Items.SPECTRAL_ARROW, "Statistics retains back navigation");
+                Component deathsName = stats.getGuiElement(11).getItemStack().getHoverName();
+                require(deathsName.equals(Component.translatable("skywars2.gui.stats.deaths", divisor)
+                                .withStyle(style -> style.withColor(net.minecraft.ChatFormatting.GREEN).withItalic(false))),
+                        "Statistics refreshes actual deaths on every opening");
+                require(stats.getGuiElement(10).getItemStack().getHoverName().equals(
+                                Component.translatable("skywars2.gui.stats.wins_kills", profile.wins, profile.kills)
+                                        .withStyle(style -> style.withColor(net.minecraft.ChatFormatting.GREEN).withItalic(false))),
+                        "Statistics includes actual wins and kills");
+                int[] walletSlots = {13, 14};
+                int[] balances = {profile.coins, profile.memcoins};
+                for (int index = 0; index < walletSlots.length; index++) {
+                    var balance = stats.getGuiElement(walletSlots[index]).getItemStack().get(DataComponents.LORE);
+                    require(balance != null && balance.lines().getFirst().getString().equals(Integer.toString(balances[index])),
+                            "Statistics reads current wallet balance " + walletSlots[index]);
+                }
+                var keys = stats.getGuiElement(16).getItemStack().get(DataComponents.LORE);
+                require(keys != null && keys.lines().getFirst().equals(Component.translatable("skywars2.gui.stats.keys.list",
+                                profile.keys[0], profile.keys[1], profile.keys[2], profile.keys[3], profile.keys[4])
+                                .withStyle(style -> style.withColor(net.minecraft.ChatFormatting.AQUA).withItalic(false))),
+                        "Statistics includes all five key balances");
+            }
+        } finally {
+            profile.kit = kit; profile.skill = skill;
+            profile.games = games; profile.wins = wins; profile.kills = kills; profile.deaths = deaths;
+            game.players().save();
+        }
     }
 
     private static void exportMenuDesign(GameController game) {

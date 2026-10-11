@@ -1,0 +1,85 @@
+{
+  "type": "minecraft:empty",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:arrow",
+          "modifier": [
+            {
+              "entity": "this",
+              "name": {
+                "translate": "lbclevelup.28",
+                "italic": false,
+                "color": "white"
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                {
+                  "translate": "lore.lbclevelup.28",
+                  "italic": false,
+                  "color": "gray"
+                },
+                [
+                  {
+                    "translate": "pick_rate",
+                    "italic": false,
+                    "color": "gold"
+                  },
+                  {
+                    "storage": "stats:stats",
+                    "nbt": "pick_rate_levelup[28]",
+                    "italic": false,
+                    "color": "yellow"
+                  },
+                  {
+                    "translate": "pick_count",
+                    "italic": false,
+                    "color": "gold"
+                  },
+                  {
+                    "storage": "stats:stats",
+                    "nbt": "pick_count_levelup[28]",
+                    "italic": false,
+                    "color": "yellow"
+                  }
+                ],
+                [
+                  {
+                    "translate": "win_rate",
+                    "italic": false,
+                    "color": "gold"
+                  },
+                  {
+                    "storage": "stats:stats",
+                    "nbt": "win_rate_levelup[28]",
+                    "italic": false,
+                    "color": "yellow"
+                  },
+                  {
+                    "translate": "win_count",
+                    "italic": false,
+                    "color": "gold"
+                  },
+                  {
+                    "storage": "stats:stats",
+                    "nbt": "win_count_levelup[28]",
+                    "italic": false,
+                    "color": "yellow"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

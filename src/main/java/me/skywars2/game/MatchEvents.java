@@ -6,11 +6,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.PriorityQueue;
 import java.util.concurrent.ThreadLocalRandom;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.resources.Identifier;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.monster.Vex;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -20,6 +37,7 @@ import net.minecraft.network.chat.Component;
 /** Owns the timed phase events for one ordinary SkyWars match. */
 public final class MatchEvents {
     private static final int TICKS_PER_SECOND = 20;
+    private static final TagKey<Item> SKILL_FOOD = TagKey.create(Registries.ITEM, Identifier.parse("swrg:food"));
     private static final Map<Integer, List<String>> KIT_COMMANDS = Map.ofEntries(
             Map.entry(1, List.of("minecraft:tnt 8", "minecraft:flint_and_steel", "minecraft:golden_chestplate[enchantments={\"minecraft:blast_protection\":100}]")),
             Map.entry(2, List.of("minecraft:wolf_spawn_egg 2", "minecraft:bone 16")),
@@ -49,13 +67,39 @@ public final class MatchEvents {
     private final GameConfig config;
     private final PlayerStore players;
     private final Map<UUID, SkillState> skillStates = new HashMap<>();
+    private final PriorityQueue<SkillState> pendingVex = new PriorityQueue<>(
+            java.util.Comparator.comparingInt(state -> state.vexTick));
     private int nextWitherTick = -1;
     private int nextTntTick = -1;
     private boolean running;
 
     private static final class SkillState {
-        int skill;
-        SkillState(int skill) { this.skill = skill; }
+        final int skill;
+        final ServerPlayer owner;
+        final Set<Vex> vexes = new HashSet<>();
+        int vexTick = -1;
+        SkillState(int skill, ServerPlayer owner) { this.skill = skill; this.owner = owner; }
+    }
+
+    /** Vanilla entity ID/AI; only ownership, friendly targets and match lifetime differ. */
+    private final class SkillVex extends Vex {
+        private final SkillState state;
+        SkillVex(SkillState state) {
+            super(EntityTypes.VEX, state.owner.level());
+            this.state = state;
+        }
+        @Override public boolean canAttack(LivingEntity target) {
+            return state != null && activeSkillOwner(state.owner) && state.skill == 13
+                    && skillStates.get(state.owner.getUUID()) == state && players.get(state.owner.getUUID()).skill == 13
+                    && target != state.owner && !state.owner.isAlliedTo(target)
+                    && (!(target instanceof ServerPlayer player) || controller.allowDamage(player))
+                    && super.canAttack(target);
+        }
+        @Override public boolean doHurtTarget(ServerLevel level, Entity target) {
+            return target instanceof LivingEntity living && canAttack(living) && super.doHurtTarget(level, target);
+        }
+        // Reloading as a plain vanilla Vex would lose the Java owner/target guard.
+        @Override public boolean shouldBeSaved() { return false; }
     }
 
     public MatchEvents(GameController controller, MapManager maps, GameConfig config, PlayerStore players) {
@@ -133,6 +177,7 @@ public final class MatchEvents {
             dropTnt();
             nextTntTick = now + 5 * TICKS_PER_SECOND;
         }
+        tickVexSummons(now);
         if (config.vanillaSkills) {
             for (ServerPlayer player : controller.alivePlayers()) tickSkill(player);
         }
@@ -143,6 +188,8 @@ public final class MatchEvents {
         running = false;
         nextWitherTick = -1;
         nextTntTick = -1;
+        pendingVex.clear();
+        for (SkillState state : skillStates.values()) discardVexes(state);
         skillStates.clear();
     }
 
@@ -163,17 +210,98 @@ public final class MatchEvents {
 
     /** Records the selected skill for a fresh spawn or respawn. */
     public void giveSkill(ServerPlayer player) {
+        removePlayerSkill(player);
         if (!config.vanillaSkills) {
-            skillStates.remove(player.getUUID());
             return;
         }
         int skill = players.get(player.getUUID()).skill;
-        if (skill == 2 || skill == 4 || skill == 13) {
-            skillStates.put(player.getUUID(), new SkillState(0));
-            player.sendSystemMessage(text("skill.unavailable", skill));
-            return;
+        skillStates.put(player.getUUID(), new SkillState(skill, player));
+    }
+
+    public void removePlayerSkill(ServerPlayer player) {
+        SkillState previous = skillStates.remove(player.getUUID());
+        if (previous != null) discardVexes(previous);
+    }
+
+    private static void discardVexes(SkillState state) {
+        // ENTITY_UNLOAD also removes entries, so discard a snapshot.
+        for (Vex vex : List.copyOf(state.vexes)) vex.discard();
+        state.vexes.clear();
+    }
+
+    public void entityUnloaded(Entity entity) {
+        if (entity instanceof SkillVex vex) vex.state.vexes.remove(vex);
+    }
+
+    private boolean activeSkillOwner(ServerPlayer player) {
+        return running && config.vanillaSkills && controller.playing() && player.isAlive()
+                && !player.isSpectator() && controller.allowDamage(player)
+                && controller.server().getPlayerList().getPlayer(player.getUUID()) == player;
+    }
+
+    private SkillState skillState(ServerPlayer player) {
+        int selected = players.get(player.getUUID()).skill;
+        SkillState state = skillStates.get(player.getUUID());
+        if (state == null || state.skill != selected || state.owner != player) {
+            giveSkill(player);
+            state = skillStates.get(player.getUUID());
         }
-        skillStates.put(player.getUUID(), new SkillState(skill));
+        return state;
+    }
+
+    public void onLanding(ServerPlayer player, double distance) {
+        if (!activeSkillOwner(player) || players.get(player.getUUID()).skill != 2 || !Double.isFinite(distance)) return;
+        long centimeters = Math.round(distance * 100.0);
+        if (centimeters < 335) return;
+        float damage = (float) (Math.min(centimeters, 3999) * 0.00915);
+        var level = (ServerLevel) player.level();
+        level.playSound(null, player.blockPosition(), SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1.0F, 1.0F);
+        // Source affects all entities at 0.1..6, including allies; it has no player attacker attribution.
+        for (Entity target : level.getEntities(player, player.getBoundingBox().inflate(6), entity -> {
+            double squared = player.distanceToSqr(entity);
+            return squared >= 0.01 && squared <= 36;
+        })) target.hurtServer(level, level.damageSources().fall(), damage);
+    }
+
+    public void onConsumed(ServerPlayer player, ItemStack consumed) {
+        if (!activeSkillOwner(player) || players.get(player.getUUID()).skill != 4 || !consumed.is(SKILL_FOOD)) return;
+        player.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 200, 0, false, false));
+        player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 100, 0, false, false));
+        player.addEffect(new MobEffectInstance(MobEffects.SATURATION, 40, 0, false, false));
+        if (chance(0.50)) player.removeEffect(MobEffects.HUNGER);
+    }
+
+    /** HurtTime may begin before or after the player's tick; check only pending hits near tick five. */
+    public void onPlayerHurt(ServerPlayer player) {
+        if (!activeSkillOwner(player) || players.get(player.getUUID()).skill != 13 || player.hurtTime < 5) return;
+        SkillState state = skillState(player);
+        if (state.vexTick >= 0) return;
+        state.vexTick = controller.matchTicks() + Math.max(1, player.hurtTime - 6);
+        pendingVex.add(state);
+    }
+
+    private void tickVexSummons(int now) {
+        while (!pendingVex.isEmpty() && pendingVex.peek().vexTick <= now) {
+            SkillState state = pendingVex.remove();
+            state.vexTick = -1;
+            ServerPlayer owner = state.owner;
+            if (skillStates.get(owner.getUUID()) != state || !activeSkillOwner(owner)
+                    || players.get(owner.getUUID()).skill != 13) continue;
+            if (owner.hurtTime > 5) {
+                state.vexTick = now + 1;
+                pendingVex.add(state);
+                continue;
+            }
+            if (owner.hurtTime != 5 || !chance(0.50)) continue;
+            SkillVex vex = new SkillVex(state);
+            vex.setPos(owner.getX(), owner.getY() + 1, owner.getZ());
+            vex.setHealth(0.1F);
+            var followRange = vex.getAttribute(Attributes.FOLLOW_RANGE);
+            if (followRange != null) followRange.setBaseValue(50);
+            if (maps.level().addFreshEntity(vex)) state.vexes.add(vex);
+            maps.level().sendParticles(ParticleTypes.CLOUD, owner.getX(), owner.getY() + 1, owner.getZ(),
+                    3, 0.3, 0.6, 0.3, 0);
+        }
     }
 
     /** Call from the server's successful living-entity damage callback. */
@@ -195,7 +323,6 @@ public final class MatchEvents {
     public void onPlayerAttack(ServerPlayer attacker, ServerPlayer victim, DamageSource source, float damage) {
         if (!running || !config.vanillaSkills || damage <= 0 || !controller.playing() || attacker == victim) return;
         int skill = players.get(attacker.getUUID()).skill;
-        if (skill == 2 || skill == 4 || skill == 13) return;
         switch (skill) {
             case 6 -> {
                 if (source.getDirectEntity() instanceof AbstractArrow && damage >= 3.0F) {
@@ -218,10 +345,7 @@ public final class MatchEvents {
     private void tickSkill(ServerPlayer player) {
         PlayerStore.Profile profile = players.get(player.getUUID());
         int skill = profile.skill;
-        SkillState state = skillStates.computeIfAbsent(player.getUUID(), ignored -> new SkillState(skill));
-        if (state.skill != skill) {
-            state.skill = skill;
-        }
+        skillState(player);
         if (skill == 2 || skill == 4 || skill == 13) return;
 
         float health = player.getHealth();

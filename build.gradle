@@ -30,7 +30,8 @@ processResources {
     // alongside the new controller or override Minecraft 26.3's built-in dimensions.
     include 'fabric.mod.json', 'skywars2.mixins.json', 'data/skywars2/**', 'data/swrg/structure/**',
             'data/swrg/loot_table/chests/**', 'data/swrg/loot_table/game/**',
-            'data/swrg/loot_table/gui/**', 'data/swrg/item_modifier/select.json',
+            'data/swrg/loot_table/gui/**',
+            'data/swrg/tags/item/food.json',
             'data/lbc/loot_table/gui/page/8000/**', 'data/lbc/loot_table/gui/page/8100/**',
             'data/lbc/loot_table/gui/page/9000/**', 'data/lbc/loot_table/gui/page/9100/**',
             'data/lbc/loot_table/gui/page/10000/**', 'data/lbc/loot_table/gui/page/10100/**',

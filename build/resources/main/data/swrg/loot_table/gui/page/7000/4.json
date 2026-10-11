@@ -1,0 +1,36 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:golden_sword",
+          "modifier": [
+            {
+              "entity": "this",
+              "name": {
+                "translate": "kill_effects",
+                "italic": false,
+                "color": "#ff5b5b"
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                {
+                  "translate": "kill_effects.lore",
+                  "italic": false,
+                  "color": "white"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

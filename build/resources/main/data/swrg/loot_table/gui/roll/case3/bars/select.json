@@ -1,0 +1,28 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "weight": 550,
+          "value": "swrg:gui/roll/case3/bars/a/main"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "weight": 90,
+          "value": "swrg:gui/roll/case3/bars/c/main"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "weight": 10,
+          "value": "swrg:gui/roll/case3/bars/d/main"
+        }
+      ],
+      "modifier": {
+        "tag": "{reward:\"bar\"}",
+        "type": "minecraft:set_custom_data"
+      }
+    }
+  ]
+}

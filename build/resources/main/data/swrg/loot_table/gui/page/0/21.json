@@ -1,0 +1,45 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:enchanted_golden_apple",
+          "modifier": [
+            {
+              "entity": "this",
+              "name": [
+                {
+                  "nbt": "page0.s21.Name",
+                  "storage": "swrg:lang",
+                  "interpret": true,
+                  "source": "storage",
+                  "type": "nbt"
+                },
+                {
+                  "score": {
+                    "name": "#lbclevelupmax",
+                    "objective": "swrg.math"
+                  }
+                },
+                {
+                  "nbt": "page0.s211.Name",
+                  "storage": "swrg:lang",
+                  "interpret": true,
+                  "source": "storage",
+                  "type": "nbt"
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "tag": "{Enchantments:[{id:\"minecraft:fortune\",lvl:5}]}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

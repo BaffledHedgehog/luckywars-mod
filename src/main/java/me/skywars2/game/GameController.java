@@ -132,6 +132,7 @@ public final class GameController {
     }
 
     public void leave(ServerPlayer player) {
+        events.removePlayerSkill(player);
         pendingLobby.remove(player.getUUID());
         Participant p = participants.get(player.getUUID());
         if (p != null) { p.lives = 0; p.disconnected = true; p.awaitingRespawn = false; }
@@ -390,6 +391,7 @@ public final class GameController {
         if (!playing()) return;
         Participant p = participants.get(player.getUUID());
         if (p == null || p.lives <= 0 || p.awaitingRespawn) return;
+        events.removePlayerSkill(player);
         p.lives--; p.awaitingRespawn = true;
         players.get(player.getUUID()).deaths++;
         Entity attacker = damage.getEntity();
@@ -429,6 +431,11 @@ public final class GameController {
         if (source.getEntity() instanceof ServerPlayer attacker && allowDamage(attacker))
             events.onPlayerAttack(attacker, victim, source, amount);
     }
+
+    public void landed(ServerPlayer player, double distance) { events.onLanding(player, distance); }
+    public void consumed(ServerPlayer player, ItemStack stack) { events.onConsumed(player, stack); }
+    public void hurtForSkill(ServerPlayer player) { events.onPlayerHurt(player); }
+    public void entityUnloaded(Entity entity) { events.entityUnloaded(entity); }
 
     private void finish() {
         events.stop(); maps.cages(false); bar.setVisible(false); bar.removeAllPlayers();
@@ -537,7 +544,7 @@ public final class GameController {
 
     private static ItemStack menuCompass() {
         ItemStack compass = new ItemStack(Items.COMPASS);
-        compass.set(DataComponents.CUSTOM_NAME, Component.translatable("swrg.item.compass")
+        compass.set(DataComponents.CUSTOM_NAME, Component.translatable("menu")
                 .withStyle(style -> style.withColor(ChatFormatting.YELLOW).withItalic(false)));
         return compass;
     }
@@ -573,7 +580,11 @@ public final class GameController {
     private static boolean isAdmin(ServerPlayer player) { return player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER); }
     private void tell(ServerPlayer player, Component message) { if (player != null) player.sendSystemMessage(message); else SkyWars2.LOGGER.info("{}", message.getString()); }
     public void announce(Component message) { server.getPlayerList().broadcastSystemMessage(message, false); SkyWars2.LOGGER.info("[game] {}", message.getString()); }
-    private void transition(Stage next) { SkyWars2.LOGGER.info("[game] {} -> {}", stage, next); stage = next; }
+    private void transition(Stage next) {
+        SkyWars2.LOGGER.info("[game] {} -> {}", stage, next);
+        if (stage == Stage.LOBBY || next == Stage.LOBBY) maps.resetLobbyEntityCleanup();
+        stage = next;
+    }
 
     /** Use the native dispatcher; malformed migrated commands are explicit failures. */
     public boolean command(String command) {

@@ -100,6 +100,8 @@ public final class MapManager {
     private final Map<String, Manifest> manifests = new HashMap<>();
     private final List<MapInfo> catalog;
     private final Queue<Work> work = new ArrayDeque<>();
+    private final Queue<Entity> lobbyEntityCandidates = new ArrayDeque<>();
+    private int lobbyEntityAuditTicks;
     private final List<BoundingBox> activeBoxes = new ArrayList<>();
     private final Map<Long, BoundingBox> changedBlockBounds = new HashMap<>();
     private final List<BlockPos> cageBlocks = new ArrayList<>();
@@ -504,27 +506,46 @@ public final class MapManager {
     }
 
     /** Lobby whitelist in the arena; other dimensions preserve only players. */
+    public void queueLobbyEntity(Entity entity) {
+        if (!(entity instanceof Player)) lobbyEntityCandidates.add(entity);
+    }
+
+    public void resetLobbyEntityCleanup() {
+        lobbyEntityCandidates.clear();
+        lobbyEntityAuditTicks = 0;
+    }
+
     public void cleanupLobbyEntities() {
-        for (ServerLevel world : server.getAllLevels()) {
-            List<Entity> removed = new ArrayList<>();
-            for (Entity entity : world.getAllEntities()) {
-                if (entity instanceof Player) continue;
-                Set<String> tags = entity.entityTags();
-                boolean keep = world == level && (tags.contains("swrg.quickstart")
-                        || tags.contains("swrg.look") || tags.contains("swrg.spawn")
-                        || tags.contains("swrg.center") || tags.contains("swrg.midle")
-                        || tags.contains("swrg.default") || tags.contains("map_object")
-                        || tags.contains("strict_map_object")
-                        || entity instanceof net.minecraft.world.entity.AreaEffectCloud
-                        && (tags.contains("swrg.delete") || tags.contains("swrg.lobby")));
-                if (!keep) removed.add(entity);
+        // Load callbacks run before callers may finish assigning source tags.
+        // Inspect queued entities here, at the end of the server tick.
+        if (lobbyEntityAuditTicks-- <= 0) {
+            lobbyEntityAuditTicks = 19;
+            // Entry sweep also finds pre-existing/unloaded-during-transition entities.
+            // Periodic audits catch direct tag edits by commands or other mods.
+            for (ServerLevel world : server.getAllLevels()) {
+                for (Entity entity : world.getAllEntities()) queueLobbyEntity(entity);
             }
-            removed.forEach(Entity::discard);
         }
+        Entity entity;
+        while ((entity = lobbyEntityCandidates.poll()) != null) {
+            if (!entity.isRemoved() && !keepLobbyEntity(entity)) entity.discard();
+        }
+    }
+
+    private boolean keepLobbyEntity(Entity entity) {
+        Set<String> tags = entity.entityTags();
+        return entity.level() == level && (tags.contains("swrg.quickstart")
+                || tags.contains("swrg.look") || tags.contains("swrg.spawn")
+                || tags.contains("swrg.center") || tags.contains("swrg.midle")
+                || tags.contains("swrg.default") || tags.contains("map_object")
+                || tags.contains("strict_map_object")
+                || entity instanceof net.minecraft.world.entity.AreaEffectCloud
+                && (tags.contains("swrg.delete") || tags.contains("swrg.lobby")));
     }
 
     public void shutdown() {
         closed = true;
+        resetLobbyEntityCleanup();
         // Interrupting ZipFS reads closes Minecraft's shared resource-pack channel.
         // Finish the current read, then abandon CPU preparation at the next checkpoint.
         templatePreloader.shutdown();
@@ -863,12 +884,34 @@ public final class MapManager {
         List<Spawn> foundSpawns = new ArrayList<>();
         Vec3 foundLook = pendingMap == null ? new Vec3(0.5, 128.0, 0.5) : null;
         for (Entity entity : entities) {
+            if (pendingMap == null && entity.entityTags().contains("swrg.lobby")) {
+                entity.setCustomName(Component.translatable("swrg.entity.lobby")
+                        .withStyle(style -> style.withColor(net.minecraft.ChatFormatting.GREEN).withItalic(false)));
+            }
             if (entity.entityTags().contains("swrg.spawn")) {
                 foundSpawns.add(new Spawn(entity.position(), entity.getYRot(), entity.getXRot()));
             }
             if (entity.entityTags().contains("swrg.look")) foundLook = entity.position();
             else if (foundLook == null && entity.entityTags().contains("swrg.center")) {
                 foundLook = entity.position();
+            }
+        }
+        if (pendingMap == null) {
+            var quickstartLabels = entities.stream()
+                    .filter(entity -> entity instanceof net.minecraft.world.entity.Display.TextDisplay
+                            && entity.entityTags().contains("swrg.quickstart"))
+                    .map(entity -> (net.minecraft.world.entity.Display.TextDisplay) entity)
+                    .sorted(Comparator.comparingDouble((net.minecraft.world.entity.Display.TextDisplay label) -> label.getY()).reversed())
+                    .toList();
+            // Source lobby.nbt: y=2.5 title, y=2.25 map, y=2.0 hint, relative to placement.
+            String[] keys = {"swrg.lobby.quickstart.title", "swrg.lobby.quickstart.map", "swrg.lobby.quickstart.hint"};
+            if (quickstartLabels.size() != keys.length) {
+                LOGGER.warn("Expected {} source quickstart labels, found {}", keys.length, quickstartLabels.size());
+            }
+            for (int i = 0; i < Math.min(keys.length, quickstartLabels.size()); i++) {
+                var text = Component.translatable(keys[i]);
+                if (i == 0) text.withStyle(net.minecraft.ChatFormatting.YELLOW);
+                quickstartLabels.get(i).setText(text);
             }
         }
         foundSpawns.sort(Comparator.comparingDouble((Spawn spawn) -> spawn.position().x)
@@ -1078,7 +1121,8 @@ public final class MapManager {
 
     public record MapInfo(String id, String name, int playerCapacity, boolean available, String reason) {
         public Component displayName() {
-            return Component.translatable("skywars2.map." + id + ".name");
+            Component guiName = OriginalGuiDesign.sourceMapName(id);
+            return guiName != null ? guiName : Component.translatable("skywars2.map." + id + ".name");
         }
 
         public Component unavailableReason() {

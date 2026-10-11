@@ -1,36 +1,37 @@
+{
+  "type": "minecraft:empty",
+  "pools": [
     {
-    "type": "minecraft:empty","pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:item",
+          "name": "minecraft:barrier",
+          "modifier": [
+            {
+              "entity": "this",
+              "name": {
+                "translate": "reset_challenge_perks",
+                "italic": false,
+                "color": "white"
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:barrier",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_name",
-                            "entity": "this",
-                            "name": {
-                                "translate": "reset_challenge_perks",
-                                "italic": false,
-                                "color": "white"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "entity": "this",
-                            "lore": [
-                                {
-                                    "translate": "reset_challenge_perks.lore",
-                                    "italic": false,
-                                    "color": "red"
-                                }
-                            ]
-                        }
-                    ]
+                  "translate": "reset_challenge_perks.lore",
+                  "italic": false,
+                  "color": "red"
                 }
-            ]
+              ],
+              "type": "minecraft:set_lore"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

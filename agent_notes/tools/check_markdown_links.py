@@ -26,7 +26,7 @@ def main():
             if not candidate.is_absolute():
                 candidate = document.parent/candidate
             checked += 1
-            if not candidate.is_file():
+            if not candidate.exists():
                 errors.append(dict(document=document.relative_to(ROOT).as_posix(), line=text.count('\n', 0, match.start())+1, target=target))
     report = dict(checked_links=checked, error_count=len(errors), errors=errors,
                   scope='Local file links only; Markdown heading anchors and prose not assessed.')

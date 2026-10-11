@@ -1,0 +1,37 @@
+{
+  "type": "empty",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:vex_spawn_egg",
+          "modifier": [
+            {
+              "entity": "this",
+              "name": {
+                "translate": "dualist_skill",
+                "italic": false,
+                "color": "white"
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                {
+                  "translate": "dualist_skill.lore",
+                  "italic": false,
+                  "color": "gray"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

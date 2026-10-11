@@ -1,0 +1,85 @@
+{
+  "pools": [
+    {
+      "rolls": 27,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:sunflower",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "tag": "{HideFlags:127,rewardcoin:1}",
+              "type": "minecraft:set_custom_data"
+            },
+            {
+              "components": {
+                "item_model": "lbc:coin_a"
+              },
+              "type": "minecraft:set_components"
+            }
+          ]
+        }
+      ],
+      "modifier": [
+        {
+          "modifiers": [
+            {
+              "id": "minecraft:o98ert8943",
+              "attribute": "minecraft:spawn_reinforcements",
+              "amount": {
+                "min": 0,
+                "max": 1,
+                "type": "minecraft:uniform"
+              },
+              "operation": "add_value",
+              "slot": "mainhand"
+            }
+          ],
+          "type": "minecraft:set_attributes"
+        },
+        {
+          "entity": "this",
+          "lore": [
+            {
+              "nbt": "rare.a",
+              "storage": "swrg:lang",
+              "interpret": true,
+              "source": "storage",
+              "type": "nbt"
+            }
+          ],
+          "mode": "replace_all",
+          "type": "minecraft:set_lore"
+        },
+        {
+          "entity": "this",
+          "name": {
+            "nbt": "gui.coins",
+            "storage": "swrg:lang",
+            "interpret": true,
+            "color": "aqua",
+            "extra": [
+              {
+                "text": " x20",
+                "type": "text"
+              }
+            ],
+            "source": "storage",
+            "type": "nbt"
+          },
+          "type": "minecraft:set_name"
+        },
+        {
+          "toggles": {
+            "minecraft:attribute_modifiers": false
+          },
+          "type": "minecraft:toggle_tooltips"
+        }
+      ]
+    }
+  ]
+}

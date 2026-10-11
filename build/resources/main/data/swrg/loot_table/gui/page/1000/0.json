@@ -1,0 +1,24 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:diamond_sword"
+        }
+      ],
+      "modifier": {
+        "entity": "this",
+        "name": {
+          "nbt": "page1000.s0.Name",
+          "storage": "swrg:lang",
+          "interpret": true,
+          "source": "storage",
+          "type": "nbt"
+        },
+        "type": "minecraft:set_name"
+      }
+    }
+  ]
+}

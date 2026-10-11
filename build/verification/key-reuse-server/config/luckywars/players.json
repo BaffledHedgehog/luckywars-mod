@@ -1,12 +1,12 @@
 {
   "90955493-221d-3634-be84-dd3e4410be35": {
     "username": "TestAlpha",
-    "coins": 510,
+    "coins": 760,
     "memcoins": 0,
-    "games": 21,
+    "games": 34,
     "wins": 0,
     "kills": 0,
-    "deaths": 25,
+    "deaths": 35,
     "keys": [
       0,
       0,
@@ -33,16 +33,16 @@
   },
   "bbf46ebe-0b1b-323d-a98a-2dda011fbb4e": {
     "username": "TestBeta",
-    "coins": 1510,
+    "coins": 2260,
     "memcoins": 0,
-    "games": 21,
-    "wins": 10,
-    "kills": 0,
-    "deaths": 5,
+    "games": 34,
+    "wins": 14,
+    "kills": 2,
+    "deaths": 7,
     "keys": [
-      1,
+      3,
       6,
-      1,
+      3,
       2,
       0
     ],

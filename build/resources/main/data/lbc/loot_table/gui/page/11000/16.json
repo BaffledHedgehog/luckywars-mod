@@ -1,0 +1,101 @@
+{
+  "type": "minecraft:empty",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:stone",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:item_model": "lbc:hedgehog_gauntlet"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "entity": "this",
+              "name": {
+                "translate": "lbctrinket.16",
+                "italic": false,
+                "color": "white"
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                {
+                  "translate": "lbctrinket.16.lore.1",
+                  "italic": false,
+                  "color": "gray"
+                },
+                {
+                  "translate": "lbctrinket.16.lore.2",
+                  "italic": false,
+                  "color": "gray"
+                },
+                {
+                  "translate": "lbctrinket.16.lore.3",
+                  "italic": false,
+                  "color": "gray"
+                },
+                [
+                  {
+                    "translate": "pick_rate",
+                    "italic": false,
+                    "color": "gold"
+                  },
+                  {
+                    "storage": "stats:stats",
+                    "nbt": "pick_rate_trinket[16]",
+                    "italic": false,
+                    "color": "yellow"
+                  },
+                  {
+                    "translate": "pick_count",
+                    "italic": false,
+                    "color": "gold"
+                  },
+                  {
+                    "storage": "stats:stats",
+                    "nbt": "pick_count_trinket[16]",
+                    "italic": false,
+                    "color": "yellow"
+                  }
+                ],
+                [
+                  {
+                    "translate": "win_rate",
+                    "italic": false,
+                    "color": "gold"
+                  },
+                  {
+                    "storage": "stats:stats",
+                    "nbt": "win_rate_trinket[16]",
+                    "italic": false,
+                    "color": "yellow"
+                  },
+                  {
+                    "translate": "win_count",
+                    "italic": false,
+                    "color": "gold"
+                  },
+                  {
+                    "storage": "stats:stats",
+                    "nbt": "win_count_trinket[16]",
+                    "italic": false,
+                    "color": "yellow"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,183 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:player_head",
+          "modifier": [
+            {
+              "entity": "this",
+              "lore": [
+                {
+                  "nbt": "stat.game_played",
+                  "storage": "swrg:lang",
+                  "interpret": true,
+                  "extra": [
+                    {
+                      "score": {
+                        "name": "@s",
+                        "objective": "swrg.stat_games"
+                      },
+                      "color": "aqua",
+                      "type": "score"
+                    }
+                  ],
+                  "source": "storage",
+                  "type": "nbt"
+                }
+              ],
+              "mode": "append",
+              "type": "minecraft:set_lore"
+            },
+            {
+              "entity": "this",
+              "lore": [
+                {
+                  "nbt": "stat.winrate",
+                  "storage": "swrg:lang",
+                  "interpret": true,
+                  "extra": [
+                    {
+                      "score": {
+                        "name": "@s",
+                        "objective": "swrg.wr"
+                      },
+                      "color": "aqua",
+                      "type": "score"
+                    }
+                  ],
+                  "source": "storage",
+                  "type": "nbt"
+                }
+              ],
+              "mode": "append",
+              "type": "minecraft:set_lore"
+            },
+            {
+              "entity": "this",
+              "lore": [
+                {
+                  "nbt": "stat.kd",
+                  "storage": "swrg:lang",
+                  "interpret": true,
+                  "extra": [
+                    {
+                      "score": {
+                        "name": "@s",
+                        "objective": "swrg.kd1.."
+                      },
+                      "color": "aqua",
+                      "extra": [
+                        {
+                          "text": ".0",
+                          "extra": [
+                            {
+                              "score": {
+                                "name": "@s",
+                                "objective": "swrg.kd..1"
+                              },
+                              "type": "score"
+                            }
+                          ],
+                          "type": "text"
+                        }
+                      ],
+                      "type": "score"
+                    }
+                  ],
+                  "source": "storage",
+                  "type": "nbt"
+                }
+              ],
+              "mode": "append",
+              "type": "minecraft:set_lore",
+              "condition": {
+                "entity": "this",
+                "scores": {
+                  "swrg.kd..1": {
+                    "min": 0,
+                    "max": 9
+                  }
+                },
+                "type": "minecraft:entity_scores"
+              }
+            },
+            {
+              "entity": "this",
+              "lore": [
+                {
+                  "nbt": "stat.kd",
+                  "storage": "swrg:lang",
+                  "interpret": true,
+                  "extra": [
+                    {
+                      "score": {
+                        "name": "@s",
+                        "objective": "swrg.kd1.."
+                      },
+                      "color": "aqua",
+                      "extra": [
+                        {
+                          "text": ".",
+                          "extra": [
+                            {
+                              "score": {
+                                "name": "@s",
+                                "objective": "swrg.kd..1"
+                              },
+                              "type": "score"
+                            }
+                          ],
+                          "type": "text"
+                        }
+                      ],
+                      "type": "score"
+                    }
+                  ],
+                  "source": "storage",
+                  "type": "nbt"
+                }
+              ],
+              "mode": "append",
+              "type": "minecraft:set_lore",
+              "condition": {
+                "entity": "this",
+                "scores": {
+                  "swrg.kd..1": {
+                    "min": 10,
+                    "max": 99
+                  }
+                },
+                "type": "minecraft:entity_scores"
+              }
+            },
+            {
+              "entity": "this",
+              "type": "minecraft:fill_player_head"
+            },
+            {
+              "entity": "this",
+              "name": {
+                "nbt": "stat.profile",
+                "storage": "swrg:lang",
+                "interpret": true,
+                "extra": [
+                  {
+                    "selector": "@s",
+                    "color": "light_purple",
+                    "type": "selector"
+                  }
+                ],
+                "source": "storage",
+                "type": "nbt"
+              },
+              "type": "minecraft:set_name"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

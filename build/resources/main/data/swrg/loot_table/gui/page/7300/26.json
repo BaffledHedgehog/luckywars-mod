@@ -1,0 +1,40 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:stick",
+          "modifier": [
+            {
+              "name": {
+                "text": "",
+                "color": "white",
+                "italic": false
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "components": {
+                "item_model": "lbc:runes_legendary"
+              },
+              "type": "set_components"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "winner1",
+                  "color": "gold",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

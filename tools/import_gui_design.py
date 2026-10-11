@@ -2,7 +2,7 @@
 """Import the supported datapack GUI source map and missing storage captions.
 
 Reads the legacy server tree and the user resource pack, both as read-only inputs.
-Writes only src/main/resources/skywars2/gui_design.json and
+Writes converted LBC GUI loot tables, src/main/resources/skywars2/gui_design.json and
 build/verification/gui-design-new-translations.json in this project.
 """
 
@@ -12,6 +12,7 @@ import argparse
 import json
 import re
 from pathlib import Path
+from import_game_resources import migrate_loot_schema
 
 
 PROJECT = Path(__file__).resolve().parents[1]
@@ -42,6 +43,7 @@ GUI_PAGES = {
         "10000": "data/lbc/function/swrg_kit_integration/gui/page/10000.mcfunction",
         "10100": "data/lbc/function/swrg_kit_integration/gui/page/10100.mcfunction",
         "11000": "data/lbc/function/swrg_kit_integration/gui/page/11000.mcfunction",
+        "11100": "data/lbc/function/swrg_kit_integration/gui/page/11100.mcfunction",
         "12000": "data/lbc/function/swrg_kit_integration/gui/page/12000.mcfunction",
     },
 }
@@ -50,14 +52,55 @@ LOOT_REF = re.compile(
 )
 ITEM_REF = re.compile(r"enderchest\.(\d+)\s+with\s+(minecraft:[a-z0-9_]+)(\[[^\]]*\])?")
 MODIFIER_REF = re.compile(r"enderchest\.(\d+)\s+([a-z0-9_]+:[a-z0-9_./-]+)\s*$")
+MAP_SLOT_REF = re.compile(
+    r"#map\s+swrg\.math\s+matches\s+(-?\d+)\s+run\s+item modify entity @s enderchest\.(\d+) swrg:select"
+)
+MAP_SELECT_REF = re.compile(
+    r"map_selected\s+swrg\.math\s+matches\s+(\d+)\s+run\s+(?:schedule\s+)?function swrg:maploader/map/([0-9]+b?)"
+)
 STORAGE_LINE = re.compile(r"data modify storage swrg:lang\s+(\S+)\s+set value\s+(.+)$")
 TEXT_VALUE = re.compile(r'"text"\s*:\s*("(?:\\.|[^"\\])*")')
 STORAGE_ENTRY = re.compile(r"data modify storage swrg:lang\s+(\S+)\s+set value\s+(.+)$")
 
 
+def resource_pack_language(locale: str) -> dict[str, str]:
+    values = {}
+    for lang_file in sorted((RESOURCE_PACK / "assets").glob(f"*/lang/{locale}.json")):
+        values.update(json.loads(lang_file.read_text(encoding="utf-8-sig")))
+    return values
+
+
+def project_language(locale: str) -> dict[str, str]:
+    values = {}
+    for root in (PROJECT / "src/main/resources/assets", PROJECT / "resourcepack_template/assets"):
+        for lang_file in sorted(root.glob(f"*/lang/{locale}.json")):
+            values.update(json.loads(lang_file.read_text(encoding="utf-8-sig")))
+    return values
+
+
+def map_translation_key(page_id: str, slot: int, source_text: str) -> str:
+    key = f"swrg.gui.map.{page_id}.{slot}"
+    en = {**resource_pack_language("en_us"), **project_language("en_us")}
+    ru = {**resource_pack_language("ru_ru"), **project_language("ru_ru")}
+    if en.get(key) == source_text and key in ru:
+        return key
+    candidates = [candidate for candidate, value in en.items() if value == source_text and candidate in ru]
+    candidates.sort(key=lambda candidate: (0 if candidate.startswith("swrg.gui.map.") else 1, candidate))
+    return candidates[0] if candidates else ""
+
+
 def parse_snbt_component(raw: str):
     # Source GUI text uses JSON-compatible component values inside SNBT compounds.
-    normalized = re.sub(r'([,{]\s*)([A-Za-z_][A-Za-z0-9_.-]*)\s*:', r'\1"\2":', raw)
+    strings: list[str] = []
+
+    def protect(match: re.Match[str]) -> str:
+        strings.append(match.group(0))
+        return f"§SOURCE_STRING_{len(strings) - 1}§"
+
+    normalized = re.sub(r'"(?:\\.|[^"\\])*"', protect, raw)
+    normalized = re.sub(r'([,{]\s*)([A-Za-z_][A-Za-z0-9_.:-]*)\s*:', r'\1"\2":', normalized)
+    for index, value in enumerate(strings):
+        normalized = normalized.replace(f"§SOURCE_STRING_{index}§", value)
     return json.loads(normalized)
 
 
@@ -67,9 +110,7 @@ def source_storage_components(old_root: Path) -> dict:
         source = old_root / "world/datapacksdisabled/swarogskywars/data/swrg/function/core/lang" / filename
         for line_no, line in enumerate(source.read_text(encoding="utf-8-sig").splitlines(), 1):
             match = STORAGE_ENTRY.search(line)
-            if not match or not match.group(1).startswith(("page0.", "page1000.", "page3000.",
-                                                            "page4000.", "page5000.", "page6000.",
-                                                            "page7000.", "gui.", "stat.", "kit.", "lore.")):
+            if not match:
                 continue
             try:
                 result[locale][match.group(1)] = parse_snbt_component(match.group(2))
@@ -88,6 +129,8 @@ def page_manifest(old_root: Path, local_resources: Path) -> dict:
                 source_file = old_root / "world/datapacksdisabled" / relative
             content = source_file.read_text(encoding="utf-8-sig")
             slots: dict[int, dict] = {}
+            map_id_by_slot: dict[int, str] = {}
+            map_slot_order: list[int] = []
             for line_no, line in enumerate(content.splitlines(), 1):
                 stripped = line.strip()
                 if not stripped or stripped.startswith("#"):
@@ -122,6 +165,27 @@ def page_manifest(old_root: Path, local_resources: Path) -> dict:
                         "sourceLine": line_no,
                         "condition": stripped.split(" run ", 1)[0] if " run " in stripped else None,
                     })
+                map_match = MAP_SLOT_REF.search(stripped)
+                if map_match and page_id in {"2000", "2000b", "2100", "2200"}:
+                    score, map_slot = map(int, map_match.groups())
+                    map_id_by_slot[map_slot] = str(score)
+                    map_slot_order.append(map_slot)
+                map_selection_ids = []
+            if page_id in {"2000", "2000b", "2100", "2200"}:
+                select_function = old_root / "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select" / f"{page_id}_mapselect.mcfunction"
+                if not select_function.is_file():
+                    raise FileNotFoundError(f"Missing source map selection function: {select_function}")
+                for select_line in select_function.read_text(encoding="utf-8-sig").splitlines():
+                    selected = MAP_SELECT_REF.search(select_line)
+                    if selected:
+                        selected_index, source_map_id = selected.groups()
+                        map_selection_ids.append((int(selected_index), source_map_id))
+                if len(map_slot_order) != len(map_selection_ids):
+                    raise ValueError(
+                        f"Source map page/selection cardinality differs for {page_id}: "
+                        f"{len(map_slot_order)} page entries vs {len(map_selection_ids)} selection entries"
+                    )
+                map_ids_by_slot = dict(zip(map_slot_order, (map_id for _, map_id in map_selection_ids)))
             for entry in slots.values():
                 for source in entry["sources"]:
                     table_id = source.get("sourceLootTable")
@@ -130,6 +194,31 @@ def page_manifest(old_root: Path, local_resources: Path) -> dict:
                         relative_table = relative_table.with_suffix(".json")
                         if not (local_resources / relative_table).is_file():
                             source["localTableMissing"] = True
+                        else:
+                            source["sourceComponentBindings"] = loot_component_bindings(
+                                local_resources / relative_table
+                            )
+                    if page_id in {"2000", "2000b", "2100", "2200"} and entry["slot"] in map_id_by_slot:
+                        map_score = int(map_id_by_slot[entry["slot"]])
+                        source_map_id = map_ids_by_slot.get(entry["slot"])
+                        if source_map_id is None:
+                            raise ValueError(f"No source map selection for score {map_score} on page {page_id}, slot {entry['slot']}")
+                        source["sourceMapId"] = source_map_id
+            if page_id in {"2000", "2000b", "2100", "2200"}:
+                # The source mapselect functions establish stable IDs independently
+                # of display-slot ordering; retain the source reference for audits.
+                select_page = page_id
+                select_function = old_root / "world/datapacksdisabled/swarogskywars/data/swrg/function/gui/select" / f"{select_page}_mapselect.mcfunction"
+                pages.append({
+                    "pageId": page_id,
+                    "namespace": namespace,
+                    "sourceFunction": f"{namespace}:gui/page/{page_id}",
+                    "sourceMapSelectionFunction": f"swrg:gui/select/{select_page}_mapselect",
+                    "sourceMapSelectionExists": select_function.is_file(),
+                    "completeSourcePageImport": True,
+                    "slots": [slots[s] for s in sorted(slots)],
+                })
+                continue
             pages.append({
                 "pageId": page_id,
                 "namespace": namespace,
@@ -140,7 +229,21 @@ def page_manifest(old_root: Path, local_resources: Path) -> dict:
     shared = []
     for namespace, path in (("swrg", "gui/back"), ("swrg", "gui/next"), ("swrg", "gui/reset")):
         table_id = f"{namespace}:{path}"
-        shared.append({"sourceLootTable": table_id, "localTableMissing": not (local_resources / "data" / namespace / "loot_table" / f"{path}.json").is_file()})
+        table_path = local_resources / "data" / namespace / "loot_table" / f"{path}.json"
+        button = {"sourceLootTable": table_id, "localTableMissing": not table_path.is_file()}
+        if table_path.is_file():
+            button["sourceComponentBindings"] = loot_component_bindings(table_path)
+        shared.append(button)
+    shared_modifiers = []
+    for modifier_id in ("swrg:balance", "swrg:balance_mem"):
+        modifier_name = modifier_id.split(":", 1)[1]
+        modifier_path = old_root / "world/datapacksdisabled/swarogskywars/data/swrg/item_modifier" / f"{modifier_name}.json"
+        if not modifier_path.is_file():
+            raise FileNotFoundError(f"Missing source item modifier {modifier_path}")
+        shared_modifiers.append({
+            "modifierId": modifier_id,
+            "sourceComponentBindings": loot_component_bindings(modifier_path),
+        })
     for page in pages:
         for slot in page["slots"]:
             for source in slot["sources"]:
@@ -154,22 +257,266 @@ def page_manifest(old_root: Path, local_resources: Path) -> dict:
                     continue
                 source["sourceName"] = parsed_name
                 if page["pageId"] in {"2000", "2000b", "2100", "2200"}:
-                    source["translationKey"] = f"swrg.gui.map.{page['pageId']}.{slot['slot']}"
+                    source["translationKey"] = map_translation_key(
+                        page["pageId"], slot["slot"], parsed_name.get("text", "")
+                    ) or f"skywars2.gui.map.{source['sourceMapId']}"
 
+    raw_components = source_storage_components(old_root)
+    localized_components, _ = localize_storage_components(raw_components)
+    component_gaps = add_source_component_gaps(localized_components, raw_components, pages, shared)
     return {
         "schemaVersion": 1,
         "container": {"size": 27, "title": {"translate": "container.enderchest"}, "slots": list(range(27))},
         "requiredSourcePages": [f"{n}:{p}" for n, ps in GUI_PAGES.items() for p in ps],
         "pages": pages,
         "sharedButtons": shared,
+        "sharedModifiers": shared_modifiers,
         "storageBindings": [{"storagePath": "swrg:lang", "sourceFunction": "swrg:gui/page/1000-lang"}],
-        "sourceStorageComponents": source_storage_components(old_root),
+        "sourceStorageComponents": raw_components,
+        "localizedStorageComponents": localized_components,
+        "sourceComponentGaps": component_gaps,
         "sourceNotes": [
             "Map page items in pages 2000/2000b/2100/2200 are literal item-replace commands, not loot tables.",
             "Page 1100 live player-head profiles are direct item-replace commands; commented loot references are ignored.",
             "Scoreboard-backed selected/glint, unlock, price, and live-stat variants are not runtime imported by this manifest.",
         ],
     }
+
+
+def localize_storage_components(raw_components: dict) -> tuple[dict, dict]:
+    """Replace source literal text leaves with exact paired resource-pack keys."""
+    pack_en = resource_pack_language("en_us")
+    pack_ru = resource_pack_language("ru_ru")
+    known_en = {**pack_en, **project_language("en_us")}
+    known_ru = {**pack_ru, **project_language("ru_ru")}
+    project_en = project_language("en_us")
+    project_ru = project_language("ru_ru")
+    reusable: dict[tuple[str, str], str] = {}
+    external_keys = set()
+    for locale, merged in (("en_us", pack_en), ("ru_ru", pack_ru),
+                           ("en_us", project_en), ("ru_ru", project_ru)):
+        external_keys.update(merged)
+    for source_en, source_ru in ((pack_en, pack_ru), (project_en, project_ru)):
+        for key in sorted(set(source_en) & set(source_ru),
+                          key=lambda candidate: (0 if candidate.startswith("swrg.gui.map.") else 1, candidate)):
+            reusable.setdefault((source_en[key], source_ru[key]), key)
+    existing_path = PROJECT / "build/verification/gui-design-new-translations.json"
+    previous_en, previous_ru = {}, {}
+    if existing_path.is_file():
+        previous = json.loads(existing_path.read_text(encoding="utf-8-sig"))
+        previous_en, previous_ru = previous.get("en_us", {}), previous.get("ru_ru", {})
+        for key in sorted(set(previous_en) & set(previous_ru)):
+            reusable.setdefault((previous_en[key], previous_ru[key]), key)
+    localized = {}
+    additions = {"en_us": {}, "ru_ru": {}}
+
+    def text_nodes(value, path=()):
+        found = {}
+        if isinstance(value, list):
+            for index, child in enumerate(value):
+                found.update(text_nodes(child, path + (str(index),)))
+        elif isinstance(value, dict):
+            if isinstance(value.get("text"), str):
+                found[path] = value["text"]
+            for key, child in value.items():
+                if key != "text":
+                    found.update(text_nodes(child, path + (key,)))
+        return found
+
+    def replace_text(value, keys, path=()):
+        if isinstance(value, list):
+            return [replace_text(child, keys, path + (str(index),)) for index, child in enumerate(value)]
+        if isinstance(value, dict):
+            result = {key: replace_text(child, keys, path + (key,)) for key, child in value.items() if key != "text"}
+            if path in keys:
+                result["translate"] = keys[path]
+            elif "text" in value:
+                result["text"] = value["text"]
+            return result
+        return value
+
+    for storage_path in sorted(set(raw_components["en"]) & set(raw_components["ru"])):
+        en_nodes = text_nodes(raw_components["en"][storage_path])
+        ru_nodes = text_nodes(raw_components["ru"][storage_path])
+        if en_nodes.keys() != ru_nodes.keys():
+            continue
+        leaf_keys = {}
+        for ordinal, node_path in enumerate(en_nodes):
+            pair = (en_nodes[node_path], ru_nodes[node_path])
+            key = reusable.get(pair)
+            # Prefer the original semantic key over an unrelated caption with
+            # the same wording (e.g. Spider kit and Spider skill).
+            suffix = tuple(part for part in node_path if part not in ("Name", "Lore"))
+            preferred = "swrg." + storage_path + ("." + ".".join(suffix) if suffix else "")
+            if (pack_en.get(preferred), pack_ru.get(preferred)) == pair:
+                key = preferred
+            if key is None:
+                key = "skywars2.gui.source." + re.sub(r"[^a-zA-Z0-9_.-]", "_", storage_path) + f".part{ordinal}"
+                for locale, value in (("en_us", pair[0]), ("ru_ru", pair[1])):
+                    previous = additions[locale].get(key)
+                    if previous is not None and previous != value:
+                        raise ValueError(f"Conflicting generated source translation {key} for {locale}")
+                    additions[locale][key] = value
+                reusable[pair] = key
+            elif key not in external_keys:
+                # Reused project additions must remain in the generated file on every run.
+                additions["en_us"][key] = pair[0]
+                additions["ru_ru"][key] = pair[1]
+            leaf_keys[node_path] = key
+        localized[storage_path] = replace_text(raw_components["en"][storage_path], leaf_keys)
+    # A few legacy keys exist in only one core language file while the paired
+    # translation is already present in the resource pack. Reuse that key and
+    # the available source tree/style rather than emitting a raw literal.
+    for storage_path in sorted(set(raw_components["en"]) ^ set(raw_components["ru"])):
+        locale = "en_us" if storage_path in raw_components["en"] else "ru_ru"
+        source_locale = "en" if locale == "en_us" else "ru"
+        other_locale = "ru_ru" if locale == "en_us" else "en_us"
+        pack_here = known_en if locale == "en_us" else known_ru
+        pack_other = known_ru if locale == "en_us" else known_en
+        project_here = previous_en if locale == "en_us" else previous_ru
+        project_other = previous_ru if locale == "en_us" else previous_en
+        template = raw_components[source_locale][storage_path]
+        nodes = text_nodes(template)
+        leaf_keys = {}
+        for ordinal, (node_path, value) in enumerate(nodes.items()):
+            candidates = [key for key, translated in pack_here.items()
+                          if translated == value and key in pack_other
+                          and not key.startswith("skywars2.gui.source.")]
+            candidates += [key for key, translated in project_here.items()
+                           if translated == value and key in project_other
+                           and not key.startswith("skywars2.gui.source.")]
+            if candidates:
+                leaf_keys[node_path] = sorted(set(candidates), key=lambda candidate: (
+                    0 if candidate.startswith("swrg.gui.map.") else 1, candidate
+                ))[0]
+                continue
+            en_value, ru_value = (value, None) if locale == "en_us" else (None, value)
+            if locale == "ru_ru":
+                en_value = value
+            else:
+                ru_value = value
+            if en_value is None or ru_value is None:
+                raise ValueError(f"No paired translation for one-sided source component {storage_path} text {value!r}")
+            pair = (en_value, ru_value)
+            key = reusable.get(pair) or "skywars2.gui.source." + re.sub(r"[^a-zA-Z0-9_.-]", "_", storage_path) + f".part{ordinal}"
+            additions["en_us"][key] = en_value
+            additions["ru_ru"][key] = ru_value
+            reusable[pair] = key
+            leaf_keys[node_path] = key
+        localized[storage_path] = replace_text(template, leaf_keys)
+    return localized, additions
+
+
+def add_source_component_gaps(localized: dict, raw_components: dict, pages: list[dict], shared: list[dict]) -> list[dict]:
+    """Make source paths missing from both languages resolve to empty components explicitly."""
+    references: dict[str, set[tuple[str, int | None]]] = {}
+
+    def add_bindings(source):
+        for binding in source.get("sourceComponentBindings", {}).values():
+            for row in binding:
+                terms = row.get("terms", []) if isinstance(row, dict) else row
+                for term in terms:
+                    path = term.get("storagePath") if isinstance(term, dict) else None
+                    if not path:
+                        continue
+                    if path.endswith(".Name"):
+                        root, component = path[:-5], ("Name", None)
+                    elif ".Lore[" in path and path.endswith("]"):
+                        marker = path.rfind(".Lore[")
+                        root = path[:marker]
+                        try:
+                            component = ("Lore", int(path[marker + 6:-1]))
+                        except ValueError:
+                            raise ValueError(f"Invalid source lore reference {path}")
+                    else:
+                        root, component = path, ("direct", None)
+                    references.setdefault(root, set()).add(component)
+
+    for page in pages:
+        for slot in page["slots"]:
+            for source in slot["sources"]:
+                add_bindings(source)
+    for source in shared:
+        add_bindings(source)
+
+    gaps = []
+    for root, components in sorted(references.items()):
+        if root in raw_components["en"] or root in raw_components["ru"] or root in localized:
+            continue
+        if any(key.startswith(root + "-") for locale in ("en", "ru") for key in raw_components[locale]):
+            continue
+        value = {}
+        for component, index in sorted(components):
+            if component == "Name":
+                value["Name"] = {"text": ""}
+            elif component == "Lore":
+                lore = value.setdefault("Lore", [])
+                while len(lore) <= index:
+                    lore.append({"text": ""})
+            else:
+                value["text"] = ""
+        localized[root] = value
+        gaps.append({
+            "storagePath": root,
+            "reason": "No English or Russian source assignment; native interpreted lookup resolves to an empty component.",
+        })
+    return gaps
+
+
+def loot_component_bindings(table_path: Path) -> dict:
+    """Preserve source set_name/set_lore expressions as storage refs and dynamics."""
+    try:
+        table = json.loads(table_path.read_text(encoding="utf-8-sig"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"Cannot import component bindings from {table_path}: {exc}") from exc
+    bindings = {"name": [], "lore": []}
+
+    def collect(element):
+        if isinstance(element, list):
+            for child in element:
+                collect(child)
+            return
+        if not isinstance(element, dict):
+            return
+        function = element.get("function", element.get("type"))
+        if isinstance(function, str) and function.endswith(":set_name") and "name" in element:
+            bindings["name"].append({
+                "terms": source_component_terms(element["name"]),
+                **({"condition": element["condition"]} if "condition" in element else {}),
+            })
+        if isinstance(function, str) and function.endswith(":set_lore") and isinstance(element.get("lore"), list):
+            for line in element["lore"]:
+                bindings["lore"].append({
+                    "terms": source_component_terms(line),
+                    "mode": element.get("mode", "replace_all"),
+                    **({"condition": element["condition"]} if "condition" in element else {}),
+                })
+        for value in element.values():
+            collect(value)
+
+    collect(table)
+    if not bindings["name"]:
+        bindings.pop("name")
+    if not bindings["lore"]:
+        bindings.pop("lore")
+    return bindings
+
+
+def source_component_terms(value) -> list[dict]:
+    """Flatten only top-level component concatenation, retaining nested styles."""
+    values = value if isinstance(value, list) else [value]
+    terms = []
+    for component in values:
+        if isinstance(component, dict) and component.get("type") == "nbt" \
+                and component.get("storage") == "swrg:lang" and isinstance(component.get("nbt"), str):
+            term = {"storagePath": component["nbt"]}
+            for key in ("color", "bold", "italic", "underlined", "strikethrough", "obfuscated", "font", "extra"):
+                if key in component:
+                    term[key] = component[key]
+            terms.append(term)
+        else:
+            terms.append({"literalComponent": component})
+    return terms
 
 
 def decode_text_components(raw: str) -> list[str]:
@@ -182,7 +529,7 @@ def decode_text_components(raw: str) -> list[str]:
     return result
 
 
-def missing_storage_translations(old_root: Path) -> dict:
+def missing_storage_translations(old_root: Path, design: dict | None = None) -> dict:
     wanted: set[str] = set()
     for slot, values in {
         0: range(1, 3), 1: range(1, 4), 3: range(0, 2), 4: range(0, 2),
@@ -191,8 +538,10 @@ def missing_storage_translations(old_root: Path) -> dict:
     }.items():
         wanted.update(f"page1000.s{slot}-{value}" for value in values)
 
-    pack_en = json.loads((RESOURCE_PACK / "assets/minecraft/lang/en_us.json").read_text(encoding="utf-8-sig"))
-    pack_ru = json.loads((RESOURCE_PACK / "assets/minecraft/lang/ru_ru.json").read_text(encoding="utf-8-sig"))
+    pack_en = resource_pack_language("en_us")
+    pack_ru = resource_pack_language("ru_ru")
+    known_en = {**pack_en, **project_language("en_us")}
+    known_ru = {**pack_ru, **project_language("ru_ru")}
     locale_values: dict[str, dict[str, str]] = {"en_us": {}, "ru_ru": {}}
     for locale, file_name in (("en_us", "en.mcfunction"), ("ru_ru", "ru.mcfunction")):
         path = old_root / "world/datapacksdisabled/swarogskywars/data/swrg/function/core/lang" / file_name
@@ -202,7 +551,7 @@ def missing_storage_translations(old_root: Path) -> dict:
             if match and match.group(1) in wanted:
                 texts = decode_text_components(match.group(2))
                 assignments[match.group(1)] = "".join(texts)
-        pack = pack_en if locale == "en_us" else pack_ru
+        pack = known_en if locale == "en_us" else known_ru
         for storage_key in sorted(wanted):
             translation_key = "swrg." + storage_key
             if translation_key not in pack:
@@ -210,20 +559,28 @@ def missing_storage_translations(old_root: Path) -> dict:
                 if value is None:
                     raise ValueError(f"Missing source language value for {storage_key} ({locale})")
                 locale_values[locale][translation_key] = value
-    design = page_manifest(old_root, PROJECT / "src/main/resources")
+    design = design or page_manifest(old_root, PROJECT / "src/main/resources")
+    _, source_component_additions = localize_storage_components(design["sourceStorageComponents"])
+    for locale, values in source_component_additions.items():
+        for key, value in values.items():
+            existing = locale_values[locale].get(key)
+            if existing is not None and existing != value:
+                raise ValueError(f"Generated component translation conflicts for {key} ({locale})")
+            locale_values[locale][key] = value
     for page in design["pages"]:
         if page["pageId"] not in {"2000", "2000b", "2100", "2200"}:
             continue
         for slot in page["slots"]:
             for source in slot["sources"]:
-                if "translationKey" not in source:
+                if "sourceMapId" not in source:
                     continue
                 text = source.get("sourceName", {}).get("text")
                 if text is None:
                     continue
-                key = source["translationKey"]
-                for locale, pack in (("en_us", pack_en), ("ru_ru", pack_ru)):
-                    if key not in pack:
+                key = source.get("translationKey") or "skywars2.gui.map." + source["sourceMapId"]
+                source["translationKey"] = key
+                for locale, existing in (("en_us", known_en), ("ru_ru", known_ru)):
+                    if key not in existing:
                         locale_values[locale][key] = text
     locale_values["en_us"]["skywars2.gui.original.health"] = "Default Health: %s"
     locale_values["ru_ru"]["skywars2.gui.original.health"] = "Здоровье игроков: %s"
@@ -238,13 +595,56 @@ def main() -> None:
     parser.add_argument("--project", type=Path, default=PROJECT)
     args = parser.parse_args()
     resources = args.project / "src/main/resources"
+    # Legacy functions/function fields are silently ignored by the 26.3 codecs.
+    # Convert model/component modifiers just like the existing swrg loot importer.
+    source_loot = args.old_root / "world/datapacksdisabled/LBC/data/lbc/loot_table/gui/page"
+    for page in ("8000", "9000", "10000", "10100", "11000", "12000"):
+        for source in sorted((source_loot / page).glob("*.json")):
+            table = json.loads(source.read_text(encoding="utf-8-sig"))
+            migrate_loot_schema(table)
+            target = resources / "data/lbc/loot_table/gui/page" / page / source.name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(json.dumps(table, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (resources / "skywars2").mkdir(parents=True, exist_ok=True)
     design_path = resources / "skywars2/gui_design.json"
-    design_path.write_text(json.dumps(page_manifest(args.old_root, resources), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    design = page_manifest(args.old_root, resources)
+    design_path.write_text(json.dumps(design, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
 
     translations_path = args.project / "build/verification/gui-design-new-translations.json"
     translations_path.parent.mkdir(parents=True, exist_ok=True)
-    translations_path.write_text(json.dumps(missing_storage_translations(args.old_root), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    generated = missing_storage_translations(args.old_root, design)
+    if translations_path.is_file():
+        existing = json.loads(translations_path.read_text(encoding="utf-8-sig"))
+        prepared_component_keys = {
+            key
+            for values in generated.values()
+            for key in values
+            if key.startswith("skywars2.gui.source.")
+        }
+        prepared_map_keys = {
+            source["translationKey"]
+            for page in design["pages"]
+            for slot in page["slots"]
+            for source in slot["sources"]
+            if source.get("translationKey", "").startswith("skywars2.gui.map.")
+        }
+        for locale, values in generated.items():
+            target = existing.setdefault(locale, {})
+            for key in list(target):
+                if key.startswith("skywars2.gui.source.") and key not in prepared_component_keys:
+                    del target[key]
+                elif key.startswith("skywars2.gui.map.") and key not in prepared_map_keys:
+                    del target[key]
+            for key, value in values.items():
+                previous = target.get(key)
+                if previous is not None and previous != value:
+                    if key.startswith("skywars2.gui.source."):
+                        target[key] = value
+                        continue
+                    raise ValueError(f"Translation additions conflict for {key} ({locale}); preserving existing value")
+                target[key] = value
+        generated = existing
+    translations_path.write_text(json.dumps(generated, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,24 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:spectral_arrow"
+        }
+      ],
+      "modifier": {
+        "entity": "this",
+        "name": {
+          "nbt": "gui.next.Name",
+          "storage": "swrg:lang",
+          "interpret": true,
+          "source": "storage",
+          "type": "nbt"
+        },
+        "type": "minecraft:set_name"
+      }
+    }
+  ]
+}

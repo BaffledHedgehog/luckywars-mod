@@ -1,0 +1,29 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:stick",
+          "modifier": [
+            {
+              "name": {
+                "text": "★",
+                "color": "aqua",
+                "italic": false
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "components": {
+                "item_model": "lbc:runes_common"
+              },
+              "type": "set_components"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

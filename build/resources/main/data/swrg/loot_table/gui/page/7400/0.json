@@ -1,0 +1,21 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:jack_o_lantern",
+          "modifier": {
+            "name": {
+              "translate": "win_effect_pumpkins",
+              "color": "gold",
+              "italic": false
+            },
+            "type": "minecraft:set_name"
+          }
+        }
+      ]
+    }
+  ]
+}

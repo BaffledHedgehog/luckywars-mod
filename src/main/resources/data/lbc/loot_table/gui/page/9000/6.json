@@ -1,84 +1,85 @@
+{
+  "type": "minecraft:empty",
+  "pools": [
     {
-    "type": "minecraft:empty","pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:item",
+          "name": "minecraft:dirt",
+          "modifier": [
+            {
+              "entity": "this",
+              "name": {
+                "translate": "lbckit.6",
+                "italic": false,
+                "color": "white"
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:dirt",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_name",
-                            "entity": "this",
-                            "name": {
-                                "translate": "lbckit.6",
-                                "italic": false,
-                                "color": "white"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "entity": "this",
-                            "lore": [
-                                {
-                                    "translate": "lore.lbckit.6",
-                                    "italic": false,
-                                    "color": "gray"
-                                },
-                                    [
-                                        {
-                                            "translate": "pick_rate",
-                                            "italic": false,
-                                            "color": "gold"
-                                        },
-                                        {
-                                            "storage": "stats:stats",
-                                            "nbt": "pick_rate_kit[6]",
-                                            "italic": false,
-                                            "color": "yellow"
-                                        },
-                                        {
-                                            "translate": "pick_count",
-                                            "italic": false,
-                                            "color": "gold"
-                                        },
-                                        {
-                                            "storage": "stats:stats",
-                                            "nbt": "pick_count_kit[6]",
-                                            "italic": false,
-                                            "color": "yellow"
-                                        }
-                                    ],
-                                    [
-                                        {
-                                            "translate": "win_rate",
-                                            "italic": false,
-                                            "color": "gold"
-                                        },
-                                        {
-                                            "storage": "stats:stats",
-                                            "nbt": "win_rate_kit[6]",
-                                            "italic": false,
-                                            "color": "yellow"
-                                        },
-                                        {
-                                            "translate": "win_count",
-                                            "italic": false,
-                                            "color": "gold"
-                                        },
-                                        {
-                                            "storage": "stats:stats",
-                                            "nbt": "win_count_kit[6]",
-                                            "italic": false,
-                                            "color": "yellow"
-                                        }
-                                    ]
-                            ]
-                        }
-                    ]
-                }
-            ]
+                  "translate": "lore.lbckit.6",
+                  "italic": false,
+                  "color": "gray"
+                },
+                [
+                  {
+                    "translate": "pick_rate",
+                    "italic": false,
+                    "color": "gold"
+                  },
+                  {
+                    "storage": "stats:stats",
+                    "nbt": "pick_rate_kit[6]",
+                    "italic": false,
+                    "color": "yellow"
+                  },
+                  {
+                    "translate": "pick_count",
+                    "italic": false,
+                    "color": "gold"
+                  },
+                  {
+                    "storage": "stats:stats",
+                    "nbt": "pick_count_kit[6]",
+                    "italic": false,
+                    "color": "yellow"
+                  }
+                ],
+                [
+                  {
+                    "translate": "win_rate",
+                    "italic": false,
+                    "color": "gold"
+                  },
+                  {
+                    "storage": "stats:stats",
+                    "nbt": "win_rate_kit[6]",
+                    "italic": false,
+                    "color": "yellow"
+                  },
+                  {
+                    "translate": "win_count",
+                    "italic": false,
+                    "color": "gold"
+                  },
+                  {
+                    "storage": "stats:stats",
+                    "nbt": "win_count_kit[6]",
+                    "italic": false,
+                    "color": "yellow"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

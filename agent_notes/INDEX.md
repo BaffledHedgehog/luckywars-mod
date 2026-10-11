@@ -9,6 +9,13 @@
 [DESIGN_SOURCE_AUDIT.md](DESIGN_SOURCE_AUDIT.md). Точные исходники и модели —
 [design_source_manifest.json](inventory/design_source_manifest.json);
 восстановление игровых сообщений — [GAME_TEXT_DESIGN_RESTORE.md](GAME_TEXT_DESIGN_RESTORE.md).
+Восстановление исходного меню на 27 слотов и границы переноса —
+[GUI_DESIGN_RESTORE.md](GUI_DESIGN_RESTORE.md).
+
+События и границы оптимизации очистки лобби —
+[CPU_EVENT_REVIEW.md](CPU_EVENT_REVIEW.md); CPU-замеры и живые проверки —
+[SERVER_TESTS.md](../SERVER_TESTS.md), ближайший план переноса —
+[README.md](../README.md).
 
 Документация datapack-снимка принята полностью: 35 заданий, 10 800 источников.
 Обзоры Paper/Ignite описаны отдельно ниже; число 35/35 к Java не относится.

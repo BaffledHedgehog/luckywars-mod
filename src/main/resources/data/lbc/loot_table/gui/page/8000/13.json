@@ -1,91 +1,91 @@
+{
+  "type": "minecraft:empty",
+  "pools": [
     {
-        "type": "minecraft:empty",
-        "pools": [
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:snowball",
+          "modifier": [
             {
-                "rolls": 1,
-                "entries": [
-                    {
-                        "type": "minecraft:item",
-                        "name": "minecraft:snowball",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:item_model": "lbc:luck_clover_2"
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "entity": "this",
-                                "name": {
-                                    "translate": "lbclevelup.13",
-                                    "italic": false,
-                                    "color": "white"
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "entity": "this",
-                                "lore": [
-                                    {
-                                        "translate": "lore.lbclevelup.13",
-                                        "italic": false,
-                                        "color": "gray"
-                                    },
-                                    [
-                                        {
-                                            "translate": "pick_rate",
-                                            "italic": false,
-                                            "color": "gold"
-                                        },
-                                        {
-                                            "storage": "stats:stats",
-                                            "nbt": "pick_rate_levelup[13]",
-                                            "italic": false,
-                                            "color": "yellow"
-                                        },
-                                        {
-                                            "translate": "pick_count",
-                                            "italic": false,
-                                            "color": "gold"
-                                        },
-                                        {
-                                            "storage": "stats:stats",
-                                            "nbt": "pick_count_levelup[13]",
-                                            "italic": false,
-                                            "color": "yellow"
-                                        }
-                                    ],
-                                    [
-                                        {
-                                            "translate": "win_rate",
-                                            "italic": false,
-                                            "color": "gold"
-                                        },
-                                        {
-                                            "storage": "stats:stats",
-                                            "nbt": "win_rate_levelup[13]",
-                                            "italic": false,
-                                            "color": "yellow"
-                                        },
-                                        {
-                                            "translate": "win_count",
-                                            "italic": false,
-                                            "color": "gold"
-                                        },
-                                        {
-                                            "storage": "stats:stats",
-                                            "nbt": "win_count_levelup[13]",
-                                            "italic": false,
-                                            "color": "yellow"
-                                        }
-                                    ]
-                                ]
-                            }
-                        ]
-                    }
+              "components": {
+                "minecraft:item_model": "lbc:luck_clover_2"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "entity": "this",
+              "name": {
+                "translate": "lbclevelup.13",
+                "italic": false,
+                "color": "white"
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                {
+                  "translate": "lore.lbclevelup.13",
+                  "italic": false,
+                  "color": "gray"
+                },
+                [
+                  {
+                    "translate": "pick_rate",
+                    "italic": false,
+                    "color": "gold"
+                  },
+                  {
+                    "storage": "stats:stats",
+                    "nbt": "pick_rate_levelup[13]",
+                    "italic": false,
+                    "color": "yellow"
+                  },
+                  {
+                    "translate": "pick_count",
+                    "italic": false,
+                    "color": "gold"
+                  },
+                  {
+                    "storage": "stats:stats",
+                    "nbt": "pick_count_levelup[13]",
+                    "italic": false,
+                    "color": "yellow"
+                  }
+                ],
+                [
+                  {
+                    "translate": "win_rate",
+                    "italic": false,
+                    "color": "gold"
+                  },
+                  {
+                    "storage": "stats:stats",
+                    "nbt": "win_rate_levelup[13]",
+                    "italic": false,
+                    "color": "yellow"
+                  },
+                  {
+                    "translate": "win_count",
+                    "italic": false,
+                    "color": "gold"
+                  },
+                  {
+                    "storage": "stats:stats",
+                    "nbt": "win_count_levelup[13]",
+                    "italic": false,
+                    "color": "yellow"
+                  }
                 ]
+              ],
+              "type": "minecraft:set_lore"
             }
-        ]
+          ]
+        }
+      ]
     }
+  ]
+}

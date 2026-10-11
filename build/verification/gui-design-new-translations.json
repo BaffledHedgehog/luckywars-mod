@@ -107,7 +107,14 @@
     "swrg.gui.map.2200.11": "Orcs (12)",
     "swrg.gui.map.2200.13": "Dragonball (24)",
     "skywars2.gui.original.health": "Default Health: %s",
-    "skywars2.gui.original.price_prefix": "Price: "
+    "skywars2.gui.original.price_prefix": "Price: ",
+    "skywars2.gui.source.page1000.s12-1.part0": "Урон от динамита - защита 1",
+    "skywars2.gui.source.page1000.s12-2.part0": "Урон от динамита - защита 2",
+    "skywars2.gui.source.page1000.s12-3.part0": "Урон от динамита - защита 3",
+    "skywars2.gui.source.page1000.s12-4.part0": "Урон от динамита - защита 4",
+    "skywars2.gui.source.page1000.s6-8.part0": "2-ое событие - Аирдроп",
+    "skywars2.gui.source.title.gametimerb.part0": "Игра длится [",
+    "skywars2.gui.source.title.gametimer.part1": "]"
   },
   "ru_ru": {
     "swrg.page1000.s0-1": "Система ПВП 1.8 (Глэк) ",
@@ -217,6 +224,13 @@
     "swrg.gui.map.2200.11": "Orcs (12)",
     "swrg.gui.map.2200.13": "Dragonball (24)",
     "skywars2.gui.original.health": "Здоровье игроков: %s",
-    "skywars2.gui.original.price_prefix": "Цена: "
+    "skywars2.gui.original.price_prefix": "Цена: ",
+    "skywars2.gui.source.page1000.s12-1.part0": "Урон от динамита - защита 1",
+    "skywars2.gui.source.page1000.s12-2.part0": "Урон от динамита - защита 2",
+    "skywars2.gui.source.page1000.s12-3.part0": "Урон от динамита - защита 3",
+    "skywars2.gui.source.page1000.s12-4.part0": "Урон от динамита - защита 4",
+    "skywars2.gui.source.page1000.s6-8.part0": "2-ое событие - Аирдроп",
+    "skywars2.gui.source.title.gametimerb.part0": "Игра длится [",
+    "skywars2.gui.source.title.gametimer.part1": "]"
   }
 }

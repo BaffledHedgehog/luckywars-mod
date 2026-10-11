@@ -1,0 +1,17 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:music_disc_ward",
+          "modifier": {
+            "tag": "{display:{Name:{\"translate\":\"entity.minecraft.ghast\",\"color\":\"red\",\"italic\":false}},HideFlags:127,rewardsound:13}",
+            "type": "minecraft:set_custom_data"
+          }
+        }
+      ]
+    }
+  ]
+}

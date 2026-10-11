@@ -1,0 +1,32 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "entity": "this",
+              "name": {
+                "nbt": "page0.s24.Name",
+                "storage": "swrg:lang",
+                "interpret": true,
+                "source": "storage",
+                "type": "nbt"
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "components": {
+                "item_model": "lbc:tweak"
+              },
+              "type": "set_components"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

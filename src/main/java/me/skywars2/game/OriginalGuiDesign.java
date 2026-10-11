@@ -4,205 +4,564 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.minecraft.ChatFormatting;
+import com.mojang.serialization.JsonOps;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextColor;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.level.storage.loot.LootContextParamSets;
-import net.minecraft.world.level.storage.loot.LootContextParams;
-import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.level.storage.loot.LootParams;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-/** Builds the original GUI button stack from its datapack loot table, retaining raw item components. */
+/** Builds original GUI button stacks from native loot tables and prepared source component templates. */
 final class OriginalGuiDesign {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OriginalGuiDesign.class);
     private static final String DESIGN_RESOURCE = "/skywars2/gui_design.json";
     private static JsonObject design;
+    private static Map<String, JsonObject> sourceBindings;
+    private static Map<String, Component> sourceMapNames;
+
     private OriginalGuiDesign() {}
 
     static ItemStack button(ServerPlayer player, String namespace, int page, int slot) {
-        Identifier id = Identifier.fromNamespaceAndPath(namespace, "gui/page/" + page + "/" + slot);
-        return button(player, id);
+        return button(player, namespace, Integer.toString(page), slot, null, null);
+    }
+
+    static ItemStack button(ServerPlayer player, String namespace, int page, int slot,
+                            PlayerStore.Profile profile, GameConfig config) {
+        return button(player, namespace, Integer.toString(page), slot, profile, config);
     }
 
     static ItemStack button(ServerPlayer player, String id) {
-        return button(player, Identifier.parse(id));
+        return button(player, Identifier.parse(id), null, null);
     }
 
-    /** Builds the exact static map-card item/name recorded from the source function. */
-    static SourceMapButton sourceMapButton(ServerPlayer player, String mapId, boolean selected) {
-        String pageId;
-        int sourceIndex;
-        if (mapId.endsWith("b")) {
-            pageId = "2000b";
-            sourceIndex = Integer.parseInt(mapId.substring(0, mapId.length() - 1)) - 1;
-        } else {
-            int id = Integer.parseInt(mapId);
-            if (id <= 25) { pageId = "2000"; sourceIndex = id - 1; }
-            else if (id <= 50) { pageId = "2100"; sourceIndex = id - 26; }
-            else { pageId = "2200"; sourceIndex = id - 51; }
-        }
-        JsonArray pages = design().getAsJsonArray("pages");
+    static ItemStack button(ServerPlayer player, String id, PlayerStore.Profile profile, GameConfig config) {
+        if (!id.contains(":")) return button(player, "swrg", id, 0, profile, config);
+        return button(player, Identifier.parse(id), profile, config);
+    }
+
+    private static ItemStack button(ServerPlayer player, String namespace, String pageId, int slot,
+                                    PlayerStore.Profile profile, GameConfig config) {
         JsonObject page = null;
-        for (JsonElement element : pages) {
+        for (JsonElement element : requiredArray(design(), "pages", "prepared GUI design")) {
             JsonObject candidate = element.getAsJsonObject();
-            if (candidate.get("pageId").getAsString().equals(pageId)
-                    && candidate.get("namespace").getAsString().equals("swrg")) {
+            if (namespace.equals(candidate.get("namespace").getAsString())
+                    && pageId.equals(candidate.get("pageId").getAsString())) {
                 page = candidate;
                 break;
             }
         }
-        if (page == null) return null;
-        int cardIndex = 0;
-        for (JsonElement slotElement : page.getAsJsonArray("slots")) {
-            JsonObject slot = slotElement.getAsJsonObject();
-            JsonArray sources = slot.getAsJsonArray("sources");
-            boolean hasSourceItem = false;
-            for (JsonElement sourceElement : sources) {
-                if (sourceElement.getAsJsonObject().has("sourceItem")) {
-                    hasSourceItem = true;
-                    break;
+        if (page == null) throw failure("Missing imported source page " + namespace + ":" + pageId);
+        for (JsonElement slotElement : requiredArray(page, "slots", "page " + pageId)) {
+            JsonObject entry = slotElement.getAsJsonObject();
+            if (entry.get("slot").getAsInt() != slot) continue;
+            for (JsonElement sourceElement : requiredArray(entry, "sources", "page " + pageId + " slot " + slot)) {
+                JsonObject source = sourceElement.getAsJsonObject();
+                if (source.has("sourceLootTable")) {
+                    // The source page may list gated alternatives; the first native loot item is its stable default.
+                    ItemStack stack = button(player, Identifier.parse(source.get("sourceLootTable").getAsString()), profile, config);
+                    applySourcePageModifiers(stack, entry, player, profile, config);
+                    return stack;
+                }
+                if (source.has("sourceItem")) {
+                    Item item = BuiltInRegistries.ITEM.getValue(Identifier.parse(source.get("sourceItem").getAsString()));
+                    if (item == null) throw failure("Unknown source item " + source.get("sourceItem").getAsString());
+                    return new ItemStack(item);
                 }
             }
-            if (!hasSourceItem) continue;
-            if (cardIndex++ != sourceIndex) continue;
-            for (JsonElement sourceElement : sources) {
-                JsonObject source = sourceElement.getAsJsonObject();
-                if (!source.has("sourceItem")) continue;
-                Item item = BuiltInRegistries.ITEM.getValue(Identifier.parse(source.get("sourceItem").getAsString()));
-                if (item == null) return null;
-                ItemStack stack = new ItemStack(item);
-                JsonObject rawName = source.getAsJsonObject("sourceName");
-                Component name = Component.translatable(source.get("translationKey").getAsString());
-                String color = rawName.has("color") ? rawName.get("color").getAsString() : "white";
-                ChatFormatting formatting = ChatFormatting.getByName(color);
-                if (formatting != null) name = name.withStyle(formatting);
-                else {
-                    TextColor parsed = TextColor.parseColor(color).result().orElse(null);
-                    if (parsed != null) name = name.withStyle(style -> style.withColor(parsed));
+            return ItemStack.EMPTY;
+        }
+        return ItemStack.EMPTY;
+    }
+
+    /** Builds the exact source map item using stable IDs imported from page and mapselect functions. */
+    static SourceMapButton sourceMapButton(ServerPlayer player, String mapId, boolean selected) {
+        for (JsonElement pageElement : design().getAsJsonArray("pages")) {
+            JsonObject page = pageElement.getAsJsonObject();
+            String pageId = page.get("pageId").getAsString();
+            if (!List.of("2000", "2000b", "2100", "2200").contains(pageId)) continue;
+            for (JsonElement slotElement : page.getAsJsonArray("slots")) {
+                JsonObject slot = slotElement.getAsJsonObject();
+                for (JsonElement sourceElement : slot.getAsJsonArray("sources")) {
+                    JsonObject source = sourceElement.getAsJsonObject();
+                    if (!source.has("sourceMapId") || !source.get("sourceMapId").getAsString().equals(mapId)) continue;
+                    // Selection modifiers also carry sourceMapId; they do not define a card.
+                    if (!source.has("sourceItem")) continue;
+                    Item item = BuiltInRegistries.ITEM.getValue(Identifier.parse(source.get("sourceItem").getAsString()));
+                    if (item == null) throw failure("Unknown source map item " + source.get("sourceItem").getAsString());
+                    ItemStack stack = new ItemStack(item);
+                    Component name = sourceMapName(mapId);
+                    if (name == null) throw failure("Map " + mapId + " has no imported name");
+                    stack.set(DataComponents.CUSTOM_NAME, name);
+                    if (selected) stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
+                    return new SourceMapButton(stack, selected, slot.get("slot").getAsInt());
                 }
-                name = name.withStyle(style -> style.withItalic(false));
-                stack.set(DataComponents.CUSTOM_NAME, name);
-                if (selected) stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
-                return new SourceMapButton(stack, selected);
             }
         }
         return null;
     }
 
+    /** Shares the source GUI caption with chat/status without creating a button stack. */
+    static Component sourceMapName(String mapId) {
+        design();
+        Component name = sourceMapNames.get(mapId);
+        return name == null ? null : name.copy();
+    }
+
     private static JsonObject design() {
         if (design != null) return design;
-        try (InputStream input = OriginalGuiDesign.class.getResourceAsStream(DESIGN_RESOURCE)) {
-            if (input == null) return new JsonObject();
-            design = JsonParser.parseReader(new InputStreamReader(input, StandardCharsets.UTF_8)).getAsJsonObject();
-            return design;
-        } catch (Exception ignored) {
-            return new JsonObject();
+        synchronized (OriginalGuiDesign.class) {
+            if (design != null) return design;
+            try (InputStream input = OriginalGuiDesign.class.getResourceAsStream(DESIGN_RESOURCE)) {
+                if (input == null) throw failure("Missing prepared GUI design resource " + DESIGN_RESOURCE);
+                design = JsonParser.parseReader(new InputStreamReader(input, StandardCharsets.UTF_8)).getAsJsonObject();
+                sourceBindings = loadSourceBindings(design);
+                sourceMapNames = loadSourceMapNames(design);
+                return design;
+            } catch (RuntimeException e) {
+                LOGGER.error("Could not load prepared GUI design", e);
+                throw e;
+            } catch (Exception e) {
+                LOGGER.error("Could not load prepared GUI design", e);
+                throw new IllegalStateException("Could not load prepared GUI design", e);
+            }
         }
     }
 
-    record SourceMapButton(ItemStack stack, boolean selected) {}
+    private static Map<String, Component> loadSourceMapNames(JsonObject prepared) {
+        Map<String, Component> names = new HashMap<>();
+        for (JsonElement pageElement : prepared.getAsJsonArray("pages")) {
+            JsonObject page = pageElement.getAsJsonObject();
+            if (!List.of("2000", "2000b", "2100", "2200").contains(page.get("pageId").getAsString())) continue;
+            for (JsonElement slotElement : page.getAsJsonArray("slots")) {
+                for (JsonElement sourceElement : slotElement.getAsJsonObject().getAsJsonArray("sources")) {
+                    JsonObject source = sourceElement.getAsJsonObject();
+                    if (!source.has("sourceMapId") || !source.has("sourceName")) continue;
+                    String mapId = source.get("sourceMapId").getAsString();
+                    JsonObject name = source.getAsJsonObject("sourceName").deepCopy();
+                    name.remove("text");
+                    name.addProperty("translate", source.get("translationKey").getAsString());
+                    names.putIfAbsent(mapId, decodeComponent(name, "source map " + mapId));
+                }
+            }
+        }
+        return Map.copyOf(names);
+    }
 
-    private static ItemStack button(ServerPlayer player, Identifier id) {
-        MinecraftServer server = player.getServer();
-        if (server == null) return ItemStack.EMPTY;
+    private static Map<String, JsonObject> loadSourceBindings(JsonObject prepared) {
+        Map<String, JsonObject> bindings = new HashMap<>();
+        JsonArray pages = requiredArray(prepared, "pages", "prepared GUI design");
+        for (JsonElement pageElement : pages) {
+            JsonObject page = pageElement.getAsJsonObject();
+            for (JsonElement slotElement : requiredArray(page, "slots", "page " + page.get("pageId"))) {
+                JsonObject slot = slotElement.getAsJsonObject();
+                for (JsonElement sourceElement : requiredArray(slot, "sources", "slot " + slot.get("slot"))) {
+                    JsonObject source = sourceElement.getAsJsonObject();
+                    if (!source.has("sourceLootTable") || !source.has("sourceComponentBindings")) continue;
+                    String id = source.get("sourceLootTable").getAsString();
+                    JsonObject previous = bindings.putIfAbsent(id, source.getAsJsonObject("sourceComponentBindings"));
+                    if (previous != null && !previous.equals(source.getAsJsonObject("sourceComponentBindings"))) {
+                        throw failure("Conflicting source component bindings for " + id);
+                    }
+                }
+            }
+        }
+        if (prepared.has("sharedButtons")) {
+            for (JsonElement sharedElement : requiredArray(prepared, "sharedButtons", "prepared GUI design")) {
+                JsonObject shared = sharedElement.getAsJsonObject();
+                if (shared.has("sourceLootTable") && shared.has("sourceComponentBindings")) {
+                    registerBinding(bindings, shared.get("sourceLootTable").getAsString(),
+                            shared.getAsJsonObject("sourceComponentBindings"));
+                }
+            }
+        }
+        if (prepared.has("sharedModifiers")) {
+            for (JsonElement modifierElement : requiredArray(prepared, "sharedModifiers", "prepared GUI design")) {
+                JsonObject modifier = modifierElement.getAsJsonObject();
+                if (modifier.has("modifierId") && modifier.has("sourceComponentBindings")) {
+                    registerBinding(bindings, modifier.get("modifierId").getAsString(),
+                            modifier.getAsJsonObject("sourceComponentBindings"));
+                }
+            }
+        }
+        return Map.copyOf(bindings);
+    }
+
+    private static void registerBinding(Map<String, JsonObject> bindings, String id, JsonObject binding) {
+        JsonObject previous = bindings.putIfAbsent(id, binding);
+        if (previous != null && !previous.equals(binding)) {
+            throw failure("Conflicting source component bindings for " + id);
+        }
+    }
+
+    record SourceMapButton(ItemStack stack, boolean selected, int slot) {}
+
+    private static ItemStack button(ServerPlayer player, Identifier id, PlayerStore.Profile profile, GameConfig config) {
+        MinecraftServer server = player.level().getServer();
+        if (server == null) throw failure("Player has no server while creating GUI item " + id);
         ResourceKey<LootTable> key = ResourceKey.create(Registries.LOOT_TABLE, id);
         LootTable table = server.reloadableRegistries().getLootTable(key);
-        if (table == LootTable.EMPTY) return ItemStack.EMPTY;
+        if (table == LootTable.EMPTY) throw failure("Missing source GUI loot table " + id);
 
-        LootParams params = new LootParams.Builder(player.serverLevel())
+        LootParams params = new LootParams.Builder(player.level())
                 .withParameter(LootContextParams.ORIGIN, player.position())
                 .withParameter(LootContextParams.THIS_ENTITY, player)
                 .create(LootContextParamSets.COMMAND);
         for (ItemStack stack : table.getRandomItems(params)) {
             if (!stack.isEmpty()) {
                 ItemStack result = stack.copy();
-                applySourceText(result, id);
+                applySourceText(result, id, player, profile, config);
                 return result;
             }
         }
-        return ItemStack.EMPTY;
+        throw failure("Source GUI loot table produced no item: " + id);
     }
 
-    private static void applySourceText(ItemStack stack, Identifier tableId) {
-        String resource = "/data/" + tableId.getNamespace() + "/loot_table/" + tableId.getPath() + ".json";
-        try (InputStream input = OriginalGuiDesign.class.getResourceAsStream(resource)) {
-            if (input == null) return;
-            JsonElement table = JsonParser.parseReader(new InputStreamReader(input, StandardCharsets.UTF_8));
-            ComponentBinding binding = findBindings(table);
-            if (binding.nameKey != null) stack.set(DataComponents.CUSTOM_NAME, sourceText(binding.nameKey));
-            if (!binding.loreKeys.isEmpty()) {
-                List<Component> lore = binding.loreKeys.stream().map(OriginalGuiDesign::sourceText).toList();
-                stack.set(DataComponents.LORE, new net.minecraft.world.item.component.ItemLore(lore));
-            }
-        } catch (Exception ignored) {
-            // A missing text binding leaves the native loot stack intact; it is reported in the import manifest.
-        }
-    }
-
-    private static ComponentBinding findBindings(JsonElement element) {
-        BindingBuilder builder = new BindingBuilder();
-        collectBindings(element, builder);
-        return new ComponentBinding(builder.nameKey, List.copyOf(builder.loreKeys));
-    }
-
-    private static void collectBindings(JsonElement element, BindingBuilder builder) {
-        if (element == null || !element.isJsonObject()) return;
-        JsonObject object = element.getAsJsonObject();
-        if (object.has("type") && object.get("type").getAsString().endsWith(":set_name")
-                && object.has("name")) {
-            String path = storagePath(object.get("name"));
-            if (path != null) builder.nameKey = translationKey(path);
-        }
-        if (object.has("type") && object.get("type").getAsString().endsWith(":set_lore")
-                && object.has("lore") && object.get("lore").isJsonArray()) {
-            for (JsonElement line : object.getAsJsonArray("lore")) {
-                String path = storagePath(line);
-                if (path != null) builder.loreKeys.add(translationKey(path));
+    private static void applySourceText(ItemStack stack, Identifier tableId, ServerPlayer player,
+                                        PlayerStore.Profile profile, GameConfig config) {
+        design();
+        JsonObject binding = sourceBindings.get(tableId.toString());
+        if (binding == null) return;
+        RuntimeValues values = new RuntimeValues(profile, config, player);
+        if (binding.has("name")) {
+            for (JsonElement nameElement : binding.getAsJsonArray("name")) {
+                JsonObject name = nameElement.getAsJsonObject();
+                if (!matchesCondition(name.get("condition"), values)) continue;
+                stack.set(DataComponents.CUSTOM_NAME,
+                        expression(name.getAsJsonArray("terms"), "name", values));
             }
         }
-        for (var entry : object.entrySet()) {
-            if (entry.getValue().isJsonObject()) collectBindings(entry.getValue(), builder);
-            else if (entry.getValue().isJsonArray()) for (JsonElement child : entry.getValue().getAsJsonArray())
-                collectBindings(child, builder);
+        if (binding.has("lore")) {
+            List<Component> lore = new ArrayList<>();
+            JsonArray lines = binding.getAsJsonArray("lore");
+            for (int index = 0; index < lines.size(); index++) {
+                JsonObject line = lines.get(index).getAsJsonObject();
+                if (!matchesCondition(line.get("condition"), values)) continue;
+                lore.add(expression(line.getAsJsonArray("terms"), "lore line " + index, values));
+            }
+            stack.set(DataComponents.LORE, new ItemLore(lore));
         }
     }
 
-    private static String storagePath(JsonElement element) {
-        if (!element.isJsonObject()) return null;
-        JsonObject object = element.getAsJsonObject();
-        if (!object.has("type") || !object.get("type").getAsString().equals("nbt")
-                || !object.has("storage") || !object.get("storage").getAsString().equals("swrg:lang")
-                || !object.has("nbt")) return null;
-        return object.get("nbt").getAsString();
+    private static void applySourcePageModifiers(ItemStack stack, JsonObject slot, ServerPlayer player,
+                                                 PlayerStore.Profile profile, GameConfig config) {
+        for (JsonElement sourceElement : requiredArray(slot, "sources", "source modifier slot")) {
+            JsonObject source = sourceElement.getAsJsonObject();
+            if (source.has("itemModifier")) {
+                String modifierId = source.get("itemModifier").getAsString();
+                if (modifierId.equals("swrg:balance") || modifierId.equals("swrg:balance_mem")) {
+                    applySourceModifierText(stack, modifierId, player, profile, config);
+                }
+            }
+        }
     }
 
-    private static String translationKey(String storagePath) {
-        String path = storagePath.replaceAll("\\.Lore\\[(\\d+)\\]$", ".$1");
-        if (path.endsWith(".Name")) path = path.substring(0, path.length() - 5);
-        return "swrg." + path;
+    static void applySourceModifierText(ItemStack stack, String modifierId, ServerPlayer player,
+                                        PlayerStore.Profile profile, GameConfig config) {
+        design();
+        JsonObject binding = sourceBindings.get(modifierId);
+        if (binding == null) throw failure("Missing prepared source item modifier " + modifierId);
+        RuntimeValues values = new RuntimeValues(profile, config, player);
+        if (binding.has("name")) {
+            for (JsonElement nameElement : binding.getAsJsonArray("name")) {
+                JsonObject name = nameElement.getAsJsonObject();
+                if (matchesCondition(name.get("condition"), values)) {
+                    stack.set(DataComponents.CUSTOM_NAME,
+                            expression(name.getAsJsonArray("terms"), "modifier name " + modifierId, values));
+                }
+            }
+        }
+        if (binding.has("lore")) {
+            List<Component> additions = new ArrayList<>();
+            String mode = null;
+            JsonArray lines = binding.getAsJsonArray("lore");
+            for (int index = 0; index < lines.size(); index++) {
+                JsonObject line = lines.get(index).getAsJsonObject();
+                if (!matchesCondition(line.get("condition"), values)) continue;
+                String lineMode = line.has("mode") ? line.get("mode").getAsString() : "replace_all";
+                if (mode != null && !mode.equals(lineMode)) throw failure("Mixed source lore modes in modifier " + modifierId);
+                mode = lineMode;
+                additions.add(expression(line.getAsJsonArray("terms"),
+                        "modifier lore " + modifierId + " line " + index, values));
+            }
+            List<Component> result = new ArrayList<>();
+            ItemLore current = stack.get(DataComponents.LORE);
+            if (mode == null || mode.equals("replace_all")) {
+                result.addAll(additions);
+            } else if (mode.equals("append")) {
+                if (current != null) result.addAll(current.lines());
+                result.addAll(additions);
+            } else if (mode.equals("insert")) {
+                result.addAll(additions);
+                if (current != null) result.addAll(current.lines());
+            } else {
+                throw failure("Unsupported source lore mode " + mode + " in modifier " + modifierId);
+            }
+            stack.set(DataComponents.LORE, new ItemLore(result));
+        }
     }
 
-    private static Component sourceText(String key) {
-        return Component.translatable(key).withStyle(style -> style.withItalic(false));
+    private static boolean matchesCondition(JsonElement condition, RuntimeValues values) {
+        if (condition == null || condition.isJsonNull()) return true;
+        JsonObject object = condition.getAsJsonObject();
+        if (!"minecraft:entity_scores".equals(object.get("type").getAsString())) {
+            throw failure("Unsupported source loot condition " + condition);
+        }
+        JsonObject scores = object.getAsJsonObject("scores");
+        for (Map.Entry<String, JsonElement> entry : scores.entrySet()) {
+            int current = Integer.parseInt(scoreValue("@s", entry.getKey(), values));
+            JsonElement range = entry.getValue();
+            if (range.isJsonPrimitive()) {
+                if (current != range.getAsInt()) return false;
+            } else {
+                JsonObject bounds = range.getAsJsonObject();
+                if (bounds.has("min") && current < bounds.get("min").getAsInt()) return false;
+                if (bounds.has("max") && current > bounds.get("max").getAsInt()) return false;
+            }
+        }
+        return true;
     }
 
-    private record ComponentBinding(String nameKey, List<String> loreKeys) {}
-    private static final class BindingBuilder {
-        private String nameKey;
-        private final List<String> loreKeys = new ArrayList<>();
+    private static Component expression(JsonArray terms, String description, RuntimeValues values) {
+        List<Component> parts = new ArrayList<>();
+        for (JsonElement termElement : terms) {
+            JsonObject term = termElement.getAsJsonObject();
+            Component part;
+            if (term.has("storagePath")) {
+                String path = term.get("storagePath").getAsString();
+                JsonElement prepared = resolveDynamic(resolveStorageComponent(path, values), values, description + " at " + path);
+                JsonElement styled = applyWrapperStyle(prepared, term, path, values);
+                part = decodeComponent(styled, description + " at " + path);
+            } else if (term.has("literalComponent")) {
+                JsonElement resolved = resolveDynamic(term.get("literalComponent"), values, description);
+                part = decodeComponent(resolved, description + " dynamic source component");
+            } else {
+                throw failure("Invalid prepared component term for " + description + ": " + term);
+            }
+            parts.add(part);
+        }
+        if (parts.isEmpty()) throw failure("Empty prepared component expression for " + description);
+        Component result = parts.getFirst();
+        for (int index = 1; index < parts.size(); index++) result = result.copy().append(parts.get(index));
+        return result;
     }
+
+    private static JsonElement resolveStorageComponent(String path, RuntimeValues values) {
+        JsonObject components = design().getAsJsonObject("localizedStorageComponents");
+        String root = path;
+        String suffix = "";
+        if (path.endsWith(".Name")) {
+            root = path.substring(0, path.length() - ".Name".length());
+            suffix = "Name";
+        } else {
+            int lore = path.lastIndexOf(".Lore[");
+            if (lore >= 0 && path.endsWith("]")) {
+                root = path.substring(0, lore);
+                suffix = path.substring(lore + 6, path.length() - 1);
+            }
+        }
+        if (root.startsWith("page1000.s") && root.indexOf('-', "page1000.s".length()) < 0) {
+            if (root.equals("page1000.s24") && values.config != null
+                    && !List.of(2, 10, 20, 40, 60).contains(values.config.health)) {
+                JsonObject health = new JsonObject();
+                JsonObject component = new JsonObject();
+                component.addProperty("translate", "skywars2.gui.original.health");
+                JsonArray arguments = new JsonArray();
+                JsonObject number = new JsonObject();
+                number.addProperty("text", Integer.toString(values.config.health));
+                arguments.add(number);
+                component.add("with", arguments);
+                component.addProperty("color", "white");
+                component.addProperty("italic", false);
+                health.add("Name", component);
+                return health.get("Name");
+            }
+            root = configuredStorageVariant(root, values);
+        }
+        if (!components.has(root)) throw failure("Missing prepared localized source component " + path);
+        JsonElement value = components.get(root);
+        if (suffix.equals("Name")) {
+            if (!value.isJsonObject() || !value.getAsJsonObject().has("Name")) throw failure("Missing Name in source component " + path);
+            return value.getAsJsonObject().get("Name");
+        }
+        if (!suffix.isEmpty()) {
+            if (!value.isJsonObject() || !value.getAsJsonObject().has("Lore")) throw failure("Missing Lore in source component " + path);
+            JsonArray lore = value.getAsJsonObject().getAsJsonArray("Lore");
+            int index;
+            try { index = Integer.parseInt(suffix); }
+            catch (NumberFormatException e) { throw failure("Invalid lore path " + path); }
+            if (index < 0 || index >= lore.size()) throw failure("Missing lore index in source component " + path);
+            return lore.get(index);
+        }
+        return value;
+    }
+
+    private static String configuredStorageVariant(String path, RuntimeValues values) {
+        String slot = path.substring("page1000.s".length());
+        int value;
+        try { value = Integer.parseInt(slot); }
+        catch (NumberFormatException e) { throw failure("Unknown dynamic source setting path " + path); }
+        if (values.config == null) return sourceDefaultVariant(path);
+        int setting;
+        switch (value) {
+            case 0 -> setting = values.config.pvpMode;
+            case 1 -> setting = values.config.day;
+            case 3 -> setting = values.config.vanillaKits ? 1 : 0;
+            case 4 -> setting = values.config.vanillaSkills ? 1 : 0;
+            case 5 -> setting = values.config.stageOneEvent;
+            case 6 -> setting = values.config.stageTwoEvent;
+            case 17 -> setting = 9; // Source core/default_settings: global trinket limit, not selected trinket ID.
+            case 24 -> {
+                int[] presets = {2, 10, 20, 40, 60};
+                int index = java.util.Arrays.binarySearch(presets, values.config.health);
+                if (index < 0) return sourceDefaultVariant(path);
+                setting = index;
+            }
+            default -> { return sourceDefaultVariant(path); }
+        }
+        String selected = path + "-" + setting;
+        return design().getAsJsonObject("localizedStorageComponents").has(selected)
+                ? selected : sourceDefaultVariant(path);
+    }
+
+    private static String sourceDefaultVariant(String path) {
+        JsonObject components = design().getAsJsonObject("localizedStorageComponents");
+        String prefix = path + "-";
+        int smallest = Integer.MAX_VALUE;
+        for (String candidate : components.keySet()) {
+            if (!candidate.startsWith(prefix)) continue;
+            try { smallest = Math.min(smallest, Integer.parseInt(candidate.substring(prefix.length()))); }
+            catch (NumberFormatException ignored) { }
+        }
+        if (smallest != Integer.MAX_VALUE) return prefix + smallest;
+        if (components.has(path)) return path;
+        throw failure("Missing source default variant for " + path);
+    }
+
+    private static JsonElement applyWrapperStyle(JsonElement source, JsonObject binding, String path, RuntimeValues values) {
+        JsonElement result = source.deepCopy();
+        JsonObject target;
+        if (result.isJsonObject()) {
+            target = result.getAsJsonObject();
+        } else {
+            target = new JsonObject();
+            JsonArray extra = new JsonArray();
+            extra.add(result);
+            target.add("text", new com.google.gson.JsonPrimitive(""));
+            target.add("extra", extra);
+            result = target;
+        }
+        for (String key : List.of("color", "bold", "italic", "underlined", "strikethrough", "obfuscated", "font")) {
+            if (binding.has(key)) target.add(key, binding.get(key).deepCopy());
+        }
+        if (binding.has("extra")) {
+            JsonArray extra = target.has("extra") && target.get("extra").isJsonArray()
+                    ? target.getAsJsonArray("extra") : new JsonArray();
+            for (JsonElement child : binding.getAsJsonArray("extra")) extra.add(resolveDynamic(child, values, "extra for " + path));
+            target.add("extra", extra);
+        }
+        return result;
+    }
+
+    private static JsonElement resolveDynamic(JsonElement source, RuntimeValues values, String description) {
+        if (source == null || source.isJsonNull() || source.isJsonPrimitive()) return source == null ? null : source.deepCopy();
+        if (source.isJsonArray()) {
+            JsonArray result = new JsonArray();
+            for (JsonElement child : source.getAsJsonArray()) result.add(resolveDynamic(child, values, description));
+            return result;
+        }
+        JsonObject object = source.getAsJsonObject();
+        if (object.has("selector") && object.get("selector").isJsonPrimitive()) {
+            if (values == null || values.player == null) throw failure("Missing player for source selector at " + description);
+            JsonObject literal = object.deepCopy();
+            literal.remove("selector");
+            literal.remove("type");
+            literal.addProperty("text", values.player.getName().getString());
+            return resolveDynamic(literal, values, description);
+        }
+        if (object.has("score") && object.get("score").isJsonObject()) {
+            if (values == null) throw failure("Missing in-memory profile/config for source score at " + description);
+            JsonObject score = object.getAsJsonObject("score");
+            String name = score.get("name").getAsString();
+            String objective = score.get("objective").getAsString();
+            JsonObject literal = object.deepCopy();
+            literal.remove("score");
+            literal.remove("type");
+            literal.addProperty("text", scoreValue(name, objective, values));
+            return resolveDynamic(literal, values, description);
+        }
+        JsonObject result = new JsonObject();
+        for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
+            result.add(entry.getKey(), resolveDynamic(entry.getValue(), values, description));
+        }
+        return result;
+    }
+
+    private static String scoreValue(String name, String objective, RuntimeValues values) {
+        PlayerStore.Profile profile = values.profile;
+        if (name.equals("@s") && profile == null) throw failure("Missing player profile for score " + objective);
+        if (profile == null && objective.contains("stat_")) throw failure("Missing player profile for score " + objective);
+        if ("swrg.stat_games".equals(objective)) return Integer.toString(profile.games);
+        if ("swrg.coins".equals(objective)) return Integer.toString(profile.coins);
+        if ("swrg.memcoins".equals(objective)) return Integer.toString(profile.memcoins);
+        if (objective.matches("swrg\\.keys[0-4]")) return Integer.toString(profile.keys[objective.charAt(objective.length() - 1) - '0']);
+        // Challenge progress is not migrated yet; preserve the unresolved source
+        // score's empty text rather than inventing a progress value.
+        if ("challenge_score".equals(objective)) return "";
+        if ("swrg.wr".equals(objective)) {
+            return Integer.toString(profile.games == 0 ? 0 : profile.wins * 100 / profile.games);
+        }
+        if ("swrg.kd1..".equals(objective)) {
+            return Integer.toString(profile.deaths == 0 ? profile.kills : profile.kills / profile.deaths);
+        }
+        if ("swrg.kd..1".equals(objective)) {
+            return Integer.toString(profile.deaths == 0 ? 0 : (profile.kills * 100 / profile.deaths) % 100);
+        }
+        if ("swrg.math".equals(objective) && name.equals("#lbctrinket")) {
+            if (profile == null) throw failure("Missing player profile for LBC trinket score");
+            return "9"; // Source global default; LBC limit settings are not migrated.
+        }
+        if ("swrg.math".equals(objective) && name.equals("#lbclevelupmax")) {
+            if (profile == null) throw failure("Missing player profile for LBC level score");
+            return "4"; // Source global default, not the player's selected levelups.
+        }
+        throw failure("No in-memory mapping for source score " + name + " / " + objective);
+    }
+
+    private static Component decodeComponent(JsonElement json, String context) {
+        return ComponentSerialization.CODEC.parse(JsonOps.INSTANCE, json)
+                .getOrThrow(error -> failure("Invalid component " + context + ": " + error));
+    }
+
+    private static JsonArray requiredArray(JsonObject object, String key, String context) {
+        if (!object.has(key) || !object.get(key).isJsonArray()) throw failure("Missing array " + key + " in " + context);
+        return object.getAsJsonArray(key);
+    }
+
+    private static IllegalStateException failure(String message) {
+        LOGGER.error(message);
+        return new IllegalStateException(message);
+    }
+
+    private record RuntimeValues(PlayerStore.Profile profile, GameConfig config, ServerPlayer player) {}
 }

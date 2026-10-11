@@ -1,7 +1,7 @@
 Starting net.fabricmc.loader.impl.game.minecraft.BundlerClassPathCapture
-[11:37:26] [main/INFO]: Loading Minecraft 26.3 with Fabric Loader 0.19.5
-[11:37:26] [main/INFO]: Mappings not present!
-[11:37:26] [main/INFO]: Loading 56 mods:
+[02:24:28] [main/INFO]: Loading Minecraft 26.3 with Fabric Loader 0.19.5
+[02:24:28] [main/INFO]: Mappings not present!
+[02:24:28] [main/INFO]: Loading 56 mods:
 	- carpet 26.3+v260915
 	- fabric-api 0.161.0+26.3
 	   |-- fabric-advancement-api-v1 1.0.0+38c7a2d55d
@@ -61,53 +61,703 @@ Starting net.fabricmc.loader.impl.game.minecraft.BundlerClassPathCapture
 	        \-- polymer-common 0.18.2+26.3
 	- skywars2 0.1.0
 	   \-- sgui 2.2.1+26.3
-[11:37:26] [main/INFO]: SpongePowered MIXIN Subsystem Version=0.8.7 Source=file:/E:/servers_mew/skywars2_last/luckywars-mod/build/verification/key-reuse-server/libraries/net/fabricmc/sponge-mixin/0.17.4+mixin.0.8.7/sponge-mixin-0.17.4+mixin.0.8.7.jar Service=Knot/Fabric Env=SERVER
-[11:37:27] [main/INFO]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.5).
+[02:24:28] [main/INFO]: SpongePowered MIXIN Subsystem Version=0.8.7 Source=file:/E:/servers_mew/skywars2_last/luckywars-mod/build/verification/key-reuse-server/libraries/net/fabricmc/sponge-mixin/0.17.4+mixin.0.8.7/sponge-mixin-0.17.4+mixin.0.8.7.jar Service=Knot/Fabric Env=SERVER
+[02:24:29] [main/INFO]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.5).
 WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
 WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.joml.MemUtil$MemUtilUnsafe (file:/E:/servers_mew/skywars2_last/luckywars-mod/build/verification/key-reuse-server/libraries/org/joml/joml/1.10.9/joml-1.10.9.jar)
 WARNING: Please consider reporting this to the maintainers of class org.joml.MemUtil$MemUtilUnsafe
 WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
-[11:37:33] [main/INFO]: SkyWars game cycle registered
-[11:37:34] [main/INFO]: Environment: Environment[discoveryUrl=https://discovery.minecraftservices.com/minecraft/client, name=PROD]
-[11:37:35] [Worker-Main-4/WARN]: Found loot table element validation problem in {swrg:game/kit/halloween_pies@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
-[11:37:35] [Worker-Main-4/WARN]: Found loot table element validation problem in {swrg:game/kit/halloween_pies@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
-[11:37:35] [Worker-Main-4/WARN]: Found loot table element validation problem in {swrg:game/kit/halloween_pies@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
-[11:37:35] [Worker-Main-4/WARN]: Found loot table element validation problem in {swrg:game/kit/halloween_pies@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
-[11:37:35] [Worker-Main-3/INFO]: Loaded 1866 advancements
-[11:37:35] [main/INFO]: Applied 0 biome modifications to 0 of 67 new biomes in 1.130 ms
-[11:37:35] [Server thread/INFO]: Starting minecraft server version 26.3
-[11:37:35] [Server thread/INFO]: Loading properties
-[11:37:35] [Server thread/INFO]: Default game type: SURVIVAL
-[11:37:35] [Server thread/INFO]: Generating keypair
-[11:37:35] [Server thread/INFO]: Starting Minecraft server on 127.0.0.1:25576
-[11:37:36] [Server thread/INFO]: Preparing level "world"
-[11:37:36] [Server thread/INFO]: Loading 25 persistent chunks...
-[11:37:36] [Server thread/INFO]: Preparing spawn area: 28%
-[11:37:36] [Server thread/INFO]: Preparing spawn area: 28%
-[11:37:36] [Server thread/INFO]: Time elapsed: 579 ms
-[11:37:36] [Server thread/INFO]: Done (0.950s)! For help, type "help"
-[11:37:36] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:overworld
-[11:37:37] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world]'/skywars2:arena
-[11:37:37] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_end
-[11:37:37] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_nether
-[11:37:37] [Server thread/INFO]: [game] LOADING -> LOADING
-[11:37:37] [IO-Worker-4/INFO]: System chat: [Polymer] Starting resource pack generation...
-[11:37:37] [Server thread/INFO]: System chat: [Polymer] Resource pack created successfully! You can find it in game folder as polymer/resource_pack.zip
-[11:37:39] [Server thread/INFO]: Map operation lobby success=true prepareMs=943 workTicks=5 slices=8 maxWorkTickMs=15.6248
-[11:37:39] [Server thread/INFO]: [game] LOADING -> LOBBY
-[11:37:39] [Server thread/INFO]: System chat: Lobby ready. Use /sw to open the menu.
-[11:37:39] [Server thread/INFO]: [game] Lobby ready. Use /sw to open the menu.
-[11:37:39] [Server thread/INFO]: System chat: Setting saved: health=19
-[11:37:39] [Server thread/INFO]: System chat: Setting health must be within 1..20.
-[11:37:39] [Server thread/INFO]: System chat: Setting saved: health=20
-[11:37:39] [Server thread/INFO]: TestAlpha[local] logged in with entity id 9 at (0.0, 0.0, 0.0)
-[11:37:39] [Server thread/INFO]: System chat: TestAlpha joined the game
-[11:37:39] [Server thread/INFO]: TestBeta[local] logged in with entity id 10 at (0.0, 0.0, 0.0)
-[11:37:39] [Server thread/INFO]: System chat: TestBeta joined the game
-[11:37:39] [Server thread/INFO]: [check] Created TestAlpha/TestBeta as vanilla ServerPlayer instances
-[11:37:39] [Server thread/INFO]: [check] PASS bots
-[11:37:39] [Server thread/ERROR]: Some mod tried to create a chunk update packet, without the packet context present! This will cause issues!
-[11:37:39] [Server thread/ERROR]: Please report this to mods in the stack-trace below!
+[02:24:33] [main/INFO]: SkyWars game cycle registered
+[02:24:33] [main/INFO]: Environment: Environment[discoveryUrl=https://discovery.minecraftservices.com/minecraft/client, name=PROD]
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:game/kit/halloween_pies@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:game/kit/halloween_pies@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:game/kit/halloween_pies@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:game/kit/halloween_pies@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/10@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/10@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/10@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/10@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/11@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/11@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/11@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/11@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/12@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/12@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/12@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/12@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/13@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/13@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/13@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/13@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/14@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/14@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/14@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/14@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/15@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/15@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/15@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/15@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/16@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/16@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/16@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/16@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/17@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/17@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/17@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/17@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/19@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/19@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/19@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/19@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/20@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/20@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/20@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/20@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/21@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/21@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/21@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/21@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/22@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/22@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/22@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/22@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/23@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/23@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/23@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/23@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/24@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/24@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/24@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/24@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[3]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[3]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/9@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/9@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/9@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10000/9@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/10100/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/10@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/10@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/10@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/10@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/11@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/11@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/11@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/11@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/12@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/12@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/12@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/12@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/13@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/13@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/13@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/13@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/14@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/14@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/14@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/14@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/15@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/15@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/15@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/15@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/16@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/16@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/16@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/16@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/17@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/17@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/17@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/17@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/19@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/19@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/19@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/19@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/20@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/20@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/20@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/20@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/21@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/21@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/21@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/21@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/22@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/22@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/22@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/22@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/23@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/23@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/23@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/23@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/9@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/9@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/9@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/11000/9@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/12000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/12000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/12000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/12000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/12000/0_completed@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/12000/0_completed@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/12000/0_completed@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/12000/0_completed@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/12000/reset_challenge@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/12000/reset_challenge@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/12000/reset_challenge@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/12000/reset_challenge@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/12000/reset_challenge_perks@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/12000/reset_challenge_perks@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/12000/reset_challenge_perks@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/12000/reset_challenge_perks@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/10@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/10@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/10@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/10@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/11@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/11@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/11@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/11@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/12@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/12@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/12@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/12@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/13@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/13@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/13@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/13@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/14@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/14@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/14@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/14@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/15@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/15@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/15@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/15@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/16@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/16@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/16@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/16@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/17@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/17@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/17@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/17@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/19@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/19@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/19@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/19@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/20@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/20@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/20@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/20@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/21@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/21@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/21@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/21@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/22@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/22@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/22@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/22@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/23@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/23@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/23@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/23@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/9@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/9@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/9@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/3000/9@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/10@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/10@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/10@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/10@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/11@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/11@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/11@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/11@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/12@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/12@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/12@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/12@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/9@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/9@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/9@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {swrg:gui/page/4000/9@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/10@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/10@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/10@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/10@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/11@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/11@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/11@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/11@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/12@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/12@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/12@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/12@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/13@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/13@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/13@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/13@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/14@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/14@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/14@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/14@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/15@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/15@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/15@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/15@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/16@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/16@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/16@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/16@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/17@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/17@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/17@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/17@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/19@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/19@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/19@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/19@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/20@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/20@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/20@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/20@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/21@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/21@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/21@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/21@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/22@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/22@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/22@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/22@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/23@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/23@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/23@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/23@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/24@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/24@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/24@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/24@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/27@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/27@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/27@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/27@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/28@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/28@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/28@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/28@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/29@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/29@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/29@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/29@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/30@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/30@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/30@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/30@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/31@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/31@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/31@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/31@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/32@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/32@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/32@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/32@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/33@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/33@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/33@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/33@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/34@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/34@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/34@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/34@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/35@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/35@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/35@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/35@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/36@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/36@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/36@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/36@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/37@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/37@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/37@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/37@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/38@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/38@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/38@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/38@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/39@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/39@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/39@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/39@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/40@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/40@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/40@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/40@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/41@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/41@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/41@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/41@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/42@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/42@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/42@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/42@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/43@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/43@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/43@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/43@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/9@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/9@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/9@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/8000/9@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/0@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/1@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/10@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/10@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/10@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/10@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/11@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/11@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/11@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/11@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/12@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/12@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/12@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/12@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/13@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/13@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/13@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/13@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/14@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/14@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/14@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/14@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/15@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/15@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/15@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/15@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/16@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/16@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/16@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/16@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/17@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/17@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/17@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/17@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/18@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/18@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/18@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/18@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/19@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/19@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/19@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/19@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/2@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/20@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/20@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/20@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/20@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/21@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/21@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/21@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/21@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/22@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/22@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/22@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/22@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/23@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/23@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/23@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/23@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/24@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/24@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/24@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/24@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/25@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/25@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/25@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/25@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/3@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/4@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/5@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[0]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/6@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/7@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/8@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/9@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/9@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/9@minecraft:loot_table}.pools[0].entries[0].modifier.functions[1]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-7/WARN]: Found loot table element validation problem in {lbc:gui/page/9000/9@minecraft:loot_table}.pools[0].entries[0].modifier.functions[2]: Parameters [<parameter minecraft:this_entity>] are not provided in this context
+[02:24:34] [Worker-Main-13/INFO]: Loaded 1866 advancements
+[02:24:35] [main/INFO]: Applied 0 biome modifications to 0 of 67 new biomes in 937.0 μs
+[02:24:35] [Server thread/INFO]: Starting minecraft server version 26.3
+[02:24:35] [Server thread/INFO]: Loading properties
+[02:24:35] [Server thread/INFO]: Default game type: SURVIVAL
+[02:24:35] [Server thread/INFO]: Generating keypair
+[02:24:35] [Server thread/INFO]: Starting Minecraft server on 127.0.0.1:25576
+[02:24:35] [Server thread/INFO]: Preparing level "world"
+[02:24:35] [Server thread/INFO]: Loading 25 persistent chunks...
+[02:24:35] [Server thread/INFO]: Preparing spawn area: 28%
+[02:24:35] [Server thread/INFO]: Preparing spawn area: 28%
+[02:24:35] [Server thread/INFO]: Time elapsed: 552 ms
+[02:24:35] [Server thread/INFO]: Done (0.786s)! For help, type "help"
+[02:24:36] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:overworld
+[02:24:36] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world]'/skywars2:arena
+[02:24:36] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_end
+[02:24:36] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_nether
+[02:24:36] [Server thread/INFO]: [game] LOADING -> LOADING
+[02:24:36] [IO-Worker-4/INFO]: System chat: [Polymer] Starting resource pack generation...
+[02:24:36] [Server thread/INFO]: System chat: [Polymer] Resource pack created successfully! You can find it in game folder as polymer/resource_pack.zip
+[02:24:37] [Server thread/INFO]: Map operation lobby success=true prepareMs=656 workTicks=5 slices=8 maxWorkTickMs=13.5419
+[02:24:37] [Server thread/INFO]: [game] LOADING -> LOBBY
+[02:24:37] [Server thread/INFO]: System chat: skywars2.settings.saved
+[02:24:37] [Server thread/INFO]: System chat: skywars2.settings.range
+[02:24:37] [Server thread/INFO]: System chat: skywars2.settings.saved
+[02:24:37] [Server thread/INFO]: TestAlpha[local] logged in with entity id 9 at (0.0, 0.0, 0.0)
+[02:24:38] [Server thread/INFO]: System chat: TestAlpha joined the game
+[02:24:38] [Server thread/INFO]: TestBeta[local] logged in with entity id 10 at (0.0, 0.0, 0.0)
+[02:24:38] [Server thread/INFO]: System chat: TestBeta joined the game
+[02:24:38] [Server thread/INFO]: [check] Created TestAlpha/TestBeta as vanilla ServerPlayer instances
+[02:24:38] [Server thread/INFO]: [check] PASS bots
+[02:24:38] [Server thread/ERROR]: Some mod tried to create a chunk update packet, without the packet context present! This will cause issues!
+[02:24:38] [Server thread/ERROR]: Please report this to mods in the stack-trace below!
 java.lang.IllegalStateException
 	at knot//eu.pb4.polymer.core.impl.PolymerImplUtils.warnMissingContextChunkPacket(PolymerImplUtils.java:263)
 	at knot//net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData$BlockEntityInfo.modifyExpressionValue$bfn000$polymer-core$changeNbt(ClientboundLevelChunkPacketData.java:1026)
@@ -115,7 +765,7 @@ java.lang.IllegalStateException
 	at knot//net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData.<init>(ClientboundLevelChunkPacketData.java:58)
 	at knot//net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket.<init>(ClientboundLevelChunkWithLightPacket.java:31)
 	at knot//net.minecraft.server.network.PlayerChunkSender.mixinextras$bridge$newClientboundLevelChunkWithLightPacket$18(PlayerChunkSender.java)
-	at knot//net.minecraft.server.network.PlayerChunkSender.md723fe0$polymer-core$lambda$addContext$0$0(PlayerChunkSender.java:1526)
+	at knot//net.minecraft.server.network.PlayerChunkSender.mdec1a95$polymer-core$lambda$addContext$0$0(PlayerChunkSender.java:1526)
 	at java.base/jdk.internal.vm.ScopedValueContainer.callWithoutScope(ScopedValueContainer.java:162)
 	at java.base/jdk.internal.vm.ScopedValueContainer.call(ScopedValueContainer.java:147)
 	at java.base/java.lang.ScopedValue$Carrier.call(ScopedValue.java:419)
@@ -133,164 +783,138 @@ java.lang.IllegalStateException
 	at knot//net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:752)
 	at knot//net.minecraft.server.MinecraftServer.lambda$spin$0(MinecraftServer.java:310)
 	at java.base/java.lang.Thread.run(Thread.java:1474)
-[11:37:39] [Server thread/INFO]: [check] PASS lobby
-[11:37:44] [Server thread/INFO]: [check] lobby-rules otherWorld=minecraft:overworld forced=true visible=0 probeLookup=false removed=true
-[11:37:44] [Server thread/INFO]: [check] PASS lobby-rules
-[11:37:44] [Server thread/INFO]: [check] PASS menus
-[11:37:44] [Server thread/INFO]: [check] Fast fixture saved: lives=2 countdown=5 phase1=3 phase2=6 ending=15 events=2,6
-[11:37:44] [Server thread/INFO]: [check] PASS fast
-[11:37:44] [Server thread/INFO]: [check] watch armed; start a match now
-[11:37:44] [Server thread/INFO]: [check] PASS watch
-[11:37:44] [Server thread/INFO]: [game] LOBBY -> LOADING
-[11:37:44] [Server thread/INFO]: System chat: Loading map Map 1...
-[11:37:44] [Server thread/INFO]: [game] Loading map Map 1...
-[11:37:44] [Server thread/INFO]: [check] PASS watch/loading-actions
-[11:37:44] [Server thread/INFO]: [check] PASS watch/loading-navigation
-[11:37:44] [Server thread/INFO]: [check] PASS watch/loading-navigation
-[11:37:45] [Server thread/INFO]: [check] PASS watch/loading-navigation
-[11:37:45] [Server thread/INFO]: [check] PASS watch/loading-navigation
-[11:37:46] [Server thread/INFO]: [check] PASS watch/loading-navigation
-[11:37:46] [Server thread/INFO]: [check] PASS watch/loading-navigation
-[11:37:47] [Server thread/INFO]: [check] PASS watch/loading-navigation
-[11:37:47] [Server thread/INFO]: [check] PASS watch/loading-navigation
-[11:37:48] [Server thread/INFO]: [check] PASS watch/loading-navigation
-[11:37:48] [Server thread/INFO]: [check] PASS watch/loading-navigation
-[11:37:49] [Server thread/INFO]: [check] PASS watch/loading-navigation
-[11:37:49] [Server thread/INFO]: [check] PASS watch/loading-navigation
-[11:37:50] [Server thread/INFO]: [check] PASS watch/loading-navigation
-[11:37:50] [Server thread/INFO]: [check] PASS watch/loading-navigation
-[11:37:51] [Server thread/INFO]: [check] PASS watch/loading-navigation
-[11:37:51] [Server thread/INFO]: [check] PASS watch/loading-navigation
-[11:37:52] [Server thread/INFO]: [check] PASS watch/loading-navigation
-[11:37:52] [Server thread/INFO]: [check] PASS watch/loading-navigation
-[11:37:53] [Server thread/INFO]: [check] PASS watch/loading-navigation
-[11:37:53] [Server thread/INFO]: Map operation 1 success=true prepareMs=4747 workTicks=94 slices=2596 maxWorkTickMs=11.1075
-[11:37:53] [Server thread/INFO]: [game] LOADING -> COUNTDOWN
-[11:37:53] [Server thread/INFO]: [check] Loading menu ticks=189 preparing=95 placing=94 maxNavigationMs=3.1227
-[11:37:53] [Server thread/INFO]: [check] PASS watch/countdown
-[11:37:53] [Server thread/INFO]: [check] PASS watch/stale-menu
-[11:37:58] [Server thread/INFO]: SWRG refill upgrade=false generatedChests=33 syntheticCounts=95 countsAboveOne=92
-[11:37:58] [Server thread/INFO]: [game] COUNTDOWN -> PLAYING
-[11:37:58] [Server thread/INFO]: System chat: The match has started!
-[11:37:58] [Server thread/INFO]: [game] The match has started!
-[11:37:58] [Server thread/INFO]: [check] PASS watch/playing
-[11:37:59] [Server thread/INFO]: [check] PASS watch/tracker
-[11:38:01] [Server thread/INFO]: [game] PLAYING -> PHASE_ONE
-[11:38:01] [Server thread/INFO]: System chat: swrg.title.stage1.event1
-[11:38:01] [Server thread/INFO]: [game] swrg.title.stage1.event1
-[11:38:04] [Server thread/INFO]: [game] PHASE_ONE -> PHASE_TWO
-[11:38:04] [Server thread/INFO]: System chat: swrg.title.stage2.event5
-[11:38:04] [Server thread/INFO]: [game] swrg.title.stage2.event5
-[11:38:04] [Server thread/INFO]: System chat: Settings can only be changed in the lobby.
-[11:38:04] [Server thread/INFO]: [check] PASS playing
-[11:38:04] [Server thread/INFO]: [check] PASS phases
-[11:38:05] [Server thread/INFO]: [check] PASS tracker
-[11:38:05] [Server thread/INFO]: [check] Generated 33 chests, 287 occupied slots, 92 multi-item stacks
-[11:38:05] [Server thread/INFO]: [check] PASS chests
-[11:38:05] [Server thread/INFO]: TestLate[local] logged in with entity id 56 at (0.0, 0.0, 0.0)
-[11:38:05] [Server thread/INFO]: System chat: TestLate joined the game
-[11:38:05] [Server thread/INFO]: TestLate lost connection: Late-join check complete.
-[11:38:05] [Server thread/INFO]: System chat: TestLate left the game
-[11:38:05] [Server thread/INFO]: [check] PASS late
-[11:38:05] [Server thread/INFO]: [check] PASS bridge
-[11:38:05] [Server thread/INFO]: System chat: TestAlpha was killed
-[11:38:05] [Server thread/INFO]: System chat: TestAlpha: 1 lives remaining
-[11:38:05] [Server thread/INFO]: [game] TestAlpha: 1 lives remaining
-[11:38:05] [Server thread/INFO]: System chat: Applied 100.0 damage to TestAlpha
-[11:38:05] [Server thread/INFO]: [check] PASS respawn
-[11:38:05] [Server thread/INFO]: System chat: TestAlpha was killed
-[11:38:05] [Server thread/INFO]: System chat: TestAlpha has been eliminated.
-[11:38:05] [Server thread/INFO]: [game] TestAlpha has been eliminated.
-[11:38:05] [Server thread/INFO]: System chat: Applied 100.0 damage to TestAlpha
-[11:38:05] [Server thread/INFO]: [check] PASS respawn
-[11:38:05] [Server thread/INFO]: System chat: Winner: TestBeta (+100 coins and a key).
-[11:38:05] [Server thread/INFO]: [game] Winner: TestBeta (+100 coins and a key).
-[11:38:05] [Server thread/INFO]: [game] PHASE_TWO -> ENDING
-[11:38:05] [Server thread/INFO]: [check] PASS watch/ending
-[11:38:05] [Server thread/INFO]: [check] PASS ending
-[11:38:20] [Server thread/INFO]: [game] ENDING -> LOADING
-[11:38:24] [Server thread/INFO]: Map operation lobby success=true prepareMs=49 workTicks=73 slices=3461 maxWorkTickMs=5.6738
-[11:38:24] [Server thread/INFO]: [game] LOADING -> LOBBY
-[11:38:24] [Server thread/INFO]: System chat: Lobby ready. Use /sw to open the menu.
-[11:38:24] [Server thread/INFO]: [game] Lobby ready. Use /sw to open the menu.
-[11:38:24] [Server thread/INFO]: [check] PASS watch/lobby
-[11:38:24] [Server thread/INFO]: [check] PASS watch: countdown -> playing -> phases -> ending -> lobby
-[11:38:24] [Server thread/INFO]: [check] PASS cleanup
-[11:38:24] [Server thread/INFO]: [game] LOBBY -> LOADING
-[11:38:24] [Server thread/INFO]: System chat: Loading map Map 1...
-[11:38:24] [Server thread/INFO]: [game] Loading map Map 1...
-[11:38:24] [Server thread/INFO]: [check] lives scenario armed; waiting for the real match start
-[11:38:24] [Server thread/INFO]: [check] PASS lives
-[11:38:30] [Server thread/INFO]: Map operation 1 success=true prepareMs=3748 workTicks=54 slices=2596 maxWorkTickMs=4.4249
-[11:38:31] [Server thread/INFO]: [game] LOADING -> COUNTDOWN
-[11:38:35] [Server thread/INFO]: SWRG refill upgrade=false generatedChests=33 syntheticCounts=100 countsAboveOne=98
-[11:38:35] [Server thread/INFO]: [game] COUNTDOWN -> PLAYING
-[11:38:35] [Server thread/INFO]: System chat: The match has started!
-[11:38:35] [Server thread/INFO]: [game] The match has started!
-[11:38:35] [Server thread/INFO]: System chat: TestAlpha was killed
-[11:38:35] [Server thread/INFO]: System chat: TestAlpha: 1 lives remaining
-[11:38:35] [Server thread/INFO]: [game] TestAlpha: 1 lives remaining
-[11:38:36] [Server thread/INFO]: System chat: TestAlpha was killed
-[11:38:36] [Server thread/INFO]: System chat: TestAlpha has been eliminated.
-[11:38:36] [Server thread/INFO]: [game] TestAlpha has been eliminated.
-[11:38:36] [Server thread/INFO]: [check] PASS lives: vanilla packet respawn with one remaining life, then elimination
-[11:38:36] [Server thread/INFO]: System chat: Winner: TestBeta (+100 coins and a key).
-[11:38:36] [Server thread/INFO]: [game] Winner: TestBeta (+100 coins and a key).
-[11:38:36] [Server thread/INFO]: [game] PLAYING -> ENDING
-[11:38:51] [Server thread/INFO]: [game] ENDING -> LOADING
-[11:38:54] [Server thread/INFO]: Map operation lobby success=true prepareMs=51 workTicks=63 slices=3460 maxWorkTickMs=5.4248
-[11:38:54] [Server thread/INFO]: [game] LOADING -> LOBBY
-[11:38:54] [Server thread/INFO]: System chat: Lobby ready. Use /sw to open the menu.
-[11:38:54] [Server thread/INFO]: [game] Lobby ready. Use /sw to open the menu.
-[11:38:54] [Server thread/INFO]: [check] PASS lobby
-[11:38:54] [Server thread/INFO]: [check] PASS one-life
-[11:38:54] [Server thread/INFO]: [check] PASS snapshot
-[11:38:54] [Server thread/INFO]: [game] LOBBY -> LOADING
-[11:38:54] [Server thread/INFO]: System chat: Loading map Map 1...
-[11:38:54] [Server thread/INFO]: [game] Loading map Map 1...
-[11:39:01] [Server thread/INFO]: Map operation 1 success=true prepareMs=3798 workTicks=54 slices=2596 maxWorkTickMs=4.4267
-[11:39:01] [Server thread/INFO]: [game] LOADING -> COUNTDOWN
-[11:39:06] [Server thread/INFO]: SWRG refill upgrade=false generatedChests=33 syntheticCounts=96 countsAboveOne=92
-[11:39:06] [Server thread/INFO]: [game] COUNTDOWN -> PLAYING
-[11:39:06] [Server thread/INFO]: System chat: The match has started!
-[11:39:06] [Server thread/INFO]: [game] The match has started!
-[11:39:06] [Server thread/INFO]: System chat: TestAlpha was killed
-[11:39:06] [Server thread/INFO]: System chat: TestAlpha has been eliminated.
-[11:39:06] [Server thread/INFO]: [game] TestAlpha has been eliminated.
-[11:39:06] [Server thread/INFO]: System chat: Applied 100.0 damage to TestAlpha
-[11:39:06] [Server thread/INFO]: System chat: TestBeta was killed
-[11:39:06] [Server thread/INFO]: System chat: TestBeta has been eliminated.
-[11:39:06] [Server thread/INFO]: [game] TestBeta has been eliminated.
-[11:39:06] [Server thread/INFO]: System chat: Applied 100.0 damage to TestBeta
-[11:39:06] [Server thread/INFO]: [check] PASS respawn
-[11:39:06] [Server thread/INFO]: System chat: swrg.title.draw
-[11:39:06] [Server thread/INFO]: [game] swrg.title.draw
-[11:39:06] [Server thread/INFO]: [game] PLAYING -> ENDING
-[11:39:06] [Server thread/INFO]: [check] PASS draw
-[11:39:21] [Server thread/INFO]: [game] ENDING -> LOADING
-[11:39:24] [Server thread/INFO]: Map operation lobby success=true prepareMs=50 workTicks=62 slices=3460 maxWorkTickMs=4.8618
-[11:39:24] [Server thread/INFO]: [game] LOADING -> LOBBY
-[11:39:24] [Server thread/INFO]: System chat: Lobby ready. Use /sw to open the menu.
-[11:39:24] [Server thread/INFO]: [game] Lobby ready. Use /sw to open the menu.
-[11:39:24] [Server thread/INFO]: [check] PASS restore
-[11:39:24] [Server thread/INFO]: [check] PASS restore
-[11:39:24] [Server thread/INFO]: System chat: Selected map Map 1 (broken). It will load when the match starts.
-[11:39:24] [Server thread/INFO]: [game] Selected map Map 1 (broken). It will load when the match starts.
-[11:39:24] [Server thread/INFO]: [game] LOBBY -> LOADING
-[11:39:24] [Server thread/INFO]: System chat: Loading map Map 1...
-[11:39:24] [Server thread/INFO]: [game] Loading map Map 1...
-[11:39:30] [Server thread/INFO]: Map operation 1 success=true prepareMs=3746 workTicks=49 slices=2596 maxWorkTickMs=4.4831
-[11:39:30] [Server thread/INFO]: [game] LOADING -> COUNTDOWN
-[11:39:35] [Server thread/INFO]: SWRG refill upgrade=false generatedChests=33 syntheticCounts=99 countsAboveOne=95
-[11:39:35] [Server thread/INFO]: [game] COUNTDOWN -> PLAYING
-[11:39:35] [Server thread/INFO]: System chat: The match has started!
-[11:39:35] [Server thread/INFO]: [game] The match has started!
-[11:39:35] [Server thread/INFO]: [check] PASS bridge
-[11:39:35] [Server thread/INFO]: System chat: Stopping the server
-[11:39:35] [Server thread/INFO]: Stopping server
-[11:39:35] [Server thread/INFO]: Saving players
-[11:39:35] [Server thread/INFO]: Saving worlds
-[11:39:36] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:overworld
-[11:39:36] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world]'/skywars2:arena
-[11:39:37] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_end
-[11:39:37] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_nether
+[02:24:38] [Server thread/INFO]: [check] PASS lobby
+[02:24:42] [Server thread/INFO]: [check] lobby-rules otherWorld=minecraft:overworld forced=true visible=0 probeLookup=false removed=true
+[02:24:42] [Server thread/INFO]: [check] PASS lobby-rules
+[02:24:42] [Server thread/INFO]: [check] PASS lobby-inventory
+[02:24:43] [Server thread/INFO]: [check] PASS design-export
+[02:24:43] [Server thread/INFO]: [check] PASS menus
+[02:24:43] [Server thread/INFO]: [check] Fast fixture saved: lives=2 countdown=5 phase1=3 phase2=6 ending=15 events=2,6
+[02:24:43] [Server thread/INFO]: [check] PASS fast
+[02:24:43] [Server thread/INFO]: [check] watch armed; start a match now
+[02:24:43] [Server thread/INFO]: [check] PASS watch
+[02:24:43] [Server thread/INFO]: [game] LOBBY -> LOADING
+[02:24:43] [Server thread/INFO]: System chat: skywars2.game.loading
+[02:24:43] [Server thread/INFO]: [game] skywars2.game.loading
+[02:24:43] [Server thread/INFO]: [check] PASS watch/loading-actions
+[02:24:43] [Server thread/INFO]: [check] PASS watch/loading-navigation
+[02:24:43] [Server thread/INFO]: [check] PASS watch/loading-navigation
+[02:24:44] [Server thread/INFO]: [check] PASS watch/loading-navigation
+[02:24:44] [Server thread/INFO]: [check] PASS watch/loading-navigation
+[02:24:45] [Server thread/INFO]: [check] PASS watch/loading-navigation
+[02:24:45] [Server thread/INFO]: [check] PASS watch/loading-navigation
+[02:24:46] [Server thread/INFO]: [check] PASS watch/loading-navigation
+[02:24:46] [Server thread/INFO]: [check] PASS watch/loading-navigation
+[02:24:47] [Server thread/INFO]: [check] PASS watch/loading-navigation
+[02:24:47] [Server thread/INFO]: [check] PASS watch/loading-navigation
+[02:24:48] [Server thread/INFO]: [check] PASS watch/loading-navigation
+[02:24:48] [Server thread/INFO]: [check] PASS watch/loading-navigation
+[02:24:49] [Server thread/INFO]: [check] PASS watch/loading-navigation
+[02:24:49] [Server thread/INFO]: [check] PASS watch/loading-navigation
+[02:24:50] [Server thread/INFO]: [check] PASS watch/loading-navigation
+[02:24:50] [Server thread/INFO]: [check] PASS watch/loading-navigation
+[02:24:50] [Server thread/INFO]: Map operation 1 success=true prepareMs=3633 workTicks=83 slices=2596 maxWorkTickMs=7.48
+[02:24:50] [Server thread/INFO]: [game] LOADING -> COUNTDOWN
+[02:24:50] [Server thread/INFO]: [check] Loading menu ticks=156 preparing=73 placing=83 maxNavigationMs=3.1265
+[02:24:50] [Server thread/INFO]: [check] PASS watch/countdown
+[02:24:50] [Server thread/INFO]: [check] PASS watch/stale-menu
+[02:24:55] [Server thread/INFO]: SWRG refill upgrade=false generatedChests=33 syntheticCounts=97 countsAboveOne=93
+[02:24:55] [Server thread/INFO]: [game] COUNTDOWN -> PLAYING
+[02:24:55] [Server thread/INFO]: [check] PASS watch/playing
+[02:24:56] [Server thread/INFO]: [check] PASS watch/tracker
+[02:24:58] [Server thread/INFO]: [game] PLAYING -> PHASE_ONE
+[02:24:58] [Server thread/INFO]: System chat: swrg.title.stage1.event1
+[02:24:58] [Server thread/INFO]: [game] swrg.title.stage1.event1
+[02:25:01] [Server thread/INFO]: [game] PHASE_ONE -> PHASE_TWO
+[02:25:01] [Server thread/INFO]: System chat: swrg.title.stage2.event5
+[02:25:01] [Server thread/INFO]: [game] swrg.title.stage2.event5
+[02:25:01] [Server thread/INFO]: System chat: skywars2.settings.lobby_only
+[02:25:02] [Server thread/INFO]: [check] PASS playing
+[02:25:02] [Server thread/INFO]: [check] PASS inventory-unlocked
+[02:25:02] [Server thread/INFO]: [check] PASS phases
+[02:25:02] [Server thread/INFO]: [check] PASS tracker
+[02:25:02] [Server thread/INFO]: [check] Generated 33 chests, 290 occupied slots, 93 multi-item stacks
+[02:25:02] [Server thread/INFO]: [check] PASS chests
+[02:25:02] [Server thread/INFO]: TestLate[local] logged in with entity id 60 at (0.0, 0.0, 0.0)
+[02:25:02] [Server thread/INFO]: System chat: TestLate joined the game
+[02:25:02] [Server thread/INFO]: TestLate lost connection: skywars2.test.disconnect
+[02:25:02] [Server thread/INFO]: System chat: TestLate left the game
+[02:25:02] [Server thread/INFO]: [check] PASS late
+[02:25:02] [Server thread/INFO]: [check] PASS bridge
+[02:25:02] [Server thread/INFO]: System chat: TestAlpha was slain by TestBeta
+[02:25:02] [Server thread/INFO]: [check] PASS kill-reward
+[02:25:02] [Server thread/INFO]: [check] PASS respawn
+[02:25:02] [Server thread/INFO]: System chat: TestAlpha was killed
+[02:25:02] [Server thread/INFO]: System chat: Applied 100.0 damage to TestAlpha
+[02:25:02] [Server thread/INFO]: [check] PASS respawn
+[02:25:02] [Server thread/INFO]: System chat: swrg.title.player_win TestBeta swrg.title.player_win2
+[02:25:02] [Server thread/INFO]: [game] swrg.title.player_win TestBeta swrg.title.player_win2
+[02:25:02] [Server thread/INFO]: [game] PHASE_TWO -> ENDING
+[02:25:02] [Server thread/INFO]: [check] PASS watch/ending
+[02:25:02] [Server thread/INFO]: [check] PASS ending
+[02:25:17] [Server thread/INFO]: [game] ENDING -> LOADING
+[02:25:21] [Server thread/INFO]: Map operation lobby success=true prepareMs=49 workTicks=72 slices=3461 maxWorkTickMs=4.7751
+[02:25:21] [Server thread/INFO]: [game] LOADING -> LOBBY
+[02:25:21] [Server thread/INFO]: [check] PASS watch/lobby
+[02:25:21] [Server thread/INFO]: [check] PASS watch: countdown -> playing -> phases -> ending -> lobby
+[02:25:21] [Server thread/INFO]: [check] PASS cleanup
+[02:25:21] [Server thread/INFO]: [game] LOBBY -> LOADING
+[02:25:21] [Server thread/INFO]: System chat: skywars2.game.loading
+[02:25:21] [Server thread/INFO]: [game] skywars2.game.loading
+[02:25:21] [Server thread/INFO]: [check] lives scenario armed; waiting for the real match start
+[02:25:21] [Server thread/INFO]: [check] PASS lives
+[02:25:27] [Server thread/INFO]: Map operation 1 success=true prepareMs=3048 workTicks=50 slices=2596 maxWorkTickMs=4.409
+[02:25:27] [Server thread/INFO]: [game] LOADING -> COUNTDOWN
+[02:25:32] [Server thread/INFO]: SWRG refill upgrade=false generatedChests=33 syntheticCounts=107 countsAboveOne=106
+[02:25:32] [Server thread/INFO]: [game] COUNTDOWN -> PLAYING
+[02:25:32] [Server thread/INFO]: System chat: TestAlpha was killed
+[02:25:32] [Server thread/INFO]: System chat: TestAlpha was killed
+[02:25:32] [Server thread/INFO]: [check] PASS lives: vanilla packet respawn with one remaining life, then elimination
+[02:25:32] [Server thread/INFO]: System chat: swrg.title.player_win TestBeta swrg.title.player_win2
+[02:25:32] [Server thread/INFO]: [game] swrg.title.player_win TestBeta swrg.title.player_win2
+[02:25:32] [Server thread/INFO]: [game] PLAYING -> ENDING
+[02:25:47] [Server thread/INFO]: [game] ENDING -> LOADING
+[02:25:50] [Server thread/INFO]: Map operation lobby success=true prepareMs=49 workTicks=60 slices=3460 maxWorkTickMs=4.6518
+[02:25:50] [Server thread/INFO]: [game] LOADING -> LOBBY
+[02:25:50] [Server thread/INFO]: [check] PASS lobby
+[02:25:50] [Server thread/INFO]: [check] PASS one-life
+[02:25:50] [Server thread/INFO]: [check] PASS snapshot
+[02:25:50] [Server thread/INFO]: [game] LOBBY -> LOADING
+[02:25:50] [Server thread/INFO]: System chat: skywars2.game.loading
+[02:25:50] [Server thread/INFO]: [game] skywars2.game.loading
+[02:25:56] [Server thread/INFO]: Map operation 1 success=true prepareMs=3050 workTicks=48 slices=2596 maxWorkTickMs=4.4532
+[02:25:56] [Server thread/INFO]: [game] LOADING -> COUNTDOWN
+[02:26:01] [Server thread/INFO]: SWRG refill upgrade=false generatedChests=33 syntheticCounts=98 countsAboveOne=97
+[02:26:01] [Server thread/INFO]: [game] COUNTDOWN -> PLAYING
+[02:26:01] [Server thread/INFO]: System chat: TestAlpha was killed
+[02:26:01] [Server thread/INFO]: System chat: Applied 100.0 damage to TestAlpha
+[02:26:01] [Server thread/INFO]: System chat: TestBeta was killed
+[02:26:01] [Server thread/INFO]: System chat: Applied 100.0 damage to TestBeta
+[02:26:01] [Server thread/INFO]: [check] PASS respawn
+[02:26:01] [Server thread/INFO]: System chat: swrg.title.draw
+[02:26:01] [Server thread/INFO]: [game] swrg.title.draw
+[02:26:01] [Server thread/INFO]: [game] PLAYING -> ENDING
+[02:26:01] [Server thread/INFO]: [check] PASS draw
+[02:26:16] [Server thread/INFO]: [game] ENDING -> LOADING
+[02:26:19] [Server thread/INFO]: Map operation lobby success=true prepareMs=48 workTicks=59 slices=3460 maxWorkTickMs=4.7163
+[02:26:19] [Server thread/INFO]: [game] LOADING -> LOBBY
+[02:26:19] [Server thread/INFO]: [check] PASS restore
+[02:26:19] [Server thread/INFO]: [check] PASS restore
+[02:26:19] [Server thread/INFO]: System chat: skywars2.game.map_selected
+[02:26:19] [Server thread/INFO]: [game] skywars2.game.map_selected
+[02:26:19] [Server thread/INFO]: [game] LOBBY -> LOADING
+[02:26:19] [Server thread/INFO]: System chat: skywars2.game.loading
+[02:26:19] [Server thread/INFO]: [game] skywars2.game.loading
+[02:26:24] [Server thread/INFO]: Map operation 1 success=true prepareMs=3047 workTicks=47 slices=2596 maxWorkTickMs=4.3808
+[02:26:24] [Server thread/INFO]: [game] LOADING -> COUNTDOWN
+[02:26:29] [Server thread/INFO]: SWRG refill upgrade=false generatedChests=33 syntheticCounts=94 countsAboveOne=92
+[02:26:29] [Server thread/INFO]: [game] COUNTDOWN -> PLAYING
+[02:26:29] [Server thread/INFO]: [check] PASS bridge
+[02:26:29] [Server thread/INFO]: System chat: Stopping the server
+[02:26:30] [Server thread/INFO]: Stopping server
+[02:26:30] [Server thread/INFO]: Saving players
+[02:26:30] [Server thread/INFO]: Saving worlds
+[02:26:30] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:overworld
+[02:26:30] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world]'/skywars2:arena
+[02:26:31] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_end
+[02:26:31] [Server thread/INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_nether

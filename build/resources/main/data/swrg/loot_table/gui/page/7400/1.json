@@ -1,0 +1,21 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:gold_block",
+          "modifier": {
+            "name": {
+              "translate": "win_effect_winner",
+              "color": "gold",
+              "italic": false
+            },
+            "type": "minecraft:set_name"
+          }
+        }
+      ]
+    }
+  ]
+}

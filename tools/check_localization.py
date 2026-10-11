@@ -27,6 +27,11 @@ def load(text):
 def placeholders(value):
     result = []
     implicit = 1
+    # Original static captions contain bare percentages. With no arguments,
+    # Minecraft's TranslatableContents falls back to the unchanged caption.
+    # Keep those exact source values; parameterized messages stay strict.
+    if not re.search(r"%(?:\d+\$)?s", value):
+        return Counter()
     for match in re.finditer(r"%(?:(\d+)\$)?([A-Za-z%]|$)", value):
         token = match.group()
         if token == "%%":
@@ -40,7 +45,9 @@ def placeholders(value):
 
 
 def check(pack=None, resource_pack=DEFAULT_RESOURCE_PACK):
+    # Applied translations are deliberately deleted from mod/template by the user.
     languages = {locale: load((LANG / f"{locale}.json").read_text(encoding="utf-8"))
+                 if (LANG / f"{locale}.json").is_file() else {}
                  for locale in ["ru_ru", "en_us"]}
     existing = {locale: {} for locale in languages}
     assert resource_pack.is_dir(), f"Read-only reference resource pack not found: {resource_pack}"
@@ -110,11 +117,32 @@ def check(pack=None, resource_pack=DEFAULT_RESOURCE_PACK):
         for filename in (loot / folder).rglob("*.json"):
             visit(load(filename.read_text(encoding="utf-8")), filename)
 
+    # Generated GUI templates keep structural separators and numbers literal;
+    # all language-dependent leaves must use keys from the client pack or delta.
+    design_file = ROOT / "src/main/resources/skywars2/gui_design.json"
+    design = load(design_file.read_text(encoding="utf-8"))
+    assert "localizedStorageComponents" in design, "GUI component import is incomplete"
+
+    def visit_gui(value, source):
+        if isinstance(value, dict):
+            if "translate" in value:
+                require_key(value["translate"], source)
+            if "text" in value:
+                assert not re.search(r"[^\W\d_]", value["text"]), f"Literal GUI caption in {source}: {value['text']}"
+            for child in value.values():
+                visit_gui(child, source)
+        elif isinstance(value, list):
+            for child in value:
+                visit_gui(child, source)
+
+    visit_gui(design["localizedStorageComponents"], "prepared GUI storage components")
+
     if pack:
         with zipfile.ZipFile(pack) as archive:
             assert archive.testzip() is None, "Damaged resource pack"
             for locale, expected in languages.items():
-                actual = load(archive.read(f"assets/skywars2/lang/{locale}.json").decode("utf-8"))
+                path = f"assets/skywars2/lang/{locale}.json"
+                actual = load(archive.read(path).decode("utf-8")) if path in archive.namelist() else {}
                 assert actual == expected, f"Generated pack has different {locale} translations"
             assert "pack.mcmeta" in archive.namelist()
     print(f"PASS localization: new keys ru={len(languages['ru_ru'])}, en={len(reference)}; reference pack, template, placeholders and text coverage"

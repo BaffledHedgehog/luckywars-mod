@@ -8,5 +8,5 @@
     "Clean shutdown while asynchronous map preparation is pending",
     "Restart after interrupted loading returns to a clean lobby"
   ],
-  "elapsedSeconds": 186.18
+  "elapsedSeconds": 169.81
 }

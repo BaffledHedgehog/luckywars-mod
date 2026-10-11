@@ -1,6 +1,6 @@
 {
   "required": true,
   "package": "me.skywars2.mixin",
-  "mixins": ["ArenaBlockMixin", "LobbyInventoryPacketMixin", "LobbyItemPickupMixin"],
+  "mixins": ["ArenaBlockMixin", "LobbyInventoryPacketMixin", "LobbyItemPickupMixin", "PlayerFallSkillMixin", "ConsumableSkillMixin"],
   "injectors": {"defaultRequire": 1}
 }

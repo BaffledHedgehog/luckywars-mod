@@ -1,0 +1,19 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "weight": 1,
+          "value": "swrg:gui/roll/case3/bars/select"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "weight": 1,
+          "value": "swrg:gui/roll/case3/sounds/select"
+        }
+      ]
+    }
+  ]
+}

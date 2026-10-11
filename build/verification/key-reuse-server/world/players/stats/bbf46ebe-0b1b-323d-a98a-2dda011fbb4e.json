@@ -2,9 +2,13 @@
   "stats": {
     "minecraft:custom": {
       "minecraft:time_since_rest": 0,
-      "minecraft:damage_taken": 5000,
-      "minecraft:deaths": 5,
+      "minecraft:damage_taken": 7000,
+      "minecraft:deaths": 7,
+      "minecraft:player_kills": 2,
       "minecraft:time_since_death": 0
+    },
+    "minecraft:killed": {
+      "minecraft:player": 2
     }
   },
   "DataVersion": 5023

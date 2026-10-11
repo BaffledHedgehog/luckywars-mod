@@ -17,8 +17,9 @@ SERVER = PROJECT.parent
 JAVA = SERVER / "runtime/jdk-25/bin/java.exe"
 OUT = PROJECT / "build" / "verification"
 OUT.mkdir(parents=True, exist_ok=True)
-CONSOLE_LANGUAGE = json.loads((PROJECT / "src/main/resources/assets/skywars2/lang/en_us.json")
-                             .read_text(encoding="utf-8"))
+# Applied translations may have been removed from the mod by the user.
+LANGUAGE_FILE = PROJECT / "src/main/resources/assets/skywars2/lang/en_us.json"
+CONSOLE_LANGUAGE = json.loads(LANGUAGE_FILE.read_text(encoding="utf-8")) if LANGUAGE_FILE.exists() else {}
 
 
 def console_text(key, *args):
@@ -137,7 +138,7 @@ def run():
         assert json.loads(settings.read_text(encoding="utf-8"))["health"] == 19
         cursor = active.send(f"settings health {original_health}")
         active.expect(console_text("settings.saved", "health", original_health), cursor)
-        for check in ["bots", "lobby", "lobby-rules", "menus", "lobby-inventory", "fast", "watch"]:
+        for check in ["bots", "lobby", "lobby-rules", "lobby-inventory", "design-export", "menus", "fast", "watch"]:
             active.check(check)
         cursor = active.send("sw start")
         active.expect("PHASE_ONE -> PHASE_TWO", cursor)

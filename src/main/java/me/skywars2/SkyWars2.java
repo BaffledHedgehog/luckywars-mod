@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
@@ -51,6 +52,12 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             if (game != null) { game.tick(); GameChecks.tick(game); }
         });
+        ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
+            if (game != null && game.inLobby()) game.maps().queueLobbyEntity(entity);
+        });
+        ServerEntityEvents.ENTITY_UNLOAD.register((entity, level) -> {
+            if (game != null) game.entityUnloaded(entity);
+        });
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
             if (game != null) { game.shutdown(); game = null; }
         });
@@ -63,6 +70,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null && entity instanceof ServerPlayer player) game.died(player, damage);
         });
         ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, baseDamage, damage, blocked) -> {
+            if (game != null && !blocked && entity instanceof ServerPlayer player) game.hurtForSkill(player);
             if (game != null && !blocked && damage > 0 && entity instanceof ServerPlayer player)
                 game.damaged(player, source, damage);
         });

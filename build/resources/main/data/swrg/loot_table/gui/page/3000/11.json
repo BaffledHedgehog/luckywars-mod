@@ -1,0 +1,69 @@
+{
+  "type": "empty",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:wither_rose",
+          "modifier": [
+            {
+              "entity": "this",
+              "lore": [
+                {
+                  "nbt": "lore.kit.b5.Lore[0]",
+                  "storage": "swrg:lang",
+                  "interpret": true,
+                  "source": "storage",
+                  "type": "nbt"
+                },
+                {
+                  "nbt": "lore.kit.b5.Lore[1]",
+                  "storage": "swrg:lang",
+                  "interpret": true,
+                  "source": "storage",
+                  "type": "nbt"
+                },
+                {
+                  "nbt": "lore.kit.b5.Lore[2]",
+                  "storage": "swrg:lang",
+                  "interpret": true,
+                  "source": "storage",
+                  "type": "nbt"
+                },
+                {
+                  "nbt": "lore.kit.b5.Lore[3]",
+                  "storage": "swrg:lang",
+                  "interpret": true,
+                  "source": "storage",
+                  "type": "nbt"
+                },
+                {
+                  "nbt": "lore.kit.b5.Lore[4]",
+                  "storage": "swrg:lang",
+                  "interpret": true,
+                  "source": "storage",
+                  "type": "nbt"
+                }
+              ],
+              "mode": "replace_all",
+              "type": "minecraft:set_lore"
+            },
+            {
+              "entity": "this",
+              "name": {
+                "nbt": "kit.b5",
+                "storage": "swrg:lang",
+                "interpret": true,
+                "source": "storage",
+                "type": "nbt"
+              },
+              "type": "minecraft:set_name"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

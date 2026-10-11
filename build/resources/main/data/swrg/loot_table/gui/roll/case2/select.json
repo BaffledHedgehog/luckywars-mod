@@ -1,0 +1,33 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "weight": 550,
+          "value": "swrg:gui/roll/case2/a/main"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "weight": 350,
+          "value": "swrg:gui/roll/case2/b/main"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "weight": 90,
+          "value": "swrg:gui/roll/case2/c/main"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "weight": 10,
+          "value": "swrg:gui/roll/case2/d/main"
+        }
+      ],
+      "modifier": {
+        "tag": "{HideFlags:127,reward:\"skill\"}",
+        "type": "minecraft:set_custom_data"
+      }
+    }
+  ]
+}

@@ -465,7 +465,8 @@ def check(source_path: Path, design_path: Path, project_root: Path) -> tuple[int
         imported_pages = set(imported_by_page)
         for raw_page in declared_required:
             pkey = page_key(raw_page)
-            if pkey not in source_pages_with_slots:
+            # A real source page may contain navigation only (e.g. lbc:11100).
+            if pkey not in source_pages_with_slots and pkey not in source_pages:
                 errors.append(f"required page has no old source function: {pkey}")
             elif pkey not in imported_pages:
                 errors.append(f"required source page omitted from import: {pkey}")
@@ -550,11 +551,748 @@ def _walk(value: Any):
             yield from _walk(child)
 
 
+def _component_id(item: dict[str, Any]) -> str:
+    return str(item.get("id", item.get("type", item.get("material", ""))))
+
+
+def _components(item: dict[str, Any]) -> dict[str, Any]:
+    value = item.get("components", {})
+    return value if isinstance(value, dict) else {}
+
+
+def _text(value: Any) -> str:
+    """Flatten only literal text for semantic checks; preserve full JSON elsewhere."""
+    if isinstance(value, str):
+        return value
+    if isinstance(value, list):
+        return "".join(_text(part) for part in value)
+    if isinstance(value, dict):
+        return str(value.get("text", "")) + _text(value.get("extra", []))
+    return ""
+
+
+def _check_component_shape(expected: Any, actual: Any, where: str, errors: list[str]) -> None:
+    """Require all authored source properties while allowing resolved score text values."""
+    if isinstance(expected, dict):
+        if not isinstance(actual, dict):
+            # ItemStack.CODEC writes an unstyled literal text component as a bare string.
+            if set(expected) == {"text"} and actual == expected["text"]:
+                return
+            # Score components resolve against the check player's score before export;
+            # the codec serializes their resulting numeric literal as a string.
+            if isinstance(actual, str) and isinstance(expected.get("score"), dict) \
+                    and re.fullmatch(r"-?\d+(?:\.\d+)?", actual):
+                return
+            errors.append(f"{where}: source component object became {type(actual).__name__}")
+            return
+        if actual.get("translate"):
+            if "text" in expected and actual.get("fallback") is not None and actual["fallback"] != expected["text"]:
+                errors.append(f"{where}: translated component fallback {actual['fallback']!r}, source text {expected['text']!r}")
+            for key in ("color", "italic", "bold", "underlined", "strikethrough", "obfuscated", "font"):
+                if key in expected and actual.get(key) != expected[key]:
+                    errors.append(f"{where}: translated component {key}={actual.get(key)!r}, source value {expected[key]!r}")
+            return
+        for key, value in expected.items():
+            # These fields identify a live storage/score expansion, not a literal text payload.
+            if key in ("nbt", "storage", "source", "type", "interpret", "score"):
+                continue
+            if key not in actual:
+                errors.append(f"{where}: missing source component field {key!r}")
+            else:
+                _check_component_shape(value, actual[key], where + "." + key, errors)
+    elif isinstance(expected, list):
+        if isinstance(actual, dict) and isinstance(actual.get("extra"), list):
+            actual_items = list(actual["extra"])
+            if actual.get("text") not in (None, "") or actual.get("translate"):
+                actual_items.insert(0, {key: value for key, value in actual.items() if key != "extra"})
+        else:
+            actual_items = actual if isinstance(actual, list) else []
+        if len(actual_items) < len(expected):
+            # Component serialization can coalesce adjacent terms under one `extra`
+            # wrapper. Compare the ordered authored leaves after dropping empty wrapper
+            # nodes, while the recursive shape checks still enforce each term's style.
+            flattened: list[Any] = []
+            def flatten_terms(value: Any) -> None:
+                if isinstance(value, dict):
+                    if value.get("translate") or value.get("fallback") or value.get("text") not in (None, ""):
+                        flattened.append({key: child for key, child in value.items() if key != "extra"})
+                    if isinstance(value.get("extra"), list):
+                        for child in value["extra"]:
+                            flatten_terms(child)
+                elif isinstance(value, list):
+                    for child in value:
+                        flatten_terms(child)
+                elif isinstance(value, str):
+                    flattened.append(value)
+            flatten_terms(actual)
+            if len(flattened) >= len(expected):
+                actual_items = flattened
+            else:
+                errors.append(f"{where}: source component list length {len(actual_items)} < {len(expected)}")
+                return
+        for index, value in enumerate(expected):
+            _check_component_shape(value, actual_items[index], f"{where}[{index}]", errors)
+    elif isinstance(expected, (str, int, float, bool)):
+        if actual != expected:
+            errors.append(f"{where}: source component value {actual!r}, expected {expected!r}")
+
+
+def _source_language_values(source: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    values: dict[str, dict[str, Any]] = {"en": {}, "ru": {}}
+    commented_values: dict[str, dict[str, Any]] = {"en": {}, "ru": {}}
+    for locale_record in source.get("languageStorageSources", []):
+        name = str(locale_record.get("source", "")).lower()
+        locale = "ru" if "ru" in name else "en" if "en" in name else ""
+        if not locale:
+            continue
+        for line in locale_record.get("exactRaw", "").splitlines():
+            is_comment = line.lstrip().startswith("#")
+            candidate_line = line.lstrip()[1:].lstrip() if is_comment else line
+            match = re.search(r"data modify storage swrg:lang ([^ ]+) set value (.+)$", candidate_line)
+            if not match:
+                continue
+            path, raw = match.groups()
+            # Helpers use SNBT member names and single-quoted JSON text components.
+            # Quote conversion must ignore colons inside text values (e.g. "Games:").
+            jsonish = _snbt_jsonish(raw)
+            try:
+                target = commented_values[locale] if is_comment else values[locale]
+                target[path] = json.loads(jsonish)
+            except json.JSONDecodeError:
+                continue
+    for locale in values:
+        merged = dict(commented_values[locale])
+        merged.update(values[locale])
+        values[locale] = merged
+    return values
+
+
+def _snbt_jsonish(raw: str) -> str:
+    out: list[str] = []
+    index = 0
+    while index < len(raw):
+        char = raw[index]
+        if char == '"':
+            start = index
+            index += 1
+            escaped = False
+            while index < len(raw):
+                current = raw[index]
+                index += 1
+                if escaped:
+                    escaped = False
+                elif current == "\\":
+                    escaped = True
+                elif current == '"':
+                    break
+            out.append(raw[start:index])
+            continue
+        if char == "'":
+            index += 1
+            value: list[str] = []
+            while index < len(raw):
+                current = raw[index]
+                index += 1
+                if current == "\\" and index < len(raw):
+                    escaped_char = raw[index]
+                    index += 1
+                    value.append(escaped_char if escaped_char in ("'", "\\") else "\\" + escaped_char)
+                elif current == "'":
+                    break
+                else:
+                    value.append(current)
+            out.append(json.dumps("".join(value), ensure_ascii=False))
+            continue
+        if char.isalpha() or char == "_":
+            end = index + 1
+            while end < len(raw) and (raw[end].isalnum() or raw[end] in "_.-"):
+                end += 1
+            token = raw[index:end]
+            lookahead = end
+            while lookahead < len(raw) and raw[lookahead].isspace():
+                lookahead += 1
+            out.append(json.dumps(token) if lookahead < len(raw) and raw[lookahead] == ":" else token)
+            index = end
+            continue
+        if char.isdigit() or (char == "-" and index + 1 < len(raw) and raw[index + 1].isdigit()):
+            match = re.match(r"-?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?[bBsSlLfFdD]", raw[index:])
+            if match:
+                token = match.group(0)
+                out.append(token[:-1])
+                index += len(token)
+                continue
+        out.append(char)
+        index += 1
+    return "".join(out)
+
+
+def _resolve_nbt_path(values: dict[str, Any], path: str) -> Any:
+    candidates = sorted((key for key in values if path == key or path.startswith(key + ".")), key=len, reverse=True)
+    if not candidates:
+        return None
+    current: Any = values[candidates[0]]
+    tail = path[len(candidates[0]):].lstrip(".")
+    for segment in re.findall(r"[^.\[\]]+|\[\d+\]", tail):
+        if segment.startswith("["):
+            if not isinstance(current, list):
+                return None
+            try:
+                current = current[int(segment[1:-1])]
+            except (ValueError, IndexError):
+                return None
+        elif isinstance(current, dict):
+            current = current.get(segment)
+        else:
+            return None
+    return current
+
+
+def _source_path_has_assignment(values: dict[str, Any], path: str) -> bool:
+    if _resolve_nbt_path(values, path) is not None:
+        return True
+    # The settings helper stores score-selected alternatives as `pageN.sM-V`,
+    # while the loot table references the logical aggregate `pageN.sM`.
+    match = re.match(r"^(page\d+\.s\d+)(\..+)?$", path)
+    if not match:
+        return False
+    stem, tail = match.groups()
+    return any(key.startswith(stem + "-")
+               and _resolve_nbt_path(values, key + (tail or "")) is not None
+               for key in values)
+
+
+def _paired_translation_errors(source_en: Any, source_ru: Any, localized: Any,
+                               en_text: dict[str, str], ru_text: dict[str, str], where: str) -> list[str]:
+    errors: list[str] = []
+    if isinstance(localized, dict):
+        key = localized.get("translate")
+        if isinstance(key, str):
+            shape_source = source_en if source_en is not None else source_ru
+            _check_component_shape(shape_source, localized, where, errors)
+            expected_en = source_en.get("text") if isinstance(source_en, dict) else None
+            expected_ru = source_ru.get("text") if isinstance(source_ru, dict) else None
+            # Exact source helper text is the baseline. A replacement character marks an
+            # upstream encoding fault; style/path checks still run, but text comparison waits.
+            for locale, expected, table in (("EN", expected_en, en_text), ("RU", expected_ru, ru_text)):
+                actual = table.get(key)
+                if expected is None:
+                    if actual is None:
+                        errors.append(f"{where}: one-sided source key {key!r} has no {locale} resource translation")
+                elif "\ufffd" not in expected:
+                    if actual is None:
+                        errors.append(f"{where}: translation key {key!r} missing from {locale} source/resource languages")
+                    elif actual != expected:
+                        errors.append(f"{where}: {locale} translation {key!r}={actual!r}, source={expected!r}")
+        for name, value in localized.items():
+            if name == "translate":
+                continue
+            en_child = source_en.get(name) if isinstance(source_en, dict) else None
+            ru_child = source_ru.get(name) if isinstance(source_ru, dict) else None
+            errors.extend(_paired_translation_errors(en_child, ru_child, value, en_text, ru_text, where + "." + name))
+    elif isinstance(localized, list):
+        for index, value in enumerate(localized):
+            en_child = source_en[index] if isinstance(source_en, list) and index < len(source_en) else None
+            ru_child = source_ru[index] if isinstance(source_ru, list) and index < len(source_ru) else None
+            errors.extend(_paired_translation_errors(en_child, ru_child, value, en_text, ru_text, f"{where}[{index}]"))
+    return errors
+
+
+def _binding_name_terms(binding: Any, localized_templates: dict[str, Any], source_en: dict[str, Any]) -> list[dict[str, Any]]:
+    terms: list[dict[str, Any]] = []
+    if isinstance(binding, dict):
+        literal = binding.get("literalComponent")
+        if isinstance(literal, dict) and (literal.get("translate") or _text(literal).strip()):
+            terms.append(literal)
+        storage_path = binding.get("storagePath")
+        if isinstance(storage_path, str):
+            resolved = _resolve_nbt_path(localized_templates, storage_path)
+            if isinstance(resolved, dict) and (resolved.get("translate") or _text(resolved).strip()):
+                terms.append(resolved)
+            else:
+                source = _resolve_nbt_path(source_en, storage_path)
+                if isinstance(source, dict) and (source.get("translate") or _text(source).strip()):
+                    terms.append(source)
+        for key, value in binding.items():
+            if key == "literalComponent":
+                continue
+            if isinstance(value, (dict, list)):
+                terms.extend(_binding_name_terms(value, localized_templates, source_en))
+    elif isinstance(binding, list):
+        for value in binding:
+            terms.extend(_binding_name_terms(value, localized_templates, source_en))
+    return terms
+
+
+def _page_number(value: Any) -> str:
+    text = str(value).rsplit(":", 1)[-1].upper()
+    aliases = {"ROOT": "0", "ROOT_PAGE": "0", "HUB": "0", "SETTINGS": "1000", "KITS": "3000", "KIT": "3000",
+               "SKILLS": "4000", "SKILL": "4000", "SHOP": "6000", "MAP": "MAPS", "MAPS": "MAPS"}
+    return aliases.get(text, text)
+
+
+def check_snapshot(snapshot_path: Path, design_path: Path, source_path: Path,
+                   project_root: Path) -> tuple[list[str], dict[str, int]]:
+    """Check a GameChecks ItemStack.CODEC export against old-source fixtures and imported paths.
+
+    This intentionally consumes serialized stacks only. It does not load Java implementation
+    classes, and it does not treat the translator's own output as the source baseline.
+    """
+    errors: list[str] = []
+    snapshot = read_json(snapshot_path)
+    design = read_json(design_path)
+    source = read_json(source_path)
+    localized_templates = design.get("localizedStorageComponents", {})
+    pages = snapshot.get("pages", []) if isinstance(snapshot, dict) else []
+    by_id = {_page_number(p.get("page", p.get("id", ""))): p for p in pages if isinstance(p, dict)}
+    counts = {"snapshotPages": len(pages), "snapshotStacks": 0, "fixtureChecks": 0}
+    if not isinstance(pages, list):
+        return ["snapshot pages must be an array"], counts
+
+    for key, page in by_id.items():
+        page_id = page.get("page", page.get("id", key))
+        if page.get("size") != 27:
+            errors.append(f"snapshot page {page_id}: virtual EnderItems size must be 27, got {page.get('size')!r}")
+        slots: dict[int, dict[str, Any]] = {}
+        raw_slots = page.get("slots", [])
+        if not isinstance(raw_slots, list):
+            errors.append(f"snapshot page {page_id}: slots must be an array")
+            continue
+        for entry in raw_slots:
+            if not isinstance(entry, dict) or not isinstance(entry.get("item"), dict):
+                continue
+            try:
+                slot = int(entry.get("slot"))
+            except (TypeError, ValueError):
+                errors.append(f"snapshot page {page_id}: invalid slot {entry.get('slot')!r}")
+                continue
+            if slot in slots:
+                errors.append(f"snapshot page {page_id}: duplicate slot {slot}")
+            slots[slot] = entry["item"]
+            counts["snapshotStacks"] += 1
+        page["_slots_by_number"] = slots
+
+    def require(page_key: str, slot: int, *, item_id: str | None = None, model: str | None = None,
+                text_has: str | None = None, material: str | None = None) -> dict[str, Any] | None:
+        page = by_id.get(page_key)
+        if page is None:
+            errors.append(f"snapshot missing source fixture page {page_key}")
+            return None
+        item = page.get("_slots_by_number", {}).get(slot)
+        counts["fixtureChecks"] += 1
+        if item is None:
+            errors.append(f"snapshot {page_key} slot {slot}: expected populated source fixture")
+            return None
+        if item_id and _component_id(item) != item_id:
+            errors.append(f"snapshot {page_key} slot {slot}: item id {_component_id(item)!r}, expected {item_id!r}")
+        comps = _components(item)
+        if model and comps.get("minecraft:item_model", comps.get("item_model")) != model:
+            errors.append(f"snapshot {page_key} slot {slot}: item_model mismatch, expected {model!r}")
+        if material and _component_id(item) != material:
+            errors.append(f"snapshot {page_key} slot {slot}: material {_component_id(item)!r}, expected {material!r}")
+        if text_has:
+            text = _text(comps.get("minecraft:custom_name", comps.get("custom_name", "")))
+            if text_has.casefold() not in text.casefold():
+                errors.append(f"snapshot {page_key} slot {slot}: custom name lacks source text {text_has!r}")
+        return item
+
+    # Independent datapack fixtures: virtual EnderItems are a 27-slot Ender Chest page.
+    root = by_id.get("0")
+    if root:
+        counts["fixtureChecks"] += 1
+        title = root.get("title", {})
+        if isinstance(title, dict):
+            title_id = title.get("translate", title.get("key", title.get("value")))
+            if title_id not in ("container.enderchest", "minecraft.container.enderchest"):
+                errors.append(f"snapshot page {root.get('page')}: title must preserve container.enderchest, got {title!r}")
+        elif title not in ("container.enderchest", "minecraft:container.enderchest"):
+            errors.append(f"snapshot page {root.get('page')}: title must preserve container.enderchest, got {title!r}")
+        for slot, item_id, model in ((0, "minecraft:comparator", None),
+                                     (6, "minecraft:gold_ingot", "lbc:shop"),
+                                     (13, "minecraft:chest", "lbc:cases")):
+            require("0", slot, item_id=item_id, model=model)
+        # The datapack's profile head is dynamic, but its source slot and material are fixed.
+        require("0", 8, material="minecraft:player_head")
+        profile = root.get("_slots_by_number", {}).get(8)
+        if profile is not None:
+            lore = _components(profile).get("minecraft:lore", _components(profile).get("lore", []))
+            if not isinstance(lore, list) or len(lore) != 3:
+                errors.append(f"snapshot root slot 8: source profile has exactly 3 stat rows, got {len(lore) if isinstance(lore, list) else 'no lore'}")
+            else:
+                profile_source = next((table for table in source.get("slotTables", [])
+                                       if str(table.get("namespace", "swrg")) == "swrg"
+                                       and str(table.get("page")) == "0" and str(table.get("slot")) == "8"), {})
+                source_lore_rows: list[tuple[str, set[str]]] = []
+                for function in _walk(profile_source.get("parsed", {})):
+                    if function.get("function", "").removeprefix("minecraft:") != "set_lore":
+                        continue
+                    lines = function.get("lore", [])
+                    path = next((line.get("nbt") for line in lines if isinstance(line, dict) and line.get("nbt")), None)
+                    if not path or any(existing_path == path for existing_path, _ in source_lore_rows):
+                        continue
+                    objectives = {node["score"].get("objective") for node in _walk(lines)
+                                  if isinstance(node.get("score"), dict)}
+                    source_lore_rows.append((path, objectives))
+                if len(source_lore_rows) != 3:
+                    errors.append(f"old source profile table exposes {len(source_lore_rows)} unique lore rows, expected 3")
+                for row, (source_path_ref, source_objectives) in enumerate(source_lore_rows[:3]):
+                    localized = localized_templates.get(source_path_ref, {}) if isinstance(localized_templates, dict) else {}
+                    expected_key = localized.get("translate") if isinstance(localized, dict) else None
+                    actual_keys = {node.get("translate") for node in _walk(lore[row])
+                                   if isinstance(node.get("translate"), str)}
+                    if expected_key and expected_key not in actual_keys:
+                        errors.append(f"snapshot root slot 8 lore {row}: source translation {expected_key!r} is missing")
+                    if row == 0 and "swrg.stat_games" not in source_objectives:
+                        errors.append("old source profile lore 0 no longer references swrg.stat_games")
+                    if row == 1 and "swrg.wr" not in source_objectives:
+                        errors.append("old source profile lore 1 no longer references swrg.wr")
+                    if row == 2 and not {"swrg.kd1..", "swrg.kd..1"}.issubset(source_objectives):
+                        errors.append("old source profile lore 2 no longer references the two K/D score objectives")
+                if not any(value in _text(lore[2]) for value in (".", ".0")):
+                    errors.append("snapshot root slot 8 lore 2: source K/D decimal separator is missing")
+        frame_ids = {"minecraft:gray_stained_glass_pane", "minecraft:black_stained_glass_pane",
+                     "minecraft:light_gray_stained_glass_pane", "minecraft:white_stained_glass_pane"}
+        for slot, item in root.get("_slots_by_number", {}).items():
+            if _component_id(item) in frame_ids:
+                errors.append(f"snapshot root slot {slot}: source-empty cells must not be filled with a frame")
+
+    # Settings' reset control is a stable old-source fixture.
+    if "1000" in by_id:
+        require("1000", 24, item_id="minecraft:cooked_porkchop")
+
+    # Compare concrete snapshot stacks against the source manifest's exact page tables.
+    # Dynamic alternatives are allowed only when the manifest lists that item for the slot.
+    tables = {(str(t.get("namespace", "swrg")), str(t.get("page")), str(t.get("slot"))): t
+              for t in source.get("slotTables", [])}
+    tables_by_id = {t.get("lootTable"): t for t in source.get("slotTables", []) if t.get("lootTable")}
+    tables_by_id.update({t.get("lootTable"): t for t in source.get("nonSlotGuiLootTables", []) if t.get("lootTable")})
+    design_pages = {str(p.get("pageId", p.get("page", ""))): p for p in design.get("pages", [])}
+    source_language_values = _source_language_values(source)
+    # The importer records only source-proven gaps. A path missing from the old
+    # language storage is not accepted as an implicit empty component.
+    declared_gaps: dict[str, dict[str, Any]] = {}
+    for gap in design.get("sourceComponentGaps", []):
+        if isinstance(gap, dict) and isinstance(gap.get("storagePath"), str):
+            declared_gaps[gap["storagePath"]] = gap
+
+    def gap_for_path(raw_path: str) -> tuple[str, dict[str, Any]] | None:
+        path = raw_path.split("[", 1)[0]
+        matches = [(root, data) for root, data in declared_gaps.items()
+                   if path == root or path.startswith(root + ".")]
+        return max(matches, key=lambda entry: len(entry[0])) if matches else None
+
+    for gap_root, _gap_data in declared_gaps.items():
+        if any(_resolve_nbt_path(source_language_values[locale], gap_root) is not None
+               for locale in ("en", "ru")):
+            errors.append(f"declared source component gap {gap_root!r} exists in independent EN/RU language storage")
+        gap_match = re.fullmatch(r"page(\d+)\.s(\d+)", gap_root)
+        if not gap_match:
+            errors.append(f"declared source component gap {gap_root!r} is not a supported page-slot root")
+            continue
+        page_key, gap_slot = gap_match.group(1), int(gap_match.group(2))
+        gap_page = by_id.get(page_key)
+        gap_item = gap_page.get("_slots_by_number", {}).get(gap_slot) if gap_page else None
+        if gap_item is None:
+            errors.append(f"declared source component gap {gap_root!r} has no runtime stack to validate")
+            continue
+        gap_components = _components(gap_item)
+        gap_name = gap_components.get("minecraft:custom_name", gap_components.get("custom_name"))
+        if gap_name is None or _text(gap_name).strip() or (isinstance(gap_name, dict) and gap_name.get("translate")):
+            errors.append(f"snapshot {page_key} slot {gap_slot}: declared source name gap {gap_root!r} must render empty")
+    en_translations: dict[str, str] = {}
+    ru_translations: dict[str, str] = {}
+    resource_pack_root = Path(source.get("sourceRoots", {}).get("resourcePack", ""))
+    translation_roots = [resource_pack_root / "assets/minecraft/lang",
+                         project_root / "src/main/resources/assets/skywars2/lang"]
+    for root_path in translation_roots:
+        for locale, table in (("en_us", en_translations), ("ru_ru", ru_translations)):
+            language_file = root_path / f"{locale}.json"
+            if language_file.is_file():
+                table.update(read_json(language_file))
+    map_source_slots: dict[str, dict[int, list[dict[str, Any]]]] = {}
+    for source_map_id in ("2000", "2000b", "2100", "2200"):
+        source_page = design_pages.get(source_map_id, {})
+        for slot_entry in source_page.get("slots", []):
+            try:
+                number = int(slot_number(slot_entry))
+            except (TypeError, ValueError):
+                continue
+            variants = slot_entry.get("sources", [slot_entry])
+            map_source_slots.setdefault(source_map_id, {}).setdefault(number, []).extend(
+                {**variant, "sourceTranslationKey": slot_entry.get("translationKey")}
+                for variant in variants if isinstance(variant, dict) and variant.get("sourceItem"))
+    lbc_snapshot_sources = {"LBC_TRINKETS": "11000", "LBC_LEVELUPS": "8000",
+                            "LBC_KITS": "9000", "LBC_SKILLS": "10000"}
+    for page_key, page in by_id.items():
+        source_page_key = lbc_snapshot_sources.get(page_key, page_key)
+        source_page_meta = design_pages.get(source_page_key, {})
+        raw_page_name = str(page.get("page", "")).lower()
+        source_namespace = str(page.get("namespace", source_page_meta.get("namespace", ""))).lower()
+        if page_key in lbc_snapshot_sources:
+            source_namespace = "lbc"
+        if source_namespace not in ("lbc", "swrg"):
+            source_namespace = "lbc" if raw_page_name.startswith("lbc:") or raw_page_name.startswith("lbc_") else "swrg"
+        slots = page.get("_slots_by_number", {})
+        for slot, item in slots.items():
+            imported_page = design_pages.get(source_page_key, {})
+            imported_slot = next((record for record in imported_page.get("slots", [])
+                                  if slot_number(record) == str(slot)), None)
+            if page_key in lbc_snapshot_sources and imported_slot is None:
+                # LBC page functions map source loot tables to destination EnderChest
+                # slots explicitly; source loot-table slot numbers are not destination
+                # slot numbers (for example page 9000 source slot 18 lands in slot 19).
+                continue
+            table = None
+            if imported_slot:
+                source_variants = imported_slot.get("sources", [imported_slot])
+                candidate_tables = [tables_by_id.get(table_id(variant)) for variant in source_variants
+                                    if isinstance(variant, dict) and table_id(variant)]
+                table = next((candidate for candidate in candidate_tables if candidate and
+                              (not candidate.get("itemIds") or _component_id(item) in candidate.get("itemIds", []))), None)
+            if table is None:
+                table = tables.get((source_namespace, source_page_key, str(slot)))
+            if table is None:
+                continue
+            counts["fixtureChecks"] += 1
+            source_ids = set(table.get("itemIds", []))
+            if source_ids and _component_id(item) not in source_ids:
+                errors.append(f"snapshot {page_key} slot {slot}: item {_component_id(item)!r} not in source alternatives {sorted(source_ids)}")
+            source_models = set(table.get("resourceDependencies", {}).get("itemModels", []))
+            if source_models:
+                actual_model = _components(item).get("minecraft:item_model", _components(item).get("item_model"))
+                if actual_model not in source_models:
+                    errors.append(f"snapshot {page_key} slot {slot}: model {actual_model!r} not in source alternatives {sorted(source_models)}")
+            # Literal text components in old loot JSON are exact source evidence for
+            # translation keys and style flags. Storage-backed components are verified by
+            # their independently checked sourceComponentBindings below.
+            functions = [node for node in _walk(table.get("parsed", {}))
+                         if isinstance(node.get("function"), str)]
+            components = _components(item)
+            runtime_name = components.get("minecraft:custom_name", components.get("custom_name"))
+            runtime_lore = components.get("minecraft:lore", components.get("lore", []))
+            lore_offset = 0
+            for function in functions:
+                kind = function.get("function", "").removeprefix("minecraft:")
+                if kind == "set_name" and isinstance(function.get("name"), (dict, list, str)):
+                    expected_name = function["name"]
+                    if isinstance(expected_name, dict) and expected_name.get("nbt"):
+                        expected_name = _resolve_nbt_path(source_language_values["en"], str(expected_name["nbt"]))
+                    if expected_name is not None:
+                        _check_component_shape(expected_name, runtime_name, f"snapshot {page_key} slot {slot} name", errors)
+                elif kind == "set_lore" and isinstance(function.get("lore"), list):
+                    if function.get("conditions"):
+                        # Mutually exclusive score ranges populate the one K/D stat row.
+                        continue
+                    expected_lines = []
+                    for line in function["lore"]:
+                        if isinstance(line, dict) and line.get("nbt"):
+                            resolved = _resolve_nbt_path(source_language_values["en"], str(line["nbt"]))
+                            if resolved is not None:
+                                expected_lines.append(resolved)
+                        else:
+                            expected_lines.append(line)
+                    if expected_lines:
+                        if function.get("mode", "replace_all") == "replace_all":
+                            lore_offset = 0
+                        actual_lines = runtime_lore[lore_offset:lore_offset + len(expected_lines)] if isinstance(runtime_lore, list) else runtime_lore
+                        _check_component_shape(expected_lines, actual_lines, f"snapshot {page_key} slot {slot} lore", errors)
+                        lore_offset += len(expected_lines)
+            if imported_slot:
+                matching_name_bindings = []
+                for variant in imported_slot.get("sources", [imported_slot]):
+                    source_id = table_id(variant)
+                    source_table = tables_by_id.get(source_id, {})
+                    source_ids_for_variant = set(source_table.get("itemIds", []))
+                    variant_item = variant.get("sourceItem")
+                    if (_component_id(item) in source_ids_for_variant or variant_item == _component_id(item)):
+                        binding = variant.get("sourceComponentBindings", {}).get("name")
+                        terms = _binding_name_terms(binding, localized_templates, source_language_values["en"])
+                        if terms:
+                            matching_name_bindings.append((source_id or variant_item, terms))
+                if matching_name_bindings and runtime_name is not None:
+                    actual_nodes = list(_walk(runtime_name)) if isinstance(runtime_name, (dict, list)) else []
+                    actual_literals: list[str] = []
+                    def collect_literals(value: Any) -> None:
+                        if isinstance(value, str):
+                            actual_literals.append(value)
+                        elif isinstance(value, dict):
+                            for child in value.values():
+                                collect_literals(child)
+                        elif isinstance(value, list):
+                            for child in value:
+                                collect_literals(child)
+                    collect_literals(runtime_name)
+                    passed = False
+                    for source_ref, terms in matching_name_bindings:
+                        candidate_errors: list[str] = []
+                        for term in terms:
+                            expected_key = term.get("translate")
+                            expected_text = term.get("text")
+                            node = next((candidate for candidate in actual_nodes
+                                         if expected_key and candidate.get("translate") == expected_key), None)
+                            if node is None and expected_text:
+                                node = next((candidate for candidate in actual_nodes
+                                             if candidate.get("text") == expected_text
+                                             or candidate.get("fallback") == expected_text), None)
+                                if node is None:
+                                    node = next((candidate for candidate in actual_literals
+                                                 if candidate == expected_text), None)
+                            if node is None:
+                                candidate_errors.append(f"source name term key/text {expected_key or expected_text!r} missing")
+                            else:
+                                _check_component_shape(term, node, "snapshot source name", candidate_errors)
+                            if expected_key and expected_key not in en_translations and expected_key not in ru_translations:
+                                candidate_errors.append(f"translation key {expected_key!r} missing from source resource-pack tables")
+                        if not candidate_errors:
+                            passed = True
+                            break
+                    if not passed:
+                        errors.append(f"snapshot {page_key} slot {slot}: default item name does not match any independent source table/component binding")
+            expected_counts = set()
+            for node in _walk(table.get("parsed", {})):
+                if node.get("function") in ("minecraft:set_count", "set_count"):
+                    count_value = node.get("count")
+                    if isinstance(count_value, int):
+                        expected_counts.add(count_value)
+            if not expected_counts:
+                expected_counts.add(1)
+            actual_count = item.get("count", 1)
+            if actual_count not in expected_counts:
+                errors.append(f"snapshot {page_key} slot {slot}: count={actual_count!r}, source count alternatives={sorted(expected_counts)}")
+            if page_key in ("3000", "4000") and slot == 0:
+                expected_lore = 3 if page_key == "3000" else 1
+                lore = _components(item).get("minecraft:lore", _components(item).get("lore", []))
+                selected = isinstance(lore, list) and any("selected" in _text(line).casefold() for line in lore)
+                if not isinstance(lore, list) or len(lore) < expected_lore or (not selected and len(lore) != expected_lore):
+                    errors.append(f"snapshot {page_key} slot 0: expected {expected_lore} source lore lines (plus selected overlay only), got {len(lore) if isinstance(lore, list) else 'no lore'}")
+
+        if page_key == "MAPS" or page_key in map_source_slots:
+            candidate_sources = map_source_slots.values() if page_key == "MAPS" else (map_source_slots.get(page_key, {}),)
+            for slot, item in slots.items():
+                alternatives = [variant for mapping in candidate_sources for variant in mapping.get(slot, [])]
+                if not alternatives:
+                    continue
+                allowed_items = {variant.get("sourceItem") for variant in alternatives}
+                if _component_id(item) not in allowed_items:
+                    errors.append(f"snapshot maps slot {slot}: material {_component_id(item)!r} not in source map-slot materials {sorted(allowed_items)}")
+                components = _components(item)
+                name = components.get("minecraft:custom_name", components.get("custom_name"))
+                if not isinstance(name, (dict, list, str)) or not (_text(name).strip() or (isinstance(name, dict) and name.get("translate"))):
+                    errors.append(f"snapshot maps slot {slot}: missing semantic source map name")
+                expected_names = set()
+                for variant in alternatives:
+                    raw_component = variant.get("sourceComponentText", "")
+                    match = re.search(r'"text"\s*:\s*"((?:\\.|[^"\\])*)"', raw_component)
+                    if match:
+                        try:
+                            expected_names.add(json.loads('"' + match.group(1) + '"'))
+                        except json.JSONDecodeError:
+                            pass
+                rendered_name = _text(name)
+                translated_name = ""
+                if isinstance(name, dict) and isinstance(name.get("translate"), str):
+                    translated_name = en_translations.get(name["translate"], ru_translations.get(name["translate"], ""))
+                    expected_keys = {variant.get("sourceTranslationKey") for variant in alternatives
+                                     if variant.get("sourceTranslationKey")}
+                    if expected_keys and name["translate"] not in expected_keys:
+                        errors.append(f"snapshot maps slot {slot}: translation key {name['translate']!r} differs from source map key(s) {sorted(expected_keys)}")
+                if expected_names and rendered_name and not any(expected in rendered_name for expected in expected_names):
+                    fallback = name.get("fallback", "") if isinstance(name, dict) else ""
+                    if not any(expected in fallback for expected in expected_names) and not any(expected in translated_name for expected in expected_names):
+                        errors.append(f"snapshot maps slot {slot}: semantic name {rendered_name or translated_name!r} differs from source labels {sorted(expected_names)}")
+
+    # Empty lobby cells remain empty; source-backed menu pages use no pane frame.
+    for page_key in ("0", "3000", "4000", "5000", "6000"):
+        if page_key in by_id:
+            for slot, item in by_id[page_key].get("_slots_by_number", {}).items():
+                if _component_id(item).endswith("_stained_glass_pane"):
+                    errors.append(f"snapshot page {page_key} slot {slot}: source page has no decorative frame")
+
+    # Source component bindings must point to actual EN/RU source language records.
+    source_language_paths: set[str] = set()
+    for locale in source.get("languageStorageSources", []):
+        for line in locale.get("exactRaw", "").splitlines():
+            match = re.search(r"data modify storage swrg:lang ([^ ]+) set value ", line)
+            if match:
+                source_language_paths.add(match.group(1))
+
+    imported_templates = design.get("sourceStorageComponents", {})
+    if isinstance(imported_templates, dict):
+        for locale, records in imported_templates.items():
+            if locale not in source_language_values or not isinstance(records, dict):
+                continue
+            for raw_path, imported_component in records.items():
+                expected_component = _resolve_nbt_path(source_language_values[locale], str(raw_path))
+                if expected_component is not None and imported_component != expected_component:
+                    errors.append(f"sourceStorageComponents[{locale}][{raw_path!r}] differs from exact independent language source")
+                elif expected_component is None:
+                    exists_other_locale = any(_resolve_nbt_path(source_language_values[other], str(raw_path)) is not None
+                                              for other in source_language_values if other != locale)
+                    declared_gap = gap_for_path(str(raw_path))
+                    if not exists_other_locale and declared_gap is None:
+                        errors.append(f"sourceStorageComponents[{locale}][{raw_path!r}] is absent from both independent EN/RU sources and is not a declared gap")
+
+    if isinstance(localized_templates, dict):
+        for raw_path, localized in localized_templates.items():
+            source_en = _resolve_nbt_path(source_language_values["en"], str(raw_path))
+            source_ru = _resolve_nbt_path(source_language_values["ru"], str(raw_path))
+            if source_en is not None or source_ru is not None:
+                errors.extend(_paired_translation_errors(source_en, source_ru, localized,
+                                                         en_translations, ru_translations,
+                                                         f"localizedStorageComponents[{raw_path!r}]"))
+            elif raw_path not in declared_gaps:
+                errors.append(f"localizedStorageComponents[{raw_path!r}] has no independent EN/RU source and is not declared as a source gap")
+            elif not isinstance(localized, dict) or localized.get("Name") != {"text": ""}:
+                errors.append(f"localizedStorageComponents[{raw_path!r}] declared as a source gap must preserve an explicit empty Name")
+
+    # The imported source binding paths are retained so later runtime exports can be audited
+    # against exact languageStorageSources data without trusting the newly generated key text.
+    source_path_refs = set()
+    def bound_paths(value: Any):
+        if isinstance(value, dict):
+            if isinstance(value.get("storagePath"), str):
+                yield value["storagePath"]
+            else:
+                for child in value.values():
+                    yield from bound_paths(child)
+        elif isinstance(value, list):
+            for child in value:
+                yield from bound_paths(child)
+        elif isinstance(value, str) and re.match(r"^(?:page\d|gui\.|stat\.|kit\.|skill\.|lore\.|item\.|entity\.|title\.)", value):
+            yield value
+
+    for table in design.get("pages", []):
+        for slot in table.get("slots", []):
+            variants = slot.get("sources", [slot])
+            for variant in variants:
+                bindings = variant.get("sourceComponentBindings", {})
+                if isinstance(bindings, dict):
+                    for value in bound_paths(bindings):
+                        source_path_refs.add(value)
+                        # Lore bindings may point at indexed leaves under a source storage compound.
+                        candidates = [value]
+                        path = value.split("[", 1)[0]
+                        candidates.append(path)
+                        candidates.extend(path.rsplit(".", n)[0] for n in range(1, path.count(".") + 1))
+                        available = any(_source_path_has_assignment(source_language_values[locale], candidate)
+                                        for candidate in candidates for locale in ("en", "ru"))
+                        declared_gap = gap_for_path(value)
+                        if not available and declared_gap is None:
+                            errors.append(f"imported component binding {value!r} is absent from independent EN/RU language source")
+                        elif not available and declared_gap is not None:
+                            gap_root, _ = declared_gap
+                            if any(_resolve_nbt_path(source_language_values[locale], gap_root) is not None
+                                   for locale in ("en", "ru")):
+                                errors.append(f"imported component binding {value!r} declares gap {gap_root!r}, but source data exists")
+    counts["sourceComponentBindings"] = len(source_path_refs)
+    return errors, counts
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-manifest", type=Path, default=DEFAULT_SOURCE_MANIFEST)
     parser.add_argument("--design-manifest", type=Path, default=DEFAULT_DESIGN_MANIFEST)
     parser.add_argument("--project-root", type=Path, default=PROJECT_ROOT)
+    parser.add_argument("--snapshot", type=Path, help="validate a GameChecks menu-design-snapshot.json export")
     args = parser.parse_args()
     if not args.source_manifest.exists():
         print(f"ERROR: source manifest not found: {args.source_manifest}", file=sys.stderr)
@@ -578,6 +1316,21 @@ def main() -> int:
             print(f"FAIL: {error}", file=sys.stderr)
         print(f"design source check failed: {len(errors)} discrepancies", file=sys.stderr)
         return 1
+    if args.snapshot:
+        if not args.snapshot.exists():
+            print(f"ERROR: runtime snapshot not found: {args.snapshot}", file=sys.stderr)
+            return 2
+        try:
+            snapshot_errors, snapshot_counts = check_snapshot(args.snapshot, args.design_manifest, args.source_manifest, args.project_root)
+        except (OSError, json.JSONDecodeError, TypeError, ValueError) as exc:
+            print(f"ERROR: unable to validate runtime snapshot: {exc}", file=sys.stderr)
+            return 2
+        print("runtime snapshot: " + json.dumps(snapshot_counts, ensure_ascii=False))
+        if snapshot_errors:
+            for error in snapshot_errors:
+                print(f"FAIL: {error}", file=sys.stderr)
+            print(f"runtime design snapshot check failed: {len(snapshot_errors)} discrepancies", file=sys.stderr)
+            return 1
     print("design source check passed")
     return 0
 

@@ -1,0 +1,22 @@
+{
+  "scope": "Controlled cleanup CPU microbenchmark, not whole-server CPU or MSPT",
+  "baselineMedianNs": 7031.25,
+  "optimizedMedianNs": 468.75,
+  "ratio": 15.0,
+  "reductionPercent": 93.33333333333333,
+  "callsPerSample": 200000,
+  "samplesPerMetric": 7,
+  "retainedProbeEntities": 512,
+  "players": 2,
+  "baselineRuntimeClassHashes": {
+    "SkyWars2": "d84382ca1747eec71889cf55b3bfb46fb600e94a505209fddd89016225416854",
+    "game/MapManager": "709f638eb96a107f1b5f2f551d3fab1e2888493500caba3884a0a7111c8cc1e1",
+    "game/GameController": "c21472c8ac656b896318a557b3e377f706176d3a5aeea7a066fccd33b5e696f1"
+  },
+  "optimizedRuntimeClassHashes": {
+    "SkyWars2": "6d2bbc72fe2bcd399e7142725ba3a7b5326c54ff64b115157bad9f5d48ed62f3",
+    "game/MapManager": "3e2e87bb2fdcb770997e2c0f9c8c4f203835936c67be657e7f05badec4b9ca29",
+    "game/GameController": "5c66fa571f3137f342c6f22adc9d113e28061306146c205b5581ccedccd63018"
+  },
+  "optimizedJarSha256": "dc925d255532edb767a0589d4ccfef654c8c07f7e9dd271e5fdc29b29cb3c866"
+}

@@ -1,0 +1,32 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:chest",
+          "modifier": [
+            {
+              "entity": "this",
+              "name": {
+                "nbt": "page0.s13.Name",
+                "storage": "swrg:lang",
+                "interpret": true,
+                "source": "storage",
+                "type": "nbt"
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "components": {
+                "item_model": "lbc:cases"
+              },
+              "type": "set_components"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

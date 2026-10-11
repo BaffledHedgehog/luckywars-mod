@@ -1,0 +1,41 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "weight": 550,
+          "value": "swrg:gui/roll/case3/sounds/a/main"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "weight": 350,
+          "value": "swrg:gui/roll/case3/sounds/b/main"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "weight": 90,
+          "value": "swrg:gui/roll/case3/sounds/c/main"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "weight": 10,
+          "value": "swrg:gui/roll/case3/sounds/d/main"
+        }
+      ],
+      "modifier": [
+        {
+          "tag": "{reward:\"sound\"}",
+          "type": "minecraft:set_custom_data"
+        },
+        {
+          "components": {
+            "minecraft:jukebox_playable": "5"
+          },
+          "type": "minecraft:set_components"
+        }
+      ]
+    }
+  ]
+}
