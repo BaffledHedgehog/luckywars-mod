@@ -1,0 +1,63 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:repeating_command_block",
+            "components": {
+                "minecraft:item_model": "lbc:babylongate"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.arcanums.babylon_gate"
+        },
+        "description": {
+            "translate": "lbc.adv.arcanums.babylon_gate.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/arcanums/tannerkivi",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:player_killed_entity",
+            "conditions": {
+                "player": {
+                    "terms": [
+                        {
+                            "term": {
+                                "entity": "this",
+                                "predicate": {
+                                    "minecraft:nbt": "{playerGameType:3}"
+                                },
+                                "type": "minecraft:entity_properties"
+                            },
+                            "type": "minecraft:inverted"
+                        },
+                        {
+                            "entity": "this",
+                            "predicate": {
+                                "minecraft:equipment": {
+                                    "mainhand": {
+                                        "predicates": {
+                                            "minecraft:custom_data": "{transformable:1,arcanum:1,gate_of_babylon:1}"
+                                        }
+                                    }
+                                }
+                            },
+                            "type": "minecraft:entity_properties"
+                        }
+                    ],
+                    "type": "minecraft:all_of"
+                },
+                "entity": {
+                    "entity": "this",
+                    "predicate": {
+                        "minecraft:entity_type": "minecraft:player"
+                    },
+                    "type": "minecraft:entity_properties"
+                }
+            }
+        }
+    }
+}

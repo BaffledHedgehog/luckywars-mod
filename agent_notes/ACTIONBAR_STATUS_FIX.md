@@ -1,0 +1,9 @@
+# Портированные статусы в actionbar
+
+`LbcItems.refreshHud` теперь добавляет к общей строке уже перенесённые статусы: cold, cold cooldown, frozen, `nomagic`, `reverse_mana`, turn curse (`skill_issue`), mana potion timers, mana boost и телепортацию цветов. Порядок, glyph, пробелы и цвет чисел сверены с исходным `E:/servers_mew/cringe1_21_4_skywars/world/datapacksdisabled/LBC/data/lbc/function/ui/get_data.mcfunction` (строки 1–4, 31–35, 43, 65–73, 82–84); ракета остаётся последней, как в исходной строке (около строки 91). Статусы без перенесённой реализации сюда не добавлялись.
+
+HUD-scoreboard чтение в `LbcMana.hudValue` не создаёт отсутствующие objective/player score; от него зависят mana/max/regen и временные значения. Cold/frozen читаются через существующие `LbcFrost` getters, curse — через `LbcItems.curseTicks`. Для цвета `E142` читается существующий `effect_rtp_1` напрямую, без mutating accessor `LbcColors.teleportTicks`. Сравнение последнего HUD использует примитивные значения, без конкатенации status-строки на каждый тик. `LbcItems.hud(ServerPlayer)` строит объединённый компонент и также используется для игрока-цели, когда наблюдатель смотрит через камеру; состояние цели не меняется. Полный список glyph иконок сверялся только для чтения в `C:/Users/yarik_temp/AppData/Roaming/FreesmLauncher/instances/26.3(1)/minecraft/resourcepacks/all_in_one_1.21.8/assets/minecraft/font/default.json` (E115, E118, E129, E132, E137, E138, E142, E157, E160, E165) и `icons.json` (E173).
+
+## Текущий статус
+
+`ui-gameplay` PASS: 55,66 с, 2 матча, 19 check-групп. GUI/quickstart smoke также PASS: 126,58 с, 3 матча, 7 сценариев, тот же SHA `afb96b4ec69ddd27499eed92cf2f6e5ba7cb1738df7d8e45fde9a77650c13b61`; артефакт: `build/verification/skywars2-ui-lobby-acid-afb96b4e.jar`. Общая регрессия на 78 групп не запускалась, реальный клиент не проверялся. JAR не установлен на основной сервер (активен SHA `341c6293`). Итог: [SERVER_TESTS.md](../SERVER_TESTS.md).

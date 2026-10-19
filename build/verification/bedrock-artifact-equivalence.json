@@ -1,0 +1,23 @@
+{
+  "initialSha256": "ff0c8776949fc386e2a6032bca64ceac5d70689b30996668c08494bda4f49f1c",
+  "finalSha256": "863d710bc2aa1002f8657264a0f0751318e165e9df5017b515a37e56f553db7d",
+  "differentEntries": [
+    "me/skywars2/game/GameChecks$1Saved.class",
+    "me/skywars2/game/GameChecks$2.class",
+    "me/skywars2/game/GameChecks$3.class",
+    "me/skywars2/game/GameChecks$4.class",
+    "me/skywars2/game/GameChecks$5.class",
+    "me/skywars2/game/GameChecks$FireWandFixture.class",
+    "me/skywars2/game/GameChecks$WandThirdPlayerState.class",
+    "me/skywars2/game/GameChecks.class",
+    "me/skywars2/game/LbcBedrock$Cube.class",
+    "me/skywars2/game/LbcBedrock$Layer.class",
+    "me/skywars2/game/LbcBedrock$Room.class",
+    "me/skywars2/game/LbcBedrock.class"
+  ],
+  "addedEntries": [
+    "me/skywars2/game/LbcBedrock$Restoration.class"
+  ],
+  "removedEntries": [],
+  "reason": "Final change adds room-recall/deferred-restoration ownership plus native fall-attribution fixture; only LbcBedrock/GameChecks classes (including nested classes) differ; all other production classes and resources remain byte-identical."
+}

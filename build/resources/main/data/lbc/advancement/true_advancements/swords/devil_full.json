@@ -1,0 +1,66 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:wooden_sword",
+            "components": {
+                "minecraft:item_model": "lbc:devilsword",
+                "minecraft:enchantment_glint_override": true
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.sword.devil_full"
+        },
+        "description": {
+            "translate": "lbc.adv.sword.devil_full.lore"
+        },
+        "frame": "challenge",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/swords/devil",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{transformable: 1,sword: 1,heal: 1}"
+                        }
+                    },
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{transformable: 1,totem: 1,deviltotem: 1}"
+                        }
+                    },
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{transformable: 1,staff: 1,bloodmagic: 1}"
+                        }
+                    },
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{transformable: 1,summoner: 1,summonerghast: 1}"
+                        }
+                    },
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{transformable: 1,accessory: 1,demonkishki: 1}"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

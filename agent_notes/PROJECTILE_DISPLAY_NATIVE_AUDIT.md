@@ -1,0 +1,24 @@
+# Projectile display movement latency audit (MC 26.3)
+
+Снимок причины **до исправления**. Актуальный код и выбранное решение:
+[PROJECTILE_VISUAL_SYNC.md](PROJECTILE_VISUAL_SYNC.md).
+
+Read-only source audit for the Terra projectile observed damage/removal before the displayed impact. Sources: `src/main/java/me/skywars2/game/LbcTerra.java`; local merged Minecraft 26.3 sources (`ClientPacketListener`, `Entity`, `Display`, `ClientboundMoveEntityPacket`, `ClientboundTeleportEntityPacket`); Polymer Virtual Entity 0.18.2+26.3 sources (`ElementHolder`, `EntityAttachment`, `GenericEntityElement`, `DisplayElement`). No code or server changed.
+
+## What the current path does
+
+`TerraProjectile.step()` sweeps collision from `from` to `end`; for each living hit it calls `hurtServer` first (LbcTerra.java:334), then emits particles, sets projectile position to `end`, and calls `syncModel()` (357–358). The projectile is not removed for a living hit, but a wall/shield makes `step()` return false after `syncModel()`, so `tick()` calls `remove()` immediately; that destroys the holder and discards the entity (475–479) in the same server tick. This is the clearest removal race: the final movement update and removal are queued before the client has had a render/tick at the impact point.
+
+The attached display gets `setInterpolationDuration(1)` and `setTeleportDuration(1)` (202–203). These govern separate channels. `interpolation_duration` is transformation metadata: `Display.calculateInterpolationProgress()` advances the render-state transform over its duration (Display.java:438–449). It does not control world-position packets. `teleport_duration` is the display's position/rotation interpolation length; Display updates its `LinearInterpolationHandler` from this synced field (onSyncedDataUpdated near lines 130–140), and position packets go through the entity interpolation handler.
+
+## Client and Polymer packet timing
+
+`ClientPacketListener.handleMoveEntity()` decodes the position and calls `entity.moveOrInterpolateTo(...)` for non-authoritative remote entities (ClientPacketListener.java:724–749). Teleports also interpolate when the entity is ticking (or relative); `setValuesFromPositionPacket()` selects interpolation in that case and only snaps for non-interpolated/very large movement (>4096 blocks squared) (673–694, 804–823). Entity's `moveOrInterpolateTo` hands the path to its interpolation handler; if no interpolation is started it snaps to the endpoint (Entity.java:2599–2624). Thus with `teleport_duration=1`, a newly received display position target takes one client tick to reach, with frame rendering occurring between ticks; it is intentionally not an instant hit-position snap.
+
+For this code, `EntityAttachment(holder, projectile, false)` disables auto-ticking. `syncModel()` explicitly calls `holder.tick()`. Holder tick updates its attachment position, notifies elements, then ticks each element (ElementHolder.java:100–114). `GenericEntityElement` defaults to non-instant position updates: `notifyMove` sends immediately only when `instantPositionUpdates` is enabled; ordinary `tick()` sends tracker changes first and position second (GenericEntityElement.java:24–38, 77–91, 102–109). The movement packet is therefore emitted on this explicit holder tick, after the `hurtServer()` calls in `step()`. The client receives damage-related packets before the visual movement target and then needs its one-tick position interpolation. A same-tick destroy can cut that interpolation short.
+
+## Practical compensation
+
+Keep damage/collision authoritative and immediate on the server. For terminal wall/shield impacts, retain only the visual holder for a short linger (at least one client interpolation interval; a small fixed 2–3 server ticks is a practical margin), after syncing it to the collision endpoint; remove/discard the gameplay projectile immediately or mark it inert, and destroy the display after the linger. This allows the final movement packet to render without delaying damage. Network latency is variable, so no fixed linger guarantees a frame on every client, but immediate same-tick destruction is the avoidable race.
+
+If the display should stop at the collision point without easing, set its teleport duration to 0 for the terminal update, then still defer holder destruction until a later server tick; setting `interpolation_duration=0` alone will not affect position. A one-tick positional lead/prediction could mask ordinary latency but risks overshooting on collision and is less robust than a terminal visual linger. Do not send two transformations in one bundle as a workaround: clients process packet state before rendering, and Display's render-state baseline is initialized on its entity tick, so a same-bundle current→target pair does not guarantee a visible baseline/interpolation.

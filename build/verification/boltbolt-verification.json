@@ -1,0 +1,53 @@
+{
+  "artifactSha256": "d1f1d2f955d190484b007b350d34ddfb2c80bd46c9ede5fa17fd125ffa9d3df6",
+  "sourceJavaFilesMatched": 9,
+  "fullSourceLootPayloads": [
+    "data/lbc/loot_table/ported/lightning_bolts_wand.json",
+    "data/lbc/loot_table/ported/academy_lightning_bolts_wand.json",
+    "data/lbc/loot_table/ported/boltbolt_wand.json",
+    "data/lbc/loot_table/ported/academy_boltbolt_wand.json"
+  ],
+  "reforgeSourceResourcesMatched": 109,
+  "crc": "passed",
+  "recipe": "passed",
+  "mainJarSha256": "a0c4cb03c4682c99e71e0c197b376f98dc6781e1f153ec7ee61cba67408606a5",
+  "installed": false,
+  "limits": [
+    "No visual real-client test",
+    "No 200-300 projectile benchmark",
+    "Reforge includes unported legacy abilities"
+  ],
+  "archive": "build/verification/skywars2-boltbolt-d1f1d2f9.jar",
+  "relatedRegression": {
+    "completed": [
+      "lbc-items-menu",
+      "teleport-wand",
+      "wands-electro",
+      "electro-gear",
+      "exahoming",
+      "teleport-wand-cleanup",
+      "electro-family-cleanup",
+      "exahoming-cleanup",
+      "boltbolt-cleanup"
+    ],
+    "artifactSha256": "d1f1d2f955d190484b007b350d34ddfb2c80bd46c9ede5fa17fd125ffa9d3df6",
+    "elapsedSeconds": 39.0
+  },
+  "resourceBytesMatched": 114,
+  "knownBaselineWarning": "Polymer missing packet context in fake-player chunk sending",
+  "frostCoverage": "Fresh native freeze damage + five cold applications in boltbolt-terrain; full frost suite needs its dedicated selected-loadout fixture and was not included in final generic regression",
+  "runtime": {
+    "completed": [
+      "Source Lightning Bolts/Boltbolt ordinary and Academy name, lore, models, tiers and Polymer proxy",
+      "All native/Academy/legacy Teleport and Lightning Bolts pairs, exact 2x2/3x3 consumption and extra ingredient rejection",
+      "Source charged lightning lifetime, shock, owner, input protection, mana, Academy modes and NPC promotion",
+      "Snow Meteor real collision, native freeze damage, cold and queued snow; Watering real fills, movement, 200-tick lifetime and queued-write cancellation",
+      "Boltbolt runtime checks resume in the second match"
+    ],
+    "artifactSha256": "d1f1d2f955d190484b007b350d34ddfb2c80bd46c9ede5fa17fd125ffa9d3df6",
+    "elapsedSeconds": 52.5
+  },
+  "localization": "passed: no new keys, actual reference pack and generated Polymer pack",
+  "documentationLinks": "passed",
+  "sourceWhitespace": "passed"
+}

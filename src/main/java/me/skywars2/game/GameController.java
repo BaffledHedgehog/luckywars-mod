@@ -15,13 +15,13 @@ import me.skywars2.SkyWars2;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -51,6 +51,11 @@ public final class GameController {
     private final PlayerStore players;
     private final MapManager maps;
     private final MatchEvents events;
+    private final LbcLoadouts lbc;
+    private final LbcItems items;
+    private final Spectators spectators;
+    private final AttributeHud attributeHud;
+    private final ZoneBarrier zoneBarrier;
     private final ItemStack lobbyCompass = menuCompass();
     private final Map<UUID, Participant> participants = new LinkedHashMap<>();
     private final Set<UUID> pendingLobby = new java.util.HashSet<>();
@@ -69,10 +74,23 @@ public final class GameController {
     private boolean stopped;
     private boolean fallEnabled;
     private Component mapFailure = Component.empty();
+    private String readyMap;
+    private boolean readyBroken;
+    private long selectionVersion;
+    private boolean preparingSelection;
+    private boolean startAfterSelection;
+    private UUID pendingStarter;
+    private UUID victoryWinner;
 
     public GameController(MinecraftServer server, GameConfig config, PlayerStore players, MapManager maps) {
         this.server = server; this.config = config; this.players = players; this.maps = maps;
+        this.zoneBarrier = new ZoneBarrier(this);
         this.events = new MatchEvents(this, maps, config, players);
+        this.lbc = new LbcLoadouts(this, config, players);
+        this.items = new LbcItems(this);
+        this.lbc.syncRanked();
+        this.spectators = new Spectators(this);
+        this.attributeHud = new AttributeHud(this);
     }
 
     public void menus(GameMenus menus) { this.menus = menus; }
@@ -81,15 +99,32 @@ public final class GameController {
     public UUID host() { return host; }
     public boolean inLobby() { return stage == Stage.LOBBY && lobbyReady; }
     public boolean canUseMenus() { return !stopped && (inLobby() || stage == Stage.LOADING); }
+    public boolean canUseMenus(ServerPlayer player) { return canUseMenus() || !stopped && isObserver(player); }
+    public boolean isDeveloper(ServerPlayer player) { return player.entityTags().contains("developer"); }
+    public boolean isObserver(ServerPlayer player) { return spectators.contains(player); }
+    public Spectators spectators() { return spectators; }
     public boolean inventoryLocked() { return canUseMenus(); }
+    public boolean inventoryLocked(ServerPlayer player) {
+        return isObserver(player) || inventoryLocked() && !isDeveloper(player);
+    }
+    /** Item abilities can be tested by tagged developers in the lobby, but observer inventory stays powerless. */
+    public boolean canUseGameplayItems(ServerPlayer player) {
+        return !isObserver(player) && (allowDamage(player) || isDeveloper(player) && !stopped
+                && (inLobby() || stage == Stage.LOADING));
+    }
+    public boolean selectedMapReady() { return readyMap != null && readyMap.equals(config.mapId) && readyBroken == config.broken && !maps.busy(); }
     public boolean playing() { return stage == Stage.PLAYING || stage == Stage.PHASE_ONE || stage == Stage.PHASE_TWO; }
     public int matchTicks() { return gameTicks; }
+    public ZoneBarrier zoneBarrier() { return zoneBarrier; }
     public int lives(UUID id) { Participant p = participants.get(id); return p == null ? 0 : p.lives; }
     public boolean awaitingRespawn(UUID id) { Participant p = participants.get(id); return p != null && p.awaitingRespawn; }
     public MapManager maps() { return maps; }
     public GameConfig config() { return config; }
     public PlayerStore players() { return players; }
     public GameMenus menus() { return menus; }
+    public LbcLoadouts lbc() { return lbc; }
+    public LbcItems items() { return items; }
+    public AttributeHud attributeHud() { return attributeHud; }
 
     public Component status() {
         return text("game.status", text("stage." + stage.name().toLowerCase(java.util.Locale.ROOT)),
@@ -111,7 +146,7 @@ public final class GameController {
         rules.set(GameRules.ADVANCE_WEATHER, false, server);
         rules.set(GameRules.RESPAWN_RADIUS, 0, server);
         maps.level().setRespawnData(LevelData.RespawnData.of(maps.level().dimension(),
-                new net.minecraft.core.BlockPos(0, 127, 0), 0, 0));
+                net.minecraft.core.BlockPos.containing(maps.lobbyPosition()), 0, 0));
         restoreLobby();
     }
 
@@ -125,14 +160,20 @@ public final class GameController {
             loadingPlayer(player);
         }
         else {
-            player.setGameMode(GameType.SPECTATOR);
+            spectators.enter(player);
             pendingLobby.add(player.getUUID());
             if (maps.level() != null) teleport(player, maps.look(), 0, 0);
         }
+        zoneBarrier.playerJoined(player);
     }
 
     public void leave(ServerPlayer player) {
+        // При отключении снимаем временные бонусы, отмечаем участника выбывшим и сохраняем профиль.
+        attributeHud.clear(player);
+        items.forget(player);
+        lbc.clear(player);
         events.removePlayerSkill(player);
+        spectators.remove(player);
         pendingLobby.remove(player.getUUID());
         Participant p = participants.get(player.getUUID());
         if (p != null) { p.lives = 0; p.disconnected = true; p.awaitingRespawn = false; }
@@ -143,14 +184,41 @@ public final class GameController {
     }
 
     public boolean canStart(ServerPlayer player) {
-        if (!inLobby() || maps.busy() || online().size() < 2) return false;
-        if (player != null && host != null && server.getPlayerList().getPlayer(host) != null
-                && !host.equals(player.getUUID()) && !isAdmin(player)) return false;
+        if (startFailure(player) != null || !selectedMapReady()) return false;
         MapManager.MapInfo map = maps.info(config.mapId);
         return map != null && map.available() && map.playerCapacity() >= online().size();
     }
 
+    /** The legacy admin tag reserves shared controls only while its holder is online; OP is unrelated. */
+    public boolean mayControlMatch(ServerPlayer player) {
+        if (player == null) return true; // Console and internal server actions.
+        if (isObserver(player)) return false;
+        if (player.entityTags().contains("admin")) return true;
+        return server.getPlayerList().getPlayers().stream().noneMatch(p -> p.entityTags().contains("admin"));
+    }
+
+    /** Recheck at the actual action: tags or online players may change while a menu stays open. */
+    public boolean allowMatchControl(ServerPlayer player) {
+        if (mayControlMatch(player)) return true;
+        tell(player, text("game.admin_only"));
+        return false;
+    }
+
+    /** Separate unsupported modes from map preparation, so their rejection is actionable. */
+    private Component startFailure(ServerPlayer player) {
+        if (stopped || !inLobby() || maps.busy() && !preparingSelection) return text("game.start_unavailable");
+        if (!mayControlMatch(player)) return text("game.admin_only");
+        if (config.gameMode != 1) return Component.translatable("skywars2.game.mode_unavailable", config.gameMode);
+        if (online().size() < 2) return text("game.start_requirements");
+        return null;
+    }
+
     public boolean selectMap(ServerPlayer player, String id, boolean broken) {
+        if (!allowMatchControl(player)) return false;
+        return selectMapAuthorized(player, id, broken);
+    }
+
+    private boolean selectMapAuthorized(ServerPlayer player, String id, boolean broken) {
         if (!inLobby()) return false;
         MapManager.MapInfo map = maps.info(id);
         if (map == null || !map.available()) {
@@ -159,9 +227,45 @@ public final class GameController {
         if (broken && !maps.brokenAvailable(id)) {
             tell(player, text("game.no_broken", map.displayName())); return false;
         }
+        startAfterSelection = false;
+        pendingStarter = null;
+        // Repeated GUI clicks on the current selection must not restart an expensive paste.
+        if (config.mapId.equals(id) && config.broken == broken && (selectedMapReady() || preparingSelection)) return true;
         config.mapId = id; config.broken = broken; config.save();
         announce(text("game.map_selected", map.displayName(), text(broken ? "common.broken" : "common.normal")));
+        readyMap = null;
+        selectionVersion++;
+        prepareSelectedMap();
         return true;
+    }
+
+    private void prepareSelectedMap() {
+        if (stopped || !inLobby() || maps.busy()) return;
+        String id = config.mapId;
+        boolean broken = config.broken;
+        long version = selectionVersion;
+        preparingSelection = true;
+        // Кэшированный оверлей сохраняет лобби при вставке карты; устаревший результат не разрешает старт.
+        maps.load(id, broken, result -> {
+            if (stopped || !inLobby()) return;
+            preparingSelection = false;
+            if (version != selectionVersion) { prepareSelectedMap(); return; }
+            if (!result.success()) {
+                startAfterSelection = false;
+                mapFailure = result.message(); announce(text("game.load_failed", result.message())); return;
+            }
+            readyMap = id;
+            readyBroken = broken;
+            mapFailure = Component.empty();
+            SkyWars2.LOGGER.info("Selected map ready: {} broken={}", id, broken);
+            if (startAfterSelection) {
+                startAfterSelection = false;
+                ServerPlayer starter = pendingStarter == null ? null : server.getPlayerList().getPlayer(pendingStarter);
+                // Loading is asynchronous: a disconnected requester or a newly online admin revokes a queued start.
+                if (pendingStarter == null || starter != null) requestStart(starter, false);
+                pendingStarter = null;
+            }
+        });
     }
 
     /** Op command entry point: every accepted mutation is validated and saved while still in the lobby. */
@@ -172,7 +276,7 @@ public final class GameController {
             MapManager.MapInfo map = maps.info(value);
             if (map == null) throw new GameConfig.SettingError(text("game.map_unknown", value));
             if (!map.available()) throw new GameConfig.SettingError(text("game.map_unavailable", map.displayName(), map.unavailableReason()));
-            if (!selectMap(player, map.id(), config.broken)) throw new GameConfig.SettingError(text("settings.map_failed"));
+            if (!selectMapAuthorized(player, map.id(), config.broken)) throw new GameConfig.SettingError(text("settings.map_failed"));
             return text("game.map_selected", map.displayName(), text(config.broken ? "common.broken" : "common.normal"));
         }
         if (key.equals("broken")) {
@@ -183,10 +287,20 @@ public final class GameController {
             if (map == null || !map.available())
                 throw new GameConfig.SettingError(text("settings.map_first"));
             boolean brokenVariant = Boolean.parseBoolean(normalized);
-            if (!selectMap(player, config.mapId, brokenVariant)) throw new GameConfig.SettingError(text("settings.map_failed"));
+            if (!selectMapAuthorized(player, config.mapId, brokenVariant)) throw new GameConfig.SettingError(text("settings.map_failed"));
             return text("settings.broken", text(brokenVariant ? "common.enabled" : "common.disabled"));
         }
-        return config.setSetting(parameter, value);
+        var result = config.setSetting(parameter, value);
+        lbc.syncRanked();
+        lbc.refreshArtifactViews();
+        if (key.equals("ranked")) menus.refreshOpen();
+        return result;
+    }
+
+    /** Service event flags are persistent configuration; their seasonal mechanics are a later port. */
+    public Component configureLobbyEvent(String event, String value) {
+        if (!inLobby()) throw new GameConfig.SettingError(text("settings.lobby_only"));
+        return config.setEvent(event, value);
     }
 
     public Component settingsSummary() {
@@ -202,6 +316,7 @@ public final class GameController {
                 {"stageTwoEvent", config.stageTwoEvent},
                 {"pvpMode", config.pvpMode},
                 {"day", config.day},
+                {"ranked", config.ranked},
                 {"vanillaKits", config.vanillaKits},
                 {"vanillaSkills", config.vanillaSkills},
                 {"noBorders", config.noBorders},
@@ -210,15 +325,17 @@ public final class GameController {
             Object value = row[1] instanceof Boolean enabled ? text(enabled ? "common.enabled" : "common.disabled") : row[1];
             summary.append(text("settings.line", text("settings.label." + row[0]), value));
         }
+        for (Object[] event : new Object[][] {{"halloween", config.eventHalloween},
+                {"november", config.eventNovember}, {"tournament", config.eventTournament}}) {
+            summary.append(text("settings.line", Component.literal("event " + event[0]),
+                    text((boolean) event[1] ? "common.enabled" : "common.disabled")));
+        }
         return summary.append(text("settings.help"));
     }
 
     public void requestStart(ServerPlayer player, boolean quick) {
-        if (!inLobby() || maps.busy()) { tell(player, text("game.start_unavailable")); return; }
-        if (host != null && player != null && !host.equals(player.getUUID()) && !isAdmin(player)
-                && server.getPlayerList().getPlayer(host) != null) {
-            tell(player, text("game.host_only")); return;
-        }
+        Component failure = startFailure(player);
+        if (failure != null) { tell(player, failure); return; }
         if (quick) {
             int count = online().size();
             int[] pool = count <= 8 ? java.util.stream.IntStream.rangeClosed(1, 61).toArray()
@@ -226,21 +343,39 @@ public final class GameController {
                     : count <= 16 ? new int[] {53,58,59,60,63}
                     : count <= 20 ? new int[] {58,60,63} : count <= 24 ? new int[] {63} : new int[0];
             List<MapManager.MapInfo> available = java.util.Arrays.stream(pool).mapToObj(id -> maps.info(Integer.toString(id)))
-                    .filter(m -> m != null && m.available() && m.playerCapacity() >= count).toList();
+                    .filter(m -> m != null && m.available() && m.playerCapacity() >= count
+                            && (!config.broken || maps.brokenAvailable(m.id()))).toList();
             if (available.isEmpty()) { tell(player, text("game.quick_missing", count)); return; }
-            config.mapId = available.get(ThreadLocalRandom.current().nextInt(available.size())).id();
-            config.save();
+            String chosen = available.get(ThreadLocalRandom.current().nextInt(available.size())).id();
+            if (!chosen.equals(readyMap) || readyBroken != config.broken) {
+                if (!selectMap(player, chosen, config.broken)) return;
+            }
+        }
+        MapManager.MapInfo map = maps.info(config.mapId);
+        if (map == null || !map.available() || map.playerCapacity() < online().size()) {
+            tell(player, text("game.start_requirements")); return;
+        }
+        if (!selectedMapReady()) {
+            // A valid start waits for the latest selected map; GUI remains usable throughout.
+            startAfterSelection = true;
+            pendingStarter = player == null ? null : player.getUUID();
+            prepareSelectedMap();
+            tell(player, text("game.wait_loading"));
+            return;
         }
         if (!canStart(player)) { tell(player, text("game.start_requirements")); return; }
         begin();
     }
 
     private void begin() {
+        maps.removeLobbyOverlay();
+        items.terra().resetCharges();
+        // Выбранная карта уже размещена; старт только фиксирует состав и распределяет игроков по клеткам.
         transition(Stage.LOADING); lobbyReady = false; mapFailure = Component.empty();
         var enrolled = new ArrayList<>(online().stream().map(ServerPlayer::getUUID).toList());
         for (ServerPlayer player : online()) loadingPlayer(player);
         announce(text("game.loading", maps.info(config.mapId).displayName()));
-        maps.load(config.mapId, config.broken, result -> {
+        java.util.function.Consumer<MapManager.Result> enterCountdown = result -> {
             if (stopped) return;
             if (!result.success()) {
                 mapFailure = result.message(); announce(text("game.load_failed", result.message())); restoreLobby(); return;
@@ -252,7 +387,7 @@ public final class GameController {
             participants.clear();
             for (ServerPlayer player : online()) {
                 player.closeContainer();
-                if (!ready.contains(player)) player.setGameMode(GameType.SPECTATOR);
+                if (!ready.contains(player)) spectators.enter(player);
             }
             List<MapManager.Spawn> spawns = new ArrayList<>(maps.spawns());
             Collections.shuffle(spawns);
@@ -263,7 +398,7 @@ public final class GameController {
                 player.setRespawnPosition(new ServerPlayer.RespawnConfig(LevelData.RespawnData.of(
                         maps.level().dimension(), net.minecraft.core.BlockPos.containing(member.spawn.position()),
                         member.spawn.yaw(), member.spawn.pitch()), true), false);
-                resetPlayer(player, config.health);
+                resetPlayer(player, config.health, true);
                 player.setGameMode(GameType.ADVENTURE);
                 GameType.ADVENTURE.updatePlayerAbilities(player.getAbilities());
                 player.onUpdateAbilities();
@@ -284,7 +419,8 @@ public final class GameController {
             bar.setColor(BossEvent.BossBarColor.GREEN); bar.setVisible(false);
             lastCountdownTitleSeconds = -1;
             transition(Stage.COUNTDOWN);
-        });
+        };
+        enterCountdown.accept(new MapManager.Result(true, Component.empty()));
     }
 
     public void tick() {
@@ -292,10 +428,16 @@ public final class GameController {
         lifetimeTicks++;
         if (inventoryLocked()) for (ServerPlayer player : online()) enforceLobbyInventory(player);
         maps.tick();
+        spectators.tick();
+        attributeHud.tick();
+        lbc.tick();
+        // В лобби предметы доступны только developer; основной игровой tick items уже вызывается ниже.
+        if (!playing()) items.tick();
         if (stage == Stage.LOBBY && lobbyReady) {
-            maps.cleanupLobbyEntities();
+            if (!preparingSelection) maps.cleanupLobbyEntities();
             for (ServerPlayer player : online()) {
-                if (player.getY() < 100 || player.level() != maps.level()) lobbyPlayer(player);
+                if (isDeveloper(player)) continue;
+                if (player.position().y < 0 || player.level() != maps.level()) lobbyPlayer(player);
                 player.setRemainingFireTicks(0);
                 if (lifetimeTicks % 20 == 0) {
                     player.setGameMode(GameType.ADVENTURE); player.setHealth(player.getMaxHealth());
@@ -331,6 +473,7 @@ public final class GameController {
                 transition(Stage.PHASE_TWO); rewardAlive(40, "swrg.reward.stage2"); events.stageTwo(config.stageTwoEvent);
             }
             events.tick();
+            items.tick();
             if (gameTicks % 20 == 0) {
                 updateBar();
                 updateTrackers();
@@ -346,18 +489,23 @@ public final class GameController {
             }
             // A player awaiting vanilla respawn still owns remaining lives.
             long eligible = participants.entrySet().stream().filter(e -> e.getValue().lives > 0
-                    && !e.getValue().disconnected && server.getPlayerList().getPlayer(e.getKey()) != null).count();
+                    && !e.getValue().disconnected && server.getPlayerList().getPlayer(e.getKey()) != null
+                    && !isObserver(server.getPlayerList().getPlayer(e.getKey()))).count();
             boolean waiting = participants.values().stream().anyMatch(p -> p.lives > 0 && p.awaitingRespawn && !p.disconnected);
             if (eligible >= 2 || waiting) lastAliveTicks = 5;
             else if (--lastAliveTicks <= 0) finish();
         } else if (stage == Stage.ENDING) {
-            if (finishTicks % 20 == 0) victoryParticles();
+            if (victoryWinner != null) {
+                ServerPlayer winner = server.getPlayerList().getPlayer(victoryWinner);
+                if (winner != null && finishTicks > 1) events.victoryTick(winner, finishTicks - 1);
+            }
             if (--finishTicks <= 0) restoreLobby();
         }
         if (lifetimeTicks % 600 == 0) players.save();
     }
 
     private void startPlaying() {
+        // После открытия клеток переключаем участников в выживание и выдаём ванильные и LBC-наборы.
         if (alivePlayers().size() < 2) { restoreLobby(); return; }
         maps.cages(false); maps.fillChests(false);
         transition(Stage.PLAYING); gameTicks = 0;
@@ -366,7 +514,8 @@ public final class GameController {
             player.setGameMode(GameType.SURVIVAL); player.setHealth(player.getMaxHealth());
             if (config.vanillaKits) events.giveKit(player);
             if (config.vanillaSkills) events.giveSkill(player);
-            player.getInventory().add(menuCompass());
+            items.magic().colors().resetResources(player);
+            lbc.apply(player);
         }
         maps.level().getGameRules().set(GameRules.BLOCK_DROPS, true, server);
         maps.level().getGameRules().set(GameRules.ENTITY_DROPS, true, server);
@@ -380,11 +529,12 @@ public final class GameController {
     public List<ServerPlayer> alivePlayers() {
         return participants.entrySet().stream().filter(e -> e.getValue().lives > 0 && !e.getValue().disconnected
                         && !e.getValue().awaitingRespawn)
-                .map(e -> server.getPlayerList().getPlayer(e.getKey())).filter(p -> p != null).toList();
+                .map(e -> server.getPlayerList().getPlayer(e.getKey())).filter(p -> p != null && !isObserver(p)).toList();
     }
 
     public boolean allowDamage(ServerPlayer player) {
-        return playing() && participants.containsKey(player.getUUID()) && lives(player.getUUID()) > 0;
+        Participant p = participants.get(player.getUUID());
+        return playing() && !isObserver(player) && p != null && p.lives > 0 && !p.disconnected && !p.awaitingRespawn;
     }
 
     public void died(ServerPlayer player, DamageSource damage) {
@@ -393,8 +543,15 @@ public final class GameController {
         if (p == null || p.lives <= 0 || p.awaitingRespawn) return;
         events.removePlayerSkill(player);
         p.lives--; p.awaitingRespawn = true;
+        attributeHud.clear(player);
+        items.resetRocket(player);
+        items.electro().reset(player);
+        items.mana().overload().reset(player);
+        items.indirectKills().clear(player);
+        items.clear(player);
+        lbc.clear(player);
         players.get(player.getUUID()).deaths++;
-        Entity attacker = damage.getEntity();
+        Entity attacker = damage.getEntity()!=null ? damage.getEntity() : player.getKillCredit();
         if (attacker instanceof ServerPlayer killer && !killer.getUUID().equals(player.getUUID())
                 && participants.containsKey(killer.getUUID())) {
             players.get(killer.getUUID()).kills++;
@@ -408,16 +565,18 @@ public final class GameController {
     }
 
     public void respawned(ServerPlayer player) {
+        attributeHud.clear(player);
         Participant p = participants.get(player.getUUID());
         if (playing() && p != null && !p.disconnected && p.lives > 0) {
-            p.awaitingRespawn = false; resetPlayer(player, config.health);
+            // Полная нормализация относится к границам матча; новую жизнь готовим по прежним правилам.
+            p.awaitingRespawn = false; resetPlayer(player, config.health, false);
             player.setGameMode(GameType.SURVIVAL); teleport(player, p.spawn.position(), p.spawn.yaw(), p.spawn.pitch());
             if (config.vanillaKits) events.giveKit(player);
             if (config.vanillaSkills) events.giveSkill(player);
-            player.getInventory().add(menuCompass());
+            lbc.apply(player, false);
         } else if (stage == Stage.LOBBY && lobbyReady) lobbyPlayer(player);
         else if (stage == Stage.LOADING) loadingPlayer(player);
-        else { if (p != null) p.awaitingRespawn = false; player.setGameMode(GameType.SPECTATOR); teleport(player, maps.look(), 0, 0); }
+        else { if (p != null) p.awaitingRespawn = false; spectators.enter(player); teleport(player, maps.look(), 0, 0); }
     }
 
     public void stopMatch() {
@@ -435,13 +594,15 @@ public final class GameController {
     public void landed(ServerPlayer player, double distance) { events.onLanding(player, distance); }
     public void consumed(ServerPlayer player, ItemStack stack) { events.onConsumed(player, stack); }
     public void hurtForSkill(ServerPlayer player) { events.onPlayerHurt(player); }
-    public void entityUnloaded(Entity entity) { events.entityUnloaded(entity); }
+    public void entityUnloaded(Entity entity) { events.entityUnloaded(entity); items.entityUnloaded(entity); }
 
     private void finish() {
+        items.stop();
         events.stop(); maps.cages(false); bar.setVisible(false); bar.removeAllPlayers();
         List<ServerPlayer> alive = participants.entrySet().stream().filter(e -> e.getValue().lives > 0
-                && !e.getValue().disconnected).map(e -> server.getPlayerList().getPlayer(e.getKey())).filter(p -> p != null).toList();
+                && !e.getValue().disconnected).map(e -> server.getPlayerList().getPlayer(e.getKey())).filter(p -> p != null && !isObserver(p)).toList();
         ServerPlayer winner = alive.size() == 1 ? alive.getFirst() : null;
+        victoryWinner = winner == null ? null : winner.getUUID();
         if (winner != null) {
             var profile = players.get(winner.getUUID()); profile.coins += 100; profile.wins++;
             profile.keys[ThreadLocalRandom.current().nextInt(4)]++;
@@ -456,8 +617,11 @@ public final class GameController {
         } else announce(Component.translatable("swrg.title.draw")
                 .withStyle(style -> style.withColor(ChatFormatting.GREEN)));
         for (ServerPlayer player : online()) {
-            player.closeContainer(); player.getInventory().clearContent(); player.removeAllEffects();
-            player.setGameMode(player == winner ? GameType.CREATIVE : GameType.SPECTATOR);
+            player.closeContainer(); lbc.clear(player);
+            player.getInventory().clearContent(); player.removeAllEffects();
+            resetAttributeValues(player);
+            if (player == winner) player.setGameMode(GameType.CREATIVE);
+            else spectators.enter(player);
             teleport(player, maps.look(), 0, 0);
         }
         maps.level().getGameRules().set(GameRules.BLOCK_DROPS, false, server);
@@ -465,12 +629,29 @@ public final class GameController {
         maps.level().getGameRules().set(GameRules.MOB_DROPS, false, server);
         config.gamesPlayed++; config.save(); players.save();
         transition(Stage.ENDING); finishTicks = Math.max(1, config.endingSeconds) * 20;
+        // В исходном конце игры первая четвёрка ракет появляется сразу, затем раз в секунду.
+        if (winner != null) events.victoryTick(winner, finishTicks);
     }
 
     private void restoreLobby() {
+        // Общая точка завершения/отмены матча: снимает временные состояния, готовит арену и ждёт callback лобби.
+        boolean preserveFinishedMap = playing() || stage == Stage.ENDING;
+        attributeHud.stop();
+        items.stop();
+        spectators.clear();
+        selectionVersion++;
+        readyMap = null;
+        preparingSelection = false;
+        startAfterSelection = false;
+        victoryWinner = null;
+        for (ServerPlayer player : online()) lbc.clear(player);
         events.stop(); participants.clear(); gameTicks = 0; lastAliveTicks = 5;
         lobbyReady = false; bar.setVisible(false); bar.removeAllPlayers(); transition(Stage.LOADING);
-        for (ServerPlayer player : online()) loadingPlayer(player);
+        for (ServerPlayer player : online()) {
+            loadingPlayer(player);
+            player.removeAllEffects();
+            resetAttributeValues(player);
+        }
         maps.clearTransientEntities();
         if (maps.level() != null) {
             maps.level().getWorldBorder().setCenter(0, 0); maps.level().getWorldBorder().setSize(59_999_968);
@@ -483,19 +664,25 @@ public final class GameController {
             lobbyReady = true; transition(Stage.LOBBY);
             for (ServerPlayer player : online()) lobbyPlayer(player);
             pendingLobby.clear();
+            // После матча оставляем его результат для осмотра. Следующий выбор/start подготовит новую карту.
+            if (!preserveFinishedMap) prepareSelectedMap();
         });
     }
 
     private void lobbyPlayer(ServerPlayer player) {
-        player.closeContainer(); resetPlayer(player, 20); player.setGameMode(GameType.ADVENTURE);
+        // При готовом лобби игрок получает приключение, базовые характеристики и закреплённый компас меню.
+        if (isDeveloper(player)) return;
+        spectators.remove(player);
+        player.closeContainer(); resetPlayer(player, 20, true); player.setGameMode(GameType.ADVENTURE);
         GameType.ADVENTURE.updatePlayerAbilities(player.getAbilities());
         player.onUpdateAbilities();
-        teleport(player, new Vec3(.5, 127, .5), 0, 0);
+        teleport(player, maps.lobbyPosition(), 0, 0);
         giveLobbyInventory(player);
     }
 
     /** Adventure permits vanilla use-item packets; temporary flight keeps players above the moving arena. */
     private void loadingPlayer(ServerPlayer player) {
+        if (isDeveloper(player)) return;
         player.setGameMode(GameType.ADVENTURE);
         player.getAbilities().mayfly = true;
         player.getAbilities().flying = true;
@@ -513,7 +700,8 @@ public final class GameController {
 
     /** Fixed lobby contents, also repairs server-side grants without allowing client mutations. */
     public void enforceLobbyInventory(ServerPlayer player) {
-        if (!inventoryLocked()) return;
+        if (isObserver(player)) return;
+        if (!inventoryLocked(player)) return;
         var inventory = player.getInventory();
         boolean changed = false;
         for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
@@ -549,8 +737,19 @@ public final class GameController {
         return compass;
     }
 
-    private void resetPlayer(ServerPlayer player, int health) {
+    private void resetPlayer(ServerPlayer player, int health, boolean resetAllAttributes) {
+        // Общая подготовка к лобби, старту и возрождению: снимаем бонусы, очищаем инвентарь, восстанавливаем здоровье и еду.
+        items.resetAttributes(player);
+        items.resetRocket(player);
+        items.indirectKills().clear(player);
+        items.clear(player);
+        lbc.clear(player);
         player.getInventory().clearContent(); player.removeAllEffects();
+        // Авторство предыдущей жизни/катки не переносится на новую экологическую смерть.
+        player.setLastHurtByPlayer((net.minecraft.world.entity.player.Player)null,0);
+        player.setLastHurtByMob(null);
+        // Сначала забываем прежние ability snapshots/бонусы, затем базу; конфиг и новые перки идут после.
+        if (resetAllAttributes) resetAttributeValues(player);
         var max = player.getAttribute(Attributes.MAX_HEALTH);
         if (max != null) max.setBaseValue(Math.max(1, Math.min(1000, health)));
         var speed = player.getAttribute(Attributes.ATTACK_SPEED);
@@ -559,6 +758,21 @@ public final class GameController {
         player.getFoodData().setSaturation(5);
         player.setExperienceLevels(0); player.setExperiencePoints(0);
         player.setRemainingFireTicks(0); player.fallDistance = 0;
+    }
+
+    /** Все зарегистрированные атрибуты, включая новые: оба вида modifiers снимаются только на границах матча. */
+    private void resetAttributeValues(ServerPlayer player) {
+        var attributes = player.getAttributes();
+        for (var attribute : BuiltInRegistries.ATTRIBUTE) {
+            var holder = BuiltInRegistries.ATTRIBUTE.wrapAsHolder(attribute);
+            var instance = attributes.getInstance(holder);
+            if (instance == null) continue;
+            instance.removeModifiers();
+            // Нативный supplier знает именно player defaults (например, attack_damage=1).
+            // Fallback покрывает дополнительные materialized instances вне его supplier.
+            if (!attributes.resetBaseValue(holder)) instance.setBaseValue(attribute.getDefaultValue());
+        }
+        attributeHud.clear(player);
     }
 
     private void teleport(ServerPlayer player, Vec3 position, float yaw, float pitch) {
@@ -577,7 +791,6 @@ public final class GameController {
                 .withStyle(style -> style.withColor(ChatFormatting.GOLD).withItalic(false));
     }
     private List<ServerPlayer> online() { return List.copyOf(server.getPlayerList().getPlayers()); }
-    private static boolean isAdmin(ServerPlayer player) { return player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER); }
     private void tell(ServerPlayer player, Component message) { if (player != null) player.sendSystemMessage(message); else SkyWars2.LOGGER.info("{}", message.getString()); }
     public void announce(Component message) { server.getPlayerList().broadcastSystemMessage(message, false); SkyWars2.LOGGER.info("[game] {}", message.getString()); }
     private void transition(Stage next) {
@@ -659,12 +872,11 @@ public final class GameController {
         }
     }
 
-    private void victoryParticles() {
-        Vec3 look = maps.look();
-        command("particle minecraft:firework " + look.x + " " + (look.y + 2) + " " + look.z + " 3 2 3 0.1 30 force");
-    }
-
     public void shutdown() {
+        attributeHud.stop();
+        items.stop();
+        spectators.clear();
+        for (ServerPlayer player : online()) lbc.clear(player);
         stopped = true; events.stop(); maps.shutdown(); bar.removeAllPlayers(); players.save(); config.save();
     }
 }

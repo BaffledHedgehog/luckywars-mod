@@ -1,0 +1,26 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:carrot_on_a_stick",
+            "components": {
+                "minecraft:item_model": "lbc:snow_wand"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.staff.snow_wand"
+        },
+        "description": {
+            "translate": "lbc.adv.staff.snow_wand.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/staffs/sauvojen_tuntija_wand",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:impossible"
+        }
+    }
+}

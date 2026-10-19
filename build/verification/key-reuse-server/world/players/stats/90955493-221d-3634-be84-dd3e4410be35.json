@@ -1,16 +1,78 @@
 {
   "stats": {
-    "minecraft:custom": {
-      "minecraft:time_since_rest": 0,
-      "minecraft:damage_taken": 233000,
-      "minecraft:deaths": 35,
-      "minecraft:time_since_death": 0
+    "minecraft:mined": {
+      "skywars2:magic_beacon": 54,
+      "minecraft:stone": 27
     },
-    "minecraft:picked_up": {
-      "minecraft:diamond": 3
+    "minecraft:dropped": {
+      "skywars2:mystical_artifact": 730
+    },
+    "minecraft:custom": {
+      "minecraft:minecart_one_cm": 60,
+      "minecraft:damage_resisted": 104,
+      "minecraft:time_since_rest": 0,
+      "minecraft:mob_kills": 141,
+      "minecraft:damage_taken": 59115359,
+      "minecraft:play_time": 16583,
+      "minecraft:damage_dealt": 2380,
+      "minecraft:damage_absorbed": 3880,
+      "minecraft:jump": 17,
+      "minecraft:time_since_death": 0,
+      "minecraft:drop": 730,
+      "minecraft:fall_one_cm": 50021,
+      "minecraft:total_world_time": 16583,
+      "minecraft:fly_one_cm": 12000,
+      "minecraft:deaths": 403,
+      "minecraft:player_kills": 44
+    },
+    "minecraft:killed": {
+      "minecraft:cow": 37,
+      "minecraft:player": 3
     },
     "minecraft:killed_by": {
-      "minecraft:player": 2
+      "minecraft:player": 28
+    },
+    "minecraft:crafted": {
+      "skywars2:electro_wand": 20,
+      "skywars2:sun_arcanum": 24,
+      "skywars2:stonekivi_wand": 32,
+      "skywars2:true_terra_sword": 12,
+      "skywars2:shit_katana": 14,
+      "skywars2:cyberkatana": 34,
+      "skywars2:boltbolt_wand": 108,
+      "skywars2:exasperato_wand": 24,
+      "skywars2:electro_shield": 34,
+      "skywars2:bedrock_wand": 28,
+      "skywars2:psychovex_wand": 36,
+      "skywars2:exahoming_wand": 36,
+      "skywars2:terra_wand": 12,
+      "skywars2:terra_razorpine": 12,
+      "skywars2:electroblocker": 3,
+      "skywars2:psychoblind_wand": 27,
+      "skywars2:fireblaze_wand": 28
+    },
+    "minecraft:picked_up": {
+      "minecraft:diamond": 7,
+      "minecraft:slime_ball": 6
+    },
+    "minecraft:used": {
+      "skywars2:sulfur": 27,
+      "minecraft:iron_pickaxe": 28,
+      "skywars2:gneiss_stone": 32,
+      "minecraft:diamond_sword": 27,
+      "skywars2:ice_sword": 515,
+      "minecraft:iron_sword": 6,
+      "skywars2:mana_potion": 22,
+      "minecraft:snowball": 192,
+      "minecraft:potion": 8,
+      "minecraft:totem_of_undying": 241,
+      "skywars2:magic_beacon": 117,
+      "minecraft:crossbow": 30,
+      "skywars2:phosphin": 50,
+      "minecraft:bread": 528,
+      "minecraft:dirt": 4,
+      "minecraft:honey_bottle": 8,
+      "minecraft:bow": 92
     }
   },
   "DataVersion": 5023

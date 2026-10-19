@@ -1,0 +1,29 @@
+﻿# Electric armor source notes
+
+## Reliable techno / technomk2 recognition
+
+The current migrated datapack creates techno armor from vanilla `minecraft:leather_helmet`, `leather_chestplate`, `leather_leggings`, and `leather_boots`, then attaches custom components (`item_model`, `equippable`) and `minecraft:custom_data`. Therefore neither the base Item nor rendered model alone identifies these sets. The durable source flags are `custom_data.techno=1` and `custom_data.technomk2=1`.
+
+- `src/main/resources/data/lbc/loot_table/neko_set_techno/{helmet,chestplate,leggings,boots}.json`: all four append `{...,techno:1}`; the leather base and `lbc:armors/power_*`/`lbc:techno` components are presentation/equipment data.
+- `src/main/resources/data/lbc/loot_table/neko_set_technomk2/{helmet,chestplate,leggings,boots}.json`: all four append `technomk2:1`; all also carry `techno:1` (some additionally `reactive:1`).
+- `src/main/resources/data/lbc/advancement/true_advancements/armor/techno.json` and `technomk2.json` match the same respective custom_data flags across all four armor slots.
+- Existing Java precedent: `LbcMagic.java` defines `flagData("techno")` / `flagData("technomk2")` and reads the stack's `DataComponents.CUSTOM_DATA` with subset matching (`matches`). This is the suitable pattern, not display names.
+- Legacy Paper datapack has the same flags in `E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/resources/datapack/data/lbc/loot_table/neko_set_techno/*` and `.../neko_set_technomk2/*`; advancement predicates repeat them. The older Ignite mod and plugin searches likewise show these stable keys; no distinct native item registry ID for these armor sets was found.
+
+The requested full mixed techno/technomk2 immunity should be based on the four equipped pieces collectively: every slot must carry either recognized flag. Do not require one uniform flag, because MK2 pieces include `techno:1` too. Current item payload makes either flag a positive custom-set marker.
+
+## Vanilla armor versus custom armor
+
+For the requested copper/iron/chainmail/golden/netherite bonus, count equipped pieces by exact vanilla item identity/material and slot (helmet/chestplate/leggings/boots), while excluding known custom armor markers (`techno`, `technomk2`, and any other custom-set flags present in the migrated/legacy sources). Do not infer vanilla status from `ArmorItem` alone: techno/technomk2 are leather armor items with custom item model/equippable components, and future native Polymer armor may use a vanilla proxy. `item_model`, tooltip/name, and `equippable.asset_id` are presentation and can be absent or changed; they are not authoritative identifiers. A native Polymer item is distinguishable by its server-side registry item ID, so treat registered custom IDs as custom regardless of proxy item sent to clients.
+
+Current `src/main/java/me/skywars2/game/LbcItems.java` registers only `skywars2:rocket_boots` (chainmail-based Polymer item) and `skywars2:ice_sword`; no native techno/technomk2 armor registry IDs exist there today. Rocket boots demonstrate why base material/proxy alone can misclassify custom armor. For vanilla counting, compare the actual server stack item against the explicit vanilla IDs/materials desired; custom registry IDs never count. For legacy datapack items represented as vanilla bases, inspect custom_data marker flags before counting. Avoid relying on name or resource-pack model; custom armor may not have been migrated and the external pack is read-only.
+
+Relevant code: `src/main/java/me/skywars2/game/LbcItems.java:96-110` (custom chainmail Polymer rocket boots), `src/main/java/me/skywars2/game/LbcMagic.java:81-83,728-744` (flag constants/matcher), and the paths above. Legacy datapack source root is `E:/servers_mew/cringe1_21_4_skywars/plugins/luckywars/src/main/resources/datapack/data/lbc/`.
+
+## Follow-up: metal armor and custom data
+
+A blanket `CUSTOM_DATA != null` rejection is broader than the source evidence supports. There are legitimate vanilla-ID metal armor stacks carrying non-set custom data: `data/lbc/loot_table/aimbob.json:189-222` gives `minecraft:iron_helmet` `night_vision:1`; the same table gives `iron_chestplate` a `slow_falling:1` tag (`334-480`). These are vanilla armor IDs with unrelated behavior metadata, not techno-set markers. Plain metal armor also appears without custom data in `data/lbc/loot_table/infinity_no_shulker.json:8407-8467` and `legacy_luckyblock.json:118-184`.
+
+Conversely, metal-base custom sets have identifiable set flags, not just generic `craftusable`/`transformable`: `neko_set_multiplying/{helmet,chestplate,leggings,boots}.json` uses golden armor with `multiplying:1,transformable:1,<slot>:1`; `neko_set_randchanted/...` uses iron armor with `randchanted:1,transformable:1,<slot>:1`. Thus `transformable` or a nonempty custom_data compound alone is not an unambiguous custom-set discriminator. The relevant concrete set markers found here are `techno`, `technomk2`, `multiplying`, and `randchanted`; they are per-set identifiers. The techno/MK2 set flags remain the reliable cyberset signals; the word `cyberset` in the `techno_full` advancement belongs to a required staff, not armor.
+
+Recommendation: exact server item ID checks should remain the primary eligibility test; reject a known set marker for custom armor (including techno/technomk2 and other custom sets that share a vanilla material ID), rather than rejecting every nonempty CUSTOM_DATA compound. Keep excluding custom native registry IDs explicitly. If the intended product definition is strictly "unmodified vanilla armor", decide separately whether unrelated metadata such as `night_vision:1` disqualifies it; the current request says vanilla metal armor and excludes custom sets, so source evidence favors set-marker filtering.

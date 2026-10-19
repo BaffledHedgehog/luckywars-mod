@@ -1,0 +1,19 @@
+# LBC loadout port: current stage
+
+Trinkets 1 (Blaze), 2 (Ghast), 10 (Intercal), 16 (Gneiss Stone), 18 (Snow Gem) and 20 (Ice Gem) share this catalog, gate checks and native loot grant path. Profiles keep twelve cyclic slots with duplicates; default limit is nine (0 disables grants/procs). Effects and Polymer registration belong to `LbcTrinkets`, an `LbcItems` component with no inventory tick scan. Native projectile flight remains in Minecraft; the bow/crossbow hook runs once per successful volley. Ice items share `LbcFrost` with persistent cold/frozen state. See [FROST_PORT.md](FROST_PORT.md), [TRINKETS_PROJECTILE_PORT.md](TRINKETS_PROJECTILE_PORT.md) and [TRINKETS_PORT.md](TRINKETS_PORT.md); current runtime evidence is in [SERVER_TESTS.md](../SERVER_TESTS.md).
+
+Current catalog kit IDs: 1, 2, 4, 5, 7, 9, 10, 15, 17, 22, 23. BrBad #17 uses four native Polymer lingering potions and tracked cloud handlers; acid uses native projectile physics as requested by the user. See [BRBAD_PORT.md](BRBAD_PORT.md) and [BRBAD_SOURCE_AUDIT.md](BRBAD_SOURCE_AUDIT.md). Rocket boots #22 are implemented in `LbcItems`, including native glide start, charges, observer exclusion, and donor-to-boots transfer; see [ROCKET_BOOTS_PORT.md](ROCKET_BOOTS_PORT.md) and [ROCKET_BOOTS_SOURCE.md](ROCKET_BOOTS_SOURCE.md). Current evidence and limits are in [SERVER_TESTS.md](../SERVER_TESTS.md). Details below preserve the earlier loadout slice history.
+
+`src/main/java/me/skywars2/game/LbcLoadouts.java` is the sole new Java class for this slice; catalog data is `src/main/resources/skywars2/lbc_loadouts.json`. Audit against old `gui/select/{9000,10000}.mcfunction`, `gui/page/{8000,8100}.mcfunction`, and `game/levelup_select/select_1.mcfunction`: kits 4/5/7/23, skill 5, and all 30 requested levelup IDs/modifiers match, including kit 23 at slot 23 (slot 18 remains a gap) and natural IDs 33–44 at page 8100 slots 5–16.
+
+`GameConfig`: `lbcKits`, `lbcSkills`, `lbcLevelups` default `true`; `lbcLevelupLimit=4`, clamped to 1–12. Profiles persist 12 levelup slots plus a cyclic cursor; applying duplicate IDs does not stack same-ID attribute modifiers.
+
+Gates use source advancement IDs and persistent `lbcUnlocks`; `/sw lbc-unlock <player> <full lbc:true_advancements/...>` is operator-only in lobby/loading. Native-award notifications are wired after a successful award (122 notifications); five acidman notifications require all 10 original gates. Advancement criteria remain the access source, but reachability across all 357 criteria is incomplete until their mechanics and gates are implemented.
+
+`apply` runs on match start/respawn: native loot-table kit grants, levelup attributes and skill 5 Resistance I→IV hidden-effect chain; owned modifiers clear on death, leave, player reset and stop/restore.
+
+Lifecycle difference: the old respawn functions do not rerun levelup selection; their persistent modifiers can survive player copying. This port explicitly clears modifiers on death and reapplies transient modifiers to the new player at respawn, retaining the chosen bonuses without persistent attribute leakage or repeated stacking.
+
+Kit tables are imported through the established 26.3 codec migration (`functions` → `modifier`, `function` → `type`); source counts, components and text are retained. Legacy `functions` was silently ignored in the first live check (Hell obsidian count 1 instead of 16); the corrected import passed.
+
+Other kit and trinket selections remain pending; trinkets, challenge content, LBC mode and luckyblocks are not ready. The earlier `tools/smoke_lbc_loadouts.py` run passed native GUI/start/death/respawn/cleanup checks in 41.06 seconds; that historical result does not cover rocket boots. The current rocket slice has separate native evidence in [ROCKET_BOOTS_PORT.md](ROCKET_BOOTS_PORT.md) and [SERVER_TESTS.md](../SERVER_TESTS.md).

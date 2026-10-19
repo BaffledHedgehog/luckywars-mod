@@ -1,0 +1,28 @@
+{
+  "createdUtc": "2026-10-16T08:19:32.870819+00:00",
+  "artifactSha256": "4b59596fdac55044321f6ee1ba1a8a14d0c1b2fdf7d10ce040eb8e03fb0f1ff9",
+  "readyJar": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-map-markers-4b59596f.jar",
+  "previousInstalledSha256": "5399fbad3c5077fa4c1885c419efa4588186d9cd84c363ae3b0f43b6a41e5a0c",
+  "installed": false,
+  "checks": {
+    "map-markers": {
+      "completed": [
+        "Iron Axe retains 29 anchors and 20 filled chests, excludes editor overlays, and refills without drops",
+        "Replacing a filled map with block/entity drops enabled does not spill container contents",
+        "Iron Axe reload and actual match start keep native loot inside containers"
+      ],
+      "artifactSha256": "4b59596fdac55044321f6ee1ba1a8a14d0c1b2fdf7d10ce040eb8e03fb0f1ff9",
+      "elapsedSeconds": 35.56
+    },
+    "airdrop": {
+      "completed": [
+        "real phase-two chicken/cart passengers, normalized counts, genuine attributes and map-chest refill",
+        "native match stop removes all carriers and carts"
+      ],
+      "artifactSha256": "4b59596fdac55044321f6ee1ba1a8a14d0c1b2fdf7d10ce040eb8e03fb0f1ff9",
+      "elapsedSeconds": 46.64
+    }
+  },
+  "reason": "Main server holds world lock; staged only",
+  "installedSha256": "5399fbad3c5077fa4c1885c419efa4588186d9cd84c363ae3b0f43b6a41e5a0c"
+}

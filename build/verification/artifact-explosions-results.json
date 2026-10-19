@@ -1,0 +1,10 @@
+{
+  "completed": [
+    "reusable vanilla server bot fixtures",
+    "source type 2 loot table, defaults, typed artifact component and Polymer roundtrip",
+    "all eleven native unstable types, inclusive radius, index refresh, eligibility and inventory branches",
+    "unstable entity index and type-2 holder cleanup on match stop"
+  ],
+  "artifactSha256": "7e4e78ebfaf679bca221406eeb5d6a4d984071b1cf76711434aaa826d8fea0b7",
+  "elapsedSeconds": 75.43
+}

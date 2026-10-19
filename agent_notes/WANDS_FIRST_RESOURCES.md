@@ -1,0 +1,20 @@
+# Ресурсы для первой пачки wand и trinket
+
+Источник — OLD LBC snapshot `E:/servers_mew/cringe1_21_4_skywars/world/datapacksdisabled/LBC/data/lbc`; live RP `all_in_one_1.21.8` прочитан, не изменялся. Это аудит и точная сверка loot payload, не утверждение о runtime механике wand.
+
+| Server ID | Source loot table / entry | Proxy и стек | Model / tooltip | Name и lore / стоимость |
+|---|---|---|---|---|
+| `skywars2:tiny_fire_wand` | `loot_table/random_sauvojen_wand_tiny.json`, marker `stfire_tiny:1`, вес 1 | `minecraft:carrot_on_a_stick`, count 1; max stack задаётся proxy (source не меняет его) | `lbc:st/fire_tiny`, `lbc:tier_a` | `wand_fire_tiny`; lore: `type` + `staff`, динамическая score `tiny_fire_wand_mana_use` / `lbc.math` + `mana_on_activate`, `wand_fire_tiny.lore.1/.2`, `wand_fire.lore.3/.4`; config cost 25 |
+| `skywars2:tiny_blind_wand` | `loot_table/random_sauvojen_wand_tiny.json`, marker `stblind_tiny:1`, вес 1 | `minecraft:carrot_on_a_stick`, count 1; max stack задаётся proxy (source не меняет его) | `lbc:st/blind_tiny`, `lbc:tier_b` | `wand_blind_tiny`; lore: `type` + `staff`, динамическая score `tiny_blind_wand_mana_use` / `lbc.math` + `mana_on_activate`, `wand_blind_tiny.lore.1/.2`, `wand_blind.lore.3/.4`; config cost 63 |
+| `skywars2:mana_gem` | `loot_table/trinket/mana_gem.json`, custom data `trinket:"mana_gem"` | `minecraft:repeating_command_block`, count 1, max stack 99 | `lbc:mana_gem` | `lbctrinket.20`; lore `lbctrinket.20.lore.1/.2`; source text describes возврат маны при использовании жезлов (60 + 15 за копию) |
+| `skywars2:blood_anal_boom` | `loot_table/trinket/blood_anal_boom.json`, custom data `trinket:"blood_anal_boom"` | `minecraft:repeating_command_block`, count 1, max stack 99 | `lbc:blood_anal_boom` | `lbctrinket.4`; lore `lbctrinket.4.lore.0/.1`; source text describes 25% chance to shoot dynamite with wand, +5% per copy |
+
+В этих четырёх source entries нет `attribute_modifiers`; их payload содержит только исходные item components, имя/lore и custom data. У wand lore сохраняются отдельные вложенные строки и live score-компонент, а не фиксированная текстовая цена. Source settings задают costs 25 и 63 соответственно.
+
+Live RP содержит нужные item definitions/models: `assets/lbc/items/st/{fire_tiny,blind_tiny}.json`, `assets/lbc/models/item/st/{fire_tiny,blind_tiny}.json`, а также item/model JSON для `mana_gem` и `blood_anal_boom`. RU/EN языки содержат все перечисленные name/lore keys; новых translate keys и правок в modlang/RP template не требуется.
+
+В этом проекте отдельного `tools/import_lbc_trinkets.py` нет. Импорт использует `import_selected_entry` из `tools/import_lbc_weapons.py`. Независимая функция `check_first_wand_payloads` в `tools/check_design_sources.py` выбирает каждый entry по source proxy+marker, мигрирует legacy loot schema и сравнивает полный entry вместе с весом и pool/table полями. Результат сверки четырёх payload: exact source compare прошёл. Четыре таблицы включены в `processResources` allowlist.
+
+Оба trinket включены также в `src/main/resources/skywars2/lbc_loadouts.json`, чтобы их можно было получить через исходную селекцию страницы 11000 без копирования payload в дополнительные `trinket/*.json`: Blood Anal Boom — source ID 5, slot 4, source gate `lbc:true_advancements/legends/academy/air`; Mana Gem — source ID 21, slot 20, source gate `lbc:true_advancements/legends/academy/neutral`. Таблицы селекции ссылаются на уже перенесённые `lbc:ported/blood_anal_boom` и `lbc:ported/mana_gem`; исходные ID подтверждены ветками `trinket_select/select_1.mcfunction`, gates — `gui/select/11000.mcfunction`.
+
+Настройка `offhandWands` соответствует source `swrg:core/default_settings`: значение `lefthand=1` запрещает применение offhand wand через `items/spells.mcfunction`, поэтому в JSON-конфиге default — `false`. Lobby GUI slot 8 использует уже подготовленные source component variants `lefthand_on`/`lefthand_off`; `/settings offhandWands true|false` и alias `/settings lefthandWands ...` меняют то же сохранённое значение.

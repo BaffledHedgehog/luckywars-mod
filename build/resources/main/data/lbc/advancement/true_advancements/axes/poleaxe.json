@@ -1,0 +1,51 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:netherite_axe"
+        },
+        "title": {
+            "translate": "lbc.adv.axe.poleaxe"
+        },
+        "description": {
+            "translate": "lbc.adv.axe.poleaxe.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/axes/tomahawk",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:player_hurt_entity",
+            "conditions": {
+                "player": {
+                    "entity": "this",
+                    "predicate": {
+                        "minecraft:equipment": {
+                            "mainhand": {
+                                "predicates": {
+                                    "minecraft:custom_data": "{transformable:1,axe:1,poleaxe:1}"
+                                }
+                            }
+                        }
+                    },
+                    "type": "minecraft:entity_properties"
+                },
+                "damage": {
+                    "taken": {
+                        "min": 20
+                    },
+                    "blocked": false
+                },
+                "entity": {
+                    "entity": "this",
+                    "predicate": {
+                        "minecraft:entity_type": "minecraft:player"
+                    },
+                    "type": "minecraft:entity_properties"
+                }
+            }
+        }
+    }
+}

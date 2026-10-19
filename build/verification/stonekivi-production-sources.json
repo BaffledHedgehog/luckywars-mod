@@ -1,0 +1,12 @@
+{
+  "src/main/java/me/skywars2/game/LbcStonekivi.java": "23828d8db39d9e4ebcef69eb8389816604eaf70be47b6636e126c13b06cbfe3f",
+  "src/main/java/me/skywars2/game/LbcMagmify.java": "352fdf868ad758ec022adfb33c9e8ca315d64c2f85e983bce68506c02cd89a8d",
+  "src/main/java/me/skywars2/game/LbcTanner.java": "067aad5493e0fa2040d3a1f17902cb7dd8c177a0abeaf4c2e9fd074c7f16fbfc",
+  "src/main/java/me/skywars2/game/MapManager.java": "dfd2a795c6950e0f9743fdd7fa2448d658b96f618f6ca68840434eb717190edb",
+  "src/main/java/me/skywars2/game/LbcWands.java": "0b0f5e985afebec310b3fb34e4417c66c1d6d4a8f0ae60d39a3949087e728ad7",
+  "src/main/java/me/skywars2/game/LbcAcademy.java": "e3db67afb4b468364c8a438286bbb43f277d625985a7de0aca425ffcd326b69c",
+  "src/main/java/me/skywars2/game/LbcCraftingRecipe.java": "ea8246646993b7d1dde79af7169f611bbe9964a3da234d55534b3ef546416b1c",
+  "src/main/java/me/skywars2/game/LbcItems.java": "b2a2fc815a97eccdce383790dc6328c25a9a39d13d56ffcc61c10dd8eb2a473b",
+  "src/main/java/me/skywars2/SkyWars2.java": "43f2923a16889ebd46182f62029c38f902e804ad3d152b1de47c6ce9e31e8e83",
+  "src/main/java/me/skywars2/mixin/ArenaBlockMixin.java": "b9feda48a5cee21a407f055e36cd8cf85bfcc6537830913c6dc6526c56a46f71"
+}

@@ -1,0 +1,13 @@
+{
+    "replace": false,
+    "values": [
+        "minecraft:lava",
+        "minecraft:water",
+        "minecraft:powder_snow",
+        "#minecraft:cauldrons",
+        "minecraft:snow",
+        "minecraft:snow_block",
+        "#minecraft:ice",
+        "minecraft:clay"
+    ]
+}

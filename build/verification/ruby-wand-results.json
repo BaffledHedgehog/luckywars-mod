@@ -1,0 +1,10 @@
+{
+  "completed": [
+    "Ruby source loot and cost, offhand/mana/mode controls, native drilling and Academy rays/targets",
+    "Ruby charges clear after match stop",
+    "Ruby service accepts casts in the following match after stop",
+    "Following-match Ruby charge clears on match stop"
+  ],
+  "artifactSha256": "e3e7264025d3e1eb9868e01c93fcff997e70b435d1c3b622ab08851e0cee15b1",
+  "elapsedSeconds": 59.26
+}

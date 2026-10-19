@@ -1,0 +1,36 @@
+# Обычный Electro: меч и щит — аудит исходника
+
+Состояние после аудита: обычные предметы и три крафта уже перенесены;
+[актуальное поведение](ELECTRO_GEAR_PORT.md). Пользователь подтвердил шанс
+сохранения жезла 60% и повторное отражение каждый тик. Замечания ниже о
+неподключённом runtime относятся к исходному состоянию перед этой пачкой.
+
+Исходник старого сервера: `E:/servers_mew/cringe1_21_4_skywars/world/datapacksdisabled/LBC/data/lbc/`. Проверены datapack-функции, loot/advancement и поиск Java-обработчиков в Paper `plugins/luckywars` и Ignite `mods/luckywarsignite`. Исходник оставлен без изменений.
+
+## Меч Electro (cyberkatana)
+
+- Предмет создаёт `loot_table/cyberkatana.json`: атрибуты урона/скорости, теги `sword`, `cyberkatana`, `magicwand`, `swordwithability`. Название Electric Katana; lore описывает заряд ближних врагов и удар молнией в радиусе 30. Ссылки: `LBC/data/lbc/loot_table/cyberkatana.json`, `plugins/luckywars/resourcepack_lang/{en_us,ru_ru}.json`.
+- Основной вызов `items/swords.mcfunction` идёт из `advancement/gowno.json`: `minecraft:player_hurt_entity`, незаблокированный урон, исключён тип `minecraft:arrow_only`, исключён `interaction`, игрок не в nexus/imprinted. Значит charge набирается ударами: каждые 10 подходящих попаданий дают 1 `swordcharged1` (обнуляется `swordcharging1` на 10); в этих функциях верхний предел заряда не найден. Отдельный общий маршрут — `advancement/gowno_any_damage.json` → `items/swords_or_bow.mcfunction`; он дополнительно фильтрует урон тегом `acceptable_for_manavampirism`, но в просмотренной функции занимается skill-hit/ревоком advancement и сам `items/swords` не вызывает. Поэтому заряд катаны подтверждён по `gowno.json`, а дублирование двух маршрутов для charge по этим функциям не видно. Отдельная активная способность вызывается через `workingitems/spell1_default.mcfunction` (ПКМ/основная рука) или `_left` (offhand): тратит 1 заряд, добавляет `shock +2` врагам в радиусе 30 и даёт звук/частицы. Источники: `LBC/data/lbc/advancement/{gowno,gowno_any_damage}.json`, `function/items/swords_or_bow.mcfunction`, `function/items/swords.mcfunction`, `function/workingitems/{cyberkatana,cyberkatanaability,spell1_default,spell1_default_left}.mcfunction`.
+- Цели способности фильтруются по `team_number` через `lbc:same_team`, исключая владельца и союзников; базовый удар остаётся ванильным. `cyberkatanaability` передаёт `team_number` в глобальный fake-player `*tempt`, но не сохраняет UUID атакующего у целей со `shock`. Сам `other/shock.mcfunction` вызывает обычный `summon minecraft:lightning_bolt` в позиции цели, без owner/source; атрибуция отложенного убийства здесь не задана.
+
+## Отложенный эффект shock
+
+ПКМ-способность катаны даёт цели `shock +2`; это не `effect_shock_potion` и не raycast из папки `other/shock_effect`. `tick2s.mcfunction` перепланирует себя каждые 2 секунды и вызывает `tick2smobs`; там для каждой цели с `shock >= 1` вызывается `other/shock.mcfunction`. Поэтому каждый charge point вызывает ровно один импульс с интервалом 2 секунды: ванильный `summon minecraft:lightning_bolt` в позиции цели, `end_rod`-частицы, затем `shock -1`; `shock +2` значит два импульса. Дополнительно player-target получает advancement `effect_shock`; сущности с `lightningist` отдельно запускают `other/lightning`. Сам datapack не задаёт численную величину урона молнии и не передаёт owner/source UUID для этого отложенного удара. Хотя способность копирует `team_number` во временной scoreboard fake-player `*tempt`, `other/shock` его не использует для атрибуции. Источники: `function/{tick2s,tick2smobs,other/shock,other/lightning}.mcfunction`. Отдельный `other/shock_effect/zap` — цепной луч для `effect_shock_potion`, с собственными визуалами и `damage @s 6 arrow by @e[tag=damager]`; это не runtime scoreboard `shock` катаны.
+
+## Энергетический Electro Shield
+
+- `loot_table/electro_shield.json` даёт ванильный shield с кастомным узором, замедлением движения −50% в любой руке и тегами `energy_shield`, `energyshield`, `shield`; lore обещает отражение всех снарядов перед игроком.
+- Событие использования в `advancement/energy_shield.json` запускает `items/shields/energy_shield.mcfunction`; advancement немедленно отзывается, поэтому щит активируется повторно по использованию. Функция при неостановленном времени опрашивает projectile-тип `#minecraft:raycasters_projectiles` в радиусе 7; `energy_shield_proj.mcfunction` меняет знак каждой компоненты Motion (отскок назад по всем осям), ставит `mirrored` и искры. Следующая `energy_shield_2.mcfunction` передаёт отражённому снаряду UUID владельца, `lbcID2` и `team_number` щита; тег снимается после выхода за 14 блоков. Видимые эффекты: electric_spark. Источники: `LBC/data/lbc/advancement/energy_shield.json`, `function/items/shields/{energy_shield,energy_shield_2,energy_shield_proj}.mcfunction`.
+- В отражении нет направления сектора: отражаются подходящие projectiles вокруг щита, включая летящие сзади и снаряды владельца; shield выбрасывает `mirrored`-цели на 7–14 блоках и может повторно отметить при возвращении в область. Команда/владелец проставляются уже после инверсии скорости. Это существенное расхождение с описанием «перед игроком».
+
+## Рецепты и состояние переноса
+
+- Обычный Electro wand (не tiny) создаётся из **двух** tiny Electro wand (`stelectro_tiny`): инвентарный обработчик проверяет ровно два занятых ингредиента и выдаёт `sauvojen_tuntija_electro`. Ground-крафт также принимает две tiny-жезла. См. `function/other/craft/{inventory_craft_check,crafted_electro_inv,craft_ground,crafted_electro}.mcfunction`; расход в inv-функции — по единице каждого стека.
+- Electro sword: один tiny wand + iron sword → `cyberkatana`; shield: один tiny wand + обычный shield (без `energy_shield`) → `electro_shield`. Рецепты имеют отдельные inventory- и ground-функции: `function/other/craft/{inventory_craft_check,crafted_electrosword_inv,crafted_electrosword,crafted_electroshield_inv,crafted_electroshield,craft_ground}.mcfunction`. Результат выдаётся всегда, меч/щит расходуется всегда. Инвентарная ветка `chance60` завершает функцию перед расходом tiny wand: жезл сохраняется с вероятностью 60%, а не отменяет весь крафт. Старый множественный расход доноров исправляется общим контрактом нативных рецептов. Решение о сохранении вероятности при переносе запрошено у пользователя.
+- В новом проекте найден wand-runtime в `LbcWands` и типы урона в `LbcDamage`, но по Java-поиску нет runtime cyberkatana/shield; есть только loot/advancement ресурсы. `LbcCraftingRecipe` — актуальная точка реализации полноценных рецептов. Если переносить меч, нужно отдельно решить, как представить периодический заряд и активный разряд; damage-type wand в `LbcDamage` сам по себе не соответствует этому удару.
+- Альтернативный legacy-вызов через TMT-item: `advancement/using_item.json` → `items/tmt_item.mcfunction` → `drops/tmt/trigger_smth.mcfunction` → `items/swords.mcfunction`; этот путь срабатывает при событии использования TMT-предмета, не является автоматическим тиком удержания катаны. Способность — `spell1.mcfunction` → `spell1_default.mcfunction` (ПКМ), для offhand — `spell1_left.mcfunction` → `_default_left`. Основные damage-callbacks — `gowno.json` и `gowno_any_damage.json`.
+
+
+
+
+

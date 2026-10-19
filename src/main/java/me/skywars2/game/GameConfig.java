@@ -28,9 +28,21 @@ public final class GameConfig {
     public int stageOneEvent = 1;
     public int stageTwoEvent = 1;
     public int pvpMode = 2;
+    /** 1 normal SkyWars, 2 LuckyWars, 3 BedWars, 4 LuckyBedWars (last three await mechanics). */
+    public int gameMode = 1;
     public int day = 1;
+    public boolean ranked = false;
+    public boolean eventHalloween = false;
+    public boolean eventNovember = false;
+    public boolean eventTournament = false;
     public boolean vanillaKits = true;
     public boolean vanillaSkills = true;
+    public boolean lbcKits = true;
+    public boolean lbcSkills = true;
+    public boolean lbcLevelups = true;
+    public boolean offhandWands;
+    public int lbcLevelupLimit = 4;
+    public int lbcTrinketLimit = 9;
     public boolean noBorders;
     public String mapId = "1";
     public boolean broken;
@@ -63,6 +75,7 @@ public final class GameConfig {
     }
 
     public void save() {
+        // Сначала пишем временный файл и затем заменяем конфиг, чтобы сбой записи не оставил JSON наполовину.
         clampTimings();
         Path temporary = FILE.resolveSibling(FILE.getFileName() + ".tmp");
         try {
@@ -95,9 +108,14 @@ public final class GameConfig {
         stageOneEvent = clamp(stageOneEvent, 0, 9);
         stageTwoEvent = clamp(stageTwoEvent, 0, 8);
         pvpMode = clamp(pvpMode, 1, 2);
+        gameMode = clamp(gameMode, 1, 4);
         day = clamp(day, 1, 3);
+        lbcLevelupLimit = clampLimit(lbcLevelupLimit);
+        lbcTrinketLimit = Math.clamp(lbcTrinketLimit, 0, 12);
         gamesPlayed = Math.max(0, gamesPlayed);
     }
+
+    private static int clampLimit(int limit) { return clamp(limit, 1, 12); }
 
     /** Keeps translated validation errors intact until they reach the client. */
     public static final class SettingError extends IllegalArgumentException {
@@ -122,15 +140,43 @@ public final class GameConfig {
             case "stageoneevent", "stage1event" -> { configured = stageOneEvent = integer(key, value, 0, 9); canonical = "stageOneEvent"; }
             case "stagetwoevent", "stage2event" -> { configured = stageTwoEvent = integer(key, value, 0, 8); canonical = "stageTwoEvent"; }
             case "pvpmode", "pvp" -> { configured = pvpMode = integer(key, value, 1, 2); canonical = "pvpMode"; }
+            case "gamemode" -> { configured = gameMode = integer(key, value, 1, 4); canonical = "gameMode"; }
             case "day" -> { configured = day = integer(key, value, 1, 3); canonical = "day"; }
+            case "ranked" -> { configured = ranked = bool(key, value); canonical = "ranked"; }
             case "vanillakits" -> { configured = vanillaKits = bool(key, value); canonical = "vanillaKits"; }
             case "vanillaskills" -> { configured = vanillaSkills = bool(key, value); canonical = "vanillaSkills"; }
+            case "lbckits" -> { configured = lbcKits = bool(key, value); canonical = "lbcKits"; }
+            case "lbcskills" -> { configured = lbcSkills = bool(key, value); canonical = "lbcSkills"; }
+            case "lbclevelups" -> { configured = lbcLevelups = bool(key, value); canonical = "lbcLevelups"; }
+            case "offhandwands", "lefthandwands" -> { configured = offhandWands = bool(key, value); canonical = "offhandWands"; }
+            case "lbcleveluplimit" -> { configured = lbcLevelupLimit = integer(key, value, 1, 12); canonical = "lbcLevelupLimit"; }
+            case "lbctrinketlimit" -> { configured = lbcTrinketLimit = integer(key, value, 0, 12); canonical = "lbcTrinketLimit"; }
             case "noborders" -> { configured = noBorders = bool(key, value); canonical = "noBorders"; }
             default -> throw new SettingError(text("settings.unknown", parameter));
         }
         save();
         return text("settings.saved", canonical, configured instanceof Boolean enabled
                 ? text(enabled ? "common.enabled" : "common.disabled") : configured);
+    }
+
+    /** Sets one of the persistent seasonal event flags. */
+    public Component setEvent(String name, String rawValue) {
+        if (name == null || rawValue == null) throw new SettingError(text("settings.arguments"));
+        String key = name.trim().toLowerCase(java.util.Locale.ROOT);
+        String value = rawValue.trim();
+        String canonical = switch (key) {
+            case "halloween", "november", "tournament" -> "event." + key;
+            default -> throw new SettingError(text("settings.unknown", "event " + name));
+        };
+        boolean configured = bool(canonical, value);
+        switch (key) {
+            case "halloween" -> eventHalloween = configured;
+            case "november" -> eventNovember = configured;
+            case "tournament" -> eventTournament = configured;
+            default -> throw new AssertionError("Validated event name");
+        }
+        save();
+        return text("settings.saved", canonical, text(configured ? "common.enabled" : "common.disabled"));
     }
 
     private static int integer(String key, String value, int min, int max) {

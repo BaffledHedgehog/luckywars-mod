@@ -1,0 +1,39 @@
+{
+  "createdUtc": "2026-10-16T12:38:13.469839+00:00",
+  "artifactSha256": "36d738db317a440f6e586e3b5113fd294c74106bcbd09bdeba65aad83ef7eb9b",
+  "readyJar": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-electric-nonmagic-36d738db.jar",
+  "previousInstalledSha256": "d67a2dd2a4e6853556ed7ae187a89e48d957df05353926386c97716b6edf00e2",
+  "backupJar": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-before-attribute-icons-d67a2dd2.jar",
+  "checks": {
+    "terra-swords": {
+      "completed": [
+        "Terra sword loot payloads and Polymer item restoration",
+        "Terra sword native use, melee/arrow damage, swept hits and suppression",
+        "True Terra swept interval damage, hurt cooldown bypass, visual-edge collision, stacking and attribution",
+        "Terra sword projectiles and virtual displays clear after match stop"
+      ],
+      "artifactSha256": "36d738db317a440f6e586e3b5113fd294c74106bcbd09bdeba65aad83ef7eb9b",
+      "elapsedSeconds": 54.97
+    },
+    "electro-gear": {
+      "completed": [
+        "Cyberkatana and Electro Shield loot payloads and Polymer item restoration",
+        "Native Electro wand 2x2/3x3 recipe, legacy donor and preview/take restrictions",
+        "Native katana and shield recipes plus Electro gear combat checks"
+      ],
+      "artifactSha256": "36d738db317a440f6e586e3b5113fd294c74106bcbd09bdeba65aad83ef7eb9b",
+      "elapsedSeconds": 42.64
+    },
+    "wands-electro": {
+      "completed": [
+        "Tiny Electro source payload, native item ID, model components, Polymer restoration and price",
+        "Tiny Electro hitbox, conductor/team damage, wall/shield, overdraft, pause, and suppression checks",
+        "Tracked Tiny Electro trace cleanup after match stop"
+      ],
+      "artifactSha256": "36d738db317a440f6e586e3b5113fd294c74106bcbd09bdeba65aad83ef7eb9b",
+      "elapsedSeconds": 47.94
+    }
+  },
+  "installed": false,
+  "installationPendingReason": "Main server holds its world lock; the running JAR was not replaced."
+}

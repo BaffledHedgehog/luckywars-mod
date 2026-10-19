@@ -1,0 +1,14 @@
+{
+  "artifactSha256": "d196ae2a718bb4c5d18ac2b398bd3018f0821025505f9d27bac96297d5999d6b",
+  "readyJar": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-air-wand-d196ae2a.jar",
+  "previousSha256": "de7b5723a96707deb11c7f86509b0c2d02f09b02bd79e2206e35ce1d88607236",
+  "backupJar": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-before-air-wand-de7b5723.jar",
+  "mainJar": "E:\\servers_mew\\skywars2_last\\mods\\skywars2.jar",
+  "verified": true,
+  "verification": "air-wand-verification.json",
+  "installed": true,
+  "installedAt": "2026-10-16T20:10:42.303902+00:00",
+  "worldLockFreeAtInstallation": true,
+  "mainPortClosedAtInstallation": true,
+  "serverAutoStarted": false
+}

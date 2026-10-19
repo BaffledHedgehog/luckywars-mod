@@ -1,0 +1,26 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:repeating_command_block",
+            "components": {
+                "minecraft:item_model": "lbc:advancement_icon/magic"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.potion.add_mana_big"
+        },
+        "description": {
+            "translate": "lbc.adv.potion.add_mana_big.lore"
+        },
+        "frame": "goal",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/potions/add_mana",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:impossible"
+        }
+    }
+}

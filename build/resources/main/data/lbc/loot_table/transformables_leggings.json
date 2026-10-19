@@ -1,0 +1,81 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_multiplying/leggings"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_randchanted/leggings"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_berserk/leggings"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_chaos/leggings"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_mage/leggings"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_shitty/leggings"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_shulker/leggings"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_steampunk/leggings"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_techno/leggings"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_traveller/leggings"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_assasin/leggings"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_paladin/leggings"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_phantom/leggings"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_erosion/leggings"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_flesh/leggings"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_nanobots/leggings"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_glass/leggings"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_overload/leggings"
+        }
+      ]
+    }
+  ]
+}

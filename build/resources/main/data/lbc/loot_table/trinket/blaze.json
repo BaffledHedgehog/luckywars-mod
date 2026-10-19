@@ -1,0 +1,52 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:blaze_trinket",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:item_model": "lbc:trinket_0",
+                "minecraft:max_stack_size": 99
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "entity": "this",
+              "name": {
+                "translate": "lbctrinket.0",
+                "italic": false,
+                "color": "white"
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                {
+                  "translate": "lbctrinket.0.lore.0",
+                  "italic": false,
+                  "color": "gray"
+                },
+                {
+                  "translate": "lbctrinket.0.lore.1",
+                  "italic": false,
+                  "color": "gray"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{trinket:\"blaze\"}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

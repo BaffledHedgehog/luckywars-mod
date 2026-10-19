@@ -1,0 +1,9 @@
+{
+  "completed": [
+    "Tiny Ruby/Terra source tables, native IDs, Polymer conversion and costs",
+    "Ruby through-block destruction/loot and Terra one-hit-per-target damage with terminal moss",
+    "Ruby/Terra temporary world, entity, and observer fixture cleanup"
+  ],
+  "artifactSha256": "e3e7264025d3e1eb9868e01c93fcff997e70b435d1c3b622ab08851e0cee15b1",
+  "elapsedSeconds": 38.69
+}

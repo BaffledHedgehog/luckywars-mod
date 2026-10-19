@@ -22,34 +22,27 @@
         "requirement": {
             "trigger": "minecraft:player_hurt_entity",
             "conditions": {
-                "player": [
-                    {
-                        "condition": "minecraft:entity_properties",
-                        "entity": "this",
-                        "predicate": {
-                            "equipment": {
-                                "mainhand": {
-                                    "predicates": {
-                                        "minecraft:custom_data": "{transformable:1,hoe:1,sickle:1}"
-                                    }
+                "player": {
+                    "entity": "this",
+                    "predicate": {
+                        "minecraft:equipment": {
+                            "mainhand": {
+                                "predicates": {
+                                    "minecraft:custom_data": "{transformable:1,hoe:1,sickle:1}"
                                 }
                             }
                         }
-                    }
-                ],
-                "entity": [
-                    {
-                        "condition": "minecraft:entity_properties",
-                        "entity": "this",
-                        "predicate": {
-                            "type": "minecraft:player"
-                        }
-                    }
-                ]
+                    },
+                    "type": "minecraft:entity_properties"
+                },
+                "entity": {
+                    "entity": "this",
+                    "predicate": {
+                        "minecraft:entity_type": "minecraft:player"
+                    },
+                    "type": "minecraft:entity_properties"
+                }
             }
         }
-    },
-    "rewards": {
-        "function": "lbc:swrg_kit_integration/gain/skill"
     }
 }

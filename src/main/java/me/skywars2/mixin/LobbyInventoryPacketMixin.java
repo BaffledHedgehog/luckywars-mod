@@ -6,6 +6,7 @@ import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
 import net.minecraft.network.protocol.game.ServerboundPlaceRecipePacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.network.protocol.game.ServerboundSetCreativeModeSlotPacket;
+import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Reject client inventory mutations after packet dispatch reaches the server thread. */
+/** Блокирует изменения инвентаря после переноса обработки пакета на серверный поток. */
 @Mixin(ServerGamePacketListenerImpl.class)
 public abstract class LobbyInventoryPacketMixin {
     @Shadow public ServerPlayer player;
@@ -30,6 +31,28 @@ public abstract class LobbyInventoryPacketMixin {
 
     @Inject(method = "handlePlayerAction", at = @At(value = "INVOKE", target = skywars2$THREAD_CHECK, shift = At.Shift.AFTER), cancellable = true)
     private void skywars2$lockDropAndSwap(ServerboundPlayerActionPacket packet, CallbackInfo ci) {
+        var game = SkyWars2.game();
+        if (game != null && game.items().frost().isFrozen(player)) {
+            switch (packet.getAction()) {
+                case RELEASE_USE_ITEM -> {
+                    player.stopUsingItem();
+                    ci.cancel();
+                    return;
+                }
+                case START_DESTROY_BLOCK, CHANGE_DESTROY_DIRECTION, ABORT_DESTROY_BLOCK, STOP_DESTROY_BLOCK -> {
+                    player.connection.ackBlockChangesUpTo(packet.getSequence());
+                    if (player.isWithinBlockInteractionRange(packet.getPos(), 1.0) && player.level().hasChunkAt(packet.getPos()))
+                        player.connection.send(new ClientboundBlockUpdatePacket(player.level(), packet.getPos()));
+                    ci.cancel();
+                    return;
+                }
+                case STAB -> {
+                    ci.cancel();
+                    return;
+                }
+                default -> { }
+            }
+        }
         switch (packet.getAction()) {
             case DROP_ITEM, DROP_ALL_ITEMS, SWAP_ITEM_WITH_OFFHAND -> skywars2$rejectMutation(ci);
             default -> { }
@@ -49,7 +72,7 @@ public abstract class LobbyInventoryPacketMixin {
     @Unique
     private void skywars2$rejectMutation(CallbackInfo ci) {
         var game = SkyWars2.game();
-        if (game != null && game.inventoryLocked()) {
+        if (game != null && game.inventoryLocked(player)) {
             game.enforceLobbyInventory(player);
             player.containerMenu.sendAllDataToRemote();
             if (player.containerMenu != player.inventoryMenu) player.inventoryMenu.sendAllDataToRemote();

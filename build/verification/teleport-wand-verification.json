@@ -1,0 +1,83 @@
+{
+  "artifactSha256": "6b2f55bf2ee5bc403f11fd28d5c19b1a479f6fd9a47f3a8319b9d5995f6c955c",
+  "buildPassed": true,
+  "finalTeleportReport": {
+    "completed": [
+      "Teleport loot and cost, native sweep/lightning/levitation, Academy modes, inverse container move and arrow cloud",
+      "Teleport charges and arrow clouds clear after match stop",
+      "Teleport service accepts casts in the following match after stop",
+      "Following-match Teleport charge clears on match stop"
+    ],
+    "artifactSha256": "6b2f55bf2ee5bc403f11fd28d5c19b1a479f6fd9a47f3a8319b9d5995f6c955c",
+    "elapsedSeconds": 50.45
+  },
+  "relatedRegressionReports": {
+    "artifactSha256": "f5c95e215c26f62d916cb8eb7c761c717d955aa28f1237e3525ac4706e6f410e",
+    "reports": {
+      "teleport-wand": {
+        "completed": [
+          "Teleport loot and cost, native sweep/lightning/levitation, Academy modes, inverse container move and arrow cloud",
+          "Teleport charges and arrow clouds clear after match stop",
+          "Teleport service accepts casts in the following match after stop",
+          "Following-match Teleport charge clears on match stop"
+        ],
+        "artifactSha256": "f5c95e215c26f62d916cb8eb7c761c717d955aa28f1237e3525ac4706e6f410e",
+        "elapsedSeconds": 49.14
+      },
+      "pinegun": {
+        "completed": [
+          "Pinegun loot bundle and Polymer item restoration",
+          "Pinegun loot, native volleys, ammo, held-pair multiplier and restrictions",
+          "Pinegun burst and native arrows clear after match stop"
+        ],
+        "artifactSha256": "f5c95e215c26f62d916cb8eb7c761c717d955aa28f1237e3525ac4706e6f410e",
+        "elapsedSeconds": 39.53
+      },
+      "electro-gear": {
+        "completed": [
+          "Cyberkatana and Electro Shield loot payloads and Polymer item restoration",
+          "Native Electro wand 2x2/3x3 recipe, legacy donor and preview/take restrictions",
+          "Native katana and shield recipes plus Electro gear combat checks"
+        ],
+        "artifactSha256": "f5c95e215c26f62d916cb8eb7c761c717d955aa28f1237e3525ac4706e6f410e",
+        "elapsedSeconds": 38.89
+      },
+      "academy": {
+        "completed": [
+          "Native token placement, NPC interaction, Terra/Electro trials, Exasperato unique-hit progression and upgrade preservation",
+          "Academy interaction entities clear after match stop"
+        ],
+        "artifactSha256": "f5c95e215c26f62d916cb8eb7c761c717d955aa28f1237e3525ac4706e6f410e",
+        "elapsedSeconds": 40.26
+      },
+      "indirect-kills": {
+        "completed": [
+          "native Teleport fall, Ruby support-loss, Stone suffocation and Acid poison ownership; lethal environmental player death, kill reward and respawn"
+        ],
+        "artifactSha256": "f5c95e215c26f62d916cb8eb7c761c717d955aa28f1237e3525ac4706e6f410e",
+        "elapsedSeconds": 38.69
+      }
+    }
+  },
+  "equivalence": {
+    "regressionArtifactSha256": "f5c95e215c26f62d916cb8eb7c761c717d955aa28f1237e3525ac4706e6f410e",
+    "finalArtifactSha256": "6b2f55bf2ee5bc403f11fd28d5c19b1a479f6fd9a47f3a8319b9d5995f6c955c",
+    "changedEntries": [
+      "me/skywars2/game/LbcTeleport.class"
+    ],
+    "allOtherEntriesIdentical": true
+  },
+  "staticChecks": {
+    "localizationAndGeneratedPack": true,
+    "damageAliases": true,
+    "packagedTeleportLoot": true,
+    "cloudMixinRegistration": true,
+    "javaUtf8WithoutBom": true,
+    "documentationLinks": true
+  },
+  "limits": [
+    "Client-side visual appearance was not observed.",
+    "No load benchmark with hundreds of Teleport charges was run."
+  ],
+  "verifiedAt": "2026-10-16T20:48:32.354325+00:00"
+}

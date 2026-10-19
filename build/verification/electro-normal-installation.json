@@ -1,0 +1,9 @@
+{
+  "installed": false,
+  "reason": "Main server holds its world lock",
+  "ready": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-electro-normal-f183182b.jar",
+  "artifactSha256": "f183182bbaf15eeea75db945ae5847976c061e1b90b9326ce2b515cb3f4cca63",
+  "previousInstalledSha256": "1ce3fa37a598543bd5a49ecc004a3cf6076e1b42a2f78a4fd8ad5e82bce0a271",
+  "installedSha256": "1ce3fa37a598543bd5a49ecc004a3cf6076e1b42a2f78a4fd8ad5e82bce0a271",
+  "report": "wands-electro-results.json"
+}

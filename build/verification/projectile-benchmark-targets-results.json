@@ -1,0 +1,89 @@
+{
+  "serverDir": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\key-reuse-server",
+  "jarSha256": "58dd11a16095f67baa7dcd8e663d3c3c39cb4a55de93f2c63cb355b2b1013c6e",
+  "tickQuery": "native /tick query after 120 server ticks per scenario",
+  "targets": 32,
+  "trajectory": "NoGravity, initial velocity (0.03,0,0), native drag",
+  "clients": "two fake ServerPlayer connections, no real network clients",
+  "cpu": {
+    "platform": "Windows-10-10.0.19045-SP0",
+    "processor": "AMD64 Family 25 Model 33 Stepping 2, AuthenticAMD",
+    "logicalCpus": 16
+  },
+  "scenarios": [
+    {
+      "name": "dense_0",
+      "layout": "dense",
+      "entityCount": 0,
+      "mspt": {
+        "p50": 2.2,
+        "p95": 4.1,
+        "p99": 7.1,
+        "average": 2.3
+      },
+      "nativeTickQueryOutput": [
+        "[11:58:43] [Server thread/INFO]: System chat: The game is running normally",
+        "[11:58:43] [Server thread/INFO]: System chat: Target tick rate: 20.0 per second.",
+        "Average time per tick: 2.3ms (Target: 50.0ms)",
+        "[11:58:43] [Server thread/INFO]: System chat: Percentiles: P50: 2.2ms P95: 4.1ms P99: 7.1ms. Sample: 100"
+      ]
+    },
+    {
+      "name": "dense_100",
+      "layout": "dense",
+      "entityCount": 100,
+      "mspt": {
+        "p50": 1.3,
+        "p95": 2.0,
+        "p99": 2.4,
+        "average": 1.4
+      },
+      "nativeTickQueryOutput": [
+        "[11:58:49] [Server thread/INFO]: System chat: The game is running normally",
+        "[11:58:49] [Server thread/INFO]: System chat: Target tick rate: 20.0 per second.",
+        "Average time per tick: 1.4ms (Target: 50.0ms)",
+        "[11:58:49] [Server thread/INFO]: System chat: Percentiles: P50: 1.3ms P95: 2.0ms P99: 2.4ms. Sample: 100"
+      ]
+    },
+    {
+      "name": "dense_200",
+      "layout": "dense",
+      "entityCount": 200,
+      "mspt": {
+        "p50": 1.6,
+        "p95": 1.8,
+        "p99": 2.1,
+        "average": 1.6
+      },
+      "nativeTickQueryOutput": [
+        "[11:58:55] [Server thread/INFO]: System chat: The game is running normally",
+        "[11:58:55] [Server thread/INFO]: System chat: Target tick rate: 20.0 per second.",
+        "Average time per tick: 1.6ms (Target: 50.0ms)",
+        "[11:58:55] [Server thread/INFO]: System chat: Percentiles: P50: 1.6ms P95: 1.8ms P99: 2.1ms. Sample: 100"
+      ]
+    },
+    {
+      "name": "dense_300",
+      "layout": "dense",
+      "entityCount": 300,
+      "mspt": {
+        "p50": 2.0,
+        "p95": 2.3,
+        "p99": 2.9,
+        "average": 2.0
+      },
+      "nativeTickQueryOutput": [
+        "[11:59:01] [Server thread/INFO]: System chat: The game is running normally",
+        "[11:59:01] [Server thread/INFO]: System chat: Target tick rate: 20.0 per second.",
+        "Average time per tick: 2.0ms (Target: 50.0ms)",
+        "[11:59:01] [Server thread/INFO]: System chat: Percentiles: P50: 2.0ms P95: 2.3ms P99: 2.9ms. Sample: 100"
+      ]
+    }
+  ],
+  "serverProperties": {
+    "view-distance": "4",
+    "simulation-distance": "4"
+  },
+  "rawLog": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\projectile-benchmark-targets.log",
+  "rawLogSha256": "8ab64017d694c9c2b9b746779f1f74be61857ef9d9785a7a89b720afdef9bba9"
+}

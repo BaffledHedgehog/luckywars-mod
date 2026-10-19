@@ -1,0 +1,23 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:chiseled_tuff_bricks"
+        },
+        "title": {
+            "translate": "lbc.adv.legends.enter_grimoire_dungeon"
+        },
+        "description": {
+            "translate": "lbc.adv.legends.enter_grimoire_dungeon.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/legends/kill_technoshish",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:impossible"
+        }
+    }
+}

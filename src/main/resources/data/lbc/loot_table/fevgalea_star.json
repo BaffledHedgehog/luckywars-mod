@@ -1,131 +1,131 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:item",
+          "name": "minecraft:carrot_on_a_stick",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_x",
+                "minecraft:item_model": "lbc:fevgalea_star",
+                "minecraft:max_damage": 4000,
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:attack_damage",
+                    "slot": "mainhand",
+                    "id": "minecraft:base_attack_damage",
+                    "amount": 16,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:attack_speed",
+                    "slot": "mainhand",
+                    "id": "minecraft:base_attack_speed",
+                    "amount": -2.2,
+                    "operation": "add_value"
+                  }
+                ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:carrot_on_a_stick",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style":"lbc:tier_x",
-                                "minecraft:item_model": "lbc:fevgalea_star",
-                                "minecraft:max_damage": 4000,
-                                "minecraft:attribute_modifiers": [
-                                    {
-                                        "type": "minecraft:attack_damage",
-                                        "slot": "mainhand",
-                                        "id": "minecraft:base_attack_damage",
-                                        "amount": 16,
-                                        "operation": "add_value"
-                                    },
-                                    {
-                                        "type": "minecraft:attack_speed",
-                                        "slot": "mainhand",
-                                        "id": "minecraft:base_attack_speed",
-                                        "amount": -2.2,
-                                        "operation": "add_value"
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "fevgalea_star",
-                                    "italic": false,
-                                    "color": "green"
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "entity": "this",
-                            "lore": [
-                                [
-                                    {
-                                        "translate": "type",
-                                        "italic": false,
-                                        "color": "aqua"
-                                    },
-                                    {
-                                        "translate": "sword",
-                                        "italic": false,
-                                        "color": "aqua"
-                                    }
-                                ],
-                                {
-                                    "translate": "fevgalea_star.lore.1",
-                                    "color": "white",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "fevgalea_star.lore.2",
-                                    "color": "white",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "fevgalea_star.lore.3",
-                                    "color": "white",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "fevgalea_star.lore.4",
-                                    "color": "white",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "fevgalea_star.lore.5",
-                                    "color": "white",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "fevgalea_star.lore.6",
-                                    "color": "white",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "fevgalea_star.lore.7",
-                                    "color": "white",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "fevgalea_star.lore.8",
-                                    "color": "white",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "fevgalea_star.lore.9",
-                                    "color": "white",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "fevgalea_star.lore.10",
-                                    "color": "white",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "fevgalea_star.lore.11",
-                                    "color": "white",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{swordwithability:1,transformable:1,sword:1,magicwand:1,fevgalea_star:1}"
-                        }
-                    ]
+                  "translate": "fevgalea_star",
+                  "italic": false,
+                  "color": "green"
                 }
-            ]
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "sword",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "fevgalea_star.lore.1",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "fevgalea_star.lore.2",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "fevgalea_star.lore.3",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "fevgalea_star.lore.4",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "fevgalea_star.lore.5",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "fevgalea_star.lore.6",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "fevgalea_star.lore.7",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "fevgalea_star.lore.8",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "fevgalea_star.lore.9",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "fevgalea_star.lore.10",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "fevgalea_star.lore.11",
+                  "color": "white",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{swordwithability:1,transformable:1,sword:1,magicwand:1,fevgalea_star:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

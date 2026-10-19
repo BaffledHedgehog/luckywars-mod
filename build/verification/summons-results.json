@@ -1,0 +1,10 @@
+{
+  "completed": [
+    "Source Summoner Vexes/Psychovex name, lore, models, tiers and Polymer proxy",
+    "Native and legacy Blind/Summoner Vexes exact 2x2/3x3 consumption and extra ingredient rejection",
+    "Native Vex ownership/replacement, six original cultist presets, damage callbacks, protection and mana",
+    "Summons runtime checks resume in the second match"
+  ],
+  "artifactSha256": "524c850f6b9d86fab709c3d92c1416a639011198c620ae5547b6dfd1292bfc1d",
+  "elapsedSeconds": 91.42
+}

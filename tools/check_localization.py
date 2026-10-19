@@ -8,7 +8,7 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 LANG = ROOT / "src/main/resources/assets/skywars2/lang"
-TEMPLATE = ROOT / "resourcepack_template/assets/skywars2/lang"
+TEMPLATE = ROOT / "resourcepack_template/assets"
 DEFAULT_RESOURCE_PACK = Path(r"C:\Users\yarik_temp\AppData\Roaming\FreesmLauncher\instances\26.3(1)\minecraft\resourcepacks\all_in_one_1.21.8")
 
 
@@ -58,9 +58,13 @@ def check(pack=None, resource_pack=DEFAULT_RESOURCE_PACK):
     for locale, entries in languages.items():
         duplicates = entries.keys() & existing[locale].keys()
         assert not duplicates, f"Already translated in resource pack ({locale}): {sorted(duplicates)}"
-        template = TEMPLATE / f"{locale}.json"
-        if template.exists():
-            delta = load(template.read_text(encoding="utf-8"))
+        templates = sorted(TEMPLATE.glob(f"*/lang/{locale}.json"))
+        if templates:
+            delta = {}
+            for template in templates:
+                additions = load(template.read_text(encoding="utf-8"))
+                assert not (delta.keys() & additions.keys()), f"Duplicate template keys across namespaces: {locale}"
+                delta.update(additions)
             assert not (delta.keys() & existing[locale].keys()), f"Template duplicates resource-pack keys: {locale}"
             assert delta == entries, f"Template differs from new mod translations: {locale}"
     combined = {locale: {**existing[locale], **entries} for locale, entries in languages.items()}
@@ -136,6 +140,17 @@ def check(pack=None, resource_pack=DEFAULT_RESOURCE_PACK):
                 visit_gui(child, source)
 
     visit_gui(design["localizedStorageComponents"], "prepared GUI storage components")
+
+    native_data = ROOT / "src/main/resources"
+    catalog = load((native_data / "skywars2/lbc_loadouts.json").read_text(encoding="utf-8"))
+    for kit in catalog["kits"]:
+        filename = native_data / "data/lbc/loot_table" / (kit["table"].removeprefix("lbc:") + ".json")
+        visit_gui(load(filename.read_text(encoding="utf-8")), filename)
+    rocket_modifier = native_data / "data/lbc/item_modifier/add_lore_rocket.json"
+    visit_gui(load(rocket_modifier.read_text(encoding="utf-8")), rocket_modifier)
+    notifications = load((native_data / "skywars2/lbc_unlock_notifications.json").read_text(encoding="utf-8"))
+    for ident, notification in notifications["notifications"].items():
+        require_key(notification["subtitle"], ident)
 
     if pack:
         with zipfile.ZipFile(pack) as archive:

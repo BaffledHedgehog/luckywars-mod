@@ -1,0 +1,86 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:leather_chestplate",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:item_model": "lbc:armors/glass_chestplate",
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:max_damage": 150,
+                "minecraft:equippable": {
+                  "slot": "chest",
+                  "asset_id": "lbc:glass"
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": {
+                "translate": "glass_chestplate",
+                "color": "white",
+                "italic": false
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "chestplate",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "glass.lore",
+                  "italic": false,
+                  "color": "aqua"
+                },
+                {
+                  "translate": "glass.lore.2",
+                  "italic": false,
+                  "color": "aqua"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "modifiers": [
+                {
+                  "attribute": "minecraft:armor",
+                  "amount": 40,
+                  "operation": "add_value",
+                  "id": "minecraft:71eaf780-80f9-4861-8a64-49ab1247121b",
+                  "slot": "chest"
+                },
+                {
+                  "attribute": "minecraft:armor_toughness",
+                  "amount": 40,
+                  "operation": "add_value",
+                  "id": "minecraft:71eaf780-80f9-4861-8a64-49ab1247121b",
+                  "slot": "chest"
+                }
+              ],
+              "type": "minecraft:set_attributes"
+            },
+            {
+              "tag": "{transformable:1,chestplate:1,glass:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -22,44 +22,44 @@
         "requirement": {
             "trigger": "minecraft:changed_dimension",
             "conditions": {
-                "player": [
-                    {
-                        "condition": "minecraft:inverted",
-                        "term": {
-                            "condition": "minecraft:entity_properties",
+                "player": {
+                    "terms": [
+                        {
+                            "term": {
+                                "entity": "this",
+                                "predicate": {
+                                    "minecraft:nbt": "{playerGameType:3}"
+                                },
+                                "type": "minecraft:entity_properties"
+                            },
+                            "type": "minecraft:inverted"
+                        },
+                        {
                             "entity": "this",
                             "predicate": {
-                                "nbt": "{playerGameType:3}"
-                            }
-                        }
-                    },
-                    {
-                        "condition": "minecraft:entity_properties",
-                        "entity": "this",
-                        "predicate": {
-                            "location": {
-                                "dimension": "minecraft:the_nether"
-                            }
-                        }
-                    },
-                    {
-                        "condition": "minecraft:entity_properties",
-                        "entity": "this",
-                        "predicate": {
-                            "equipment": {
-                                "mainhand": {
-                                    "predicates": {
-                                        "minecraft:custom_data": "{transformable:1,arcanum:1,kiuaskivi:1}"
+                                "minecraft:location": {
+                                    "dimension": "minecraft:the_nether"
+                                }
+                            },
+                            "type": "minecraft:entity_properties"
+                        },
+                        {
+                            "entity": "this",
+                            "predicate": {
+                                "minecraft:equipment": {
+                                    "mainhand": {
+                                        "predicates": {
+                                            "minecraft:custom_data": "{transformable:1,arcanum:1,kiuaskivi:1}"
+                                        }
                                     }
                                 }
-                            }
+                            },
+                            "type": "minecraft:entity_properties"
                         }
-                    }
-                ]
+                    ],
+                    "type": "minecraft:all_of"
+                }
             }
         }
-    },
-    "rewards": {
-        "function": "lbc:swrg_kit_integration/gain/kit"
     }
 }

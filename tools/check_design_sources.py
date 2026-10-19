@@ -560,6 +560,86 @@ def _components(item: dict[str, Any]) -> dict[str, Any]:
     return value if isinstance(value, dict) else {}
 
 
+def check_looper_artifact_source(project: Path, source_manifest: Path) -> int:
+    """Compare native Looper's explicit mapping with the old reveal function and RP keys."""
+    from import_lbc_loadouts import SOURCE
+
+    source_function = SOURCE / "function/swrg_kit_integration/game/skills/looper_explain_artifact.mcfunction"
+    source_map: dict[tuple[int, int], dict[str, Any]] = {}
+    source_line = re.compile(
+        r'^execute if entity @s\[nbt=\{SelectedItem:\{components:\{"minecraft:custom_data":'
+        r'\{mystical:(\d+),type:(\d+)\}\}\}\}\] run data modify block .+?'
+        r'components\."minecraft:lore"\[1\] set value (\{.+\})$'
+    )
+    for line_number, line in enumerate(source_function.read_text(encoding="utf-8-sig").splitlines(), 1):
+        match = source_line.fullmatch(line.strip())
+        if not match:
+            continue
+        mystical, artifact_type, raw_component = match.groups()
+        pair = (int(mystical), int(artifact_type))
+        if pair in source_map:
+            raise AssertionError(f"Duplicate Looper source mapping {pair} at {source_function}:{line_number}")
+        component = json.loads(raw_component)
+        if set(component) != {"translate", "italic", "color"} \
+                or component.get("italic") is not False or component.get("color") != "yellow":
+            raise AssertionError(f"Unexpected Looper lore payload for {pair}: {component!r}")
+        source_map[pair] = component
+
+    if len(source_map) != 23:
+        raise AssertionError(f"Expected 23 source Looper lore mappings, found {len(source_map)}")
+    source_text = source_function.read_text(encoding="utf-8-sig")
+    if not re.search(r'data remove block .*components\."minecraft:custom_data"\.unresolved_artifact\s*$',
+                     source_text, re.MULTILINE):
+        raise AssertionError("Source Looper function no longer removes only unresolved_artifact")
+
+    implementation = (project / "src/main/java/me/skywars2/game/LbcSkills.java").read_text(encoding="utf-8-sig")
+    key_list = re.search(r"ARTIFACT_KEYS\s*=\s*List\.of\((.*?)\);", implementation, re.DOTALL)
+    if key_list is None:
+        raise AssertionError("LbcSkills does not declare the explicit ARTIFACT_KEYS list")
+    keys = re.findall(r'"([^"\\]+)"', key_list.group(1))
+    if len(keys) != 23 or len(set(keys)) != 23:
+        raise AssertionError(f"LbcSkills ARTIFACT_KEYS must contain 23 distinct literal keys, found {len(keys)}")
+
+    ranges = re.findall(
+        r"if\s*\(mystical\s*==\s*(\d+)\s*&&\s*type\s*>=\s*1\s*&&\s*type\s*<=\s*(\d+)\)\s*return\s*([^;]+);",
+        implementation,
+    )
+    implementation_map: dict[tuple[int, int], str] = {}
+    for raw_mystical, raw_max_type, raw_index in ranges:
+        mystical, max_type = int(raw_mystical), int(raw_max_type)
+        index = re.fullmatch(r"\s*(?:(\d+)\s*\+\s*)?type\s*", raw_index)
+        if index is None:
+            raise AssertionError(f"Unrecognized Looper artifact index expression: {raw_index!r}")
+        offset = int(index.group(1) or 0)
+        for artifact_type in range(1, max_type + 1):
+            pair = (mystical, artifact_type)
+            if pair in implementation_map:
+                raise AssertionError(f"Overlapping LbcSkills artifact ranges at {pair}")
+            implementation_map[pair] = keys[offset + artifact_type - 1]
+    if len(implementation_map) != 23:
+        raise AssertionError(f"LbcSkills range rules cover {len(implementation_map)} artifact states, expected 23")
+
+    for pair, component in source_map.items():
+        implementation_key = implementation_map.get(pair)
+        source_key = component["translate"]
+        if implementation_key != source_key:
+            raise AssertionError(f"Looper {pair}: Java key {implementation_key!r}, source key {source_key!r}")
+
+    manifest = read_json(source_manifest)
+    pack_root = Path(manifest.get("sourceRoots", {}).get("resourcePack", ""))
+    if not pack_root.is_dir():
+        raise AssertionError(f"Read-only resource-pack root is unavailable: {pack_root}")
+    languages = {
+        locale: read_json(pack_root / "assets/minecraft/lang" / f"{locale}.json")
+        for locale in ("en_us", "ru_ru")
+    }
+    for key in implementation_map.values():
+        for locale, table in languages.items():
+            if not isinstance(table.get(key), str) or not table[key]:
+                raise AssertionError(f"Missing existing {locale} resource-pack translation for {key}")
+    return len(source_map)
+
+
 def _text(value: Any) -> str:
     """Flatten only literal text for semantic checks; preserve full JSON elsewhere."""
     if isinstance(value, str):
@@ -831,7 +911,7 @@ def _page_number(value: Any) -> str:
 
 
 def check_snapshot(snapshot_path: Path, design_path: Path, source_path: Path,
-                   project_root: Path) -> tuple[list[str], dict[str, int]]:
+                   project_root: Path, game_mode: int | None = None) -> tuple[list[str], dict[str, int]]:
     """Check a GameChecks ItemStack.CODEC export against old-source fixtures and imported paths.
 
     This intentionally consumes serialized stacks only. It does not load Java implementation
@@ -954,6 +1034,15 @@ def check_snapshot(snapshot_path: Path, design_path: Path, source_path: Path,
         for slot, item in root.get("_slots_by_number", {}).items():
             if _component_id(item) in frame_ids:
                 errors.append(f"snapshot root slot {slot}: source-empty cells must not be filled with a frame")
+        # Runtime snapshots contain populated stacks only. Hub slot 9 is intentionally absent
+        # when source game mode 1 hides the team-choice button; validate when metadata is present.
+        snapshot_config = snapshot.get("config", {})
+        snapshot_mode = game_mode if game_mode is not None else snapshot.get(
+            "gameMode", snapshot_config.get("gameMode") if isinstance(snapshot_config, dict) else None)
+        if snapshot_mode in (1, 2) and 9 in root.get("_slots_by_number", {}):
+            errors.append(f"snapshot root slot 9: hub team-choice button must be hidden in gameMode {snapshot_mode}")
+        elif snapshot_mode in (3, 4) and 9 not in root.get("_slots_by_number", {}):
+            errors.append(f"snapshot root slot 9: hub team-choice button must be present in gameMode {snapshot_mode}")
 
     # Settings' reset control is a stable old-source fixture.
     if "1000" in by_id:
@@ -967,6 +1056,28 @@ def check_snapshot(snapshot_path: Path, design_path: Path, source_path: Path,
     tables_by_id.update({t.get("lootTable"): t for t in source.get("nonSlotGuiLootTables", []) if t.get("lootTable")})
     design_pages = {str(p.get("pageId", p.get("page", ""))): p for p in design.get("pages", [])}
     source_language_values = _source_language_values(source)
+    # page/1000-lang replaces these intermediate roots with named settings components.
+    dynamic_setting_names: dict[int, list[str]] = defaultdict(list)
+    for function in source.get("guiInteractionFunctions", []):
+        source_path = normalized(function.get("source", ""))
+        if not re.search(r"/gui/page/1000-lang\.mcfunction$", source_path):
+            continue
+        for line in function.get("exactRaw", "").splitlines():
+            match = re.search(
+                r"data modify storage swrg:lang page1000\.s(\d+) set from storage swrg:lang ([a-z0-9_.-]+)",
+                line.strip(), re.IGNORECASE)
+            if match:
+                slot, source_component = match.groups()
+                if source_component not in dynamic_setting_names[int(slot)]:
+                    dynamic_setting_names[int(slot)].append(source_component)
+    # These are the production defaults/currently supported renderings. Lives and borders
+    # remain config-backed variants; hand mode and lucky modifier retain their source defaults.
+    expected_setting_names = {
+        8: ["lefthand_on"],
+        9: [f"lives_{count}" for count in range(1, 6)],
+        10: ["no_borders_off", "no_borders_on"],
+        11: ["cfg_lucky_modifier_0"],
+    }
     # The importer records only source-proven gaps. A path missing from the old
     # language storage is not accepted as an implicit empty component.
     declared_gaps: dict[str, dict[str, Any]] = {}
@@ -996,7 +1107,38 @@ def check_snapshot(snapshot_path: Path, design_path: Path, source_path: Path,
             continue
         gap_components = _components(gap_item)
         gap_name = gap_components.get("minecraft:custom_name", gap_components.get("custom_name"))
-        if gap_name is None or _text(gap_name).strip() or (isinstance(gap_name, dict) and gap_name.get("translate")):
+        if page_key == "1000" and gap_slot in (8, 9, 10, 11):
+            # Slots 8–11 follow the original lefthand/lives/borders/lucky-modifier choices.
+            expected_variants = expected_setting_names[gap_slot]
+            variants = [name for name in expected_variants
+                        if name in dynamic_setting_names.get(gap_slot, [])]
+            matched_variant = False
+            for variant in variants:
+                if not any(_resolve_nbt_path(source_language_values[locale], variant) is not None
+                           for locale in ("en", "ru")):
+                    continue
+                component_record = localized_templates.get(variant, {})
+                expected_name = component_record.get("Name") if isinstance(component_record, dict) else None
+                if expected_name is None:
+                    continue
+                if (isinstance(expected_name, dict) and expected_name.get("translate")
+                        and (not isinstance(gap_name, dict)
+                             or gap_name.get("translate") != expected_name["translate"])):
+                    continue
+                candidate_errors: list[str] = []
+                _check_component_shape(expected_name, gap_name,
+                                       f"snapshot 1000 slot {gap_slot} source variant {variant}", candidate_errors)
+                if not candidate_errors:
+                    matched_variant = True
+                    break
+            missing_variants = [name for name in expected_variants if name not in dynamic_setting_names.get(gap_slot, [])]
+            if missing_variants:
+                errors.append(f"source gui/page/1000-lang slot {gap_slot} is missing expected component assignments {missing_variants}")
+            if not variants:
+                errors.append(f"snapshot checker has no supported source name variants for slot {gap_slot}")
+            elif not matched_variant:
+                errors.append(f"snapshot 1000 slot {gap_slot}: name does not match any source gui/page/1000-lang variant {variants}")
+        elif gap_name is None or _text(gap_name).strip() or (isinstance(gap_name, dict) and gap_name.get("translate")):
             errors.append(f"snapshot {page_key} slot {gap_slot}: declared source name gap {gap_root!r} must render empty")
     en_translations: dict[str, str] = {}
     ru_translations: dict[str, str] = {}
@@ -1069,6 +1211,14 @@ def check_snapshot(snapshot_path: Path, design_path: Path, source_path: Path,
             components = _components(item)
             runtime_name = components.get("minecraft:custom_name", components.get("custom_name"))
             runtime_lore = components.get("minecraft:lore", components.get("lore", []))
+            # LBC selection now uses the same source indicator as vanilla perks.
+            # Validate it explicitly, then compare every original lore row unchanged.
+            if (page_key in lbc_snapshot_sources and isinstance(runtime_lore, list) and runtime_lore
+                    and isinstance(runtime_lore[0], dict) and runtime_lore[0].get("translate") == "swrg.gui.select"):
+                expected_indicator = {"translate": "swrg.gui.select", "color": "green", "italic": False}
+                if runtime_lore[0] != expected_indicator or components.get("minecraft:enchantment_glint_override") is not True:
+                    errors.append(f"snapshot {page_key} slot {slot}: incorrect selected indicator or glint")
+                runtime_lore = runtime_lore[1:]
             lore_offset = 0
             for function in functions:
                 kind = function.get("function", "").removeprefix("minecraft:")
@@ -1287,12 +1437,553 @@ def check_snapshot(snapshot_path: Path, design_path: Path, source_path: Path,
     return errors, counts
 
 
+def check_native_lbc_sources(project: Path) -> tuple[int, int, int]:
+    """Compare supported kit/trinket payloads and notifications with read-only sources."""
+    from import_game_resources import migrate_loot_schema
+    from import_lbc_loadouts import SOURCE
+
+    resources = project / "src/main/resources"
+    weapon_source = json.loads((SOURCE / "loot_table/transformables_sword.json").read_text(encoding="utf-8-sig"))
+    migrate_loot_schema(weapon_source)
+    weapon_entries = [
+        (pool, entry)
+        for pool in weapon_source.get("pools", [])
+        for entry in pool.get("entries", [])
+        if any(function.get("type") == "minecraft:set_custom_data"
+               and re.search(r"(?:^|[,{}])icesword:1(?:[,{}]|$)", function.get("tag", ""))
+               for function in (entry.get("modifier", []) if isinstance(entry.get("modifier", []), list)
+                               else [entry.get("modifier", {})]))
+    ]
+    assert len(weapon_entries) == 1, f"Expected one Ice Sword source entry, found {len(weapon_entries)}"
+    source_pool, expected_weapon = weapon_entries[0]
+    assert expected_weapon["name"] == "minecraft:iron_sword", "Unexpected Ice Sword source item"
+    expected_weapon["name"] = "skywars2:ice_sword"
+    actual_weapon = json.loads((resources / "data/lbc/loot_table/ported/ice_sword.json").read_text(encoding="utf-8"))
+    expected_pool = {key: value for key, value in source_pool.items() if key != "entries"}
+    expected_pool["entries"] = [expected_weapon]
+    assert actual_weapon == {"pools": [expected_pool]}, (
+        "Ported Ice Sword payload differs from the independently selected source entry"
+    )
+    catalog = json.loads((resources / "skywars2/lbc_loadouts.json").read_text(encoding="utf-8"))
+    rocket_source = (SOURCE / "function/items/trinket_effects/charge_firework.mcfunction").read_text(encoding="utf-8-sig")
+    assert (resources / "skywars2/ghast_rocket.snbt").read_text(encoding="utf-8").strip() == rocket_source.splitlines()[0].partition(" ~ ~ ~ ")[2], "Ghast source entity preset differs"
+    for kit in catalog["kits"]:
+        relative = "loot_table/" + kit["table"].removeprefix("lbc:") + ".json"
+        expected = json.loads((SOURCE / relative).read_text(encoding="utf-8-sig"))
+        migrate_loot_schema(expected)
+        actual = json.loads((resources / "data/lbc" / relative).read_text(encoding="utf-8"))
+        if kit['id'] == 22:
+            # Only the server item type changes. Every visual/component modifier must still match the source.
+            assert expected['pools'][0]['entries'][0]['name'] == 'minecraft:chainmail_boots'
+            expected['pools'][0]['entries'][0]['name'] = 'skywars2:rocket_boots'
+        if kit['id'] == 17:
+            for pool, item in zip(expected['pools'], ['skywars2:termit', 'skywars2:sulfur', 'skywars2:phosphin', 'skywars2:gremuch'], strict=True):
+                assert pool['entries'][0]['name'] == 'minecraft:lingering_potion'
+                pool['entries'][0]['name'] = item
+        assert actual == expected, f"LBC kit source payload differs: {kit['table']}"
+
+    for trinket in catalog["trinkets"]:
+        table = trinket["table"].removeprefix("lbc:")
+        relative = f"loot_table/{table}.json"
+        source_table = {
+            "ported/blood_anal_boom": "trinket/blood_anal_boom",
+            "ported/mana_gem": "trinket/mana_gem",
+        }.get(table, table)
+        expected = json.loads((SOURCE / f"loot_table/{source_table}.json").read_text(encoding="utf-8-sig"))
+        migrate_loot_schema(expected)
+        entry = expected["pools"][0]["entries"][0]
+        expected_item = {
+            "blaze": ("minecraft:repeating_command_block", "skywars2:blaze_trinket"),
+            "ghast": ("minecraft:repeating_command_block", "skywars2:ghast_trinket"),
+            "intercal": ("minecraft:repeating_command_block", "skywars2:intercal"),
+            "gneiss_stone": ("minecraft:stone", "skywars2:gneiss_stone"),
+            "snow_gem": ("minecraft:repeating_command_block", "skywars2:snow_gem"),
+            "ice_gem": ("minecraft:repeating_command_block", "skywars2:ice_gem"),
+            "blood_anal_boom": ("minecraft:repeating_command_block", "skywars2:blood_anal_boom"),
+            "mana_gem": ("minecraft:repeating_command_block", "skywars2:mana_gem"),
+        }[source_table.removeprefix("trinket/")]
+        assert entry["name"] == expected_item[0], f"Unexpected LBC trinket source item: {table}"
+        entry["name"] = expected_item[1]
+        actual = json.loads((resources / "data/lbc" / relative).read_text(encoding="utf-8"))
+        assert actual == expected, f"LBC trinket source payload differs: {table}"
+
+    # Standalone native item payloads retain their source data after the
+    # schema migration; only the server-side item id changes.
+    magic_source = SOURCE / "loot_table"
+    for source_name, destination_name, expected_item, selector in [
+        ("artifact.json", "mystical_artifact.json", "skywars2:mystical_artifact", 1),
+        ("artifact.json", "mystical_artifact_colors.json", "skywars2:mystical_artifact", 7),
+        ("artifact.json", "mystical_artifact_clear.json", "skywars2:mystical_artifact", 6),
+        ("artifact.json", "mystical_artifact_metabolism.json", "skywars2:mystical_artifact", 8),
+        ("artifact.json", "mystical_artifact_debuff.json", "skywars2:mystical_artifact", 5),
+        ("artifact.json", "mystical_artifact_arrows.json", "skywars2:mystical_artifact", 4),
+        ("artifact.json", "mystical_artifact_liquids.json", "skywars2:mystical_artifact", 3),
+        ("artifact.json", "mystical_artifact_explosions.json", "skywars2:mystical_artifact", 2),
+        ("stopper_magic.json", "magic_beacon.json", "skywars2:magic_beacon", "beacon"),
+    ]:
+        source_table = json.loads((magic_source / source_name).read_text(encoding="utf-8-sig"))
+        migrate_loot_schema(source_table)
+        matches = []
+        for source_pool in source_table.get("pools", []):
+            for source_entry in source_pool.get("entries", []):
+                if selector == "beacon":
+                    selected = source_entry.get("name") == "minecraft:panda_spawn_egg"
+                else:
+                    selected = source_entry.get("name") == "minecraft:repeating_command_block" and any(
+                        function.get("type") == "minecraft:set_custom_data"
+                        and re.search(r"(?:^|[,{}])unresolved_artifact:1(?:[,{}]|$)", function.get("tag", ""))
+                        and re.search(r"(?:^|[,{}])mystical:1(?:[,{}]|$)", function.get("tag", ""))
+                        and re.search(rf"(?:^|[,{{}}])type:{selector}(?:[,{{}}]|$)", function.get("tag", ""))
+                        for function in (source_entry.get("modifier", [])
+                                         if isinstance(source_entry.get("modifier", []), list)
+                                         else [source_entry.get("modifier", {})])
+                    )
+                if selected:
+                    matches.append((source_pool, source_entry))
+        assert len(matches) == 1, f"Expected one selected magic item in {source_name}, found {len(matches)}"
+        source_pool, source_entry = matches[0]
+        source_entry["name"] = expected_item
+        expected_pool = {key: value for key, value in source_pool.items() if key != "entries"}
+        expected_pool["entries"] = [source_entry]
+        expected_table = {key: value for key, value in source_table.items() if key != "pools"}
+        expected_table["pools"] = [expected_pool]
+        actual_table = json.loads((resources / f"data/lbc/loot_table/ported/{destination_name}").read_text(encoding="utf-8"))
+        assert actual_table == expected_table, f"Ported magic payload differs from selected source entry: {source_name}"
+
+    for relative in ("minecraft/tags/block/magic.json", "minecraft/tags/entity_type/magic_entities.json",
+                     "minecraft/tags/entity_type/unstable.json"):
+        expected_tag = json.loads((SOURCE.parent / relative).read_text(encoding="utf-8-sig"))
+        actual_tag = json.loads((resources / "data" / relative).read_text(encoding="utf-8"))
+        assert actual_tag == expected_tag, f"Native LBC tag differs from source: {relative}"
+
+    color_tag_names = (
+        "colored", "in_colored", "black", "blue", "brown", "cyan", "gray", "green",
+        "light_blue", "light_gray", "lime", "magenta", "orange", "pink", "purple", "red",
+        "white", "yellow",
+    )
+    for tag_name in color_tag_names:
+        relative = f"minecraft/tags/block/{tag_name}.json"
+        expected_tag_bytes = (SOURCE.parent / relative).read_bytes()
+        actual_tag_bytes = (resources / "data" / relative).read_bytes()
+        assert actual_tag_bytes == expected_tag_bytes, f"Native LBC color tag bytes differ from source: {relative}"
+    color_dispatch = json.loads((resources / "data/minecraft/tags/block/colored.json").read_text(encoding="utf-8"))
+    in_color_dispatch = json.loads((resources / "data/minecraft/tags/block/in_colored.json").read_text(encoding="utf-8"))
+    assert len(color_dispatch.get("values", [])) == 128, "colored dispatch tag must retain 128 source values"
+    assert len(in_color_dispatch.get("values", [])) == 64, "in_colored dispatch tag must retain 64 source values"
+    for color in ("black", "blue", "brown", "cyan", "gray", "green", "light_blue", "light_gray",
+                  "lime", "magenta", "orange", "pink", "purple", "red", "white", "yellow"):
+        tag = json.loads((resources / f"data/minecraft/tags/block/{color}.json").read_text(encoding="utf-8"))
+        assert len(tag.get("values", [])) == 13, f"Native LBC color tag must retain 13 source values: {color}"
+
+    modifier_relative = "item_modifier/add_lore_rocket.json"
+    expected_modifier = json.loads((SOURCE / modifier_relative).read_text(encoding="utf-8-sig"))
+    migrate_loot_schema(expected_modifier)
+    if isinstance(expected_modifier, list):
+        expected_modifier = {"type": "minecraft:sequence", "functions": expected_modifier}
+    actual_modifier = json.loads((resources / "data/lbc" / modifier_relative).read_text(encoding="utf-8"))
+    assert actual_modifier == expected_modifier, "LBC rocket item modifier differs from migrated source"
+
+    expected_notifications = {}
+    gain_root = SOURCE / "function/swrg_kit_integration/gain"
+    prefix = "lbc:swrg_kit_integration/gain/"
+    for file in (SOURCE / "advancement/true_advancements").rglob("*.json"):
+        data = json.loads(file.read_text(encoding="utf-8-sig"))
+        function = data.get("rewards", {}).get("function", "")
+        if not function.startswith(prefix):
+            continue
+        text = (gain_root / (function.removeprefix(prefix) + ".mcfunction")).read_text(encoding="utf-8-sig")
+        notification = {}
+        if function.endswith("/skill_acidman"):
+            notification["requires_all"] = re.findall(r"(lbc:true_advancements/[^=,}]+)=true", text)
+            assert "run function lbc:swrg_kit_integration/gain/skill" in text
+            text = (gain_root / "skill.mcfunction").read_text(encoding="utf-8-sig")
+        title = re.search(r'^title @s title (.+)$', text, re.MULTILINE)
+        subtitle = re.search(r'^title @s subtitle (.+)$', text, re.MULTILINE)
+        assert title and json.loads(title[1]) == " ", f"Unexpected source title: {function}"
+        assert subtitle, f"Missing source subtitle: {function}"
+        component = json.loads(subtitle[1])
+        assert set(component) == {"translate"}, f"Unimported subtitle formatting: {function}"
+        notification["subtitle"] = component["translate"]
+        ident = "lbc:true_advancements/" + file.relative_to(SOURCE / "advancement/true_advancements").with_suffix("").as_posix()
+        expected_notifications[ident] = notification
+    actual = json.loads((resources / "skywars2/lbc_unlock_notifications.json").read_text(encoding="utf-8"))["notifications"]
+    assert actual == expected_notifications, "Native LBC unlock notifications differ from source rewards"
+    return len(catalog["kits"]), len(catalog["trinkets"]), len(actual)
+
+
+def check_mana_potion_payloads(project: Path) -> int:
+    """Compare mana potion payloads to both OLD LBC source loot tables."""
+    from import_game_resources import migrate_loot_schema
+    from import_lbc_loadouts import SOURCE
+
+    potion_source = json.loads((SOURCE / "loot_table/imba/potions.json").read_text(encoding="utf-8-sig"))
+    migrate_loot_schema(potion_source)
+    entries = [entry for pool in potion_source.get("pools", []) for entry in pool.get("entries", [])]
+    regular_source = json.loads(
+        (SOURCE / "loot_table/transformables_potion.json").read_text(encoding="utf-8-sig"))
+    migrate_loot_schema(regular_source)
+    regular_entries = [entry for pool in regular_source.get("pools", []) for entry in pool.get("entries", [])]
+    families = {"add_manamax": 17, "add_manaregen": 18, "add_mana": 19,
+                "remove_mana": 20, "temporary_mana": 16}
+    regular_name_keys = {"add_manamax": "max_mana_potion", "add_manaregen": "regen_mana_potion",
+                         "add_mana": "add_mana_potion", "remove_mana": "remove_mana_potion",
+                         "temporary_mana": "mana_potion"}
+    deliveries = {
+        "drink": ("minecraft:potion", "skywars2:mana_potion"),
+        "splash_potion": ("minecraft:splash_potion", "skywars2:mana_splash_potion"),
+        "lingering_potion": ("minecraft:lingering_potion", "skywars2:mana_lingering_potion"),
+    }
+
+    def convert_score_value_check(value: Any) -> None:
+        """Independent OLD-to-26.3 conversion for source score value checks."""
+        if isinstance(value, list):
+            for child in value:
+                convert_score_value_check(child)
+            return
+        if not isinstance(value, dict):
+            return
+        for child in list(value.values()):
+            convert_score_value_check(child)
+        if value.get("type") != "minecraft:value_check":
+            return
+        provider = value.get("value")
+        assert isinstance(provider, dict) and provider.get("type") == "minecraft:score", (
+            f"Unexpected legacy score provider: {provider!r}")
+        assert provider.pop("scale", 1) == 1, "Non-unit score scale is not source-equivalent"
+        exact_point = value.pop("range", None)
+        assert isinstance(exact_point, int), f"Expected exact int range point, found {exact_point!r}"
+        value["type"] = "minecraft:int_value_check"
+        value["test"] = exact_point
+
+    count = 0
+    for family, amplifier in families.items():
+        for delivery, (source_item, polymer_item) in deliveries.items():
+            expected_entries = []
+            for entry in entries:
+                if entry.get("name") != source_item:
+                    continue
+                functions = entry.get("modifier", [])
+                functions = functions if isinstance(functions, list) else [functions]
+                effect_components = next((function.get("components", {}) for function in functions
+                                          if function.get("type") == "minecraft:set_components"), {})
+                effects = effect_components.get("minecraft:potion_contents", {}).get("custom_effects", [])
+                named_family = any(function.get("type") == "minecraft:set_name"
+                                   and family in json.dumps(function, ensure_ascii=False)
+                                   for function in functions)
+                if (len(effects) == 1 and effects[0].get("id") == "minecraft:raid_omen"
+                        and effects[0].get("amplifier") == amplifier and named_family):
+                    copied = json.loads(json.dumps(entry))
+                    copied["name"] = polymer_item
+                    expected_entries.append(copied)
+            durations = sorted(
+                next(function["components"]["minecraft:potion_contents"]["custom_effects"][0]["duration"]
+                     for function in entry.get("modifier", [])
+                     if function.get("type") == "minecraft:set_components")
+                for entry in expected_entries
+            )
+            assert durations == [3600, 9600], f"OLD LBC source variants changed for {family}/{delivery}: {durations}"
+            imba_entries = list(expected_entries)
+            regular_expected = []
+            for entry in regular_entries:
+                if entry.get("name") != source_item:
+                    continue
+                functions = entry.get("modifier", [])
+                functions = functions if isinstance(functions, list) else [functions]
+                effect_components = next((function.get("components", {}) for function in functions
+                                          if function.get("type") == "minecraft:set_components"), {})
+                effects = effect_components.get("minecraft:potion_contents", {}).get("custom_effects", [])
+                named_family = any(function.get("type") == "minecraft:set_name"
+                                   and regular_name_keys[family] in json.dumps(function, ensure_ascii=False)
+                                   for function in functions)
+                if (len(effects) == 1 and effects[0].get("id") == "minecraft:raid_omen"
+                        and effects[0].get("amplifier") == amplifier and named_family):
+                    copied = json.loads(json.dumps(entry))
+                    copied["name"] = polymer_item
+                    convert_score_value_check(copied)
+                    regular_expected.append(copied)
+            expected_regular_count = 1 if family == "remove_mana" and delivery == "lingering_potion" else (
+                2 if family != "remove_mana" and delivery == "drink" else 0)
+            assert len(regular_expected) == expected_regular_count, (
+                f"Unexpected OLD LBC regular variants for {family}/{delivery}: {len(regular_expected)}")
+            expected_entries.extend(regular_expected)
+            for entry in regular_expected:
+                condition = entry.get("condition")
+                if condition is None:
+                    continue
+                assert condition == {
+                    "type": "minecraft:int_value_check",
+                    "value": {
+                        "type": "minecraft:score",
+                        "target": {"type": "minecraft:fixed", "name": "final_luck_modifier"},
+                        "score": "lbc.math",
+                    },
+                    "test": 10,
+                }, f"Unexpected 26.3 regular mana condition codec: {condition!r}"
+                # Native IntValueCheck + IntRangePredicate.Point preserves exact equality.
+                # This audit compares source/schema; native parsing is covered by server boot.
+            target = project / "src/main/resources/data/lbc/loot_table/ported" / f"mana_{family}_{delivery}.json"
+            actual = json.loads(target.read_text(encoding="utf-8"))
+            assert actual == {"pools": [{"rolls": 1, "entries": expected_entries}]}, (
+                f"Imported mana payload differs from OLD LBC source: {target.name}")
+            count += len(imba_entries) + len(regular_expected)
+
+    return count
+
+
+def check_overload_payloads(project: Path) -> int:
+    """Independently compare the five imported Overload payloads to OLD LBC tables."""
+    from import_game_resources import migrate_loot_schema
+    from import_lbc_loadouts import SOURCE
+
+    resources = project / "src/main/resources/data/lbc/loot_table/ported"
+    selections = [
+        ("overload_crux.json", "overload_crux.json", "minecraft:carrot_on_a_stick",
+         "overload_crux", "skywars2:overload_crux"),
+        ("neko_set_overload/helmet.json", "overload_helmet.json", "minecraft:leather_helmet",
+         "helmet", "skywars2:overload_helmet"),
+        ("neko_set_overload/chestplate.json", "overload_chestplate.json", "minecraft:leather_chestplate",
+         "chestplate", "skywars2:overload_chestplate"),
+        ("neko_set_overload/leggings.json", "overload_leggings.json", "minecraft:leather_leggings",
+         "leggings", "skywars2:overload_leggings"),
+        ("neko_set_overload/boots.json", "overload_boots.json", "minecraft:leather_boots",
+         "boots", "skywars2:overload_boots"),
+    ]
+    for source_name, destination_name, source_item, marker, target_item in selections:
+        source_table = json.loads((SOURCE / "loot_table" / source_name).read_text(encoding="utf-8-sig"))
+        migrate_loot_schema(source_table)
+        matches = []
+        for pool in source_table.get("pools", []):
+            for entry in pool.get("entries", []):
+                if entry.get("name") != source_item:
+                    continue
+                functions = entry.get("modifier", [])
+                functions = functions if isinstance(functions, list) else [functions]
+                custom_tags = [function.get("tag", "") for function in functions
+                               if function.get("type") == "minecraft:set_custom_data"]
+                if marker == "overload_crux":
+                    selected = any(re.search(r"(?:^|[,{}])overload_crux:1(?:[,{}]|$)", tag)
+                                   and re.search(r"(?:^|[,{}])magicwand:1(?:[,{}]|$)", tag)
+                                   for tag in custom_tags)
+                else:
+                    selected = any(re.search(rf"(?:^|[,{{}}]){marker}:1(?:[,{{}}]|$)", tag)
+                                   and re.search(r"(?:^|[,{}])overload:1(?:[,{}]|$)", tag)
+                                   for tag in custom_tags)
+                if selected:
+                    matches.append((pool, entry))
+        assert len(matches) == 1, (
+            f"Expected exactly one OLD LBC {marker} entry in {source_name}; found {len(matches)}")
+        source_pool, source_entry = matches[0]
+        source_entry["name"] = target_item
+        expected_pool = {key: value for key, value in source_pool.items() if key != "entries"}
+        expected_pool["entries"] = [source_entry]
+        expected_table = {key: value for key, value in source_table.items() if key != "pools"}
+        expected_table["pools"] = [expected_pool]
+        actual_table = json.loads((resources / destination_name).read_text(encoding="utf-8"))
+        assert actual_table == expected_table, (
+            f"Overload payload differs from exact OLD LBC source: {destination_name}")
+    return len(selections)
+
+
+def check_first_wand_payloads(project: Path) -> int:
+    """Compare the first two wand entries and their cast trinkets to OLD LBC source."""
+    from import_game_resources import migrate_loot_schema
+    from import_lbc_loadouts import SOURCE
+
+    resources = project / "src/main/resources/data/lbc/loot_table/ported"
+    selections = [
+        ("random_sauvojen_wand_tiny.json", "tiny_fire_wand.json", "minecraft:carrot_on_a_stick",
+         "stfire_tiny:1", "skywars2:tiny_fire_wand"),
+        ("random_sauvojen_wand_tiny.json", "tiny_blind_wand.json", "minecraft:carrot_on_a_stick",
+         "stblind_tiny:1", "skywars2:tiny_blind_wand"),
+        ("trinket/mana_gem.json", "mana_gem.json", "minecraft:repeating_command_block",
+         'trinket:"mana_gem"', "skywars2:mana_gem"),
+        ("trinket/blood_anal_boom.json", "blood_anal_boom.json", "minecraft:repeating_command_block",
+         'trinket:"blood_anal_boom"', "skywars2:blood_anal_boom"),
+    ]
+    for source_name, destination_name, proxy, marker, item_id in selections:
+        source_table = json.loads((SOURCE / "loot_table" / source_name).read_text(encoding="utf-8-sig"))
+        migrate_loot_schema(source_table)
+        matches = []
+        for pool in source_table.get("pools", []):
+            for entry in pool.get("entries", []):
+                if entry.get("name") != proxy:
+                    continue
+                functions = entry.get("modifier", [])
+                functions = functions if isinstance(functions, list) else [functions]
+                if any(function.get("type") == "minecraft:set_custom_data"
+                       and marker in function.get("tag", "") for function in functions):
+                    matches.append((pool, entry))
+        assert len(matches) == 1, (
+            f"Expected exactly one OLD LBC {marker} item in {source_name}; found {len(matches)}")
+        source_pool, source_entry = matches[0]
+        source_entry["name"] = item_id
+        expected_pool = {key: value for key, value in source_pool.items() if key != "entries"}
+        expected_pool["entries"] = [source_entry]
+        expected_table = {key: value for key, value in source_table.items() if key != "pools"}
+        expected_table["pools"] = [expected_pool]
+        actual_table = json.loads((resources / destination_name).read_text(encoding="utf-8"))
+        assert actual_table == expected_table, (
+            f"Wand/trinket payload differs from exact OLD LBC source: {destination_name}")
+    return len(selections)
+
+
+def check_second_wand_payloads(project: Path) -> int:
+    """Independently compare the Air, Stone, and Teleport wand payloads to OLD LBC."""
+    from import_game_resources import migrate_loot_schema
+    from import_lbc_loadouts import SOURCE
+
+    source_name = "random_sauvojen_wand_tiny.json"
+    source_table = json.loads((SOURCE / "loot_table" / source_name).read_text(encoding="utf-8-sig"))
+    migrate_loot_schema(source_table)
+    selections = [
+        ("stair_tiny", "tiny_air_wand.json", "skywars2:tiny_air_wand"),
+        ("ststone_tiny", "tiny_stone_wand.json", "skywars2:tiny_stone_wand"),
+        ("stteleport_tiny", "tiny_teleport_wand.json", "skywars2:tiny_teleport_wand"),
+    ]
+    resources = project / "src/main/resources/data/lbc/loot_table/ported"
+    for marker, destination_name, target_item in selections:
+        matches = []
+        for source_pool in source_table.get("pools", []):
+            for source_entry in source_pool.get("entries", []):
+                if source_entry.get("name") != "minecraft:carrot_on_a_stick":
+                    continue
+                functions = source_entry.get("modifier", [])
+                functions = functions if isinstance(functions, list) else [functions]
+                if any(function.get("type") == "minecraft:set_custom_data"
+                       and re.search(rf"(?:^|[,{{}}]){re.escape(marker)}:1(?:[,{{}}]|$)",
+                                     function.get("tag", "")) for function in functions):
+                    matches.append((source_pool, source_entry))
+        assert len(matches) == 1, (
+            f"Expected one OLD LBC {marker} entry in {source_name}; found {len(matches)}")
+        source_pool, source_entry = matches[0]
+        source_entry["name"] = target_item
+        expected_pool = {key: value for key, value in source_pool.items() if key != "entries"}
+        expected_pool["entries"] = [source_entry]
+        expected_table = {key: value for key, value in source_table.items() if key != "pools"}
+        expected_table["pools"] = [expected_pool]
+        actual_table = json.loads((resources / destination_name).read_text(encoding="utf-8"))
+        assert actual_table == expected_table, (
+            f"Tiny wand payload differs from exact OLD LBC source: {destination_name}")
+    return len(selections)
+
+
+def check_third_wand_payloads(project: Path) -> int:
+    """Independently compare the Ruby and Terra wand payloads to OLD LBC."""
+    from import_game_resources import migrate_loot_schema
+    from import_lbc_loadouts import SOURCE
+
+    source_name = "random_sauvojen_wand_tiny.json"
+    source_table = json.loads((SOURCE / "loot_table" / source_name).read_text(encoding="utf-8-sig"))
+    migrate_loot_schema(source_table)
+    selections = [
+        ("struby_tiny", "tiny_ruby_wand.json", "skywars2:tiny_ruby_wand"),
+        ("stterra_tiny", "tiny_terra_wand.json", "skywars2:tiny_terra_wand"),
+    ]
+    resources = project / "src/main/resources/data/lbc/loot_table/ported"
+    for marker, destination_name, target_item in selections:
+        matches = []
+        for source_pool in source_table.get("pools", []):
+            for source_entry in source_pool.get("entries", []):
+                if source_entry.get("name") != "minecraft:carrot_on_a_stick":
+                    continue
+                functions = source_entry.get("modifier", [])
+                functions = functions if isinstance(functions, list) else [functions]
+                if any(function.get("type") == "minecraft:set_custom_data"
+                       and re.search(rf"(?:^|[,{{}}]){re.escape(marker)}:1(?:[,{{}}]|$)",
+                                     function.get("tag", "")) for function in functions):
+                    matches.append((source_pool, source_entry))
+        assert len(matches) == 1, (
+            f"Expected one OLD LBC {marker} entry in {source_name}; found {len(matches)}")
+        source_pool, source_entry = matches[0]
+        source_entry["name"] = target_item
+        expected_pool = {key: value for key, value in source_pool.items() if key != "entries"}
+        expected_pool["entries"] = [source_entry]
+        expected_table = {key: value for key, value in source_table.items() if key != "pools"}
+        expected_table["pools"] = [expected_pool]
+        actual_table = json.loads((resources / destination_name).read_text(encoding="utf-8"))
+        assert actual_table == expected_table, (
+            f"Tiny wand payload differs from exact OLD LBC source: {destination_name}")
+    return len(selections)
+
+
+def check_fourth_wand_payloads(project: Path) -> int:
+    """Independently compare the tiny Acid wand payload to OLD LBC."""
+    from import_game_resources import migrate_loot_schema
+    from import_lbc_loadouts import SOURCE
+
+    source_name = "random_sauvojen_wand_tiny.json"
+    source_table = json.loads((SOURCE / "loot_table" / source_name).read_text(encoding="utf-8-sig"))
+    migrate_loot_schema(source_table)
+    marker = "stacid_tiny"
+    matches = []
+    for source_pool in source_table.get("pools", []):
+        for source_entry in source_pool.get("entries", []):
+            if source_entry.get("name") != "minecraft:carrot_on_a_stick":
+                continue
+            functions = source_entry.get("modifier", [])
+            functions = functions if isinstance(functions, list) else [functions]
+            if any(function.get("type") == "minecraft:set_custom_data"
+                   and re.search(r"(?:^|[,{}])stacid_tiny:1(?:[,{}]|$)", function.get("tag", ""))
+                   for function in functions):
+                matches.append((source_pool, source_entry))
+    assert len(matches) == 1, (
+        f"Expected one OLD LBC {marker} entry in {source_name}; found {len(matches)}")
+    source_pool, source_entry = matches[0]
+    source_entry["name"] = "skywars2:tiny_acid_wand"
+    expected_pool = {key: value for key, value in source_pool.items() if key != "entries"}
+    expected_pool["entries"] = [source_entry]
+    expected_table = {key: value for key, value in source_table.items() if key != "pools"}
+    expected_table["pools"] = [expected_pool]
+    resources = project / "src/main/resources/data/lbc/loot_table/ported"
+    actual_table = json.loads((resources / "tiny_acid_wand.json").read_text(encoding="utf-8"))
+    assert actual_table == expected_table, (
+        "Tiny Acid wand payload differs from exact OLD LBC source: tiny_acid_wand.json")
+    return 1
+
+
+def check_electro_wand_payloads(project: Path) -> int:
+    """Independently compare the tiny Electro wand payload to OLD LBC."""
+    from import_game_resources import migrate_loot_schema
+    from import_lbc_loadouts import SOURCE
+
+    source_name = "random_sauvojen_wand_tiny.json"
+    source_table = json.loads((SOURCE / "loot_table" / source_name).read_text(encoding="utf-8-sig"))
+    migrate_loot_schema(source_table)
+    marker = "stelectro_tiny"
+    matches = []
+    for source_pool in source_table.get("pools", []):
+        for source_entry in source_pool.get("entries", []):
+            if source_entry.get("name") != "minecraft:carrot_on_a_stick":
+                continue
+            functions = source_entry.get("modifier", [])
+            functions = functions if isinstance(functions, list) else [functions]
+            if any(function.get("type") == "minecraft:set_custom_data"
+                   and re.search(r"(?:^|[,{}])stelectro_tiny:1(?:[,{}]|$)", function.get("tag", ""))
+                   for function in functions):
+                matches.append((source_pool, source_entry))
+    assert len(matches) == 1, (
+        f"Expected one OLD LBC {marker} entry in {source_name}; found {len(matches)}")
+    source_pool, source_entry = matches[0]
+    source_entry["name"] = "skywars2:tiny_electro_wand"
+    expected_pool = {key: value for key, value in source_pool.items() if key != "entries"}
+    expected_pool["entries"] = [source_entry]
+    expected_table = {key: value for key, value in source_table.items() if key != "pools"}
+    expected_table["pools"] = [expected_pool]
+    resources = project / "src/main/resources/data/lbc/loot_table/ported"
+    actual_table = json.loads((resources / "tiny_electro_wand.json").read_text(encoding="utf-8"))
+    assert actual_table == expected_table, (
+        "Tiny Electro wand payload differs from exact OLD LBC source: tiny_electro_wand.json")
+    return 1
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-manifest", type=Path, default=DEFAULT_SOURCE_MANIFEST)
     parser.add_argument("--design-manifest", type=Path, default=DEFAULT_DESIGN_MANIFEST)
     parser.add_argument("--project-root", type=Path, default=PROJECT_ROOT)
     parser.add_argument("--snapshot", type=Path, help="validate a GameChecks menu-design-snapshot.json export")
+    parser.add_argument("--game-mode", type=int, choices=(1, 2, 3, 4),
+                        help="validate the conditional hub team-choice slot against a known runtime mode")
     args = parser.parse_args()
     if not args.source_manifest.exists():
         print(f"ERROR: source manifest not found: {args.source_manifest}", file=sys.stderr)
@@ -1303,7 +1994,28 @@ def main() -> int:
         return 2
     try:
         count, errors, counters = check(args.source_manifest, args.design_manifest, args.project_root)
-    except (OSError, json.JSONDecodeError, TypeError, ValueError) as exc:
+        kits, trinkets, notifications = check_native_lbc_sources(args.project_root)
+        mana_payloads = check_mana_potion_payloads(args.project_root)
+        overload_payloads = check_overload_payloads(args.project_root)
+        first_wand_payloads = check_first_wand_payloads(args.project_root)
+        second_wand_payloads = check_second_wand_payloads(args.project_root)
+        third_wand_payloads = check_third_wand_payloads(args.project_root)
+        fourth_wand_payloads = check_fourth_wand_payloads(args.project_root)
+        electro_wand_payloads = check_electro_wand_payloads(args.project_root)
+        counters["nativeLooperArtifactDescriptions"] = check_looper_artifact_source(
+            args.project_root, args.source_manifest
+        )
+        counters["nativeLbcKitPayloads"] = kits
+        counters["nativeLbcTrinketPayloads"] = trinkets
+        counters["nativeLbcUnlockNotifications"] = notifications
+        counters["nativeManaPotionPayloads"] = mana_payloads
+        counters["nativeOverloadPayloads"] = overload_payloads
+        counters["nativeFirstWandPayloads"] = first_wand_payloads
+        counters["nativeSecondWandPayloads"] = second_wand_payloads
+        counters["nativeThirdWandPayloads"] = third_wand_payloads
+        counters["nativeFourthWandPayloads"] = fourth_wand_payloads
+        counters["nativeElectroWandPayloads"] = electro_wand_payloads
+    except (OSError, json.JSONDecodeError, TypeError, ValueError, AssertionError) as exc:
         print(f"ERROR: unable to compare manifests: {exc}", file=sys.stderr)
         return 2
 
@@ -1321,7 +2033,8 @@ def main() -> int:
             print(f"ERROR: runtime snapshot not found: {args.snapshot}", file=sys.stderr)
             return 2
         try:
-            snapshot_errors, snapshot_counts = check_snapshot(args.snapshot, args.design_manifest, args.source_manifest, args.project_root)
+            snapshot_errors, snapshot_counts = check_snapshot(args.snapshot, args.design_manifest, args.source_manifest,
+                                                              args.project_root, args.game_mode)
         except (OSError, json.JSONDecodeError, TypeError, ValueError) as exc:
             print(f"ERROR: unable to validate runtime snapshot: {exc}", file=sys.stderr)
             return 2

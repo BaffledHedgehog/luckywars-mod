@@ -22,18 +22,16 @@
         "wand_1": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
-                "player": [
-                    {
-                        "condition": "minecraft:inverted",
-                        "term": {
-                            "condition": "minecraft:entity_properties",
-                            "entity": "this",
-                            "predicate": {
-                                "nbt": "{playerGameType:3}"
-                            }
-                        }
-                    }
-                ],
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
                 "items": [
                     {
                         "predicates": {
@@ -46,18 +44,16 @@
         "wand_2": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
-                "player": [
-                    {
-                        "condition": "minecraft:inverted",
-                        "term": {
-                            "condition": "minecraft:entity_properties",
-                            "entity": "this",
-                            "predicate": {
-                                "nbt": "{playerGameType:3}"
-                            }
-                        }
-                    }
-                ],
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
                 "items": [
                     {
                         "predicates": {
@@ -70,18 +66,16 @@
         "wand_3": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
-                "player": [
-                    {
-                        "condition": "minecraft:inverted",
-                        "term": {
-                            "condition": "minecraft:entity_properties",
-                            "entity": "this",
-                            "predicate": {
-                                "nbt": "{playerGameType:3}"
-                            }
-                        }
-                    }
-                ],
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
                 "items": [
                     {
                         "predicates": {
@@ -94,18 +88,16 @@
         "wand_4": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
-                "player": [
-                    {
-                        "condition": "minecraft:inverted",
-                        "term": {
-                            "condition": "minecraft:entity_properties",
-                            "entity": "this",
-                            "predicate": {
-                                "nbt": "{playerGameType:3}"
-                            }
-                        }
-                    }
-                ],
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
                 "items": [
                     {
                         "predicates": {
@@ -118,18 +110,16 @@
         "wand_5": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
-                "player": [
-                    {
-                        "condition": "minecraft:inverted",
-                        "term": {
-                            "condition": "minecraft:entity_properties",
-                            "entity": "this",
-                            "predicate": {
-                                "nbt": "{playerGameType:3}"
-                            }
-                        }
-                    }
-                ],
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
                 "items": [
                     {
                         "predicates": {
@@ -142,18 +132,16 @@
         "wand_6": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
-                "player": [
-                    {
-                        "condition": "minecraft:inverted",
-                        "term": {
-                            "condition": "minecraft:entity_properties",
-                            "entity": "this",
-                            "predicate": {
-                                "nbt": "{playerGameType:3}"
-                            }
-                        }
-                    }
-                ],
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
                 "items": [
                     {
                         "predicates": {
@@ -166,18 +154,16 @@
         "wand_7": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
-                "player": [
-                    {
-                        "condition": "minecraft:inverted",
-                        "term": {
-                            "condition": "minecraft:entity_properties",
-                            "entity": "this",
-                            "predicate": {
-                                "nbt": "{playerGameType:3}"
-                            }
-                        }
-                    }
-                ],
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
                 "items": [
                     {
                         "predicates": {
@@ -190,18 +176,16 @@
         "wand_8": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
-                "player": [
-                    {
-                        "condition": "minecraft:inverted",
-                        "term": {
-                            "condition": "minecraft:entity_properties",
-                            "entity": "this",
-                            "predicate": {
-                                "nbt": "{playerGameType:3}"
-                            }
-                        }
-                    }
-                ],
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
                 "items": [
                     {
                         "predicates": {
@@ -214,18 +198,16 @@
         "wand_9": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
-                "player": [
-                    {
-                        "condition": "minecraft:inverted",
-                        "term": {
-                            "condition": "minecraft:entity_properties",
-                            "entity": "this",
-                            "predicate": {
-                                "nbt": "{playerGameType:3}"
-                            }
-                        }
-                    }
-                ],
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
                 "items": [
                     {
                         "predicates": {

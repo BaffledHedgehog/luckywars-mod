@@ -1,0 +1,10 @@
+{
+  "completed": [
+    "Terra sword loot payloads and Polymer item restoration",
+    "Terra sword native use, melee/arrow damage, swept hits and suppression",
+    "True Terra swept interval damage, hurt cooldown bypass, visual-edge collision, stacking and attribution",
+    "Terra sword projectiles and virtual displays clear after match stop"
+  ],
+  "artifactSha256": "36d738db317a440f6e586e3b5113fd294c74106bcbd09bdeba65aad83ef7eb9b",
+  "elapsedSeconds": 54.97
+}

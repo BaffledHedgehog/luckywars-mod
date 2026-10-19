@@ -1,0 +1,8 @@
+{
+  "completed": [
+    "legacy scalar trinket profile migration",
+    "Mystical Artifact and Magic Beacon source loot, native profile reset, Polymer tooltip and roundtrip"
+  ],
+  "artifactSha256": "6f6b534df9a4c292f08740fc8c7b83a91fc62cbadacdb7602a433c77d6b66ef4",
+  "elapsedSeconds": 56.03
+}

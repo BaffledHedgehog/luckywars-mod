@@ -1,85 +1,87 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:leather_leggings",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:item_model": "lbc:armors/assasin_leggings",
-                                "minecraft:tooltip_style":"lbc:tier_c",
-                                "minecraft:max_damage": 500,
-                                "minecraft:equippable":{"slot":"legs","asset_id":"lbc:assasin"},
-                                "minecraft:attribute_modifiers": [
-                                        {
-                                            "type": "minecraft:armor",
-                                            "slot": "legs",
-                                            "id": "genediigdaerisfggarmor",
-                                            "amount": 4,
-                                            "operation": "add_value"
-                                        }
-                                    ]
-                                
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": {
-                                "translate": "assasin_leggings",
-                                "color": "red",
-                                "italic": false
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                [
-                                    {
-                                        "translate": "type",
-                                        "italic": false,
-                                        "color": "aqua"
-                                    },
-                                    {
-                                        "translate": "leggings",
-                                        "italic": false,
-                                        "color": "aqua"
-                                    }
-                                ],
-                                [
-                                    {
-                                        "translate": "set_bonus",
-                                        "italic": false,
-                                        "color": "aqua"
-                                    }
-                                ],
-                                [
-                                    {
-                                        "translate": "assasin_set_bonus.1",
-                                        "italic": false,
-                                        "color": "aqua"
-                                    }
-                                ],
-                                [
-                                    {
-                                        "translate": "assasin_set_bonus.2",
-                                        "italic": false,
-                                        "color": "aqua"
-                                    }
-                                ]
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{transformable:1,leggings:1,assasin:1}"
-                        }
-                    ]
-                }
-            ]
+          "type": "minecraft:item",
+          "name": "minecraft:leather_leggings",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:item_model": "lbc:armors/assasin_leggings",
+                "minecraft:tooltip_style": "lbc:tier_c",
+                "minecraft:max_damage": 500,
+                "minecraft:equippable": {
+                  "slot": "legs",
+                  "asset_id": "lbc:assasin"
+                },
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:armor",
+                    "slot": "legs",
+                    "id": "genediigdaerisfggarmor",
+                    "amount": 4,
+                    "operation": "add_value"
+                  }
+                ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": {
+                "translate": "assasin_leggings",
+                "color": "red",
+                "italic": false
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "leggings",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                [
+                  {
+                    "translate": "set_bonus",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                [
+                  {
+                    "translate": "assasin_set_bonus.1",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                [
+                  {
+                    "translate": "assasin_set_bonus.2",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,leggings:1,assasin:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

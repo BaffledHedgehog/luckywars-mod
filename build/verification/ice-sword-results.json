@@ -1,0 +1,10 @@
+{
+  "completed": [
+    "legacy scalar trinket profile migration",
+    "Ice Sword source loot table, native setup reset, Polymer roundtrip and iron sword properties",
+    "Ice Sword native melee durability, source marker ability, arrow/non-arrow gates, range, team and magic suppression",
+    "Ice Sword frozen state and match-stop cleanup"
+  ],
+  "artifactSha256": "1ce3fa37a598543bd5a49ecc004a3cf6076e1b42a2f78a4fd8ad5e82bce0a271",
+  "elapsedSeconds": 40.77
+}

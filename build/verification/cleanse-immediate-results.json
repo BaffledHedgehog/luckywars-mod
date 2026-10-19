@@ -1,0 +1,13 @@
+{
+  "result": "passed",
+  "jar_sha256": "67c7a14aff86aedd82592f88019b1af24336e204ef0f52a1224fa1a61b52120c",
+  "elapsed_seconds": 55.49,
+  "checks": [
+    "two native test players created",
+    "original passive loot/Polymer checks and clean loadout setup",
+    "immediate native/custom status guards and passive gates",
+    "fixed type-5 list, levitation policy and shared custom cleanup",
+    "existing type-6/type-8 ordering, inventory and role checks",
+    "match-stop cleanup"
+  ]
+}

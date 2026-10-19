@@ -1,0 +1,7 @@
+# Exasperato wand resource import
+
+The ordinary item comes from the source `LBC/data/lbc/loot_table/tuntijaa_air_exasperoso.json` entry: proxy `minecraft:carrot_on_a_stick`, model `lbc:exasperato`, tooltip style `lbc:tier_s`, the existing `exasperato_wand` name and lore translation keys, and the original component colors and italics.
+
+The Academy item derives from the ordinary entry and follows the actual upgrade function `LBC/data/lbc/function/other/magic_academy/upgrade/exasperato_wand.mcfunction`, which applies `lbc:tiers/x`. The importer therefore applies the source item modifiers `add_upgrade_desc` and `tiers/x`: this appends the green `upgraded_item` lore line and changes the tooltip style to `lbc:tier_x`. It also adds the completed Academy flags `upgradable:0,upgrade_available:1,upgraded:1,mode:1`. The `lbc:tier_ss` variant in `loot_table/64_nukes.json` is a special loot definition and does not establish the Academy upgrade payload. `item_modifier/swrg_unlocks/academy_exasperato.json` only contains the locked/upgrade display.
+
+The importer migrates both source loot tables with `migrate_loot_schema` and emits the native IDs `skywars2:exasperato_wand` and `skywars2:academy_exasperato_wand`. Resource-pack files were read only. The `lbc:exasperato` item definition and model exist in `assets/lbc/items/exasperato.json` and `assets/lbc/models/item/exasperato.json`; the referenced wand, type, staff, mana, lore, and upgraded-item translation keys are present in the pack language files. No resource-pack changes were needed.

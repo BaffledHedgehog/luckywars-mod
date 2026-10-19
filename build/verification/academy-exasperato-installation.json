@@ -1,0 +1,18 @@
+{
+  "artifactSha256": "50b143ac8a1b73ae885adb3df30d4bc69b4af9964da7c9bd898deb54d6e25618",
+  "ready": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-academy-exasperato-50b143ac.jar",
+  "installed": true,
+  "target": "E:\\servers_mew\\skywars2_last\\mods\\skywars2.jar",
+  "previousSha256": "11c885450e154d388c842dc5e1d47f48da940cfcff5e52af02d9bfcd74548c01",
+  "backup": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-before-academy-exasperato-11c88545.jar",
+  "checks": {
+    "completed": [
+      "Base Exasperato native payload, collision, ownership and lifecycle regression",
+      "Academy Exasperato upgraded loot, hand/mana restrictions, charge lifetimes and electro-ray payload",
+      "Exasperato charges and native payload clear after match stop"
+    ],
+    "artifactSha256": "50b143ac8a1b73ae885adb3df30d4bc69b4af9964da7c9bd898deb54d6e25618",
+    "elapsedSeconds": 44.4
+  },
+  "createdAt": "2026-10-16T17:55:04.971036"
+}

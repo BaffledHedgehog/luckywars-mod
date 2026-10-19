@@ -316,8 +316,5 @@
         "100": {
             "trigger": "minecraft:impossible"
         }
-    },
-    "rewards": {
-        "function": "lbc:swrg_kit_integration/gain/default_kit"
     }
 }

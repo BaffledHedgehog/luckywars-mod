@@ -1,11 +1,8 @@
-{"replace":false,
+{
+  "replace": false,
   "values": [
-    "minecraft:arrow",
-    "minecraft:trident",
-    "minecraft:mob_projectile",
-    "minecraft:unattributed_fireball",
-    "minecraft:fireball",
-    "minecraft:wither_skull",
-    "minecraft:thrown"
+    "skywars2:electro_bolt",
+    "skywars2:yellow_bolt",
+    "skywars2:terra_beam"
   ]
 }

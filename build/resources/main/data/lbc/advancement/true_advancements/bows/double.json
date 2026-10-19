@@ -1,0 +1,53 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:bow",
+            "components": {
+                "minecraft:item_model": "lbc:doublebow"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.bow.double"
+        },
+        "description": {
+            "translate": "lbc.adv.bow.double.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/bows/firework",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:enchantments": [
+                                {
+                                    "enchantments": "minecraft:power",
+                                    "levels": {
+                                        "min": 2
+                                    }
+                                }
+                            ],
+                            "minecraft:custom_data": "{transformable:1,bow:1,double:1}"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

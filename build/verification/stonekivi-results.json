@@ -1,0 +1,13 @@
+{
+  "completed": [
+    "Stonekivi and actual Tannerkivi loot payloads, lore/colors/tier/model/flags and Polymer projections",
+    "Native/Academy/legacy crafting in 2x2 and 3x3 grids, exact ingredients, preview and take",
+    "2499/2500 mana gate, one queued normal hit, bounded source templates, used-offhand four-mode cycle, Earth queue drain, and Comet item/allied-mob targets",
+    "Real-tick Sun capture, asynchronous planning, native lava/magma writes and attributed surface damage/Slowness V",
+    "Automatic 499/500/515 activation thresholds, block and Arrow conversion, exclusion marker, dual 1030 activation, 30-per-tick upkeep, and paid-work drain after aura stop",
+    "32 consecutive movement ticks, prompt front conversion, bounded coalesced fringe queue and paid dirty work after hand removal",
+    "Tannerkivi reactivates and drains paid work in a second match after lifecycle reset"
+  ],
+  "artifactSha256": "fc46a1e9a5c28feb4a24c8ba7b2d73919cf4572525cdef1234c74a667e2bb394",
+  "elapsedSeconds": 46.25
+}

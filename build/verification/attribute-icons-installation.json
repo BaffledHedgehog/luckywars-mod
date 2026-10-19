@@ -1,0 +1,22 @@
+{
+  "createdUtc": "2026-10-16T12:18:29.183369+00:00",
+  "artifactSha256": "d953740d4b12b67df3e3ab1f6040e6ac5750d16ab3c9b4593f87126c3166802a",
+  "readyJar": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-attribute-icons-d953740d.jar",
+  "previousInstalledSha256": "d67a2dd2a4e6853556ed7ae187a89e48d957df05353926386c97716b6edf00e2",
+  "backupJar": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-before-attribute-icons-d67a2dd2.jar",
+  "checks": {
+    "result": "passed",
+    "completed": [
+      "bots",
+      "attribute-hud"
+    ],
+    "artifactSha256": "d953740d4b12b67df3e3ab1f6040e6ac5750d16ab3c9b4593f87126c3166802a",
+    "elapsedSeconds": 38.52
+  },
+  "iconCount": 36,
+  "rowCount": 36,
+  "sourcePackUnchanged": true,
+  "appliedPackIdempotencyVerified": true,
+  "installed": false,
+  "installationPendingReason": "Main server holds its world lock; the running JAR was not replaced."
+}

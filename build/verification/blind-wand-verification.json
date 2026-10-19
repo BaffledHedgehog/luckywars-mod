@@ -1,0 +1,43 @@
+{
+  "artifactSha256": "de7b5723a96707deb11c7f86509b0c2d02f09b02bd79e2206e35ce1d88607236",
+  "reports": {
+    "blind-wand-results.json": {
+      "completed": [
+        "Blind wand source loot, native dispatch, Academy modes, mana and charge queues",
+        "Blind charges and queued modes clear after match stop",
+        "Blind wand service accepts casts in the following match after stop",
+        "Following-match Blind charges and Gatling queues clear on stop"
+      ],
+      "artifactSha256": "de7b5723a96707deb11c7f86509b0c2d02f09b02bd79e2206e35ce1d88607236",
+      "elapsedSeconds": 55.92
+    },
+    "stone-wand-results.json": {
+      "completed": [
+        "Stone wand source loot, native flight, Academy modes, trap attribution and target guards",
+        "Stone charge cleanup after match stop"
+      ],
+      "artifactSha256": "de7b5723a96707deb11c7f86509b0c2d02f09b02bd79e2206e35ce1d88607236",
+      "elapsedSeconds": 38.85
+    },
+    "academy-results.json": {
+      "completed": [
+        "Native token placement, NPC interaction, Terra/Electro trials, Exasperato unique-hit progression and upgrade preservation",
+        "Academy interaction entities clear after match stop"
+      ],
+      "artifactSha256": "de7b5723a96707deb11c7f86509b0c2d02f09b02bd79e2206e35ce1d88607236",
+      "elapsedSeconds": 39.64
+    },
+    "indirect-kills-results.json": {
+      "completed": [
+        "native Teleport fall, Ruby support-loss, Stone suffocation and Acid poison ownership; lethal environmental player death, kill reward and respawn"
+      ],
+      "artifactSha256": "de7b5723a96707deb11c7f86509b0c2d02f09b02bd79e2206e35ce1d88607236",
+      "elapsedSeconds": 39.33
+    }
+  },
+  "buildPassed": true,
+  "localizationPassed": true,
+  "generatedPackPassed": true,
+  "damageAliasesPassed": true,
+  "packagedLootPassed": true
+}

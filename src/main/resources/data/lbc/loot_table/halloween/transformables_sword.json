@@ -1,100 +1,101 @@
+{
+  "pools": [
     {
-        "pools": [
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "quality": 5,
+          "name": "minecraft:wooden_sword",
+          "modifier": [
             {
-                "rolls": 1,
-                "entries": [
-                    {
-                        "type": "minecraft:item",
-                        "weight": 10,
-                        "quality": 5,
-                        "name": "minecraft:wooden_sword",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_a",
-                                    "minecraft:item_model": "lbc:pumpkin_sword",
-                                    "minecraft:attribute_modifiers": [
-                                        {
-                                            "type": "minecraft:attack_damage",
-                                            "slot": "mainhand",
-                                            "id": "minecraft:base_attack_damage",
-                                            "amount": 7,
-                                            "operation": "add_value"
-                                        },{
-                                            "type": "minecraft:attack_speed",
-                                            "slot": "mainhand",
-                                            "id": "minecraft:base_attack_speed",
-                                            "amount": -2.4,
-                                            "operation": "add_value"
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "pumpkin_king_sword",
-                                        "color": "gold",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    [
-                                        {
-                                            "translate": "type",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        },
-                                        {
-                                            "translate": "sword",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        }
-                                    ],
-                                    {
-                                        "translate": "pumpkin_king_sword.lore.1",
-                                        "italic": false,
-                                        "color": "yellow"
-                                    },
-                                    {
-                                        "translate": "pumpkin_king_sword.lore.2",
-                                        "italic": false,
-                                        "color": "yellow"
-                                    },
-                                    {
-                                        "translate": "pumpkin_king_sword.lore.3",
-                                        "italic": false,
-                                        "color": "yellow"
-                                    },
-                                    {
-                                        "translate": "pumpkin_king_sword.lore.4",
-                                        "italic": false,
-                                        "color": "yellow"
-                                    },
-                                {
-                                    "translate": "halloween.lore",
-                                    "color": "#ff670f",
-                                    "italic": false
-                                }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{transformable:1,sword:1,pumpkin_king:1}"
-                            }
-                        ]
-                    }
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:item_model": "lbc:pumpkin_sword",
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:attack_damage",
+                    "slot": "mainhand",
+                    "id": "minecraft:base_attack_damage",
+                    "amount": 7,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:attack_speed",
+                    "slot": "mainhand",
+                    "id": "minecraft:base_attack_speed",
+                    "amount": -2.4,
+                    "operation": "add_value"
+                  }
                 ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "pumpkin_king_sword",
+                  "color": "gold",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "sword",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "pumpkin_king_sword.lore.1",
+                  "italic": false,
+                  "color": "yellow"
+                },
+                {
+                  "translate": "pumpkin_king_sword.lore.2",
+                  "italic": false,
+                  "color": "yellow"
+                },
+                {
+                  "translate": "pumpkin_king_sword.lore.3",
+                  "italic": false,
+                  "color": "yellow"
+                },
+                {
+                  "translate": "pumpkin_king_sword.lore.4",
+                  "italic": false,
+                  "color": "yellow"
+                },
+                {
+                  "translate": "halloween.lore",
+                  "color": "#ff670f",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,sword:1,pumpkin_king:1}",
+              "type": "minecraft:set_custom_data"
             }
-        ]
+          ]
+        }
+      ]
     }
+  ]
+}

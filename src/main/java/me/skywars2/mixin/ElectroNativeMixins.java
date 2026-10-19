@@ -1,0 +1,96 @@
+package me.skywars2.mixin;
+
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+import me.skywars2.SkyWars2;
+import me.skywars2.game.LbcDamage;
+import me.skywars2.game.LbcElectro;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.PrimedTnt;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+/** Нативные молнии и отражённые опасности сохраняют автора; обычная погода остаётся ванильной. */
+public final class ElectroNativeMixins {
+    /** Preserve vanilla egg spawning while attributing its lightning before the first native bolt tick. */
+    @Mixin(net.minecraft.world.item.SpawnEggItem.class)
+    public abstract static class Egg {
+        @WrapOperation(method="spawnMob",at=@At(value="INVOKE",target=
+                "Lnet/minecraft/world/entity/EntityType;spawn(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/EntitySpawnReason;ZZ)Lnet/minecraft/world/entity/Entity;"))
+        private static Entity skywars2$eggLightning(net.minecraft.world.entity.EntityType<?> type,ServerLevel level,
+                net.minecraft.world.item.ItemStack stack,LivingEntity user,net.minecraft.core.BlockPos pos,
+                net.minecraft.world.entity.EntitySpawnReason reason,boolean moveDown,boolean movedUp,Operation<Entity> original) {
+            Entity entity=original.call(type,level,stack,user,pos,reason,moveDown,movedUp);
+            var game=SkyWars2.game();
+            if(game!=null && entity instanceof LightningBolt bolt && user instanceof ServerPlayer player
+                    && me.skywars2.game.LbcWands.isBoltMaterial(stack)) game.items().electro().manageLightning(player,bolt);
+            return entity;
+        }
+    }
+    @Mixin(LightningBolt.class)
+    public abstract static class Bolt {
+        @WrapMethod(method="tick")
+        private void skywars2$lightningFireOwner(Operation<Void> original) {
+            var bolt=(LightningBolt)(Object)this; var game=SkyWars2.game();
+            if(game==null || !LbcElectro.managedLightning(bolt) || bolt.getCause()==null
+                    || !(bolt.level() instanceof ServerLevel level)) original.call();
+            else game.items().indirectKills().worldChanges(level,bolt.getCause(),()->original.call());
+        }
+        @WrapOperation(method="tick",at=@At(value="INVOKE",target=
+                "Lnet/minecraft/world/entity/Entity;thunderHit(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/LightningBolt;)V"))
+        private void skywars2$lightningTarget(Entity target,ServerLevel level,LightningBolt bolt,Operation<Void> original) {
+            var game=SkyWars2.game();
+            if(!LbcElectro.managedLightning(bolt) || game==null || bolt.getCause()==null
+                    || target==bolt.getCause() && bolt.entityTags().contains(LbcElectro.SELF_SHOCK_BOLT)
+                    || game.items().wands().target(bolt.getCause(),target)) original.call(target,level,bolt);
+        }
+    }
+    @Mixin(Entity.class)
+    public abstract static class Impact {
+        @WrapOperation(method="thunderHit",at=@At(value="INVOKE",target=
+                "Lnet/minecraft/world/entity/Entity;hurtServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
+        private boolean skywars2$lightningDamage(Entity target,ServerLevel level,DamageSource source,float amount,
+                Operation<Boolean> original,@Local(argsOnly=true) LightningBolt bolt) {
+            if(LbcElectro.managedLightning(bolt) && bolt.getCause()!=null)
+                source=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+                        .getOrThrow(LbcDamage.ELECTRIC),bolt,bolt.getCause());
+            boolean applied=original.call(target,level,source,amount);
+            var game=SkyWars2.game();
+            if(game!=null && LbcElectro.managedLightning(bolt) && bolt.getCause()!=null && target instanceof LivingEntity living)
+                game.items().indirectKills().ignited(living,bolt.getCause());
+            return applied;
+        }
+    }
+    @Mixin(PrimedTnt.class)
+    public abstract static class Tnt {
+        @Inject(method="getOwner",at=@At("HEAD"),cancellable=true)
+        private void skywars2$reflectedTntOwner(CallbackInfoReturnable<LivingEntity> ci) {
+            var game=SkyWars2.game();
+            if(game!=null) {
+                var owner=game.items().electro().reflectedOwner((Entity)(Object)this);
+                if(owner!=null) ci.setReturnValue(owner);
+            }
+        }
+    }
+    @Mixin({LivingEntity.class,ServerPlayer.class})
+    public abstract static class ReflectedSource {
+        @ModifyVariable(method="hurtServer",at=@At("HEAD"),argsOnly=true)
+        private DamageSource skywars2$reflectedDamageSource(DamageSource source) {
+            var game=SkyWars2.game();
+            if(game==null || source.getDirectEntity()==null) return source;
+            var owner=game.items().electro().reflectedOwner(source.getDirectEntity());
+            return owner==null || source.getEntity()==owner ? source : new DamageSource(source.typeHolder(),source.getDirectEntity(),owner);
+        }
+    }
+}

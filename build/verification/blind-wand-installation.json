@@ -1,0 +1,14 @@
+{
+  "artifactSha256": "de7b5723a96707deb11c7f86509b0c2d02f09b02bd79e2206e35ce1d88607236",
+  "readyJar": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-blind-wand-de7b5723.jar",
+  "previousSha256": "c9954703745edaf03df8f1de01760ea4315cc176f700bec8f5bcb836018116b3",
+  "backupJar": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-before-blind-wand-c9954703.jar",
+  "mainJar": "E:\\servers_mew\\skywars2_last\\mods\\skywars2.jar",
+  "verified": true,
+  "verification": "blind-wand-verification.json",
+  "installed": true,
+  "installedAt": "2026-10-16T19:45:48.139581+00:00",
+  "worldLockFreeAtInstallation": true,
+  "mainPortClosedAtInstallation": true,
+  "serverAutoStarted": false
+}

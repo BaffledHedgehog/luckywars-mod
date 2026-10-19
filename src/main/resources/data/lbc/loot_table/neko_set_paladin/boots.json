@@ -1,98 +1,98 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:leather_boots",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:item_model": "lbc:armors/paladin_boots",
-                                "minecraft:tooltip_style":"lbc:tier_a",
-                                "minecraft:max_damage": 4000,
-                                "minecraft:enchantments": {
-                                    "minecraft:feather_falling": 255,
-                                    "minecraft:protection": 3
-                                },
-                                "minecraft:equippable": {
-                                    "slot": "feet",
-                                    "asset_id": "lbc:paladin"
-                                },
-                                "minecraft:attribute_modifiers": [
-                                    {
-                                        "type": "minecraft:armor",
-                                        "slot": "feet",
-                                        "id": "genehcjghjgjrmor",
-                                        "amount": 7,
-                                        "operation": "add_value"
-                                    },
-                                    {
-                                        "type": "minecraft:armor_toughness",
-                                        "slot": "feet",
-                                        "id": "generkkkkkkkkhness",
-                                        "amount": 7,
-                                        "operation": "add_value"
-                                    },
-                                    {
-                                        "type": "minecraft:max_health",
-                                        "slot": "feet",
-                                        "id": "gedcgfxcddddalth",
-                                        "amount": -0.1,
-                                        "operation": "add_multiplied_base"
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": {
-                                "translate": "paladin_boots",
-                                "color": "red",
-                                "italic": false
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                [
-                                    {
-                                        "translate": "type",
-                                        "italic": false,
-                                        "color": "aqua"
-                                    },
-                                    {
-                                        "translate": "boots",
-                                        "italic": false,
-                                        "color": "aqua"
-                                    }
-                                ],
-                                [
-                                    {
-                                        "translate": "set_bonus",
-                                        "italic": false,
-                                        "color": "aqua"
-                                    }
-                                ],
-                                [
-                                    {
-                                        "translate": "paladin_set_bonus",
-                                        "italic": false,
-                                        "color": "aqua"
-                                    }
-                                ]
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{transformable:1,boots:1,paladin:1}"
-                        }
-                    ]
-                }
-            ]
+          "type": "minecraft:item",
+          "name": "minecraft:leather_boots",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:item_model": "lbc:armors/paladin_boots",
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:max_damage": 4000,
+                "minecraft:enchantments": {
+                  "minecraft:feather_falling": 255,
+                  "minecraft:protection": 3
+                },
+                "minecraft:equippable": {
+                  "slot": "feet",
+                  "asset_id": "lbc:paladin"
+                },
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:armor",
+                    "slot": "feet",
+                    "id": "genehcjghjgjrmor",
+                    "amount": 7,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:armor_toughness",
+                    "slot": "feet",
+                    "id": "generkkkkkkkkhness",
+                    "amount": 7,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:max_health",
+                    "slot": "feet",
+                    "id": "gedcgfxcddddalth",
+                    "amount": -0.1,
+                    "operation": "add_multiplied_base"
+                  }
+                ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": {
+                "translate": "paladin_boots",
+                "color": "red",
+                "italic": false
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "boots",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                [
+                  {
+                    "translate": "set_bonus",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                [
+                  {
+                    "translate": "paladin_set_bonus",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,boots:1,paladin:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

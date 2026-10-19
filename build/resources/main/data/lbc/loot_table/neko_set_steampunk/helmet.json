@@ -1,0 +1,88 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:leather_helmet",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:item_model": "lbc:armors/reactive_helmet",
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:max_damage": 500,
+                "minecraft:equippable": {
+                  "slot": "head",
+                  "asset_id": "lbc:steampunk"
+                },
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:armor",
+                    "slot": "head",
+                    "id": "gegdghtbub5uuur",
+                    "amount": 2,
+                    "operation": "add_value"
+                  }
+                ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "reactive_helmet",
+                  "color": "gold",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "helmet",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "reactive_helmet.lore",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "set_bonus",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "set_bonus_steampunk",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "craft_with_techno_helmet",
+                  "color": "gold",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{craftusable:1,transformable:1,helmet:1,reactive:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

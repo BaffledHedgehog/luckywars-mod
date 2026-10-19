@@ -1,0 +1,57 @@
+
+E:\servers_mew\skywars2_last\luckywars-mod>setlocal EnableExtensions 
+
+E:\servers_mew\skywars2_last\luckywars-mod>set DIRNAME=E:\servers_mew\skywars2_last\luckywars-mod\ 
+
+E:\servers_mew\skywars2_last\luckywars-mod>if "E:\servers_mew\skywars2_last\luckywars-mod\" == "" set DIRNAME=. 
+
+E:\servers_mew\skywars2_last\luckywars-mod>set APP_BASE_NAME=gradlew 
+
+E:\servers_mew\skywars2_last\luckywars-mod>set APP_HOME=E:\servers_mew\skywars2_last\luckywars-mod\ 
+
+E:\servers_mew\skywars2_last\luckywars-mod>for %i in ("E:\servers_mew\skywars2_last\luckywars-mod\") do set APP_HOME=%~fi 
+
+E:\servers_mew\skywars2_last\luckywars-mod>set APP_HOME=E:\servers_mew\skywars2_last\luckywars-mod\ 
+
+E:\servers_mew\skywars2_last\luckywars-mod>set DEFAULT_JVM_OPTS="-Xmx64m" "-Xms64m" 
+
+E:\servers_mew\skywars2_last\luckywars-mod>if defined JAVA_HOME goto findJavaFromJavaHome 
+
+E:\servers_mew\skywars2_last\luckywars-mod>set JAVA_HOME=E:/servers_mew/skywars2_last/runtime/jdk-25 
+
+E:\servers_mew\skywars2_last\luckywars-mod>set JAVA_EXE=E:/servers_mew/skywars2_last/runtime/jdk-25/bin/java.exe 
+
+E:\servers_mew\skywars2_last\luckywars-mod>if exist "E:/servers_mew/skywars2_last/runtime/jdk-25/bin/java.exe" goto execute 
+
+E:\servers_mew\skywars2_last\luckywars-mod>endlocal   & "E:/servers_mew/skywars2_last/runtime/jdk-25/bin/java.exe" "-Xmx64m" "-Xms64m"   "-Dorg.gradle.appname=gradlew" -jar "E:\servers_mew\skywars2_last\luckywars-mod\\gradle\wrapper\gradle-wrapper.jar" build   & call :exitWithErrorLevel 
+
+> Configure project :
+Fabric Loom: 1.17.21
+
+> Task :compileJava
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :processResources UP-TO-DATE
+> Task :classes
+> Task :processIncludeJars UP-TO-DATE
+> Task :jar
+> Task :sourcesJar
+> Task :assemble
+> Task :compileTestJava NO-SOURCE
+> Task :processTestResources NO-SOURCE
+> Task :testClasses UP-TO-DATE
+> Task :test NO-SOURCE
+> Task :validateAccessWidener NO-SOURCE
+> Task :check UP-TO-DATE
+> Task :build
+
+[Incubating] Problems report is available at: file:///E:/servers_mew/skywars2_last/luckywars-mod/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 28s
+5 actionable tasks: 3 executed, 2 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.6.0/userguide/configuration_cache_enabling.html
+
+E:\servers_mew\skywars2_last\luckywars-mod>"C:\WINDOWS\system32\cmd.exe" /c exit 0 
+
+E:\servers_mew\skywars2_last\luckywars-mod>"C:\WINDOWS\system32\cmd.exe" /c exit 0 

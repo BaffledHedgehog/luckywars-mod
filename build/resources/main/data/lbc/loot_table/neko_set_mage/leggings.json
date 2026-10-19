@@ -1,0 +1,92 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:leather_leggings",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:item_model": "lbc:armors/mage_leggings",
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:max_damage": 300,
+                "minecraft:enchantments": {
+                  "minecraft:fire_protection": 4,
+                  "minecraft:blast_protection": 4,
+                  "minecraft:projectile_protection": 4
+                },
+                "minecraft:equippable": {
+                  "slot": "legs",
+                  "asset_id": "lbc:mage"
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "mage_leggings",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "leggings",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "mage_hat.lore.1",
+                  "color": "aqua",
+                  "italic": false
+                },
+                {
+                  "translate": "mage_hat.lore.2",
+                  "color": "aqua",
+                  "italic": false
+                },
+                [
+                  {
+                    "translate": "set_bonus",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                [
+                  {
+                    "translate": "set_bonus_mage",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "craft_with_phantom_leggings",
+                  "italic": false,
+                  "color": "yellow"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{craftusable:1,transformable:1,leggings:1,mage:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+﻿# Атрибуты над инвентарём: техническая проверка
+
+Проверка выполнена по merged sources Minecraft 26.3 из `.gradle/loom-cache/minecraftMaven/net/minecraft/minecraft-merged-d6f9bb6878/26.3/minecraft-merged-d6f9bb6878-26.3-sources.jar`, коду проекта и пользовательскому RP (только чтение).
+
+## Может ли сервер заметить открытие E
+
+Для обычного игрока — нет. В `net/minecraft/client/Minecraft.java:1907–1912` обычная ветка keyInventory вызывает только локальное `gui.setScreen(new InventoryScreen(player))`. Creative также открывается клиентским экраном. Серверный menu не меняется и пакет на открытие не уходит.
+
+Исключение — игрок верхом на entity с `HasCustomInventoryScreen`: `MultiPlayerGameMode.isServerControlledInventory` (`.../MultiPlayerGameMode.java:543–545`) включает отдельную ветку `LocalPlayer.sendOpenInventory` (`.../LocalPlayer.java:413–415`), которая отправляет `ServerboundPlayerCommandPacket.Action.OPEN_INVENTORY`; серверный handler (`.../ServerGamePacketListenerImpl.java:1751–1783`) проверяет такую mount entity и вызывает её `openCustomInventoryScreen`. Это сигнал открыть инвентарь транспорта, а не обычного инвентаря игрока.
+
+`ServerboundContainerClosePacket` обрабатывается `handleContainerClose` -> `player.doCloseContainer()` (`.../ServerGamePacketListenerImpl.java`, метод `handleContainerClose`); он сообщает закрытие сетевого container/menu. Для локального E-экрана без server menu такого надёжного сигнала открытия/закрытия нет. Значит server-only Polymer/SGUI может постоянно держать scoreboard UI и обновлять его значения, но не может показывать его строго только пока открыт обычный E-инвентарь. Это потребовало бы клиентского мода/явного клиент-серверного сигнала; эвристика по действиям не является наблюдением факта открытия.
+
+Horse/mount inventory — другой случай: его открывает сервер `ServerPlayer.openHorseInventory` (`.../ServerPlayer.java:1405–1414`) через `ClientboundMountScreenOpenPacket`; закрытие сетевого меню сервер видит.
+
+## Sidebar во время InventoryScreen, позиционирование
+
+`Gui.extractRenderState` добавляет HUD (`Gui.java:147–156`), затем screen (`:177`); внутри `Hud.extractRenderState` есть `extractScoreboardSidebar` (`Hud.java:222–237`). Следовательно vanilla sidebar остаётся в GUI render path при экране инвентаря и слой экрана формируется после HUD. Sidebar закреплён справа: `Hud.displayScoreboardSidebar` считает ширину содержимого и использует `left = guiWidth - width - 3`, `right = guiWidth - 3 + 2` (`Hud.java:707–725`). Его вертикаль задаёт число строк: `height = entriesCount * 9`, `bottom = guiHeight / 2 + height / 3`, заголовок и строки раскладываются шагом 9 px (`:707–725`).
+
+Поэтому font space advances могут управлять горизонтальной шириной/внутренними отступами текста; они не меняют anchor, координаты фона, шаг строк или y sidebar. Bitmap glyph ascent может поднять/опустить сам рисунок иконки в строке, но не перенесёт строку/панель. Scoreboard подход годится для постоянно доступного компактного списка, но точная позиция «над окном инвентаря» не настраивается одним шрифтом. Actionbar тоже идёт в составе HUD; экран рисуется позже, поэтому его видимость в области, которую перекрывает окно инвентаря, зависит от перекрытия.
+
+В пользовательском `all_in_one_1.21.8/assets/minecraft/font/default.json:85–118` найден provider `type: space`: U+F800…U+F80F дают advances −1…−16 px, U+F820…U+F82F дают −17…−32 px. Других положительных шагов в этом provider нет. Файл содержит bitmap provider `minecraft:font/icons/inv_space.png` для U+E204 (`default.json:789–795`), но это bitmap glyph, не вертикальный layout provider.
+
+## Атрибуты и обновление только изменившихся значений
+
+В коде проекта текущие атрибуты читаются/изменяются адресно (`GameController.java:679–682`, `LbcItems.java:633–654`, `LbcOverloadArmor.java:118+`); общего UI/supplier-обхода атрибутов игрока сейчас не найдено. Новые конфиги loadout разрешают атрибут через `BuiltInRegistries.ATTRIBUTE` (`LbcLoadouts.java:124`).
+
+Baseline для ванильного игрока должен браться из `DefaultAttributes.getSupplier(EntityTypes.PLAYER)`, а не из общего `Attribute.getDefaultValue()`. Доказательство в merged sources: `Player.createAttributes()` сначала использует `LivingEntity.createLivingAttributes()`, затем задаёт/добавляет player-атрибуты; в частности `ATTACK_DAMAGE` явно получает базу `1.0` (`.../world/entity/player/Player.java:207–221`), что player-specific supplier обязан сохранить. `DefaultAttributes` регистрирует `.put(EntityTypes.PLAYER, Player.createAttributes().build())` (`.../ai/attributes/DefaultAttributes.java:153`) и предоставляет `getSupplier(type)` (`:192+`); при создании `LivingEntity` AttributeMap строится из `DefaultAttributes.getSupplier(type)` (`.../entity/LivingEntity.java:292`). `LivingEntity.createLivingAttributes()` определяет общее подмножество и их базовые значения (`LivingEntity.java:336+`).
+
+Рекомендуемый обход: все holders из `BuiltInRegistries.ATTRIBUTE`, сначала проверить `player.getAttributes().hasAttribute(holder)`, затем взять исходный baseline из player supplier, если supplier `hasAttribute(holder)`; для атрибутов, реально добавленных игроку модом и отсутствующих в ванильном supplier, использовать `holder.value().getDefaultValue()` как fallback. Сравнение `player.getAttributeValue(holder)` с baseline `supplier.getValue(holder)` показывает effective изменения (база плюс модификаторы). Если нужна только текущая изменённая база без влияния modifiers, сравнивать `player.getAttributes().getBaseValue(holder)` с `supplier.getBaseValue(holder)`. Текущая база не является неизменной: `AttributeInstance.setBaseValue` меняет её напрямую и помечает instance dirty; modifiers также меняют effective value. API определения/значений: `AttributeSupplier.hasAttribute/getValue/getBaseValue` (`.../AttributeSupplier.java:26–31,58–60`), `AttributeMap.hasAttribute/getValue/getBaseValue` (`.../AttributeMap.java:49–65`), `AttributeInstance.getValue/getBaseValue/setBaseValue` (`.../AttributeInstance.java:41–49,139–145`). `AttributeMap.getSyncableAttributes()` (`:41–43`) содержит только уже materialized instances и лишь client-syncable; это не полный список supplier.
+
+`AttributeInstance.setBaseValue`, добавление/удаление modifier вызывают dirty callback; `AttributeMap.onAttributeModified` записывает instance в `attributesToUpdate`, а syncable — ещё и в `attributesToSync` (`AttributeMap.java:26–43`). Это оптимизация для изменённых/materialized instances, но не готовое событие высокого уровня с итоговым display value. Для changed-only scoreboard разумен снимок отображаемых effective values + сравнение со своим последним снимком на серверном тике; objective scores обновлять только при изменении строк. Сравнение effective с player supplier baseline будет включать текущие modifiers/экипировку/эффекты; сравнение base с baseline намеренно их исключает.
+## Принятая эвристика и server-only реализация
+
+Новое уточнение (user):
+
+> сделай чтоб аттрибуты показывались в столбик все (через negative spaces) и пусть через секунду а не две
+
+Панель реализуется как read-only scoreboard sidebar для каждого конкретного online игрока. Точка входа — `AttributeHud(GameController)`, `tick()`, `clear(ServerPlayer)`, `stop()`. Первый server tick фиксирует исходную позицию, затем 20 полных тиков сравнивают позицию и dimension; rotation не участвует. При изменении позиции или dimension активная панель сразу скрывается, idle-счётчик сбрасывается. Через следующие 20 неподвижных тиков она показывается, если есть отклонения. Мёртвые игроки сразу очищаются. Holder-ы, player-baseline, иконки и стили кешируются. Каждые 5 тиков сохраняется лёгкий числовой snapshot; форматирование и компонент пересобираются только при изменении отображаемого значения/наличия. Это эвристика неподвижности, а не определение открытого инвентаря: панель может остаться видимой после закрытия E до движения. Работает для наблюдателей, creative/developer и всех стадий; выводятся атрибуты самого получателя, не camera target.
+
+Панель на протоколе использует `ClientboundSetObjectivePacket`, `ClientboundSetDisplayObjectivePacket`, `ClientboundSetScorePacket` и `ClientboundResetScorePacket`. Для каждого показа создаётся временный клиентский objective со случайным 16-символьным именем после проверки коллизии с global scoreboard. Сохраняются фактический sidebar display slot (включая цветовой team slot) и восстановление прежней цели. Общий `Scoreboard`, objectives, teams и scores не меняются.
+
+Весь столбик передаётся **одной score entry**. Каждый изменённый атрибут получает отдельный font style с Y-смещением, затем существующие negative spaces возвращают X к общему началу столбца. Шаг строк — 9 GUI px, столбик центрируется относительно native sidebar. Символы временного собственного TTF моноширинные: advance 6 px; после всех возвратов отдельный space provider задаёт итоговую ширину самой длинной записи. Поэтому лимит клиента в 15 score entries не обрезает атрибуты. Остаётся минимальный Unicode-значок + число до четырёх знаков после точки, неизвестные attribute IDs используют общий значок. Значения и baseline не менялись.
+
+Шрифты перенесены пользователем в `assets/lbc/font/attribute_hud/` [ресурспака](RESOURCE_PACK.md), код использует `lbc:attribute_hud/*`. Пользователь также исправил внутренние TTF-ссылки на `lbc:attribute_hud/glyphs.ttf`; временный скрипт удалён по его просьбе. Применённый template не воссоздаётся, исходный RP агентом не изменялся. [Инструкция](../resourcepack_template/README.md), [аудит и метрики](ATTRIBUTE_FONT_AUDIT.md). Шрифты дают 81 виртуальную позицию, больше всех 40 ванильных атрибутов 26.3. На маленьком GUI длинный столбик может выйти за экран; viewport серверу неизвестен. Это не точное позиционирование над InventoryScreen.
+
+## Текущий статус
+
+Текущий idle-порог — 20 тиков. Baseline берётся из `DefaultAttributes` для `PLAYER`, с fallback для дополнительных применимых атрибутов. Для `ATTACK_DAMAGE` сохраняется player baseline `1.0`. Временный TTF проверен FontTools и FreeType: все 33 символа имеют ровно 6 GUI px advance; проверены все 81 font definition. Свежий серверный прогон, SHA и установка фиксируются в [SERVER_TESTS.md](../SERVER_TESTS.md); проверка настоящим клиентом ещё нужна после ручного переноса template.
+
+Предыдущая раскладка с порогом 40 тиков прошла `ui-gameplay` за 55,66 с / 2 матча / 19 групп и GUI/quickstart за 126,58 с / 3 матча / 7 сценариев на `afb96b4e…`. Это исторические прогоны прежней раскладки, не проверка новых font shifts.
+
+

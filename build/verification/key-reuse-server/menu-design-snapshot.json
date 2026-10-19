@@ -65,7 +65,7 @@
                   "translate": "swrg.gui.balance",
                   "extra": [
                     {
-                      "text": "660",
+                      "text": "1060",
                       "color": "gold"
                     }
                   ],
@@ -103,7 +103,7 @@
                   "translate": "swrg.stat.game_played",
                   "extra": [
                     {
-                      "text": "30",
+                      "text": "46",
                       "color": "aqua"
                     }
                   ],
@@ -159,20 +159,6 @@
                   }
                 ],
                 "color": "green",
-                "italic": false
-              }
-            }
-          }
-        },
-        {
-          "slot": 9,
-          "item": {
-            "id": "minecraft:white_bed",
-            "count": 1,
-            "components": {
-              "minecraft:custom_name": {
-                "translate": "swrg.page0.s9",
-                "color": "yellow",
                 "italic": false
               }
             }
@@ -513,7 +499,7 @@
             "count": 1,
             "components": {
               "minecraft:custom_name": {
-                "translate": "swrg.page1000.s3-1",
+                "translate": "swrg.page1000.s3-0",
                 "color": "white",
                 "italic": false
               }
@@ -527,7 +513,7 @@
             "count": 1,
             "components": {
               "minecraft:custom_name": {
-                "translate": "swrg.page1000.s4-1",
+                "translate": "swrg.page1000.s4-0",
                 "color": "white",
                 "italic": false
               }
@@ -541,7 +527,7 @@
             "count": 1,
             "components": {
               "minecraft:custom_name": {
-                "translate": "swrg.page1000.s5-1",
+                "translate": "swrg.page1000.s5-0",
                 "color": "white",
                 "italic": false
               }
@@ -555,7 +541,7 @@
             "count": 1,
             "components": {
               "minecraft:custom_name": {
-                "translate": "swrg.page1000.s6-1",
+                "translate": "swrg.page1000.s6-0",
                 "color": "white",
                 "italic": false
               }
@@ -582,7 +568,11 @@
             "id": "minecraft:blaze_rod",
             "count": 1,
             "components": {
-              "minecraft:custom_name": ""
+              "minecraft:custom_name": {
+                "translate": "swrg.lefthand_on",
+                "color": "white",
+                "italic": false
+              }
             }
           }
         },
@@ -592,7 +582,11 @@
             "id": "minecraft:totem_of_undying",
             "count": 1,
             "components": {
-              "minecraft:custom_name": ""
+              "minecraft:custom_name": {
+                "translate": "swrg.lives_2",
+                "color": "white",
+                "italic": false
+              }
             }
           }
         },
@@ -602,7 +596,11 @@
             "id": "minecraft:barrier",
             "count": 1,
             "components": {
-              "minecraft:custom_name": ""
+              "minecraft:custom_name": {
+                "translate": "swrg.no_borders_off",
+                "color": "white",
+                "italic": false
+              }
             }
           }
         },
@@ -613,7 +611,11 @@
             "count": 1,
             "components": {
               "minecraft:item_model": "lbc:lucky_block",
-              "minecraft:custom_name": ""
+              "minecraft:custom_name": {
+                "translate": "swrg.cfg_lucky_modifier_0",
+                "color": "white",
+                "italic": false
+              }
             }
           }
         },
@@ -641,7 +643,7 @@
                 "minecraft:fortune": 5
               },
               "minecraft:custom_name": {
-                "translate": "swrg.page1000.s13",
+                "translate": "skywars2.gui.source.page1000.s13-1.part0",
                 "color": "white",
                 "italic": false
               }
@@ -658,7 +660,7 @@
                 "minecraft:fortune": 5
               },
               "minecraft:custom_name": {
-                "translate": "swrg.page1000.s14",
+                "translate": "skywars2.gui.source.page1000.s14-1.part0",
                 "color": "white",
                 "italic": false
               }
@@ -675,7 +677,7 @@
                 "minecraft:fortune": 5
               },
               "minecraft:custom_name": {
-                "translate": "swrg.page1000.s15",
+                "translate": "skywars2.gui.source.page1000.s15-1.part0",
                 "color": "white",
                 "italic": false
               }
@@ -692,7 +694,7 @@
                 "minecraft:fortune": 5
               },
               "minecraft:custom_name": {
-                "translate": "swrg.page1000.s16",
+                "translate": "skywars2.gui.source.page1000.s16-4.part0",
                 "color": "white",
                 "italic": false
               }
@@ -2340,7 +2342,7 @@
                   "translate": "swrg.gui.balance",
                   "extra": [
                     {
-                      "text": "660",
+                      "text": "1060",
                       "color": "gold"
                     }
                   ],
@@ -2395,7 +2397,7 @@
                   "translate": "swrg.gui.balance",
                   "extra": [
                     {
-                      "text": "660",
+                      "text": "1060",
                       "color": "gold"
                     }
                   ],
@@ -2450,7 +2452,7 @@
                   "translate": "swrg.gui.balance",
                   "extra": [
                     {
-                      "text": "660",
+                      "text": "1060",
                       "color": "gold"
                     }
                   ],
@@ -2499,7 +2501,7 @@
                   "translate": "swrg.gui.balance",
                   "extra": [
                     {
-                      "text": "660",
+                      "text": "1060",
                       "color": "gold"
                     }
                   ],
@@ -2554,7 +2556,7 @@
                   "translate": "swrg.gui.balance",
                   "extra": [
                     {
-                      "text": "660",
+                      "text": "1060",
                       "color": "gold"
                     }
                   ],
@@ -2609,7 +2611,7 @@
                   "translate": "swrg.gui.balance",
                   "extra": [
                     {
-                      "text": "660",
+                      "text": "1060",
                       "color": "gold"
                     }
                   ],
@@ -2658,7 +2660,7 @@
                   "translate": "swrg.gui.balance",
                   "extra": [
                     {
-                      "text": "660",
+                      "text": "1060",
                       "color": "gold"
                     }
                   ],
@@ -2719,7 +2721,7 @@
                   "translate": "swrg.gui.balance",
                   "extra": [
                     {
-                      "text": "660",
+                      "text": "1060",
                       "color": "gold"
                     }
                   ],
@@ -2774,7 +2776,7 @@
                   "translate": "swrg.gui.balance",
                   "extra": [
                     {
-                      "text": "660",
+                      "text": "1060",
                       "color": "gold"
                     }
                   ],
@@ -2823,7 +2825,7 @@
                   "translate": "swrg.gui.balance",
                   "extra": [
                     {
-                      "text": "660",
+                      "text": "1060",
                       "color": "gold"
                     }
                   ],
@@ -2878,7 +2880,7 @@
                   "translate": "swrg.gui.balance",
                   "extra": [
                     {
-                      "text": "660",
+                      "text": "1060",
                       "color": "gold"
                     }
                   ],
@@ -2933,7 +2935,7 @@
                   "translate": "swrg.gui.balance",
                   "extra": [
                     {
-                      "text": "660",
+                      "text": "1060",
                       "color": "gold"
                     }
                   ],
@@ -3160,7 +3162,7 @@
                   "translate": "swrg.stat.game_played",
                   "extra": [
                     {
-                      "text": "30",
+                      "text": "46",
                       "color": "aqua"
                     }
                   ],
@@ -3248,7 +3250,7 @@
               "minecraft:custom_name": {
                 "translate": "skywars2.gui.stats.deaths",
                 "with": [
-                  30
+                  50
                 ],
                 "color": "green",
                 "italic": false
@@ -3269,7 +3271,7 @@
               },
               "minecraft:lore": [
                 {
-                  "text": "660",
+                  "text": "1060",
                   "color": "aqua",
                   "italic": false
                 }
@@ -9451,6 +9453,11 @@
               },
               "minecraft:lore": [
                 {
+                  "translate": "swrg.gui.select",
+                  "color": "green",
+                  "italic": false
+                },
+                {
                   "translate": "lore.lbclevelup.4",
                   "color": "gray",
                   "italic": false
@@ -9503,7 +9510,8 @@
                   "color": "gold",
                   "italic": false
                 }
-              ]
+              ],
+              "minecraft:enchantment_glint_override": true
             }
           }
         },
@@ -10819,6 +10827,11 @@
               },
               "minecraft:lore": [
                 {
+                  "translate": "swrg.gui.select",
+                  "color": "green",
+                  "italic": false
+                },
+                {
                   "translate": "lore.lbclevelup.23.0",
                   "color": "gray",
                   "italic": false
@@ -10876,7 +10889,8 @@
                   "color": "gold",
                   "italic": false
                 }
-              ]
+              ],
+              "minecraft:enchantment_glint_override": true
             }
           }
         },

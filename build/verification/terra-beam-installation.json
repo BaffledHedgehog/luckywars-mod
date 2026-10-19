@@ -1,0 +1,30 @@
+{
+  "createdUtc": "2026-10-16T08:43:08.131458+00:00",
+  "artifactSha256": "110bc03d1061fa8b32a78d382bd5f4c139177a20102c7e6511cd341be606a1b8",
+  "readyJar": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-terra-beam-110bc03d.jar",
+  "previousInstalledSha256": "5399fbad3c5077fa4c1885c419efa4588186d9cd84c363ae3b0f43b6a41e5a0c",
+  "installed": false,
+  "checks": {
+    "terra-swords": {
+      "completed": [
+        "Terra sword loot payloads and Polymer item restoration",
+        "Terra sword native use, melee/arrow damage, swept hits and suppression",
+        "True Terra swept interval damage, hurt cooldown bypass, visual-edge collision, stacking and attribution",
+        "Terra sword projectiles and virtual displays clear after match stop"
+      ],
+      "artifactSha256": "110bc03d1061fa8b32a78d382bd5f4c139177a20102c7e6511cd341be606a1b8",
+      "elapsedSeconds": 39.26
+    },
+    "electric-damage": {
+      "completed": [
+        "shared electric damage type registration",
+        "electric cooldown stacking, additive metal bonus, Techno immunity, native defenses, no knockback, aliases and observer exclusion",
+        "electric damage player fixture restored after match stop"
+      ],
+      "artifactSha256": "110bc03d1061fa8b32a78d382bd5f4c139177a20102c7e6511cd341be606a1b8",
+      "elapsedSeconds": 39.82
+    }
+  },
+  "reason": "Main server holds world lock; staged only",
+  "installedSha256": "5399fbad3c5077fa4c1885c419efa4588186d9cd84c363ae3b0f43b6a41e5a0c"
+}

@@ -20,10 +20,7 @@
     "parent": "lbc:true_advancements/staffs/bass",
     "criteria": {
         "requirement": {
-            "trigger": "impossible"
+            "trigger": "minecraft:impossible"
         }
-    },
-    "rewards": {
-        "function": "lbc:swrg_kit_integration/gain/skill_acidman"
     }
 }

@@ -1,961 +1,961 @@
+{
+  "pools": [
     {
-        "pools": [
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:iron_sword",
+          "modifier": [
             {
-                "rolls": 1,
-                "entries": [
-                    {
-                        "type": "minecraft:item",
-                        "weight": 1,
-                        "name": "minecraft:iron_sword",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_u",
-                                    "minecraft:item_model": "lbc:fragmentsword",
-                                    "minecraft:max_damage": 600
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "fragment_sword",
-                                        "color": "light_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    [
-                                        {
-                                            "translate": "type",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        },
-                                        {
-                                            "translate": "sword",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        }
-                                    ],
-                                    {
-                                        "translate": "fragment_sword.lore",
-                                        "color": "dark_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:0}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 1,
-                        "name": "minecraft:iron_sword",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_u",
-                                    "minecraft:item_model": "lbc:fragmentsword",
-                                    "minecraft:max_damage": 600
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "fragment_sword",
-                                        "color": "light_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    [
-                                        {
-                                            "translate": "type",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        },
-                                        {
-                                            "translate": "sword",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        }
-                                    ],
-                                    {
-                                        "translate": "fragment_sword.lore",
-                                        "color": "dark_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:1}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 1,
-                        "name": "minecraft:iron_sword",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_u",
-                                    "minecraft:item_model": "lbc:fragmentsword",
-                                    "minecraft:max_damage": 600
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "fragment_sword",
-                                        "color": "light_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    [
-                                        {
-                                            "translate": "type",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        },
-                                        {
-                                            "translate": "sword",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        }
-                                    ],
-                                    {
-                                        "translate": "fragment_sword.lore",
-                                        "color": "dark_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:2}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 1,
-                        "name": "minecraft:iron_sword",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_u",
-                                    "minecraft:item_model": "lbc:fragmentsword",
-                                    "minecraft:max_damage": 600
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "fragment_sword",
-                                        "color": "light_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    [
-                                        {
-                                            "translate": "type",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        },
-                                        {
-                                            "translate": "sword",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        }
-                                    ],
-                                    {
-                                        "translate": "fragment_sword.lore",
-                                        "color": "dark_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:3}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 1,
-                        "name": "minecraft:iron_sword",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_u",
-                                    "minecraft:item_model": "lbc:fragmentsword",
-                                    "minecraft:max_damage": 600
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "fragment_sword",
-                                        "color": "light_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    [
-                                        {
-                                            "translate": "type",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        },
-                                        {
-                                            "translate": "sword",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        }
-                                    ],
-                                    {
-                                        "translate": "fragment_sword.lore",
-                                        "color": "dark_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:4}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 1,
-                        "name": "minecraft:iron_sword",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_u",
-                                    "minecraft:item_model": "lbc:fragmentsword",
-                                    "minecraft:max_damage": 600
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "fragment_sword",
-                                        "color": "light_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    [
-                                        {
-                                            "translate": "type",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        },
-                                        {
-                                            "translate": "sword",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        }
-                                    ],
-                                    {
-                                        "translate": "fragment_sword.lore",
-                                        "color": "dark_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:5}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 1,
-                        "name": "minecraft:iron_sword",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_u",
-                                    "minecraft:item_model": "lbc:fragmentsword",
-                                    "minecraft:max_damage": 600
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "fragment_sword",
-                                        "color": "light_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    [
-                                        {
-                                            "translate": "type",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        },
-                                        {
-                                            "translate": "sword",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        }
-                                    ],
-                                    {
-                                        "translate": "fragment_sword.lore",
-                                        "color": "dark_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:6}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 1,
-                        "name": "minecraft:iron_sword",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_u",
-                                    "minecraft:item_model": "lbc:fragmentsword",
-                                    "minecraft:max_damage": 600
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "fragment_sword",
-                                        "color": "light_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    [
-                                        {
-                                            "translate": "type",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        },
-                                        {
-                                            "translate": "sword",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        }
-                                    ],
-                                    {
-                                        "translate": "fragment_sword.lore",
-                                        "color": "dark_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:7}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 1,
-                        "name": "minecraft:iron_sword",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_u",
-                                    "minecraft:item_model": "lbc:fragmentsword",
-                                    "minecraft:max_damage": 600
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "fragment_sword",
-                                        "color": "light_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    [
-                                        {
-                                            "translate": "type",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        },
-                                        {
-                                            "translate": "sword",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        }
-                                    ],
-                                    {
-                                        "translate": "fragment_sword.lore",
-                                        "color": "dark_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:8}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 1,
-                        "name": "minecraft:iron_sword",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_u",
-                                    "minecraft:item_model": "lbc:fragmentsword",
-                                    "minecraft:max_damage": 600
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "fragment_sword",
-                                        "color": "light_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    [
-                                        {
-                                            "translate": "type",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        },
-                                        {
-                                            "translate": "sword",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        }
-                                    ],
-                                    {
-                                        "translate": "fragment_sword.lore",
-                                        "color": "dark_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:9}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 1,
-                        "name": "minecraft:iron_sword",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_u",
-                                    "minecraft:item_model": "lbc:fragmentsword",
-                                    "minecraft:max_damage": 600
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "fragment_sword",
-                                        "color": "light_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    [
-                                        {
-                                            "translate": "type",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        },
-                                        {
-                                            "translate": "sword",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        }
-                                    ],
-                                    {
-                                        "translate": "fragment_sword.lore",
-                                        "color": "dark_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:10}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 1,
-                        "name": "minecraft:iron_sword",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_u",
-                                    "minecraft:item_model": "lbc:fragmentsword",
-                                    "minecraft:max_damage": 600
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "fragment_sword",
-                                        "color": "light_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    [
-                                        {
-                                            "translate": "type",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        },
-                                        {
-                                            "translate": "sword",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        }
-                                    ],
-                                    {
-                                        "translate": "fragment_sword.lore",
-                                        "color": "dark_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:11}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 1,
-                        "name": "minecraft:iron_sword",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_u",
-                                    "minecraft:item_model": "lbc:fragmentsword",
-                                    "minecraft:max_damage": 600
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "fragment_sword",
-                                        "color": "light_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    [
-                                        {
-                                            "translate": "type",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        },
-                                        {
-                                            "translate": "sword",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        }
-                                    ],
-                                    {
-                                        "translate": "fragment_sword.lore",
-                                        "color": "dark_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:12}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 1,
-                        "name": "minecraft:iron_sword",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_u",
-                                    "minecraft:item_model": "lbc:fragmentsword",
-                                    "minecraft:max_damage": 600
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "fragment_sword",
-                                        "color": "light_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    [
-                                        {
-                                            "translate": "type",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        },
-                                        {
-                                            "translate": "sword",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        }
-                                    ],
-                                    {
-                                        "translate": "fragment_sword.lore",
-                                        "color": "dark_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:13}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 1,
-                        "name": "minecraft:iron_sword",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_u",
-                                    "minecraft:item_model": "lbc:fragmentsword",
-                                    "minecraft:max_damage": 600
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "fragment_sword",
-                                        "color": "light_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    [
-                                        {
-                                            "translate": "type",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        },
-                                        {
-                                            "translate": "sword",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        }
-                                    ],
-                                    {
-                                        "translate": "fragment_sword.lore",
-                                        "color": "dark_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:14}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 1,
-                        "name": "minecraft:iron_sword",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_u",
-                                    "minecraft:item_model": "lbc:fragmentsword",
-                                    "minecraft:max_damage": 600
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "fragment_sword",
-                                        "color": "light_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    [
-                                        {
-                                            "translate": "type",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        },
-                                        {
-                                            "translate": "sword",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        }
-                                    ],
-                                    {
-                                        "translate": "fragment_sword.lore",
-                                        "color": "dark_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:15}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 1,
-                        "name": "minecraft:iron_sword",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_count",
-                                "count": 1
-                            },
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_u",
-                                    "minecraft:item_model": "lbc:fragmentsword",
-                                    "minecraft:max_damage": 600
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_name",
-                                "name": [
-                                    {
-                                        "translate": "fragment_sword",
-                                        "color": "light_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_lore",
-                                "mode": "replace_all",
-                                "lore": [
-                                    [
-                                        {
-                                            "translate": "type",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        },
-                                        {
-                                            "translate": "sword",
-                                            "italic": false,
-                                            "color": "aqua"
-                                        }
-                                    ],
-                                    {
-                                        "translate": "fragment_sword.lore",
-                                        "color": "dark_purple",
-                                        "italic": false
-                                    }
-                                ]
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:16}"
-                            }
-                        ]
-                    }
-                ]
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_u",
+                "minecraft:item_model": "lbc:fragmentsword",
+                "minecraft:max_damage": 600
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "fragment_sword",
+                  "color": "light_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "sword",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "fragment_sword.lore",
+                  "color": "dark_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:0}",
+              "type": "minecraft:set_custom_data"
             }
-        ]
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:iron_sword",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_u",
+                "minecraft:item_model": "lbc:fragmentsword",
+                "minecraft:max_damage": 600
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "fragment_sword",
+                  "color": "light_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "sword",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "fragment_sword.lore",
+                  "color": "dark_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:iron_sword",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_u",
+                "minecraft:item_model": "lbc:fragmentsword",
+                "minecraft:max_damage": 600
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "fragment_sword",
+                  "color": "light_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "sword",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "fragment_sword.lore",
+                  "color": "dark_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:2}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:iron_sword",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_u",
+                "minecraft:item_model": "lbc:fragmentsword",
+                "minecraft:max_damage": 600
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "fragment_sword",
+                  "color": "light_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "sword",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "fragment_sword.lore",
+                  "color": "dark_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:3}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:iron_sword",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_u",
+                "minecraft:item_model": "lbc:fragmentsword",
+                "minecraft:max_damage": 600
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "fragment_sword",
+                  "color": "light_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "sword",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "fragment_sword.lore",
+                  "color": "dark_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:4}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:iron_sword",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_u",
+                "minecraft:item_model": "lbc:fragmentsword",
+                "minecraft:max_damage": 600
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "fragment_sword",
+                  "color": "light_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "sword",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "fragment_sword.lore",
+                  "color": "dark_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:5}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:iron_sword",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_u",
+                "minecraft:item_model": "lbc:fragmentsword",
+                "minecraft:max_damage": 600
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "fragment_sword",
+                  "color": "light_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "sword",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "fragment_sword.lore",
+                  "color": "dark_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:6}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:iron_sword",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_u",
+                "minecraft:item_model": "lbc:fragmentsword",
+                "minecraft:max_damage": 600
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "fragment_sword",
+                  "color": "light_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "sword",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "fragment_sword.lore",
+                  "color": "dark_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:7}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:iron_sword",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_u",
+                "minecraft:item_model": "lbc:fragmentsword",
+                "minecraft:max_damage": 600
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "fragment_sword",
+                  "color": "light_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "sword",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "fragment_sword.lore",
+                  "color": "dark_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:8}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:iron_sword",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_u",
+                "minecraft:item_model": "lbc:fragmentsword",
+                "minecraft:max_damage": 600
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "fragment_sword",
+                  "color": "light_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "sword",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "fragment_sword.lore",
+                  "color": "dark_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:9}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:iron_sword",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_u",
+                "minecraft:item_model": "lbc:fragmentsword",
+                "minecraft:max_damage": 600
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "fragment_sword",
+                  "color": "light_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "sword",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "fragment_sword.lore",
+                  "color": "dark_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:10}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:iron_sword",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_u",
+                "minecraft:item_model": "lbc:fragmentsword",
+                "minecraft:max_damage": 600
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "fragment_sword",
+                  "color": "light_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "sword",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "fragment_sword.lore",
+                  "color": "dark_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:11}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:iron_sword",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_u",
+                "minecraft:item_model": "lbc:fragmentsword",
+                "minecraft:max_damage": 600
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "fragment_sword",
+                  "color": "light_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "sword",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "fragment_sword.lore",
+                  "color": "dark_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:12}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:iron_sword",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_u",
+                "minecraft:item_model": "lbc:fragmentsword",
+                "minecraft:max_damage": 600
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "fragment_sword",
+                  "color": "light_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "sword",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "fragment_sword.lore",
+                  "color": "dark_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:13}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:iron_sword",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_u",
+                "minecraft:item_model": "lbc:fragmentsword",
+                "minecraft:max_damage": 600
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "fragment_sword",
+                  "color": "light_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "sword",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "fragment_sword.lore",
+                  "color": "dark_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:14}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:iron_sword",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_u",
+                "minecraft:item_model": "lbc:fragmentsword",
+                "minecraft:max_damage": 600
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "fragment_sword",
+                  "color": "light_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "sword",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "fragment_sword.lore",
+                  "color": "dark_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:15}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:iron_sword",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_u",
+                "minecraft:item_model": "lbc:fragmentsword",
+                "minecraft:max_damage": 600
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "fragment_sword",
+                  "color": "light_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "sword",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "fragment_sword.lore",
+                  "color": "dark_purple",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,sword:1,fragmentsword:1,unresolved_fragment:1,cooltype:16}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
     }
+  ]
+}

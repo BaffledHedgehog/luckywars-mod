@@ -1,0 +1,584 @@
+Compiled from "Attributes.java"
+public class net.minecraft.world.entity.ai.attributes.Attributes {
+  public static final double DEFAULT_ATTACK_SPEED;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> AIR_DRAG_MODIFIER;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> ARMOR;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> ARMOR_TOUGHNESS;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> ATTACK_DAMAGE;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> ATTACK_KNOCKBACK;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> ATTACK_SPEED;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> BELOW_NAME_DISTANCE;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> BLOCK_BREAK_SPEED;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> BLOCK_INTERACTION_RANGE;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> BOUNCINESS;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> BURNING_TIME;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> CAMERA_DISTANCE;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> EXPLOSION_KNOCKBACK_RESISTANCE;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> ENTITY_INTERACTION_RANGE;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> FALL_DAMAGE_MULTIPLIER;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> FLYING_SPEED;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> FOLLOW_RANGE;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> FRICTION_MODIFIER;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> GRAVITY;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> JUMP_STRENGTH;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> KNOCKBACK_RESISTANCE;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> LUCK;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> MAX_ABSORPTION;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> MAX_HEALTH;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> MINING_EFFICIENCY;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> MOVEMENT_EFFICIENCY;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> MOVEMENT_SPEED;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> NAME_TAG_DISTANCE;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> OXYGEN_BONUS;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> SAFE_FALL_DISTANCE;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> SCALE;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> SNEAKING_SPEED;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> SPAWN_REINFORCEMENTS_CHANCE;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> STEP_HEIGHT;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> SUBMERGED_MINING_SPEED;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> SWEEPING_DAMAGE_RATIO;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> TEMPT_RANGE;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> WATER_MOVEMENT_EFFICIENCY;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> WAYPOINT_TRANSMIT_RANGE;
+
+  public static final net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> WAYPOINT_RECEIVE_RANGE;
+
+  public net.minecraft.world.entity.ai.attributes.Attributes();
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return
+
+  private static net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> register(java.lang.String, net.minecraft.world.entity.ai.attributes.Attribute);
+    Code:
+         0: getstatic     #7                  // Field net/minecraft/core/registries/BuiltInRegistries.ATTRIBUTE:Lnet/minecraft/core/Registry;
+         3: aload_0
+         4: invokestatic  #13                 // Method net/minecraft/resources/Identifier.withDefaultNamespace:(Ljava/lang/String;)Lnet/minecraft/resources/Identifier;
+         7: aload_1
+         8: invokestatic  #19                 // InterfaceMethod net/minecraft/core/Registry.registerForHolder:(Lnet/minecraft/core/Registry;Lnet/minecraft/resources/Identifier;Ljava/lang/Object;)Lnet/minecraft/core/Holder$Reference;
+        11: areturn
+
+  public static net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> bootstrap(net.minecraft.core.Registry<net.minecraft.world.entity.ai.attributes.Attribute>);
+    Code:
+         0: getstatic     #25                 // Field MAX_HEALTH:Lnet/minecraft/core/Holder;
+         3: areturn
+
+  static {};
+    Code:
+         0: ldc           #31                 // String air_drag_modifier
+         2: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+         5: dup
+         6: ldc           #35                 // String attribute.name.air_drag_modifier
+         8: dconst_1
+         9: dconst_0
+        10: ldc2_w        #37                 // double 2048.0d
+        13: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+        16: iconst_1
+        17: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+        20: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+        23: putstatic     #50                 // Field AIR_DRAG_MODIFIER:Lnet/minecraft/core/Holder;
+        26: ldc           #53                 // String armor
+        28: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+        31: dup
+        32: ldc           #55                 // String attribute.name.armor
+        34: dconst_0
+        35: dconst_0
+        36: ldc2_w        #57                 // double 30.0d
+        39: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+        42: iconst_1
+        43: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+        46: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+        49: putstatic     #59                 // Field ARMOR:Lnet/minecraft/core/Holder;
+        52: ldc           #62                 // String armor_toughness
+        54: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+        57: dup
+        58: ldc           #64                 // String attribute.name.armor_toughness
+        60: dconst_0
+        61: dconst_0
+        62: ldc2_w        #66                 // double 20.0d
+        65: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+        68: iconst_1
+        69: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+        72: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+        75: putstatic     #68                 // Field ARMOR_TOUGHNESS:Lnet/minecraft/core/Holder;
+        78: ldc           #71                 // String attack_damage
+        80: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+        83: dup
+        84: ldc           #73                 // String attribute.name.attack_damage
+        86: ldc2_w        #75                 // double 2.0d
+        89: dconst_0
+        90: ldc2_w        #37                 // double 2048.0d
+        93: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+        96: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+        99: putstatic     #77                 // Field ATTACK_DAMAGE:Lnet/minecraft/core/Holder;
+       102: ldc           #80                 // String attack_knockback
+       104: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       107: dup
+       108: ldc           #82                 // String attribute.name.attack_knockback
+       110: dconst_0
+       111: dconst_0
+       112: ldc2_w        #84                 // double 5.0d
+       115: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       118: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       121: putstatic     #86                 // Field ATTACK_KNOCKBACK:Lnet/minecraft/core/Holder;
+       124: ldc           #89                 // String attack_speed
+       126: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       129: dup
+       130: ldc           #91                 // String attribute.name.attack_speed
+       132: ldc2_w        #93                 // double 4.0d
+       135: dconst_0
+       136: ldc2_w        #95                 // double 1024.0d
+       139: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       142: iconst_1
+       143: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       146: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       149: putstatic     #97                 // Field ATTACK_SPEED:Lnet/minecraft/core/Holder;
+       152: ldc           #100                // String below_name_distance
+       154: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       157: dup
+       158: ldc           #102                // String attribute.name.below_name_distance
+       160: ldc2_w        #106                // double 10.0d
+       163: dconst_0
+       164: ldc2_w        #108                // double 512.0d
+       167: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       170: iconst_1
+       171: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       174: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       177: putstatic     #110                // Field BELOW_NAME_DISTANCE:Lnet/minecraft/core/Holder;
+       180: ldc           #113                // String block_break_speed
+       182: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       185: dup
+       186: ldc           #115                // String attribute.name.block_break_speed
+       188: dconst_1
+       189: dconst_0
+       190: ldc2_w        #95                 // double 1024.0d
+       193: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       196: iconst_1
+       197: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       200: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       203: putstatic     #117                // Field BLOCK_BREAK_SPEED:Lnet/minecraft/core/Holder;
+       206: ldc           #120                // String block_interaction_range
+       208: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       211: dup
+       212: ldc           #122                // String attribute.name.block_interaction_range
+       214: ldc2_w        #126                // double 4.5d
+       217: dconst_0
+       218: ldc2_w        #128                // double 64.0d
+       221: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       224: iconst_1
+       225: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       228: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       231: putstatic     #130                // Field BLOCK_INTERACTION_RANGE:Lnet/minecraft/core/Holder;
+       234: ldc           #133                // String bounciness
+       236: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       239: dup
+       240: ldc           #135                // String attribute.name.bounciness
+       242: dconst_0
+       243: dconst_0
+       244: dconst_1
+       245: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       248: iconst_1
+       249: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       252: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       255: putstatic     #137                // Field BOUNCINESS:Lnet/minecraft/core/Holder;
+       258: ldc           #140                // String burning_time
+       260: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       263: dup
+       264: ldc           #142                // String attribute.name.burning_time
+       266: dconst_1
+       267: dconst_0
+       268: ldc2_w        #95                 // double 1024.0d
+       271: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       274: iconst_1
+       275: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       278: getstatic     #144                // Field net/minecraft/world/entity/ai/attributes/Attribute$Sentiment.NEGATIVE:Lnet/minecraft/world/entity/ai/attributes/Attribute$Sentiment;
+       281: invokevirtual #150                // Method net/minecraft/world/entity/ai/attributes/Attribute.setSentiment:(Lnet/minecraft/world/entity/ai/attributes/Attribute$Sentiment;)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       284: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       287: putstatic     #156                // Field BURNING_TIME:Lnet/minecraft/core/Holder;
+       290: ldc           #159                // String camera_distance
+       292: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       295: dup
+       296: ldc           #161                // String attribute.name.camera_distance
+       298: ldc2_w        #93                 // double 4.0d
+       301: dconst_0
+       302: ldc2_w        #163                // double 32.0d
+       305: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       308: iconst_1
+       309: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       312: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       315: putstatic     #165                // Field CAMERA_DISTANCE:Lnet/minecraft/core/Holder;
+       318: ldc           #168                // String explosion_knockback_resistance
+       320: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       323: dup
+       324: ldc           #170                // String attribute.name.explosion_knockback_resistance
+       326: dconst_0
+       327: dconst_0
+       328: dconst_1
+       329: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       332: iconst_1
+       333: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       336: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       339: putstatic     #172                // Field EXPLOSION_KNOCKBACK_RESISTANCE:Lnet/minecraft/core/Holder;
+       342: ldc           #175                // String entity_interaction_range
+       344: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       347: dup
+       348: ldc           #177                // String attribute.name.entity_interaction_range
+       350: ldc2_w        #179                // double 3.0d
+       353: dconst_0
+       354: ldc2_w        #128                // double 64.0d
+       357: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       360: iconst_1
+       361: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       364: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       367: putstatic     #181                // Field ENTITY_INTERACTION_RANGE:Lnet/minecraft/core/Holder;
+       370: ldc           #184                // String fall_damage_multiplier
+       372: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       375: dup
+       376: ldc           #186                // String attribute.name.fall_damage_multiplier
+       378: dconst_1
+       379: dconst_0
+       380: ldc2_w        #188                // double 100.0d
+       383: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       386: iconst_1
+       387: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       390: getstatic     #144                // Field net/minecraft/world/entity/ai/attributes/Attribute$Sentiment.NEGATIVE:Lnet/minecraft/world/entity/ai/attributes/Attribute$Sentiment;
+       393: invokevirtual #150                // Method net/minecraft/world/entity/ai/attributes/Attribute.setSentiment:(Lnet/minecraft/world/entity/ai/attributes/Attribute$Sentiment;)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       396: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       399: putstatic     #190                // Field FALL_DAMAGE_MULTIPLIER:Lnet/minecraft/core/Holder;
+       402: ldc           #193                // String flying_speed
+       404: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       407: dup
+       408: ldc           #195                // String attribute.name.flying_speed
+       410: ldc2_w        #197                // double 0.4d
+       413: dconst_0
+       414: ldc2_w        #95                 // double 1024.0d
+       417: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       420: iconst_1
+       421: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       424: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       427: putstatic     #199                // Field FLYING_SPEED:Lnet/minecraft/core/Holder;
+       430: ldc           #202                // String follow_range
+       432: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       435: dup
+       436: ldc           #204                // String attribute.name.follow_range
+       438: ldc2_w        #163                // double 32.0d
+       441: dconst_0
+       442: ldc2_w        #37                 // double 2048.0d
+       445: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       448: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       451: putstatic     #206                // Field FOLLOW_RANGE:Lnet/minecraft/core/Holder;
+       454: ldc           #209                // String friction_modifier
+       456: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       459: dup
+       460: ldc           #211                // String attribute.name.friction_modifier
+       462: dconst_1
+       463: dconst_0
+       464: ldc2_w        #37                 // double 2048.0d
+       467: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       470: iconst_1
+       471: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       474: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       477: putstatic     #213                // Field FRICTION_MODIFIER:Lnet/minecraft/core/Holder;
+       480: ldc           #216                // String gravity
+       482: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       485: dup
+       486: ldc           #218                // String attribute.name.gravity
+       488: ldc2_w        #222                // double 0.08d
+       491: ldc2_w        #224                // double -1.0d
+       494: dconst_1
+       495: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       498: iconst_1
+       499: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       502: getstatic     #226                // Field net/minecraft/world/entity/ai/attributes/Attribute$Sentiment.NEUTRAL:Lnet/minecraft/world/entity/ai/attributes/Attribute$Sentiment;
+       505: invokevirtual #150                // Method net/minecraft/world/entity/ai/attributes/Attribute.setSentiment:(Lnet/minecraft/world/entity/ai/attributes/Attribute$Sentiment;)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       508: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       511: putstatic     #229                // Field GRAVITY:Lnet/minecraft/core/Holder;
+       514: ldc           #232                // String jump_strength
+       516: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       519: dup
+       520: ldc           #234                // String attribute.name.jump_strength
+       522: ldc2_w        #236                // double 0.41999998688697815d
+       525: dconst_0
+       526: ldc2_w        #163                // double 32.0d
+       529: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       532: iconst_1
+       533: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       536: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       539: putstatic     #238                // Field JUMP_STRENGTH:Lnet/minecraft/core/Holder;
+       542: ldc           #241                // String knockback_resistance
+       544: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       547: dup
+       548: ldc           #243                // String attribute.name.knockback_resistance
+       550: dconst_0
+       551: ldc2_w        #245                // double -2.0d
+       554: dconst_1
+       555: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       558: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       561: putstatic     #247                // Field KNOCKBACK_RESISTANCE:Lnet/minecraft/core/Holder;
+       564: ldc           #250                // String luck
+       566: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       569: dup
+       570: ldc           #252                // String attribute.name.luck
+       572: dconst_0
+       573: ldc2_w        #254                // double -1024.0d
+       576: ldc2_w        #95                 // double 1024.0d
+       579: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       582: iconst_1
+       583: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       586: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       589: putstatic     #256                // Field LUCK:Lnet/minecraft/core/Holder;
+       592: ldc_w         #259                // String max_absorption
+       595: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       598: dup
+       599: ldc_w         #261                // String attribute.name.max_absorption
+       602: dconst_0
+       603: dconst_0
+       604: ldc2_w        #37                 // double 2048.0d
+       607: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       610: iconst_1
+       611: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       614: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       617: putstatic     #263                // Field MAX_ABSORPTION:Lnet/minecraft/core/Holder;
+       620: ldc_w         #266                // String max_health
+       623: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       626: dup
+       627: ldc_w         #268                // String attribute.name.max_health
+       630: ldc2_w        #66                 // double 20.0d
+       633: dconst_1
+       634: ldc2_w        #95                 // double 1024.0d
+       637: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       640: iconst_1
+       641: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       644: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       647: putstatic     #25                 // Field MAX_HEALTH:Lnet/minecraft/core/Holder;
+       650: ldc_w         #270                // String mining_efficiency
+       653: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       656: dup
+       657: ldc_w         #272                // String attribute.name.mining_efficiency
+       660: dconst_0
+       661: dconst_0
+       662: ldc2_w        #95                 // double 1024.0d
+       665: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       668: iconst_1
+       669: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       672: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       675: putstatic     #274                // Field MINING_EFFICIENCY:Lnet/minecraft/core/Holder;
+       678: ldc_w         #277                // String movement_efficiency
+       681: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       684: dup
+       685: ldc_w         #279                // String attribute.name.movement_efficiency
+       688: dconst_0
+       689: dconst_0
+       690: dconst_1
+       691: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       694: iconst_1
+       695: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       698: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       701: putstatic     #281                // Field MOVEMENT_EFFICIENCY:Lnet/minecraft/core/Holder;
+       704: ldc_w         #284                // String movement_speed
+       707: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       710: dup
+       711: ldc_w         #286                // String attribute.name.movement_speed
+       714: ldc2_w        #288                // double 0.7d
+       717: dconst_0
+       718: ldc2_w        #95                 // double 1024.0d
+       721: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       724: iconst_1
+       725: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       728: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       731: putstatic     #290                // Field MOVEMENT_SPEED:Lnet/minecraft/core/Holder;
+       734: ldc_w         #293                // String name_tag_distance
+       737: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       740: dup
+       741: ldc_w         #295                // String attribute.name.name_tag_distance
+       744: ldc2_w        #128                // double 64.0d
+       747: dconst_0
+       748: ldc2_w        #108                // double 512.0d
+       751: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       754: iconst_1
+       755: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       758: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       761: putstatic     #297                // Field NAME_TAG_DISTANCE:Lnet/minecraft/core/Holder;
+       764: ldc_w         #300                // String oxygen_bonus
+       767: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       770: dup
+       771: ldc_w         #302                // String attribute.name.oxygen_bonus
+       774: dconst_0
+       775: dconst_0
+       776: ldc2_w        #95                 // double 1024.0d
+       779: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       782: iconst_1
+       783: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       786: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       789: putstatic     #304                // Field OXYGEN_BONUS:Lnet/minecraft/core/Holder;
+       792: ldc_w         #307                // String safe_fall_distance
+       795: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       798: dup
+       799: ldc_w         #309                // String attribute.name.safe_fall_distance
+       802: ldc2_w        #179                // double 3.0d
+       805: ldc2_w        #254                // double -1024.0d
+       808: ldc2_w        #95                 // double 1024.0d
+       811: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       814: iconst_1
+       815: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       818: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       821: putstatic     #311                // Field SAFE_FALL_DISTANCE:Lnet/minecraft/core/Holder;
+       824: ldc_w         #314                // String scale
+       827: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       830: dup
+       831: ldc_w         #316                // String attribute.name.scale
+       834: dconst_1
+       835: ldc2_w        #318                // double 0.0625d
+       838: ldc2_w        #320                // double 16.0d
+       841: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       844: iconst_1
+       845: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       848: getstatic     #226                // Field net/minecraft/world/entity/ai/attributes/Attribute$Sentiment.NEUTRAL:Lnet/minecraft/world/entity/ai/attributes/Attribute$Sentiment;
+       851: invokevirtual #150                // Method net/minecraft/world/entity/ai/attributes/Attribute.setSentiment:(Lnet/minecraft/world/entity/ai/attributes/Attribute$Sentiment;)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       854: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       857: putstatic     #322                // Field SCALE:Lnet/minecraft/core/Holder;
+       860: ldc_w         #325                // String sneaking_speed
+       863: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       866: dup
+       867: ldc_w         #327                // String attribute.name.sneaking_speed
+       870: ldc2_w        #329                // double 0.3d
+       873: dconst_0
+       874: dconst_1
+       875: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       878: iconst_1
+       879: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       882: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       885: putstatic     #331                // Field SNEAKING_SPEED:Lnet/minecraft/core/Holder;
+       888: ldc_w         #334                // String spawn_reinforcements
+       891: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       894: dup
+       895: ldc_w         #336                // String attribute.name.spawn_reinforcements
+       898: dconst_0
+       899: dconst_0
+       900: dconst_1
+       901: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       904: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       907: putstatic     #338                // Field SPAWN_REINFORCEMENTS_CHANCE:Lnet/minecraft/core/Holder;
+       910: ldc_w         #341                // String step_height
+       913: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       916: dup
+       917: ldc_w         #343                // String attribute.name.step_height
+       920: ldc2_w        #345                // double 0.6d
+       923: dconst_0
+       924: ldc2_w        #106                // double 10.0d
+       927: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       930: iconst_1
+       931: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       934: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       937: putstatic     #347                // Field STEP_HEIGHT:Lnet/minecraft/core/Holder;
+       940: ldc_w         #350                // String submerged_mining_speed
+       943: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       946: dup
+       947: ldc_w         #352                // String attribute.name.submerged_mining_speed
+       950: ldc2_w        #354                // double 0.2d
+       953: dconst_0
+       954: ldc2_w        #66                 // double 20.0d
+       957: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       960: iconst_1
+       961: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       964: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       967: putstatic     #356                // Field SUBMERGED_MINING_SPEED:Lnet/minecraft/core/Holder;
+       970: ldc_w         #359                // String sweeping_damage_ratio
+       973: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+       976: dup
+       977: ldc_w         #361                // String attribute.name.sweeping_damage_ratio
+       980: dconst_0
+       981: dconst_0
+       982: dconst_1
+       983: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+       986: iconst_1
+       987: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+       990: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+       993: putstatic     #363                // Field SWEEPING_DAMAGE_RATIO:Lnet/minecraft/core/Holder;
+       996: ldc_w         #366                // String tempt_range
+       999: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+      1002: dup
+      1003: ldc_w         #368                // String attribute.name.tempt_range
+      1006: ldc2_w        #106                // double 10.0d
+      1009: dconst_0
+      1010: ldc2_w        #37                 // double 2048.0d
+      1013: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+      1016: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+      1019: putstatic     #370                // Field TEMPT_RANGE:Lnet/minecraft/core/Holder;
+      1022: ldc_w         #373                // String water_movement_efficiency
+      1025: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+      1028: dup
+      1029: ldc_w         #375                // String attribute.name.water_movement_efficiency
+      1032: dconst_0
+      1033: dconst_0
+      1034: dconst_1
+      1035: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+      1038: iconst_1
+      1039: invokevirtual #42                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSyncable:(Z)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+      1042: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+      1045: putstatic     #377                // Field WATER_MOVEMENT_EFFICIENCY:Lnet/minecraft/core/Holder;
+      1048: ldc_w         #380                // String waypoint_transmit_range
+      1051: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+      1054: dup
+      1055: ldc_w         #382                // String attribute.name.waypoint_transmit_range
+      1058: dconst_0
+      1059: dconst_0
+      1060: ldc2_w        #386                // double 6.0E7d
+      1063: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+      1066: getstatic     #226                // Field net/minecraft/world/entity/ai/attributes/Attribute$Sentiment.NEUTRAL:Lnet/minecraft/world/entity/ai/attributes/Attribute$Sentiment;
+      1069: invokevirtual #388                // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSentiment:(Lnet/minecraft/world/entity/ai/attributes/Attribute$Sentiment;)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+      1072: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+      1075: putstatic     #389                // Field WAYPOINT_TRANSMIT_RANGE:Lnet/minecraft/core/Holder;
+      1078: ldc_w         #392                // String waypoint_receive_range
+      1081: new           #33                 // class net/minecraft/world/entity/ai/attributes/RangedAttribute
+      1084: dup
+      1085: ldc_w         #394                // String attribute.name.waypoint_receive_range
+      1088: dconst_0
+      1089: dconst_0
+      1090: ldc2_w        #386                // double 6.0E7d
+      1093: invokespecial #39                 // Method net/minecraft/world/entity/ai/attributes/RangedAttribute."<init>":(Ljava/lang/String;DDD)V
+      1096: getstatic     #226                // Field net/minecraft/world/entity/ai/attributes/Attribute$Sentiment.NEUTRAL:Lnet/minecraft/world/entity/ai/attributes/Attribute$Sentiment;
+      1099: invokevirtual #388                // Method net/minecraft/world/entity/ai/attributes/RangedAttribute.setSentiment:(Lnet/minecraft/world/entity/ai/attributes/Attribute$Sentiment;)Lnet/minecraft/world/entity/ai/attributes/Attribute;
+      1102: invokestatic  #46                 // Method register:(Ljava/lang/String;Lnet/minecraft/world/entity/ai/attributes/Attribute;)Lnet/minecraft/core/Holder;
+      1105: putstatic     #396                // Field WAYPOINT_RECEIVE_RANGE:Lnet/minecraft/core/Holder;
+      1108: return
+}

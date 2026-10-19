@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:sequence",
+  "functions": [
+    {
+      "mode": "append",
+      "lore": [
+        {
+          "translate": "lbckit.21.lore.1",
+          "italic": false,
+          "color": "green"
+        },
+        {
+          "translate": "lbckit.21.lore.2",
+          "italic": false,
+          "color": "gray"
+        },
+        {
+          "translate": "lbckit.21.lore.3",
+          "italic": false,
+          "color": "gray"
+        }
+      ],
+      "type": "minecraft:set_lore"
+    },
+    {
+      "tag": "{\"PublicBukkitValues\": {\"lws:item\": {\"lws:additionals\": [\"rocket_armor\"]}},\"explosive_feets\": 1}",
+      "type": "set_custom_data"
+    },
+    {
+      "components": {
+        "glider": {}
+      },
+      "type": "set_components"
+    }
+  ]
+}

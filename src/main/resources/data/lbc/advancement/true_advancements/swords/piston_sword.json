@@ -22,30 +22,26 @@
         "requirement": {
             "trigger": "minecraft:player_killed_entity",
             "conditions": {
-                "player": [
-                    {
-                        "condition": "minecraft:entity_properties",
-                        "entity": "this",
-                        "predicate": {
-                            "equipment": {
-                                "mainhand": {
-                                    "predicates": {
-                                        "minecraft:custom_data": "{transformable: 1,sword: 1,piston_sword: 1}"
-                                    }
+                "player": {
+                    "entity": "this",
+                    "predicate": {
+                        "minecraft:equipment": {
+                            "mainhand": {
+                                "predicates": {
+                                    "minecraft:custom_data": "{transformable: 1,sword: 1,piston_sword: 1}"
                                 }
                             }
                         }
-                    }
-                ],
-                "entity": [
-                    {
-                        "condition": "minecraft:entity_properties",
-                        "entity": "this",
-                        "predicate": {
-                            "type": "minecraft:player"
-                        }
-                    }
-                ]
+                    },
+                    "type": "minecraft:entity_properties"
+                },
+                "entity": {
+                    "entity": "this",
+                    "predicate": {
+                        "minecraft:entity_type": "minecraft:player"
+                    },
+                    "type": "minecraft:entity_properties"
+                }
             }
         }
     }

@@ -1,112 +1,112 @@
+{
+  "pools": [
     {
-        "pools": [
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:transformables_bow",
+          "weight": 11
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:crossbow",
+          "modifier": [
             {
-                "rolls": 1,
-                "entries": [
-                    {
-                        "type": "minecraft:loot_table",
-                        "value": "lbc:transformables_bow",
-                        "weight": 11
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 1,
-                        "name": "minecraft:crossbow",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_b",
-                                    "minecraft:enchantments": {
-                                        "minecraft:quick_charge": 5
-                                    },
-                                    "minecraft:custom_name": {
-                                        "bold": true,
-                                        "color": "yellow",
-                                        "italic": false,
-                                        "translate": "blaze_crossbow"
-                                    },
-                                    "minecraft:lore": [
-                                        {
-                                            "translate": "blaze_crossbow.lore",
-                                            "color": "gold",
-                                            "italic": false
-                                        }
-                                    ],
-                                    "minecraft:charged_projectiles": [
-                                        {
-                                            "id": "minecraft:arrow",
-                                            "count": 1
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{transformable:1,bow:1,fastfired:1,craftusable:1}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:item",
-                        "weight": 1,
-                        "name": "minecraft:crossbow",
-                        "functions": [
-                            {
-                                "function": "minecraft:set_components",
-                                "components": {
-                                    "minecraft:tooltip_style": "lbc:tier_b",
-                                    "minecraft:enchantments": {
-                                        "minecraft:quick_charge": 5
-                                    },
-                                    "minecraft:custom_name": {
-                                        "bold": true,
-                                        "color": "red",
-                                        "italic": false,
-                                        "translate": "ghast_crossbow"
-                                    },
-                                    "minecraft:lore": [
-                                        {
-                                            "translate": "ghast_crossbow.lore",
-                                            "color": "gold",
-                                            "italic": false
-                                        }
-                                    ],
-                                    "minecraft:charged_projectiles": [
-                                        {
-                                            "id": "minecraft:firework_rocket",
-                                            "count": 1
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                "function": "minecraft:set_custom_data",
-                                "tag": "{transformable:1,bow:1,fastexplode:1,craftusable:1}"
-                            }
-                        ]
-                    },
-                    {
-                        "type": "minecraft:loot_table",
-                        "value": "lbc:dildomet",
-                        "weight": 1
-                    },
-                    {
-                        "type": "minecraft:loot_table",
-                        "value": "lbc:railgun",
-                        "weight": 1
-                    },
-                    {
-                        "type": "minecraft:loot_table",
-                        "value": "lbc:shishgun",
-                        "weight": 1
-                    },
-                    {
-                        "type": "minecraft:loot_table",
-                        "value": "lbc:madoka_bow",
-                        "weight": 1
-                    }
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:enchantments": {
+                  "minecraft:quick_charge": 5
+                },
+                "minecraft:custom_name": {
+                  "bold": true,
+                  "color": "yellow",
+                  "italic": false,
+                  "translate": "blaze_crossbow"
+                },
+                "minecraft:lore": [
+                  {
+                    "translate": "blaze_crossbow.lore",
+                    "color": "gold",
+                    "italic": false
+                  }
+                ],
+                "minecraft:charged_projectiles": [
+                  {
+                    "id": "minecraft:arrow",
+                    "count": 1
+                  }
                 ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{transformable:1,bow:1,fastfired:1,craftusable:1}",
+              "type": "minecraft:set_custom_data"
             }
-        ]
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "minecraft:crossbow",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:enchantments": {
+                  "minecraft:quick_charge": 5
+                },
+                "minecraft:custom_name": {
+                  "bold": true,
+                  "color": "red",
+                  "italic": false,
+                  "translate": "ghast_crossbow"
+                },
+                "minecraft:lore": [
+                  {
+                    "translate": "ghast_crossbow.lore",
+                    "color": "gold",
+                    "italic": false
+                  }
+                ],
+                "minecraft:charged_projectiles": [
+                  {
+                    "id": "minecraft:firework_rocket",
+                    "count": 1
+                  }
+                ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{transformable:1,bow:1,fastexplode:1,craftusable:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:dildomet",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:railgun",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:shishgun",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:madoka_bow",
+          "weight": 1
+        }
+      ]
     }
+  ]
+}

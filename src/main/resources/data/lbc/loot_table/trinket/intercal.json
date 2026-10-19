@@ -1,52 +1,52 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:item",
+          "name": "skywars2:intercal",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:item_model": "lbc:trinket_9",
+                "minecraft:max_stack_size": 99
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "entity": "this",
+              "name": {
+                "translate": "lbctrinket.9",
+                "italic": false,
+                "color": "white"
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:item_model": "lbc:trinket_9",
-                                "minecraft:max_stack_size": 99
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "entity": "this",
-                            "name": {
-                                "translate": "lbctrinket.9",
-                                "italic": false,
-                                "color": "white"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "entity": "this",
-                            "lore": [
-                                {
-                                    "translate": "lbctrinket.9.lore.1",
-                                    "italic": false,
-                                    "color": "gray"
-                                },
-                                {
-                                    "translate": "lbctrinket.9.lore.2",
-                                    "italic": false,
-                                    "color": "gray"
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{trinket:\"intercal\",govnoq:1,craftusable:1}"
-                        }
-                    ]
+                  "translate": "lbctrinket.9.lore.1",
+                  "italic": false,
+                  "color": "gray"
+                },
+                {
+                  "translate": "lbctrinket.9.lore.2",
+                  "italic": false,
+                  "color": "gray"
                 }
-            ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{trinket:\"intercal\",govnoq:1,craftusable:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

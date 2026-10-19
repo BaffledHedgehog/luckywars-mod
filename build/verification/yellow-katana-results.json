@@ -1,0 +1,11 @@
+{
+  "completed": [
+    "Shit Katana source loot and native Polymer item",
+    "2x2/3x3 exact crafting; melee charge, skill perk, nonmagic activation, guards, reflection, and ray lifetime",
+    "Regular/Academy/Tiny Electro swept-hit regression and ordinary Cyberkatana/shield behavior",
+    "Yellow ray state clears after match stop"
+  ],
+  "craftOnly": false,
+  "artifactSha256": "3eeb145640479606e08b7e5a82c20092f54914049811c553784c0196a5ae2415",
+  "elapsedSeconds": 67.88
+}

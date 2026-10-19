@@ -1,0 +1,699 @@
+{
+  "kits": [
+    {
+      "id": 1,
+      "page": 9000,
+      "slot": 0,
+      "table": "lbc:kit/broken_totem",
+      "gate": "lbc:true_advancements/accesories/devilstomach",
+      "lockedKey": "lbc.adv.accessories.devil_stomach.lore"
+    },
+    {
+      "id": 2,
+      "page": 9000,
+      "slot": 1,
+      "table": "lbc:kit/3_purify_potion",
+      "gate": "lbc:true_advancements/accesories/popit",
+      "lockedKey": "lbc.adv.accessories.popit.lore"
+    },
+    {
+      "id": 4,
+      "page": 9000,
+      "slot": 3,
+      "table": "lbc:kit/life_in_death",
+      "gate": "lbc:true_advancements/arcanums/barrier_and_heal",
+      "lockedKey": "lbc.adv.arcanums.barrier_and_heal.lore"
+    },
+    {
+      "id": 5,
+      "page": 9000,
+      "slot": 4,
+      "table": "lbc:kit/hell",
+      "gate": "lbc:true_advancements/arcanums/kiuaskivi",
+      "lockedKey": "lbc.adv.arcanums.kiuaskivi.lore"
+    },
+    {
+      "id": 7,
+      "page": 9000,
+      "slot": 6,
+      "table": "lbc:kit/moisei",
+      "gate": "lbc:true_advancements/armor/moisei_boots",
+      "lockedKey": "lbc.adv.armor.moisei.lore"
+    },
+    {
+      "id": 9,
+      "page": 9000,
+      "slot": 8,
+      "table": "lbc:kit/nanobot",
+      "gate": "lbc:true_advancements/armor/nano",
+      "lockedKey": "lbc.adv.armor.nano.lore"
+    },
+    {
+      "id": 10,
+      "page": 9000,
+      "slot": 9,
+      "table": "lbc:kit/ghost",
+      "gate": "lbc:true_advancements/armor/phantom",
+      "lockedKey": "lbc.adv.armor.phantom.lore"
+    },
+    {
+      "id": 15,
+      "page": 9000,
+      "slot": 14,
+      "table": "lbc:kit/dynamite",
+      "gate": "lbc:true_advancements/bows/firework",
+      "lockedKey": "lbc.adv.bow.firework.lore"
+    },
+    {
+      "id": 17,
+      "page": 9000,
+      "slot": 16,
+      "table": "lbc:kit/brbad",
+      "gate": "lbc:true_advancements/legends/academy/acid_tuntija",
+      "lockedKey": "lbc.adv.upgraded_tuntija.acid.lore"
+    },
+    {
+      "id": 22,
+      "page": 9000,
+      "slot": 22,
+      "table": "lbc:kit/explosive_feets",
+      "gate": "lbc:true_advancements/legends/academy/exasperato",
+      "lockedKey": "lbc.adv.upgraded_tuntija.exasperato.lore"
+    },
+    {
+      "id": 23,
+      "page": 9000,
+      "slot": 23,
+      "table": "lbc:kit/fast_sword"
+    }
+  ],
+  "skills": [
+    {
+      "id": 5,
+      "page": 10000,
+      "slot": 4,
+      "gate": "lbc:true_advancements/armor/erosion",
+      "lockedKey": "lbc.adv.armor.erosion.lore"
+    }
+  ],
+  "levelups": [
+    {
+      "id": 3,
+      "page": 8000,
+      "slot": 2,
+      "modifiers": [
+        {
+          "attribute": "minecraft:max_health",
+          "key": "minecraft:a5e06574-2c94-4f2f-843c-55e25f5c4520",
+          "amount": 0.15,
+          "operation": "add_multiplied_total"
+        }
+      ],
+      "gate": "lbc:true_advancements/accesories/regeneration_belt",
+      "lockedKey": "lbc.adv.accessories.regeneration_belt.lore"
+    },
+    {
+      "id": 4,
+      "page": 8000,
+      "slot": 3,
+      "modifiers": [
+        {
+          "attribute": "minecraft:knockback_resistance",
+          "key": "minecraft:c1b6809e-55c4-4a5e-b43d-2ee8f50b74f1",
+          "amount": 0.4,
+          "operation": "add_value"
+        }
+      ],
+      "gate": "lbc:true_advancements/accesories/save_platform",
+      "lockedKey": "lbc.adv.accessories.save_platform.lore"
+    },
+    {
+      "id": 5,
+      "page": 8000,
+      "slot": 4,
+      "modifiers": [
+        {
+          "attribute": "minecraft:attack_damage",
+          "key": "minecraft:c9eee15a-26f7-41a7-bab8-6511c6f3d764",
+          "amount": 0.8,
+          "operation": "add_value"
+        }
+      ],
+      "gate": "lbc:true_advancements/arcanums/babylon_gate",
+      "lockedKey": "lbc.adv.arcanums.babylon_gate.lore"
+    },
+    {
+      "id": 6,
+      "page": 8000,
+      "slot": 5,
+      "modifiers": [
+        {
+          "attribute": "minecraft:armor",
+          "key": "minecraft:6c4edb0b-0497-4694-bddd-1b86bb588c00",
+          "amount": 4.0,
+          "operation": "add_value"
+        }
+      ],
+      "gate": "lbc:true_advancements/arcanums/barrier",
+      "lockedKey": "lbc.adv.arcanums.barrier.lore"
+    },
+    {
+      "id": 7,
+      "page": 8000,
+      "slot": 6,
+      "modifiers": [
+        {
+          "attribute": "minecraft:attack_damage",
+          "key": "minecraft:fab7c3d2-7130-478a-b14f-091f52d55a74",
+          "amount": 0.5,
+          "operation": "add_multiplied_total"
+        },
+        {
+          "attribute": "minecraft:max_health",
+          "key": "minecraft:1951ef66-6b2a-4ced-91c1-1ffbce34f8ad",
+          "amount": -0.5,
+          "operation": "add_multiplied_total"
+        }
+      ],
+      "gate": "lbc:true_advancements/arcanums/black_hole",
+      "lockedKey": "lbc.adv.arcanums.black_hole.lore"
+    },
+    {
+      "id": 8,
+      "page": 8000,
+      "slot": 7,
+      "modifiers": [
+        {
+          "attribute": "minecraft:attack_damage",
+          "key": "minecraft:06f286ed-36fb-4bd5-81de-c943cafc594c",
+          "amount": 0.25,
+          "operation": "add_multiplied_total"
+        },
+        {
+          "attribute": "minecraft:armor",
+          "key": "minecraft:78876a9b-b250-4eab-a61b-c1caa6dbe77c",
+          "amount": -0.6,
+          "operation": "add_multiplied_total"
+        }
+      ],
+      "gate": "lbc:true_advancements/arcanums/black_hole_2",
+      "lockedKey": "lbc.adv.arcanums.black_hole_2.lore"
+    },
+    {
+      "id": 9,
+      "page": 8000,
+      "slot": 8,
+      "modifiers": [
+        {
+          "attribute": "minecraft:attack_damage",
+          "key": "minecraft:49f240f6-21df-492e-b8dd-0bd4cdfd8680",
+          "amount": 0.5,
+          "operation": "add_multiplied_total"
+        },
+        {
+          "attribute": "minecraft:armor",
+          "key": "minecraft:a243d28c-fd4f-4b04-a69d-dce954ec11a5",
+          "amount": -0.5,
+          "operation": "add_multiplied_total"
+        },
+        {
+          "attribute": "minecraft:armor_toughness",
+          "key": "minecraft:f0e8fa03-e765-4fb2-803e-585bb7a50574",
+          "amount": -0.5,
+          "operation": "add_multiplied_total"
+        },
+        {
+          "attribute": "minecraft:max_health",
+          "key": "minecraft:e24d59be-4f6e-4964-af26-c3cbb9ad23f5",
+          "amount": -0.2,
+          "operation": "add_multiplied_total"
+        }
+      ],
+      "gate": "lbc:true_advancements/arcanums/black_hole_max",
+      "lockedKey": "lbc.adv.arcanums.black_hole_max.lore"
+    },
+    {
+      "id": 10,
+      "page": 8000,
+      "slot": 9,
+      "modifiers": [
+        {
+          "attribute": "minecraft:max_health",
+          "key": "minecraft:6df87481-a199-4207-9585-3b7b776aa370",
+          "amount": 4.0,
+          "operation": "add_value"
+        }
+      ],
+      "gate": "lbc:true_advancements/arcanums/heal",
+      "lockedKey": "lbc.adv.arcanums.heal.lore"
+    },
+    {
+      "id": 12,
+      "page": 8000,
+      "slot": 11,
+      "modifiers": [
+        {
+          "attribute": "minecraft:movement_speed",
+          "key": "minecraft:82e6343f-453c-4c04-afad-340a75d16097",
+          "amount": 0.3,
+          "operation": "add_multiplied_total"
+        }
+      ],
+      "gate": "lbc:true_advancements/armor/assasin",
+      "lockedKey": "lbc.adv.armor.assasin.lore"
+    },
+    {
+      "id": 13,
+      "page": 8000,
+      "slot": 12,
+      "modifiers": [
+        {
+          "attribute": "minecraft:attack_damage",
+          "key": "minecraft:68eabd5a-76f5-4e40-8743-996ee4194963",
+          "amount": 0.8,
+          "operation": "add_value"
+        }
+      ],
+      "gate": "lbc:true_advancements/armor/berserker",
+      "lockedKey": "lbc.adv.armor.berserker.lore"
+    },
+    {
+      "id": 15,
+      "page": 8000,
+      "slot": 14,
+      "modifiers": [
+        {
+          "attribute": "minecraft:max_health",
+          "key": "minecraft:c42982a1-161d-4666-a70e-013255c70027",
+          "amount": 10.0,
+          "operation": "add_value"
+        },
+        {
+          "attribute": "minecraft:armor",
+          "key": "minecraft:d79f67c3-a9c7-49aa-9b41-7076444fd9d7",
+          "amount": -10.0,
+          "operation": "add_value"
+        }
+      ],
+      "gate": "lbc:true_advancements/armor/flesh",
+      "lockedKey": "lbc.adv.armor.flesh.lore"
+    },
+    {
+      "id": 16,
+      "page": 8000,
+      "slot": 15,
+      "modifiers": [
+        {
+          "attribute": "minecraft:attack_damage",
+          "key": "minecraft:b365491d-4c89-4c2b-8b6a-a3a4d2ce24ad",
+          "amount": 2.0,
+          "operation": "add_multiplied_total"
+        },
+        {
+          "attribute": "minecraft:max_health",
+          "key": "minecraft:447b6e7a-3eac-46da-ac3a-c29b21b86f90",
+          "amount": -1.0,
+          "operation": "add_multiplied_total"
+        }
+      ],
+      "gate": "lbc:true_advancements/armor/glass",
+      "lockedKey": "lbc.adv.armor.glass.lore"
+    },
+    {
+      "id": 18,
+      "page": 8000,
+      "slot": 17,
+      "modifiers": [
+        {
+          "attribute": "minecraft:movement_speed",
+          "key": "minecraft:90f6f066-7aa2-4806-b8b3-34762725a6f9",
+          "amount": -0.5,
+          "operation": "add_multiplied_total"
+        },
+        {
+          "attribute": "minecraft:armor",
+          "key": "minecraft:0657849c-7c20-409c-8b34-efd46a1320e1",
+          "amount": 10.0,
+          "operation": "add_value"
+        },
+        {
+          "attribute": "minecraft:armor_toughness",
+          "key": "minecraft:9e310311-5f1d-450a-a447-2896c50fc0e1",
+          "amount": 10.0,
+          "operation": "add_value"
+        }
+      ],
+      "gate": "lbc:true_advancements/armor/shulker",
+      "lockedKey": "lbc.adv.armor.shulker.lore"
+    },
+    {
+      "id": 20,
+      "page": 8000,
+      "slot": 19,
+      "modifiers": [
+        {
+          "attribute": "minecraft:movement_speed",
+          "key": "minecraft:1561c501-97f2-4ab6-bafc-bde6ed4b0486",
+          "amount": 0.2,
+          "operation": "add_multiplied_total"
+        },
+        {
+          "attribute": "minecraft:attack_speed",
+          "key": "minecraft:48e5f381-5993-413d-8983-84654dace5fc",
+          "amount": 0.5,
+          "operation": "add_value"
+        }
+      ],
+      "gate": "lbc:true_advancements/armor/techno",
+      "lockedKey": "lbc.adv.armor.techno.lore"
+    },
+    {
+      "id": 21,
+      "page": 8000,
+      "slot": 20,
+      "modifiers": [
+        {
+          "attribute": "minecraft:attack_damage",
+          "key": "minecraft:520ff3ae-0b51-4ac0-b756-d3f0966209ee",
+          "amount": 0.5,
+          "operation": "add_multiplied_total"
+        },
+        {
+          "attribute": "minecraft:attack_speed",
+          "key": "minecraft:00ef8539-4056-4352-9d3c-6179f8c7c85d",
+          "amount": -0.5,
+          "operation": "add_multiplied_total"
+        }
+      ],
+      "gate": "lbc:true_advancements/armor/tnt_jacket",
+      "lockedKey": "lbc.adv.armor.tnt_jacket.lore"
+    },
+    {
+      "id": 22,
+      "page": 8000,
+      "slot": 21,
+      "modifiers": [
+        {
+          "attribute": "minecraft:movement_speed",
+          "key": "minecraft:ad39dc9d-e3dc-4d13-a384-cc010d3e5f3b",
+          "amount": 0.05,
+          "operation": "add_value"
+        }
+      ],
+      "gate": "lbc:true_advancements/armor/traveller",
+      "lockedKey": "lbc.adv.armor.traveller.lore"
+    },
+    {
+      "id": 23,
+      "page": 8000,
+      "slot": 22,
+      "modifiers": [
+        {
+          "attribute": "minecraft:attack_damage",
+          "key": "minecraft:c0f91f26-ba5e-4cc0-a1db-4e98b4ffab19",
+          "amount": 4.0,
+          "operation": "add_value"
+        },
+        {
+          "attribute": "minecraft:attack_speed",
+          "key": "minecraft:84353fc7-45e9-44fe-bf7a-17b611093e82",
+          "amount": -1.0,
+          "operation": "add_value"
+        },
+        {
+          "attribute": "minecraft:movement_speed",
+          "key": "minecraft:e94cdc80-6340-418b-ab49-539b1e849776",
+          "amount": -0.07,
+          "operation": "add_value"
+        },
+        {
+          "attribute": "minecraft:armor",
+          "key": "minecraft:39a90bf1-dc27-422f-94f2-d0cf60a4372e",
+          "amount": 4.0,
+          "operation": "add_value"
+        },
+        {
+          "attribute": "minecraft:armor_toughness",
+          "key": "minecraft:f8a545da-0bed-40a1-83da-3cf04da77438",
+          "amount": 2.0,
+          "operation": "add_value"
+        },
+        {
+          "attribute": "minecraft:knockback_resistance",
+          "key": "minecraft:302b6e68-13b9-47ef-90b2-de0c28c02e17",
+          "amount": 0.1,
+          "operation": "add_value"
+        },
+        {
+          "attribute": "minecraft:max_health",
+          "key": "minecraft:677ad544-066c-4b1d-8945-16ba84a98b0b",
+          "amount": 4.0,
+          "operation": "add_value"
+        }
+      ],
+      "gate": "lbc:true_advancements/axes/poleaxe",
+      "lockedKey": "lbc.adv.axe.poleaxe.lore"
+    },
+    {
+      "id": 24,
+      "page": 8000,
+      "slot": 23,
+      "modifiers": [
+        {
+          "attribute": "minecraft:attack_damage",
+          "key": "minecraft:f6df7d13-d5fa-4325-94b3-b8143199d457",
+          "amount": -3.0,
+          "operation": "add_value"
+        },
+        {
+          "attribute": "minecraft:attack_speed",
+          "key": "minecraft:faecddc3-8a77-45dc-bf46-c458e5dd70d9",
+          "amount": 1.5,
+          "operation": "add_value"
+        }
+      ],
+      "gate": "lbc:true_advancements/axes/tomahawk",
+      "lockedKey": "lbc.adv.axe.tomahawk.lore"
+    },
+    {
+      "id": 33,
+      "page": 8100,
+      "slot": 5,
+      "modifiers": [
+        {
+          "attribute": "minecraft:attack_damage",
+          "key": "naturalperk1",
+          "amount": 0.8,
+          "operation": "add_value"
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "page": 8100,
+      "slot": 6,
+      "modifiers": [
+        {
+          "attribute": "minecraft:armor",
+          "key": "naturalperk2",
+          "amount": 4.0,
+          "operation": "add_value"
+        }
+      ]
+    },
+    {
+      "id": 35,
+      "page": 8100,
+      "slot": 7,
+      "modifiers": [
+        {
+          "attribute": "minecraft:armor_toughness",
+          "key": "naturalperk3",
+          "amount": 4.0,
+          "operation": "add_value"
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "page": 8100,
+      "slot": 8,
+      "modifiers": [
+        {
+          "attribute": "minecraft:jump_strength",
+          "key": "naturalperk4",
+          "amount": 0.3,
+          "operation": "add_value"
+        }
+      ]
+    },
+    {
+      "id": 37,
+      "page": 8100,
+      "slot": 9,
+      "modifiers": [
+        {
+          "attribute": "minecraft:fall_damage_multiplier",
+          "key": "naturalperk5",
+          "amount": -0.5,
+          "operation": "add_multiplied_total"
+        }
+      ]
+    },
+    {
+      "id": 38,
+      "page": 8100,
+      "slot": 10,
+      "modifiers": [
+        {
+          "attribute": "minecraft:movement_speed",
+          "key": "naturalperk6",
+          "amount": 0.05,
+          "operation": "add_value"
+        }
+      ]
+    },
+    {
+      "id": 39,
+      "page": 8100,
+      "slot": 11,
+      "modifiers": [
+        {
+          "attribute": "minecraft:entity_interaction_range",
+          "key": "naturalperk7",
+          "amount": 0.5,
+          "operation": "add_value"
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "page": 8100,
+      "slot": 12,
+      "modifiers": [
+        {
+          "attribute": "minecraft:block_interaction_range",
+          "key": "naturalperk8",
+          "amount": 3.0,
+          "operation": "add_value"
+        }
+      ]
+    },
+    {
+      "id": 41,
+      "page": 8100,
+      "slot": 13,
+      "modifiers": [
+        {
+          "attribute": "minecraft:block_break_speed",
+          "key": "naturalperk9",
+          "amount": 1.0,
+          "operation": "add_value"
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "page": 8100,
+      "slot": 14,
+      "modifiers": [
+        {
+          "attribute": "minecraft:knockback_resistance",
+          "key": "naturalperk10",
+          "amount": 0.4,
+          "operation": "add_value"
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "page": 8100,
+      "slot": 15,
+      "modifiers": [
+        {
+          "attribute": "minecraft:max_health",
+          "key": "naturalperk11",
+          "amount": 4.0,
+          "operation": "add_value"
+        }
+      ]
+    },
+    {
+      "id": 44,
+      "page": 8100,
+      "slot": 16,
+      "modifiers": [
+        {
+          "attribute": "minecraft:step_height",
+          "key": "naturalperk12",
+          "amount": 1.5,
+          "operation": "add_value"
+        }
+      ]
+    }
+  ],
+  "trinkets": [
+    {
+      "id": 1,
+      "page": 11000,
+      "slot": 0,
+      "table": "lbc:trinket/blaze",
+      "gate": "lbc:true_advancements/bows/blaze",
+      "lockedKey": "lbc.adv.bow.blaze.lore"
+    },
+    {
+      "id": 2,
+      "page": 11000,
+      "slot": 1,
+      "table": "lbc:trinket/ghast",
+      "gate": "lbc:true_advancements/bows/ghast",
+      "lockedKey": "lbc.adv.bow.ghast.lore"
+    },
+    {
+      "id": 10,
+      "page": 11000,
+      "slot": 9,
+      "table": "lbc:trinket/intercal",
+      "gate": "lbc:true_advancements/legends/academy/corruption",
+      "lockedKey": "lbc.adv.upgraded_staff.corruption.lore"
+    },
+    {
+      "id": 16,
+      "page": 11000,
+      "slot": 15,
+      "table": "lbc:trinket/gneiss_stone"
+    },
+    {
+      "id": 18,
+      "page": 11000,
+      "slot": 17,
+      "table": "lbc:trinket/snow_gem",
+      "gate": "lbc:true_advancements/legends/academy/snow_wand",
+      "lockedKey": "lbc.adv.upgraded_staff.snow_wand.lore"
+    },
+    {
+      "id": 20,
+      "page": 11000,
+      "slot": 19,
+      "table": "lbc:trinket/ice_gem",
+      "gate": "lbc:true_advancements/legends/academy/ice_wand",
+      "lockedKey": "lbc.adv.upgraded_staff.ice_wand.lore"
+    },
+    {
+      "id": 5,
+      "page": 11000,
+      "slot": 4,
+      "table": "lbc:ported/blood_anal_boom",
+      "gate": "lbc:true_advancements/legends/academy/air",
+      "lockedKey": "lbc.adv.upgraded_tuntija.air.lore"
+    },
+    {
+      "id": 21,
+      "page": 11000,
+      "slot": 20,
+      "table": "lbc:ported/mana_gem",
+      "gate": "lbc:true_advancements/legends/academy/neutral",
+      "lockedKey": "lbc.adv.upgraded_staff.neutral.lore"
+    }
+  ]
+}

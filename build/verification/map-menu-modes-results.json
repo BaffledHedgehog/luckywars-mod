@@ -1,0 +1,11 @@
+{
+  "result": "passed",
+  "completed": [
+    "bots",
+    "lobby-inventory",
+    "menu-navigation",
+    "menus"
+  ],
+  "artifactSha256": "c69fdf8aa1eebf7754dc321c60461895ae132229171f69485927fe77ef008cb1",
+  "elapsedSeconds": 13.48
+}

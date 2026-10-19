@@ -1,0 +1,8 @@
+{
+  "completed": [
+    "native fall/food/damage hooks, Vex targeting and death/respawn cleanup",
+    "match cleanup"
+  ],
+  "artifactSha256": "ae5a98636c57e58409e88fcf8cc97eadb8dd5f8ff6b2fcb0970e564415014c05",
+  "elapsedSeconds": 44.32
+}

@@ -26,29 +26,34 @@
                     "is_direct": true
                 },
                 "entity": {
-                    "type": "player"
+                    "entity": "this",
+                    "predicate": {
+                        "minecraft:entity_type": "player"
+                    },
+                    "type": "minecraft:entity_properties"
                 },
                 "player": {
-                    "movement": {
-                        "fall_distance": {
-                            "min": 10
+                    "entity": "this",
+                    "predicate": {
+                        "minecraft:movement": {
+                            "fall_distance": {
+                                "min": 10
+                            },
+                            "vertical_speed": {
+                                "min": 10
+                            }
                         },
-                        "vertical_speed": {
-                            "min": 10
-                        }
-                    },
-                    "equipment": {
-                        "mainhand": {
-                            "predicates": {
-                                "custom_data": "{soulhunter_mace:1}"
+                        "minecraft:equipment": {
+                            "mainhand": {
+                                "predicates": {
+                                    "custom_data": "{soulhunter_mace:1}"
+                                }
                             }
                         }
-                    }
+                    },
+                    "type": "minecraft:entity_properties"
                 }
             }
         }
-    },
-    "rewards": {
-        "function": "lbc:swrg_kit_integration/gain/default_kill_effect"
     }
 }

@@ -1,0 +1,111 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "skywars2:overload_crux",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_q",
+                "minecraft:item_model": "lbc:overload_crux",
+                "minecraft:max_stack_size": 99,
+                "!minecraft:max_damage": {}
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "overload_crux",
+                  "color": "#B336ED",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                [
+                  {
+                    "translate": "overload_crux.lore.6",
+                    "color": "white",
+                    "italic": false
+                  },
+                  {
+                    "score": {
+                      "name": "overload_crux_mana_use",
+                      "objective": "lbc.math"
+                    },
+                    "color": "white",
+                    "italic": false,
+                    "type": "score"
+                  },
+                  {
+                    "translate": "overload_crux.lore.7",
+                    "color": "white",
+                    "italic": false
+                  }
+                ],
+                {
+                  "translate": "overload_crux.lore.8",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "craft_with_diamond_armor.1",
+                  "color": "yellow",
+                  "italic": false
+                },
+                {
+                  "translate": "craft_with_diamond_armor.2",
+                  "color": "yellow",
+                  "italic": false
+                },
+                {
+                  "translate": "overload_crux.lore.1",
+                  "color": "dark_gray",
+                  "italic": true
+                },
+                {
+                  "translate": "overload_crux.lore.2",
+                  "color": "dark_gray",
+                  "italic": true
+                },
+                {
+                  "translate": "overload_crux.lore.3",
+                  "color": "dark_gray",
+                  "italic": true
+                },
+                {
+                  "translate": "overload_crux.lore.4",
+                  "color": "dark_gray",
+                  "italic": true
+                },
+                {
+                  "translate": "overload_crux.lore.5",
+                  "color": "#5724A4",
+                  "italic": true
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{craftusable:1,magicwand:1,overload_crux:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

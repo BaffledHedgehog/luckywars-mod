@@ -1,0 +1,199 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:ender_dragon_spawn_egg",
+            "components": {
+                "minecraft:enchantment_glint_override": true
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.summoner.all"
+        },
+        "description": {
+            "translate": "lbc.adv.summoner.all.lore"
+        },
+        "frame": "goal",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/summoner",
+    "criteria": {
+        "summon_true": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{transformable: 1,summoner: 1,summonerblaze: 1}"
+                        }
+                    }
+                ]
+            }
+        },
+        "summon_2": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{transformable: 1,summoner: 1,summonereliteskeletons: 1}"
+                        }
+                    }
+                ]
+            }
+        },
+        "summon_3": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{transformable: 1,summoner: 1,summonerghast: 1}"
+                        }
+                    }
+                ]
+            }
+        },
+        "summon_4": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{transformable: 1,summoner: 1,summonerghostrider: 1}"
+                        }
+                    }
+                ]
+            }
+        },
+        "summon_5": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{transformable: 1,summoner: 1,summonerguardians: 1}"
+                        }
+                    }
+                ]
+            }
+        },
+        "summon_6": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{transformable: 1,summoner: 1,summonerrazoritel: 1}"
+                        }
+                    }
+                ]
+            }
+        },
+        "summon_7": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{transformable: 1,summoner: 1,summonerskeletons: 1}"
+                        }
+                    }
+                ]
+            }
+        },
+        "summon_8": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{transformable: 1,summoner: 1,summonervexes: 1}"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

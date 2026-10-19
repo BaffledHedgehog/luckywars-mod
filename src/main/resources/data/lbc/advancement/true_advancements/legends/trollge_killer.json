@@ -21,79 +21,67 @@
         "req_1": {
             "trigger": "minecraft:player_killed_entity",
             "conditions": {
-                "player": [
-                    {
-                        "condition": "minecraft:inverted",
-                        "term": {
-                            "condition": "minecraft:entity_properties",
-                            "entity": "this",
-                            "predicate": {
-                                "nbt": "{playerGameType:3}"
-                            }
-                        }
-                    }
-                ],
-                "entity": [
-                    {
-                        "condition": "minecraft:entity_properties",
+                "player": {
+                    "term": {
                         "entity": "this",
                         "predicate": {
-                            "nbt": "{Tags:[\"trollge_hunter\"]}"
-                        }
-                    }
-                ]
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "entity": {
+                    "entity": "this",
+                    "predicate": {
+                        "minecraft:nbt": "{Tags:[\"trollge_hunter\"]}"
+                    },
+                    "type": "minecraft:entity_properties"
+                }
             }
         },
         "req_2": {
             "trigger": "minecraft:player_killed_entity",
             "conditions": {
-                "player": [
-                    {
-                        "condition": "minecraft:inverted",
-                        "term": {
-                            "condition": "minecraft:entity_properties",
-                            "entity": "this",
-                            "predicate": {
-                                "nbt": "{playerGameType:3}"
-                            }
-                        }
-                    }
-                ],
-                "entity": [
-                    {
-                        "condition": "minecraft:entity_properties",
+                "player": {
+                    "term": {
                         "entity": "this",
                         "predicate": {
-                            "nbt": "{Tags:[\"stone_man\"]}"
-                        }
-                    }
-                ]
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "entity": {
+                    "entity": "this",
+                    "predicate": {
+                        "minecraft:nbt": "{Tags:[\"stone_man\"]}"
+                    },
+                    "type": "minecraft:entity_properties"
+                }
             }
         },
         "req_3": {
             "trigger": "minecraft:player_killed_entity",
             "conditions": {
-                "player": [
-                    {
-                        "condition": "minecraft:inverted",
-                        "term": {
-                            "condition": "minecraft:entity_properties",
-                            "entity": "this",
-                            "predicate": {
-                                "nbt": "{playerGameType:3}"
-                            }
-                        }
-                    }
-                ],
-                "entity": [
-                    {
-                        "condition": "minecraft:entity_properties",
+                "player": {
+                    "term": {
                         "entity": "this",
                         "predicate": {
-                            "nbt": "{Tags:[\"void_man\"]}"
-                        }
-                    }
-                ]
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "entity": {
+                    "entity": "this",
+                    "predicate": {
+                        "minecraft:nbt": "{Tags:[\"void_man\"]}"
+                    },
+                    "type": "minecraft:entity_properties"
+                }
             }
         }
     }

@@ -1,19 +1,19 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:transformables_accessory",
-                    "weight": 10
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:tuntijaa_electro_shield",
-                    "weight": 1
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:transformables_accessory",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:tuntijaa_electro_shield",
+          "weight": 1
         }
-    ]
+      ]
+    }
+  ]
 }

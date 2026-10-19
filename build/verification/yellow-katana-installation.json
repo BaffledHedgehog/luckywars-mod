@@ -1,0 +1,21 @@
+{
+  "artifactSha256": "3eeb145640479606e08b7e5a82c20092f54914049811c553784c0196a5ae2415",
+  "previousSha256": "fdefb2d7ba403a2ce431824702d54d0e2322a6a0af3adfd26b45d05f273a901d",
+  "ready": "build\\verification\\skywars2-yellow-katana-3eeb1456.jar",
+  "backup": "build\\verification\\skywars2-before-yellow-katana-fdefb2d7.jar",
+  "installed": true,
+  "tests": {
+    "completed": [
+      "Shit Katana source loot and native Polymer item",
+      "2x2/3x3 exact crafting; melee charge, skill perk, nonmagic activation, guards, reflection, and ray lifetime",
+      "Regular/Academy/Tiny Electro swept-hit regression and ordinary Cyberkatana/shield behavior",
+      "Yellow ray state clears after match stop"
+    ],
+    "craftOnly": false,
+    "artifactSha256": "3eeb145640479606e08b7e5a82c20092f54914049811c553784c0196a5ae2415",
+    "elapsedSeconds": 67.88
+  },
+  "damageAliases": "yellow-damage-aliases.json",
+  "localization": "yellow-katana-localization.log",
+  "build": "yellow-katana-build.log"
+}

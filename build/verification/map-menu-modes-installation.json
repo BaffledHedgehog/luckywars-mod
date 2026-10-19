@@ -1,0 +1,19 @@
+{
+  "createdUtc": "2026-10-16T08:56:24.555732+00:00",
+  "artifactSha256": "c69fdf8aa1eebf7754dc321c60461895ae132229171f69485927fe77ef008cb1",
+  "readyJar": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-map-menu-modes-c69fdf8a.jar",
+  "installed": false,
+  "installedSha256": "5399fbad3c5077fa4c1885c419efa4588186d9cd84c363ae3b0f43b6a41e5a0c",
+  "checks": {
+    "result": "passed",
+    "completed": [
+      "bots",
+      "lobby-inventory",
+      "menu-navigation",
+      "menus"
+    ],
+    "artifactSha256": "c69fdf8aa1eebf7754dc321c60461895ae132229171f69485927fe77ef008cb1",
+    "elapsedSeconds": 13.48
+  },
+  "reason": "Main server holds world lock; staged only"
+}

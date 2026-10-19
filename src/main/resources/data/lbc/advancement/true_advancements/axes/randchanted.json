@@ -22,33 +22,37 @@
         "requirement": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
-                "player": [
-                    {
-                        "condition": "minecraft:inverted",
-                        "term": {
-                            "condition": "minecraft:entity_properties",
-                            "entity": "this",
-                            "predicate": {
-                                "nbt": "{playerGameType:3}"
-                            }
-                        }
-                    }
-                ],
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
                 "items": [
                     {
                         "predicates": {
                             "minecraft:enchantments": [
                                 {
                                     "enchantments": "minecraft:efficiency",
-                                    "levels": {"min": 4}
+                                    "levels": {
+                                        "min": 4
+                                    }
                                 },
                                 {
                                     "enchantments": "minecraft:fortune",
-                                    "levels": {"min": 3}
+                                    "levels": {
+                                        "min": 3
+                                    }
                                 },
                                 {
                                     "enchantments": "minecraft:unbreaking",
-                                    "levels": {"min": 3}
+                                    "levels": {
+                                        "min": 3
+                                    }
                                 }
                             ],
                             "minecraft:custom_data": "{transformable:1,axe:1,randchanted:1}"
@@ -57,8 +61,5 @@
                 ]
             }
         }
-    },
-    "rewards": {
-        "function": "lbc:swrg_kit_integration/gain/kit"
     }
 }

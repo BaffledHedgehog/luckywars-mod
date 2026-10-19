@@ -1,0 +1,27 @@
+[01:51:20] [Server thread/INFO]: [game] LOADING -> LOADING
+[01:51:32] [Server thread/INFO]: [game] LOADING -> LOBBY
+[01:51:40] [Server thread/INFO]: [check] Created TestAlpha/TestBeta as vanilla ServerPlayer instances
+[01:51:40] [Server thread/INFO]: [check] PASS bots
+[01:51:40] [Server thread/INFO]: [check] PASS bedrock-menu
+[01:51:40] [Server thread/INFO]: [check] PASS bedrock-menu
+[01:51:40] [Server thread/INFO]: [game] LOBBY -> LOADING
+[01:51:40] [Server thread/INFO]: [game] LOADING -> COUNTDOWN
+[01:51:41] [Server thread/INFO]: [game] COUNTDOWN -> PLAYING
+[01:51:41] [Server thread/INFO]: [check] PASS bedrock-crafting
+[01:51:41] [Server thread/INFO]: [check] PASS bedrock-crafting
+[01:51:41] [Server thread/INFO]: [check] PASS bedrock-wand
+[01:51:41] [Server thread/INFO]: [check] PASS bedrock-wand
+[01:51:41] [Server thread/INFO]: [game] PLAYING -> LOADING
+[01:51:41] [Server thread/INFO]: [game] LOADING -> LOBBY
+[01:51:50] [Server thread/INFO]: [check] PASS bedrock-cleanup
+[01:51:50] [Server thread/INFO]: [check] PASS bedrock-cleanup
+[01:51:50] [Server thread/INFO]: [game] LOBBY -> LOADING
+[01:51:50] [Server thread/INFO]: [game] LOADING -> COUNTDOWN
+[01:51:51] [Server thread/INFO]: [game] COUNTDOWN -> PLAYING
+[01:51:51] [Server thread/INFO]: [check] PASS bedrock-resume
+[01:51:51] [Server thread/INFO]: [check] PASS bedrock-resume
+[01:51:51] [Server thread/INFO]: [game] PLAYING -> LOADING
+[01:51:51] [Server thread/INFO]: [game] LOADING -> LOBBY
+[01:52:01] [Server thread/INFO]: [check] PASS bedrock-cleanupBEDROCK WAND CHECKS PASSED
+
+[01:52:01] [Server thread/INFO]: [check] PASS bedrock-cleanup

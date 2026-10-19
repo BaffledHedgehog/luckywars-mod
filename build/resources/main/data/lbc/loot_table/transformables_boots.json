@@ -1,0 +1,81 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_multiplying/boots"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_randchanted/boots"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_berserk/boots"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_chaos/boots"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_mage/boots"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_shitty/boots"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_shulker/boots"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_steampunk/boots"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_techno/boots"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_traveller/boots"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_assasin/boots"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_paladin/boots"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_phantom/boots"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_erosion/boots"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_flesh/boots"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_nanobots/boots"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_glass/boots"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_overload/boots"
+        }
+      ]
+    }
+  ]
+}

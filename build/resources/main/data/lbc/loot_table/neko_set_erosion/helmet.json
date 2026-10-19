@@ -1,0 +1,76 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:leather_helmet",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:item_model": "lbc:armors/erosion_helmet",
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:max_damage": 9000,
+                "minecraft:enchantments": {
+                  "minecraft:protection": 120
+                },
+                "minecraft:equippable": {
+                  "slot": "head",
+                  "asset_id": "lbc:erosion"
+                },
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:armor",
+                    "slot": "head",
+                    "id": "armorhelmet",
+                    "amount": 1,
+                    "operation": "add_value"
+                  }
+                ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": {
+                "translate": "erosion_helmet",
+                "color": "green",
+                "italic": false
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "helmet",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                [
+                  {
+                    "translate": "erosion.lore",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,helmet:1,erosion:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

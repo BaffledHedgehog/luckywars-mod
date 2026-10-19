@@ -1,0 +1,98 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:leather_leggings",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:item_model": "lbc:armors/paladin_leggings",
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:max_damage": 4000,
+                "minecraft:enchantments": {
+                  "minecraft:fire_protection": 255,
+                  "minecraft:protection": 3
+                },
+                "minecraft:equippable": {
+                  "slot": "legs",
+                  "asset_id": "lbc:paladin"
+                },
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:armor",
+                    "slot": "legs",
+                    "id": "gcgjdfcghic.arjmor",
+                    "amount": 10,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:armor_toughness",
+                    "slot": "legs",
+                    "id": "generukbufess",
+                    "amount": 10,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:max_health",
+                    "slot": "legs",
+                    "id": "geneyycyjalth",
+                    "amount": -0.3,
+                    "operation": "add_multiplied_base"
+                  }
+                ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": {
+                "translate": "paladin_leggings",
+                "color": "red",
+                "italic": false
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "leggings",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                [
+                  {
+                    "translate": "set_bonus",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                [
+                  {
+                    "translate": "paladin_set_bonus",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,leggings:1,paladin:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

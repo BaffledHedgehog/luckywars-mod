@@ -1,12 +1,12 @@
 {
   "90955493-221d-3634-be84-dd3e4410be35": {
     "username": "TestAlpha",
-    "coins": 760,
+    "coins": 1190,
     "memcoins": 0,
-    "games": 34,
+    "games": 53,
     "wins": 0,
     "kills": 0,
-    "deaths": 35,
+    "deaths": 56,
     "keys": [
       0,
       0,
@@ -23,27 +23,52 @@
     "lbcKit": 0,
     "lbcSkill": 0,
     "lbcTrinket": 0,
-    "lbcChallenge": 0,
-    "levelups": [
+    "trinkets": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
       0,
       0,
       0,
       0
-    ]
+    ],
+    "lbcTrinketSlot": 0,
+    "lbcChallenge": 0,
+    "levelups": [
+      33,
+      43,
+      5,
+      24,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "lbcLevelupSlot": 0,
+    "lbcUnlocks": []
   },
   "bbf46ebe-0b1b-323d-a98a-2dda011fbb4e": {
     "username": "TestBeta",
-    "coins": 2260,
+    "coins": 3690,
     "memcoins": 0,
-    "games": 34,
-    "wins": 14,
-    "kills": 2,
-    "deaths": 7,
+    "games": 53,
+    "wins": 22,
+    "kills": 6,
+    "deaths": 11,
     "keys": [
-      3,
+      5,
       6,
-      3,
-      2,
+      4,
+      7,
       0
     ],
     "kit": 0,
@@ -55,13 +80,38 @@
     "lbcKit": 0,
     "lbcSkill": 0,
     "lbcTrinket": 0,
+    "trinkets": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "lbcTrinketSlot": 0,
     "lbcChallenge": 0,
     "levelups": [
       0,
       0,
       0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
       0
-    ]
+    ],
+    "lbcLevelupSlot": 0,
+    "lbcUnlocks": []
   },
   "83b977a0-43b6-3159-9f8a-47d54f50532c": {
     "username": "TestLate",
@@ -87,12 +137,37 @@
     "lbcKit": 0,
     "lbcSkill": 0,
     "lbcTrinket": 0,
+    "trinkets": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "lbcTrinketSlot": 0,
     "lbcChallenge": 0,
     "levelups": [
       0,
       0,
       0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
       0
-    ]
+    ],
+    "lbcLevelupSlot": 0,
+    "lbcUnlocks": []
   }
 }

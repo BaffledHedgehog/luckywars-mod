@@ -20,7 +20,7 @@
     "parent": "lbc:true_advancements/summoner/all_summons",
     "criteria": {
         "1": {
-            "trigger": "impossible"
+            "trigger": "minecraft:impossible"
         }
     }
 }

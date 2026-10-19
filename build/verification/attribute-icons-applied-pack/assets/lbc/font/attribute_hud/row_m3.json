@@ -1,0 +1,64 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "lbc:font/attribute_hud/icons_upper.png",
+      "height": 161,
+      "ascent": 35,
+      "chars": [
+        "\ue210\ue211\ue212\ue213\ue214\ue215\ue216\ue217\ue218\ue219\ue220\ue221\ue222\ue223\ue224\ue225\ue226\ue227\ue228\ue229\ue230\ue231\ue232\ue233\ue234\ue235\ue236\ue237\ue238\ue239\ue240\ue241\ue242\ue243\ue244\ue245"
+      ]
+    },
+    {
+      "type": "space",
+      "advances": {
+        "\udbb8\ude10": 0,
+        "\udbb8\ude11": 0,
+        "\udbb8\ude12": 1,
+        "\udbb8\ude13": 0,
+        "\udbb8\ude14": 0,
+        "\udbb8\ude15": 0,
+        "\udbb8\ude16": 0,
+        "\udbb8\ude17": 2,
+        "\udbb8\ude18": 2,
+        "\udbb8\ude19": 1,
+        "\udbb8\ude20": 0,
+        "\udbb8\ude21": 0,
+        "\udbb8\ude22": 1,
+        "\udbb8\ude23": 1,
+        "\udbb8\ude24": 0,
+        "\udbb8\ude25": 0,
+        "\udbb8\ude26": 1,
+        "\udbb8\ude27": 0,
+        "\udbb8\ude28": 0,
+        "\udbb8\ude29": 0,
+        "\udbb8\ude30": 0,
+        "\udbb8\ude31": 1,
+        "\udbb8\ude32": 1,
+        "\udbb8\ude33": 2,
+        "\udbb8\ude34": 1,
+        "\udbb8\ude35": 0,
+        "\udbb8\ude36": 1,
+        "\udbb8\ude37": 1,
+        "\udbb8\ude38": 1,
+        "\udbb8\ude39": 0,
+        "\udbb8\ude40": 0,
+        "\udbb8\ude41": 1,
+        "\udbb8\ude42": 1,
+        "\udbb8\ude43": 0,
+        "\udbb8\ude44": 1,
+        "\udbb8\ude45": 1
+      }
+    },
+    {
+      "type": "ttf",
+      "file": "lbc:attribute_hud/glyphs.ttf",
+      "shift": [
+        0,
+        -27
+      ],
+      "size": 10,
+      "oversample": 2
+    }
+  ]
+}

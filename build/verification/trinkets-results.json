@@ -1,0 +1,10 @@
+{
+  "completed": [
+    "legacy scalar trinket profile migration",
+    "trinket source gates, native GUI clicks/reset/pages, duplicate cyclic slots, settings and profile persistence",
+    "trinket grants, Polymer roundtrip/tooltip, native damage procs, crafting/cursor counts, radius/mobs/arrows/observers, stone placement, death/respawn",
+    "trinket items/effects/observer cleanup on stop"
+  ],
+  "artifactSha256": "97ca9335e396a7a8b67d71e5534ddcae339ce08632cf2863e6f78846238ac542",
+  "elapsedSeconds": 55.51
+}

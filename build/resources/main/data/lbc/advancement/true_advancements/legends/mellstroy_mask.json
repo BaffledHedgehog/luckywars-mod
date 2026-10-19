@@ -1,0 +1,26 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:carrot_on_a_stick",
+            "components": {
+                "minecraft:item_model": "lbc:mellstroy_mask"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.legends.mellstroy_mask"
+        },
+        "description": {
+            "translate": "lbc.adv.legends.mellstroy_mask.lore"
+        },
+        "frame": "goal",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/legends/trollge_all_masks",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:impossible"
+        }
+    }
+}

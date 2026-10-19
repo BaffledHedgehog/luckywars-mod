@@ -23,26 +23,31 @@
             "trigger": "minecraft:player_hurt_entity",
             "conditions": {
                 "entity": {
-                    "type": "player",
-                    "equipment": {
-                        "mainhand": {
-                            "items": "minecraft:pumpkin_seeds"
-                        }
-                    }
-                },
-                "player": {
-                    "equipment": {
-                        "mainhand": {
-                            "predicates": {
-                                "custom_data": "{pumpkin_king:1}"
+                    "entity": "this",
+                    "predicate": {
+                        "minecraft:entity_type": "player",
+                        "minecraft:equipment": {
+                            "mainhand": {
+                                "items": "minecraft:pumpkin_seeds"
                             }
                         }
-                    }
+                    },
+                    "type": "minecraft:entity_properties"
+                },
+                "player": {
+                    "entity": "this",
+                    "predicate": {
+                        "minecraft:equipment": {
+                            "mainhand": {
+                                "predicates": {
+                                    "custom_data": "{pumpkin_king:1}"
+                                }
+                            }
+                        }
+                    },
+                    "type": "minecraft:entity_properties"
                 }
             }
         }
-    },
-    "rewards": {
-        "function": "lbc:swrg_kit_integration/gain/death_effect"
     }
 }

@@ -1,0 +1,24 @@
+{
+  "completed": [
+    "legacy profile migration, native GUI clicks, locks, cyclic selection, persistence",
+    "four native kit tables, attribute composition, duplicate IDs, Resistance tiers, settings, death/respawn",
+    "match cleanup",
+    "native totem protection, turn penalties/expiry/stoppers, native purifier splash, death/respawn",
+    "active item curse cleanup on match stop",
+    "ghost source gate/design/components, native splash/falloff/advancement/expiry, observer exclusion, death/respawn",
+    "ghost kit/effects and observer cleanup on match stop",
+    "native advancement notification subtitles, duplicate awards, observers, conditional acid gates",
+    "nanobot/dynamite native menu cards, source gates and kit selection",
+    "native dynamite snowball/TNT conversion, asymmetric fuse order, native nanobot placements and cumulative target debuffs",
+    "nanobot attributes, markers, pending throws and TNT restore on death/lobby cleanup",
+    "native kit 22 source gate/design/loot, directional foot-glider boost, Elytra compatibility, charges/cooldown, observer/death/respawn",
+    "rocket charge/cooldown cleanup on match stop",
+    "BrBad Polymer items, native lingering throw/cloud, thermite cascade, sulfur/phosphine targets, persistent acid age/movement/damage/shield, TNT fuse two ticks, death/respawn",
+    "chemical clouds/acid/projectile cleanup on stop",
+    "trinket source gates, native GUI clicks/reset/pages, duplicate cyclic slots, settings and profile persistence",
+    "trinket grants, Polymer roundtrip/tooltip, native damage procs, crafting/cursor counts, radius/mobs/arrows/observers, stone placement, death/respawn",
+    "trinket items/effects/observer cleanup on stop"
+  ],
+  "artifactSha256": "97ca9335e396a7a8b67d71e5534ddcae339ce08632cf2863e6f78846238ac542",
+  "elapsedSeconds": 143.32
+}

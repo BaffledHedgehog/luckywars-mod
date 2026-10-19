@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "skywars2:electric",
+    "skywars2:electro_conduction",
+    "skywars2:yellow_spin",
+    "skywars2:yellow_conduction",
+    "skywars2:strangeness"
+  ]
+}

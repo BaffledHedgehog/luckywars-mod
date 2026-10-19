@@ -39,6 +39,7 @@ final class OriginalGuiDesign {
     private static JsonObject design;
     private static Map<String, JsonObject> sourceBindings;
     private static Map<String, Component> sourceMapNames;
+    private static Map<String, JsonObject> sourceSlots;
 
     private OriginalGuiDesign() {}
 
@@ -62,6 +63,7 @@ final class OriginalGuiDesign {
 
     private static ItemStack button(ServerPlayer player, String namespace, String pageId, int slot,
                                     PlayerStore.Profile profile, GameConfig config) {
+        // Берём исходную ячейку по идентификаторам страницы и слота, затем применяем её условия и оформление.
         JsonObject page = null;
         for (JsonElement element : requiredArray(design(), "pages", "prepared GUI design")) {
             JsonObject candidate = element.getAsJsonObject();
@@ -72,9 +74,15 @@ final class OriginalGuiDesign {
             }
         }
         if (page == null) throw failure("Missing imported source page " + namespace + ":" + pageId);
+        if (config != null && config.ranked && namespace.equals("lbc") && pageId.equals("12000") && slot == 0)
+            return button(player, Identifier.parse("lbc:gui/page/12000/0_completed"), profile, config);
         for (JsonElement slotElement : requiredArray(page, "slots", "page " + pageId)) {
             JsonObject entry = slotElement.getAsJsonObject();
             if (entry.get("slot").getAsInt() != slot) continue;
+            if (profile != null && config != null) {
+                ItemStack locked = lockedButton(player, namespace, pageId, entry, profile, config);
+                if (locked != null) return locked;
+            }
             for (JsonElement sourceElement : requiredArray(entry, "sources", "page " + pageId + " slot " + slot)) {
                 JsonObject source = sourceElement.getAsJsonObject();
                 if (source.has("sourceLootTable")) {
@@ -137,6 +145,16 @@ final class OriginalGuiDesign {
                 design = JsonParser.parseReader(new InputStreamReader(input, StandardCharsets.UTF_8)).getAsJsonObject();
                 sourceBindings = loadSourceBindings(design);
                 sourceMapNames = loadSourceMapNames(design);
+                Map<String, JsonObject> slots = new HashMap<>();
+                for (var pageElement : design.getAsJsonArray("pages")) {
+                    var page = pageElement.getAsJsonObject();
+                    for (var slotElement : page.getAsJsonArray("slots")) {
+                        var slot = slotElement.getAsJsonObject();
+                        slots.put(page.get("namespace").getAsString() + ":" + page.get("pageId").getAsString()
+                                + ":" + slot.get("slot").getAsInt(), slot);
+                    }
+                }
+                sourceSlots = Map.copyOf(slots);
                 return design;
             } catch (RuntimeException e) {
                 LOGGER.error("Could not load prepared GUI design", e);
@@ -146,6 +164,61 @@ final class OriginalGuiDesign {
                 throw new IllegalStateException("Could not load prepared GUI design", e);
             }
         }
+    }
+
+    /** Общая проверка GUI-гейта; ranked обходит только перки, не косметику или сезонные ограничения. */
+    static boolean unlocked(ServerPlayer player, String namespace, int page, int slot,
+                            PlayerStore.Profile profile, GameConfig config) {
+        design();
+        if (config.ranked && perkPage(namespace, Integer.toString(page))) return true;
+        var entry = sourceSlots.get(namespace + ":" + page + ":" + slot);
+        if (entry == null) return false;
+        if (entry.has("unlockConditions")) return matchesAccess(entry.getAsJsonObject("unlockConditions"), player, profile);
+        if (entry.has("lockedVariants")) for (var element : entry.getAsJsonArray("lockedVariants"))
+            if (matchesAccess(element.getAsJsonObject().getAsJsonObject("conditions"), player, profile)) return false;
+        return true;
+    }
+
+    private static boolean perkPage(String namespace, String page) {
+        return namespace.equals("swrg") && (page.equals("3000") || page.equals("4000"))
+                || namespace.equals("lbc") && List.of("8000", "8100", "9000", "9100",
+                        "10000", "10100", "11000", "11100", "12000").contains(page);
+    }
+
+    private static boolean matchesAccess(JsonObject conditions, ServerPlayer player, PlayerStore.Profile profile) {
+        for (var tagElement : conditions.getAsJsonArray("tags")) {
+            String tag = tagElement.getAsString();
+            boolean inverted = tag.startsWith("!");
+            if (player.entityTags().contains(inverted ? tag.substring(1) : tag) == inverted) return false;
+        }
+        for (var gate : conditions.getAsJsonObject("advancements").entrySet()) {
+            boolean done = profile != null && profile.lbcUnlocks.contains(gate.getKey());
+            if (!done) {
+                var advancement = player.level().getServer().getAdvancements().get(Identifier.parse(gate.getKey()));
+                done = advancement != null && player.getAdvancements().getOrStartProgress(advancement).isDone();
+            }
+            if (done != gate.getValue().getAsBoolean()) return false;
+        }
+        return true;
+    }
+
+    private static ItemStack lockedButton(ServerPlayer player, String namespace, String page, JsonObject entry,
+                                          PlayerStore.Profile profile, GameConfig config) {
+        if (!entry.has("lockedVariants") || config.ranked && perkPage(namespace, page)) return null;
+        ItemStack result = null;
+        for (var element : entry.getAsJsonArray("lockedVariants")) {
+            var variant = element.getAsJsonObject();
+            if (!matchesAccess(variant.getAsJsonObject("conditions"), player, profile)) continue;
+            var item = BuiltInRegistries.ITEM.getValue(Identifier.parse(variant.get("item").getAsString()));
+            if (item == null) throw failure("Unknown source locked item " + variant.get("item"));
+            result = new ItemStack(item);
+            var components = variant.getAsJsonObject("components");
+            if (components.has("minecraft:item_model")) result.set(DataComponents.ITEM_MODEL,
+                    Identifier.parse(components.get("minecraft:item_model").getAsString()));
+            for (var modifier : variant.getAsJsonArray("modifiers"))
+                applySourceModifierText(result, modifier.getAsString(), player, profile, config);
+        }
+        return result;
     }
 
     private static Map<String, Component> loadSourceMapNames(JsonObject prepared) {
@@ -424,13 +497,23 @@ final class OriginalGuiDesign {
         if (values.config == null) return sourceDefaultVariant(path);
         int setting;
         switch (value) {
+            // gui/page/1000-lang использует отдельные storage-имена для этих настроек.
+            case 8 -> { return values.config.offhandWands ? "lefthand_on" : "lefthand_off"; }
+            case 9 -> { return "lives_" + values.config.lives; }
+            case 10 -> { return values.config.noBorders ? "no_borders_on" : "no_borders_off"; }
+            case 11 -> { return "cfg_lucky_modifier_0"; }
             case 0 -> setting = values.config.pvpMode;
             case 1 -> setting = values.config.day;
+            case 2 -> setting = values.config.gameMode;
             case 3 -> setting = values.config.vanillaKits ? 1 : 0;
             case 4 -> setting = values.config.vanillaSkills ? 1 : 0;
             case 5 -> setting = values.config.stageOneEvent;
             case 6 -> setting = values.config.stageTwoEvent;
-            case 17 -> setting = 9; // Source core/default_settings: global trinket limit, not selected trinket ID.
+            case 13 -> setting = values.config.lbcKits ? 1 : 0;
+            case 14 -> setting = values.config.lbcSkills ? 1 : 0;
+            case 15 -> setting = values.config.lbcLevelups ? 1 : 0;
+            case 16 -> setting = values.config.lbcLevelupLimit;
+            case 17 -> setting = values.config.lbcTrinketLimit;
             case 24 -> {
                 int[] presets = {2, 10, 20, 40, 60};
                 int index = java.util.Arrays.binarySearch(presets, values.config.health);
@@ -539,11 +622,14 @@ final class OriginalGuiDesign {
         }
         if ("swrg.math".equals(objective) && name.equals("#lbctrinket")) {
             if (profile == null) throw failure("Missing player profile for LBC trinket score");
-            return "9"; // Source global default; LBC limit settings are not migrated.
+            return Integer.toString(values.config == null ? 9 : values.config.lbcTrinketLimit);
         }
         if ("swrg.math".equals(objective) && name.equals("#lbclevelupmax")) {
             if (profile == null) throw failure("Missing player profile for LBC level score");
-            return "4"; // Source global default, not the player's selected levelups.
+            return Integer.toString(values.config == null ? 4 : values.config.lbcLevelupLimit);
+        }
+        if ("swrg.math".equals(objective) && name.equals("#gamemode")) {
+            return Integer.toString(values.config == null ? 1 : values.config.gameMode);
         }
         throw failure("No in-memory mapping for source score " + name + " / " + objective);
     }

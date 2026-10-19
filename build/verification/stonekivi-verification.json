@@ -1,0 +1,55 @@
+{
+  "timestamp": "2026-10-17T11:14:41.011636",
+  "artifactSha256": "a0c4cb03c4682c99e71e0c197b376f98dc6781e1f153ec7ee61cba67408606a5",
+  "build": "passed",
+  "nativeRuns": {
+    "stonekivi-results.json": {
+      "completed": [
+        "Stonekivi and actual Tannerkivi loot payloads, lore/colors/tier/model/flags and Polymer projections",
+        "Native/Academy/legacy crafting in 2x2 and 3x3 grids, exact ingredients, preview and take",
+        "2499/2500 mana gate, one queued normal hit, bounded source templates, used-offhand four-mode cycle, Earth queue drain, and Comet item/allied-mob targets",
+        "Real-tick Sun capture, asynchronous planning, native lava/magma writes and attributed surface damage/Slowness V",
+        "Automatic 499/500/515 activation thresholds, block and Arrow conversion, exclusion marker, dual 1030 activation, 30-per-tick upkeep, and paid-work drain after aura stop",
+        "Tannerkivi reactivates and drains paid work in a second match after lifecycle reset"
+      ],
+      "artifactSha256": "a0c4cb03c4682c99e71e0c197b376f98dc6781e1f153ec7ee61cba67408606a5",
+      "elapsedSeconds": 47.42
+    },
+    "wall-wand-results.json": {
+      "completed": [
+        "Ordinary/Academy Wall Wand loot, native item, Polymer donor and source flags",
+        "1500/500 mana gates, four-wall upgrade readiness, used-hand mode cycling, vertical/horizontal casts, break refunds at 15/14 bricks, eight stair yaws, and Bedrock crafting regression"
+      ],
+      "artifactSha256": "a0c4cb03c4682c99e71e0c197b376f98dc6781e1f153ec7ee61cba67408606a5",
+      "elapsedSeconds": 37.16
+    },
+    "bedrock-wand-results.json": {
+      "completed": [
+        "Ordinary/Academy loot payload, item model/name/lore/tier, source flags, Polymer vanilla donor type",
+        "Native BEDROCK recipe preview/take in 2x2 and 3x3 grids, legacy donor recognition and Polymer result",
+        "Native mana gate/debit, overlapping-room NBT restoration, Academy regen, Beacon unlink, free modes 3-5, and zero-mana 21-cube trial",
+        "Bedrock room and queued regeneration state clear after match stop",
+        "A following match can create and recall Bedrock rooms after service teardown"
+      ],
+      "artifactSha256": "a0c4cb03c4682c99e71e0c197b376f98dc6781e1f153ec7ee61cba67408606a5",
+      "elapsedSeconds": 53.19
+    },
+    "academy-results.json": {
+      "completed": [
+        "Native token placement, NPC interaction, Terra/Electro trials, Exasperato unique-hit progression and upgrade preservation",
+        "Academy interaction entities clear after match stop"
+      ],
+      "artifactSha256": "a0c4cb03c4682c99e71e0c197b376f98dc6781e1f153ec7ee61cba67408606a5",
+      "elapsedSeconds": 40.59
+    }
+  },
+  "localization": "passed: reference/template/generated pack",
+  "sourceTemplates": "six packaged NBTs equal legacy bytes",
+  "sourcePresentation": "deterministic import and exact source name/lore/model/style comparison",
+  "productionSourceHashes": "stonekivi-production-sources.json",
+  "limits": [
+    "No client visual inspection or stress benchmark",
+    "Native Bedwars protection remains future work",
+    "Pre-existing GUI loot-context warnings and bot Polymer packet-context warning remain outside this batch"
+  ]
+}

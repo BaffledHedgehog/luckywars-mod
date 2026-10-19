@@ -1,0 +1,10 @@
+{
+  "completed": [
+    "legacy scalar trinket profile migration",
+    "Snow Gem / Ice Gem source gates, native GUI selection and Polymer grants",
+    "authentic damage procs, cold thresholds/decay, anchored freeze/thaw, overlap ownership, native entity NBT reload and Polymer tooltip",
+    "death, observer, lobby/stop and frost attachment cleanup"
+  ],
+  "artifactSha256": "d2072ac0d013a0f68256d3715aa4b406484cd15e992aef29dbc789b082d1b563",
+  "elapsedSeconds": 52.36
+}

@@ -1,0 +1,8 @@
+{
+  "nukeOffsets": 32,
+  "exactSourceOrder": true,
+  "zeroFuseImplementation": "native TNT-source explosion, no spawned entity",
+  "mushroomPacketsPerTick": 3,
+  "mushroomParticlesPerTick": 55,
+  "mushroomLifetimeTicks": 200
+}

@@ -1,0 +1,37 @@
+# Exoperso source notes
+
+Read-only source: `E:/servers_mew/cringe1_21_4_skywars/world/datapacksdisabled/LBC/data/lbc/`.
+
+## Dispatch and paths
+
+- Default cast: `function/workingitems/spell1_default.mcfunction` (main hand) and `spell1_default_left.mcfunction` (offhand) call `workingitems/exoperso_pre`; the wrapper calls `exoperso` then subtracts 25,000 mana. Upgraded entry points are `spell1_upgraded[ _left].mcfunction` -> `exoperso_upgraded_pre` -> `exoperso_upgraded`, subtracting 10,000 mana.
+- `exoperso` summons a marker tagged `slowraycast,exoperso,player,magic` with `{data:{lifetime:700}}` at eye position + 0.5, stores caster `lbcID2` and `team_number`, and starts `lbcsounds.exoperso` at volume 15/pitch 1 from +20 Y. If selected item has `upgradable:1`, it calls `exoperso_check_upgrade` (increments item's custom `score`; at score >=5 opens the generic Academy readiness path).
+- `exoperso_upgraded` mirrors this with `exoperso_upg`, same lifetime and owner/team, pitch 2, then mana wrapper subtracts 10,000.
+- Common tick chain: `function/other/areas.mcfunction` -> `raycastselector.mcfunction` increments `Lifetime` by 1 then dispatches `player` markers to `raycastselector_player.mcfunction`. Its `exoperso` and `exoperso_upg` branches call `exoperso2` / `exoperso2_upg` only when a non-spectator matching `lbcID2` exists. This is distinct from `exoperso_pre` (cast wrapper) and `exopersopre` (actual per-tick effects helper); there is no evidence that the file name `exopersopre` itself is dead.
+
+## Flight, collision, explosions
+
+- Ordinary marker: for `Lifetime ..318`, call `exopersopre`; at 319 call `exopersorc`; at 320 teleport to caster position +1.62Y; at 321+ call `exopersorcall`. Upgraded: `..159`, 160, 161, then 162+ respectively. Lifetime increments before dispatch, so the heading is copied at tick 319 (15.95s) ordinary / tick 160 (8s) upgraded at 20 TPS. After the following teleport, terrain flight continues until collision or lifetime 700 (35s). Timing is approximate and assumes the marker is being ticked.
+- `exopersopre` calls `exopersoparticles` at the caster's eyes +2 each pre-phase tick; that helper emits firework, flame, and falling-lava particles. `exopersorc` copies the matching caster's current `Rotation` into the marker once at tick 319/160, then `tp @s ~ ~ ~` (no positional change). The rotation is not recopied during later flight. `exopersorcall` increments `Distance`, emits the same three particles, detonates if the current block is not in `#minecraft:airs`, then advances 0.5 blocks along local forward while `Distance <=4`; at Distance=5 it resets to 0. Thus it checks up to 2 blocks of forward travel per call, in 0.5-block steps, repeatedly. No direct entity-hit test or direct-damage command is present in this source chain; source impact is block collision and damage comes from creeper blasts.
+- `exopersoexplode` summons 32 invulnerable persistent creepers, all `ExplosionRadius:20,Fuse:0,ignited:1b,Tags:["exoper"]`. Relative positions are: center; four horizontal ±5 axis and four ±5 diagonals; vertical y=+5,+10,+15,+20,-5,-10,-15; eight x/z=±7 combinations at y=+5 and another eight at y=-5. Each uses the vanilla creeper explosion radius 20. It also creates a `slowparticlesexplode` marker at y=-4 with lifetime 200 (10s), then schedules `exopersoexplode_scheduled` after 2 ticks. Its particle helper plays dragon-fireball explode, generic explode, firecharge use, and firework large-blast sounds (volume 100, pitch 0), emits 500 explosion emitters at +10Y, then kills the helper marker.
+- The explosion marker's delayed particle helper is invoked by `raycastselector_player`: ordinary particles are fire/magma/lava block markers centered around y=-3,+15,+35; upgraded particle variant (only referenced by separate `slowparticlesexplode_2` tag) uses y=-5,+23,+60. The ordinary explosion file actually summons `slowparticlesexplode`, not `_2`.
+
+## Academy, kills, odd behavior
+
+- Academy readiness full path: a cast only calls `exoperso_check_upgrade` if the held item has `upgradable:1`; that function increments its custom `score`. At score >=5 it calls generic `other/magic_academy/can_upgrade` -> `can_upgrade_book`, which plays the XP sound/message and changes held item data to `upgrade_available:1,upgradable:0`. At the Academy, `interacted.mcfunction` routes that ready item (unless already upgraded) to `interacted_upgrade`; this sets `upgraded:1,mode:1`, runs tier-S item modification, then `upgrade/exoperso` displays success. The Academy Exoperso advancement (`advancement/true_advancements/legends/academy/exoperso.json`) is separately triggered by inventory change for `{upgraded:1,transformable:1,staff:1,exoperso:1}` and unlocks its kit/gui. The `can_upgrade/exoperso` file is a separate one-line condition message reached from `interacted_2`; it is not the five-cast readiness implementation.
+- `advancement/killed_by_exoperso.json` triggers on a player killed by any entity tagged `exoper`, rewards `workingitems/exoperso_killed`, which only increments global fake-player score `players2` and revokes this advancement. It does not record the caster. In `exopersoexplode`, global `players` is set to online non-spectator count and `players2` reset to 0. The final `execute at @a[gamemode=!spectator] ...` repositions command execution at each non-spectator player before checking for the one within 0.01 of that player's position whose `lbcID2` matches the marker (`@s`); the matcher's proximity is to a player, not the explosion origin. Thus the owner need not stand at impact. Two ticks later, schedule grants `true_advancements/staffs/exoperso` to one tagged caster only when `players2 - players == -1` and `players >=3`, then clears the cast tag. The source therefore appears to require exactly N-1 deaths from any `exoper` and uses shared global counters; multiple blasts/casts can overwrite/interfere.
+- Source orientation quirk: summon has no explicit `Rotation`; direction is explicitly copied from owner inside `exopersorc` only at lifetime 319/160, after the pre-phase. The marker retains that snapshot for subsequent terrain flight. It is teleported to owner eye height at lifetime 320/161, then advances on later ticks.
+
+## User decisions, 2026-10-17
+
+These are target requirements from the user, separate from the old datapack behavior above:
+
+- Detect projectile impact against both blocks and entities.
+- Represent the 32 explosion sources as TNT power 20 and route them through the shared explosion queue.
+- Use smart terrain flight.
+- Gate casts at 5,000 mana; debit 25,000 for ordinary and 10,000 for Academy/upgraded casts.
+- Distinguish `workingitems/exopersoexplode.mcfunction` (active collision route) from `exopersoexplode1.mcfunction` and `workingitems/exoperso4.mcfunction` (unrelated/other dispatch contexts). Do not conflate these with Exasperato/Exasperoso crafting names or `awaken_tuntija_wands/exasperato`.
+
+## Source file index
+
+`workingitems/exoperso{,_pre,2,rc,rcall,pre,check_upgrade,killed,removed,upgraded,upgraded_pre,2_upg,explode,explode_scheduled,explodeparticles,explodeparticles_2}.mcfunction`; `function/raycastselector{,_player}.mcfunction`; `function/other/areas.mcfunction`; `function/workingitems/spell1_default{,_left}.mcfunction`; `spell1_upgraded{,_left}.mcfunction`; `advancement/killed_by_exoperso.json`; `advancement/true_advancements/{staffs,legends/academy}/exoperso.json`.

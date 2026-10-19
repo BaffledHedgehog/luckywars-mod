@@ -1,0 +1,14 @@
+{
+  "artifactSha256": "6b2f55bf2ee5bc403f11fd28d5c19b1a479f6fd9a47f3a8319b9d5995f6c955c",
+  "readyJar": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-teleport-wand-6b2f55bf.jar",
+  "previousSha256": "d196ae2a718bb4c5d18ac2b398bd3018f0821025505f9d27bac96297d5999d6b",
+  "backupJar": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-before-teleport-wand-d196ae2a.jar",
+  "mainJar": "E:\\servers_mew\\skywars2_last\\mods\\skywars2.jar",
+  "verified": true,
+  "verification": "teleport-wand-verification.json",
+  "installed": true,
+  "serverAutoStarted": false,
+  "installedAt": "2026-10-16T20:48:33.518272+00:00",
+  "worldLockFreeAtInstallation": true,
+  "mainPortClosedAtInstallation": true
+}

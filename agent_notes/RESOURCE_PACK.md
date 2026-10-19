@@ -1,5 +1,16 @@
 # Ресурс-пак и сохранение оформления предметов
 
+## Шрифты атрибутов — актуально на 16 октября 2026
+
+Пользователь потребовал использовать исходные PNG из textures/font без создания
+новых и без перемещения. Актуальный template содержит только JSON/TTF в
+`assets/lbc/font/attribute_hud/`; иконки ссылаются прямо на авторские
+`minecraft:font/icons/*.png` и прежние vanilla item-текстуры.
+Размер всех иконок 9 GUI px, исходное разрешение сохраняется. Из-за ограничения
+bitmap ascent <= height вся панель смещена на 54 GUI px вниз, 18 строк на столбик
+сохранены. Изменения мода/перезапуск сервера не нужны; применить template и F3+T.
+[Инструкция](../resourcepack_template/README.md).
+
 Ресурс-пак пользователя:
 [all_in_one_1.21.8](<C:/Users/yarik_temp/AppData/Roaming/FreesmLauncher/instances/26.3(1)/minecraft/resourcepacks/all_in_one_1.21.8>).
 

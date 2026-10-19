@@ -1,0 +1,39 @@
+{
+  "createdUtc": "2026-10-16T09:49:51.085641+00:00",
+  "artifactSha256": "24afb5ca3e8a085ff6aedbed3f31b49c120dbfedf9286eb834a56979db984264",
+  "readyJar": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-electro-family-24afb5ca.jar",
+  "checks": {
+    "electro-family": {
+      "completed": [
+        "ordinary and Academy Electro loot tables, native IDs, Polymer restoration and shared mana cost",
+        "ordinary/Academy traces, lifetimes, hand casting, Academy mode toggle and native ray damage",
+        "Electro-family trace cleanup after match stop"
+      ],
+      "artifactSha256": "24afb5ca3e8a085ff6aedbed3f31b49c120dbfedf9286eb834a56979db984264",
+      "elapsedSeconds": 38.95
+    },
+    "wands-electro": {
+      "completed": [
+        "Tiny Electro source payload, native item ID, model components, Polymer restoration and price",
+        "Tiny Electro hitbox, conductor/team damage, wall/shield, overdraft, pause, and suppression checks",
+        "Tracked Tiny Electro trace cleanup after match stop"
+      ],
+      "artifactSha256": "24afb5ca3e8a085ff6aedbed3f31b49c120dbfedf9286eb834a56979db984264",
+      "elapsedSeconds": 38.5
+    },
+    "electric-damage": {
+      "completed": [
+        "shared electric damage type registration",
+        "electric cooldown stacking, additive metal bonus, Techno immunity, native defenses, no knockback, aliases and observer exclusion",
+        "electric damage player fixture restored after match stop"
+      ],
+      "artifactSha256": "24afb5ca3e8a085ff6aedbed3f31b49c120dbfedf9286eb834a56979db984264",
+      "elapsedSeconds": 44.91
+    }
+  },
+  "installed": true,
+  "installedSha256": "24afb5ca3e8a085ff6aedbed3f31b49c120dbfedf9286eb834a56979db984264",
+  "previousInstalledSha256": "71d62c935498ded5d1d96b21d2ecc63f2a9824781e3a1bba171dfcb91ba3a1b6",
+  "backupJar": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-before-electro-family-71d62c93.jar",
+  "installedUtc": "2026-10-16T09:49:51.193783+00:00"
+}

@@ -1,97 +1,326 @@
 {
-  "minecraft:recipes/decorations/crafting_table": {
+  "lbc:true_advancements/legends/root": {
     "criteria": {
-      "unlock_right_away": "2026-10-08 11:01:29 +0300"
+      "requirement": "2026-10-12 21:44:15 +0300"
     },
     "done": true
   },
-  "minecraft:recipes/misc/map": {
+  "lbc:true_advancements/swords": {
     "criteria": {
-      "has_compass": "2026-10-08 11:01:29 +0300"
+      "requirement": "2026-10-13 19:49:26 +0300"
     },
     "done": true
   },
-  "minecraft:recipes/building_blocks/diamond_block": {
+  "lbc:true_advancements/accesories/mystical_artifact": {
     "criteria": {
-      "has_diamond": "2026-10-08 12:43:47 +0300"
+      "art_8": "2026-10-14 11:32:02 +0300",
+      "art_4": "2026-10-14 12:59:34 +0300",
+      "art_5": "2026-10-14 12:21:18 +0300",
+      "art_6": "2026-10-14 11:32:02 +0300",
+      "art_7": "2026-10-14 19:23:46 +0300",
+      "art_1": "2026-10-13 23:39:29 +0300",
+      "art_2": "2026-10-14 16:08:36 +0300",
+      "art_3": "2026-10-14 16:39:26 +0300"
+    },
+    "done": false
+  },
+  "lbc:true_advancements/accesories": {
+    "criteria": {
+      "requirement": "2026-10-13 23:39:29 +0300"
     },
     "done": true
   },
-  "minecraft:recipes/combat/diamond_boots": {
+  "lbc:true_advancements/potions/effect_high_hunger": {
     "criteria": {
-      "has_diamond": "2026-10-08 12:43:47 +0300"
+      "requirement": "2026-10-14 11:32:02 +0300"
     },
     "done": true
   },
-  "minecraft:recipes/combat/diamond_chestplate": {
+  "lbc:true_advancements/potions/effect_high_water_breathing": {
     "criteria": {
-      "has_diamond": "2026-10-08 12:43:47 +0300"
+      "requirement": "2026-10-14 19:23:46 +0300"
     },
     "done": true
   },
-  "minecraft:recipes/combat/diamond_helmet": {
+  "lbc:true_advancements/potions/effect_high_conduit_power": {
     "criteria": {
-      "has_diamond": "2026-10-08 12:43:47 +0300"
+      "requirement": "2026-10-14 19:23:46 +0300"
     },
     "done": true
   },
-  "minecraft:recipes/combat/diamond_leggings": {
+  "lbc:true_advancements/potions/mana_regen": {
     "criteria": {
-      "has_diamond": "2026-10-08 12:43:47 +0300"
+      "requirement": "2026-10-14 21:10:54 +0300"
     },
     "done": true
   },
-  "minecraft:recipes/combat/diamond_spear": {
+  "lbc:true_advancements/potions/max_mana": {
     "criteria": {
-      "has_diamond": "2026-10-08 12:43:47 +0300"
+      "requirement": "2026-10-14 21:10:54 +0300"
     },
     "done": true
   },
-  "minecraft:recipes/combat/diamond_sword": {
+  "lbc:true_advancements/armor": {
     "criteria": {
-      "has_diamond": "2026-10-08 12:43:47 +0300"
+      "requirement": "2026-10-15 01:17:36 +0300"
     },
     "done": true
   },
-  "minecraft:recipes/decorations/jukebox": {
+  "lbc:true_advancements/potions/effect_high_invisibility": {
     "criteria": {
-      "has_diamond": "2026-10-08 12:43:47 +0300"
+      "requirement": "2026-10-15 14:34:52 +0300"
     },
     "done": true
   },
-  "minecraft:recipes/tools/diamond_axe": {
+  "lbc:true_advancements/bows/firework": {
     "criteria": {
-      "has_diamond": "2026-10-08 12:43:47 +0300"
+      "requirement": "2026-10-15 14:35:07 +0300"
     },
     "done": true
   },
-  "minecraft:recipes/tools/diamond_hoe": {
+  "lbc:true_advancements/legends/academy/corruption": {
     "criteria": {
-      "has_diamond": "2026-10-08 12:43:47 +0300"
+      "requirement": "2026-10-15 14:35:52 +0300"
     },
     "done": true
   },
-  "minecraft:recipes/tools/diamond_pickaxe": {
+  "lbc:true_advancements/bows/ghast": {
     "criteria": {
-      "has_diamond": "2026-10-08 12:43:47 +0300"
+      "requirement": "2026-10-15 14:36:02 +0300"
     },
     "done": true
   },
-  "minecraft:recipes/tools/diamond_shovel": {
+  "lbc:true_advancements/legends/academy/snow_wand": {
     "criteria": {
-      "has_diamond": "2026-10-08 12:43:47 +0300"
+      "requirement": "2026-10-15 14:36:24 +0300"
     },
     "done": true
   },
-  "minecraft:story/mine_diamond": {
+  "lbc:true_advancements/legends/academy/ice_wand": {
     "criteria": {
-      "diamond": "2026-10-08 12:43:47 +0300"
+      "requirement": "2026-10-15 14:36:24 +0300"
     },
     "done": true
   },
-  "minecraft:adventure/root": {
+  "lbc:true_advancements/swords/ice": {
     "criteria": {
-      "killed_by_something": "2026-10-09 13:31:39 +0300"
+      "requirement": "2026-10-15 23:37:38 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/tuntija_wands/terra": {
+    "criteria": {
+      "requirement": "2026-10-16 10:37:39 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/staffs": {
+    "criteria": {
+      "requirement": "2026-10-16 10:37:39 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/tuntija_wands/razorterra": {
+    "criteria": {
+      "requirement": "2026-10-16 10:37:39 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/tuntija_wands/true_terra": {
+    "criteria": {
+      "requirement": "2026-10-16 10:37:39 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/shooter": {
+    "criteria": {
+      "requirement": "2026-10-16 10:37:39 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/academy/exasperato": {
+    "criteria": {
+      "requirement": "2026-10-16 10:48:20 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/shooter/razorpine": {
+    "criteria": {
+      "requirement": "2026-10-16 12:13:38 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/tuntija_wands/electro": {
+    "criteria": {
+      "requirement": "2026-10-16 13:03:30 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/shields": {
+    "criteria": {
+      "requirement": "2026-10-16 13:16:59 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/tuntija_wands/electro_shield": {
+    "criteria": {
+      "requirement": "2026-10-16 13:43:49 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/bows/blaze": {
+    "criteria": {
+      "requirement": "2026-10-16 16:21:38 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/academy/terra": {
+    "criteria": {
+      "requirement": "2026-10-16 18:16:27 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/academy/root": {
+    "criteria": {
+      "requirement": "2026-10-16 18:16:27 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/tuntija_wands/exasperato": {
+    "criteria": {
+      "requirement": "2026-10-16 18:20:27 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/tuntija_wands/fire": {
+    "criteria": {
+      "requirement": "2026-10-16 21:19:06 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/academy/acid_tuntija": {
+    "criteria": {
+      "requirement": "2026-10-16 21:27:59 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/tuntija_wands/blind": {
+    "criteria": {
+      "requirement": "2026-10-16 22:42:34 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/academy/blind": {
+    "criteria": {
+      "requirement": "2026-10-16 22:42:34 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/tuntija_wands/air": {
+    "criteria": {
+      "requirement": "2026-10-16 23:00:17 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/academy/air": {
+    "criteria": {
+      "requirement": "2026-10-16 23:00:17 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/tuntija_wands/teleport": {
+    "criteria": {
+      "requirement": "2026-10-16 23:34:26 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/academy/teleport_tuntija": {
+    "criteria": {
+      "requirement": "2026-10-16 23:34:26 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/academy/ruby": {
+    "criteria": {
+      "requirement": "2026-10-17 00:01:12 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/tuntija_wands/ruby": {
+    "criteria": {
+      "requirement": "2026-10-17 00:01:12 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/staffs/exoperso": {
+    "criteria": {
+      "requirement": "2026-10-17 00:50:15 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/tuntija_wands/big_stone": {
+    "criteria": {
+      "requirement": "2026-10-17 11:07:43 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/academy/big_stone": {
+    "criteria": {
+      "requirement": "2026-10-17 11:07:43 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/arcanums/tannerkivi": {
+    "criteria": {
+      "requirement": "2026-10-17 11:07:46 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/staffs/blaze": {
+    "criteria": {
+      "requirement": "2026-10-18 01:20:40 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/staffs/psycho": {
+    "criteria": {
+      "requirement": "2026-10-18 12:51:59 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/potions/effect_piss": {
+    "criteria": {
+      "requirement": "2026-10-18 17:52:36 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/academy/falling_stars": {
+    "criteria": {
+      "requirement": "2026-10-19 00:01:42 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/staffs/lightning": {
+    "criteria": {
+      "requirement": "2026-10-19 19:52:01 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/lightning_smith": {
+    "criteria": {
+      "requirement": "2026-10-19 19:52:01 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/tuntija_wands/boltbolt": {
+    "criteria": {
+      "requirement": "2026-10-19 19:53:57 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/academy/boltbolt": {
+    "criteria": {
+      "requirement": "2026-10-19 19:53:57 +0300"
     },
     "done": true
   },

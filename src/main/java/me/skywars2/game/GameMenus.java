@@ -23,7 +23,8 @@ import java.util.UUID;
 
 /** All player-facing lobby menus, kept together so navigation and actions share one contract. */
 public final class GameMenus {
-    private static final String[] MAP_SOURCE_PAGES = {"2000", "2000b", "2100", "2200"};
+    private static final String[] SKYWARS_MAP_PAGES = {"2000", "2100", "2200"};
+    private static final String[] BEDWARS_MAP_PAGES = {"2000b"};
     private final MinecraftServer server;
     private final GameController controller;
     private final GameConfig config;
@@ -57,11 +58,26 @@ public final class GameMenus {
         open(player, Page.HUB);
     }
 
+    /** Настройка доступа меняет вид уже открытых меню без закрытия контейнера. */
+    void refreshOpen() {
+        for (var player : server.getPlayerList().getPlayers())
+            if (SguiUtils.getCurrentGui(player) instanceof Menu menu && controller.canUseMenus(player))
+                open(player, menu.page);
+    }
+
     public void open(ServerPlayer player, Page page) {
-        if (!controller.canUseMenus() && page != Page.STATS) {
+        boolean observer = controller.isObserver(player);
+        if (observer && !observerPage(page)) {
             player.sendSystemMessage(c("lobby_only"));
             return;
         }
+        if (!controller.canUseMenus(player) && page != Page.STATS) {
+            player.sendSystemMessage(c("lobby_only"));
+            return;
+        }
+        if ((page == Page.SETTINGS || page == Page.MAPS) && !controller.allowMatchControl(player)) return;
+        // Personal menus are usable by observers after leaving the watched target.
+        if (observer && controller.spectators().attached(player)) controller.spectators().detach(player);
         PlayerStore.Profile profile = players.get(player.getUUID(), player.getName().getString());
         Menu gui = new Menu(player, page);
         gui.setTitle(Component.translatable("container.enderchest"));
@@ -96,8 +112,12 @@ public final class GameMenus {
     }
 
     private void renderHub(Menu gui, ServerPlayer player, PlayerStore.Profile p) {
+        // Центральная страница связывает кнопки навигации с настройками, выбором карты и запуском матча.
+        boolean observer = controller.isObserver(player);
         for (int slot = 0; slot < 27; slot++) {
             if (slot == 18) continue;
+            // Наблюдатель может открыть личные разделы, но не настройки и управление матчем.
+            if (observer && (slot == 0 || slot == 1 || slot == 2)) continue;
             Runnable click = switch (slot) {
                 case 0 -> () -> open(player, Page.SETTINGS);
                 case 1 -> () -> controller.requestStart(player, false);
@@ -117,21 +137,30 @@ public final class GameMenus {
                 case 26 -> () -> player.sendSystemMessage(originalLinksMessage());
                 default -> null;
             };
+            if (slot == 9 && config.gameMode != 3 && config.gameMode != 4) continue;
             ItemStack stack = OriginalGuiDesign.button(player, "swrg", 0, slot, p, config);
             original(gui, player, slot, stack, null, List.of(), click);
         }
     }
 
     private void renderSettings(Menu gui, ServerPlayer p, PlayerStore.Profile profile) {
+        // Эта страница меняет параметры следующих матчей; change проверяет лобби, сохраняет конфиг и перерисовывает её.
         for (int slot = 0; slot < 27; slot++) {
             if (slot == 18 || slot == 25 || slot == 26) continue;
             Runnable click = switch (slot) {
                 case 0 -> () -> change(p, () -> config.pvpMode = cycle(config.pvpMode, 1, 2));
                 case 1 -> () -> change(p, () -> config.day = cycle(config.day, 1, 3));
+                case 2 -> () -> change(p, () -> config.gameMode = cycle(config.gameMode, 1, 4));
                 case 3 -> () -> change(p, () -> config.vanillaKits = !config.vanillaKits);
                 case 4 -> () -> change(p, () -> config.vanillaSkills = !config.vanillaSkills);
                 case 5 -> () -> change(p, () -> config.stageOneEvent = cycle(config.stageOneEvent, 0, 9));
                 case 6 -> () -> change(p, () -> config.stageTwoEvent = cycle(config.stageTwoEvent, 0, 8));
+                case 8 -> () -> change(p, () -> config.offhandWands = !config.offhandWands);
+                case 13 -> () -> change(p, () -> config.lbcKits = !config.lbcKits);
+                case 14 -> () -> change(p, () -> config.lbcSkills = !config.lbcSkills);
+                case 15 -> () -> change(p, () -> config.lbcLevelups = !config.lbcLevelups);
+                case 16 -> () -> change(p, () -> config.lbcLevelupLimit = cycle(config.lbcLevelupLimit, 1, 12));
+                case 17 -> () -> change(p, () -> config.lbcTrinketLimit = cycle(config.lbcTrinketLimit, 1, 12));
                 case 9 -> () -> change(p, () -> config.lives = cycle(config.lives, 1, 5));
                 case 10 -> () -> change(p, () -> config.noBorders = !config.noBorders);
                 case 24 -> {
@@ -156,17 +185,25 @@ public final class GameMenus {
                         p.sendSystemMessage(c("lobby_only"));
                         return;
                     }
+                    if (!controller.allowMatchControl(p)) return;
+                    String previousMap = config.mapId;
+                    boolean previousBroken = config.broken;
                     copyConfig(GameConfig.resetDefaults(), config);
+                    if (!previousMap.equals(config.mapId) || previousBroken != config.broken)
+                        controller.selectMap(p, config.mapId, config.broken);
                     open(p, Page.SETTINGS);
                 });
         originalTable(gui, p, 18, "swrg:gui/back", null, List.of(), () -> open(p, Page.HUB));
     }
 
     private void renderMaps(Menu gui, ServerPlayer player) {
-        int pages = MAP_SOURCE_PAGES.length;
+        // Как в datapack: отдельные цепочки страниц SkyWars и BedWars, без смешивания карт.
+        boolean bedwars = config.gameMode == 3 || config.gameMode == 4;
+        String[] sourcePages = bedwars ? BEDWARS_MAP_PAGES : SKYWARS_MAP_PAGES;
+        int pages = sourcePages.length;
         int page = Math.max(0, Math.min(mapPages.getOrDefault(player.getUUID(), 0), pages - 1));
         mapPages.put(player.getUUID(), page);
-        String sourcePage = MAP_SOURCE_PAGES[page];
+        String sourcePage = sourcePages[page];
         for (MapManager.MapInfo map : maps.catalog()) {
             if (!mapSourcePage(map.id()).equals(sourcePage)) continue;
             boolean selected = map.id().equals(config.mapId);
@@ -186,8 +223,6 @@ public final class GameMenus {
                                     return;
                                 }
                                 if (controller.selectMap(player, map.id(), config.broken)) {
-                                    config.mapId = map.id();
-                                    config.save();
                                     open(player, Page.MAPS);
                                 }
                             }
@@ -203,13 +238,20 @@ public final class GameMenus {
                     if (existingLore != null) lore.addAll(existingLore.lines());
                     builder.setLoreRaw(lore);
                 }
-                if (selectMap != null) builder.setCallback((index, type, action, menu) -> {
-                    if (!controller.canUseMenus()) {
+                builder.setCallback((index, type, action, menu) -> {
+                    if (!controller.canUseMenus(player)) {
                         player.sendSystemMessage(c("lobby_only"));
                         return;
                     }
-                    playOriginalClick(player);
-                    selectMap.run();
+                    // Обновляем даже недоступную карту, если другой игрок сменил общий режим.
+                    if (bedwars != (config.gameMode == 3 || config.gameMode == 4)) {
+                        open(player, Page.MAPS);
+                        return;
+                    }
+                    if (selectMap != null) {
+                        playOriginalClick(player);
+                        selectMap.run();
+                    }
                 });
                 gui.setSlot(source.slot(), builder.build());
             }
@@ -235,10 +277,11 @@ public final class GameMenus {
             if (id == 19) continue;
             ItemStack stack = OriginalGuiDesign.button(player, "swrg", 3000, sourceSlot, p, config);
             original(gui, player, sourceSlot, stack, null, List.of(), () -> {
+                if (!OriginalGuiDesign.unlocked(player, "swrg", 3000, sourceSlot, p, config)) return;
                 p.kit = kit;
                 players.save();
                 open(player, Page.VANILLA_KITS);
-            }, p.kit == kit);
+            }, p.kit == kit && OriginalGuiDesign.unlocked(player, "swrg", 3000, sourceSlot, p, config));
         }
         originalTable(gui, player, 26, "swrg:gui/reset", null, List.of(), () -> {
                     p.kit = 0;
@@ -252,11 +295,13 @@ public final class GameMenus {
         for (int i = 0; i < 13; i++) {
             int skill = i + 1;
             ItemStack stack = OriginalGuiDesign.button(player, "swrg", 4000, i, p, config);
+            int sourceSlot = i;
             original(gui, player, i, stack, null, List.of(), () -> {
+                if (!OriginalGuiDesign.unlocked(player, "swrg", 4000, sourceSlot, p, config)) return;
                 p.skill = skill;
                 players.save();
                 open(player, Page.VANILLA_SKILLS);
-            }, p.skill == skill);
+            }, p.skill == skill && OriginalGuiDesign.unlocked(player, "swrg", 4000, sourceSlot, p, config));
         }
         originalTable(gui, player, 26, "swrg:gui/reset", null, List.of(), () -> {
                     p.skill = 0;
@@ -323,6 +368,7 @@ public final class GameMenus {
     }
 
     private void renderLbc(Menu gui, ServerPlayer player, PlayerStore.Profile p) {
+        // Общий рендерер наборов, навыков и улучшений сопоставляет страницу GUI с исходными страницами LBC.
         Page page = gui.page;
         int[] sourcePages = switch (page) {
             case LBC_KITS -> new int[] {9000, 9100};
@@ -336,12 +382,29 @@ public final class GameMenus {
         int index = Math.clamp(pages.getOrDefault(page, 0), 0, sourcePages.length - 1);
         pages.put(page, index);
         int sourcePage = sourcePages[index];
+        LbcLoadouts.Kind loadoutKind = switch (page) {
+            case LBC_KITS -> LbcLoadouts.Kind.KITS;
+            case LBC_SKILLS -> LbcLoadouts.Kind.SKILLS;
+            case LBC_LEVELUPS -> LbcLoadouts.Kind.LEVELUPS;
+            case LBC_TRINKETS -> LbcLoadouts.Kind.TRINKETS;
+            default -> null;
+        };
         for (int slot = 0; slot < 27; slot++) {
             if (slot == 18 || slot == 25 || slot == 26) continue;
+            int sourceSlot = slot;
             Runnable click = page == Page.LBC_CHALLENGE && slot == 24
                     ? () -> { p.lbcChallenge = 0; players.save(); open(player, page); } : null;
+            if (loadoutKind != null) {
+                click = () -> {
+                    if (controller.lbc().select(player, loadoutKind, sourcePage, sourceSlot)) open(player, page);
+                };
+            }
+            boolean selected = loadoutKind != null
+                    && OriginalGuiDesign.unlocked(player, "lbc", sourcePage, sourceSlot, p, config)
+                    && controller.lbc().selected(p, loadoutKind, sourcePage, sourceSlot);
             original(gui, player, slot,
-                    OriginalGuiDesign.button(player, "lbc", sourcePage, slot, p, config), null, List.of(), click);
+                    OriginalGuiDesign.button(player, "lbc", sourcePage, slot, p, config), null, List.of(), click,
+                    selected);
         }
         originalTable(gui, player, 18, "swrg:gui/back", null, List.of(), () -> {
             if (index > 0) { pages.put(page, index - 1); open(player, page); }
@@ -358,11 +421,19 @@ public final class GameMenus {
                     switch (page) {
                         case LBC_KITS -> p.lbcKit = 0;
                         case LBC_SKILLS -> p.lbcSkill = 0;
-                        case LBC_TRINKETS -> p.lbcTrinket = 0;
-                        case LBC_LEVELUPS -> java.util.Arrays.fill(p.levelups, 0);
+                        case LBC_TRINKETS -> {
+                            p.lbcTrinket = 0;
+                            java.util.Arrays.fill(p.trinkets, 0);
+                            p.lbcTrinketSlot = 0;
+                        }
+                        case LBC_LEVELUPS -> {
+                            java.util.Arrays.fill(p.levelups, 0);
+                            p.lbcLevelupSlot = 0;
+                        }
                         default -> throw new IllegalArgumentException("Not an LBC selector page: " + page);
                     }
                     players.save();
+                    controller.lbc().refreshArtifactView(player);
                     open(player, page);
                 });
         if (index + 1 < sourcePages.length)
@@ -397,8 +468,11 @@ public final class GameMenus {
             player.sendSystemMessage(c("lobby_only"));
             return;
         }
+        if (!controller.allowMatchControl(player)) return;
         mutation.run();
         config.save();
+        controller.lbc().syncRanked();
+        controller.lbc().refreshArtifactViews();
         open(player, Page.SETTINGS);
     }
 
@@ -448,7 +522,7 @@ public final class GameMenus {
         if (!renderedLore.isEmpty()) builder.setLoreRaw(renderedLore);
         if (click != null) {
             builder.setCallback((index, type, action, source) -> {
-                if (!controller.canUseMenus() && gui.page != Page.STATS) {
+                if (!controller.canUseMenus(player) && gui.page != Page.STATS) {
                     gui.getPlayer().sendSystemMessage(c("lobby_only"));
                     return;
                 }
@@ -500,9 +574,17 @@ public final class GameMenus {
         to.stageOneEvent = from.stageOneEvent;
         to.stageTwoEvent = from.stageTwoEvent;
         to.pvpMode = from.pvpMode;
+        to.gameMode = from.gameMode;
         to.day = from.day;
+        // A public lobby reset only resets match options, never OP-only service flags.
         to.vanillaKits = from.vanillaKits;
         to.vanillaSkills = from.vanillaSkills;
+        to.lbcKits = from.lbcKits;
+        to.lbcSkills = from.lbcSkills;
+        to.lbcLevelups = from.lbcLevelups;
+        to.offhandWands = from.offhandWands;
+        to.lbcLevelupLimit = from.lbcLevelupLimit;
+        to.lbcTrinketLimit = from.lbcTrinketLimit;
         to.noBorders = from.noBorders;
         to.mapId = from.mapId;
         to.broken = from.broken;
@@ -511,6 +593,15 @@ public final class GameMenus {
 
     private static int cycle(int v, int min, int max) {
         return v >= max ? min : Math.max(min, v + 1);
+    }
+
+    private static boolean observerPage(Page page) {
+        return switch (page) {
+            case HUB, VANILLA_KITS, VANILLA_SKILLS, KEY_SHOP, STATS,
+                    LBC_KITS, LBC_SKILLS, LBC_TRINKETS, LBC_LEVELUPS, LBC_CHALLENGE,
+                    COSMETICS, CASES -> true;
+            case SETTINGS, MAPS, BEDWARS -> false;
+        };
     }
 
     public enum Page {
@@ -540,17 +631,26 @@ public final class GameMenus {
         }
 
         @Override
+        public boolean click(int index, ClickType type, ContainerInput action) {
+            // PICKUP_ALL — синтетический пакет сбора предметов после двух обычных PICKUP;
+            // он не должен повторно выполнять кнопку третий раз.
+            if (action == ContainerInput.PICKUP_ALL || type == ClickType.MOUSE_DOUBLE_CLICK) {
+                GuiElement element = getGuiElement(index);
+                return onClick(index, type, action, element);
+            }
+            return super.click(index, type, action);
+        }
+
+        @Override
         public boolean onClick(int index, ClickType type, ContainerInput action, GuiElement element) {
-            // Client chest screens predict a pickup. Always correct that prediction,
-            // including empty, inert, shift, drag and hotbar-swap clicks.
+            // Клиент заранее меняет предмет/курсор при клике; ответ сервера синхронизирует GUI даже для пустых и неактивных ячеек.
             getPlayer().containerMenu.sendAllDataToRemote();
             return true;
         }
 
         @Override
         public void handleException(Throwable exception) {
-            // SGui invokes callbacks with remote updates suppressed. Its exception
-            // path does not resume them, leaving the client cursor out of sync.
+            // При ошибке callback SGui не возобновляет отложенные обновления, поэтому возвращаем их и синхронизируем курсор.
             var menu = getPlayer().containerMenu;
             menu.resumeRemoteUpdates();
             menu.sendAllDataToRemote();

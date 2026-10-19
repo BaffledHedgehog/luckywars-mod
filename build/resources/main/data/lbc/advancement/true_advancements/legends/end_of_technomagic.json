@@ -1,0 +1,26 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:snowball",
+            "components": {
+                "minecraft:item_model": "lbc:shish_of_everything"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.legends.shish_of_everything"
+        },
+        "description": {
+            "translate": "lbc.adv.legends.shish_of_everything.lore"
+        },
+        "frame": "challenge",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/legends/end_of_everything",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:impossible"
+        }
+    }
+}

@@ -1,19 +1,17 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 16,
+      "entries": [
         {
-            "rolls": 16,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:dirt",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 64
-                        }
-                    ]
-                }
-            ]
+          "type": "minecraft:item",
+          "name": "minecraft:dirt",
+          "modifier": {
+            "count": 64,
+            "type": "minecraft:set_count"
+          }
         }
-    ]
+      ]
+    }
+  ]
 }

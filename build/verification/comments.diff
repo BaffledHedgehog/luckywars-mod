@@ -1,0 +1,271 @@
+--- src/main/java/me/skywars2/SkyWars2.java
++++ src/main/java/me/skywars2/SkyWars2.java
+@@ -39,6 +39,7 @@
+ 
+     @Override
+     public void onInitializeServer() {
++        // Здесь связываются жизненный цикл сервера, игровые события и команды; состояние матча хранит контроллер.
+         MapManager.registerLoadingTicket();
+         PolymerResourcePackUtils.addModAssets(MOD_ID);
+         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+--- src/main/java/me/skywars2/game/GameChecks.java
++++ src/main/java/me/skywars2/game/GameChecks.java
+@@ -81,6 +81,7 @@
+     }
+ 
+     public static void run(GameController game, String suite) {
++        // Наборы здесь адресные: часть проверяет снимок/GUI, часть временно ведёт матч через несколько фаз.
+         try {
+             switch (suite) {
+                 case "lobby" -> {
+--- src/main/java/me/skywars2/game/GameConfig.java
++++ src/main/java/me/skywars2/game/GameConfig.java
+@@ -67,6 +67,7 @@
+     }
+ 
+     public void save() {
++        // Сначала пишем временный файл и затем заменяем конфиг, чтобы сбой записи не оставил JSON наполовину.
+         clampTimings();
+         Path temporary = FILE.resolveSibling(FILE.getFileName() + ".tmp");
+         try {
+--- src/main/java/me/skywars2/game/GameController.java
++++ src/main/java/me/skywars2/game/GameController.java
+@@ -138,6 +138,7 @@
+     }
+ 
+     public void leave(ServerPlayer player) {
++        // При отключении снимаем временные бонусы, отмечаем участника выбывшим и сохраняем профиль.
+         items.forget(player);
+         lbc.clear(player);
+         events.removePlayerSkill(player);
+@@ -244,6 +245,7 @@
+     }
+ 
+     private void begin() {
++        // Состав участников фиксируем до загрузки; в LOADING меню доступны, но настройки матча менять уже нельзя.
+         transition(Stage.LOADING); lobbyReady = false; mapFailure = Component.empty();
+         var enrolled = new ArrayList<>(online().stream().map(ServerPlayer::getUUID).toList());
+         for (ServerPlayer player : online()) loadingPlayer(player);
+@@ -367,6 +369,7 @@
+     }
+ 
+     private void startPlaying() {
++        // После открытия клеток переключаем участников в выживание и выдаём ванильные и LBC-наборы.
+         if (alivePlayers().size() < 2) { restoreLobby(); return; }
+         maps.cages(false); maps.fillChests(false);
+         transition(Stage.PLAYING); gameTicks = 0;
+@@ -482,6 +485,7 @@
+     }
+ 
+     private void restoreLobby() {
++        // Общая точка завершения/отмены матча: снимает временные состояния, готовит арену и ждёт callback лобби.
+         items.stop();
+         for (ServerPlayer player : online()) lbc.clear(player);
+         events.stop(); participants.clear(); gameTicks = 0; lastAliveTicks = 5;
+@@ -503,6 +507,7 @@
+     }
+ 
+     private void lobbyPlayer(ServerPlayer player) {
++        // При готовом лобби игрок получает приключение, базовые характеристики и закреплённый компас меню.
+         player.closeContainer(); resetPlayer(player, 20); player.setGameMode(GameType.ADVENTURE);
+         GameType.ADVENTURE.updatePlayerAbilities(player.getAbilities());
+         player.onUpdateAbilities();
+@@ -566,6 +571,7 @@
+     }
+ 
+     private void resetPlayer(ServerPlayer player, int health) {
++        // Общая подготовка к лобби, старту и возрождению: снимаем бонусы, очищаем инвентарь, восстанавливаем здоровье и еду.
+         items.clear(player);
+         lbc.clear(player);
+         player.getInventory().clearContent(); player.removeAllEffects();
+--- src/main/java/me/skywars2/game/GameMenus.java
++++ src/main/java/me/skywars2/game/GameMenus.java
+@@ -96,6 +96,7 @@
+     }
+ 
+     private void renderHub(Menu gui, ServerPlayer player, PlayerStore.Profile p) {
++        // Центральная страница связывает кнопки навигации с настройками, выбором карты и запуском матча.
+         for (int slot = 0; slot < 27; slot++) {
+             if (slot == 18) continue;
+             Runnable click = switch (slot) {
+@@ -123,6 +124,7 @@
+     }
+ 
+     private void renderSettings(Menu gui, ServerPlayer p, PlayerStore.Profile profile) {
++        // Эта страница меняет параметры следующих матчей; change проверяет лобби, сохраняет конфиг и перерисовывает её.
+         for (int slot = 0; slot < 27; slot++) {
+             if (slot == 18 || slot == 25 || slot == 26) continue;
+             Runnable click = switch (slot) {
+@@ -167,6 +169,7 @@
+     }
+ 
+     private void renderMaps(Menu gui, ServerPlayer player) {
++        // Страница показывает исходный список карт постранично и повторно проверяет доступность/вместимость при выборе.
+         int pages = MAP_SOURCE_PAGES.length;
+         int page = Math.max(0, Math.min(mapPages.getOrDefault(player.getUUID(), 0), pages - 1));
+         mapPages.put(player.getUUID(), page);
+@@ -327,6 +330,7 @@
+     }
+ 
+     private void renderLbc(Menu gui, ServerPlayer player, PlayerStore.Profile p) {
++        // Общий рендерер наборов, навыков и улучшений сопоставляет страницу GUI с исходными страницами LBC.
+         Page page = gui.page;
+         int[] sourcePages = switch (page) {
+             case LBC_KITS -> new int[] {9000, 9100};
+@@ -567,16 +571,14 @@
+ 
+         @Override
+         public boolean onClick(int index, ClickType type, ContainerInput action, GuiElement element) {
+-            // Client chest screens predict a pickup. Always correct that prediction,
+-            // including empty, inert, shift, drag and hotbar-swap clicks.
++            // Клиент заранее меняет предмет/курсор при клике; ответ сервера синхронизирует GUI даже для пустых и неактивных ячеек.
+             getPlayer().containerMenu.sendAllDataToRemote();
+             return true;
+         }
+ 
+         @Override
+         public void handleException(Throwable exception) {
+-            // SGui invokes callbacks with remote updates suppressed. Its exception
+-            // path does not resume them, leaving the client cursor out of sync.
++            // При ошибке callback SGui не возобновляет отложенные обновления, поэтому возвращаем их и синхронизируем курсор.
+             var menu = getPlayer().containerMenu;
+             menu.resumeRemoteUpdates();
+             menu.sendAllDataToRemote();
+--- src/main/java/me/skywars2/game/LbcItems.java
++++ src/main/java/me/skywars2/game/LbcItems.java
+@@ -45,6 +45,7 @@
+ 
+     /** Same point as the source effects_changed advancement; includes splash/cloud/commands. */
+     public void effectsChanged(ServerPlayer player) {
++        // Очищающее зелье снимает эффекты и проклятие предмета; выбор перков и бонусы атрибутов сохраняются.
+         var effect = player.getEffect(MobEffects.RAID_OMEN);
+         if (effect == null || effect.getAmplifier() != 43 || !active(player)) return;
+         // The original purge clears potion effects and temporary LBC states, never selections
+--- src/main/java/me/skywars2/game/LbcLoadouts.java
++++ src/main/java/me/skywars2/game/LbcLoadouts.java
+@@ -136,6 +136,7 @@
+ 
+     /** Called only at start/respawn. Registry tables preserve source names, models and components. */
+     public void apply(ServerPlayer player) {
++        // При старте и возрождении сначала снимаются старые бонусы, затем выдаются комплект и выбранные улучшения.
+         clear(player);
+         var profile = players.get(player.getUUID());
+         if (config.lbcKits) {
+--- src/main/java/me/skywars2/game/MapManager.java
++++ src/main/java/me/skywars2/game/MapManager.java
+@@ -91,6 +91,7 @@
+ 
+     private final MinecraftServer server;
+     private final ServerLevel level;
++    // Фоновый исполнитель готовит шаблоны; размещение блоков и обработка очереди work остаются на тике сервера.
+     private final ExecutorService templatePreloader = Executors.newSingleThreadExecutor(task -> {
+         Thread thread = new Thread(task, "skywars2-template-preloader");
+         thread.setDaemon(true);
+--- src/main/java/me/skywars2/game/MatchEvents.java
++++ src/main/java/me/skywars2/game/MatchEvents.java
+@@ -34,7 +34,7 @@
+ import net.minecraft.world.phys.Vec3;
+ import net.minecraft.network.chat.Component;
+ 
+-/** Owns the timed phase events for one ordinary SkyWars match. */
++/** События фаз матча и временные состояния навыков; их тики вызываются контроллером на серверном потоке. */
+ public final class MatchEvents {
+     private static final int TICKS_PER_SECOND = 20;
+     private static final TagKey<Item> SKILL_FOOD = TagKey.create(Registries.ITEM, Identifier.parse("swrg:food"));
+--- src/main/java/me/skywars2/game/OriginalGuiDesign.java
++++ src/main/java/me/skywars2/game/OriginalGuiDesign.java
+@@ -62,6 +62,7 @@
+ 
+     private static ItemStack button(ServerPlayer player, String namespace, String pageId, int slot,
+                                     PlayerStore.Profile profile, GameConfig config) {
++        // Берём исходную ячейку по идентификаторам страницы и слота, затем применяем её условия и оформление.
+         JsonObject page = null;
+         for (JsonElement element : requiredArray(design(), "pages", "prepared GUI design")) {
+             JsonObject candidate = element.getAsJsonObject();
+--- src/main/java/me/skywars2/game/PlayerStore.java
++++ src/main/java/me/skywars2/game/PlayerStore.java
+@@ -72,6 +72,7 @@
+     }
+ 
+     public void save() {
++        // Профили хранятся по UUID; сначала записываем временный JSON, затем заменяем файл (атомарно, если ФС поддерживает).
+         Path temporary = FILE.resolveSibling(FILE.getFileName() + ".tmp");
+         try {
+             Files.createDirectories(FILE.getParent());
+--- src/main/java/me/skywars2/mixin/ArenaBlockMixin.java
++++ src/main/java/me/skywars2/mixin/ArenaBlockMixin.java
+@@ -10,7 +10,7 @@
+ import org.spongepowered.asm.mixin.injection.Inject;
+ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+ 
+-/** Records arena changes, including bridges outside the original template bounds. */
++/** Записывает изменения блоков арены, включая мосты за границами исходного шаблона карты. */
+ @Mixin(Level.class)
+ public abstract class ArenaBlockMixin {
+     @Inject(method = "setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;II)Z", at = @At("RETURN"))
+--- src/main/java/me/skywars2/mixin/ConsumableSkillMixin.java
++++ src/main/java/me/skywars2/mixin/ConsumableSkillMixin.java
+@@ -11,7 +11,7 @@
+ import org.spongepowered.asm.mixin.injection.Inject;
+ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+ 
+-/** Same consumption point as the source consume_item advancement, before stack removal. */
++/** Вызывает навык в точке consume_item, до удаления использованного предмета из стека. */
+ @Mixin(Consumable.class)
+ public abstract class ConsumableSkillMixin {
+     @Inject(method = "onConsume", at = @At(value = "INVOKE",
+--- src/main/java/me/skywars2/mixin/LbcEffectTriggerMixin.java
++++ src/main/java/me/skywars2/mixin/LbcEffectTriggerMixin.java
+@@ -9,7 +9,7 @@
+ import org.spongepowered.asm.mixin.injection.Inject;
+ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+ 
+-/** Preserve the original effects_changed entry point for all native potion sources. */
++/** Подхватывает исходный триггер изменения эффектов для всех штатных источников зелий. */
+ @Mixin(EffectsChangedTrigger.class)
+ public abstract class LbcEffectTriggerMixin {
+     @Inject(method = "trigger", at = @At("TAIL"))
+--- src/main/java/me/skywars2/mixin/LbcTotemTriggerMixin.java
++++ src/main/java/me/skywars2/mixin/LbcTotemTriggerMixin.java
+@@ -9,7 +9,7 @@
+ import org.spongepowered.asm.mixin.injection.Inject;
+ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+ 
+-/** Runs before the native totem clears effects, matching the datapack reward ordering. */
++/** Срабатывает до ванильного удаления эффектов, сохраняя порядок выдачи награды из датапака. */
+ @Mixin(UsedTotemTrigger.class)
+ public abstract class LbcTotemTriggerMixin {
+     @Inject(method = "trigger", at = @At("TAIL"))
+--- src/main/java/me/skywars2/mixin/LobbyInventoryPacketMixin.java
++++ src/main/java/me/skywars2/mixin/LobbyInventoryPacketMixin.java
+@@ -15,7 +15,7 @@
+ import org.spongepowered.asm.mixin.injection.Inject;
+ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+ 
+-/** Reject client inventory mutations after packet dispatch reaches the server thread. */
++/** Блокирует изменения инвентаря после переноса обработки пакета на серверный поток. */
+ @Mixin(ServerGamePacketListenerImpl.class)
+ public abstract class LobbyInventoryPacketMixin {
+     @Shadow public ServerPlayer player;
+--- src/main/java/me/skywars2/mixin/LobbyItemPickupMixin.java
++++ src/main/java/me/skywars2/mixin/LobbyItemPickupMixin.java
+@@ -9,7 +9,7 @@
+ import org.spongepowered.asm.mixin.injection.Inject;
+ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+ 
+-/** Keep world items out of the fixed lobby inventory. */
++/** Запрещает подбирать предметы мира, пока инвентарь лобби закреплён за кнопками меню. */
+ @Mixin(ItemEntity.class)
+ public abstract class LobbyItemPickupMixin {
+     @Inject(method = "playerTouch", at = @At("HEAD"), cancellable = true)
+--- src/main/java/me/skywars2/mixin/PlayerFallSkillMixin.java
++++ src/main/java/me/skywars2/mixin/PlayerFallSkillMixin.java
+@@ -9,7 +9,7 @@
+ import org.spongepowered.asm.mixin.injection.Inject;
+ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+ 
+-/** Landing uses full fall distance, including landings that deal no health damage. */
++/** Передаёт навыку полную дистанцию падения, в том числе при приземлении без урона здоровью. */
+ @Mixin(Player.class)
+ public abstract class PlayerFallSkillMixin {
+     @Inject(method = "causeFallDamage", at = @At("RETURN"))

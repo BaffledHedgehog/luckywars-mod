@@ -36,32 +36,35 @@
                         "minecraft:custom_data": "{transformable: 1,totem: 1}"
                     }
                 },
-                "player": [
-                    {
-                        "condition": "minecraft:inverted",
-                        "term": {
-                            "condition": "minecraft:entity_properties",
-                            "entity": "this",
-                            "predicate": {
-                                "location": {
-                                    "dimension": "minecraft:nexus"
-                                }
-                            }
+                "player": {
+                    "terms": [
+                        {
+                            "term": {
+                                "entity": "this",
+                                "predicate": {
+                                    "minecraft:location": {
+                                        "dimension": "minecraft:nexus"
+                                    }
+                                },
+                                "type": "minecraft:entity_properties"
+                            },
+                            "type": "minecraft:inverted"
+                        },
+                        {
+                            "term": {
+                                "entity": "this",
+                                "predicate": {
+                                    "minecraft:location": {
+                                        "dimension": "minecraft:imprinted"
+                                    }
+                                },
+                                "type": "minecraft:entity_properties"
+                            },
+                            "type": "minecraft:inverted"
                         }
-                    },
-                    {
-                        "condition": "minecraft:inverted",
-                        "term": {
-                            "condition": "minecraft:entity_properties",
-                            "entity": "this",
-                            "predicate": {
-                                "location": {
-                                    "dimension": "minecraft:imprinted"
-                                }
-                            }
-                        }
-                    }
-                ]
+                    ],
+                    "type": "minecraft:all_of"
+                }
             }
         }
     }

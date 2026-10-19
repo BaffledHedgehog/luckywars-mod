@@ -5,15 +5,19 @@ import static me.skywars2.SkyWars2.text;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.UUID;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.CompletableFuture;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ChunkResult;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -21,6 +25,9 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Marker;
+import net.minecraft.world.entity.animal.chicken.Chicken;
+import net.minecraft.world.entity.vehicle.minecart.MinecartChest;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Vex;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -33,9 +40,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 
-/** Owns the timed phase events for one ordinary SkyWars match. */
+/** События фаз матча и временные состояния навыков; их тики вызываются контроллером на серверном потоке. */
 public final class MatchEvents {
+    private final Map<Chicken, CompletableFuture<?>> pendingAirdrops = new LinkedHashMap<>();
     private static final int TICKS_PER_SECOND = 20;
     private static final TagKey<Item> SKILL_FOOD = TagKey.create(Registries.ITEM, Identifier.parse("swrg:food"));
     private static final Map<Integer, List<String>> KIT_COMMANDS = Map.ofEntries(
@@ -72,6 +81,8 @@ public final class MatchEvents {
     private int nextWitherTick = -1;
     private int nextTntTick = -1;
     private boolean running;
+    private final List<Marker> victoryMarkers = new java.util.ArrayList<>(4);
+    private String victoryMarkerTag;
 
     private static final class SkillState {
         final int skill;
@@ -90,9 +101,10 @@ public final class MatchEvents {
         }
         @Override public boolean canAttack(LivingEntity target) {
             return state != null && activeSkillOwner(state.owner) && state.skill == 13
-                    && skillStates.get(state.owner.getUUID()) == state && players.get(state.owner.getUUID()).skill == 13
+                    && skillStates.get(state.owner.getUUID()) == state && selectedSkill(state.owner) == 13
                     && target != state.owner && !state.owner.isAlliedTo(target)
-                    && (!(target instanceof ServerPlayer player) || controller.allowDamage(player))
+                    && (!(target instanceof ServerPlayer player)
+                            || !controller.isObserver(player) && controller.allowDamage(player))
                     && super.canAttack(target);
         }
         @Override public boolean doHurtTarget(ServerLevel level, Entity target) {
@@ -169,6 +181,7 @@ public final class MatchEvents {
             return;
         }
         int now = controller.matchTicks();
+        controller.zoneBarrier().tick();
         if (nextWitherTick >= 0 && now >= nextWitherTick) {
             applyWither();
             nextWitherTick = now + TICKS_PER_SECOND;
@@ -178,6 +191,7 @@ public final class MatchEvents {
             nextTntTick = now + 5 * TICKS_PER_SECOND;
         }
         tickVexSummons(now);
+        spawnReadyAirdrops();
         if (config.vanillaSkills) {
             for (ServerPlayer player : controller.alivePlayers()) tickSkill(player);
         }
@@ -185,19 +199,25 @@ public final class MatchEvents {
 
     /** Cancels every delayed/repeating action immediately. */
     public void stop() {
+        controller.zoneBarrier().stop();
         running = false;
         nextWitherTick = -1;
         nextTntTick = -1;
         pendingVex.clear();
+        for (var chicken : pendingAirdrops.keySet())
+            chicken.getSelfAndPassengers().toList().forEach(Entity::discard);
+        pendingAirdrops.clear();
         for (SkillState state : skillStates.values()) discardVexes(state);
         skillStates.clear();
+        clearVictoryMarkers();
     }
 
     /** Gives only the player's selected vanilla kit; an unset/unsupported kit is empty. */
     public void giveKit(ServerPlayer player) {
         if (!config.vanillaKits) return;
         PlayerStore.Profile profile = players.get(player.getUUID());
-        if (profile == null || profile.kit <= 0) return;
+        if (profile == null || profile.kit <= 0
+                || !OriginalGuiDesign.unlocked(player, "swrg", 3000, profile.kit - 1, profile, config)) return;
         String target = player.getScoreboardName();
         for (String item : KIT_COMMANDS.getOrDefault(profile.kit, List.of())) {
             issue("give " + target + " " + item, player);
@@ -214,7 +234,7 @@ public final class MatchEvents {
         if (!config.vanillaSkills) {
             return;
         }
-        int skill = players.get(player.getUUID()).skill;
+        int skill = selectedSkill(player);
         skillStates.put(player.getUUID(), new SkillState(skill, player));
     }
 
@@ -235,12 +255,20 @@ public final class MatchEvents {
 
     private boolean activeSkillOwner(ServerPlayer player) {
         return running && config.vanillaSkills && controller.playing() && player.isAlive()
-                && !player.isSpectator() && controller.allowDamage(player)
+                && !controller.isObserver(player) && !player.isSpectator() && controller.allowDamage(player)
                 && controller.server().getPlayerList().getPlayer(player.getUUID()) == player;
     }
 
+    /** Current selection is checked against its source GUI gate on every use; profile IDs remain untouched. */
+    private int selectedSkill(ServerPlayer player) {
+        PlayerStore.Profile profile = players.get(player.getUUID());
+        if (profile == null || profile.skill <= 0) return 0;
+        return OriginalGuiDesign.unlocked(player, "swrg", 4000, profile.skill - 1, profile, config)
+                ? profile.skill : 0;
+    }
+
     private SkillState skillState(ServerPlayer player) {
-        int selected = players.get(player.getUUID()).skill;
+        int selected = selectedSkill(player);
         SkillState state = skillStates.get(player.getUUID());
         if (state == null || state.skill != selected || state.owner != player) {
             giveSkill(player);
@@ -250,7 +278,7 @@ public final class MatchEvents {
     }
 
     public void onLanding(ServerPlayer player, double distance) {
-        if (!activeSkillOwner(player) || players.get(player.getUUID()).skill != 2 || !Double.isFinite(distance)) return;
+        if (!activeSkillOwner(player) || selectedSkill(player) != 2 || !Double.isFinite(distance)) return;
         long centimeters = Math.round(distance * 100.0);
         if (centimeters < 335) return;
         float damage = (float) (Math.min(centimeters, 3999) * 0.00915);
@@ -264,7 +292,7 @@ public final class MatchEvents {
     }
 
     public void onConsumed(ServerPlayer player, ItemStack consumed) {
-        if (!activeSkillOwner(player) || players.get(player.getUUID()).skill != 4 || !consumed.is(SKILL_FOOD)) return;
+        if (!activeSkillOwner(player) || selectedSkill(player) != 4 || !consumed.is(SKILL_FOOD)) return;
         player.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 200, 0, false, false));
         player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 100, 0, false, false));
         player.addEffect(new MobEffectInstance(MobEffects.SATURATION, 40, 0, false, false));
@@ -273,7 +301,7 @@ public final class MatchEvents {
 
     /** HurtTime may begin before or after the player's tick; check only pending hits near tick five. */
     public void onPlayerHurt(ServerPlayer player) {
-        if (!activeSkillOwner(player) || players.get(player.getUUID()).skill != 13 || player.hurtTime < 5) return;
+        if (!activeSkillOwner(player) || selectedSkill(player) != 13 || player.hurtTime < 5) return;
         SkillState state = skillState(player);
         if (state.vexTick >= 0) return;
         state.vexTick = controller.matchTicks() + Math.max(1, player.hurtTime - 6);
@@ -286,7 +314,7 @@ public final class MatchEvents {
             state.vexTick = -1;
             ServerPlayer owner = state.owner;
             if (skillStates.get(owner.getUUID()) != state || !activeSkillOwner(owner)
-                    || players.get(owner.getUUID()).skill != 13) continue;
+                    || selectedSkill(owner) != 13) continue;
             if (owner.hurtTime > 5) {
                 state.vexTick = now + 1;
                 pendingVex.add(state);
@@ -304,25 +332,81 @@ public final class MatchEvents {
         }
     }
 
+    /** Uses the source spreadplayers layout and emits the default win effect once per ending second. */
+    public void victoryTick(ServerPlayer winner, int endingTicksRemaining) {
+        if (winner == null || endingTicksRemaining < 0 || endingTicksRemaining % TICKS_PER_SECOND != 0
+                || players.get(winner.getUUID()).winEffect != 0) return;
+        ensureVictoryMarkers(winner);
+        if (victoryMarkers.size() != 4) return;
+        controller.command("spreadplayers 0 0 20 192 false @e[type=minecraft:marker,tag="
+                + victoryMarkerTag + "]");
+        for (Marker marker : victoryMarkers) {
+            if (marker.isAlive() && !marker.isRemoved())
+                spawnVictoryFirework(marker.getX(), marker.getY(), marker.getZ());
+        }
+    }
+
+    private void ensureVictoryMarkers(ServerPlayer winner) {
+        if (!victoryMarkers.isEmpty()) return;
+        victoryMarkerTag = "skywars2_victory_" + UUID.randomUUID().toString().replace("-", "");
+        for (int i = 0; i < 4; i++) {
+            Marker marker = new Marker(EntityTypes.MARKER, maps.level());
+            marker.entityTags().add(victoryMarkerTag);
+            marker.setPos(winner.getX(), winner.getY(), winner.getZ());
+            if (maps.level().addFreshEntity(marker)) victoryMarkers.add(marker);
+            else marker.discard();
+        }
+    }
+
+    private void clearVictoryMarkers() {
+        for (Marker marker : victoryMarkers) marker.discard();
+        victoryMarkers.clear();
+        victoryMarkerTag = null;
+    }
+
+    private void spawnVictoryFirework(double x, double y, double z) {
+        int firstColor = randomFireworkColor();
+        int secondColor = randomFireworkColor();
+        int fadeColor = randomFireworkColor();
+        String[] shapes = {"small_ball", "large_ball", "burst", "creeper", "star"};
+        String shape = shapes[ThreadLocalRandom.current().nextInt(shapes.length)];
+        boolean twinkle = ThreadLocalRandom.current().nextBoolean();
+        int lifetime = ThreadLocalRandom.current().nextInt(10, 41);
+        String explosionA = "{shape:\"" + shape + "\",has_trail:0b,has_twinkle:" + (twinkle ? "1b" : "0b")
+                + ",colors:[I;" + firstColor + "],fade_colors:[I;" + fadeColor + "]}";
+        String explosionB = "{shape:\"" + shape + "\",has_trail:0b,has_twinkle:" + (twinkle ? "1b" : "0b")
+                + ",colors:[I;" + secondColor + "],fade_colors:[I;" + fadeColor + "]}";
+        controller.command("summon minecraft:firework_rocket " + x + " " + y + " " + z
+                + " {LifeTime:" + lifetime + ",FireworksItem:{id:\"minecraft:firework_rocket\",components:{\"minecraft:fireworks\":{explosions:["
+                + explosionA + "," + explosionB + "]}},count:1}}");
+    }
+
+    private static int randomFireworkColor() {
+        return ThreadLocalRandom.current().nextInt((1 << 24) + 1);
+    }
+
     /** Call from the server's successful living-entity damage callback. */
     public void onPlayerDamaged(ServerPlayer victim, DamageSource source, float damage) {
-        if (!running || !config.vanillaSkills || damage <= 0 || !controller.playing()) return;
-        int victimSkill = players.get(victim.getUUID()).skill;
+        if (!running || !config.vanillaSkills || damage <= 0 || !controller.playing()
+                || controller.isObserver(victim)) return;
+        int victimSkill = selectedSkill(victim);
         Entity sourceEntity = source.getEntity();
         if (victimSkill == 1 && sourceEntity instanceof ServerPlayer attacker
-                && attacker != victim && victim.distanceTo(attacker) >= 0.1F) {
+                && attacker != victim && !controller.isObserver(attacker) && victim.distanceTo(attacker) >= 0.1F) {
             giveEffect(attacker, "minecraft:poison", 0, 3);
         }
         if (victimSkill == 10 && chance(0.20) && controller.alivePlayers().stream()
-                .anyMatch(other -> other != victim && victim.distanceTo(other) >= 0.1F && victim.distanceTo(other) <= 7.0F)) {
+                .anyMatch(other -> other != victim && !controller.isObserver(other)
+                        && victim.distanceTo(other) >= 0.1F && victim.distanceTo(other) <= 7.0F)) {
             lightning(victim);
         }
     }
 
     /** Call for the attacker from the same successful-damage callback. */
     public void onPlayerAttack(ServerPlayer attacker, ServerPlayer victim, DamageSource source, float damage) {
-        if (!running || !config.vanillaSkills || damage <= 0 || !controller.playing() || attacker == victim) return;
-        int skill = players.get(attacker.getUUID()).skill;
+        if (!running || !config.vanillaSkills || damage <= 0 || !controller.playing() || attacker == victim
+                || controller.isObserver(attacker) || controller.isObserver(victim)) return;
+        int skill = selectedSkill(attacker);
         switch (skill) {
             case 6 -> {
                 if (source.getDirectEntity() instanceof AbstractArrow && damage >= 3.0F) {
@@ -343,8 +427,7 @@ public final class MatchEvents {
     }
 
     private void tickSkill(ServerPlayer player) {
-        PlayerStore.Profile profile = players.get(player.getUUID());
-        int skill = profile.skill;
+        int skill = selectedSkill(player);
         skillState(player);
         if (skill == 2 || skill == 4 || skill == 13) return;
 
@@ -370,8 +453,17 @@ public final class MatchEvents {
             case 12 -> {
                 if (player.isSprinting() && !player.onGround()) {
                     float yaw = player.getYRot() * ((float) Math.PI / 180.0F);
-                    double forward = 0.1;
-                    player.setDeltaMovement(player.getDeltaMovement().add(-Math.sin(yaw) * forward, -0.01, Math.cos(yaw) * forward));
+                    // Source wind-rider uses ^ ^-0.01 ^0.1 with pitch forced to zero.
+                    player.setDeltaMovement(player.getDeltaMovement().add(
+                            -Math.sin(yaw) * 0.1, -0.01, Math.cos(yaw) * 0.1));
+                    // This impulse is added after vanilla's player tick, so send it to the controlling client now.
+                    player.connection.send(new ClientboundSetEntityMotionPacket(player));
+                    maps.level().sendParticles(ParticleTypes.GUST, player.getX(), player.getY(), player.getZ(),
+                            1, 0.1, 0, 0.1, 0);
+                    maps.level().sendParticles(ParticleTypes.SOUL, player.getX(), player.getY(), player.getZ(),
+                            1, 0, 0, 0, 0);
+                    maps.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                            SoundEvents.WOOL_STEP, SoundSource.BLOCKS, 0.5F, 0.8F);
                 }
             }
             default -> { }
@@ -477,21 +569,63 @@ public final class MatchEvents {
         List<ServerPlayer> alive = controller.alivePlayers();
         if (alive.isEmpty()) return;
         ServerPlayer center = alive.get(ThreadLocalRandom.current().nextInt(alive.size()));
-        maps.level().getWorldBorder().setCenter(center.getX(), center.getZ());
-        maps.level().getWorldBorder().setSize(384.0);
-        maps.level().getWorldBorder().lerpSizeBetween(384.0, 4.0, maps.level().getGameTime(), 4000L * TICKS_PER_SECOND);
+        controller.zoneBarrier().start(center.getX(), center.getZ(), 384, 4, 200 * TICKS_PER_SECOND);
     }
 
     private void dropCenterChests() {
         List<MapManager.Spawn> spawns = maps.spawns();
         double centerX = spawns.stream().mapToDouble(spawn -> spawn.position().x).average().orElse(0.0);
         double centerZ = spawns.stream().mapToDouble(spawn -> spawn.position().z).average().orElse(0.0);
+        var level = maps.level();
+        var loot = ResourceKey.create(Registries.LOOT_TABLE, Identifier.parse("swrg:chests/center_0"));
         for (int i = 0; i < 10; i++) {
             double angle = ThreadLocalRandom.current().nextDouble(Math.PI * 2.0);
             double radius = ThreadLocalRandom.current().nextDouble(0.0, 192.0);
             double x = centerX + Math.cos(angle) * radius;
             double z = centerZ + Math.sin(angle) * radius;
-            controller.command("summon minecraft:chest_minecart " + x + " 110 " + z + " {Glowing:1b,DropContentsWhenDead:1b,LootTable:\"swrg:chests/center_0\"}");
+            var chicken = new Chicken(EntityTypes.CHICKEN, level);
+            var cart = new MinecartChest(EntityTypes.CHEST_MINECART, level);
+            chicken.setPos(x, 110, z);
+            cart.setPos(x, 110, z);
+            chicken.entityTags().add("skywars2.airdrop");
+            cart.entityTags().add("skywars2.airdrop");
+            chicken.entityTags().add(controller.items().epoch());
+            cart.entityTags().add(controller.items().epoch());
+            cart.entityTags().add("swrg.center");
+            cart.entityTags().add("swrg.chest");
+            cart.setGlowingTag(true);
+            // Как source item modify: раскрываем lazy loot до публикации и убираем служебный count-атрибут.
+            cart.setLootTable(loot, level.getRandom().nextLong());
+            // Курица несёт вагонетку, поэтому работает её нативное медленное падение с взмахами крыльев.
+            if (cart.startRiding(chicken, true, false))
+                pendingAirdrops.put(chicken, maps.prepareChunk(chicken.chunkPosition()));
+            else { cart.discard(); chicken.discard(); }
         }
+    }
+
+    /** Публикуем готовые деревья сущностей на тике, не ожидая загрузку чанка внутри игрового события. */
+    private void spawnReadyAirdrops() {
+        if (pendingAirdrops.isEmpty()) return;
+        for (var iterator = pendingAirdrops.entrySet().iterator(); iterator.hasNext();) {
+            var pending = iterator.next();
+            var future = pending.getValue();
+            if (!future.isDone()) continue;
+            iterator.remove();
+            var chicken = pending.getKey();
+            try {
+                Object result = future.join();
+                if (result instanceof ChunkResult<?> chunkResult && !chunkResult.isSuccess())
+                    throw new IllegalStateException("Airdrop chunk did not load");
+                for (var passenger : chicken.getPassengers()) if (passenger instanceof MinecartChest cart) {
+                    cart.getItem(0);
+                    MapManager.normalizeLootCounts(cart);
+                }
+                maps.level().addFreshEntityWithPassengers(chicken);
+            } catch (RuntimeException failure) {
+                chicken.getSelfAndPassengers().toList().forEach(Entity::discard);
+                me.skywars2.SkyWars2.LOGGER.error("Could not prepare an airdrop", failure);
+            }
+        }
+        if (pendingAirdrops.isEmpty()) me.skywars2.SkyWars2.LOGGER.info("SWRG airdrop ready");
     }
 }

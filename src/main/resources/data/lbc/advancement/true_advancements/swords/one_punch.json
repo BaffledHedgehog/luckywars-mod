@@ -22,40 +22,41 @@
         "requirement": {
             "trigger": "minecraft:player_hurt_entity",
             "conditions": {
-                "player": [
-                    {
-                        "condition": "minecraft:inverted",
-                        "term": {
-                            "condition": "minecraft:entity_properties",
+                "player": {
+                    "terms": [
+                        {
+                            "term": {
+                                "entity": "this",
+                                "predicate": {
+                                    "minecraft:nbt": "{playerGameType:3}"
+                                },
+                                "type": "minecraft:entity_properties"
+                            },
+                            "type": "minecraft:inverted"
+                        },
+                        {
                             "entity": "this",
                             "predicate": {
-                                "nbt": "{playerGameType:3}"
-                            }
-                        }
-                    },
-                    {
-                        "condition": "minecraft:entity_properties",
-                        "entity": "this",
-                        "predicate": {
-                            "equipment": {
-                                "mainhand": {
-                                    "predicates": {
-                                        "minecraft:custom_data": "{transformable: 1,sword: 1,one_punch: 1}"
+                                "minecraft:equipment": {
+                                    "mainhand": {
+                                        "predicates": {
+                                            "minecraft:custom_data": "{transformable: 1,sword: 1,one_punch: 1}"
+                                        }
                                     }
                                 }
-                            }
+                            },
+                            "type": "minecraft:entity_properties"
                         }
-                    }
-                ],
-                "entity": [
-                    {
-                        "condition": "minecraft:entity_properties",
-                        "entity": "this",
-                        "predicate": {
-                            "type": "minecraft:player"
-                        }
-                    }
-                ],
+                    ],
+                    "type": "minecraft:all_of"
+                },
+                "entity": {
+                    "entity": "this",
+                    "predicate": {
+                        "minecraft:entity_type": "minecraft:player"
+                    },
+                    "type": "minecraft:entity_properties"
+                },
                 "damage": {
                     "dealt": {
                         "min": 40

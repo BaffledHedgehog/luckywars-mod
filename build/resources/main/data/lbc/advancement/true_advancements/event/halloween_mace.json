@@ -1,0 +1,59 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:mace",
+            "components": {
+                "item_model": "lbc:halloween_mace"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.event.halloween_mace"
+        },
+        "description": {
+            "translate": "lbc.adv.event.halloween_mace.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/event/eat_halloween_food",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:player_killed_entity",
+            "conditions": {
+                "killing_blow": {
+                    "is_direct": true
+                },
+                "entity": {
+                    "entity": "this",
+                    "predicate": {
+                        "minecraft:entity_type": "player"
+                    },
+                    "type": "minecraft:entity_properties"
+                },
+                "player": {
+                    "entity": "this",
+                    "predicate": {
+                        "minecraft:movement": {
+                            "fall_distance": {
+                                "min": 10
+                            },
+                            "vertical_speed": {
+                                "min": 10
+                            }
+                        },
+                        "minecraft:equipment": {
+                            "mainhand": {
+                                "predicates": {
+                                    "custom_data": "{halloween_mace:1}"
+                                }
+                            }
+                        }
+                    },
+                    "type": "minecraft:entity_properties"
+                }
+            }
+        }
+    }
+}

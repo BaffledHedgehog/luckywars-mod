@@ -1,0 +1,26 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:panda_spawn_egg",
+            "components": {
+                "minecraft:item_model": "lbc:lightningegg"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.lightning_smith"
+        },
+        "description": {
+            "translate": "lbc.adv.lightning_smith.lore"
+        },
+        "frame": "goal",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/root",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:impossible"
+        }
+    }
+}

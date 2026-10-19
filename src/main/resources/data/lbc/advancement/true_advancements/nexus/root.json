@@ -22,27 +22,30 @@
         "requirement": {
             "trigger": "minecraft:location",
             "conditions": {
-                "player": [
-                    {
-                        "condition": "minecraft:inverted",
-                        "term": {
-                            "condition": "minecraft:entity_properties",
+                "player": {
+                    "terms": [
+                        {
+                            "term": {
+                                "entity": "this",
+                                "predicate": {
+                                    "minecraft:nbt": "{playerGameType:3}"
+                                },
+                                "type": "minecraft:entity_properties"
+                            },
+                            "type": "minecraft:inverted"
+                        },
+                        {
                             "entity": "this",
                             "predicate": {
-                                "nbt": "{playerGameType:3}"
-                            }
+                                "minecraft:location": {
+                                    "dimension": "minecraft:nexus"
+                                }
+                            },
+                            "type": "minecraft:entity_properties"
                         }
-                    },
-                    {
-                        "condition": "minecraft:entity_properties",
-                        "entity": "this",
-                        "predicate": {
-                            "location": {
-                                "dimension": "minecraft:nexus"
-                            }
-                        }
-                    }
-                ]
+                    ],
+                    "type": "minecraft:all_of"
+                }
             }
         }
     }

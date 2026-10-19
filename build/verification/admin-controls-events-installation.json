@@ -1,0 +1,19 @@
+{
+  "artifactSha256": "11c885450e154d388c842dc5e1d47f48da940cfcff5e52af02d9bfcd74548c01",
+  "ready": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-admin-controls-events-11c88545.jar",
+  "previousSha256": "ae5a98636c57e58409e88fcf8cc97eadb8dd5f8ff6b2fcb0970e564415014c05",
+  "backup": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-before-admin-controls-events-ae5a9863.jar",
+  "installed": true,
+  "target": "E:\\servers_mew\\skywars2_last\\mods\\skywars2.jar",
+  "checks": {
+    "completed": [
+      "bots",
+      "admin-controls",
+      "menu-navigation",
+      "menus"
+    ],
+    "artifactSha256": "11c885450e154d388c842dc5e1d47f48da940cfcff5e52af02d9bfcd74548c01",
+    "elapsedSeconds": 29.88
+  },
+  "createdAt": "2026-10-16T16:46:10.493987"
+}

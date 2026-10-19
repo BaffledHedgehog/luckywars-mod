@@ -1,0 +1,10 @@
+{
+  "timestamp": "2026-10-17T01:53:36.883966",
+  "artifactSha256": "a628fc573e732cbb38cca609ec27c769f954038ddd1b18034dffbdb94f8747c3",
+  "previousSha256": "863d710bc2aa1002f8657264a0f0751318e165e9df5017b515a37e56f553db7d",
+  "artifact": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-wall-a628fc57.jar",
+  "target": "E:\\servers_mew\\skywars2_last\\mods\\skywars2.jar",
+  "installed": true,
+  "serverStarted": false,
+  "backup": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-before-wall-863d710b.jar"
+}

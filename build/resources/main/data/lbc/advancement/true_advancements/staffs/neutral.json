@@ -1,0 +1,35 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:carrot_on_a_stick",
+            "components": {
+                "minecraft:item_model": "lbc:neutralwand"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.staff.neutral"
+        },
+        "description": {
+            "translate": "lbc.adv.staff.neutral.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/staffs/omega_flag",
+    "criteria": {
+        "fire": {
+            "trigger": "minecraft:impossible"
+        },
+        "ice": {
+            "trigger": "minecraft:impossible"
+        },
+        "stone": {
+            "trigger": "minecraft:impossible"
+        },
+        "void": {
+            "trigger": "minecraft:impossible"
+        }
+    }
+}

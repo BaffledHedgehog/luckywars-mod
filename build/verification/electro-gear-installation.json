@@ -1,0 +1,46 @@
+{
+  "createdUtc": "2026-10-16T10:28:55.560807+00:00",
+  "artifactSha256": "4622f5121c5e738399dd8556fedfa796f83b4924688e1949b7ede1b4bb9e90e9",
+  "readyJar": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-electro-gear-4622f512.jar",
+  "checks": {
+    "electro-gear": {
+      "completed": [
+        "Cyberkatana and Electro Shield loot payloads and Polymer item restoration",
+        "Native Electro wand 2x2/3x3 recipe, legacy donor and preview/take restrictions",
+        "Native katana and shield recipes plus Electro gear combat checks"
+      ],
+      "artifactSha256": "4622f5121c5e738399dd8556fedfa796f83b4924688e1949b7ede1b4bb9e90e9",
+      "elapsedSeconds": 38.87
+    },
+    "terra-crafting": {
+      "completed": [
+        "Native Terra 2x2/3x3 recipes, preview safety, normal/shift takes and conservation"
+      ],
+      "artifactSha256": "4622f5121c5e738399dd8556fedfa796f83b4924688e1949b7ede1b4bb9e90e9",
+      "elapsedSeconds": 38.09
+    },
+    "electro-family": {
+      "completed": [
+        "ordinary and Academy Electro loot tables, native IDs, Polymer restoration and shared mana cost",
+        "ordinary/Academy traces, lifetimes, hand casting, Academy mode toggle and native ray damage",
+        "Electro-family trace cleanup after match stop"
+      ],
+      "artifactSha256": "4622f5121c5e738399dd8556fedfa796f83b4924688e1949b7ede1b4bb9e90e9",
+      "elapsedSeconds": 39.46
+    },
+    "electric-damage": {
+      "completed": [
+        "shared electric damage type registration",
+        "electric cooldown stacking, additive metal bonus, Techno immunity, native defenses, no knockback, aliases and observer exclusion",
+        "electric damage player fixture restored after match stop"
+      ],
+      "artifactSha256": "4622f5121c5e738399dd8556fedfa796f83b4924688e1949b7ede1b4bb9e90e9",
+      "elapsedSeconds": 38.21
+    }
+  },
+  "installed": true,
+  "installedSha256": "4622f5121c5e738399dd8556fedfa796f83b4924688e1949b7ede1b4bb9e90e9",
+  "previousInstalledSha256": "24afb5ca3e8a085ff6aedbed3f31b49c120dbfedf9286eb834a56979db984264",
+  "backupJar": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-before-electro-gear-24afb5ca.jar",
+  "installedUtc": "2026-10-16T10:28:55.682575+00:00"
+}

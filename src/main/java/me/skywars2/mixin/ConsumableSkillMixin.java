@@ -11,11 +11,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Same consumption point as the source consume_item advancement, before stack removal. */
+/** Вызывает навык в точке consume_item, до удаления использованного предмета из стека. */
 @Mixin(Consumable.class)
 public abstract class ConsumableSkillMixin {
     @Inject(method = "onConsume", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/advancements/critereon/ConsumeItemTrigger;trigger(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/item/ItemStack;)V",
+            target = "Lnet/minecraft/advancements/triggers/ConsumeItemTrigger;trigger(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/item/ItemStack;)V",
             shift = At.Shift.AFTER))
     private void skywars2$consumed(Level level, LivingEntity user, ItemStack stack, CallbackInfoReturnable<ItemStack> cir) {
         var game = SkyWars2.game();

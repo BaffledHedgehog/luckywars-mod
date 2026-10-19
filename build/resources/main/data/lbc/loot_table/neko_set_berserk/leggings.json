@@ -1,0 +1,108 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:leather_leggings",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:item_model": "lbc:armors/berserk_leggings",
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:max_damage": 400,
+                "minecraft:equippable": {
+                  "slot": "legs",
+                  "asset_id": "lbc:berserk"
+                },
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:armor",
+                    "slot": "legs",
+                    "id": "geyiii67rmor",
+                    "amount": -6,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:attack_damage",
+                    "slot": "legs",
+                    "id": "cryjcrdgchdfgjage",
+                    "amount": 4,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:armor_toughness",
+                    "slot": "legs",
+                    "id": "gkvurcx6tyj65cjhss",
+                    "amount": -4,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:attack_speed",
+                    "slot": "legs",
+                    "id": "gckfygc6chkdgyhbkfg",
+                    "amount": 0.15,
+                    "operation": "add_multiplied_base"
+                  },
+                  {
+                    "type": "minecraft:movement_speed",
+                    "slot": "legs",
+                    "id": "gkhfcvy7kvknuiki",
+                    "amount": 0.05,
+                    "operation": "add_multiplied_base"
+                  }
+                ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": {
+                "translate": "berserker_leggings",
+                "color": "red",
+                "italic": false
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "leggings",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                [
+                  {
+                    "translate": "set_bonus",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                [
+                  {
+                    "translate": "set_bonus_berserker",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,leggings:1,berserk:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

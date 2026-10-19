@@ -1,73 +1,69 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 3,
+      "entries": [
         {
-            "rolls": 3,
-            "entries": [
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:purifypotion_1",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:max_stack_size": 3
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "rolls": 3,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:milk_bucket",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:max_stack_size": 3
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "rolls": 4,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:splash_potion",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:potion_contents": {
-                                    "custom_color": 16739179,
-                                    "custom_effects": [
-                                        {
-                                            "id": "minecraft:instant_health",
-                                            "amplifier": 5
-                                        }
-                                    ]
-                                },
-                                "minecraft:max_stack_size": 4
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "item.minecraft.splash_potion.effect.healing",
-                                    "italic": false
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:purifypotion_1",
+          "modifier": {
+            "components": {
+              "minecraft:max_stack_size": 3
+            },
+            "type": "minecraft:set_components"
+          }
         }
-    ]
+      ]
+    },
+    {
+      "rolls": 3,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:milk_bucket",
+          "modifier": {
+            "components": {
+              "minecraft:max_stack_size": 3
+            },
+            "type": "minecraft:set_components"
+          }
+        }
+      ]
+    },
+    {
+      "rolls": 4,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:splash_potion",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:potion_contents": {
+                  "custom_color": 16739179,
+                  "custom_effects": [
+                    {
+                      "id": "minecraft:instant_health",
+                      "amplifier": 5
+                    }
+                  ]
+                },
+                "minecraft:max_stack_size": 4
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "item.minecraft.splash_potion.effect.healing",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

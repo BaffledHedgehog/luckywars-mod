@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-19",
+  "artifact": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-exahoming-e985d0ba.jar",
+  "sha256": "e985d0ba01d9b204f0ce0f676808db7f6e82c9873ee7ee17cf9b1453864fd988",
+  "installed": false,
+  "mainSha256": "a0c4cb03c4682c99e71e0c197b376f98dc6781e1f153ec7ee61cba67408606a5",
+  "runs": {
+    "exahoming": {
+      "completed": [
+        "Source Falling Stars/Exahoming ordinary and Academy name, lore, models, tiers and Polymer proxy",
+        "All native/Academy/legacy Air and True Falling Stars pairs, exact 2x2/3x3 consumption and extra ingredient rejection",
+        "Source native fireball counts/powers/heights, owner, input protection, mana, approved modes and ready-wand NPC promotion",
+        "Exahoming runtime checks resume in the second match"
+      ],
+      "artifactSha256": "e985d0ba01d9b204f0ce0f676808db7f6e82c9873ee7ee17cf9b1453864fd988",
+      "elapsedSeconds": 99.9
+    },
+    "exahoming-shared": {
+      "completed": [
+        "lbc-items-menu",
+        "summons",
+        "exasperato-academy",
+        "electro-gear",
+        "fireblaze-wand",
+        "terra-regular",
+        "electro-family",
+        "exasperato-cleanup",
+        "fireblaze-cleanup",
+        "terra-regular-cleanup",
+        "electro-family-cleanup",
+        "summons-cleanup",
+        "exahoming-cleanup"
+      ],
+      "artifactSha256": "e985d0ba01d9b204f0ce0f676808db7f6e82c9873ee7ee17cf9b1453864fd988",
+      "elapsedSeconds": 53.54
+    }
+  },
+  "sourceSha256": {
+    "build.gradle": "9da3bd280f909fe4aca23ff1252dca1850d540586d52d662cc46d59c47483f22",
+    "tools/smoke_exahoming.py": "d27c7297c2b498c9306c2f9ec858794cc06cd26262b17c692031cfb066d8ecc7",
+    "tools/import_lbc_exahoming.py": "b273fe3812653b7981313bc331a9117697f1b9ca860f9edbc7e2c895d95b9963",
+    "build/verification/run_exahoming_shared.py": "527bf0a1484e8fe370e6cbd1146d3cfd6e1604b3be4f0757eaf0baade665cc80",
+    "src/main/resources/skywars2.mixins.json": "9f09995ef7d3189e1e5c0bc547a3e17048ada4b567e7136068bad0d889d7f687",
+    "src/main/java/me/skywars2/mixin/WandProjectileMixin.java": "b395363b26dc53467e154bf69b14548eb3b5da4ce8b9752f0b81a6f93dbbe37e",
+    "src/main/resources/data/skywars2/recipe/exahoming_combine.json": "000a0444ede927d5d908cc250c629dde8fb98d259ebcf15d3c794cd43562e305",
+    "src/main/java/me/skywars2/game/LbcHoming.java": "f3a72334fa770ace0e55857cb1041d896cdf57b6e4dc02d72f469f4095564006",
+    "src/main/java/me/skywars2/game/LbcWands.java": "51e501b1bf093b31be692b93adb35fdcdb87b77cf9964d13d75b2dd1cee0bd96",
+    "src/main/java/me/skywars2/game/LbcItems.java": "78614dc056902d4b1668bf970c5e40d079909b9cdefaf6fbc2be60632659797c",
+    "src/main/java/me/skywars2/game/LbcIndirectKills.java": "f8dbbee799135c8c148076d1302a1fd287d9322bcd9abff8a32b0aae1eb0d893",
+    "src/main/java/me/skywars2/game/LbcTerra.java": "28a49d2ce915f51cdeea2a241c560a14133a032ec6ebbdf7477ae964ee20e921",
+    "src/main/java/me/skywars2/game/LbcExasperato.java": "a499585b042d5b810994b99e02e4e0bf69424a329e6106c172e111f4c443b0a0",
+    "src/main/java/me/skywars2/game/ProjectileLifetimes.java": "3e39d7b6fe4af0fbcace0da16477c52ccd467d3ead3e654baaa80098aad5046b",
+    "src/main/java/me/skywars2/game/LbcElectro.java": "b4eb0e05e1eed8e18c6be56919c63dfdd0ed5656b31e01a2033356ce569d7bf7",
+    "src/main/java/me/skywars2/game/LbcSummons.java": "597918497424a282086f6ec0d01299c816b5e08684327aed2d1d12957426e87a",
+    "src/main/java/me/skywars2/game/LbcAcademy.java": "ed8a1090ad8768133d0a76d3327f791d501fa6f1fbd6ba6df56d4451d0855ba2",
+    "src/main/java/me/skywars2/game/LbcCraftingRecipe.java": "47be4e3a8b0014ec32b877a0c66a52435e543e79ffd053ac660b9a322fadfc91",
+    "src/main/java/me/skywars2/game/GameChecks.java": "baf144e2660a1f9c9235d5f4dd1ccf6c586eaa12d9f6f67e8c619d3823532184",
+    "src/main/resources/data/lbc/loot_table/ported/falling_stars_wand.json": "368d838d5cd46bce3957cc4cf02959ede1ab13b3bcfe820c5eab246d2e72518d",
+    "src/main/resources/data/lbc/loot_table/ported/academy_falling_stars_wand.json": "cfbd5e0669e2c3137f836b76e64366678e9c08ddecccd03e71c462f6ebd92cc4",
+    "src/main/resources/data/lbc/loot_table/ported/exahoming_wand.json": "9ff36d733f322ece9030eadf0f61841b2b09b7001fd884d106dd8aad28823de6",
+    "src/main/resources/data/lbc/loot_table/ported/academy_exahoming_wand.json": "e05004663d0ddb382381f30a603a135ff3761b8f36b12faa8a51f3ac9de84c8f"
+  },
+  "resourceSourceEquality": true,
+  "compiledSourcesEquality": true,
+  "jarCrcVerified": true,
+  "localizationPassed": true,
+  "resourcePackModified": false,
+  "templateModified": false,
+  "backup": "build\\verification\\skywars2-before-tanner-movement-a0c4cb03.jar",
+  "limits": [
+    "No human client visual check",
+    "No large projectile load benchmark",
+    "Existing Polymer missing packet context warning also observed in previous bot runs; not a new regression",
+    "One native explosion is indivisible: the 3-4ms queue budget is not a bound on a single explosion"
+  ]
+}

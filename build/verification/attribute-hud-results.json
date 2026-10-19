@@ -1,0 +1,9 @@
+{
+  "result": "passed",
+  "completed": [
+    "bots",
+    "attribute-hud"
+  ],
+  "artifactSha256": "36c11417f18a653b08880b48cc6ad313629b353e80a54198cefaca86a026cf88",
+  "elapsedSeconds": 37.15
+}

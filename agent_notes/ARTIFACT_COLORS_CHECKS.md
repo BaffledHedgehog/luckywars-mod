@@ -1,0 +1,9 @@
+# Type 7 color artifact server checks
+
+The smoke runner adds `--artifact-colors-only`, which starts the isolated map 1 slice, grants `lbc:ported/mystical_artifact_colors`, starts one match, executes the color checks, stops the match, and verifies type-7 holder cleanup. The full runner reaches the same slice after the existing artifact groups; earlier modes include the colors flag in their skip guards.
+
+`GameChecks` checks the source loot and Polymer projection, indexes the native artifact, and activates wool/inside-carpet branches. Assertions cover all 16 colors through native effects, XP points, mana/food counters and Purple's actual teleportation. Tests also cover hostile red weakness at radius 15 and just outside, native allies, beacon suppression, cursor/drop indexing, Creative participant access and Creative developer observer exclusion. Player inventories, effects, XP, health/food, counters, positions, modes, teams, tags and fixture blocks are restored.
+
+Source files are read-only under `E:/servers_mew/cringe1_21_4_skywars/world/datapacksdisabled/LBC/data/lbc/function/other/artifact/colors/`. The scenario runs through the existing deferred-check queue in an ordinary server tick: Minecraft defers nested commands inside `/sw check`, so assertions there cannot immediately observe `spreadplayers`. A real terrain search checks holder teleportation; a safe target floor checks radius-10 RTP, timer decrement/accumulation and all-effect cleansing without native potion effects.
+
+Blue additionally checks exact native effect duration/amplifiers, flowing-water placement, in-water Strength/Resistance, hidden Wither/Poison in air, and cessation after shared cleansing. These are server-state assertions, not real-client particle or packet-delivery checks. Final execution evidence is maintained in [SERVER_TESTS.md](../SERVER_TESTS.md).

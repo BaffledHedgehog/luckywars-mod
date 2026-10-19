@@ -7,7 +7,9 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
@@ -31,7 +33,8 @@ import java.util.List;
 public final class SkyWars2 implements DedicatedServerModInitializer {
     public static final String MOD_ID = "skywars2";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-    private static GameController game;
+    // Polymer читает косметический снимок также при кодировании пакетов вне серверного потока.
+    private static volatile GameController game;
     public static GameController game() { return game; }
     public static MutableComponent text(String key, Object... args) {
         return Component.translatable(MOD_ID + "." + key, args);
@@ -39,7 +42,11 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
 
     @Override
     public void onInitializeServer() {
+        // Здесь связываются жизненный цикл сервера, игровые события и команды; состояние матча хранит контроллер.
         MapManager.registerLoadingTicket();
+        LbcItems.register();
+        LbcCraftingRecipe.register();
+        FullInvisibility.register();
         PolymerResourcePackUtils.addModAssets(MOD_ID);
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
             var config = GameConfig.load();
@@ -48,68 +55,175 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             game = new GameController(server, config, players, maps);
             game.menus(new GameMenus(server, game, config, players, maps));
             game.startServer();
+            game.items().academy().prepare();
+            game.items().stone().prepare();
+            game.items().bedrock().prepare();
+            game.items().wands().prepare();
+            game.items().stonekivi().prepare();
+            game.items().kiuas().prepare();
+            game.items().ruby().prepare();
+            game.items().bolts().prepare();
+            game.items().magic().refreshEntityIndexes();
+        });
+        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, resources, success) -> {
+            if (success && game != null) {
+                game.items().magic().refreshEntityIndexes();
+                game.items().academy().prepare();
+                game.items().stone().prepare();
+                game.items().bedrock().prepare();
+                game.items().wands().prepare();
+                game.items().stonekivi().prepare();
+                game.items().kiuas().prepare();
+                game.items().ruby().prepare();
+                game.items().bolts().prepare();
+            }
         });
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             if (game != null) { game.tick(); GameChecks.tick(game); }
         });
         ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
+            // Вход с сохранённым эффектом: active_effects загружается без onEffectAdded.
+            if (entity instanceof ServerPlayer player) FullInvisibility.effectsChanged(player);
+            if (game != null) game.items().entityLoaded(entity);
             if (game != null && game.inLobby()) game.maps().queueLobbyEntity(entity);
         });
         ServerEntityEvents.ENTITY_UNLOAD.register((entity, level) -> {
+            if (game != null && entity instanceof net.minecraft.world.entity.LivingEntity living)
+                game.items().indirectKills().clear(living);
             if (game != null) game.entityUnloaded(entity);
+        });
+        ServerChunkEvents.CHUNK_LOAD.register((level, chunk, generated) -> {
+            if (game != null && level == game.maps().level()) game.items().magic().chunkLoaded(chunk);
+            if (game != null && level == game.maps().level()) game.items().bedrock().chunkLoaded(chunk);
+            if (game != null && level == game.maps().level()) game.items().tanner().chunkLoaded(chunk);
+            if (game != null && level == game.maps().level()) game.items().kiuas().chunkLoaded(chunk);
+        });
+        ServerChunkEvents.CHUNK_UNLOAD.register((level, chunk) -> {
+            if (game != null && level == game.maps().level()) game.items().magic().chunkUnloaded(chunk);
         });
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
             if (game != null) { game.shutdown(); game = null; }
         });
         ServerPlayerEvents.JOIN.register(player -> { if (game != null) game.join(player); });
-        ServerPlayerEvents.LEAVE.register(player -> { if (game != null) game.leave(player); });
+        ServerPlayerEvents.LEAVE.register(player -> {
+            FullInvisibility.cameraChanging(player, null);
+            if (game != null) game.leave(player);
+        });
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, player, alive) -> {
+            // При респауне объект игрока заменяется, а UUID остаётся: старый доступ камеры не переносится.
+            FullInvisibility.cameraChanging(oldPlayer, null);
             if (game != null) game.respawned(player);
         });
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, damage) -> {
+            // Fabric пропускает AFTER_DAMAGE при смертельном ударе; испытания должны учитывать и такие попадания.
+            if (game != null) game.items().academy().damaged(entity, damage);
+            if (game != null) game.items().exoperso().died(entity, damage);
+            if (game != null && entity instanceof ServerPlayer player) game.items().magic().clear(player);
+            if (game != null) game.items().frost().clear(entity);
             if (game != null && entity instanceof ServerPlayer player) game.died(player, damage);
         });
         ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, baseDamage, damage, blocked) -> {
+            if (game != null && !blocked && damage > 0) game.items().academy().damaged(entity, source);
+            if (game != null && !blocked && damage > 0) game.items().indirectKills().damaged(entity, source);
+            if (game != null && !blocked && damage > 0) game.items().damaged(entity, source);
+            if (game != null && !blocked && damage > 0) game.items().trinkets().damaged(entity, source);
             if (game != null && !blocked && entity instanceof ServerPlayer player) game.hurtForSkill(player);
             if (game != null && !blocked && damage > 0 && entity instanceof ServerPlayer player)
                 game.damaged(player, source, damage);
         });
-        ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, damage, amount) ->
-                game == null || !(entity instanceof ServerPlayer player) || game.allowDamage(player));
+        ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, damage, amount) -> {
+            boolean allowed=LbcDamage.allowDamage(entity, damage)
+                        && (game == null || (!(damage.getEntity() instanceof ServerPlayer attacker) || !game.isObserver(attacker))
+                        && (!(entity instanceof ServerPlayer player) || game.allowDamage(player))
+                        && game.items().wands().allowDamage(entity, damage));
+            if(allowed && game!=null && amount>0) game.items().academy().beforeDamage(entity,damage);
+            return allowed;
+        });
         UseItemCallback.EVENT.register((player, level, hand) -> {
-            if (game != null && player instanceof ServerPlayer serverPlayer && game.canUseMenus()
+            if (game != null && game.items().frost().isFrozen(player)) return InteractionResult.FAIL;
+            if (game != null && player instanceof ServerPlayer serverPlayer && game.canUseMenus(serverPlayer)
                     && player.getItemInHand(hand).is(Items.COMPASS)) {
                 game.menus().open(serverPlayer); return InteractionResult.SUCCESS;
             }
+            if (game != null && player instanceof ServerPlayer serverPlayer && game.isObserver(serverPlayer)) {
+                if (player.getItemInHand(hand).is(Items.PLAYER_HEAD)) game.spectators().openTargets(serverPlayer);
+                return InteractionResult.FAIL;
+            }
+            if (game != null && player instanceof ServerPlayer owner && LbcShooters.isPine(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(LbcShooters.PINE))
+                return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+            if(game!=null && player instanceof ServerPlayer owner && LbcElectro.isAnyKatana(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(LbcElectro.CYBERKATANA)
+                    && !player.getItemInHand(hand).is(LbcElectro.SHIT_KATANA))
+                return game.items().wands().use(owner,hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+            // Перенесённая способность на другом предмете использует тот же обработчик, что native Polymer-меч.
+            if(game!=null && player instanceof ServerPlayer serverPlayer && LbcTerra.isRazor(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(LbcTerra.RAZOR))
+                return game.items().terra().useRazor(serverPlayer,hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+            if (game != null && player instanceof ServerPlayer serverPlayer
+                    && me.skywars2.game.LbcTerra.isSword(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(me.skywars2.game.LbcTerra.SWORD)
+                    && !player.getItemInHand(hand).is(me.skywars2.game.LbcTerra.TRUE_SWORD))
+                return game.items().terra().useSword(serverPlayer, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+            if (game != null && player instanceof ServerPlayer serverPlayer
+                    && (LbcItems.isDynamite(player.getItemInHand(hand)) || LbcItems.isNanobot(player.getItemInHand(hand))
+                        || LbcItems.isChemicalPotion(player.getItemInHand(hand)))
+                    && !game.canUseGameplayItems(serverPlayer))
+                return InteractionResult.FAIL;
             return InteractionResult.PASS;
         });
         AttackBlockCallback.EVENT.register((player, level, hand, pos, direction) -> {
+            if (game != null && game.items().frost().isFrozen(player)) return InteractionResult.FAIL;
+            if (game != null && player instanceof ServerPlayer serverPlayer && game.isObserver(serverPlayer)) return InteractionResult.FAIL;
             if (game != null && game.inLobby() && player instanceof ServerPlayer serverPlayer
+                    && !game.isDeveloper(serverPlayer)
                     && level.getBlockState(pos).is(Blocks.ENDER_CHEST)) {
                 game.menus().open(serverPlayer); return InteractionResult.SUCCESS;
             }
             return InteractionResult.PASS;
         });
         UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
+            if (game != null && game.items().frost().isFrozen(player)) return InteractionResult.FAIL;
+            if (game != null && player instanceof ServerPlayer serverPlayer && game.isObserver(serverPlayer)) return InteractionResult.FAIL;
+            if (game != null && player instanceof ServerPlayer serverPlayer
+                    && LbcItems.isNanobot(player.getItemInHand(hand)) && !game.canUseGameplayItems(serverPlayer))
+                return InteractionResult.FAIL;
             if (game != null && game.inLobby() && player instanceof ServerPlayer serverPlayer
+                    && !game.isDeveloper(serverPlayer)
                     && level.getBlockState(hit.getBlockPos()).is(Blocks.ENDER_CHEST)) {
                 game.menus().open(serverPlayer); return InteractionResult.SUCCESS;
             }
             return InteractionResult.PASS;
         });
         UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
+            if (game != null && game.items().frost().isFrozen(player)) return InteractionResult.FAIL;
+            if (game != null && player instanceof ServerPlayer serverPlayer && game.isObserver(serverPlayer)) {
+                game.spectators().watch(serverPlayer, entity); return InteractionResult.SUCCESS;
+            }
+            if (game != null && player instanceof ServerPlayer serverPlayer
+                    && game.items().academy().interact(serverPlayer, hand, entity)) return InteractionResult.SUCCESS;
             if (game != null && game.inLobby() && player instanceof ServerPlayer serverPlayer
                     && entity.entityTags().contains("swrg.quickstart")) {
                 game.requestStart(serverPlayer, true); return InteractionResult.SUCCESS;
             }
             return InteractionResult.PASS;
         });
+        AttackEntityCallback.EVENT.register((player, level, hand, entity, hit) ->
+                game != null && (game.items().frost().isFrozen(player)
+                        || player instanceof ServerPlayer serverPlayer && game.isObserver(serverPlayer))
+                        ? InteractionResult.FAIL : InteractionResult.PASS);
         CommandRegistrationCallback.EVENT.register((dispatcher, registries, environment) -> {
             var root = Commands.literal("sw").executes(ctx -> {
                 if (game != null) game.menus().open(ctx.getSource().getPlayerOrException()); return 1;
             });
             root.then(Commands.literal("status").executes(ctx -> {
                 ctx.getSource().sendSuccess(() -> game == null ? text("message.starting") : game.status(), false); return 1;
+            }));
+            root.then(Commands.literal("inventory").executes(ctx -> {
+                if (game != null) game.spectators().openInventory(ctx.getSource().getPlayerOrException()); return 1;
+            }));
+            root.then(Commands.literal("detach").executes(ctx -> {
+                if (game != null) game.spectators().detach(ctx.getSource().getPlayerOrException()); return 1;
             }));
             root.then(Commands.literal("start").executes(ctx -> {
                 if (game != null) game.requestStart(ctx.getSource().getPlayer(), false); return 1;
@@ -127,6 +241,19 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                     .then(Commands.argument("suite", StringArgumentType.word()).executes(ctx -> {
                         if (game != null) GameChecks.run(game, StringArgumentType.getString(ctx, "suite")); return 1;
                     })));
+            root.then(Commands.literal("lbc-unlock").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                    .then(Commands.argument("player", net.minecraft.commands.arguments.EntityArgument.player())
+                    .then(Commands.argument("advancement", StringArgumentType.greedyString())
+                    .suggests((ctx, builder) -> SharedSuggestionProvider.suggest(LbcLoadouts.unlockIds(), builder))
+                    .executes(ctx -> {
+                        var target = net.minecraft.commands.arguments.EntityArgument.getPlayer(ctx, "player");
+                        String id = StringArgumentType.getString(ctx, "advancement");
+                        if (game == null || !game.lbc().unlock(target, id)) {
+                            ctx.getSource().sendFailure(text("settings.unknown", id)); return 0;
+                        }
+                        ctx.getSource().sendSuccess(() -> text("settings.saved", "lbcUnlock", id), false);
+                        return 1;
+                    }))));
             dispatcher.register(Commands.literal("settings").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                     .executes(ctx -> {
                         if (game == null) { ctx.getSource().sendFailure(text("message.starting")); return 0; }
@@ -134,10 +261,27 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                         ctx.getSource().sendSuccess(() -> game.settingsSummary(), false);
                         return 1;
                     })
+                    .then(Commands.literal("event")
+                            .then(Commands.argument("event", StringArgumentType.word())
+                                    .suggests((ctx, builder) -> SharedSuggestionProvider.suggest(
+                                            List.of("halloween", "november", "tournament"), builder))
+                                    .then(Commands.argument("enabled", com.mojang.brigadier.arguments.BoolArgumentType.bool())
+                                            .executes(ctx -> {
+                                                if (game == null) { ctx.getSource().sendFailure(text("message.starting")); return 0; }
+                                                try {
+                                                    Component result = game.configureLobbyEvent(StringArgumentType.getString(ctx, "event"),
+                                                            Boolean.toString(com.mojang.brigadier.arguments.BoolArgumentType.getBool(ctx, "enabled")));
+                                                    ctx.getSource().sendSuccess(() -> result, false);
+                                                    return 1;
+                                                } catch (GameConfig.SettingError e) {
+                                                    ctx.getSource().sendFailure(e.component());
+                                                    return 0;
+                                                }
+                                            }))))
                     .then(Commands.argument("parameter", StringArgumentType.word())
                             .suggests((ctx, builder) -> SharedSuggestionProvider.suggest(List.of(
                                     "lives", "health", "countdownSeconds", "stageOneSeconds", "stageTwoSeconds", "endingSeconds",
-                                    "stageOneEvent", "stageTwoEvent", "pvpMode", "day", "vanillaKits", "vanillaSkills", "noBorders", "map", "broken"), builder))
+                                    "stageOneEvent", "stageTwoEvent", "pvpMode", "day", "ranked", "vanillaKits", "vanillaSkills", "offhandWands", "lefthandWands", "noBorders", "map", "broken"), builder))
                             .then(Commands.argument("value", StringArgumentType.word())
                                     .suggests((ctx, builder) -> settingValueSuggestions(
                                             StringArgumentType.getString(ctx, "parameter"), builder))
@@ -163,7 +307,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             String parameter, com.mojang.brigadier.suggestion.SuggestionsBuilder builder) {
         if (game == null) return builder.buildFuture();
         String key = parameter.toLowerCase(java.util.Locale.ROOT);
-        if (List.of("vanillakits", "vanillaskills", "noborders", "broken").contains(key))
+        if (List.of("ranked", "vanillakits", "vanillaskills", "offhandwands", "lefthandwands", "noborders", "broken").contains(key))
             return SharedSuggestionProvider.suggest(List.of("true", "false"), builder);
         if (key.equals("map") || key.equals("mapid"))
             return SharedSuggestionProvider.suggest(game.maps().catalog().stream().filter(MapManager.MapInfo::available)

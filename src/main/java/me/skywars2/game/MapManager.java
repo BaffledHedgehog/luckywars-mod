@@ -1,5 +1,6 @@
 package me.skywars2.game;
 
+import me.skywars2.SkyWars2;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -13,6 +14,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -21,23 +23,28 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ChunkResult;
 import net.minecraft.server.level.TicketType;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Marker;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.LevelResource;
+import net.minecraft.world.level.storage.TagValueInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +64,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.Queue;
 import java.util.TreeMap;
@@ -73,8 +81,11 @@ public final class MapManager {
     private static final String MAP_RESOURCE_ROOT = "/skywars2/maps/";
     private static final int TILE_XZ = 8;
     private static final int TILE_Y = 8;
+    private static final int LOBBY_OFFSET_X = 0;
     private static final long TICK_WORK_BUDGET_NANOS = 4_000_000L;
     private static final int MAX_SLICES_PER_TICK = 64;
+    // Техническая замена карты не должна выбрасывать содержимое удаляемых контейнеров.
+    private static final int MAP_WRITE_FLAGS = Block.UPDATE_CLIENTS | Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS;
     private static final String SWRG = "swrg.";
     private static final Identifier CHEST_COUNT_MODIFIER = Identifier.fromNamespaceAndPath("minecraft", "count");
     private static final Logger LOGGER = LoggerFactory.getLogger("skywars2-maps");
@@ -91,6 +102,7 @@ public final class MapManager {
 
     private final MinecraftServer server;
     private final ServerLevel level;
+    // Фоновый исполнитель готовит шаблоны; размещение блоков и обработка очереди work остаются на тике сервера.
     private final ExecutorService templatePreloader = Executors.newSingleThreadExecutor(task -> {
         Thread thread = new Thread(task, "skywars2-template-preloader");
         thread.setDaemon(true);
@@ -103,9 +115,18 @@ public final class MapManager {
     private final Queue<Entity> lobbyEntityCandidates = new ArrayDeque<>();
     private int lobbyEntityAuditTicks;
     private final List<BoundingBox> activeBoxes = new ArrayList<>();
+    // Journal tracks both regions; these runtime partitions let map selection preserve the live lobby.
+    private List<BoundingBox> lobbyBounds = List.of();
+    private List<BoundingBox> mapBounds = List.of();
+    private List<LobbyCell> lobbyCells = List.of();
+    private final Set<BlockPos> lobbyFootprint = new HashSet<>();
+    private final Map<BlockPos, BlockSnapshot> lobbyVisible = new HashMap<>();
+    private final Map<BlockPos, BlockSnapshot> mapUnderLobby = new HashMap<>();
+    private boolean lobbyOverlayActive;
+    private boolean placingMapSlice;
+    private final Set<BlockPos> mapWritesUnderLobby = new HashSet<>();
     private final Map<Long, BoundingBox> changedBlockBounds = new HashMap<>();
     private final List<BlockPos> cageBlocks = new ArrayList<>();
-    private final Set<BlockPos> cageFloorBlocks = new HashSet<>();
     private final Set<String> missingLootReported = new HashSet<>();
     private final Map<ChunkPos, CompletableFuture<?>> chunkLoads = new HashMap<>();
     private Map<Identifier, PreparedTemplate> preparedTemplates = Map.of();
@@ -144,6 +165,11 @@ public final class MapManager {
         return level;
     }
 
+    /** Lobby spawn centered over the arena. */
+    public Vec3 lobbyPosition() {
+        return new Vec3(0.5, 200.0, 0.5);
+    }
+
     public List<MapInfo> catalog() {
         return catalog;
     }
@@ -170,9 +196,9 @@ public final class MapManager {
     public void tick() {
         if (level == null) return;
         if (++ticksSinceBoundsFlush >= 20) flushChangedBlockBounds();
-        if (!busy) return;
+        if (!busy) { maintainLobbyOverlay(); return; }
         if (reading) {
-            if (!preparation.isDone()) return;
+            if (!preparation.isDone()) { maintainLobbyOverlay(); return; }
             try {
                 preparedTemplates = preparation.join(); // Already completed; never waits on this thread.
                 preparationMillis = (System.nanoTime() - preparationStarted) / 1_000_000;
@@ -183,7 +209,7 @@ public final class MapManager {
             } catch (RuntimeException error) {
                 fail(Component.translatable("skywars2.map.error.placement", error.getMessage()));
             }
-            return;
+            maintainLobbyOverlay(); return;
         }
         long started = System.nanoTime();
         long operationStarted = preparationStarted;
@@ -217,6 +243,7 @@ public final class MapManager {
             if (operationStarted == preparationStarted) {
                 maxWorkTickNanos = Math.max(maxWorkTickNanos, System.nanoTime() - started);
             }
+            maintainLobbyOverlay();
         }
     }
 
@@ -226,8 +253,7 @@ public final class MapManager {
         for (int x = (bounds.minX() - 1) >> 4; x <= (bounds.maxX() + 1) >> 4; x++) {
             for (int z = (bounds.minZ() - 1) >> 4; z <= (bounds.maxZ() + 1) >> 4; z++) {
                 ChunkPos pos = new ChunkPos(x, z);
-                CompletableFuture<?> future = chunkLoads.computeIfAbsent(pos,
-                        chunk -> level.getChunkSource().addTicketAndLoadWithRadius(LOADING_TICKET, chunk, 0));
+                CompletableFuture<?> future = prepareChunk(pos);
                 if (!future.isDone()) { ready = false; continue; }
                 Object result = future.join();
                 if (result instanceof ChunkResult<?> chunkResult && !chunkResult.isSuccess()) {
@@ -236,6 +262,12 @@ public final class MapManager {
             }
         }
         return ready;
+    }
+
+    /** Общая асинхронная загрузка для карты и событий; tickets освобождаются при следующей очистке/остановке. */
+    CompletableFuture<?> prepareChunk(ChunkPos pos) {
+        return chunkLoads.computeIfAbsent(pos,
+                chunk -> level.getChunkSource().addTicketAndLoadWithRadius(LOADING_TICKET, chunk, 0));
     }
 
     private void releaseChunkTickets() {
@@ -312,12 +344,15 @@ public final class MapManager {
 
         pendingMap = id;
         pendingBounds = targetBounds;
-        removeArenaEntities();
+        removeMapEntitiesWithin(mapBounds);
         restoreCages();
-        clearForcedChunks();
-        addClearWork(activeBoxes);
-        activeBoxes.clear();
-        activeBoxes.addAll(recoveryBounds);
+        clearForcedChunksOutsideLobby();
+        mapUnderLobby.clear();
+        for (LobbyCell cell : lobbyCells) if (insideAny(cell.pos, mapBounds) || insideAny(cell.pos, targetBounds))
+            mapUnderLobby.put(cell.pos, BlockSnapshot.air());
+        addClearWork(mapBounds, lobbyOverlayActive);
+        mapBounds = combineBounds(mapBounds, targetBounds);
+        replaceActiveBounds(recoveryBounds);
         try {
             addPasteWork(placements);
         } catch (RuntimeException error) {
@@ -349,7 +384,7 @@ public final class MapManager {
             fail(Component.translatable("skywars2.map.error.template_missing", "swrg:lobby"));
             return;
         }
-        BlockPos origin = new BlockPos(-5, 126, -5);
+        BlockPos origin = new BlockPos(-5 + LOBBY_OFFSET_X, 199, -5);
         Placement lobby = new Placement("swrg:lobby", origin, 1.0f, 1L);
         List<BoundingBox> targetBounds;
         try {
@@ -374,9 +409,19 @@ public final class MapManager {
         removeArenaEntities();
         restoreCages();
         clearForcedChunks();
-        addClearWork(activeBoxes);
-        activeBoxes.clear();
-        activeBoxes.addAll(recoveryBounds);
+        boolean preserveMap = !mapBounds.isEmpty();
+        if (preserveMap) mapBounds = combineBounds(mapBounds, activeBoxes);
+        if (lobbyOverlayActive) removeLobbyOverlay();
+        mapUnderLobby.clear();
+        if (preserveMap) {
+            for (LobbyCell cell : lobbyCells) {
+                mapUnderLobby.put(cell.pos, snapshot(cell.pos));
+            }
+        }
+        addClearWork(preserveMap ? List.of() : activeBoxes, false);
+        lobbyBounds = targetBounds;
+        if (!preserveMap) mapBounds = List.of();
+        replaceActiveBounds(recoveryBounds);
         try {
             addPasteWork(List.of(lobby));
         } catch (RuntimeException error) {
@@ -394,7 +439,7 @@ public final class MapManager {
         return look;
     }
 
-    /** Swaps the glass around each spawn marker for temporary barrier cages. */
+    /** Builds the legacy open glass spawn cage; opening it removes every glass block. */
     public void cages(boolean enabled) {
         if (level == null) return;
         if (!enabled) {
@@ -404,18 +449,29 @@ public final class MapManager {
         if (!cageBlocks.isEmpty()) return;
         for (Spawn spawn : spawns) {
             BlockPos feet = BlockPos.containing(spawn.position());
-            for (int y = -2; y <= 4; y++) {
+            // developer/bars first clears old glass in the complete volume. This
+            // prevents template leftovers from surviving beneath the new cage.
+            for (int y = -2; y <= 5; y++) {
                 for (int x = -1; x <= 1; x++) {
                     for (int z = -1; z <= 1; z++) {
-                        if (Math.abs(x) == 1 || Math.abs(z) == 1 || y == -2 || y == 4) {
-                            BlockPos pos = feet.offset(x, y, z);
-                            if (level.getBlockState(pos).is(Blocks.GLASS)) {
-                                level.setBlock(pos, Blocks.BARRIER.defaultBlockState(), 2);
-                                BlockPos cagePos = pos.immutable();
-                                cageBlocks.add(cagePos);
-                                if (y == -2) cageFloorBlocks.add(cagePos);
-                            }
+                        BlockPos pos = feet.offset(x, y, z);
+                        if (level.getBlockState(pos).is(Blocks.GLASS)) {
+                            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
                         }
+                    }
+                }
+            }
+            // game/start/bars replaces the remaining glass with the selected cage
+            // material. The default variant is plain glass: five floor blocks
+            // and four open posts, each four blocks high (21 blocks total).
+            for (int y = -1; y <= 3; y++) {
+                for (int x = -1; x <= 1; x++) {
+                    for (int z = -1; z <= 1; z++) {
+                        if (Math.abs(x) == 1 && Math.abs(z) == 1) continue;
+                        if (y >= 0 && x == 0 && z == 0) continue;
+                        BlockPos pos = feet.offset(x, y, z);
+                        level.setBlock(pos, Blocks.GLASS.defaultBlockState(), 2);
+                        cageBlocks.add(pos.immutable());
                     }
                 }
             }
@@ -429,6 +485,8 @@ public final class MapManager {
         int encodedCounts = 0;
         int multiCounts = 0;
         for (Entity marker : allArenaEntities()) {
+            // Метки swrg.center/swrg.chest есть и у вагонеток АирДропа: они не являются точками блоков карты.
+            if (!(marker instanceof Marker)) continue;
             String table = null;
             if (marker.entityTags().contains("swrg.center")) table = "center";
             else if (marker.entityTags().contains("swrg.midle")) table = "midle";
@@ -473,7 +531,8 @@ public final class MapManager {
                 upgrade, generatedChests, encodedCounts, multiCounts);
     }
 
-    private static int[] normalizeLootCounts(RandomizableContainerBlockEntity container) {
+    /** Общая нормализация старого количества и для блоков, и для вагонеток с сундуком. */
+    static int[] normalizeLootCounts(Container container) {
         int encodedCounts = 0;
         int multiCounts = 0;
         for (int slot = 0; slot < container.getContainerSize(); slot++) {
@@ -505,6 +564,21 @@ public final class MapManager {
         removeArenaEntities();
     }
 
+    /** Called by ArenaBlockMixin only while a native map template slice is placing. */
+    public void noteMapBlockWrite(Level source, BlockPos pos) {
+        if (placingMapSlice && lobbyOverlayActive && source == level && insideLobby(pos))
+            mapWritesUnderLobby.add(pos.immutable());
+    }
+
+    /** Reveals the map state captured beneath the lobby immediately before match play. */
+    public void removeLobbyOverlay() {
+        if (!lobbyOverlayActive || level == null) return;
+        for (LobbyCell cell : lobbyCells) restoreSnapshot(cell.pos, mapUnderLobby.getOrDefault(cell.pos, BlockSnapshot.air()));
+        lobbyOverlayActive = false;
+        mapWritesUnderLobby.clear();
+        removeLobbyEntities();
+    }
+
     /** Lobby whitelist in the arena; other dimensions preserve only players. */
     public void queueLobbyEntity(Entity entity) {
         if (!(entity instanceof Player)) lobbyEntityCandidates.add(entity);
@@ -533,6 +607,16 @@ public final class MapManager {
     }
 
     private boolean keepLobbyEntity(Entity entity) {
+        // Подсветка редактора не является частью карты, даже если сохранена внутри её bounds.
+        if (entity.entityTags().contains("marker")
+                && (entity instanceof net.minecraft.world.entity.item.FallingBlockEntity
+                    || entity instanceof net.minecraft.world.entity.Display.BlockDisplay)) return false;
+        // Старый дроп не становится частью подготовленной карты из-за исходных swrg.center/swrg.chest.
+        if (entity.entityTags().contains("skywars2.airdrop")) return false;
+        // Подготовленная карта существует одновременно с лобби: её сущности нужны при будущем старте.
+        if (entity.level() == level && mapBounds.stream().anyMatch(box -> box.isInside(entity.blockPosition()))) return true;
+        var game = SkyWars2.game();
+        if (entity.level() == level && game != null && game.items().currentEpoch(entity)) return true;
         Set<String> tags = entity.entityTags();
         return entity.level() == level && (tags.contains("swrg.quickstart")
                 || tags.contains("swrg.look") || tags.contains("swrg.spawn")
@@ -659,6 +743,55 @@ public final class MapManager {
         }
     }
 
+    /** Spell preparation shares the existing decoder, slice format and bounded-lifetime worker. */
+    java.util.concurrent.CompletableFuture<Map<Identifier,List<TemplateSlice>>> prepareSpellTemplates(List<Identifier> ids) {
+        var manager=server.getStructureTemplateManager();
+        var blocks=server.registryAccess().lookupOrThrow(Registries.BLOCK);
+        return computeFromSnapshot(()-> {
+            var result=new HashMap<Identifier,List<TemplateSlice>>();
+            for(var id:ids) {
+                var source=manager.get(id).orElseThrow(()->new IllegalStateException("Missing spell template "+id));
+                result.put(id,splitTemplate(source,blocks).slices());
+            }
+            return Map.copyOf(result);
+        });
+    }
+    /** Only immutable or detached snapshots may be submitted; world access remains on the server thread. */
+    <T> java.util.concurrent.CompletableFuture<T> computeFromSnapshot(java.util.function.Supplier<T> computation) {
+        return java.util.concurrent.CompletableFuture.supplyAsync(computation,templatePreloader);
+    }
+
+    /** Sparse source pattern for persistent auras: explicit air is meaningful, missing records do not write. */
+    static final class BlockPattern {
+        final Vec3i size;
+        private final BlockState[] states;
+        BlockPattern(Vec3i size,BlockState[] states) { this.size=size; this.states=states; }
+        BlockState state(int x,int y,int z) {
+            if(x<0 || y<0 || z<0 || x>=size.getX() || y>=size.getY() || z>=size.getZ()) return null;
+            return states[(y*size.getZ()+z)*size.getX()+x];
+        }
+    }
+    java.util.concurrent.CompletableFuture<BlockPattern> prepareBlockPattern(Identifier id) {
+        var manager=server.getStructureTemplateManager();
+        var blocks=server.registryAccess().lookupOrThrow(Registries.BLOCK);
+        return computeFromSnapshot(()-> {
+            var template=manager.get(id).orElseThrow(()->new IllegalStateException("Missing aura pattern "+id));
+            var data=template.save(new CompoundTag());
+            if(!data.getListOrEmpty("entities").isEmpty()) throw new IllegalArgumentException("Aura pattern has entities "+id);
+            var palette=new ArrayList<BlockState>();
+            for(var entry:data.getListOrEmpty("palette")) palette.add(NbtUtils.readBlockState(blocks,(CompoundTag)entry));
+            var size=template.getSize(); var states=new BlockState[size.getX()*size.getY()*size.getZ()];
+            for(var entry:data.getListOrEmpty("blocks")) {
+                var block=(CompoundTag)entry;
+                if(block.contains("nbt")) throw new IllegalArgumentException("Aura pattern has block entity "+id);
+                var pos=block.getListOrEmpty("pos");
+                int x=pos.getIntOr(0,0),y=pos.getIntOr(1,0),z=pos.getIntOr(2,0);
+                states[(y*size.getZ()+z)*size.getX()+x]=palette.get(block.getIntOr("state",0));
+            }
+            return new BlockPattern(size,states);
+        });
+    }
+
     /** Split once in the worker. Each native placement later sees at most 8x8x8 blocks. */
     private PreparedTemplate splitTemplate(StructureTemplate template,
                                                    net.minecraft.core.HolderGetter<net.minecraft.world.level.block.Block> blocks) {
@@ -674,6 +807,14 @@ public final class MapManager {
                     throw new java.util.concurrent.CancellationException("Map loader stopped");
                 }
                 CompoundTag entry = (CompoundTag) tag;
+                if (kind.equals("entities")) {
+                    CompoundTag nbt = entry.getCompoundOrEmpty("nbt");
+                    String id = nbt.getStringOr("id", "");
+                    // Старые debug falling_block могли дропать бетон или попасть под отвердение.
+                    // Убираем их в фоне до спавна/первого тика, сохраняя настоящие Marker-точки.
+                    if ((id.equals("minecraft:falling_block") || id.equals("minecraft:block_display"))
+                            && nbt.getListOrEmpty("Tags").contains(net.minecraft.nbt.StringTag.valueOf("marker"))) continue;
+                }
                 ListTag pos = entry.getListOrEmpty(kind.equals("blocks") ? "pos" : "blockPos");
                 int x = pos.getIntOr(0, 0), y = pos.getIntOr(1, 0), z = pos.getIntOr(2, 0);
                 // These entities were also outside all bounding boxes in the previous loader.
@@ -706,7 +847,9 @@ public final class MapManager {
         return new PreparedTemplate(size, List.copyOf(slices));
     }
 
-    private void addClearWork(List<BoundingBox> boxes) {
+    private void addClearWork(List<BoundingBox> boxes) { addClearWork(boxes, false); }
+
+    private void addClearWork(List<BoundingBox> boxes, boolean protectLobby) {
         for (BoundingBox box : boxes) {
             for (int y = box.minY(); y <= box.maxY(); y += TILE_Y) {
                 for (int x = box.minX(); x <= box.maxX(); x += TILE_XZ) {
@@ -721,8 +864,12 @@ public final class MapManager {
                                 for (int bx = slice.minX(); bx <= slice.maxX(); bx++) {
                                     for (int bz = slice.minZ(); bz <= slice.maxZ(); bz++) {
                                         cursor.set(bx, by, bz);
+                                        if (protectLobby && lobbyOverlayActive && insideLobby(cursor)) {
+                                            mapUnderLobby.put(cursor.immutable(), BlockSnapshot.air());
+                                            continue;
+                                        }
                                         if (world.getBlockState(cursor) != Blocks.AIR.defaultBlockState()) {
-                                            world.setBlock(cursor, Blocks.AIR.defaultBlockState(), 2);
+                                            world.setBlock(cursor, Blocks.AIR.defaultBlockState(), MAP_WRITE_FLAGS);
                                         }
                                     }
                                 }
@@ -755,6 +902,11 @@ public final class MapManager {
         List<BoundingBox> combined = new ArrayList<>(first);
         combined.addAll(second);
         return compactBounds(combined);
+    }
+
+    private static boolean insideAny(BlockPos pos, List<BoundingBox> bounds) {
+        for (var box : bounds) if (box.isInside(pos)) return true;
+        return false;
     }
 
     /** Combines touching/overlapping cuboids so the journal stays small across many map changes. */
@@ -868,8 +1020,64 @@ public final class MapManager {
                     StructurePlaceSettings settings = new StructurePlaceSettings()
                             .setBoundingBox(bounds).setRandom(RandomSource.create(placement.seed));
                     if (placement.integrity < 1.0f) settings.addProcessor(INTEGRITY_FILTER);
-                    part.template.placeInWorld(world, origin, origin, settings, RandomSource.create(placement.seed), 2);
+                    placeMapSlice(world, part.template, origin, settings, placement.seed);
                 }));
+            }
+        }
+    }
+
+    /** Постановка заклинаний в уже загруженных чанках; Stone и Ruby используют одну проверку границ. */
+    void placeLoadedTemplate(net.minecraft.server.level.ServerPlayer owner,Identifier id,BlockPos origin,float integrity) {
+        placeLoadedTemplate(owner,id,origin,integrity,net.minecraft.world.level.block.Rotation.NONE);
+    }
+
+    /** Поворот учитывается в bounds до обрезки по загруженным чанкам; Wall использует исходную лестницу. */
+    void placeLoadedTemplate(net.minecraft.server.level.ServerPlayer owner,Identifier id,BlockPos origin,float integrity,
+                             net.minecraft.world.level.block.Rotation rotation) {
+        var level=owner.level(); var template=server.getStructureTemplateManager().get(id).orElse(null);
+        if(template==null) return;
+        var settings=new StructurePlaceSettings().setIgnoreEntities(true).setKnownShape(true)
+                .setRotation(rotation)
+                .addProcessor(new net.minecraft.world.level.levelgen.structure.templatesystem.BlockRotProcessor(integrity));
+        var bounds=template.getBoundingBox(settings,origin);
+        int lowY=Math.max(level.getMinY(),bounds.minY()),highY=Math.min(level.getMaxY(),bounds.maxY());
+        if(lowY>highY) return;
+        long seed=owner.getRandom().nextLong();
+        boolean fullyLoaded=true;
+        for(int cx=bounds.minX()>>4;cx<=bounds.maxX()>>4;cx++)
+            for(int cz=bounds.minZ()>>4;cz<=bounds.maxZ()>>4;cz++) fullyLoaded &= level.hasChunk(cx,cz);
+        if(fullyLoaded) {
+            settings.setBoundingBox(new BoundingBox(bounds.minX(),lowY,bounds.minZ(),bounds.maxX(),highY,bounds.maxZ()));
+            placeMapSlice(level,template,origin,settings,seed);
+            return;
+        }
+        // Ограничиваем каждую постановку загруженными чанками: template не подгружает мир ради заклинания.
+        for(int cx=bounds.minX()>>4;cx<=bounds.maxX()>>4;cx++)
+            for(int cz=bounds.minZ()>>4;cz<=bounds.maxZ()>>4;cz++) if(level.hasChunk(cx,cz)) {
+                var chunkBounds=new BoundingBox(Math.max(bounds.minX(),cx*16),lowY,Math.max(bounds.minZ(),cz*16),
+                        Math.min(bounds.maxX(),cx*16+15),highY,Math.min(bounds.maxZ(),cz*16+15));
+                settings.setBoundingBox(chunkBounds);
+                placeMapSlice(level,template,origin,settings,seed);
+            }
+    }
+
+    /** Places a native template slice and preserves any writes under the visible lobby overlay. */
+    void placeMapSlice(ServerLevel world, StructureTemplate template, BlockPos origin,
+                       StructurePlaceSettings settings, long seed) {
+        placingMapSlice = true;
+        try {
+            template.placeInWorld(world, origin, origin, settings, RandomSource.create(seed), MAP_WRITE_FLAGS);
+        } finally {
+            placingMapSlice = false;
+            try {
+                if (lobbyOverlayActive) {
+                    for (BlockPos pos : List.copyOf(mapWritesUnderLobby)) {
+                        mapUnderLobby.put(pos, snapshot(pos));
+                        restoreLobbyCell(pos);
+                    }
+                }
+            } finally {
+                mapWritesUnderLobby.clear();
             }
         }
     }
@@ -879,10 +1087,10 @@ public final class MapManager {
             fail(Component.translatable("skywars2.map.error.dimension_missing"));
             return;
         }
-        forceMarkerChunks();
-        List<Entity> entities = allArenaEntities();
+        List<Entity> entities = entitiesWithin(pendingBounds);
+        forceMarkerChunks(entities);
         List<Spawn> foundSpawns = new ArrayList<>();
-        Vec3 foundLook = pendingMap == null ? new Vec3(0.5, 128.0, 0.5) : null;
+        Vec3 foundLook = pendingMap == null ? lobbyPosition() : null;
         for (Entity entity : entities) {
             if (pendingMap == null && entity.entityTags().contains("swrg.lobby")) {
                 entity.setCustomName(Component.translatable("swrg.entity.lobby")
@@ -922,8 +1130,14 @@ public final class MapManager {
             fail(Component.translatable("skywars2.map.error.spawns_missing", pendingMap));
             return;
         }
-        activeBoxes.clear();
-        activeBoxes.addAll(pendingBounds);
+        if (pendingMap == null) {
+            lobbyBounds = pendingBounds;
+            lobbyOverlayActive = true;
+            cacheLobbyOverlay();
+        } else {
+            mapBounds = pendingBounds;
+        }
+        replaceActiveBounds(combineBounds(lobbyBounds, mapBounds));
         if (blockBoundsDirty) {
             flushChangedBlockBounds();
         } else if (!writeBoundsJournal(activeBoxes)) {
@@ -935,11 +1149,25 @@ public final class MapManager {
                 : Component.translatable("skywars2.map.ready.map", pendingMap)));
     }
 
-    private void forceMarkerChunks() {
-        for (Entity entity : allArenaEntities()) {
+    private void forceMarkerChunks(List<Entity> entities) {
+        for (Entity entity : entities) {
             if (entity.entityTags().stream().anyMatch(tag -> tag.startsWith(SWRG))) {
                 level.setChunkForced(entity.chunkPosition().x(), entity.chunkPosition().z(), true);
             }
+        }
+    }
+
+    private void clearForcedChunksOutsideLobby() {
+        if (level == null) return;
+        for (long packed : level.getForceLoadedChunks().toLongArray()) {
+            int chunkX = net.minecraft.world.level.ChunkPos.getX(packed);
+            int chunkZ = net.minecraft.world.level.ChunkPos.getZ(packed);
+            int minX = chunkX << 4, minZ = chunkZ << 4;
+            int maxX = minX + 15, maxZ = minZ + 15;
+            boolean lobbyChunk = lobbyBounds.stream().anyMatch(box ->
+                    minX <= box.maxX() && maxX >= box.minX()
+                            && minZ <= box.maxZ() && maxZ >= box.minZ());
+            if (!lobbyChunk) level.setChunkForced(chunkX, chunkZ, false);
         }
     }
 
@@ -969,8 +1197,106 @@ public final class MapManager {
 
     private List<Entity> allArenaEntities() {
         if (level == null) return List.of();
-        AABB area = new AABB(-1024, level.getMinY(), -1024, 1024, level.getMaxY(), 1024);
-        return level.getEntities((Entity) null, area, entity -> true);
+        List<Entity> entities = new ArrayList<>();
+        for (Entity entity : level.getAllEntities()) {
+            if (!entity.isRemoved()) entities.add(entity);
+        }
+        return entities;
+    }
+
+    private List<Entity> entitiesWithin(List<BoundingBox> bounds) {
+        if (level == null || bounds.isEmpty()) return List.of();
+        return allArenaEntities().stream().filter(entity -> {
+            BlockPos pos = BlockPos.containing(entity.position());
+            return bounds.stream().anyMatch(box -> box.isInside(pos));
+        }).toList();
+    }
+
+    private void removeEntitiesWithin(List<BoundingBox> bounds) {
+        for (Entity entity : entitiesWithin(bounds)) {
+            if (!(entity instanceof Player)) entity.discard();
+        }
+    }
+
+    private void removeMapEntitiesWithin(List<BoundingBox> bounds) {
+        for (Entity entity : entitiesWithin(bounds)) {
+            if (entity instanceof Player) continue;
+            if (lobbyOverlayActive && (entity.entityTags().contains("swrg.lobby")
+                    || entity.entityTags().contains("swrg.quickstart"))) continue;
+            entity.discard();
+        }
+    }
+
+    private void removeLobbyEntities() {
+        for (Entity entity : entitiesWithin(lobbyBounds)) {
+            if (!(entity instanceof Player) && (entity.entityTags().contains("swrg.lobby")
+                    || entity.entityTags().contains("swrg.quickstart"))) entity.discard();
+        }
+    }
+
+    private void cacheLobbyOverlay() {
+        if (level == null) return;
+        List<LobbyCell> cells = new ArrayList<>();
+        Vec3i size = Objects.requireNonNull(template("swrg:lobby")).size;
+        BlockPos origin = new BlockPos(-5 + LOBBY_OFFSET_X, 199, -5);
+        BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
+        for (int y = 0; y < size.getY(); y++) for (int x = 0; x < size.getX(); x++) for (int z = 0; z < size.getZ(); z++) {
+            cursor.set(origin.getX() + x, origin.getY() + y, origin.getZ() + z);
+            cells.add(new LobbyCell(cursor.immutable(), snapshot(cursor)));
+        }
+        lobbyCells = List.copyOf(cells);
+        lobbyFootprint.clear();
+        lobbyVisible.clear();
+        for (LobbyCell cell : cells) {
+            lobbyFootprint.add(cell.pos);
+            lobbyVisible.put(cell.pos, cell.visible);
+        }
+    }
+
+    private void maintainLobbyOverlay() {
+        if (!lobbyOverlayActive || level == null) return;
+        for (LobbyCell cell : lobbyCells) {
+            if (!sameSnapshot(cell.pos, cell.visible)) {
+                // External edits under the lobby become the new revealed map state.
+                mapUnderLobby.put(cell.pos, snapshot(cell.pos));
+                restoreSnapshot(cell.pos, cell.visible);
+            }
+        }
+    }
+
+    private boolean insideLobby(BlockPos pos) {
+        return lobbyFootprint.contains(pos);
+    }
+
+    BlockSnapshot snapshot(BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        return new BlockSnapshot(state, blockEntity == null ? null : blockEntity.saveWithFullMetadata(level.registryAccess()));
+    }
+
+    private boolean sameSnapshot(BlockPos pos, BlockSnapshot snapshot) {
+        BlockState state = level.getBlockState(pos);
+        if (!state.equals(snapshot.state)) return false;
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (snapshot.entity == null) return blockEntity == null;
+        return blockEntity != null && snapshot.entity.equals(blockEntity.saveWithFullMetadata(level.registryAccess()));
+    }
+
+    private void restoreLobbyCell(BlockPos pos) {
+        BlockSnapshot visible = lobbyVisible.get(pos);
+        if (visible != null) restoreSnapshot(pos, visible);
+    }
+
+    void restoreSnapshot(BlockPos pos, BlockSnapshot snapshot) {
+        level.setBlock(pos, snapshot.state, MAP_WRITE_FLAGS);
+        if (snapshot.entity != null) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity != null) {
+                blockEntity.loadWithComponents(TagValueInput.create(
+                        ProblemReporter.DISCARDING, level.registryAccess(), snapshot.entity));
+                blockEntity.setChanged();
+            }
+        }
     }
 
     private void removeArenaEntities() {
@@ -982,19 +1308,31 @@ public final class MapManager {
         look = Vec3.ZERO;
     }
 
+    private void replaceActiveBounds(List<BoundingBox> bounds) {
+        activeBoxes.clear();
+        activeBoxes.addAll(bounds);
+    }
+
     private void restoreCages() {
         if (level == null) return;
         for (BlockPos pos : cageBlocks) {
-            if (level.getBlockState(pos).is(Blocks.BARRIER)) {
-                // SWRG game/start/1 clears y=-1..4, leaving the support floor
-                // at y=-2 intact. Restore that floor to its original glass;
-                // remove the walls and roof so players are no longer trapped.
-                level.setBlock(pos, cageFloorBlocks.contains(pos)
-                        ? Blocks.GLASS.defaultBlockState() : Blocks.AIR.defaultBlockState(), 2);
+            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
+        }
+        // Clear any original template glass too, including pieces outside the temporary barrier shape.
+        for (Spawn spawn : spawns) {
+            BlockPos feet = BlockPos.containing(spawn.position());
+            for (int y = -1; y <= 4; y++) {
+                for (int x = -1; x <= 1; x++) {
+                    for (int z = -1; z <= 1; z++) {
+                        BlockPos pos = feet.offset(x, y, z);
+                        if (level.getBlockState(pos).is(Blocks.GLASS)) {
+                            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
+                        }
+                    }
+                }
             }
         }
         cageBlocks.clear();
-        cageFloorBlocks.clear();
     }
 
     private Component validateTemplates(List<Placement> placements) {
@@ -1110,7 +1448,13 @@ public final class MapManager {
 
     private record Work(BoundingBox bounds, Consumer<ServerLevel> action) { }
 
-    private record TemplateSlice(StructureTemplate template, BoundingBox bounds) { }
+    private record LobbyCell(BlockPos pos, BlockSnapshot visible) { }
+
+    record BlockSnapshot(BlockState state, CompoundTag entity) {
+        static BlockSnapshot air() { return new BlockSnapshot(Blocks.AIR.defaultBlockState(), null); }
+    }
+
+    record TemplateSlice(StructureTemplate template, BoundingBox bounds) { }
 
     private record PreparedTemplate(Vec3i size, List<TemplateSlice> slices) { }
 

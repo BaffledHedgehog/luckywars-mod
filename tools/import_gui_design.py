@@ -61,6 +61,21 @@ MAP_SELECT_REF = re.compile(
 STORAGE_LINE = re.compile(r"data modify storage swrg:lang\s+(\S+)\s+set value\s+(.+)$")
 TEXT_VALUE = re.compile(r'"text"\s*:\s*("(?:\\.|[^"\\])*")')
 STORAGE_ENTRY = re.compile(r"data modify storage swrg:lang\s+(\S+)\s+set value\s+(.+)$")
+SELECTOR_REF = re.compile(r"@s(?:\[([^\]]*)\])?")
+ENTITY_SLOT_REF = re.compile(r"enderchest\.(\d+)")
+LOCKED_MODEL_REF = re.compile(r'minecraft:item_model="([^"]*locked[^"]*)"')
+ITEM_REPLACE_REF = re.compile(
+    r"item replace entity (@s(?:\[[^\]]*\])?)\s+enderchest\.(\d+)\s+with\s+"
+    r"(minecraft:[a-z0-9_]+)(\[[^\]]*\])?"
+)
+ITEM_MODIFY_REF = re.compile(
+    r"item modify entity (@s(?:\[[^\]]*\])?)\s+enderchest\.(\d+)\s+"
+    r"([a-z0-9_]+:[a-z0-9_./-]+)\s*$"
+)
+LOOT_REPLACE_REF = re.compile(
+    r"loot replace entity (@s(?:\[[^\]]*\])?)\s+enderchest\.(\d+)\s+loot\s+"
+)
+ADVANCEMENT_TERM = re.compile(r"([a-z0-9_.-]+:[a-z0-9_./-]+)=(true|false)")
 
 
 def resource_pack_language(locale: str) -> dict[str, str]:
@@ -281,6 +296,217 @@ def page_manifest(old_root: Path, local_resources: Path) -> dict:
             "Scoreboard-backed selected/glint, unlock, price, and live-stat variants are not runtime imported by this manifest.",
         ],
     }
+
+
+def _split_selector_terms(raw: str) -> list[str]:
+    """Split selector fields on top-level commas, preserving nested compounds."""
+    terms, start, depth = [], 0, 0
+    for index, char in enumerate(raw):
+        if char in "{[":
+            depth += 1
+        elif char in "}]":
+            depth -= 1
+            if depth < 0:
+                raise ValueError(f"Unbalanced selector field: {raw}")
+        elif char == "," and depth == 0:
+            terms.append(raw[start:index].strip())
+            start = index + 1
+    if depth != 0:
+        raise ValueError(f"Unbalanced selector field: {raw}")
+    if raw[start:].strip():
+        terms.append(raw[start:].strip())
+    return terms
+
+
+def parse_gui_selector(raw_selector: str, *, allow_scores: bool) -> dict:
+    """Return the source tag/advancement predicates, failing on unknown fields."""
+    match = SELECTOR_REF.fullmatch(raw_selector.strip())
+    if not match:
+        raise ValueError(f"Unsupported GUI selector: {raw_selector}")
+    conditions = {"tags": [], "advancements": {}}
+    body = match.group(1)
+    if body is None:
+        return conditions
+    for term in _split_selector_terms(body):
+        if term.startswith("tag="):
+            value = term[len("tag="):]
+            if not value or any(char in value for char in "{}[],"):
+                raise ValueError(f"Unsupported tag predicate: {term}")
+            conditions["tags"].append(value)
+        elif term.startswith("advancements={") and term.endswith("}"):
+            inner = term[len("advancements={"):-1]
+            if not inner:
+                raise ValueError(f"Empty advancement selector: {term}")
+            for advancement in _split_selector_terms(inner):
+                advancement_match = ADVANCEMENT_TERM.fullmatch(advancement)
+                if not advancement_match:
+                    raise ValueError(f"Unsupported advancement selector: {advancement}")
+                advancement_id, completed = advancement_match.groups()
+                if advancement_id in conditions["advancements"]:
+                    raise ValueError(f"Repeated advancement selector: {advancement_id}")
+                conditions["advancements"][advancement_id] = completed == "true"
+        elif term.startswith("scores={") and term.endswith("}") and allow_scores:
+            # Selection/glint scores are UI state, not unlock requirements.
+            continue
+        else:
+            raise ValueError(f"Unsupported GUI selector field: {term} in {raw_selector}")
+    conditions["tags"].sort()
+    return conditions
+
+
+def _gui_source_root(old_root: Path, namespace: str) -> Path:
+    datapack = "swarogskywars" if namespace == "swrg" else "LBC"
+    return old_root / "world/datapacksdisabled" / datapack / "data" / namespace
+
+
+def _component_modifier_binding(old_root: Path, modifier_id: str) -> dict:
+    namespace, path = modifier_id.split(":", 1)
+    source_root = _gui_source_root(old_root, namespace)
+    modifier_path = source_root / "item_modifier" / Path(*path.split("/"))
+    modifier_path = modifier_path.with_suffix(".json")
+    if not modifier_path.is_file():
+        raise FileNotFoundError(f"Missing source item modifier for locked GUI variant: {modifier_path}")
+    return {
+        "modifierId": modifier_id,
+        "sourceComponentBindings": loot_component_bindings(modifier_path),
+    }
+
+
+def inverse_gui_conditions(conditions: dict) -> dict:
+    """Return the exact logical complement used by the paired open/locked branch."""
+    return {
+        "tags": sorted(value[1:] if value.startswith("!") else "!" + value
+                       for value in conditions["tags"]),
+        "advancements": {
+            advancement_id: not completed
+            for advancement_id, completed in conditions["advancements"].items()
+        },
+    }
+
+
+def refresh_locked_design(design: dict, old_root: Path) -> dict:
+    """Refresh locked variants and advancement/tag gates without rebuilding the manifest."""
+    page_index = {(page["namespace"], page["pageId"]): page for page in design.get("pages", [])}
+    slot_index = {
+        (page["namespace"], page["pageId"], slot["slot"]): slot
+        for page in design.get("pages", []) for slot in page.get("slots", [])
+    }
+    replacements: dict[tuple[str, str, int], list[dict]] = {}
+    modifies: dict[tuple[str, str, int], list[dict]] = {}
+    unlocks: dict[tuple[str, str, int, int], dict] = {}
+    locked_modifier_ids: set[str] = set()
+
+    for namespace, page_sources in GUI_PAGES.items():
+        for page_id, relative in page_sources.items():
+            source_file = old_root / "world/datapacksdisabled" / (
+                "swarogskywars" if namespace == "swrg" else "LBC"
+            ) / relative
+            if not source_file.is_file():
+                raise FileNotFoundError(f"Missing source GUI page function: {source_file}")
+            page_key = (namespace, page_id)
+            if page_key not in page_index:
+                raise ValueError(f"No existing GUI design page for locked refresh: {namespace}:{page_id}")
+            lines = source_file.read_text(encoding="utf-8-sig").splitlines()
+            for line_number, line in enumerate(lines, 1):
+                stripped = line.strip()
+                loot_match = LOOT_REPLACE_REF.search(stripped)
+                if loot_match:
+                    slot_number = int(loot_match.group(2))
+                    selector_match = SELECTOR_REF.search(stripped)
+                    if selector_match:
+                        conditions = parse_gui_selector(selector_match.group(0), allow_scores=True)
+                        if conditions["tags"] or conditions["advancements"]:
+                            unlocks[(namespace, page_id, slot_number, line_number)] = conditions
+
+                replace_match = ITEM_REPLACE_REF.search(stripped)
+                if replace_match:
+                    selector, slot_text, source_item, component_text = replace_match.groups()
+                    component_text = component_text or ""
+                    model_match = LOCKED_MODEL_REF.search(component_text)
+                    if not model_match:
+                        continue
+                    conditions = parse_gui_selector(selector, allow_scores=False)
+                    slot_number = int(slot_text)
+                    key = (namespace, page_id, slot_number)
+                    replacements.setdefault(key, []).append({
+                        "item": source_item,
+                        "components": {"minecraft:item_model": model_match.group(1)},
+                        "conditions": conditions,
+                        "_line": line_number,
+                    })
+
+                modify_match = ITEM_MODIFY_REF.search(stripped)
+                if modify_match:
+                    selector, slot_text, modifier_id = modify_match.groups()
+                    # Only source modifier definitions referenced by a locked variant are imported.
+                    if "swrg_unlocks/" not in modifier_id and not modifier_id.startswith("swrg:locked"):
+                        continue
+                    conditions = parse_gui_selector(selector, allow_scores=False)
+                    slot_number = int(slot_text)
+                    key = (namespace, page_id, slot_number)
+                    modifies.setdefault(key, []).append({
+                        "modifier": modifier_id,
+                        "conditions": conditions,
+                        "_line": line_number,
+                    })
+
+    for key, variants in replacements.items():
+        namespace, page_id, slot_number = key
+        slot = slot_index.get(key)
+        if slot is None:
+            raise ValueError(f"Locked source slot is missing from existing design: {namespace}:{page_id}/{slot_number}")
+        # Modifier association is by predicate. The old LBC Ruby command targets slot 0
+        # while Ruby's locked replacement uses slot 1; the confirmed correction below
+        # puts its modifier on the matching Ruby-locked slot 1 in generated design.
+        for variant in variants:
+            variant_conditions = variant["conditions"]
+            modifier_rows = []
+            for (mod_namespace, mod_page, mod_slot), rows in modifies.items():
+                if (mod_namespace, mod_page) != (namespace, page_id):
+                    continue
+                for row in rows:
+                    same_gate = row["conditions"] == variant_conditions
+                    ruby_correction = (
+                        namespace == "lbc" and page_id == "9100"
+                        and row["modifier"] == "lbc:swrg_unlocks/ruby_upgraded"
+                        and variant["components"].get("minecraft:item_model") == "lbc:locked"
+                        and variant_conditions.get("advancements") == {
+                            "lbc:true_advancements/legends/academy/ruby": False
+                        }
+                    )
+                    if same_gate and (mod_slot == slot_number or ruby_correction):
+                        modifier_rows.append(row)
+            modifier_rows.sort(key=lambda row: row["_line"])
+            variant["modifiers"] = [row["modifier"] for row in modifier_rows]
+            for modifier_id in variant["modifiers"]:
+                locked_modifier_ids.add(modifier_id)
+            variant.pop("_line", None)
+
+        slot["lockedVariants"] = variants
+
+    slot_unlocks: dict[tuple[str, str, int], list[dict]] = {}
+    for (namespace, page_id, slot_number, _line_number), conditions in unlocks.items():
+        key = (namespace, page_id, slot_number)
+        # Only treat an advancement/tag-gated loot item as an unlock branch when
+        # this same slot has the inverse locked fallback. Other page states (for
+        # example challenge-progress displays) are not item unlock requirements.
+        locked_conditions = [variant["conditions"] for variant in replacements.get(key, [])]
+        if inverse_gui_conditions(conditions) in locked_conditions:
+            slot_unlocks.setdefault(key, []).append(conditions)
+    for key, condition_rows in slot_unlocks.items():
+        unique_conditions = {json.dumps(row, sort_keys=True) for row in condition_rows}
+        if len(unique_conditions) > 1:
+            raise ValueError(f"Multiple distinct unlock conditions for GUI slot {key}: {condition_rows}")
+        slot = slot_index.get(key)
+        if slot is not None:
+            slot["unlockConditions"] = condition_rows[0]
+
+    existing_shared = design.setdefault("sharedModifiers", [])
+    existing_ids = {entry.get("modifierId") for entry in existing_shared}
+    for modifier_id in sorted(locked_modifier_ids):
+        if modifier_id not in existing_ids:
+            existing_shared.append(_component_modifier_binding(old_root, modifier_id))
+    return design
 
 
 def localize_storage_components(raw_components: dict) -> tuple[dict, dict]:
@@ -593,8 +819,23 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--old-root", type=Path, default=OLD_SERVER)
     parser.add_argument("--project", type=Path, default=PROJECT)
+    parser.add_argument(
+        "--refresh-locks",
+        action="store_true",
+        help="Update only lockedVariants, slot unlockConditions, and referenced modifier bindings in gui_design.json.",
+    )
     args = parser.parse_args()
     resources = args.project / "src/main/resources"
+    if args.refresh_locks:
+        design_path = resources / "skywars2/gui_design.json"
+        design = json.loads(design_path.read_text(encoding="utf-8-sig"))
+        design = refresh_locked_design(design, args.old_root)
+        design_path.write_text(
+            json.dumps(design, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+            newline="\n",
+        )
+        return
     # Legacy functions/function fields are silently ignored by the 26.3 codecs.
     # Convert model/component modifiers just like the existing swrg loot importer.
     source_loot = args.old_root / "world/datapacksdisabled/LBC/data/lbc/loot_table/gui/page"

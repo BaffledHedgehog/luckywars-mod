@@ -1,0 +1,26 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:repeating_command_block",
+            "components": {
+                "minecraft:item_model": "lbc:skill_issue"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.potion.effect_skill_issue"
+        },
+        "description": {
+            "translate": "lbc.adv.potion.effect_skill_issue.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": false,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/potions/effect_all_seeing_eye",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:impossible"
+        }
+    }
+}

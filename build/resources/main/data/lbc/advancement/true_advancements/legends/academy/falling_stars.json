@@ -1,0 +1,45 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:carrot_on_a_stick",
+            "components": {
+                "minecraft:item_model": "lbc:starwand"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.upgraded_staff.falling_stars"
+        },
+        "description": {
+            "translate": "lbc.adv.upgraded_staff.falling_stars.lore"
+        },
+        "frame": "goal",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/legends/academy/teleport",
+    "criteria": {
+        "requirement": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{upgraded:1,transformable:1,staff:1,truefallingstars:1}"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -1,25 +1,25 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:neko_set_overload/helmet"
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:neko_set_overload/chestplate"
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:neko_set_overload/leggings"
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:neko_set_overload/boots"
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_overload/helmet"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_overload/chestplate"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_overload/leggings"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_overload/boots"
         }
-    ]
+      ]
+    }
+  ]
 }

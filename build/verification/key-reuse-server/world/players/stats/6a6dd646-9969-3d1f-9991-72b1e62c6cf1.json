@@ -1,0 +1,17 @@
+{
+  "stats": {
+    "minecraft:killed_by": {
+      "minecraft:player": 1
+    },
+    "minecraft:custom": {
+      "minecraft:time_since_rest": 0,
+      "minecraft:total_world_time": 2393,
+      "minecraft:leave_game": 1,
+      "minecraft:damage_taken": 1660,
+      "minecraft:play_time": 2393,
+      "minecraft:deaths": 1,
+      "minecraft:time_since_death": 0
+    }
+  },
+  "DataVersion": 5023
+}

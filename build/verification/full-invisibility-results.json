@@ -1,0 +1,8 @@
+{
+  "completed": [
+    "Viewer-specific Interaction proxy, native player bounds, mount codecs and melee/projectile/other damage; effect downgrade, clear and expiry; pickup codec for self/external/camera viewers and actual inventory pickup",
+    "Existing spectator lifecycle with level III target: native camera, inventory/effects and detach"
+  ],
+  "artifactSha256": "e7f12760f1914677a1178c1bcfe9db1b4599ed60ac3a193c7f72d42d7345809d",
+  "elapsedSeconds": 41.48
+}

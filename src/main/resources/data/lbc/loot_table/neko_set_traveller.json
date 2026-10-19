@@ -1,25 +1,25 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:neko_set_traveller/helmet"
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:neko_set_traveller/chestplate"
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:neko_set_traveller/leggings"
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "value": "lbc:neko_set_traveller/boots"
-                }
-            ]
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_traveller/helmet"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_traveller/chestplate"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_traveller/leggings"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_traveller/boots"
         }
-    ]
+      ]
+    }
+  ]
 }

@@ -49,49 +49,52 @@
         "requirement": {
             "trigger": "minecraft:tick",
             "conditions": {
-                "player": [
-                    {
-                        "condition": "minecraft:inverted",
-                        "term": {
-                            "condition": "minecraft:entity_properties",
-                            "entity": "this",
-                            "predicate": {
-                                "nbt": "{playerGameType:3}"
-                            }
-                        }
-                    },
-                    {
-                        "condition": "minecraft:all_of",
-                        "terms": [
-                            {
-                                "condition": "minecraft:entity_properties",
+                "player": {
+                    "terms": [
+                        {
+                            "term": {
                                 "entity": "this",
                                 "predicate": {
-                                    "equipment": {
-                                        "mainhand": {
-                                            "predicates": {
-                                                "minecraft:custom_data": "{hylianshield:1, transformable: 1,shield: 1}"
-                                            }
-                                        }
-                                    }
-                                }
+                                    "minecraft:nbt": "{playerGameType:3}"
+                                },
+                                "type": "minecraft:entity_properties"
                             },
-                            {
-                                "condition": "minecraft:entity_properties",
-                                "entity": "this",
-                                "predicate": {
-                                    "equipment": {
-                                        "offhand": {
-                                            "predicates": {
-                                                "minecraft:custom_data": "{hylianshield:1, transformable: 1,shield: 1}"
+                            "type": "minecraft:inverted"
+                        },
+                        {
+                            "terms": [
+                                {
+                                    "entity": "this",
+                                    "predicate": {
+                                        "minecraft:equipment": {
+                                            "mainhand": {
+                                                "predicates": {
+                                                    "minecraft:custom_data": "{hylianshield:1, transformable: 1,shield: 1}"
+                                                }
                                             }
                                         }
-                                    }
+                                    },
+                                    "type": "minecraft:entity_properties"
+                                },
+                                {
+                                    "entity": "this",
+                                    "predicate": {
+                                        "minecraft:equipment": {
+                                            "offhand": {
+                                                "predicates": {
+                                                    "minecraft:custom_data": "{hylianshield:1, transformable: 1,shield: 1}"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "type": "minecraft:entity_properties"
                                 }
-                            }
-                        ]
-                    }
-                ]
+                            ],
+                            "type": "minecraft:all_of"
+                        }
+                    ],
+                    "type": "minecraft:all_of"
+                }
             }
         }
     }

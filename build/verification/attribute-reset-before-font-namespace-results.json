@@ -1,0 +1,17 @@
+{
+  "result": "failed",
+  "completed": [
+    "bots",
+    "attribute-reset-start",
+    "attribute-reset-playing",
+    "attribute-reset-cancel",
+    "attribute-reset-lobby",
+    "attribute-reset-start",
+    "attribute-reset-playing",
+    "attribute-reset-finish",
+    "respawn",
+    "attribute-reset-lobby"
+  ],
+  "artifactSha256": "45c24a4014edf9741b74e61774ee59169111cbb8e7dbe7ebd80602ec9cec66bb",
+  "elapsedSeconds": 44.35
+}

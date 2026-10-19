@@ -1,0 +1,10 @@
+{
+  "completed": [
+    "legacy scalar trinket profile migration",
+    "Blaze/Ghast source gates, native GUI selection, duplicate slots and starting Polymer grants",
+    "native bow/crossbow volley hook, cancelled draws/ammo/disabled/observer guards, Polymer tooltip/roundtrip, native fireball/rocket collisions, Ghast visuals/lifetime/reload, shooter ownership and respawn",
+    "projectile stop cleanup and stale-epoch rejection after native reload"
+  ],
+  "artifactSha256": "575e8b044f597af82ab4633999831d88df817cb1aeebd95de91498ce4640f1f7",
+  "elapsedSeconds": 52.24
+}

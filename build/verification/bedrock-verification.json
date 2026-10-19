@@ -1,0 +1,56 @@
+{
+  "artifactSha256": "863d710bc2aa1002f8657264a0f0751318e165e9df5017b515a37e56f553db7d",
+  "build": "passed",
+  "focused": {
+    "completed": [
+      "Ordinary/Academy loot payload, item model/name/lore/tier, source flags, Polymer vanilla donor type",
+      "Native BEDROCK recipe preview/take in 2x2 and 3x3 grids, legacy donor recognition and Polymer result",
+      "Native mana gate/debit, overlapping-room NBT restoration, Academy regen, Beacon unlink, free modes 3-5, and zero-mana 21-cube trial",
+      "Bedrock room and queued regeneration state clear after match stop",
+      "A following match can create and recall Bedrock rooms after service teardown"
+    ],
+    "artifactSha256": "863d710bc2aa1002f8657264a0f0751318e165e9df5017b515a37e56f553db7d",
+    "elapsedSeconds": 49.13
+  },
+  "relatedRegressions": {
+    "stone-wand": {
+      "completed": [
+        "Stone wand source loot, native flight, Academy modes, trap attribution and target guards",
+        "Stone charge cleanup after match stop"
+      ],
+      "artifactSha256": "ff0c8776949fc386e2a6032bca64ceac5d70689b30996668c08494bda4f49f1c",
+      "elapsedSeconds": 39.37
+    },
+    "exoperso": {
+      "completed": [
+        "Ordinary and Academy Exoperso source loot, native IDs, source model/lore, Tier A/S and 5000 mana allowance",
+        "Exoperso 4999/5000 mana gates and debits, Overload allowance bypass, five-cast same-hand Academy trial, windup/aim/flight and native wall/entity collision queue",
+        "Native ordinary and Academy Exoperso donors craft Exasperato in 2x2 with preview and take conservation",
+        "Exoperso charges, shared blast queue and burst visual state clear after match stop"
+      ],
+      "artifactSha256": "ff0c8776949fc386e2a6032bca64ceac5d70689b30996668c08494bda4f49f1c",
+      "elapsedSeconds": 38.46
+    },
+    "academy": {
+      "completed": [
+        "Native token placement, NPC interaction, Terra/Electro trials, Exasperato unique-hit progression and upgrade preservation",
+        "Academy interaction entities clear after match stop"
+      ],
+      "artifactSha256": "ff0c8776949fc386e2a6032bca64ceac5d70689b30996668c08494bda4f49f1c",
+      "elapsedSeconds": 40.03
+    }
+  },
+  "artifactComparison": "bedrock-artifact-equivalence.json",
+  "static": {
+    "localization": "passed; zero new keys; reference/generated packs checked",
+    "importer": "deterministic; ordinary matches source except native ID",
+    "resources": "required loot, recipe and structure present in JAR; JSON valid",
+    "utf8": "checked changed documentation and LbcBedrock"
+  },
+  "limitations": [
+    "Deferred restoration after actual chunk unload/reload was code-reviewed but not native-tested",
+    "Complex overlapping-room beacon cancellation was code-reviewed but not native-tested",
+    "No many-room load benchmark or client visual comparison in this batch"
+  ],
+  "installation": "bedrock-installation.json"
+}

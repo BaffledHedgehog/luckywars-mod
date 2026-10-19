@@ -5,8 +5,8 @@
     "Simultaneous elimination produces a draw without victory rewards",
     "Broken map placement and clean shutdown during active match",
     "Restart clears prior map and outside-template bridge from bounds journal",
-    "Clean shutdown while asynchronous map preparation is pending",
-    "Restart after interrupted loading returns to a clean lobby"
+    "Clean shutdown while lobby map preparation is pending",
+    "Restart after interrupted preparation returns to a clean lobby"
   ],
-  "elapsedSeconds": 169.81
+  "elapsedSeconds": 237.15
 }

@@ -1,0 +1,106 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:leather_helmet",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:item_model": "lbc:armors/power_helmet",
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:max_damage": 600,
+                "minecraft:equippable": {
+                  "slot": "head",
+                  "asset_id": "lbc:techno"
+                },
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:armor",
+                    "slot": "head",
+                    "id": "gjj7ymkuyexhgetnhor",
+                    "amount": 3,
+                    "operation": "add_value"
+                  }
+                ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "power_helmet",
+                  "color": "aqua",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "helmet",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "truepower_helmet.lore",
+                  "color": "white",
+                  "italic": false
+                },
+                [
+                  {
+                    "translate": "set_bonus",
+                    "color": "white",
+                    "italic": false
+                  }
+                ],
+                [
+                  {
+                    "translate": "set_bonus_techno.1",
+                    "color": "white",
+                    "italic": false
+                  }
+                ],
+                [
+                  {
+                    "translate": "set_bonus_techno.2",
+                    "color": "white",
+                    "italic": false
+                  }
+                ],
+                [
+                  {
+                    "translate": "set_bonus_techno.3",
+                    "color": "white",
+                    "italic": false
+                  }
+                ],
+                {
+                  "translate": "craft_with_reactive_helmet",
+                  "color": "gold",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{craftusable:1,transformable:1,helmet:1,techno:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

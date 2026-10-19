@@ -22,6 +22,23 @@ LANGUAGE_FILE = PROJECT / "src/main/resources/assets/skywars2/lang/en_us.json"
 CONSOLE_LANGUAGE = json.loads(LANGUAGE_FILE.read_text(encoding="utf-8")) if LANGUAGE_FILE.exists() else {}
 
 
+def require_stopped(server_dir):
+    """Refuse a server still saving its world, even after its listening port closed."""
+    props = dict(line.split("=", 1) for line in (server_dir / "server.properties").read_text(
+        encoding="utf-8").splitlines() if line and not line.startswith("#") and "=" in line)
+    world = (server_dir / props.get("level-name", "world")).resolve()
+    world.relative_to(server_dir.resolve())
+    lock = world / "session.lock"
+    if os.name == "nt" and lock.exists():
+        import msvcrt
+        with lock.open("r+b") as stream:
+            try:
+                msvcrt.locking(stream.fileno(), msvcrt.LK_NBLCK, 1)
+            except OSError as error:
+                raise RuntimeError("The isolated server still holds its world lock; wait for shutdown") from error
+            msvcrt.locking(stream.fileno(), msvcrt.LK_UNLCK, 1)
+
+
 def console_text(key, *args):
     # Native server Language renders mod keys in English; clients receive components.
     # Keys moved by the user into their client pack have no server-side Language
@@ -72,7 +89,11 @@ class Server:
                     if "[check] FAIL" in line:
                         raise AssertionError(line)
                     if message in line:
-                        return index
+                        # Suite names have prefixes (kiuas / kiuas-menu); a completed
+                        # neighbour must not satisfy the next command's result wait.
+                        suffix = line.partition(message)[2]
+                        if not message.startswith("[check] PASS ") or not suffix or suffix[0].isspace():
+                            return index
                 if self.process.poll() is not None:
                     raise AssertionError(f"Server exited {self.process.returncode}: waiting for {message}")
                 self.condition.wait(min(1, deadline - time.monotonic()))
@@ -83,22 +104,35 @@ class Server:
         self.expect("[check] PASS " + name, cursor)
         return cursor
 
+    def prepare_map(self, map_id, broken=False):
+        command = f"sw map {map_id}" + (" broken" if broken else "")
+        cursor = self.send(command)
+        self.expect(f"Selected map ready: {map_id}", cursor, timeout=180)
+        return cursor
+
     def stop(self):
-        if self.process.poll() is None:
-            self.send("stop")
-            self.process.wait(timeout=90)
-        self.log.close()
+        try:
+            if self.process.poll() is None:
+                self.send("stop")
+                try:
+                    self.process.wait(timeout=90)
+                except subprocess.TimeoutExpired:
+                    # Only our child process: never leave an orphan holding the test world.
+                    self.process.kill()
+                    self.process.wait(timeout=30)
+                    raise
+        finally:
+            self.log.close()
 
 
 def check_interrupted_loading():
     active = None
     try:
-        # The worker result must not resume a match after lifecycle shutdown.
+        # Lobby map preparation is asynchronous; the start transition itself is now synchronous.
         active = Server("loading-shutdown")
         active.expect("LOADING -> LOBBY")
         active.check("bots")
-        cursor = active.send("sw start")
-        active.expect("LOBBY -> LOADING", cursor)
+        cursor = active.send("sw map 1")
         active.stop()
         assert not any("Couldn't load structure" in line or "ClosedByInterruptException" in line
                        for line in active.lines), "Shutdown interrupted Minecraft's shared resource stream"
@@ -112,9 +146,9 @@ def check_interrupted_loading():
         assert not any("-> COUNTDOWN" in line for line in active.lines), "Cancelled loading resumed a match after restart"
         active.stop()
         active = None
-        print("LOADING INTERRUPTION CHECKS PASSED", flush=True)
-        return ["Clean shutdown while asynchronous map preparation is pending",
-                "Restart after interrupted loading returns to a clean lobby"]
+        print("MAP PREPARATION INTERRUPTION CHECKS PASSED", flush=True)
+        return ["Clean shutdown while lobby map preparation is pending",
+                "Restart after interrupted preparation returns to a clean lobby"]
     finally:
         if active is not None:
             active.stop()
@@ -129,6 +163,7 @@ def run():
     try:
         active = Server("game-cycle")
         active.expect("LOADING -> LOBBY")
+        active.expect("Selected map ready:", timeout=180)
         original_health = json.loads(settings.read_text(encoding="utf-8"))["health"]
         cursor = active.send("settings health 19")
         active.expect(console_text("settings.saved", "health", 19), cursor)
@@ -138,9 +173,14 @@ def run():
         assert json.loads(settings.read_text(encoding="utf-8"))["health"] == 19
         cursor = active.send(f"settings health {original_health}")
         active.expect(console_text("settings.saved", "health", original_health), cursor)
-        for check in ["bots", "lobby", "lobby-rules", "lobby-inventory", "design-export", "menus", "fast", "watch"]:
+        for check in ["bots", "lobby", "lobby-rules", "lobby-inventory", "design-export", "menus", "fast"]:
             active.check(check)
+        watch_cursor = active.check("watch")
+        active.expect("Selected map ready:", watch_cursor, timeout=180)
         cursor = active.send("sw start")
+        active.expect("COUNTDOWN -> PLAYING", cursor)
+        # Ordinary found compasses track opponents; the lobby menu compass is no longer granted.
+        active.send("give TestAlpha minecraft:compass", "give TestBeta minecraft:compass")
         active.expect("PHASE_ONE -> PHASE_TWO", cursor)
         cursor = active.send("settings health 19")
         active.expect(console_text("settings.lobby_only"), cursor)
@@ -153,13 +193,15 @@ def run():
         cursor = active.send("damage TestAlpha 100 minecraft:generic_kill", "sw check respawn")
         active.expect("-> ENDING", cursor)
         active.check("ending")
-        active.expect("PASS watch: countdown -> playing -> phases -> ending -> lobby", cursor)
-        active.check("cleanup")
+        active.expect("PASS watch: lobby preparation -> countdown -> playing -> phases -> ending -> lobby", cursor)
+        cleanup_cursor = active.check("cleanup")
+        active.expect("Selected map ready:", cleanup_cursor, timeout=180)
         results.append("GUI + stages + late join + victory rewards + bridge cleanup")
 
         cursor = active.check("lives")
         active.expect("PASS lives: vanilla packet respawn", cursor)
-        active.expect("LOADING -> LOBBY", cursor)
+        lobby_cursor = active.expect("LOADING -> LOBBY", cursor)
+        active.expect("Selected map ready:", lobby_cursor, timeout=180)
         active.check("lobby")
         results.append("Two lives: actual damage death, PERFORM_RESPAWN, elimination")
 
@@ -170,11 +212,14 @@ def run():
         cursor = active.send("damage TestAlpha 100 minecraft:generic_kill", "damage TestBeta 100 minecraft:generic_kill", "sw check respawn")
         active.expect("-> ENDING", cursor)
         active.check("draw")
-        active.expect("LOADING -> LOBBY", cursor)
+        lobby_cursor = active.expect("LOADING -> LOBBY", cursor)
+        active.expect("Selected map ready:", lobby_cursor, timeout=180)
         results.append("Simultaneous elimination produces a draw without victory rewards")
 
         active.check("restore")
-        cursor = active.send("sw map 1 broken", "sw start")
+        cursor = active.send("sw map 1 broken")
+        active.expect("Selected map ready:", cursor, timeout=180)
+        cursor = active.send("sw start")
         active.expect("COUNTDOWN -> PLAYING", cursor)
         active.check("bridge")
         active.stop()

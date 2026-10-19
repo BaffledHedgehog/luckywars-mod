@@ -1,83 +1,86 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:leather_boots",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:item_model": "lbc:armors/glass_boots",
-                                "minecraft:tooltip_style":"lbc:tier_b",
-                                "minecraft:max_damage": 150,
-                                "minecraft:equippable":{"slot":"feet","asset_id":"lbc:glass"}
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": {
-                                "translate": "glass_boots",
-                                "color": "white",
-                                "italic": false
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                [
-                                    {
-                                        "translate": "type",
-                                        "italic": false,
-                                        "color": "aqua"
-                                    },
-                                    {
-                                        "translate": "boots",
-                                        "italic": false,
-                                        "color": "aqua"
-                                    }
-                                ],
-                                {
-                                    "translate": "glass.lore",
-                                    "italic": false,
-                                    "color": "aqua"
-                                },
-                                {
-                                    "translate": "glass.lore.2",
-                                    "italic": false,
-                                    "color": "aqua"
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_attributes",
-                            "modifiers": [
-                                {
-                                    "attribute": "minecraft:armor",
-                                    "amount": 40,
-                                    "operation": "add_value",
-                                    "id": "minecraft:71eaf780-80f9-4861-8a64-49a55121b",
-                                    "slot": "feet"
-                                },
-                                {
-                                    "attribute": "minecraft:armor_toughness",
-                                    "amount": 40,
-                                    "operation": "add_value",
-                                    "id": "minecraft:71eaf780-80f9-4861-8a64-49a55121b",
-                                    "slot": "feet"
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{transformable:1,boots:1,glass:1}"
-                        }
-                    ]
+          "type": "minecraft:item",
+          "name": "minecraft:leather_boots",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:item_model": "lbc:armors/glass_boots",
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:max_damage": 150,
+                "minecraft:equippable": {
+                  "slot": "feet",
+                  "asset_id": "lbc:glass"
                 }
-            ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": {
+                "translate": "glass_boots",
+                "color": "white",
+                "italic": false
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "boots",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "glass.lore",
+                  "italic": false,
+                  "color": "aqua"
+                },
+                {
+                  "translate": "glass.lore.2",
+                  "italic": false,
+                  "color": "aqua"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "modifiers": [
+                {
+                  "attribute": "minecraft:armor",
+                  "amount": 40,
+                  "operation": "add_value",
+                  "id": "minecraft:71eaf780-80f9-4861-8a64-49a55121b",
+                  "slot": "feet"
+                },
+                {
+                  "attribute": "minecraft:armor_toughness",
+                  "amount": 40,
+                  "operation": "add_value",
+                  "id": "minecraft:71eaf780-80f9-4861-8a64-49a55121b",
+                  "slot": "feet"
+                }
+              ],
+              "type": "minecraft:set_attributes"
+            },
+            {
+              "tag": "{transformable:1,boots:1,glass:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

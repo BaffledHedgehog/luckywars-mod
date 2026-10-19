@@ -1,0 +1,13 @@
+[01:52:14] [Server thread/INFO]: [game] LOADING -> LOADING
+[01:52:21] [Server thread/INFO]: [game] LOADING -> LOBBY
+[01:52:29] [Server thread/INFO]: [check] Created TestAlpha/TestBeta as vanilla ServerPlayer instances
+[01:52:29] [Server thread/INFO]: [check] PASS bots
+[01:52:29] [Server thread/INFO]: [game] LOBBY -> LOADING
+[01:52:29] [Server thread/INFO]: [game] LOADING -> COUNTDOWN
+[01:52:30] [Server thread/INFO]: [game] COUNTDOWN -> PLAYING
+[01:52:30] [Server thread/INFO]: [check] PASS stone-wand
+[01:52:30] [Server thread/INFO]: [game] PLAYING -> LOADING
+[01:52:30] [Server thread/INFO]: [game] LOADING -> LOBBY
+[01:52:40] [Server thread/INFO]: [check] PASS stone-wand-cleanup
+[01:52:40] [Server thread/INFO]: [check] PASS stone-wand-cleanup
+STONE WAND CHECKS PASSED

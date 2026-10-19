@@ -1,0 +1,11 @@
+{
+  "completed": [
+    "Ordinary/Academy loot payload, item model/name/lore/tier, source flags, Polymer vanilla donor type",
+    "Native BEDROCK recipe preview/take in 2x2 and 3x3 grids, legacy donor recognition and Polymer result",
+    "Native mana gate/debit, overlapping-room NBT restoration, Academy regen, Beacon unlink, free modes 3-5, and zero-mana 21-cube trial",
+    "Bedrock room and queued regeneration state clear after match stop",
+    "A following match can create and recall Bedrock rooms after service teardown"
+  ],
+  "artifactSha256": "ff0c8776949fc386e2a6032bca64ceac5d70689b30996668c08494bda4f49f1c",
+  "elapsedSeconds": 48.64
+}

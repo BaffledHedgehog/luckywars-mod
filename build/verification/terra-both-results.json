@@ -1,0 +1,13 @@
+{
+  "completed": [
+    "regular Terra loot payload, mana cost and Polymer item restoration",
+    "Terra display prediction, aligned particle trail, native freeze/step gate, clipped impacts and two-tick retirement",
+    "regular Terra swept projectile, targets, walls, pause, suppression and lifecycle",
+    "regular Terra projectiles and virtual displays clear after match stop",
+    "academy Terra loot payload, mana cost and Polymer item restoration",
+    "academy Terra swept projectile, targets, walls, pause, suppression and lifecycle",
+    "academy Terra projectiles and virtual displays clear after match stop"
+  ],
+  "artifactSha256": "d67a2dd2a4e6853556ed7ae187a89e48d957df05353926386c97716b6edf00e2",
+  "elapsedSeconds": 65.38
+}

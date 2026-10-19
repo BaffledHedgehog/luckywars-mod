@@ -1,0 +1,50 @@
+{
+    "display": {
+        "icon": {
+            "id": "minecraft:carrot_on_a_stick",
+            "components": {
+                "minecraft:item_model": "lbc:sauvojen_wand"
+            }
+        },
+        "title": {
+            "translate": "lbc.adv.staff.sauvojen_wand"
+        },
+        "description": {
+            "translate": "lbc.adv.staff.sauvojen_wand.lore"
+        },
+        "frame": "task",
+        "show_toast": true,
+        "announce_to_chat": true,
+        "hidden": false
+    },
+    "parent": "lbc:true_advancements/staffs/danmaku_staff",
+    "criteria": {
+        "wand1": {
+            "trigger": "minecraft:impossible"
+        },
+        "wand2": {
+            "trigger": "minecraft:impossible"
+        },
+        "wand3": {
+            "trigger": "minecraft:impossible"
+        },
+        "wand4": {
+            "trigger": "minecraft:impossible"
+        },
+        "wand5": {
+            "trigger": "minecraft:impossible"
+        },
+        "wand6": {
+            "trigger": "minecraft:impossible"
+        },
+        "wand7": {
+            "trigger": "minecraft:impossible"
+        },
+        "wand8": {
+            "trigger": "minecraft:impossible"
+        },
+        "wand9": {
+            "trigger": "minecraft:impossible"
+        }
+    }
+}

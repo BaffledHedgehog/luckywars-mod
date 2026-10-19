@@ -1,0 +1,13 @@
+{
+  "result": "passed",
+  "completed": [
+    "bots",
+    "entity-limits",
+    "zone-barrier",
+    "zone-barrier-lethal",
+    "respawn",
+    "zone-barrier-cleanup"
+  ],
+  "artifactSha256": "cb61bdd885b23f222b9a628a7ecca5aee96039947eff99dacc5b09ce395c7c36",
+  "elapsedSeconds": 39.23
+}

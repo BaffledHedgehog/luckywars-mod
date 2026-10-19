@@ -10,8 +10,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.StandardCopyOption;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /** Persistent per-player selections and SkyWars statistics. */
@@ -41,6 +43,11 @@ public final class PlayerStore {
                 }
                 Profile profile = GSON.fromJson(entry.getValue(), Profile.class);
                 if (profile == null) throw new JsonParseException("Profile " + entry.getKey() + " is not an object");
+                // Старый scalar сохраняется для совместимости; только старые JSON мигрируют в первый слот выбора.
+                if (!entry.getValue().getAsJsonObject().has("trinkets") && profile.lbcTrinket > 0) {
+                    profile.trinkets[0] = profile.lbcTrinket;
+                    profile.lbcTrinketSlot = 1;
+                }
                 profile.normalize();
                 store.profiles.put(uuid, profile);
             }
@@ -70,6 +77,7 @@ public final class PlayerStore {
     }
 
     public void save() {
+        // Профили хранятся по UUID; сначала записываем временный JSON, затем заменяем файл (атомарно, если ФС поддерживает).
         Path temporary = FILE.resolveSibling(FILE.getFileName() + ".tmp");
         try {
             Files.createDirectories(FILE.getParent());
@@ -109,8 +117,14 @@ public final class PlayerStore {
         public int lbcKit;
         public int lbcSkill;
         public int lbcTrinket;
+        public int[] trinkets = new int[12];
+        public int lbcTrinketSlot;
         public int lbcChallenge;
-        public int[] levelups = new int[4];
+        // Migration: old four-slot profiles keep their first four choices; new slots append to 12.
+        public int[] levelups = new int[12];
+        // Persist the next cyclic slot (0..11) so expanding the array does not reset selection order.
+        public int lbcLevelupSlot = 0;
+        public Set<String> lbcUnlocks = new HashSet<>();
 
         private void normalize() {
             if (username == null) username = "";
@@ -131,7 +145,19 @@ public final class PlayerStore {
             lbcTrinket = Math.max(0, lbcTrinket);
             lbcChallenge = Math.max(0, lbcChallenge);
             keys = normalizeArray(keys, 5);
-            levelups = normalizeArray(levelups, 4);
+            levelups = normalizeArray(levelups, 12);
+            trinkets = normalizeArray(trinkets, 12);
+            lbcTrinketSlot = Math.floorMod(lbcTrinketSlot, 12);
+            lbcLevelupSlot = Math.floorMod(lbcLevelupSlot, 12);
+            Set<String> normalizedUnlocks = new HashSet<>();
+            if (lbcUnlocks != null) {
+                for (String unlock : lbcUnlocks) {
+                    if (unlock != null && unlock.matches("lbc:true_advancements/[a-z0-9._-]+(?:/[a-z0-9._-]+)*")) {
+                        normalizedUnlocks.add(unlock);
+                    }
+                }
+            }
+            lbcUnlocks = normalizedUnlocks;
         }
 
         private static int[] normalizeArray(int[] source, int length) {

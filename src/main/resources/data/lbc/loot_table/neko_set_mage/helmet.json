@@ -1,90 +1,92 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:leather_helmet",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:item_model": "lbc:armors/mage_hat",
-                                "minecraft:tooltip_style":"lbc:tier_a",
-                                "minecraft:max_damage": 300,
-                                "minecraft:enchantments": {
-                                        "minecraft:fire_protection": 2,
-                                        "minecraft:blast_protection": 2,
-                                        "minecraft:projectile_protection": 2
-                                    
-                                },
-                                "minecraft:equippable":{"slot":"head","asset_id":"lbc:mage"}
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "mage_hat",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                [
-                                    {
-                                        "translate": "type",
-                                        "italic": false,
-                                        "color": "aqua"
-                                    },
-                                    {
-                                        "translate": "helmet",
-                                        "italic": false,
-                                        "color": "aqua"
-                                    }
-                                ],
-                                {
-                                    "translate": "mage_hat.lore.1",
-                                    "color": "aqua",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "mage_hat.lore.2",
-                                    "color": "aqua",
-                                    "italic": false
-                                },
-                                [
-                                    {
-                                        "translate": "set_bonus",
-                                        "italic": false,
-                                        "color": "aqua"
-                                    }
-                                ],
-                                [
-                                    {
-                                        "translate": "set_bonus_mage",
-                                        "italic": false,
-                                        "color": "aqua"
-                                    }
-                                ],
-                                {
-                                    "translate": "craft_with_phantom_helmet",
-                                    "italic": false,
-                                    "color": "yellow"
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{craftusable:1,transformable:1,helmet:1,mage:1}"
-                        }
-                    ]
+          "type": "minecraft:item",
+          "name": "minecraft:leather_helmet",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:item_model": "lbc:armors/mage_hat",
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:max_damage": 300,
+                "minecraft:enchantments": {
+                  "minecraft:fire_protection": 2,
+                  "minecraft:blast_protection": 2,
+                  "minecraft:projectile_protection": 2
+                },
+                "minecraft:equippable": {
+                  "slot": "head",
+                  "asset_id": "lbc:mage"
                 }
-            ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "mage_hat",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "helmet",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "mage_hat.lore.1",
+                  "color": "aqua",
+                  "italic": false
+                },
+                {
+                  "translate": "mage_hat.lore.2",
+                  "color": "aqua",
+                  "italic": false
+                },
+                [
+                  {
+                    "translate": "set_bonus",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                [
+                  {
+                    "translate": "set_bonus_mage",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "craft_with_phantom_helmet",
+                  "italic": false,
+                  "color": "yellow"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{craftusable:1,transformable:1,helmet:1,mage:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

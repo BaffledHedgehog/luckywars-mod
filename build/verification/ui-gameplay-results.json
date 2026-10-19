@@ -1,0 +1,26 @@
+{
+  "result": "passed",
+  "completed": [
+    "bots",
+    "mana-potions-menu",
+    "overload-menu",
+    "brbad-menu",
+    "lobby-origin",
+    "lobby-overlay-started",
+    "attribute-hud",
+    "mana-potions",
+    "overload",
+    "brbad",
+    "lobby-aftermath-setup",
+    "lobby-aftermath",
+    "brbad-cleanup",
+    "lobby-loading-overlay",
+    "lobby-next-map",
+    "observer-match",
+    "overload-cleanup",
+    "mana-potions-cleanup",
+    "cleanup"
+  ],
+  "artifactSha256": "cb61bdd885b23f222b9a628a7ecca5aee96039947eff99dacc5b09ce395c7c36",
+  "elapsedSeconds": 51.39
+}

@@ -1,0 +1,13 @@
+{
+  "installed": true,
+  "ready": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-chemical-ownership-5399fbad.jar",
+  "artifactSha256": "5399fbad3c5077fa4c1885c419efa4588186d9cd84c363ae3b0f43b6a41e5a0c",
+  "previousInstalledSha256": "1ce3fa37a598543bd5a49ecc004a3cf6076e1b42a2f78a4fd8ad5e82bce0a271",
+  "reports": {
+    "chemical-kills-results.json": 37.91,
+    "indirect-kills-results.json": 37.47,
+    "mana-potions-results.json": 37.73,
+    "electric-damage-results.json": 38.38
+  },
+  "installedSha256": "5399fbad3c5077fa4c1885c419efa4588186d9cd84c363ae3b0f43b6a41e5a0c"
+}

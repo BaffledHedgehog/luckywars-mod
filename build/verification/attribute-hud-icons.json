@@ -1,0 +1,467 @@
+{
+  "icons": {
+    "E210": {
+      "attribute": "max_health",
+      "texture": "minecraft:font/icons/heart.png",
+      "sourceSize": [
+        9,
+        9
+      ],
+      "advance": 10,
+      "pixelSha256": "28b02835d12435390169b79734ebcf738146834e6f729dde2d97f08bd678711f"
+    },
+    "E211": {
+      "attribute": "max_absorption",
+      "texture": "minecraft:font/icons/max_absorption.png",
+      "sourceSize": [
+        9,
+        9
+      ],
+      "advance": 10,
+      "pixelSha256": "abd471c4ce8b28811519f1ae34ad9a8479c4fadbc2395effff1100fc93062096"
+    },
+    "E212": {
+      "attribute": "gravity",
+      "texture": "minecraft:font/icons/gravity.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 9,
+      "pixelSha256": "8b79ab06602d059a108404f0ad631943464e05d73e27fc8055cb678fd29e3ea4"
+    },
+    "E213": {
+      "attribute": "armor",
+      "texture": "minecraft:font/icons/armor.png",
+      "sourceSize": [
+        9,
+        9
+      ],
+      "advance": 10,
+      "pixelSha256": "9d18986ec28138266acd2b9d2754948546c5953021584508f2086af98b3269a1"
+    },
+    "E214": {
+      "attribute": "armor_toughness",
+      "texture": "minecraft:font/icons/armor_toughness.png",
+      "sourceSize": [
+        9,
+        9
+      ],
+      "advance": 10,
+      "pixelSha256": "72720f8793fc3c78fc42a28c3f05f0113c3aab5df9ee73fb4a2736660a276a9b"
+    },
+    "E215": {
+      "attribute": "luck",
+      "texture": "minecraft:font/icons/luck.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 10,
+      "pixelSha256": "7c3415f4e2edc7b268e896d1dc4184c9a9c84e9859f7212156038d92af8162d9"
+    },
+    "E216": {
+      "attribute": "attack_damage",
+      "texture": "minecraft:item/iron_sword.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 10,
+      "pixelSha256": "8ce7845f8e71736a29cb41c6ffa1133133b4381f28dd200dfc34df69702f6f1f"
+    },
+    "E217": {
+      "attribute": "attack_knockback",
+      "texture": "minecraft:font/icons/attack_knockback.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 10,
+      "pixelSha256": "e9b8f822f1195b83a069aa9c42e0cfa41e14b62eedaa879cb16e4c4b6f545a93"
+    },
+    "E218": {
+      "attribute": "attack_speed",
+      "texture": "minecraft:font/icons/attack_speed.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 9,
+      "pixelSha256": "0193f3925210d8e153737b324fd61ba3579f436595cf69e34d5a24cdd629685a"
+    },
+    "E219": {
+      "attribute": "block_break_speed",
+      "texture": "minecraft:item/diamond_pickaxe.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 9,
+      "pixelSha256": "d5331b8f52dead4e1dc57d0b0486ed2da939161f1379241d6964bf6b4f1ef290"
+    },
+    "E220": {
+      "attribute": "submerged_mining_speed",
+      "texture": "minecraft:font/icons/submerged_mining_speed.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 10,
+      "pixelSha256": "7869b157a06ec017801923d687a77bd0806d4771f3a8ae756b11c683424a477b"
+    },
+    "E221": {
+      "attribute": "movement_efficiency",
+      "texture": "minecraft:font/icons/movement_efficiency.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 10,
+      "pixelSha256": "16ee66675084275751270c58b8f5b779522cc7a83c9d916f4ebfa62f40029520"
+    },
+    "E222": {
+      "attribute": "movement_speed",
+      "texture": "minecraft:font/icons/movement_speed.png",
+      "sourceSize": [
+        18,
+        18
+      ],
+      "advance": 10,
+      "pixelSha256": "9570d6f6e22bcd8635ed0ca8a7ff1bfe074399f299e5881c42835d4751967f2b"
+    },
+    "E223": {
+      "attribute": "air_drag_modifier",
+      "texture": "minecraft:font/icons/air_drag.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 9,
+      "pixelSha256": "3f3d8f7a01cb83bcafce85840dc90854eff471519b03fd4191c45e7e55eecdaf"
+    },
+    "E224": {
+      "attribute": "below_name_distance",
+      "texture": "minecraft:font/icons/below_name_distance.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 10,
+      "pixelSha256": "b26fb700bd0c3e5efa35db0da6b09145e331556a87f53c71ff20f674b986c7b4"
+    },
+    "E225": {
+      "attribute": "block_interaction_range",
+      "texture": "minecraft:font/icons/block_interaction_range.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 10,
+      "pixelSha256": "e93053f5ca67f41dd66238c8b1c1f91528476949fe6ec001a74eaa1db0cadc96"
+    },
+    "E226": {
+      "attribute": "bounciness",
+      "texture": "minecraft:font/icons/bounciness.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 9,
+      "pixelSha256": "4ede3c6051a1d251d9ffb84aca50ba722e3ffb6174ab270d5a87d79cf84486a0"
+    },
+    "E227": {
+      "attribute": "burning_time",
+      "texture": "minecraft:font/icons/burning_time.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 10,
+      "pixelSha256": "73f8c165aa6a40cd32702b86e5a1db00c74b86311470c4cb42d33d55ef9c137b"
+    },
+    "E228": {
+      "attribute": "camera_distance",
+      "texture": "minecraft:font/icons/camera_distance.png",
+      "sourceSize": [
+        32,
+        32
+      ],
+      "advance": 10,
+      "pixelSha256": "c295896507fd3e3307cdfc9eaac43efa966cb3f74e7f84e7c117b86acfd38020"
+    },
+    "E229": {
+      "attribute": "entity_interaction_range",
+      "texture": "minecraft:font/icons/entity_interaction_range.png",
+      "sourceSize": [
+        32,
+        32
+      ],
+      "advance": 10,
+      "pixelSha256": "6eacf79fcbc4e47361101ea4511f963df0ede5c305dd565d26cfd2d6cbed58f5"
+    },
+    "E230": {
+      "attribute": "explosion_knockback_resistance",
+      "texture": "minecraft:font/icons/explosion_knockback_resistance.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 10,
+      "pixelSha256": "83e554988538d42ef978f1425c0390598a47670848c9051f14469cba02c92c8f"
+    },
+    "E231": {
+      "attribute": "fall_damage_multiplier",
+      "texture": "minecraft:font/icons/fall_damage_multiplier.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 9,
+      "pixelSha256": "ad21657a0d31979b658e87f18307c38615c92fc20ae11a59aa500279faf7071b"
+    },
+    "E232": {
+      "attribute": "friction_modifier",
+      "texture": "minecraft:font/icons/friction_modifier.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 9,
+      "pixelSha256": "cd715557c78802086e0346451092f93bf82e7a37402e8959ee0a7316e82cf79a"
+    },
+    "E233": {
+      "attribute": "jump_strength",
+      "texture": "minecraft:font/icons/jump_strength.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 9,
+      "pixelSha256": "3e659ecf936cd9f32f6ed903dc1792edc074120974049f7cbece6396a6420488"
+    },
+    "E234": {
+      "attribute": "knockback_resistance",
+      "texture": "minecraft:font/icons/knockback_resistance.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 9,
+      "pixelSha256": "68f1e5d84ef6e7a7da68c9f8d1b28f7a46cec198be7423c5ceb2fbc672b68f53"
+    },
+    "E235": {
+      "attribute": "mining_efficiency",
+      "texture": "minecraft:font/icons/mining_efficiency.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 10,
+      "pixelSha256": "f3aaa3f908503f4c9a097a892b7cbb53e858d76dc542e09981af60b7efcf0322"
+    },
+    "E236": {
+      "attribute": "name_tag_distance",
+      "texture": "minecraft:font/icons/name_tag_distance.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 9,
+      "pixelSha256": "7baebd74163461054196be1c60e3a21a13d8aed0c1d5342f09a9afed9927d284"
+    },
+    "E237": {
+      "attribute": "oxygen_bonus",
+      "texture": "minecraft:font/icons/oxygen_bonus.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 9,
+      "pixelSha256": "2ee7b6406061cb61c3d44c34bbd9908e8ee92843760b3ac27791331e8b23c070"
+    },
+    "E238": {
+      "attribute": "safe_fall_distance",
+      "texture": "minecraft:font/icons/safe_fall_distance.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 9,
+      "pixelSha256": "9e3b67f05ea9e710db43ec48d9a5ef57fdcb9ebc8c16f7b80a6926b557d73ee9"
+    },
+    "E239": {
+      "attribute": "scale",
+      "texture": "minecraft:font/icons/scale.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 10,
+      "pixelSha256": "30ce9523a0f6522ad321c470a04ae991725fbf8ad5830a3a2760a95284ef9402"
+    },
+    "E240": {
+      "attribute": "sneaking_speed",
+      "texture": "minecraft:font/icons/sneaking_speed.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 10,
+      "pixelSha256": "ceaee599a0c0b3ade4419d389ae86b0684adbb9cc81ce764b24ad547f412efb0"
+    },
+    "E241": {
+      "attribute": "step_height",
+      "texture": "minecraft:font/icons/step_height.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 9,
+      "pixelSha256": "e7f76e7bd27b73f3f019c8886c828d0f54e9a8a3a999e5cb517c882535abec05"
+    },
+    "E242": {
+      "attribute": "sweeping_damage_ratio",
+      "texture": "minecraft:font/icons/sweeping_damage_ratio.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 9,
+      "pixelSha256": "a9ba9f8052d2b5d4adf485ef95f0187baecc3b51e1e81a7b3f266478bfc14db3"
+    },
+    "E243": {
+      "attribute": "water_movement_efficiency",
+      "texture": "minecraft:font/icons/water_walking_efficiency.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 10,
+      "pixelSha256": "3eb75b3770bcf0fbb4b3f47d58a5a5c5a525954716851b41b43b8d3975dd774b"
+    },
+    "E244": {
+      "attribute": "waypoint_receive_range",
+      "texture": "minecraft:font/icons/waypoint_receive_range.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 9,
+      "pixelSha256": "2b519c69f95b42be98607380192b0bdc6d63cb2853e76a8b39f9401f2a46d52d"
+    },
+    "E245": {
+      "attribute": "waypoint_transmit_range",
+      "texture": "minecraft:font/icons/waypoint_transmit_range.png",
+      "sourceSize": [
+        16,
+        16
+      ],
+      "advance": 9,
+      "pixelSha256": "4dfd21b1c99e58735261efcbd25b557e3ca7f6253abd32ffa0371668a45d0ce3"
+    }
+  },
+  "guiSize": 9,
+  "slotAdvance": 10,
+  "rows": [
+    -6,
+    -5,
+    -4,
+    -3,
+    -2,
+    -1,
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "rowsPerColumn": 18,
+  "panelOffsetY": 54,
+  "writesImages": false,
+  "pendingFiles": [
+    "assets/lbc/font/attribute_hud/row_m6.json",
+    "assets/lbc/font/attribute_hud/row_m5.json",
+    "assets/lbc/font/attribute_hud/row_m4.json",
+    "assets/lbc/font/attribute_hud/row_m3.json",
+    "assets/lbc/font/attribute_hud/row_m2.json",
+    "assets/lbc/font/attribute_hud/row_m1.json",
+    "assets/lbc/font/attribute_hud/row_0.json",
+    "assets/lbc/font/attribute_hud/row_p1.json",
+    "assets/lbc/font/attribute_hud/row_p2.json",
+    "assets/lbc/font/attribute_hud/row_p3.json",
+    "assets/lbc/font/attribute_hud/row_p4.json",
+    "assets/lbc/font/attribute_hud/row_p5.json",
+    "assets/lbc/font/attribute_hud/row_p6.json",
+    "assets/lbc/font/attribute_hud/row_p7.json",
+    "assets/lbc/font/attribute_hud/row_p8.json",
+    "assets/lbc/font/attribute_hud/row_p9.json",
+    "assets/lbc/font/attribute_hud/row_p10.json",
+    "assets/lbc/font/attribute_hud/row_p11.json",
+    "assets/lbc/font/attribute_hud/glyphs.ttf",
+    "assets/lbc/font/attribute_hud/spacing.json"
+  ],
+  "sourceSha256": {
+    "assets/minecraft/font/default.json": "ee025dd8caed1f713fc9fb6b6873958de70265a1abd44e21a2891494d5152cb6",
+    "assets/minecraft/textures/font/icons/heart.png": "39403154c9b7c4d2d01ed6e70c1898687d94ca7896dfd63babb05f94d9402cdc",
+    "assets/minecraft/textures/font/icons/max_absorption.png": "52c197c0837fa1d03163e766a2116a373a295c98c4dbcff4893ce8af2b709c81",
+    "assets/minecraft/textures/font/icons/gravity.png": "04059b5e31df39803950144c1ab0e14c1143e0aa3eb43818f5d32c4a25306a3a",
+    "assets/minecraft/textures/font/icons/armor.png": "9ae22025ee7d26c3cbe609c4b82d09b2bebed8c0ae1c4cb4ddcbd1f9d6f1d806",
+    "assets/minecraft/textures/font/icons/armor_toughness.png": "3d26d13e98c37b9e2792fa9c9d293be2a5e7bd8d24c9340bba520712326eb691",
+    "assets/minecraft/textures/font/icons/luck.png": "2f12f549594bcc43226501d36e2f2149434a89f6aa33f7ece73cee01c620ecdc",
+    "assets/minecraft/textures/font/icons/attack_knockback.png": "161ac3105fd918fbf3c360fc1afc478c2b3d31f6d9b5019b4fb19c3945da96e3",
+    "assets/minecraft/textures/font/icons/attack_speed.png": "a3906e4183e0f4e4e01a5622ec0649bb1d1d15ef78663002613efdec15d0b04f",
+    "assets/minecraft/textures/font/icons/submerged_mining_speed.png": "c0c6cf0ace27d74d37dac54fc3a353f8b055d509116fae77934983a7fac2adc8",
+    "assets/minecraft/textures/font/icons/movement_efficiency.png": "8758fb17dd0910ebe93c97cc2a67496df497d881a3f65f2be8a745d73bb080ea",
+    "assets/minecraft/textures/font/icons/movement_speed.png": "fb893eb434094b13f5a27b4aa91c32882ae16362cf8602f986f06c093efe336b",
+    "assets/minecraft/textures/font/icons/air_drag.png": "fb5e8ad66f9a188be0e084ea63d69f53c048f47adf64d9964c51fb1e46fe2e67",
+    "assets/minecraft/textures/font/icons/below_name_distance.png": "31737886cba9f856cb52391c74c32762c7d0063f20deb70d66e0d1f193580e11",
+    "assets/minecraft/textures/font/icons/block_interaction_range.png": "6feb9dd6cc58e913dbbf4985d4e6eb83a5695cd2021f42a219a32814071607ae",
+    "assets/minecraft/textures/font/icons/bounciness.png": "626fd3a9dd384e60e8dee5373c62c93a32262e9682b6b9c9bd00f5339bc88a78",
+    "assets/minecraft/textures/font/icons/burning_time.png": "07b5c2d52d1d13e44b91fb5518621ff4e14c8845367217a30202cb4437b5bb40",
+    "assets/minecraft/textures/font/icons/camera_distance.png": "54b037ecd8b27546032a3265da0c022f2ec2f5477838bf492dbdc8dab3cea0c1",
+    "assets/minecraft/textures/font/icons/entity_interaction_range.png": "d50f8cea8131bb9d8a6bd4b824f06097037b29655bcd78b63e5b3eaafa4a0131",
+    "assets/minecraft/textures/font/icons/explosion_knockback_resistance.png": "9e77c52061a0cfbce2def7199f301e110957ab0a491cb6aeeb63edeb3310e447",
+    "assets/minecraft/textures/font/icons/fall_damage_multiplier.png": "14097f4ff4119aa8e699365c4d4f093934ccad03beb1900a7b9b451831022a38",
+    "assets/minecraft/textures/font/icons/friction_modifier.png": "0c35113e6dab9423c927f6a8e8af142cc95a78899ce617f3469033713daa0cdb",
+    "assets/minecraft/textures/font/icons/jump_strength.png": "39b1c2bf28f4f86061d8dec32ff23620758766566c08a293aadabb9387f479fe",
+    "assets/minecraft/textures/font/icons/knockback_resistance.png": "5c0bc51f02ae10ed532222d045dc26279ae01778fecdebc53d56fcd7ff5bebb3",
+    "assets/minecraft/textures/font/icons/mining_efficiency.png": "38ad2501e9839e76b2c92aedc26722a27604e73e2060088b58b1d700aac4c060",
+    "assets/minecraft/textures/font/icons/name_tag_distance.png": "cda300492f9acc9b2203f5cbd43d73d72a88ec4dfca5490c60222ef752322f2f",
+    "assets/minecraft/textures/font/icons/oxygen_bonus.png": "4229d68036e2ad72a4e66aac5e8d8103e74b24d2eedc97a0d671f29465e235ec",
+    "assets/minecraft/textures/font/icons/safe_fall_distance.png": "b3e7ab87523b8a27b122d0e8a41a303a07d6940a1bb8a955d92f862cd92ca2e4",
+    "assets/minecraft/textures/font/icons/scale.png": "e6410540c1ebc9f87af23a5995479457dbfd461787abbf09f84e742bfd9b609f",
+    "assets/minecraft/textures/font/icons/sneaking_speed.png": "873b2a0e7949b89ee92c44453c9de820ad757427461125f65e3c6ae7eb4996db",
+    "assets/minecraft/textures/font/icons/step_height.png": "7eea2907d3fd205f06e077e06a55dac6753156587b53b66079f26869ccaf3c1d",
+    "assets/minecraft/textures/font/icons/sweeping_damage_ratio.png": "934140a70800967dff7330ec9e3e2d7375ca606f229b49c0a522fe773c4e1e05",
+    "assets/minecraft/textures/font/icons/water_walking_efficiency.png": "3f7302193f9e3e5127cb1e3bb14ecc530b429e52d646287737ac6d5a1741008e",
+    "assets/minecraft/textures/font/icons/waypoint_receive_range.png": "9ccab4f6ccddb57e9320341dbf8e0866f7684e50235aecb3912465fe507db021",
+    "assets/minecraft/textures/font/icons/waypoint_transmit_range.png": "6e226324ee562d993d8e92878de58b2ce9a99b97188804d89c580f3aee9c066c",
+    "assets/lbc/font/attribute_hud/row_m6.json": "3613a843ba7984f8923e54409c34561b03a732c447c4ba5145e7c172980b5c60",
+    "assets/lbc/font/attribute_hud/row_m5.json": "119dd31dda9ccc5959dbbc1ebfbf2182a3c7753474cdbe099eb407d274df9b24",
+    "assets/lbc/font/attribute_hud/row_m4.json": "111e9d25d7e5d3920f8418e873953dfc6e2d13a651b48a41393b6b46906c6593",
+    "assets/lbc/font/attribute_hud/row_m3.json": "a5b27576b00a37f837e2ed0218b3336155b4f4c16dd62e2f5fd176165b2de0b3",
+    "assets/lbc/font/attribute_hud/row_m2.json": "aaa059d7a92d61d0f16c9ff97f4302509e2194a9630f758ddb42dccf3d23815f",
+    "assets/lbc/font/attribute_hud/row_m1.json": "aec02171a70cd836df407b46633273886413265847974c08acf7db1866b721ae",
+    "assets/lbc/font/attribute_hud/row_0.json": "83b47d18e9cf669e30b5a7efde5a9b1928639d873a5f52a5f86021bccb47b136",
+    "assets/lbc/font/attribute_hud/row_p1.json": "110ff1f32e6efb69d6a9ccff4be7be215aa2b3dc50f842d7c1d01290f137178e",
+    "assets/lbc/font/attribute_hud/row_p2.json": "f4889a6e28042cfa5b65881cf70176241b2e5c817ae6a8de5961995c26ef3599",
+    "assets/lbc/font/attribute_hud/row_p3.json": "215a82d100926a972820b2f25740d9e78b01f894e24184ef9098a249162f49da",
+    "assets/lbc/font/attribute_hud/row_p4.json": "08c5d60bc71a703179c97057108ca20c6b92e594a2226806bbec63aea90e0cb1",
+    "assets/lbc/font/attribute_hud/row_p5.json": "d07d3533c4b7d9c34d791b97459c05f5c017e162eb29a61c1d40cb78c068770c",
+    "assets/lbc/font/attribute_hud/row_p6.json": "0c22f4692d7134066c1dd3285124fb28fb114dd3c0e1e52da7341f5673dcb2f4",
+    "assets/lbc/font/attribute_hud/row_p7.json": "564c0518c70d51305edfdaadc190a0ac7669ff2cfa47e08617971a21acb4553e",
+    "assets/lbc/font/attribute_hud/row_p8.json": "2ce87779d816944e496bdc06f8eadac4b30a15c45786b8f3a8ba9ecd96d50ceb",
+    "assets/lbc/font/attribute_hud/row_p9.json": "17e8e157a56b3728a1fac12586616a5ce3ffd7ccba214bdd217ebe9c02f20005",
+    "assets/lbc/font/attribute_hud/row_p10.json": "315f1b39a33b0fff5acad1a1519bb7c8bbfd755100ca5a33f74c913f5f545d51",
+    "assets/lbc/font/attribute_hud/row_p11.json": "afa5c26aaf3071a653864008964033dd8d07ea8ccf03dcf779fb9b8fefc2d217"
+  },
+  "sourceUnchanged": true
+}

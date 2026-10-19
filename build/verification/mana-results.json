@@ -1,0 +1,9 @@
+{
+  "completed": [
+    "reusable vanilla server bot fixtures",
+    "mana initialization, tick cadence/cap, gear/boost/reverse, spending and live-player gates",
+    "mana status cleanup after match stop"
+  ],
+  "artifactSha256": "77ace205df1459673b4b71054608d6edf44d9cd7f3c3c57e3b2270a3802f304b",
+  "elapsedSeconds": 39.94
+}

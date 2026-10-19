@@ -1,0 +1,412 @@
+package me.skywars2.game;
+
+import eu.pb4.polymer.core.api.item.SimplePolymerItem;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.phys.Vec3;
+
+import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+/** Постройка Academy и событийные испытания уже перенесённых жезлов. */
+public final class LbcAcademy {
+    private static final Identifier TEMPLATE = Identifier.parse("lbc:magic_academy");
+    private static final String ENTITY_TAG = "skywars2.academy";
+    private static final CompoundTag TOKEN_DATA = flag("academy_token"), BUILDING_DATA = flag("magic_academy");
+    public static final Item TOKEN = registerToken();
+    private enum Wand {
+        FIRE("stfire", LbcWands.FIRE_WAND, LbcWands.ACADEMY_FIRE, "a", "upgrade_condition_stfire", "upgrade_succesful_stfire"),
+        BLAZE("fallingstars", LbcWands.BLAZE_WAND, LbcWands.ACADEMY_BLAZE, "a", "upgrade_condition_fallingstars", "upgrade_succesful_fallingstars"),
+        FIREBLAZE("fireblaze_wand", LbcWands.FIREBLAZE, LbcWands.ACADEMY_FIREBLAZE, "s", "upgrade_condition_fireblaze", "upgrade_succesful_fireblaze"),
+        FALLING_STARS("truefallingstars", LbcWands.FALLING_STARS_WAND, LbcWands.ACADEMY_FALLING_STARS, "a", "upgrade_condition_truefallingstars", "upgrade_succesful_truefallingstars"),
+        LIGHTNING_BOLTS("lightning_bolts", LbcWands.LIGHTNING_BOLTS_WAND, LbcWands.ACADEMY_LIGHTNING_BOLTS, "s", "upgrade_condition_lightning_bolt", "upgrade_succesful_lightning_bolt"),
+        BOLTBOLT("boltbolt_wand", LbcWands.BOLTBOLT, LbcWands.ACADEMY_BOLTBOLT, "ss", "upgrade_condition_boltbolt", "upgrade_succesful_boltbolt"),
+        EXAHOMING("exahoming_wand", LbcWands.EXAHOMING, LbcWands.ACADEMY_EXAHOMING, "x", "upgrade_condition_exahoming", "upgrade_succesful_exahoming"),
+        STONE("ststone", LbcWands.STONE_WAND, LbcWands.ACADEMY_STONE, "a", "upgrade_condition_ststone", "upgrade_succesful_ststone"),
+        BEDROCK("bedrock_wand", LbcWands.BEDROCK, LbcWands.ACADEMY_BEDROCK, "ss", "upgrade_condition_bedrock", "upgrade_succesful_bedrock"),
+        WALL("wall", LbcWands.WALL, LbcWands.ACADEMY_WALL, "a", "upgrade_condition_wall", "upgrade_succesful_wall"),
+        STONEKIVI("stonekivi_wand", LbcWands.STONEKIVI, LbcWands.ACADEMY_STONEKIVI, "x", "upgrade_condition_stonekivi", "upgrade_succesful_stonekivi"),
+        PSYCHOWAND("psychowand", LbcWands.PSYCHOWAND, LbcWands.ACADEMY_PSYCHOWAND, "b", "upgrade_condition_psychowand", "upgrade_succesful_psychowand"),
+        PSYCHOBLIND("psychoblind_wand", LbcWands.PSYCHOBLIND, LbcWands.ACADEMY_PSYCHOBLIND, "ss", "upgrade_condition_psychoblind", "upgrade_succesful_psychoblind"),
+        BLIND("stblind", LbcWands.BLIND_WAND, LbcWands.ACADEMY_BLIND, "b", "upgrade_condition_stblind", "upgrade_succesful_stblind"),
+        AIR("stair", LbcWands.AIR_WAND, LbcWands.ACADEMY_AIR, "s", "upgrade_condition_stair", "upgrade_succesful_stair"),
+        TELEPORT("stteleport", LbcWands.TELEPORT_WAND, LbcWands.ACADEMY_TELEPORT, "a", "upgrade_condition_stteleport", "upgrade_succesful_stteleport"),
+        RUBY("struby", LbcWands.RUBY_WAND, LbcWands.ACADEMY_RUBY, "b", "upgrade_condition_struby", "upgrade_succesful_struby"),
+        EXOPERSO("exoperso", LbcWands.EXOPERSO, LbcWands.ACADEMY_EXOPERSO, "s", "upgrade_condition_exoperso", "upgrade_succesful_exoperso"),
+        TERRA("stterra", LbcWands.TERRA, LbcWands.ACADEMY_TERRA, "a", "upgrade_condition_stterra", "upgrade_succesful_stterra"),
+        ELECTRO("stelectro", LbcWands.ELECTRO, LbcWands.ACADEMY_ELECTRO, "a", "upgrade_condition_stelectro", "upgrade_succesful_stelectro"),
+        EXASPERATO("exasperato", LbcWands.EXASPERATO, LbcWands.ACADEMY_EXASPERATO, "x", "upgrade_condition_exasperato", "upgrade_succesful_exasperato");
+        final String key, flag, tier, conditionKey, successKey;
+        final Item base, upgraded;
+        Wand(String key, Item base, Item upgraded, String tier, String conditionKey, String successKey) {
+            this.key = key; this.flag = key.equals("exasperato") ? "exasperato_wand" : key;
+            this.base = base; this.upgraded = upgraded; this.tier = tier;
+            this.conditionKey=conditionKey; this.successKey=successKey;
+        }
+    }
+    private static Item registerToken() {
+        var key = ResourceKey.create(Registries.ITEM, Identifier.parse("skywars2:academy_token"));
+        var data = new CompoundTag(); data.putInt("academy_token", 1);
+        return Registry.register(BuiltInRegistries.ITEM, key, new SimplePolymerItem(
+                new Item.Properties().setId(key).overrideDescription("academy_token")
+                        .component(DataComponents.ITEM_MODEL, Identifier.parse("lbc:advancement_icon/academy"))
+                        .component(DataComponents.CUSTOM_DATA, CustomData.of(data)), Items.PAPER, true));
+    }
+    static void register() { }
+    private static CompoundTag flag(String name) { var tag = new CompoundTag(); tag.putInt(name, 1); return tag; }
+    private static CompoundTag data(ItemStack stack) {
+        return stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+    }
+    private static Wand wand(ItemStack stack) {
+        var tag = data(stack);
+        for (var wand : Wand.values())
+            if (stack.is(wand.base) || stack.is(wand.upgraded) || tag.getIntOr(wand.flag, 0) == 1) return wand;
+        return null;
+    }
+    static boolean trial(ItemStack stack) {
+        var tag = data(stack);
+        return tag.getIntOr("upgradable", 0) == 1 && tag.getIntOr("upgraded", 0) != 1;
+    }
+    private final GameController game;
+    private final Set<ItemEntity> drops = new LinkedHashSet<>();
+    private final Set<Entity> entities = new HashSet<>();
+    private final Map<UUID, Long> lastInteractions = new HashMap<>();
+    private final ArrayDeque<Placement> placements = new ArrayDeque<>();
+    // Источники одной серии ссылаются на один счётчик: 85 TNT не дают 85 очков за одну цель.
+    private final Map<Entity, BlastTrial> blastSources = new IdentityHashMap<>();
+    private boolean placing;
+    private static final class Placement {
+        final StructureTemplate template;
+        final BlockPos origin;
+        final long seed;
+        int row;
+        Placement(StructureTemplate template, BlockPos origin, long seed) {
+            this.template = template; this.origin = origin; this.seed = seed;
+        }
+    }
+    static final class BlastTrial {
+        final UUID owner;
+        final Wand wand;
+        final InteractionHand hand;
+        final Vec3 origin;
+        final Set<UUID> targets = new HashSet<>();
+        boolean completed;
+        BlastTrial(ServerPlayer owner) { this(owner,Wand.EXASPERATO,InteractionHand.MAIN_HAND,null); }
+        BlastTrial(ServerPlayer owner,Wand wand,InteractionHand hand,Vec3 origin) {
+            this.owner=owner.getUUID(); this.wand=wand; this.hand=hand; this.origin=origin;
+        }
+    }
+    LbcAcademy(GameController game) { this.game = game; }
+    /** Разбор старой NBT/DFU выполняем при загрузке ресурсов, до первого токена в бою. */
+    public void prepare() { game.server().getStructureTemplateManager().get(TEMPLATE); }
+
+    /** Съедаем также offhand callback: нажатие по NPC не должно одновременно кастовать жезл. */
+    public boolean interact(ServerPlayer player, InteractionHand hand, Entity target) {
+        if (!target.entityTags().contains("magic_academy")) return false;
+        if (hand != InteractionHand.MAIN_HAND || !active(player) || target.level() != player.level()
+                || game.items().frost().isFrozen(player) || player.entityTags().contains("time_stopped")) return true;
+        String dimension = player.level().dimension().identifier().toString();
+        if (dimension.equals("minecraft:nexus") || dimension.equals("minecraft:imprinted")) return true;
+        // interaction_at + interaction одного клиентского клика могут прийти в одном тике.
+        long now = player.level().getGameTime();
+        if (lastInteractions.getOrDefault(player.getUUID(), Long.MIN_VALUE) == now) return true;
+        lastInteractions.put(player.getUUID(), now);
+        var stack = player.getMainHandItem(); var wand = wand(stack);
+        if (wand == null) return true; // Остальным жезлам пока не обещаем несуществующие улучшения.
+        var tag = data(stack);
+        if (tag.getIntOr("pissed_by_madoka_sob_sob_sob_sob_sob", 0) == 1) return true;
+        player.sendSystemMessage(Component.translatable("magic_academy_root").withStyle(ChatFormatting.GREEN));
+        if (tag.getIntOr("upgraded", 0) == 1 || stack.is(wand.upgraded)) {
+            player.sendSystemMessage(Component.translatable("already_upgraded"));
+        } else if (tag.getIntOr("upgrade_available", 0) == 1) {
+            tag.putInt("upgraded", 1); tag.putInt("mode", 1);
+            var upgraded = stack.transmuteCopy(wand.upgraded);
+            upgraded.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+            upgraded.set(DataComponents.TOOLTIP_STYLE, Identifier.parse("lbc:tier_" + wand.tier));
+            upgraded.set(DataComponents.LORE, stack.getOrDefault(DataComponents.LORE, ItemLore.EMPTY)
+                    .withLineAdded(Component.translatable("upgraded_item").withStyle(style ->
+                            style.withColor(ChatFormatting.GREEN).withItalic(false))));
+            player.setItemInHand(hand, upgraded);
+            player.getInventory().setChanged();
+            player.containerMenu.broadcastChanges();
+            player.sendSystemMessage(Component.translatable(wand.successKey).withStyle(ChatFormatting.YELLOW));
+        } else if (tag.getIntOr("upgradable", 0) == 1) {
+            player.sendSystemMessage(Component.translatable("no_conditions"));
+        } else {
+            tag.putInt("upgradable", 1); stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+            player.getInventory().setChanged();
+            player.sendSystemMessage(Component.translatable(wand.conditionKey).withStyle(ChatFormatting.YELLOW));
+        }
+        return true;
+    }
+
+    public void ready(ServerPlayer player, InteractionHand hand, ItemStack stack) {
+        if (!active(player) || player.getItemInHand(hand) != stack || !trial(stack)) return;
+        var tag = data(stack); tag.putInt("upgrade_available", 1); tag.putInt("upgradable", 0);
+        stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag)); player.getInventory().setChanged();
+        player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
+                net.minecraft.core.Holder.direct(net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP),
+                net.minecraft.sounds.SoundSource.MASTER, player.getX(), player.getY(), player.getZ(), 2, 1,
+                player.getRandom().nextLong()));
+        player.sendSystemMessage(Component.translatable("can_upgrade").withStyle(ChatFormatting.AQUA));
+    }
+    public boolean terraTrial(ServerPlayer player, InteractionHand hand, ItemStack stack) {
+        if (!player.isShiftKeyDown() || !trial(stack)) return false;
+        // В исходнике концентрация заменяет обычный выстрел, но сохраняет расход маны.
+        if (player.level().getBlockState(BlockPos.containing(player.position().add(0, -1, 0))).is(Blocks.GRASS_BLOCK)) {
+            LbcTerra.growVegetation(player.level(), player.blockPosition(), LbcTerra.Kind.ACADEMY);
+            player.level().sendParticles(ParticleTypes.HAPPY_VILLAGER, player.getX(), player.getY()+1,
+                    player.getZ(), 10, .3, .6, .3, 0);
+            if (player.getRandom().nextFloat() < .2f) ready(player, hand, stack);
+        } else player.sendSystemMessage(Component.translatable("not_on_grass"));
+        return true;
+    }
+    public void electroTrial(ServerPlayer player, InteractionHand hand, ItemStack stack) { ready(player, hand, stack); }
+    /** Пять запусков с заданием дают готовность Exoperso; счётчик принадлежит используемому жезлу. */
+    public void exopersoTrial(ServerPlayer player,InteractionHand hand,ItemStack stack) {
+        if(!trial(stack)) return;
+        var tag=data(stack); int progress=tag.getIntOr("score",0)+1;
+        tag.putInt("score",progress); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
+        player.getInventory().setChanged();
+        if(progress>=5) ready(player,hand,stack);
+    }
+    /** Медитация Ruby заменяет выстрел; союзников притягивает, но служебные роли остаются исключены (user). */
+    public boolean rubyTrial(ServerPlayer player,InteractionHand hand,ItemStack stack) {
+        if(!player.isShiftKeyDown() || !trial(stack)) return false;
+        var level=player.level(); var origin=player.getEyePosition();
+        LbcOverload.sound(player,origin,"minecraft:block.amethyst_cluster.break",1,1,0);
+        var center=BlockPos.containing(origin);
+        var targets=level.getEntitiesOfClass(LivingEntity.class,new net.minecraft.world.phys.AABB(origin,origin).inflate(5.5),
+                target->target.position().distanceToSqr(origin)<=5.5*5.5
+                        && !target.entityTags().contains("strict_map_object") && game.items().wands().target(player,target,true));
+        game.items().indirectKills().trapChanges(player,()-> {
+            game.maps().placeLoadedTemplate(player,LbcRuby.MEDITATION,center.offset(-5,-5,-5),.96f);
+            for(var pos:BlockPos.betweenClosed(center,center.above()))
+                if(level.hasChunkAt(pos)) level.setBlock(pos,Blocks.BEDROCK.defaultBlockState(),
+                        net.minecraft.world.level.block.Block.UPDATE_CLIENTS
+                                |net.minecraft.world.level.block.Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS);
+        });
+        for(var target:targets) {
+            target.teleportTo(player.getX(),player.getY(),player.getZ());
+            target.setYRot(player.getYRot()); target.setXRot(player.getXRot());
+            game.items().indirectKills().displaced(target,player);
+        }
+        if(game.items().mana().hudValue(player,"void_resistance")<=0)
+            player.hurtServer(level,new DamageSource(player.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+                    .getOrThrow(net.minecraft.world.damagesource.DamageTypes.OUTSIDE_BORDER)),6);
+        ready(player,hand,stack);
+        return true;
+    }
+    /** Медитация телепорта тратит обычную ману и добавляет пять импульсов shock самому владельцу. */
+    public void teleportTrial(ServerPlayer player,InteractionHand hand,ItemStack stack) {
+        if(!player.isShiftKeyDown() || !trial(stack)) return;
+        game.items().electro().shock(player,player,5);
+        if(player.getRandom().nextFloat()<.35f) ready(player,hand,stack);
+    }
+    /** (user) Испытание засчитывает реальное попадание взрыва дальше 80 блоков, а не возраст ракеты. */
+    BlastTrial airTrial(ServerPlayer player,LbcAir.Charge charge) {
+        if(!charge.trial || charge.trialOwner!=player || charge.trialHand==null || charge.origin==null) return null;
+        var stack=player.getItemInHand(charge.trialHand);
+        return active(player) && wand(stack)==Wand.AIR && trial(stack)
+                ? new BlastTrial(player,Wand.AIR,charge.trialHand,charge.origin) : null;
+    }
+    /** Испытание слепоты: шанс 3% за попадание в ещё не ослеплённую цель, у используемой руки. */
+    public void blindTrial(ServerPlayer player,InteractionHand hand,boolean previouslyBlind) {
+        var stack=player.getItemInHand(hand);
+        if(!previouslyBlind && wand(stack)==Wand.BLIND && trial(stack) && player.getRandom().nextFloat()<.03f)
+            ready(player,hand,stack);
+    }
+    /** (user) Постоянный бедрок и шанс 20% сохраняются как часть каменной медитации. */
+    public void stoneTrial(ServerPlayer player,InteractionHand hand,ItemStack stack) {
+        if(!player.isShiftKeyDown() || !trial(stack)) return;
+        var center=BlockPos.containing(player.getEyePosition());
+        game.items().indirectKills().fillTrap(player,center.offset(-1,-1,-1),center.offset(1,2,1),Blocks.BEDROCK.defaultBlockState());
+        if(player.getRandom().nextFloat()<.2f) ready(player,hand,stack);
+    }
+    /** Бедроковое испытание (user): готовность сразу и сплошной куб 21³; проверяется используемая рука. */
+    public boolean bedrockTrial(ServerPlayer player,InteractionHand hand,ItemStack stack) {
+        if(!player.isShiftKeyDown() || !trial(stack)) return false;
+        ready(player,hand,stack);
+        var center=player.blockPosition();
+        game.items().indirectKills().fillTrap(player,center.offset(-10,-10,-10),center.offset(10,10,10),Blocks.BEDROCK.defaultBlockState());
+        return true;
+    }
+    /** Испытание Wall проверяет четыре кирпичные стороны вокруг глаз, а не число кастов. */
+    void wallTrial(ServerPlayer player,InteractionHand hand,ItemStack stack) {
+        if(!trial(stack)) return;
+        Vec3 from=player.getEyePosition().add(Vec3.directionFromRotation(0,player.getYRot()));
+        BlockPos start=BlockPos.containing(from);
+        var walls=new HashSet<BlockPos>();
+        for(int yaw:new int[]{0,90,180,270}) {
+            Vec3 direction=Vec3.directionFromRotation(0,yaw);
+            boolean found=false;
+            for(int step=0;step<=10;step++) {
+                var pos=BlockPos.containing(from.add(direction.scale(step*.9)));
+                if(!player.level().hasChunkAt(pos)) break;
+                // (user) Общий старт внутри кирпича не заменяет четыре разные стороны.
+                if(!pos.equals(start) && player.level().getBlockState(pos).is(Blocks.BRICKS) && walls.add(pos)) {
+                    found=true; break;
+                }
+            }
+            if(!found) return;
+        }
+        ready(player,hand,stack);
+    }
+    /** Испытание завершается после постановки слоёв, если живой противник действительно оказался внутри блока. */
+    void stonekiviTrial(ServerPlayer owner,InteractionHand hand,ItemStack stack,BlockPos impact) {
+        if(!trial(stack)) return;
+        var airs=net.minecraft.tags.TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
+        var center=Vec3.atCenterOf(impact);
+        var targets=owner.level().getEntitiesOfClass(ServerPlayer.class,new net.minecraft.world.phys.AABB(center,center).inflate(10),
+                player->game.items().wands().target(owner,player) && player.position().distanceToSqr(center)<=100
+                        && !player.level().getBlockState(player.blockPosition()).is(airs));
+        if(!targets.isEmpty()) ready(owner,hand,stack);
+    }
+    /** Медитация огня сохраняет исходные лаву 3×3 и шанс 5% на один Shift+ПКМ. */
+    public void fireTrial(ServerPlayer player, InteractionHand hand, ItemStack stack) {
+        if(!player.isShiftKeyDown() || !trial(stack)) return;
+        var level=player.level();
+        var center=BlockPos.containing(player.getEyePosition());
+        game.items().indirectKills().worldChanges(level,player,()-> {
+            for(var pos:BlockPos.betweenClosed(center.offset(-1,0,-1),center.offset(1,0,1)))
+                if(level.hasChunkAt(pos)) level.setBlockAndUpdate(pos,Blocks.LAVA.defaultBlockState());
+        });
+        if(player.getRandom().nextFloat()<.05f) ready(player,hand,stack);
+    }
+    BlastTrial blastTrial(ServerPlayer owner, boolean enabled) {
+        return enabled && active(owner) && trial(owner.getMainHandItem()) && wand(owner.getMainHandItem()) == Wand.EXASPERATO
+                ? new BlastTrial(owner) : null;
+    }
+    void blastSource(Entity source, BlastTrial trial) { if (source != null && trial != null) blastSources.put(source, trial); }
+    public void inheritBlast(Entity source, Entity spawned) { blastSource(spawned, blastSources.get(source)); }
+    /** Роль и расстояние фиксируются до урона; положительный результат проверяется в AFTER_DAMAGE/AFTER_DEATH. */
+    public void beforeDamage(LivingEntity victim,DamageSource damage) {
+        var trial=blastSources.get(damage.getDirectEntity());
+        if(trial==null || trial.completed || trial.wand!=Wand.AIR) return;
+        var owner=game.server().getPlayerList().getPlayer(trial.owner);
+        if(owner!=null && victim.position().distanceToSqr(trial.origin)>80*80
+                && game.items().lifetimes().target(owner,victim)) trial.targets.add(victim.getUUID());
+    }
+    public void damaged(LivingEntity victim, DamageSource damage) {
+        var trial = blastSources.get(damage.getDirectEntity());
+        if (trial == null || trial.completed) return;
+        var owner = game.server().getPlayerList().getPlayer(trial.owner);
+        if(owner==null) return;
+        if(trial.wand==Wand.AIR) {
+            if(!trial.targets.remove(victim.getUUID())) return;
+        } else if(!trial.targets.add(victim.getUUID()) || trial.targets.size()<10) return;
+        var stack=owner.getItemInHand(trial.hand);
+        if (wand(stack)==trial.wand && trial(stack)) {
+            ready(owner, trial.hand, stack);
+            trial.completed = true;
+        }
+    }
+
+    public boolean loaded(Entity entity) {
+        if (placing) {
+            entity.entityTags().add(ENTITY_TAG); game.items().markCurrentItemEpoch(entity); entities.add(entity); return true;
+        }
+        if (entity.entityTags().contains(ENTITY_TAG)) { entities.add(entity); return true; }
+        if (entity instanceof ItemEntity item && isDrop(item.getItem()) && item.level() == game.maps().level()) {
+            game.items().markCurrentItemEpoch(item);
+            drops.add(item); return true;
+        }
+        return false;
+    }
+    private static boolean isDrop(ItemStack stack) {
+        var tag = stack.get(DataComponents.CUSTOM_DATA);
+        return stack.is(TOKEN) || tag != null && (tag.matchedBy(TOKEN_DATA) || tag.matchedBy(BUILDING_DATA));
+    }
+    public void unloaded(Entity entity) { drops.remove(entity); entities.remove(entity); }
+    private boolean active(ServerPlayer player) {
+        return player.isAlive() && !player.isRemoved() && player.level() == game.maps().level() && game.canUseGameplayItems(player);
+    }
+    public void tick() {
+        // Удалённый TNT взрывается до следующего END_SERVER_TICK: очищаем только после damage callbacks.
+        blastSources.keySet().removeIf(Entity::isRemoved);
+        for (var it = drops.iterator(); it.hasNext();) {
+            var item = it.next();
+            if (item.isRemoved() || !isDrop(item.getItem())) { it.remove(); continue; }
+            if (!item.onGround() || item.level() != game.maps().level() || game.maps().busy()) continue;
+            if (!game.playing() && !(item.getOwner() instanceof ServerPlayer p && active(p))) continue;
+            var template = game.server().getStructureTemplateManager().get(TEMPLATE).orElse(null);
+            if (template == null || template.getSize().getY() == 0) continue;
+            boolean token = item.getItem().is(TOKEN) || data(item.getItem()).getIntOr("academy_token", 0) == 1;
+            var origin = item.blockPosition().offset(-6, token ? -1 : 0, -6);
+            placements.addLast(new Placement(template, origin, item.getRandom().nextLong()));
+            it.remove();
+            if (token) {
+                game.maps().level().sendParticles(ParticleTypes.WITCH, item.getX(), item.getY(), item.getZ(), 350, 5, 5, 5, 1);
+                item.level().playSound(null, item.blockPosition(), net.minecraft.sounds.SoundEvents.ENDERMAN_TELEPORT,
+                        net.minecraft.sounds.SoundSource.MASTER, 1, 1);
+                item.discard();
+            } else {
+                var nearest = item.level().getNearestPlayer(item.getX(), item.getY(), item.getZ(), 12, p ->
+                        p instanceof ServerPlayer sp && !game.isObserver(sp) && !p.isSpectator());
+                if (nearest instanceof ServerPlayer player)
+                    player.teleportTo(game.maps().level(), item.getX(), item.getY()+1, item.getZ()-2, Set.of(),
+                            player.getYRot(), player.getXRot(), false);
+                var remaining = item.getItem().copy(); remaining.shrink(1);
+                if (remaining.isEmpty()) item.discard();
+                else { item.setItem(remaining); drops.add(item); }
+            }
+            break; // Не разворачивать несколько зданий за один тик.
+        }
+        if (placements.isEmpty() || game.maps().busy()) return;
+        var part = placements.removeFirst(); var size = part.template.getSize(); var origin = part.origin;
+        var bounds = new BoundingBox(origin.getX(), origin.getY()+part.row, origin.getZ(),
+                origin.getX()+size.getX()-1, origin.getY()+part.row, origin.getZ()+size.getZ()-1);
+        for (int x = bounds.minX() >> 4; x <= bounds.maxX() >> 4; x++)
+            for (int z = bounds.minZ() >> 4; z <= bounds.maxZ() >> 4; z++)
+                if (!game.maps().level().hasChunk(x, z)) { placements.addLast(part); return; }
+        placing = true;
+        try {
+            game.maps().placeMapSlice(game.maps().level(), part.template, origin,
+                    new StructurePlaceSettings().setBoundingBox(bounds), part.seed);
+            // Включает developer-проверки в лобби, которые обычный arena block callback не журналирует.
+            // Журнал группирует точки по чанкам: двух диагональных углов недостаточно для четырёх чанков.
+            for (int x = bounds.minX() >> 4; x <= bounds.maxX() >> 4; x++)
+                for (int z = bounds.minZ() >> 4; z <= bounds.maxZ() >> 4; z++) {
+                    game.maps().recordBlockChange(new BlockPos(Math.max(bounds.minX(), x*16), bounds.minY(),
+                            Math.max(bounds.minZ(), z*16)));
+                    game.maps().recordBlockChange(new BlockPos(Math.min(bounds.maxX(), x*16+15), bounds.maxY(),
+                            Math.min(bounds.maxZ(), z*16+15)));
+                }
+        } finally { placing = false; }
+        if (++part.row < size.getY()) placements.addLast(part);
+    }
+    public void stop() {
+        drops.clear(); placements.clear(); lastInteractions.clear(); blastSources.clear();
+        var old = Set.copyOf(entities); entities.clear(); old.forEach(Entity::discard);
+    }
+}

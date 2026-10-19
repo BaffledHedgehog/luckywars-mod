@@ -3,7 +3,7 @@
     "values": [
         "#minecraft:base_stone_overworld",
         "#minecraft:anvil",
-        "#minecraft:bamboo_plantable_on",
+        "#minecraft:supports_bamboo",
         "#minecraft:beacon_base_blocks",
         "#minecraft:coral_blocks",
         "#minecraft:dirt",

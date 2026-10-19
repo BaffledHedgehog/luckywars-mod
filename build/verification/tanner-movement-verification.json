@@ -1,0 +1,36 @@
+{
+  "timestamp": "2026-10-17T17:50:18.902831",
+  "artifactSha256": "f4c97247f3e8460145983b1f5ffaf9880f8234ca555200d2e5f39d80bd0f8ead",
+  "artifact": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-tanner-movement-f4c97247.jar",
+  "previousSha256": "a0c4cb03c4682c99e71e0c197b376f98dc6781e1f153ec7ee61cba67408606a5",
+  "backup": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-before-tanner-movement-a0c4cb03.jar",
+  "installed": false,
+  "build": "passed",
+  "nativeRun": {
+    "completed": [
+      "Stonekivi and actual Tannerkivi loot payloads, lore/colors/tier/model/flags and Polymer projections",
+      "Native/Academy/legacy crafting in 2x2 and 3x3 grids, exact ingredients, preview and take",
+      "2499/2500 mana gate, one queued normal hit, bounded source templates, used-offhand four-mode cycle, Earth queue drain, and Comet item/allied-mob targets",
+      "Real-tick Sun capture, asynchronous planning, native lava/magma writes and attributed surface damage/Slowness V",
+      "Automatic 499/500/515 activation thresholds, block and Arrow conversion, exclusion marker, dual 1030 activation, 30-per-tick upkeep, and paid-work drain after aura stop",
+      "32 consecutive movement ticks, prompt front conversion, bounded coalesced fringe queue and paid dirty work after hand removal",
+      "Tannerkivi reactivates and drains paid work in a second match after lifecycle reset"
+    ],
+    "artifactSha256": "f4c97247f3e8460145983b1f5ffaf9880f8234ca555200d2e5f39d80bd0f8ead",
+    "elapsedSeconds": 58.84
+  },
+  "metrics": [
+    "[17:49:30] [Server thread/INFO]: [check] Tanner dense initial: blocks=29791 ticks=4 workMs=12.0679",
+    "[17:49:30] [Server thread/INFO]: [check] Tanner movement: steps=32 warmupTicks=1 delayedFronts=0 maxQueued=0 p95Ms=0.2462 maxMs=0.3078"
+  ],
+  "sourceHashes": {
+    "src/main/java/me/skywars2/game/LbcTanner.java": "df5d4c0fe737f8f5733ef409ad8b5f0b7bc9cc4e53cad03c19f3593dcc0803b6",
+    "src/main/java/me/skywars2/game/GameChecks.java": "5177ce50308a45982f60c79fd63314c3e98d72b5d4e3874b886e3b9314a517a7",
+    "tools/smoke_stonekivi.py": "2ed4f5922797c8e5431a9b5b1049d26b9c4eb4c67ef585b3eb2199960f0e632e"
+  },
+  "limits": [
+    "Measurements are synchronous native fixtures on an isolated server, not a multi-player TPS benchmark",
+    "Loaded chunks only; no forced chunk loads"
+  ],
+  "deploymentDecision": "User requested keeping the verified artifact ready; main server JAR was not replaced."
+}

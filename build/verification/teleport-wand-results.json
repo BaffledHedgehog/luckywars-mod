@@ -1,0 +1,10 @@
+{
+  "completed": [
+    "Teleport loot and cost, native sweep/lightning/levitation, Academy modes, inverse container move and arrow cloud",
+    "Teleport charges and arrow clouds clear after match stop",
+    "Teleport service accepts casts in the following match after stop",
+    "Following-match Teleport charge clears on match stop"
+  ],
+  "artifactSha256": "6b2f55bf2ee5bc403f11fd28d5c19b1a479f6fd9a47f3a8319b9d5995f6c955c",
+  "elapsedSeconds": 50.45
+}
