@@ -1,5 +1,45 @@
 # Проверка игрового цикла на Fabric
 
+## Все пары Tiny-жезлов — 20 октября 2026
+
+Сборка `77dd96ef0d0cabe089e997bb93a037698c56a35bf87735886c582f2b23c05b67`:
+`build/verification/skywars2-tiny-wand-crafting-77dd96ef.jar`, без установки.
+Build и `smoke_tiny_wand_crafting.py` прошли за 39,79 с, 7 уникальных suites:
+bots, wands-fourth-menu, tiny-wand-crafting, terra-crafting, electro-crafting,
+wands-fourth, wands-fourth-cleanup. Proof:
+`build/verification/tiny-wand-crafting-verification.json`.
+
+Проверены девять семейств × native/legacy/mixed × сетки 2×2/3×3 = 54
+комбинации. Настоящие preview/output slots и обычные/Shift packet takes:
+выход — один обычный Polymer-жезл с полным source-loot payload, без изменений
+исходных переводов/стилей/моделей/lore. По одному донору каждой занятой ячейки
+расходуется на результат; полная сумка ничего не съедает, закрытие preview
+возвращает доноров, лишние/смешанные по стихии/обычные/Academy ингредиенты
+отвергаются. Специальная пара приоритетнее vanilla repair. Семь новых recipe
+ресурсов дополняют прежние Terra/Electro, все девять проверены внутри JAR.
+
+Первый прогон обнаружил настоящий дефект общего assemble: THIS_ENTITY у
+recipe отсутствует, поэтому scoreboard-фрагмент стоимости маны в lore
+оставался неразрешённым и отличался от выдачи loot игроку. В production
+добавлен native ComponentUtils.resolve с серверным ResolutionContext;
+проверка полного равенства source payload после этого прошла. Переводы
+не превращаются в literal и оформление сохраняется. Первый лог сохранён
+как `tiny-wand-crafting-unresolved-lore.log`.
+
+Обычный Acid зарегистрирован, и взятый крафтом результат проверен:
+249 маны отклоняется без расхода/снаряда; 250 списывается и создаёт ровно
+один настоящий AcidProjectile с автором. Общий носитель и lifecycle прежние,
+переключается постоянный профиль (r5, Poison600 / on_fire4, TTL300).
+Прежние Tiny Acid, его owner/физика/прилипание/очистка и специальные
+Terra/Electro крафты прошли regression suites. Отдельной полной проверки
+обычного кислотного профиля/графического рендера не было; Academy Acid не добавлялся.
+
+Четыре Java-файла совпадают с sources JAR, CRC проверен. Все девять recipe
+JSON, ported Acid и raycasters tag совпадают с исходными ресурсами внутри JAR.
+Payload Acid структурно равен мигрированному source loot с единственной
+заменой registry ID на skywars2:acid_wand. Основной JAR остаётся `a0c4cb03…`;
+пользовательский ресурспак и template не менялись.
+
 ## Tannerkivi: плотное движение и стоимость очереди — 20 октября 2026
 
 Сборка `746d1ed1138d56d9a4b00066c44b0019eb77c2a0c8fbc0dfb73c744a1ceb1e44`:
