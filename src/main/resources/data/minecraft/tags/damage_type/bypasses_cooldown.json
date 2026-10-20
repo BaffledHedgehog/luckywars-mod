@@ -1,12 +1,30 @@
 {
   "replace": false,
   "values": [
-    "#skywars2:electric",
+    "minecraft:arrow",
+    "minecraft:falling_anvil",
+    "minecraft:falling_block",
+    "minecraft:falling_stalactite",
+    "minecraft:fireworks",
+    "minecraft:mob_projectile",
+    "minecraft:sting",
+    "minecraft:thorns",
+    "minecraft:thrown",
+    "minecraft:trident",
+    "minecraft:wither_skull",
+    "minecraft:outside_border",
+    "minecraft:generic",
+    "minecraft:generic_kill",
+    "skywars2:electric",
+    "skywars2:electro_bolt",
+    "skywars2:electro_conduction",
+    "skywars2:electro_meditation",
     "skywars2:yellow_bolt",
     "skywars2:yellow_spin",
     "skywars2:terra_beam",
     "skywars2:consuming",
     "skywars2:strangeness",
-    "skywars2:duplicating_hole"
+    "skywars2:duplicating_hole",
+    "skywars2:cultus_arrow"
   ]
 }

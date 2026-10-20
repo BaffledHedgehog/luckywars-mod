@@ -1,0 +1,42 @@
+[2026-10-20T22:13:08.314+0300][0.006s][info][gc,init] CardTable entry size: 512
+[2026-10-20T22:13:08.314+0300][0.006s][info][gc     ] Using G1
+[2026-10-20T22:13:08.316+0300][0.008s][info][gc,init] Version: 25.0.4.1+1-LTS (release)
+[2026-10-20T22:13:08.316+0300][0.008s][info][gc,init] CPUs: 16 total, 16 available
+[2026-10-20T22:13:08.316+0300][0.008s][info][gc,init] Memory: 32712M
+[2026-10-20T22:13:08.316+0300][0.008s][info][gc,init] Large Page Support: Disabled
+[2026-10-20T22:13:08.316+0300][0.008s][info][gc,init] NUMA Support: Disabled
+[2026-10-20T22:13:08.316+0300][0.008s][info][gc,init] Compressed Oops: Enabled (Zero based)
+[2026-10-20T22:13:08.316+0300][0.008s][info][gc,init] Heap Region Size: 4M
+[2026-10-20T22:13:08.316+0300][0.008s][info][gc,init] Heap Min Capacity: 8M
+[2026-10-20T22:13:08.316+0300][0.008s][info][gc,init] Heap Initial Capacity: 512M
+[2026-10-20T22:13:08.316+0300][0.008s][info][gc,init] Heap Max Capacity: 8180M
+[2026-10-20T22:13:08.316+0300][0.008s][info][gc,init] Pre-touch: Disabled
+[2026-10-20T22:13:08.316+0300][0.008s][info][gc,init] Parallel Workers: 13
+[2026-10-20T22:13:08.316+0300][0.008s][info][gc,init] Concurrent Workers: 3
+[2026-10-20T22:13:08.316+0300][0.008s][info][gc,init] Concurrent Refinement Workers: 13
+[2026-10-20T22:13:08.316+0300][0.008s][info][gc,init] Periodic GC: Disabled
+[2026-10-20T22:13:08.322+0300][0.014s][info][gc,metaspace] CDS archive(s) mapped at: [0x000000008d000000-0x000000008ddb0000-0x000000008ddb0000), size 14352384, SharedBaseAddress: 0x000000008d000000, ArchiveRelocationMode: 1.
+[2026-10-20T22:13:08.322+0300][0.014s][info][gc,metaspace] Compressed class space mapped at: 0x000000008e000000-0x00000000ce000000, reserved size: 1073741824
+[2026-10-20T22:13:08.322+0300][0.014s][info][gc,metaspace] UseCompressedClassPointers 1, UseCompactObjectHeaders 0
+[2026-10-20T22:13:08.322+0300][0.014s][info][gc,metaspace] Narrow klass pointer bits 32, Max shift 3
+[2026-10-20T22:13:08.322+0300][0.014s][info][gc,metaspace] Narrow klass base: 0x000000008d000000, Narrow klass shift: 0
+[2026-10-20T22:13:08.322+0300][0.014s][info][gc,metaspace] Encoding Range: [0x000000008d000000 - 0x000000018d000000), (4294967296 bytes)
+[2026-10-20T22:13:08.322+0300][0.014s][info][gc,metaspace] Klass Range:    [0x000000008d010000 - 0x00000000ce000000), (1090453504 bytes)
+[2026-10-20T22:13:08.322+0300][0.014s][info][gc,metaspace] Klass ID Range:  [65536 - 1090519033) (1090453497)
+[2026-10-20T22:13:08.322+0300][0.014s][info][gc,metaspace] Protection zone: [0x000000008d000000 - 0x000000008d010000), (65536 bytes)
+[2026-10-20T22:13:08.389+0300][0.081s][info][safepoint   ] Safepoint "SetNotifyJvmtiEventsMode", Time since last: 64257800 ns, Reaching safepoint: 3800 ns, At safepoint: 6200 ns, Leaving safepoint: 2100 ns, Total: 12100 ns, Threads: 1 runnable, 13 total
+[2026-10-20T22:13:08.553+0300][0.244s][info][safepoint   ] Safepoint "JFRSafepointClear", Time since last: 163448900 ns, Reaching safepoint: 2300 ns, At safepoint: 6400 ns, Leaving safepoint: 1600 ns, Total: 10300 ns, Threads: 0 runnable, 18 total
+[2026-10-20T22:13:08.555+0300][0.247s][info][safepoint   ] Safepoint "JFROldObject", Time since last: 2449200 ns, Reaching safepoint: 1800 ns, At safepoint: 6300 ns, Leaving safepoint: 1600 ns, Total: 9700 ns, Threads: 1 runnable, 18 total
+[2026-10-20T22:13:08.559+0300][0.251s][info][safepoint   ] Safepoint "ClassLoaderStatsOperation", Time since last: 3529900 ns, Reaching safepoint: 2800 ns, At safepoint: 156200 ns, Leaving safepoint: 2500 ns, Total: 161500 ns, Threads: 0 runnable, 18 total
+[2026-10-20T22:13:08.559+0300][0.251s][info][safepoint   ] Safepoint "PrintThreads", Time since last: 75900 ns, Reaching safepoint: 1500 ns, At safepoint: 189300 ns, Leaving safepoint: 1400 ns, Total: 192200 ns, Threads: 0 runnable, 18 total
+[2026-10-20T22:13:08.559+0300][0.251s][info][safepoint   ] Safepoint "FindDeadlocks", Time since last: 29900 ns, Reaching safepoint: 1200 ns, At safepoint: 7400 ns, Leaving safepoint: 1500 ns, Total: 10100 ns, Threads: 0 runnable, 18 total
+[2026-10-20T22:13:08.589+0300][0.281s][info][safepoint   ] Safepoint "ClassLoaderStatsOperation", Time since last: 30135200 ns, Reaching safepoint: 3700 ns, At safepoint: 161200 ns, Leaving safepoint: 600 ns, Total: 165500 ns, Threads: 0 runnable, 20 total
+[2026-10-20T22:13:08.590+0300][0.281s][info][safepoint   ] Safepoint "PrintThreads", Time since last: 125800 ns, Reaching safepoint: 1300 ns, At safepoint: 224900 ns, Leaving safepoint: 500 ns, Total: 226700 ns, Threads: 0 runnable, 20 total
+[2026-10-20T22:13:08.590+0300][0.281s][info][safepoint   ] Safepoint "FindDeadlocks", Time since last: 26800 ns, Reaching safepoint: 700 ns, At safepoint: 3100 ns, Leaving safepoint: 200 ns, Total: 4000 ns, Threads: 0 runnable, 20 total
+[2026-10-20T22:13:08.591+0300][0.282s][info][safepoint   ] Safepoint "JFRSafepointWrite", Time since last: 808000 ns, Reaching safepoint: 800 ns, At safepoint: 11400 ns, Leaving safepoint: 300 ns, Total: 12500 ns, Threads: 0 runnable, 20 total
+[2026-10-20T22:13:08.592+0300][0.283s][info][safepoint   ] Safepoint "JFROldObject", Time since last: 939500 ns, Reaching safepoint: 1600 ns, At safepoint: 3600 ns, Leaving safepoint: 2800 ns, Total: 8000 ns, Threads: 1 runnable, 20 total
+[2026-10-20T22:13:08.630+0300][0.321s][info][gc,exit     ] Heap
+[2026-10-20T22:13:08.630+0300][0.322s][info][gc,exit     ]  garbage-first heap   total reserved 8376320K, committed 528384K, used 26733K [0x0000000600c00000, 0x0000000800000000)
+[2026-10-20T22:13:08.630+0300][0.322s][info][gc,exit     ]   region size 4096K, 7 young (28672K), 0 survivors (0K)
+[2026-10-20T22:13:08.630+0300][0.322s][info][gc,exit     ]  Metaspace       used 3941K, committed 4096K, reserved 1114112K
+[2026-10-20T22:13:08.630+0300][0.322s][info][gc,exit     ]   class space    used 430K, committed 512K, reserved 1048576K

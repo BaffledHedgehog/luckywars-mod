@@ -20,6 +20,19 @@ import java.util.Set;
 
 /** Общая очередь проверки дальних снарядов: ограничиваем CPU, а не дальность полёта. */
 public final class ProjectileLifetimes {
+    /** Spell trajectories ignore incidental native physics; deliberate owner/velocity controls stay available. */
+    public static boolean protectedWandProjectile(Entity entity) {
+        if (!(entity instanceof Projectile) || entity instanceof LbcClouds.AcidProjectile) return false;
+        return entity instanceof LbcAir.Charge || entity instanceof LbcBlind.Charge
+                || entity instanceof LbcExasperato.Charge || entity instanceof LbcExoperso.Charge
+                || entity instanceof LbcPsycho.Charge || entity instanceof LbcStone.Charge
+                || entity instanceof LbcRuby.Charge || entity instanceof LbcTeleport.Charge
+                || entity instanceof LbcTerra.TerraProjectile
+                || entity.entityTags().contains("skywars2.wand.fire")
+                || entity.entityTags().contains("skywars2.wand.air")
+                || entity.entityTags().contains(LbcTeleport.CLOUD);
+    }
+
     private static final int REVIEW_PERIOD = 100;
     private static final int REVIEW_BUDGET = 2048;
     private static final int REVIEWS_PER_TICK = 8;

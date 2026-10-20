@@ -248,11 +248,8 @@ public final class LbcBolts {
         if(!valid(owner) || castBlocked(owner) || game.items().magic().suppressedAt(owner.level(),owner.getEyePosition())) return false;
         var mana=game.items().mana();
         int mode=upgraded?Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("mode",1),1,donor?3:4):1;
-        int cost=mana.score(ScoreHolder.forNameOnly(donor?"lightning_bolt_wand_mana_use":"boltbolt_wand_mana_use"),"lbc.math").get();
-        if(donor && mode==2) cost=0;
         if(upgraded && owner.isShiftKeyDown()) {
-            // Reforge must remain accessible even when the player cannot afford a lightning cast.
-            if(!donor && mana.get(owner)<cost && mana.overloadArmor(owner)!=15) return false;
+            // (user) Любой режим доступен при пустой или отрицательной мане, не только Reforge.
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             int nextMode=Math.floorMod(data.getIntOr("mode",1),donor?3:4)+1;
             data.putInt("mode",nextMode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
@@ -263,6 +260,8 @@ public final class LbcBolts {
             })); return true;
         }
         if(!donor && mode==3 && !ready()) return false;
+        int cost=mana.score(ScoreHolder.forNameOnly(donor?"lightning_bolt_wand_mana_use":"boltbolt_wand_mana_use"),"lbc.math").get();
+        if(donor && mode==2) cost=0;
         if(!mana.trySpendWand(owner,cost,cost)) return false;
         if(donor) donor(owner,hand,stack,mode,upgraded);
         else if(mode==2) game.items().teleport().castRideableArrow(owner,2,true);
@@ -275,7 +274,7 @@ public final class LbcBolts {
         }
         LbcOverload.sound(owner,"minecraft:entity.lightning_bolt.thunder",1,2,0);
         if(!(donor && mode==2)) game.items().wands().wandCasted(owner);
-        else game.items().trinkets().castWand(owner,owner.getEyePosition());
+        else game.items().trinkets().castWand(owner);
         return true;
     }
     /** The shared collision helper yields exactly one terminal and never probes an unloaded chunk. */

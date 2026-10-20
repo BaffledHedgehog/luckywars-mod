@@ -6,4 +6,11 @@
 
 The root agent ran the focused smoke successfully in 51.41 seconds: one match, all three electric groups plus the common bot check passed. Full regression passed in 382.70 seconds: 26 matches, 74 completed scenarios and 78 unique check groups. Build, focused/full tests and the installed main-server JAR use SHA-256 `313960fa65b96b8c3b28dcc2fb1d80dd2420fd9c6c949a15534ef0ddc0e6f450`. Both servers were left stopped. Results, the known fake-client Polymer warning and deployment are recorded in [SERVER_TESTS.md](../SERVER_TESTS.md).
 
-The first run exposed an invalid test oracle: native `minecraft:generic` bypasses armor. The passing run compares against registry-backed `minecraft:player_attack` with no attacker; generic remains only as the ordinary cooldown control. Equipment modifiers are refreshed through native `ServerPlayer.doTick()` before comparisons.
+The first run exposed an invalid test oracle: native `minecraft:generic` bypasses armor. The passing run compares against registry-backed `minecraft:player_attack` with no attacker. Equipment modifiers are refreshed through native `ServerPlayer.doTick()` before comparisons.
+
+Update 20 October (user): all 14 legacy bypass-cooldown types are restored,
+including generic and arrow. The generic repeat check now requires full repeated
+damage; player_attack remains the negative cooldown control. Managed lightning
+is an electrical alias with native cooldown. Current verification is in
+[DAMAGE_COOLDOWN_PORT.md](DAMAGE_COOLDOWN_PORT.md) and SERVER_TESTS; the older
+artifact results above remain historical.

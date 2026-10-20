@@ -131,6 +131,7 @@ public final class LbcItems {
     /** Мечи используют свои триггеры; немагическая киберкатана работает и под антимагией. */
     public void damaged(LivingEntity victim, DamageSource source) {
         summons.damaged(victim,source);
+        shooters.damaged(victim,source);
         if (!game.playing() && !debugItemUseWindow() || !inArena(victim) || LbcDamage.isArrowDamage(source)
                 || !(source.getEntity() instanceof ServerPlayer owner) || !active(owner)
                 || !owner.isAlive() || !inArena(owner)) return;
@@ -145,7 +146,7 @@ public final class LbcItems {
     }
 
     /** Загружаем регистрацию до freeze реестров и чтения loot tables, а не при первом обращении к предмету. */
-    public static void register() { LbcSkills.register(); LbcClouds.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcTerra.register(); LbcShooters.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
+    public static void register() { LbcSkills.register(); LbcClouds.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcTerra.register(); LbcShooters.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
 
     private static final CompoundTag BROKEN_TOTEM = new CompoundTag();
     private static final CompoundTag DYNAMITE = new CompoundTag();
@@ -181,6 +182,8 @@ public final class LbcItems {
     private final LbcHoming homing;
     private final LbcBolts bolts;
     private final LbcShooters shooters;
+    private final LbcKfcFood kfcFood;
+    private final LbcKfcRewards kfcRewards;
     private final LbcElectro electro;
     private final ProjectileLifetimes lifetimes;
     private final LbcExasperato exasperato;
@@ -556,6 +559,8 @@ public final class LbcItems {
         this.mana = new LbcMana(game); this.magic = new LbcMagic(game); this.wands = new LbcWands(game,mana);
         this.terra = new LbcTerra(game);
         this.shooters = new LbcShooters(game);
+        this.kfcFood = new LbcKfcFood(game);
+        this.kfcRewards = new LbcKfcRewards(game);
         this.electro = new LbcElectro(game);
         this.lifetimes = new ProjectileLifetimes(game);
         this.exasperato = new LbcExasperato(game);
@@ -606,6 +611,8 @@ public final class LbcItems {
     public LbcBolts bolts() { return bolts; }
     public LbcTerra terra() { return terra; }
     public LbcShooters shooters() { return shooters; }
+    public LbcKfcFood kfcFood() { return kfcFood; }
+    public LbcKfcRewards kfcRewards() { return kfcRewards; }
     /** Запрет действий общий, но физика льда и электрического оглушения различается. */
     public boolean actionsBlocked(net.minecraft.world.entity.LivingEntity entity) {
         return frost.isFrozen(entity) || shooters.stunned(entity);
@@ -713,6 +720,7 @@ public final class LbcItems {
         consuming.unloaded(entity);
         terra.unloaded(entity);
         shooters.unloaded(entity);
+        kfcRewards.entityUnloaded(entity);
         magic.unloaded(entity);
         frost.unloaded(entity);
         clouds.unloaded(entity);
@@ -730,16 +738,20 @@ public final class LbcItems {
 
     /** Only tracked item projectiles are visited; native TNT handles physics, explosion and damage. */
     private void tickDynamites() {
-        entityBatch.addAll(dynamites);
-        for (Entity entity : entityBatch) {
-            var tnt = (PrimedTnt) entity;
+        // Урон может завершить матч и очистить общий буфер прямо внутри взрыва.
+        for (var tnt : List.copyOf(dynamites)) {
             if (tnt.isRemoved()) { dynamites.remove(tnt); continue; }
-            if (tnt.onGround() && tnt.entityTags().remove("groundbam")) tnt.setFuse(2);
+            boolean explode=tnt.onGround() && tnt.entityTags().remove("groundbam");
             Vec3 motion = tnt.getDeltaMovement();
             // Это исходное условие по ЛЮБОЙ оси, а не проверка полной остановки вектора.
             if (tnt.entityTags().contains("dynamite") && (Mth.floor(motion.x * 100000) == 0
                     || Mth.floor(motion.y * 100000) == 0 || Mth.floor(motion.z * 100000) == 0)) {
-                tnt.setFuse(1); tnt.entityTags().remove("dynamite");
+                explode=true;
+            }
+            if(explode) {
+                // Летящий TNT остаётся настоящей сущностью до контакта, короткий запал заменён прямым взрывом.
+                dynamites.remove(tnt); tnt.discard();
+                game.items().exasperato().protectedBlast(tnt.getOwner(),(ServerLevel)tnt.level(),tnt.position(),4,null);
             }
         }
         entityBatch.clear();
@@ -767,11 +779,8 @@ public final class LbcItems {
 
     /** Cast-тринкет использует тот же native TNT и трекер, что уже перенесённый динамит. */
     void castWandDynamite(ServerPlayer player) {
-        castWandDynamite(player,player.position());
-    }
-    void castWandDynamite(ServerPlayer player,Vec3 castOrigin) {
-        // charge_tnt повторно применял anchored eyes к origin каста (у Tiny он уже на уровне глаз).
-        Vec3 position=castOrigin.add(0,player.getEyeHeight(),0), direction=player.getLookAngle();
+        // Высота тринкета не зависит от origin конкретного жезла или наклона взгляда.
+        Vec3 position=player.getEyePosition().add(0,.5,0), direction=player.getLookAngle();
         var tnt=new PrimedTnt(player.level(),position.x,position.y,position.z,player);
         tnt.setFuse(1000);
         double[] motion={direction.x,direction.y,direction.z};
@@ -1070,6 +1079,8 @@ public final class LbcItems {
         duplicating.tick();
         lifetimes.tick();
         shooters.tick();
+        kfcFood.tick();
+        kfcRewards.tick();
         tickDynamites();
         tickNanoTraps();
         tickRockets();
@@ -1110,7 +1121,7 @@ public final class LbcItems {
         return curse == null ? 0 : curse.remaining;
     }
 
-    public void clear(ServerPlayer player) { turnCurses.remove(player.getUUID()); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
+    public void clear(ServerPlayer player) { turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
     public void forget(ServerPlayer player) {
         blind.forget(player);
         psycho.forget(player);
@@ -1122,6 +1133,9 @@ public final class LbcItems {
         teleport.forget(player);
         electro.forget(player);
         shooters.forget(player);
+        blaze.forget(player);
+        kfcFood.forget(player);
+        kfcRewards.clear(player);
         indirectKills.clear(player);
         mana.forget(player);
         magic.clear(player);
@@ -1158,6 +1172,8 @@ public final class LbcItems {
         duplicating.stop();
         lifetimes.stop();
         shooters.stop();
+        kfcFood.stop();
+        kfcRewards.stop();
         electro.stop();
         trinkets.stop();
         for (RocketState state : List.copyOf(rockets.values())) resetRocket(state.owner);

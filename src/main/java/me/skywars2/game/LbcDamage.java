@@ -20,12 +20,17 @@ import java.util.Set;
 
 /** Общие правила урона; источник атаки по-прежнему определяет допустимые цели. */
 public final class LbcDamage {
+    /** Fuse=0 в исходнике обозначает взрыв без серверной защиты TNT, а не задержку. */
+    public static final String UNPROTECTED_TNT = "skywars2.tnt.unprotected";
     public static final net.minecraft.resources.ResourceKey<net.minecraft.world.damagesource.DamageType>
             YELLOW_BOLT = net.minecraft.resources.ResourceKey.create(Registries.DAMAGE_TYPE, Identifier.parse("skywars2:yellow_bolt")),
             YELLOW_SPIN = net.minecraft.resources.ResourceKey.create(Registries.DAMAGE_TYPE, Identifier.parse("skywars2:yellow_spin")),
             YELLOW_CONDUCTION = net.minecraft.resources.ResourceKey.create(Registries.DAMAGE_TYPE, Identifier.parse("skywars2:yellow_conduction"));
     public static final ResourceKey<DamageType> ELECTRIC =
             ResourceKey.create(Registries.DAMAGE_TYPE, Identifier.parse("skywars2:electric"));
+    /** Нативная молния сохраняет электрическую защиту, но соблюдает обычный hurt cooldown. */
+    public static final ResourceKey<DamageType> LIGHTNING =
+            ResourceKey.create(Registries.DAMAGE_TYPE, Identifier.parse("skywars2:lightning"));
     public static final ResourceKey<DamageType> ELECTRO_BOLT =
             ResourceKey.create(Registries.DAMAGE_TYPE, Identifier.parse("skywars2:electro_bolt"));
     public static final ResourceKey<DamageType> ELECTRO_CONDUCTION =
@@ -113,7 +118,7 @@ public final class LbcDamage {
     /** Отдельные типы с исходным arrow-уроном сохраняют исключение arrow_only для атакующих пассивов. */
     public static boolean isArrowDamage(DamageSource source) {
         return source.is(DamageTypes.ARROW) || source.is(ELECTRO_BOLT) || source.is(TERRA_BEAM)
-                || source.is(CONSUMING) || source.is(YELLOW_BOLT);
+                || source.is(CONSUMING) || source.is(YELLOW_BOLT) || source.is(LbcKfcRewards.CULTUS_ARROW);
     }
     public static boolean allowDamage(LivingEntity victim, DamageSource source) {
         var game=me.skywars2.SkyWars2.game();
@@ -130,7 +135,17 @@ public final class LbcDamage {
         }
         return false;
     }
-    /** Единственная надбавка к raw amount: вся ванильная защита рассчитывается позднее самим Minecraft. */
+    /** После сложности, до брони/эффектов: Easy добавляет +1, поэтому HEAD ServerPlayer здесь неверен. */
+    public static float protectedTntDamage(DamageSource source, float amount) {
+        if (source.is(net.minecraft.tags.DamageTypeTags.IS_EXPLOSION)
+                && source.getDirectEntity() instanceof net.minecraft.world.entity.item.PrimedTnt tnt
+                && !tnt.entityTags().contains(UNPROTECTED_TNT)) {
+            var game = me.skywars2.SkyWars2.game();
+            if (game != null) amount *= (5 - Math.clamp(game.config().tntProtection, 0, 5)) / 5f;
+        }
+        return amount;
+    }
+    /** Электрическая надбавка к raw amount; вся ванильная защита рассчитывается Minecraft. */
     public static float incomingDamage(ServerPlayer victim, DamageSource source, float amount) {
         if (!isElectric(source)) return amount;
         int metal = 0;

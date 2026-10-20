@@ -311,6 +311,8 @@ public final class LbcAcademy {
                 ? new BlastTrial(owner) : null;
     }
     void blastSource(Entity source, BlastTrial trial) { if (source != null && trial != null) blastSources.put(source, trial); }
+    /** Мгновенный взрыв не попадает в ENTITY_UNLOAD: его временный источник освобождается явно. */
+    void blastFinished(Entity source) { blastSources.remove(source); }
     public void inheritBlast(Entity source, Entity spawned) { blastSource(spawned, blastSources.get(source)); }
     /** Роль и расстояние фиксируются до урона; положительный результат проверяется в AFTER_DAMAGE/AFTER_DEATH. */
     public void beforeDamage(LivingEntity victim,DamageSource damage) {

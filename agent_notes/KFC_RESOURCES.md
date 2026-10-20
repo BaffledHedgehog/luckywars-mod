@@ -35,3 +35,9 @@ existing RU/EN translation keys, both item definitions and models, their texture
 files, and tier B/U background/frame tooltip sprites. No new translation keys,
 template files, models or textures are needed. The actual resource pack remains
 read-only. No build or server run performed by this resource task.
+
+Food outcomes additionally import source-schema migrated `govno`, `govno_eaten`, `govno_lot`,
+`govno_lot_2`, `win_button`, and `penis_cultus` loot tables. They require the
+corresponding six `data/lbc/loot_table/*.json` build includes. The output service
+owns final native IDs and ability behavior for win_button and penis_cultus;
+`agent_notes/KFC_FOOD_PORT.md` records the food implementation boundary.

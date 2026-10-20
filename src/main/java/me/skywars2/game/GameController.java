@@ -124,6 +124,7 @@ public final class GameController {
     public GameMenus menus() { return menus; }
     public LbcLoadouts lbc() { return lbc; }
     public LbcItems items() { return items; }
+    MatchEvents events() { return events; }
     public AttributeHud attributeHud() { return attributeHud; }
 
     public Component status() {
@@ -594,7 +595,10 @@ public final class GameController {
     }
 
     public void landed(ServerPlayer player, double distance) { events.onLanding(player, distance); }
-    public void consumed(ServerPlayer player, ItemStack stack) { events.onConsumed(player, stack); }
+    public void consumed(ServerPlayer player, ItemStack stack) {
+        items.kfcFood().consumed(player,stack);
+        events.onConsumed(player, stack);
+    }
     public void hurtForSkill(ServerPlayer player) { events.onPlayerHurt(player); }
     public void entityUnloaded(Entity entity) { events.entityUnloaded(entity); items.entityUnloaded(entity); }
 

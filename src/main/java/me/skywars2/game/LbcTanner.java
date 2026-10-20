@@ -380,7 +380,7 @@ public final class LbcTanner {
         Aura(ServerPlayer owner, ServerLevel level) {
             this.owner = owner; this.level = level;
             this.terrain = new BlockAreaWork(level, LbcTanner::convertible,
-                    (pos, state) -> Blocks.DIRT.defaultBlockState(), BLOCK_FLAGS);
+                    (pos, state) -> Blocks.DIRT.defaultBlockState(), BLOCK_FLAGS, false, true);
         }
         BlockAreaWork.Bounds terrainBounds() { return bounds; }
         boolean anyActive() { return mainActive || offActive; }

@@ -37,6 +37,7 @@ final class BlockAreaWork {
     private final BiFunction<BlockPos, BlockState, BlockState> replacement;
     private final int writeFlags;
     private final boolean retainUnloaded;
+    private final boolean filterOnEnqueue;
     private final LinkedHashMap<Long, SectionScan> scans = new LinkedHashMap<>();
     private Bounds bounds;
 
@@ -46,24 +47,32 @@ final class BlockAreaWork {
     }
     BlockAreaWork(ServerLevel level, Predicate<BlockState> eligible,
                   BiFunction<BlockPos, BlockState, BlockState> replacement, int writeFlags, boolean retainUnloaded) {
+        this(level,eligible,replacement,writeFlags,retainUnloaded,false);
+    }
+    /** Ранняя фильтрация подходит живой ауре, которая повторно получает block/chunk events. */
+    BlockAreaWork(ServerLevel level, Predicate<BlockState> eligible,
+                  BiFunction<BlockPos, BlockState, BlockState> replacement, int writeFlags,
+                  boolean retainUnloaded, boolean filterOnEnqueue) {
         this.level = level;
         this.eligible = eligible;
         this.replacement = replacement;
         this.writeFlags = writeFlags;
         this.retainUnloaded = retainUnloaded;
+        this.filterOnEnqueue = filterOnEnqueue;
     }
 
     void move(Bounds next, boolean rescan) {
         Bounds previous = bounds;
         bounds = next;
+        scans.values().removeIf(scan -> {
+            if (!scan.intersects(next)) return true;
+            scan.retain(next);
+            return scan.positions.isEmpty();
+        });
         if (rescan || previous == null) {
-            scans.values().removeIf(scan -> !scan.intersects(next));
-            scans.values().forEach(scan -> scan.retain(next));
             add(next);
             return;
         }
-        scans.values().removeIf(scan -> !scan.intersects(next));
-        scans.values().forEach(scan -> scan.retain(next));
         enqueueDifference(next, previous);
     }
 
@@ -75,6 +84,11 @@ final class BlockAreaWork {
         for (int sx = clipped.minX >> 4; sx <= clipped.maxX >> 4; sx++)
             for (int sz = clipped.minZ >> 4; sz <= clipped.maxZ >> 4; sz++)
                 for (int sy = clipped.minY >> 4; sy <= clipped.maxY >> 4; sy++) {
+                    if (filterOnEnqueue) {
+                        var chunk = level.getChunkSource().getChunkNow(sx, sz);
+                        if (chunk != null && !hasEligibleBlocks(chunk.getSection(level.getSectionIndexFromSectionY(sy))))
+                            continue;
+                    }
                     long key = SectionPos.asLong(sx, sy, sz);
                     SectionScan scan = scans.get(key);
                     if (scan == null) {
@@ -108,6 +122,12 @@ final class BlockAreaWork {
 
     void clear() { scans.clear(); bounds = null; }
 
+    private boolean hasEligibleBlocks(net.minecraft.world.level.chunk.LevelChunkSection section) {
+        // maybeHas консервативен: старый state может остаться в палитре после замены всех клеток.
+        return section != null && (!section.hasOnlyAir() || eligible.test(Blocks.AIR.defaultBlockState()))
+                && section.maybeHas(eligible);
+    }
+
     /** Один section batch; retainUnloaded сохраняет принятую работу, не загружая чанк. */
     int step(GameController game, ServerPlayer owner, int allowance, long deadline) {
         if (scans.isEmpty() || allowance <= 0) return 0;
@@ -118,8 +138,7 @@ final class BlockAreaWork {
             scans.putLast(entry.getKey(),scan); return 0;
         }
         var section = chunk == null ? null : chunk.getSection(level.getSectionIndexFromSectionY(scan.y));
-        if (section == null || (section.hasOnlyAir() && !eligible.test(Blocks.AIR.defaultBlockState()))
-                || !section.maybeHas(eligible)) {
+        if (!hasEligibleBlocks(section)) {
             scans.remove(entry.getKey());
             return 1;
         }
@@ -168,15 +187,24 @@ final class BlockAreaWork {
             return area.intersection(x << 4, y << 4, z << 4, (x << 4) + 15, (y << 4) + 15, (z << 4) + 15) != null;
         }
         void retain(Bounds area) {
-            // Bits are local Y/Z/X; clear rows outside the new area.
+            // Y/Z/X лежат подряд в BitSet: режем диапазоны, а не перебираем тысячи ожидающих клеток.
             int baseX = x << 4, baseY = y << 4, baseZ = z << 4;
             int minX = Math.max(0, area.minX - baseX), maxX = Math.min(15, area.maxX - baseX);
             int minY = Math.max(0, area.minY - baseY), maxY = Math.min(15, area.maxY - baseY);
             int minZ = Math.max(0, area.minZ - baseZ), maxZ = Math.min(15, area.maxZ - baseZ);
-            for (int bit = positions.nextSetBit(0); bit >= 0; bit = positions.nextSetBit(bit + 1)) {
-                int bx = bit & 15, bz = (bit >> 4) & 15, by = bit >> 8;
-                if (bx < minX || bx > maxX || bz < minZ || bz > maxZ || by < minY || by > maxY)
-                    positions.clear(bit);
+            if (minX == 0 && maxX == 15 && minY == 0 && maxY == 15 && minZ == 0 && maxZ == 15) return;
+            positions.clear(0, minY << 8);
+            positions.clear((maxY + 1) << 8, 4096);
+            for (int ly = minY; ly <= maxY; ly++) {
+                int layer = ly << 8;
+                positions.clear(layer, layer + (minZ << 4));
+                positions.clear(layer + ((maxZ + 1) << 4), layer + 256);
+                if (minX == 0 && maxX == 15) continue;
+                for (int lz = minZ; lz <= maxZ; lz++) {
+                    int row = layer | (lz << 4);
+                    positions.clear(row, row + minX);
+                    positions.clear(row + maxX + 1, row + 16);
+                }
             }
         }
         void add(Bounds area) {

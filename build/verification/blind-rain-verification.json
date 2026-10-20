@@ -1,0 +1,39 @@
+{
+  "artifactSha256": "d650593dc09340b75d5a46cf59b8402b6013daa32fc1a6e3fa7143af8fa31b51",
+  "archive": "build/verification/skywars2-blind-rain-d650593d.jar",
+  "runtime": {
+    "passed": true,
+    "completed": [
+      "Native rain cast and emission: current target position, cached revalidation, team/NPC/observer/footprint/depth exclusion, empty-cloud suppression, exact 20-tick rain and unchanged 30-tick ordinary TTL",
+      "Thirty native clouds, full no-hit lifetime, 300-charge steady bound; logged service.tick wall-time samples are not server MSPT",
+      "Existing paid Blind wand modes, collision, owner, pauses and input regression",
+      "Match stop clears every native Blind charge, rain cloud and queue"
+    ],
+    "artifactSha256": "d650593dc09340b75d5a46cf59b8402b6013daa32fc1a6e3fa7143af8fa31b51",
+    "elapsedSeconds": 37.04
+  },
+  "passedSuites": [
+    "bots",
+    "blind-rain",
+    "blind-wand",
+    "blind-wand-cleanup"
+  ],
+  "benchmark": {
+    "clouds": 30,
+    "samples": 80,
+    "peakCharges": 300,
+    "meanMs": 2.0934675,
+    "p95Ms": 4.7453,
+    "maxMs": 5.1547,
+    "scope": "LbcBlind.tick only; actual moving collision and trail, parked in empty air between calls; not full server MSPT or real-client network benchmark"
+  },
+  "sourceJavaFilesMatched": 2,
+  "crc": "passed",
+  "mainJarSha256": "a0c4cb03c4682c99e71e0c197b376f98dc6781e1f153ec7ee61cba67408606a5",
+  "installed": false,
+  "limits": [
+    "No before/after timing comparison",
+    "No real-client manual/network test",
+    "Service tick measurements do not establish full server MSPT or TPS capacity"
+  ]
+}

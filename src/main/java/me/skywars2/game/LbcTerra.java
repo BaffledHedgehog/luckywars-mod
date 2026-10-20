@@ -175,6 +175,8 @@ public final class LbcTerra {
         return true;
     }
     public int charges(ServerPlayer player) { return swordCharges.getOrDefault(player.getUUID(), 0); }
+    /** Direct counter additions are distinct from the normal melee charging cap. */
+    void addPlayerCounter(ServerPlayer player) { swordCharges.put(player.getUUID(),charges(player)+1); }
     void resetCharges() { swordCharges.clear(); }
     /** (user) Только melee мечом или собственный заряд этого меча; прочий приписанный урон не подходит. */
     void damaged(ServerPlayer owner, DamageSource source) {

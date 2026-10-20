@@ -139,7 +139,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             boolean allowed=LbcDamage.allowDamage(entity, damage)
                         && (game == null || (!(damage.getEntity() instanceof ServerPlayer attacker) || !game.isObserver(attacker))
                         && (!(entity instanceof ServerPlayer player) || game.allowDamage(player))
-                        && game.items().wands().allowDamage(entity, damage));
+                        && game.items().wands().allowDamage(entity, damage)
+                        && game.items().kfcRewards().allowDamage(entity,damage));
             if(allowed && game!=null && amount>0) game.items().academy().beforeDamage(entity,damage);
             return allowed;
         });
@@ -157,9 +158,15 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                     && !player.getItemInHand(hand).is(LbcShooters.PINE))
                 return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
             // Старые стеки из перековки используют тот же ввод, что и нативная Polymer-винтовка.
+            if (game != null && player instanceof ServerPlayer owner && LbcShooters.isKfcGun(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(LbcShooters.KFC_GUN))
+                return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer owner && LbcShooters.isSlr(player.getItemInHand(hand))
                     && !player.getItemInHand(hand).is(LbcShooters.SLR))
                 return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+            if(game!=null && player instanceof ServerPlayer owner && me.skywars2.game.LbcKfcRewards.isCultus(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(me.skywars2.game.LbcKfcRewards.PENIS_CULTUS))
+                return game.items().wands().use(owner,hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
             if(game!=null && player instanceof ServerPlayer owner && LbcElectro.isAnyKatana(player.getItemInHand(hand))
                     && !player.getItemInHand(hand).is(LbcElectro.CYBERKATANA)
                     && !player.getItemInHand(hand).is(LbcElectro.SHIT_KATANA))
@@ -289,7 +296,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                     .then(Commands.argument("parameter", StringArgumentType.word())
                             .suggests((ctx, builder) -> SharedSuggestionProvider.suggest(List.of(
                                     "lives", "health", "countdownSeconds", "stageOneSeconds", "stageTwoSeconds", "endingSeconds",
-                                    "stageOneEvent", "stageTwoEvent", "pvpMode", "day", "ranked", "vanillaKits", "vanillaSkills", "lbcChallenges", "offhandWands", "lefthandWands", "noBorders", "map", "broken"), builder))
+                                    "stageOneEvent", "stageTwoEvent", "pvpMode", "tntProtection", "day", "ranked", "vanillaKits", "vanillaSkills", "lbcChallenges", "offhandWands", "lefthandWands", "noBorders", "map", "broken"), builder))
                             .then(Commands.argument("value", StringArgumentType.word())
                                     .suggests((ctx, builder) -> settingValueSuggestions(
                                             StringArgumentType.getString(ctx, "parameter"), builder))
@@ -330,6 +337,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             case "stageoneevent", "stage1event" -> List.of("0", "1", "2", "3", "4", "5", "6", "7", "8", "9");
             case "stagetwoevent", "stage2event" -> List.of("0", "1", "2", "3", "4", "5", "6", "7", "8");
             case "pvp", "pvpmode" -> List.of("1", "2");
+            case "tntprotection" -> List.of("0", "1", "2", "3", "4", "5");
             case "day" -> List.of("1", "2", "3");
             default -> List.of();
         };

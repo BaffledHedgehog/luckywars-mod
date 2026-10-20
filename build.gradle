@@ -26,6 +26,17 @@ dependencies {
 }
 
 processResources {
+    include 'data/skywars2/damage_type/cultus_arrow.json'
+    include 'data/minecraft/tags/damage_type/arrow_only.json',
+            'data/minecraft/tags/damage_type/acceptable_for_manavampirism.json'
+    include 'data/lbc/loot_table/ported/kfc_gun.json',
+            'data/lbc/loot_table/ported/kfc_chick.json',
+            'data/lbc/loot_table/kfc_yumyumyummy.json',
+            'data/lbc/loot_table/win_button.json',
+            'data/lbc/loot_table/govno.json',
+            'data/lbc/loot_table/govno_eaten.json',
+            'data/lbc/loot_table/govno_lot.json',
+            'data/lbc/loot_table/govno_lot_2.json'
     include 'data/lbc/advancement/challenges/no_knowledge.json'
     include 'data/lbc/loot_table/ported/slr.json',
             'data/minecraft/tags/block/breakable_slr.json',
@@ -263,6 +274,7 @@ processResources {
             'data/minecraft/tags/damage_type/bypasses_cooldown.json',
             'data/minecraft/tags/damage_type/is_projectile.json',
             'data/minecraft/tags/damage_type/no_knockback.json',
+            'data/minecraft/tags/damage_type/is_lightning.json',
             'data/minecraft/tags/damage_type/always_kills_armor_stands.json',
             'data/minecraft/tags/damage_type/panic_causes.json',
             'data/minecraft/tags/damage_type/panic_environmental_causes.json',
@@ -391,6 +403,8 @@ processResources {
             'data/lbc/loot_table/ported/academy_exasperato_wand.json',
             'data/lbc/loot_table/ported/academy_token.json', 'data/lbc/structure/magic_academy.nbt',
             'data/lbc/loot_table/ported/tiny_acid_wand.json',
+            'data/lbc/loot_table/ported/acid_wand.json',
+            'data/minecraft/tags/entity_type/raycasters.json',
             'data/lbc/loot_table/ported/tiny_electro_wand.json',
             'data/lbc/loot_table/ported/mana_gem.json',
             'data/lbc/loot_table/ported/blood_anal_boom.json',

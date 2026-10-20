@@ -119,6 +119,11 @@ public final class LbcPsycho {
     List<Charge> snapshot() { return List.copyOf(charges); }
     int effectCount() { return effects.size(); }
     int rayCount(ServerPlayer owner) { return rays.getOrDefault(owner,0); }
+    /** Player timer grant shared by food and the scream-ray caster. */
+    void addRayTicks(ServerPlayer owner,int amount) {
+        if(amount<=0 || !valid(owner) || game.items().magic().rejectCustomEffect(owner)) return;
+        rays.merge(owner,amount,Integer::sum);
+    }
     int forcedUseTicks(ServerPlayer player) {
         var effect=effects.get(player); return effect==null?0:effect.forcedTicks;
     }
@@ -154,9 +159,7 @@ public final class LbcPsycho {
     public boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean donor,boolean academy) {
         if(!valid(owner) || paused(owner) || game.items().magic().suppressedAt(owner.level(),owner.getEyePosition())) return false;
         var mana=game.items().mana();
-        int cost=mana.score(ScoreHolder.forNameOnly(donor?"psycho_wand_mana_use":"psychoblind_wand_mana_use"),"lbc.math").get();
         if(academy && owner.isShiftKeyDown()) {
-            if(mana.get(owner)<cost && mana.overloadArmor(owner)!=15) return false;
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             int mode=Math.floorMod(data.getIntOr("mode",1),4)+1;
             data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
@@ -167,6 +170,7 @@ public final class LbcPsycho {
             }));
             return true;
         }
+        int cost=mana.score(ScoreHolder.forNameOnly(donor?"psycho_wand_mana_use":"psychoblind_wand_mana_use"),"lbc.math").get();
         if(!mana.trySpendWand(owner,cost)) return false;
         int mode=academy?Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("mode",1),1,4):0;
         if(donor) psycho(owner,hand,stack,mode);

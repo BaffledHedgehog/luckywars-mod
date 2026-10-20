@@ -89,16 +89,15 @@ public final class LbcDuplicating {
     }
     public boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean upgraded) {
         if(!castable(owner) || !ready()) return false;
-        int price=game.items().mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly("dublicating_wand_mana_use"),"lbc.math").get();
         int mode=upgraded?Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("mode",1),1,4):1;
         if(upgraded && owner.isShiftKeyDown()) {
-            if(!game.items().mana().trySpendWand(owner,price,0)) return false;
             mode=mode%4+1; var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             tag.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
             owner.sendSystemMessage(Component.translatable(switch(mode) {
                 case 2->"mode_expand"; case 3->"mode_divide"; case 4->"mode_black_hole"; default->"mode_default";
             })); return true;
         }
+        int price=game.items().mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly("dublicating_wand_mana_use"),"lbc.math").get();
         if(!game.items().mana().trySpendWand(owner,price)) return false;
         if(!upgraded && owner.isShiftKeyDown() && LbcAcademy.trial(stack)) {
             trial(owner); game.items().academy().ready(owner,hand,stack);

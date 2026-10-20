@@ -18,6 +18,13 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         ROCKET("rocket_boots_transfer",null),
         TERRA("terra_combine","terra_wand"),
         ELECTRO("electro_combine","electro_wand"),
+        FIRE("fire_combine","fire_wand"),
+        BLIND("blind_combine","blind_wand"),
+        AIR("air_combine","air_wand"),
+        STONE("stone_combine","stone_wand"),
+        TELEPORT("teleport_combine","teleport_wand"),
+        RUBY("ruby_combine","ruby_wand"),
+        ACID("acid_combine","acid_wand"),
         CYBERKATANA("electro_katana","cyberkatana"),
         SHIT_KATANA("shit_katana","shit_katana"),
         ELECTRO_SHIELD("electro_shield","electro_shield"),
@@ -65,7 +72,25 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         if(kind==Kind.ROCKET) return game.items().rocketCraftResult(input);
         if(craftingKind(input)!=kind) return ItemStack.EMPTY;
         var result=game.lbc().rollTable(game.maps().level(),net.minecraft.world.phys.Vec3.ZERO,null,"lbc:ported/"+kind.loot);
-        return result.isEmpty() ? ItemStack.EMPTY : result.getFirst().copyWithCount(1);
+        if(result.isEmpty()) return ItemStack.EMPTY;
+        var stack=result.getFirst().copyWithCount(1);
+        var lore=stack.get(net.minecraft.core.component.DataComponents.LORE);
+        if(lore!=null) {
+            // У recipe preview нет THIS_ENTITY: разрешаем исходные mana-score строки через сервер,
+            // сохраняя компоненты переводов и стили, как при выдаче того же loot игроку.
+            var context=net.minecraft.network.chat.ResolutionContext.create(
+                    game.server().createCommandSourceStack().withLevel(game.maps().level()));
+            var lines=new java.util.ArrayList<net.minecraft.network.chat.Component>(lore.lines().size());
+            for(var line:lore.lines()) {
+                try { lines.add(net.minecraft.network.chat.ComponentUtils.resolve(context,line)); }
+                catch(com.mojang.brigadier.exceptions.CommandSyntaxException exception) {
+                    SkyWars2.LOGGER.warn("Cannot resolve crafting lore for {}",kind.id,exception);
+                    lines.add(line);
+                }
+            }
+            stack.set(net.minecraft.core.component.DataComponents.LORE,new net.minecraft.world.item.component.ItemLore(lines));
+        }
+        return stack;
     }
 
     @Override
@@ -73,9 +98,11 @@ public final class LbcCraftingRecipe extends CustomRecipe {
 
     /** Общее распознавание семейств: ровно два занятых слота, без расхода и случайности в preview. */
     public static Kind craftingKind(CraftingInput input) {
+        if(input.ingredientCount()!=2) return null;
+        var tiny=tinyPair(input);
+        if(tiny!=null) return tiny;
         var terra=LbcTerra.craftingKind(input);
         if(terra!=null) return terra;
-        if(input.ingredientCount()!=2) return null;
         int air=0,exoperso=0,stone=0,wall=0,tanner=0,fire=0,kiuas=0,blaze=0,blind=0,psycho=0,vex=0,stars=0,teleport=0,bolts=0,material=0,ruby=0,consuming=0,divider=0;
         for(var stack:input.items()) if(!stack.isEmpty()) {
             var data=stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
@@ -132,9 +159,9 @@ public final class LbcCraftingRecipe extends CustomRecipe {
                     net.minecraft.world.item.component.CustomData.EMPTY).copyTag().getIntOr("govnoq",0)==1) donor++;
         }
         if(katana==1 && donor==1) return Kind.SHIT_KATANA;
-        int tiny=0,sword=0,shield=0,electro=0,energyShield=0;
+        int tinyElectro=0,sword=0,shield=0,electro=0,energyShield=0;
         for(var stack:input.items()) if(!stack.isEmpty()) {
-            if(tinyElectro(stack)) tiny++;
+            if(tinyElectro(stack)) tinyElectro++;
             else if(LbcElectro.isShield(stack)) energyShield++;
             else if(stack.is(LbcWands.ELECTRO) || stack.is(LbcWands.ACADEMY_ELECTRO)
                     || stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
@@ -144,9 +171,42 @@ public final class LbcCraftingRecipe extends CustomRecipe {
             else return null;
         }
         if(electro==1 && energyShield==1) return Kind.ELECTROBLOCKER;
-        if(tiny==2) return Kind.ELECTRO;
-        if(tiny==1 && sword==1) return Kind.CYBERKATANA;
-        return tiny==1 && shield==1 ? Kind.ELECTRO_SHIELD : null;
+        if(tinyElectro==1 && sword==1) return Kind.CYBERKATANA;
+        return tinyElectro==1 && shield==1 ? Kind.ELECTRO_SHIELD : null;
+    }
+
+    /** Два занятых слота одного Tiny-семейства, включая старые доноры и смешанную пару. */
+    private static Kind tinyPair(CraftingInput input) {
+        Kind first=null;
+        for(var stack:input.items()) if(!stack.isEmpty()) {
+            var current=tinyKind(stack);
+            if(current==null || first!=null && first!=current) return null;
+            first=current;
+        }
+        return first;
+    }
+
+    private static Kind tinyKind(ItemStack stack) {
+        if(stack.is(LbcWands.TINY_FIRE)) return Kind.FIRE;
+        if(stack.is(LbcWands.TINY_BLIND)) return Kind.BLIND;
+        if(stack.is(LbcWands.TINY_AIR)) return Kind.AIR;
+        if(stack.is(LbcWands.TINY_STONE)) return Kind.STONE;
+        if(stack.is(LbcWands.TINY_TELEPORT)) return Kind.TELEPORT;
+        if(stack.is(LbcWands.TINY_RUBY)) return Kind.RUBY;
+        if(stack.is(LbcWands.TINY_TERRA)) return Kind.TERRA;
+        if(stack.is(LbcWands.TINY_ACID)) return Kind.ACID;
+        if(stack.is(LbcWands.TINY_ELECTRO)) return Kind.ELECTRO;
+        var data=stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
+        if(data==null) return null;
+        if(data.matchedBy(TINY_FIRE_DONOR)) return Kind.FIRE;
+        if(data.matchedBy(TINY_BLIND_DONOR)) return Kind.BLIND;
+        if(data.matchedBy(TINY_AIR_DONOR)) return Kind.AIR;
+        if(data.matchedBy(TINY_STONE_DONOR)) return Kind.STONE;
+        if(data.matchedBy(TINY_TELEPORT_DONOR)) return Kind.TELEPORT;
+        if(data.matchedBy(TINY_RUBY_DONOR)) return Kind.RUBY;
+        if(data.matchedBy(TINY_TERRA_DONOR)) return Kind.TERRA;
+        if(data.matchedBy(TINY_ACID_DONOR)) return Kind.ACID;
+        return data.matchedBy(TINY_ELECTRO_DONOR) ? Kind.ELECTRO : null;
     }
 
     private static boolean tinyElectro(ItemStack stack) {
@@ -157,6 +217,11 @@ public final class LbcCraftingRecipe extends CustomRecipe {
     private static final net.minecraft.nbt.CompoundTag AIR_DONOR=donorFlag("stair"),
             RUBY_DONOR=donorFlag("struby"),
             EXOPERSO_DONOR=donorFlag("exoperso"), STONE_DONOR=donorFlag("ststone"), WALL_DONOR=donorFlag("wall"), FIRE_DONOR=donorFlag("stfire"), BLAZE_DONOR=donorFlag("fallingstars"), BLIND_DONOR=donorFlag("stblind"), PSYCHO_DONOR=donorFlag("psychowand"), VEX_DONOR=donorFlag("summonervexes"), STARS_DONOR=donorFlag("truefallingstars"), TELEPORT_DONOR=donorFlag("stteleport"), BOLTS_DONOR=donorFlag("lightning_bolts");
+    private static final net.minecraft.nbt.CompoundTag TINY_FIRE_DONOR=donorFlag("stfire_tiny"),
+            TINY_BLIND_DONOR=donorFlag("stblind_tiny"), TINY_AIR_DONOR=donorFlag("stair_tiny"),
+            TINY_STONE_DONOR=donorFlag("ststone_tiny"), TINY_TELEPORT_DONOR=donorFlag("stteleport_tiny"),
+            TINY_RUBY_DONOR=donorFlag("struby_tiny"), TINY_TERRA_DONOR=donorFlag("stterra_tiny"),
+            TINY_ACID_DONOR=donorFlag("stacid_tiny"), TINY_ELECTRO_DONOR=donorFlag("stelectro_tiny");
     private static net.minecraft.nbt.CompoundTag donorFlag(String name) {
         var tag=new net.minecraft.nbt.CompoundTag(); tag.putInt(name,1); return tag;
     }
@@ -246,7 +311,10 @@ public final class LbcCraftingRecipe extends CustomRecipe {
             LbcOverload.sound(player,"minecraft:entity.player.breath",2,0,0);
             return;
         }
-        boolean enchant=kind==Kind.TERRA || kind==Kind.ELECTRO || kind==Kind.CYBERKATANA || kind==Kind.ELECTRO_SHIELD;
+        boolean enchant=switch(kind) {
+            case FIRE,BLIND,AIR,STONE,TELEPORT,RUBY,TERRA,ACID,ELECTRO,CYBERKATANA,ELECTRO_SHIELD -> true;
+            default -> false;
+        };
         var dust=new net.minecraft.core.particles.DustParticleOptions(kind==Kind.ELECTROBLOCKER
                 ? net.minecraft.util.ARGB.colorFromFloat(1,.196f,.514f,.592f)&0xffffff : kind==Kind.SWORD
                 ? net.minecraft.util.ARGB.colorFromFloat(1,.475f,.761f,.435f)&0xffffff

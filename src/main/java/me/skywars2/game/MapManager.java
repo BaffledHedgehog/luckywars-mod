@@ -1299,9 +1299,14 @@ public final class MapManager {
     }
     /** Копия полностью заменяет прежний контейнер, даже если тип блока остался тем же. */
     void restoreSnapshot(ServerLevel target,BlockPos pos,BlockSnapshot snapshot) {
+        restoreSnapshot(target,pos,snapshot,MAP_WRITE_FLAGS);
+    }
+
+    /** Bulk spell writes may defer shape/on-place callbacks while retaining native lighting and client updates. */
+    void restoreSnapshot(ServerLevel target,BlockPos pos,BlockSnapshot snapshot,int flags) {
         if(snapshot.entity==null && target.getBlockState(pos)==snapshot.state && target.getBlockEntity(pos)==null) return;
         if(target.getBlockEntity(pos) instanceof net.minecraft.world.Clearable previous) previous.clearContent();
-        target.setBlock(pos, snapshot.state, MAP_WRITE_FLAGS);
+        target.setBlock(pos, snapshot.state, flags);
         if (snapshot.entity != null) {
             BlockEntity blockEntity = target.getBlockEntity(pos);
             if (blockEntity != null) {

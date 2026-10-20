@@ -91,6 +91,8 @@ public final class LbcIndirectKills {
         var game=me.skywars2.SkyWars2.game();
         if(game==null) return null;
         var summoner=game.items().blaze().owner(source);
+        if(summoner==null) summoner=game.items().shooters().owner(source);
+        if(summoner==null) summoner=game.items().kfcRewards().owner(source);
         if(summoner!=null) return summoner;
         summoner=game.items().psycho().owner(source);
         if(summoner==null) summoner=game.items().summons().owner(source);

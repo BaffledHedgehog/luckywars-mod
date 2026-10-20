@@ -36,6 +36,8 @@ import java.util.ArrayDeque;
 /** Blaze-донор и Fireblaze: общий native fireball, без сущностей-маркеров для турелей. */
 public final class LbcBlaze {
     private static final DustParticleOptions TURRET_DUST=new DustParticleOptions(0xfff235,4);
+    private static final DustParticleOptions CHICKEN_DUST=new DustParticleOptions(0xfda500,4);
+    private static final DustParticleOptions CHICKEN_BURST=new DustParticleOptions(0xfff59a,4);
     public static final String TRIAL_PROJECTILE="skywars2.blaze.trial";
     private static final String OWNER_TAG="skywars2.blaze.owner.";
     private static final int FLAGS=Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE|Block.UPDATE_SUPPRESS_DROPS
@@ -46,7 +48,7 @@ public final class LbcBlaze {
     private final Map<Blaze,UUID> blazes=new HashMap<>();
     private final ArrayDeque<Terrain> terrain=new ArrayDeque<>();
     private int ticks;
-    private record Turret(ServerPlayer owner,ServerLevel level,Vec3 position,String epoch,int remaining) { }
+    private record Turret(ServerPlayer owner,ServerLevel level,Vec3 position,String epoch,int remaining,double speed,DustParticleOptions dust) { }
     private record Terrain(ServerPlayer owner,ServerLevel level,ArrayDeque<BlockAreaWork> areas) { }
 
     LbcBlaze(GameController game) { this.game=game; }
@@ -57,7 +59,7 @@ public final class LbcBlaze {
             Vec3 next=transform.apply(turret.position);
             if(next==null) turrets.remove(i);
             else if(!next.equals(turret.position))
-                turrets.set(i,new Turret(turret.owner,turret.level,next,turret.epoch,turret.remaining));
+                turrets.set(i,new Turret(turret.owner,turret.level,next,turret.epoch,turret.remaining,turret.speed,turret.dust));
         }
     }
 
@@ -80,9 +82,7 @@ public final class LbcBlaze {
     boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean blaze,boolean upgraded) {
         if(!valid(owner) || paused(owner) || game.items().magic().suppressedAt(owner.level(),owner.getEyePosition())) return false;
         var mana=game.items().mana();
-        int cost=mana.score(ScoreHolder.forNameOnly(blaze?"blaze_wand_mana_use":"fireblaze_wand_mana_use"),"lbc.math").get();
         if(upgraded && owner.isShiftKeyDown()) {
-            if(mana.get(owner)<cost && mana.overloadArmor(owner)!=15) return false;
             var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             int mode=Math.floorMod(tag.getIntOr("mode",1),blaze?2:4)+1;
             tag.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
@@ -90,6 +90,7 @@ public final class LbcBlaze {
                     switch(mode) { case 2->"mode_mega"; case 3->"mode_pillars"; case 4->"mode_kiuas"; default->"mode_world"; }));
             return true;
         }
+        int cost=mana.score(ScoreHolder.forNameOnly(blaze?"blaze_wand_mana_use":"fireblaze_wand_mana_use"),"lbc.math").get();
         if(!mana.trySpendWand(owner,cost)) return false;
         int mode=upgraded?Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag()
                 .getIntOr("mode",1),1,blaze?2:4):0;
@@ -161,8 +162,14 @@ public final class LbcBlaze {
             game.items().mana().award(owner,"lbc:true_advancements/staffs/blaze");
             LbcOverload.sound(owner,end,"minecraft:entity.villager.trade",1,1,0);
         }
-        turrets.add(new Turret(owner,owner.level(),end.add(0,1,0),game.items().epoch(),5));
+        turrets.add(new Turret(owner,owner.level(),end.add(0,1,0),game.items().epoch(),5,.7,TURRET_DUST));
         LbcOverload.sound(owner,end,"minecraft:entity.blaze.ambient",1,1.3f,0);
+    }
+
+    /** KFC uses the same one-second pulse and owner/fire lifecycle, with three native shots at speed 1.6. */
+    void chickenTurret(ServerPlayer owner,Vec3 position) {
+        turrets.add(new Turret(owner,owner.level(),position,game.items().epoch(),3,1.6,CHICKEN_DUST));
+        owner.level().sendParticles(CHICKEN_BURST,true,false,position.x,position.y-1,position.z,10,.2,.5,.2,0);
     }
 
     private boolean target(ServerPlayer owner,LivingEntity entity) {
@@ -309,13 +316,13 @@ public final class LbcBlaze {
             var target=nearest(owner,turret.position,true,candidates);
             if(target!=null) {
                 var projectile=new SmallFireball(EntityTypes.SMALL_FIREBALL,turret.level);
-                Vec3 velocity=target.getEyePosition().subtract(turret.position).normalize().scale(.7);
+                Vec3 velocity=target.getEyePosition().subtract(turret.position).normalize().scale(turret.speed);
                 game.items().wands().launchFire(owner,projectile,turret.position,velocity);
                 LbcOverload.sound(owner,turret.position,"minecraft:entity.blaze.shoot",1,1,0);
             }
-            turret.level.sendParticles(TURRET_DUST,true,false,turret.position.x,turret.position.y,turret.position.z,10,.2,.5,.2,0);
+            turret.level.sendParticles(turret.dust,true,false,turret.position.x,turret.position.y,turret.position.z,10,.2,.5,.2,0);
             if(turret.remaining<=1) turrets.remove(i);
-            else turrets.set(i,new Turret(owner,turret.level,turret.position,turret.epoch,turret.remaining-1));
+            else turrets.set(i,new Turret(owner,turret.level,turret.position,turret.epoch,turret.remaining-1,turret.speed,turret.dust));
         }
         if(now%10==0) for(var owner:List.copyOf(heads.values())) {
             if(!valid(owner) || headCharges(owner)<=0 || game.items().magic().rejectCustomEffect(owner)) { clearEffects(owner); continue; }
@@ -347,6 +354,12 @@ public final class LbcBlaze {
         }
     }
     public void clearEffects(ServerPlayer owner) { heads.remove(owner.getUUID()); game.items().mana().score(owner,"blaze").set(0); }
+    /** Cancel pending shared turrets before a respawn can make the owner valid at the next pulse. */
+    public void forget(ServerPlayer owner) {
+        turrets.removeIf(turret->turret.owner.getUUID().equals(owner.getUUID()));
+        terrain.removeIf(job->job.owner.getUUID().equals(owner.getUUID()));
+        clearEffects(owner);
+    }
     public void stop() {
         for(var owner:List.copyOf(heads.values())) clearEffects(owner);
         turrets.clear(); terrain.clear();

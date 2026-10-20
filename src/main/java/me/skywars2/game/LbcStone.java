@@ -155,11 +155,11 @@ public final class LbcStone {
             }
         } finally { batch.clear(); }
     }
-    /** Оригинальные четыре шаблона с их integrity; мир не сканируется ради учёта автора блоков. */
+    /** Камни сохраняют исходную integrity, шипы ставятся целиком; автор блоков учитывается общим helper. */
     private void impact(ServerPlayer owner,Vec3 point,boolean spike) {
         var pos=BlockPos.containing(point);
         game.items().indirectKills().trapChanges(owner,()-> {
-            if(spike) game.maps().placeLoadedTemplate(owner,SPIKES,pos.offset(-4,-1,-4),.75f);
+            if(spike) game.maps().placeLoadedTemplate(owner,SPIKES,pos.offset(-4,-1,-4),1f);
             else for(int i=0;i<ROCKS.length;i++) game.maps().placeLoadedTemplate(owner,ROCKS[i],pos.offset(-5+i,-5+i,-5+i),INTEGRITY[i]);
         });
         for(float pitch:new float[]{0,.5f,1,1.5f,2}) LbcOverload.sound(owner,point,"minecraft:block.stone.place",2,pitch,0);

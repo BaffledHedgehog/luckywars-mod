@@ -34,7 +34,7 @@ final class LbcWall {
     static boolean cycle(GameController game,ServerPlayer owner,ItemStack stack) {
         var mana=game.items().mana();
         if(!mana.visible(owner) || owner.entityTags().contains("time_stopped")
-                || game.items().magic().suppressed(owner) || mana.get(owner)<500 && mana.overloadArmor(owner)!=15) return false;
+                || game.items().magic().suppressed(owner)) return false;
         // (user) Горизонт относится к переключению вперёд, без двух отменяющих друг друга вызовов.
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         int mode=Math.floorMod(data.getIntOr("mode",1)-1+(owner.getXRot()>0?-1:1),4)+1;

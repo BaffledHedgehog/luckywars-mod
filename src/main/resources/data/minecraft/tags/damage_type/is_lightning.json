@@ -1,5 +1,6 @@
 {"replace":false,
   "values": [
-    "minecraft:lightning_bolt"
+    "minecraft:lightning_bolt",
+    "skywars2:lightning"
   ]
 }

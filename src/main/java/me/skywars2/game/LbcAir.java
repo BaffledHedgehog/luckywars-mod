@@ -19,7 +19,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -119,7 +118,9 @@ public final class LbcAir {
         if(charges.isEmpty()) return;
         batch.addAll(charges);
         try {
-            for(Charge charge:batch) {
+            // Прямой взрыв может завершить матч и очистить batch прямо из damage callback.
+            for(int index=0;index<batch.size();index++) {
+                Charge charge=batch.get(index);
                 if(!charges.contains(charge)) continue;
                 if(charge.isRemoved() || !(charge.getOwner() instanceof ServerPlayer owner)
                         || !game.items().currentEpoch(charge) || charge.level()!=game.maps().level()
@@ -183,13 +184,9 @@ public final class LbcAir {
             if(!game.items().currentEpoch(charge) || game.stage()==GameController.Stage.ENDING || !validOwner(owner)) return;
             Vec3 at=point.add(0,y,0);
             if(!owner.level().hasChunkAt(BlockPos.containing(at))) continue;
-            PrimedTnt tnt=new PrimedTnt(owner.level(),at.x,at.y,at.z,owner);
-            // Fuse=2 сохраняет исходную задержку; нативный TNT обслуживает физику и авторство взрыва.
-            tnt.setDeltaMovement(Vec3.ZERO); tnt.setFuse(2);
-            tnt.entityTags().add(LbcExasperato.EXPLOSIVE);
-            game.items().markCurrentItemEpoch(tnt);
-            game.items().academy().blastSource(tnt,trial);
-            owner.level().addFreshEntity(tnt);
+            // Все режимы Sarvatra Mula учитывают защиту TNT; испытание получает тот же источник урона.
+            game.items().exasperato().protectedBlast(owner,owner.level(),at,4,
+                    source->game.items().academy().blastSource(source,trial));
         }
     }
 

@@ -2,6 +2,32 @@
 
 ## Быстрая навигация
 
+Переключение режимов 21 улучшенного Academy-жезла выполняется до оплаты
+заклинания в `LbcWands` или профильном владельце Wall/Bedrock/Blaze/Homing/
+Psycho/Bolts/Consuming/Duplicating. Оно не проверяет запас маны и не вызывает
+`trySpendWand(..., 0)`; нулевая/отрицательная мана допустима. Общие проверки
+игрового ввода и `mana.visible` сохраняются. Стоимость/допуск и бонусы каста
+применяются только после ветки переключения, без общего нового контроллера режимов.
+
+KFC — `LbcShooters`: нативная курица, общий cooldown и событийный accepted-damage
+callback. Огненная турель переиспользует `LbcBlaze` с отдельными параметрами
+скорости/числа импульсов/частиц. Курицы не сохраняются в чанки; поколение
+владельца и немедленный forget исключают возвращение старой способности.
+`LbcKfcFood` — событие потребления, 20 исходов и конечный таймер gigaponos.
+Исход счётчиков вызывает API владельцев Psycho/Electro/Blaze/Shooters/Terra,
+исход атрибутов меняет native base и использует общий сброс атрибутов матча.
+Гигиена эффектов подключена к полной/дебафф-очистке `LbcMagic` до первого тика.
+
+`LbcKfcRewards` — два результата еды: ложная победа и Cultus. Фейерверки
+переиспользуют `MatchEvents`, исходный текст — `OriginalGuiDesign.sourceMessage`;
+генератор переживает смерть/выход владельца до lifecycle матча. Cultus использует
+native bat/item и локальные contact queries; multicast — общую очередь
+`LbcStonekivi.Work`, без потери отдельных ударов. Тип `cultus_arrow` наследует
+стреловую защиту и cooldown-bypass только для себя. `KfcLightningMixin`
+сохраняет ванильный тип молнии, передавая владельца и общие target guards.
+Native-позиции бомб не дублируются в transformOrigins. Атрибуция — существующий
+`LbcIndirectKills`, вход — общий `LbcWands`; см. `agent_notes/KFC_PORT.md`.
+
 «Незнание» и награда Academy — `LbcLoadouts`: раздельные active/progress/reward
 в `PlayerStore`, выбор/reset и 20 успешных повышений через `LbcAcademy`.
 Каждое повышение сохраняет профиль на диск; незавершённый прогресс переживает
@@ -57,7 +83,8 @@ Consuming — `LbcConsuming`: один сервис частиц поглоще�
 с сохранением последнего исходного действия для каждой позиции. Нативные
 шаблоны и 28 пресетов готовятся через worker MapManager; мир меняется только
 в общей очереди LbcStonekivi. Урон `skywars2:consuming` сохраняет стреловую
-защиту и исходную кратность без cooldown; ванильный arrow не меняется.
+защиту и исходную кратность без cooldown; ванильный arrow также входит в
+полностью восстановленный legacy bypasses_cooldown (user, 20 октября).
 Призывы сохраняют автора через LbcIndirectKills и native AI target hooks;
 смерть владельца/stop снимают их и отменяют принятые записи.
 Silence очищает сферу R48 напрямую и удаляет обычные сущности, Avarice
@@ -143,13 +170,22 @@ BitSet по секциям, реальные новые полосы, loaded-onl
 шаблон на существующем worker; явный air отличается от отсутствующей клетки.
 
 Stonekivi — `LbcStonekivi`: четыре режима, заранее подготовленные части исходных
-шаблонов и общая очередь с бюджетом CPU. Sun делегирует `LbcMagmify`: чтение
-связанной области на серверном потоке → чистый план на существующем worker
-MapManager → порционная запись и атрибуция урона. Tannerkivi — `LbcTanner`:
+шаблонов и общая очередь с бюджетом CPU. Sun делегирует `LbcMagmify`: потоковый
+обход с исходным 26-соседним halo и записью небольшими порциями на серверном
+потоке, без ожидания полного плана. Каждый каст получает отдельные ходы;
+packed-long cache хранит исходное/ожидаемое состояние для защиты чужих правок.
+Лавовые выступы и тики жидкости завершают обход; затем идёт один surface impact.
+`MapManager.restoreSnapshot(...,flags)` переиспользует потребление контейнеров
+и native setBlock с явным измерением; Sun откладывает shape/on-place callbacks,
+прежние callers сохраняют исходные flags. Tannerkivi — `LbcTanner`:
 автоматические две руки, начальное покрытие и только реальные новые полосы
 при движении, объединённые BitSet-задания по секциям и индекс событий блоков
 по чанкам. Пустые/готовые секции пропускаются по нативной палитре; чтение
 блоков идёт из загруженной секции, запись — прежним setBlock с общей атрибуцией.
+`BlockAreaWork` обрезает pending-маски целыми Y/Z/X-диапазонами BitSet, без
+поклеточного прохода при движении. Только живой Tanner включает раннюю
+проверку палитры до постановки секции; изменения снова поступают через индекс
+block/chunk events. У одноразовых заклинаний семантика постановки сохранена.
 Ввод/мана, NPC и крафт остаются в прежних владельцах.
 См. [поведение и ограничения](agent_notes/STONEKIVI_PORT.md).
 
@@ -173,9 +209,57 @@ MapManager → порционная запись и атрибуция урон�
 
 Дальние снаряды используют [`ProjectileLifetimes`](src/main/java/me/skywars2/game/ProjectileLifetimes.java),
 общую геометрию — `LbcWands.firstHit`/`LbcTerra.wallHit`. Воздушные ракеты
-[`LbcAir`](src/main/java/me/skywars2/game/LbcAir.java) создают нативный TNT и
-переиспользуют существующие guards/оптимизацию взрыва, а `LbcItems` уже очищает
-этот TNT при завершении матча. Для них не нужен ещё один обработчик взрывчатки.
+[`LbcAir`](src/main/java/me/skywars2/game/LbcAir.java) используют общий
+`LbcExasperato.protectedBlast`: нативный TNT-взрыв с временным источником,
+который не добавляется в мир. Тот же helper обслуживает SLR, Fulminate,
+Cultus и контакт летящего динамита. `instantBlast` явно исключает конфиг-защиту
+для исходного fuse=0. `LbcDamage.protectedTntDamage` через Player-super hook
+применяет `tntProtection` только к игрокам после сложности, до штатной брони
+и эффектов, без выдачи Resistance. Электрический HEAD hook остаётся отдельным.
+Нативный задержанный/цепной TNT учитывает конфиг по умолчанию. Его физика,
+owner и очистка эпохи остаются в существующем `LbcItems` lifecycle.
+85 защищённых взрывов Exasperato проходят ту же очередь с бюджетом CPU,
+что и ядерные серии. Общая `ProjectileLifetimes.protectedWandProjectile`
+задаёт политику магических носителей: `EntityVelocityMixin` пропускает для них
+весь native explosion branch через `ignoreExplosion`, а `WandProjectileMixin`
+отсекает обычные атаки/столкновения/deflection. Кислота исключена; электрощит,
+Curse и намеренные изменения скорости/owner сохраняются. Это заменяет прежний
+частный фильтр собственных взрывов Exasperato; учитываются позиции/мощность/политика каждой
+серии, без потери принятых взрывов. Временные Academy/Exoperso источники
+освобождаются сразу после синхронного взрыва.
+
+`ElectroNativeMixins.Impact` сохраняет авторство нативных молний через отдельный
+`LbcDamage.LIGHTNING` / `skywars2:lightning`. Он входит в electrical/no-knockback
+классификацию, но не в bypasses_cooldown; обычная погода остаётся ванильной.
+У Teleport-снарядов нет отдельного прямого HP-урона. Дуги и ауры продолжают
+использовать свои ранее согласованные типы с обходом cooldown.
+
+`data/minecraft/tags/damage_type/bypasses_cooldown.json` объединяет все 14
+ванильных записей legacy LBC и 11 собственных skywars2 типов. Нативный hurt
+pipeline сам принимает повторные попадания; ручных сбросов HurtTime нет.
+Фовос использует generic, обычные стрелы — arrow, оба типа теперь без cooldown.
+Vanilla/managed lightning исключены и сохраняют обычную частоту попаданий.
+
+Default model Polymer-предмета задаётся через `Item.Properties.effectiveModel()`:
+в 26.3 финальный initializer перезаписывает ранний `.component(ITEM_MODEL,...)`.
+`LbcElectro.registerShield` использует `minecraft:shield`; Polymer штатно
+переносит base_color/banner_patterns, которые рисует vanilla shield renderer.
+Ресурспак для электрощита не нужен; per-stack модели из loot сохраняются.
+
+Ближняя аура Electroblocker в `LbcElectro.tickShields` после успешного ELECTRIC
+урона отдельно вызывает native `dealDefaultKnockback`: полный импульс мобам,
+0,1 изменения скорости игрокам (user). Общий тег `no_knockback` не меняется;
+отклонённый удар, союзники и иммунные к электричеству цели не отбрасываются.
+
+Все девять пар одинаковых Tiny объединяются в обычный жезл через
+`LbcCraftingRecipe.tinyPair`; native/legacy/mixed пары используют те же
+2×2/3×3 output slots и take hooks. Preview берёт source loot и разрешает
+его mana-score lore через серверный ResolutionContext, поскольку у рецепта
+нет THIS_ENTITY; translate-компоненты и стили сохраняются. Обычный Acid
+зарегистрирован в `LbcWands`, один заряд создаёт
+`LbcClouds.ordinaryWandAcid`: постоянный профиль на общей AcidProjectile,
+сфера 5, Poison 600 / горящий урон 4, прежняя физика/прилипание/owner/lifecycle.
+См. [перенос крафтов](agent_notes/TINY_WAND_CRAFT_PORT.md).
 
 Жезл телепорта — [`LbcTeleport`](src/main/java/me/skywars2/game/LbcTeleport.java):
 нативный заряд, upward/inverted payload и облако на Arrow. Инверсия повторно
@@ -266,10 +350,10 @@ smart lifetime и достижение за убийства одной сери
 | `LbcColors`, `LbcColorEffectsMixin` | Все 16 веток 1:7 в одном компоненте. `LbcMagic` переиспользует маску инвентаря и проверяет две позиции блока раз в пять тиков. Цвет выбирают исходные теги; цели исключают наблюдателей и нативных союзников. Нативные XP/эффекты/частицы, fill air и spreadplayers; мана/еда используют общий bridge `LbcMana` без account JSON-записей на pulse. Усиленные водные эффекты индексируются событиями add/update/remove; RTP — отдельным набором с сохраняемым накопительным таймером. Полная очистка снимает RTP, native water effects прекращают работу при снятии. Стоимость синхронного spreadplayers не измерялась. |
 | `LbcMana` | Одно ядро ресурсов вместо собственной маны каждого предмета: established scoreboard units, обычный tick regen, mage/belt bonuses, временное усиление и обратный поток, API проверенного расхода и signed adjustments. Инвентарь/экипировка инвалидируют общий снимок бонусов; `clear ... 0` заменён нативным count helper без расходования. Три адаптера PotionItem/SplashPotionItem/LingeringPotionItem реализуют PolymerItem, сохраняя нативную доставку пяти семейств зелий. Raid Omen 16–20 конвертируется через события; одноктиковые эффекты захватываются сразу, постоянные пульсы выполняются перед regen. Мобы хранятся в наборах затронутых сущностей, без отдельного обхода мира. Общая очистка снимает таймеры и pending, сохраняя ресурсы. Смерть сохраняет mana/max/base; старт сбрасывает их. Мана/ракета используют один actionbar с прежними компонентами, отправкой при изменении и keepalive 20 тиков. Мир и scoreboard обслуживаются в серверном потоке. Nyauwu and other spell consumers remain separate migration stages. |
 | `LbcOverload`, `LbcOverloadArmor`, `LbcEquipmentMixin` | Первый компонент содержит стадии долга, Crux и все варианты лучей; второй — прыжок поножей и удар ботинок. Пять типов Polymer используют исходные loot-компоненты. Маска четырёх частей переиспользует dirty cache `LbcMana`; `trySpendWand` разрешает настоящую отрицательную ману полному комплекту без временных миллионов. Прыжок приходит из существующего mixin в LivingEntity; очистка подключена к общему lifecycle. Один пространственный запрос на луч, затем проверка кандидатов вдоль траектории; серверные мир/урон/scoreboard остаются в основном потоке. Состояние ботинок и принадлежащая ему гравитация снимаются при очистке; настоящая мана сохраняется. |
-| `LbcWands`, `WandProjectileMixin`, `LbcDamageMixin` | Девять малых жезлов используют общий расход `LbcMana`; offhand/double cast управляется существующей кнопкой настроек. Fireball и Air rocket хранятся в трекере `LbcTrinkets`; фильтр нативного столкновения исключает союзника до поджигания, Fabric ALLOW_DAMAGE также защищает от радиусного Air-урона. Общий мгновенный луч выбирает кандидатов один раз на каст в границах sample-ячеек и завершает действие при первом попадании (user). Ruby намеренно разрушает всю линию, Terra пробивает существ с одним ударом каждой цели до стены (user); Acid запускает существующий `LbcClouds.wandAcid`. Tiny Electro использует конечные state-trace jobs в `LbcWands` и общий `LbcItems.tick`, без marker на каждый шаг; срок — до 40 выполняемых тиков, остановка очищает jobs. Проверяются epoch/арена/владелец/загруженные чанки, owner/global time-stop и общий `LbcMagic.suppressedAt`. Direct Electro hit и conduction используют отдельные узкие DamageType; только conduction source проходит `LbcDamageMixin` мимо vanilla team/PvP gate для предписанного friendly fire. Каст переиспользует cached mage mask, count helper тринкетов и tracked native TNT `LbcItems`; origin передаётся явно для сохранения координат источника. `nomagic` находится в `LbcMana`, приостанавливает ресурсный цикл, но не каст, сбрасывается общей очисткой. Источники этого таймера ещё переносятся. |
+| `LbcWands`, `WandProjectileMixin`, `LbcDamageMixin` | Девять малых жезлов используют общий расход `LbcMana`; offhand/double cast управляется существующей кнопкой настроек. Fireball и Air rocket хранятся в трекере `LbcTrinkets`; фильтр нативного столкновения исключает союзника до поджигания, Fabric ALLOW_DAMAGE также защищает от радиусного Air-урона. Общий мгновенный луч выбирает кандидатов один раз на каст в границах sample-ячеек и завершает действие при первом попадании (user). Ruby намеренно разрушает всю линию, Terra пробивает существ с одним ударом каждой цели до стены (user); Acid запускает существующий `LbcClouds.wandAcid`. Tiny Electro использует конечные state-trace jobs в `LbcWands` и общий `LbcItems.tick`, без marker на каждый шаг; срок — до 40 выполняемых тиков, остановка очищает jobs. Проверяются epoch/арена/владелец/загруженные чанки, owner/global time-stop и общий `LbcMagic.suppressedAt`. Direct Electro hit и conduction используют отдельные узкие DamageType; только conduction source проходит `LbcDamageMixin` мимо vanilla team/PvP gate для предписанного friendly fire. Каст переиспользует cached mage mask, count helper тринкетов и tracked native TNT `LbcItems`; точку TNT тринкета вычисляет `LbcItems.castWandDynamite`: глаза игрока +0,5 по Y, без зависимости от origin жезла. `nomagic` находится в `LbcMana`, приостанавливает ресурсный цикл, но не каст, сбрасывается общей очисткой. Источники этого таймера ещё переносятся. |
 | `LbcTerra` | Общий полёт regular/Academy и обоих Polymer-мечей, отличия в `Kind`. Один native Projectile и Polymer virtual display; native DDA обрезает путь на первой стене/недоступном чанке, сохраняя предшествующие swept hits без подгрузки. Ручной tick из `LbcItems` работает вне entity-ticking. Жезлы используют очередь редких проверок lifetime с общим бюджетом без TTL/границ карты; заряд обычного/улучшенного меча и дуга имеют TTL 40/20/50 рабочих тиков. Дуга проверяет три линии нативных хитбоксов после одного spatial query. `LbcItems.damaged` передаёт нестреловой урон: обычному мечу заряд до четырёх, улучшенному бесплатную arrow-дугу; счётчик входит в общий HUD. Расход улучшенного ПКМ остаётся в `LbcWands`/`LbcMana`, фильтр целей и граница щита переиспользуются из `LbcWands`. |
 | `LbcDamage`, `LbcDamageMixin` | Общая электрическая категория и четыре слота брони: raw-надбавка по ванильному металлу, иммунитет полного смешанного Techno/MK2, сохранение native защиты и узкого team-исключения проводимости. Cooldown/knockback задаются штатными damage tags. Обработчики предметов выбирают источник и допустимые цели, не дублируют формулу урона. Дополнительного тикера нет. |
-| `LbcBlind` | Native Polymer `Charge` Stblind-снарядов и их hit logic; хранит Gatling/Rain очереди и облака. Ввод/оплата остаются в `LbcWands`; `LbcItems` владеет общим tick/stop/lifecycle. |
+| `LbcBlind` | Native Polymer `Charge` Stblind-снарядов и их hit logic; хранит Gatling/Rain очереди и облака. Rain-капли имеют TTL20 и появляются с разбросом ±0,6 около текущей позиции живых врагов под облаком; пустая область не создаёт сущностей. Локальный список целей обновляется не чаще 5 тиков и перепроверяется при каждой эмиссии; перенос облака сбрасывает кэш. Геометрия попаданий и native owner/отражение общие, ink trail строится без временных Vec3 на каждый sample. Ввод/оплата остаются в `LbcWands`; `LbcItems` владеет общим tick/stop/lifecycle. |
 | `LbcStone` | Native Polymer `Charge` каменных зарядов и их столкновения/Academy payload; шаблоны прогреваются через `prepare()`. Ввод/оплата принадлежат `LbcWands`, tick/stop подключены к `LbcItems`. |
 | `LbcTeleport` | Обычный и Academy заряды, первые swept-попадания, левитация/инверсия, учёт нативных стрел-облаков. Общий targets-only smart lifetime, shield/role guards, автор ловушки и падения. Облака не имеют боевых попаданий; native physics приостанавливается узким pre-tick hook и не загружает чанки. |
 | `LbcRuby` | Летящий бур и два Academy-рейкаста: сжатие с ловушкой/owner и сквозное разрушение. Общие block/drop, вставка структур и smart lifetime с terrain=true; задание/улучшение остаются в `LbcAcademy`, ввод/оплата — в `LbcWands`. |

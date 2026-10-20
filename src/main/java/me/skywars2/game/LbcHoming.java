@@ -114,9 +114,7 @@ public final class LbcHoming {
     boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean donor,boolean upgraded) {
         if(!valid(owner) || paused(owner) || game.items().magic().suppressedAt(owner.level(),owner.getEyePosition())) return false;
         var mana=game.items().mana();
-        int cost=mana.score(ScoreHolder.forNameOnly(donor?"falling_stars_wand_mana_use":"exahoming_wand_mana_use"),"lbc.math").get();
         if(upgraded && owner.isShiftKeyDown()) {
-            if(mana.get(owner)<cost && mana.overloadArmor(owner)!=15) return false;
             var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             int mode=Math.floorMod(tag.getIntOr("mode",1),donor?3:4)+1;
             tag.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
@@ -127,6 +125,7 @@ public final class LbcHoming {
             }));
             return true;
         }
+        int cost=mana.score(ScoreHolder.forNameOnly(donor?"falling_stars_wand_mana_use":"exahoming_wand_mana_use"),"lbc.math").get();
         if(!mana.trySpendWand(owner,cost)) return false;
         int mode=upgraded?Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY)
                 .copyTag().getIntOr("mode",1),1,donor?3:4):1;

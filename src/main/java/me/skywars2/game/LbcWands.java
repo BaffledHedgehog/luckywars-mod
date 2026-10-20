@@ -105,6 +105,7 @@ public final class LbcWands {
     public static final Item TERRA=register("skywars2:terra_wand","sauvojen_wand_terra","lbc:st/terra");
     public static final Item ACADEMY_TERRA=register("skywars2:academy_terra_wand","sauvojen_wand_terra","lbc:st/terra");
     public static final Item TINY_ACID=register("skywars2:tiny_acid_wand","wand_acid_tiny","lbc:st/acid_tiny");
+    public static final Item ACID_WAND=register("skywars2:acid_wand","sauvojen_wand_acid","lbc:st/acid");
     public static final Item TINY_ELECTRO=register("skywars2:tiny_electro_wand","wand_electro_tiny","lbc:st/electro_tiny");
     public static final Item ELECTRO=register("skywars2:electro_wand","sauvojen_wand_electro","lbc:st/electro");
     public static final Item ACADEMY_ELECTRO=register("skywars2:academy_electro_wand","sauvojen_wand_electro","lbc:st/electro");
@@ -166,6 +167,7 @@ public final class LbcWands {
         REGULAR_TERRA(LbcWands.TERRA,"stterra","stterra_wand_mana_use",1000),
         TRUE_TERRA(LbcTerra.TRUE_SWORD,"true_terra","true_terra_mana_use",1000),
         ACID(TINY_ACID,"stacid_tiny","tiny_acid_wand_mana_use",63),
+        REGULAR_ACID(LbcWands.ACID_WAND,"stacid","stacid_wand_mana_use",250),
         ELECTRO(TINY_ELECTRO,"stelectro_tiny","tiny_electro_wand_mana_use",100),
         ACADEMY_ELECTRO(LbcWands.ACADEMY_ELECTRO,"stelectro","stelectro_wand_mana_use",400),
         REGULAR_ELECTRO(LbcWands.ELECTRO,"stelectro","stelectro_wand_mana_use",400),
@@ -321,7 +323,9 @@ public final class LbcWands {
         if(game.items().actionsBlocked(player)) return false;
         var stack=player.getItemInHand(hand);
         // Общий dispatch двух рук: хвоемёт платит боеприпасами и не проходит проверку маны жезлов.
-        if (LbcShooters.isPine(stack) || LbcShooters.isSlr(stack)) return game.items().shooters().use(player, hand);
+        if (LbcShooters.isPine(stack) || LbcShooters.isSlr(stack) || LbcShooters.isKfcGun(stack))
+            return game.items().shooters().use(player, hand);
+        if (LbcKfcRewards.isCultus(stack)) return game.items().kfcRewards().useCultus(player);
         if (LbcElectro.isAnyKatana(stack)) return game.items().electro().use(player,hand);
         var scrollData=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         if(isDivider(stack)) return game.items().duplicating().useDivider(player,hand,stack);
@@ -369,9 +373,9 @@ public final class LbcWands {
         if((spell==Spell.REGULAR_STONEKIVI || spell==Spell.ACADEMY_STONEKIVI)
                 && (timeStopped() || !game.items().stonekivi().ready()
                     || game.items().magic().suppressedAt(player.level(),player.getEyePosition()))) return false;
+        // (user) Смена режима — настройка предмета: не требует маны и не запускает бонусы каста.
         if(spell==Spell.ACADEMY_STONEKIVI && player.isShiftKeyDown()) {
-            if(!mana.visible(player) || player.entityTags().contains("time_stopped") || game.items().magic().suppressed(player)
-                    || mana.get(player)<mana.score(spell.cost,"lbc.math").get() && mana.overloadArmor(player)!=15) return false;
+            if(!mana.visible(player) || player.entityTags().contains("time_stopped") || game.items().magic().suppressed(player)) return false;
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             int mode=Math.floorMod(data.getIntOr("mode",1),4)+1;
             data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
@@ -391,8 +395,7 @@ public final class LbcWands {
         if((spell==Spell.REGULAR_RUBY || spell==Spell.ACADEMY_RUBY) && timeStopped()) return false;
         if(spell==Spell.ACADEMY_RUBY && player.isShiftKeyDown()) {
             if(!mana.visible(player) || player.entityTags().contains("time_stopped")
-                    || game.items().magic().suppressed(player)
-                    || mana.get(player)<mana.score(spell.cost,"lbc.math").get() && mana.overloadArmor(player)!=15) return false;
+                    || game.items().magic().suppressed(player)) return false;
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             int mode=Math.floorMod(data.getIntOr("mode",1),3)+1;
             data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
@@ -406,8 +409,7 @@ public final class LbcWands {
         if((spell==Spell.REGULAR_TELEPORT || spell==Spell.ACADEMY_TELEPORT) && timeStopped()) return false;
         if(spell==Spell.ACADEMY_TELEPORT && player.isShiftKeyDown()) {
             if(!mana.visible(player) || player.entityTags().contains("time_stopped")
-                    || game.items().magic().suppressed(player)
-                    || mana.get(player)<mana.score(spell.cost,"lbc.math").get() && mana.overloadArmor(player)!=15) return false;
+                    || game.items().magic().suppressed(player)) return false;
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             int mode=Math.floorMod(data.getIntOr("mode",1),3)+1;
             data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
@@ -421,8 +423,7 @@ public final class LbcWands {
         if((spell==Spell.REGULAR_AIR || spell==Spell.ACADEMY_AIR) && timeStopped()) return false;
         if(spell==Spell.ACADEMY_AIR && player.isShiftKeyDown()) {
             if(!mana.visible(player) || player.entityTags().contains("time_stopped")
-                    || game.items().magic().suppressed(player)
-                    || mana.get(player)<mana.score(spell.cost,"lbc.math").get() && mana.overloadArmor(player)!=15) return false;
+                    || game.items().magic().suppressed(player)) return false;
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             int mode=Math.floorMod(data.getIntOr("mode",1),3)+1;
             data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
@@ -436,8 +437,7 @@ public final class LbcWands {
         if((spell==Spell.REGULAR_BLIND || spell==Spell.ACADEMY_BLIND) && timeStopped()) return false;
         if(spell==Spell.ACADEMY_BLIND && player.isShiftKeyDown()) {
             if(!mana.visible(player) || player.entityTags().contains("time_stopped")
-                    || game.items().magic().suppressed(player)
-                    || mana.get(player)<mana.score(spell.cost,"lbc.math").get() && mana.overloadArmor(player)!=15) return false;
+                    || game.items().magic().suppressed(player)) return false;
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             int mode=Math.floorMod(data.getIntOr("mode",1),4)+1;
             data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
@@ -451,8 +451,7 @@ public final class LbcWands {
         }
         if(spell==Spell.ACADEMY_STONE && player.isShiftKeyDown()) {
             if(!mana.visible(player) || player.entityTags().contains("time_stopped")
-                    || game.items().magic().suppressed(player)
-                    || mana.get(player)<mana.score(spell.cost,"lbc.math").get() && mana.overloadArmor(player)!=15) return false;
+                    || game.items().magic().suppressed(player)) return false;
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             int mode=Math.floorMod(data.getIntOr("mode",1),4)+1;
             data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
@@ -554,6 +553,10 @@ public final class LbcWands {
             }
             case ACADEMY_TERRA -> game.items().terra().cast(player,LbcTerra.Kind.ACADEMY);
             case TRUE_TERRA -> game.items().terra().cast(player,LbcTerra.Kind.TRUE_CHARGE);
+            case REGULAR_ACID -> {
+                game.items().clouds().ordinaryWandAcid(player);
+                LbcOverload.sound(player,player.getEyePosition(),"minecraft:entity.zombie_villager.cure",1,2,0);
+            }
             case ELECTRO -> electro(player);
             case REGULAR_ELECTRO -> {
                 electroVolley(player);
@@ -576,7 +579,7 @@ public final class LbcWands {
     /** Общие бонусы только исполнившегося заклинания; бесплатный отзыв комнаты их не выдаёт. */
     void wandCasted(ServerPlayer player) {
         if(mana.mageFullSet(player)) mana.maximum(player,mana.maximum(player)+mana.score(MAGE_BONUS,"lbc.math").get());
-        game.items().trinkets().castWand(player,player.getEyePosition());
+        game.items().trinkets().castWand(player);
     }
     private void fire(ServerPlayer player) {
         smallFire(player,0);
@@ -1091,6 +1094,7 @@ public final class LbcWands {
                 && (includeAllies || !player.isAlliedTo(entity) && !game.items().blaze().friendly(player,entity) && !game.items().summons().friendly(player,entity))
                 && !entity.isSpectator() && !entity.entityTags().contains("spectator")
                 && !entity.entityTags().contains("rcdenyalways") && !entity.entityTags().contains("sauvojen_tuntija")
+                && !entity.entityTags().contains("strict_map_object")
                 && !entity.entityTags().contains("magic_academy")
                 && !entity.entityTags().contains("transformator")
                 && (!(entity instanceof ServerPlayer p) || game.canUseGameplayItems(p));

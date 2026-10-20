@@ -43,6 +43,12 @@ final class OriginalGuiDesign {
 
     private OriginalGuiDesign() {}
 
+    /** Shared source text for gameplay messages, with the same selectors, keys and formatting as GUI. */
+    static Component sourceMessage(String path,ServerPlayer player,PlayerStore.Profile profile,GameConfig config) {
+        var values=new RuntimeValues(profile,config,player);
+        return decodeComponent(resolveDynamic(resolveStorageComponent(path,values),values,path),path);
+    }
+
     static ItemStack button(ServerPlayer player, String namespace, int page, int slot) {
         return button(player, namespace, Integer.toString(page), slot, null, null);
     }
@@ -457,6 +463,14 @@ final class OriginalGuiDesign {
             }
         }
         if (root.startsWith("page1000.s") && root.indexOf('-', "page1000.s".length()) < 0) {
+            if (root.equals("page1000.s12") && values.config != null && values.config.tntProtection == 5) {
+                // The legacy page only supplied levels 0..4. Keep its exact name style for level V.
+                JsonObject component = new JsonObject();
+                component.addProperty("translate", "skywars2.gui.source.page1000.s12-5.part0");
+                component.addProperty("color", "white");
+                component.addProperty("italic", false);
+                return component;
+            }
             if (root.equals("page1000.s24") && values.config != null
                     && !List.of(2, 10, 20, 40, 60).contains(values.config.health)) {
                 JsonObject health = new JsonObject();
@@ -512,6 +526,7 @@ final class OriginalGuiDesign {
             case 4 -> setting = values.config.vanillaSkills ? 1 : 0;
             case 5 -> setting = values.config.stageOneEvent;
             case 6 -> setting = values.config.stageTwoEvent;
+            case 12 -> setting = values.config.tntProtection;
             case 13 -> setting = values.config.lbcKits ? 1 : 0;
             case 14 -> setting = values.config.lbcSkills ? 1 : 0;
             case 15 -> setting = values.config.lbcLevelups ? 1 : 0;

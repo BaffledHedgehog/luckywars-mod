@@ -44,7 +44,10 @@ import java.util.Set;
 /** Снаряды Stblind и отложенные серии Gatling/Rain; оплата и выбор режима принадлежат LbcWands. */
 public final class LbcBlind {
     public static final EntityType<Charge> TYPE=registerType();
-    private static final int ORDINARY_LIFETIME=30, RAIN_LIFETIME=40, CLOUD_LIFETIME=200;
+    private static final int ORDINARY_LIFETIME=30, RAIN_LIFETIME=20, CLOUD_LIFETIME=200;
+    private static final double RAIN_SPEED=1.8, RAIN_RADIUS=10;
+    private static final Vec3 RAIN_VELOCITY=new Vec3(0,-RAIN_SPEED,0);
+    private static final int RAIN_TARGET_REFRESH=5;
     private final GameController game;
     private final Set<Charge> charges=new LinkedHashSet<>();
     private final ArrayList<Charge> batch=new ArrayList<>();
@@ -66,6 +69,7 @@ public final class LbcBlind {
 
     /** Проектиль нужен как нативный источник урона; клиенту показываем только marker. */
     public static final class Charge extends Projectile implements PolymerEntity {
+        boolean rainDrop;
         int age;
         int lifetime=ORDINARY_LIFETIME;
         boolean phantom;
@@ -91,6 +95,8 @@ public final class LbcBlind {
         Vec3 position;
         final String epoch;
         int age;
+        int nextTargetTick;
+        final ArrayList<LivingEntity> targets=new ArrayList<>();
         RainCloud(ServerPlayer owner,Vec3 position,String epoch) {
             this.owner=owner; this.level=(net.minecraft.server.level.ServerLevel)owner.level();
             this.position=position; this.epoch=epoch;
@@ -103,7 +109,7 @@ public final class LbcBlind {
             if(cloud.level!=level) return false;
             Vec3 next=transform.apply(cloud.position);
             if(next==null) return true;
-            cloud.position=next; return false;
+            cloud.position=next; cloud.targets.clear(); cloud.nextTargetTick=0; return false;
         });
     }
 
@@ -192,6 +198,7 @@ public final class LbcBlind {
         charge.setOwner(owner); charge.setPos(origin); charge.setNoGravity(true);
         charge.setDeltaMovement(velocity); charge.setYRot(owner.getYRot()); charge.setXRot(owner.getXRot());
         charge.phantom=phantom; charge.lifetime=lifetime; charge.trialHand=hand;
+        charge.rainDrop=lifetime==RAIN_LIFETIME;
         charge.trialOwner=trial?owner:null; charge.trial=trial;
         charge.entityTags().add("magic"); charge.entityTags().add("shield_blockable2");
         game.items().markCurrentItemEpoch(charge);
@@ -209,7 +216,9 @@ public final class LbcBlind {
         if(charges.isEmpty()) return;
         batch.addAll(charges);
         try {
-            for(Charge charge:batch) {
+            // Damage callbacks can stop the match and clear the reusable batch during an impact.
+            for(int index=0;index<batch.size();index++) {
+                Charge charge=batch.get(index);
                 if(!charges.contains(charge)) continue;
                 if(charge.isRemoved() || !(charge.getOwner() instanceof ServerPlayer owner)
                         || !game.items().currentEpoch(charge) || charge.level()!=game.maps().level()
@@ -239,10 +248,12 @@ public final class LbcBlind {
                 Vec3 end=hit==null?collisionEnd:hit.getLocation();
                 charge.setPos(end);
                 double distance=from.distanceTo(end);
+                Vec3 travel=end.subtract(from);
                 owner.level().sendParticles(ParticleTypes.SQUID_INK,true,false,from.x,from.y,from.z,1,.1,.1,.1,0);
                 for(double step=.3;step<=distance+1e-7;step+=.3) {
-                    Vec3 particle=from.add(end.subtract(from).scale(Math.min(1,step/distance)));
-                    owner.level().sendParticles(ParticleTypes.SQUID_INK,true,false,particle.x,particle.y,particle.z,1,.1,.1,.1,0);
+                    double fraction=Math.min(1,step/distance);
+                    owner.level().sendParticles(ParticleTypes.SQUID_INK,true,false,
+                            from.x+travel.x*fraction,from.y+travel.y*fraction,from.z+travel.z*fraction,1,.1,.1,.1,0);
                 }
                 if(!shieldBlocked && hit instanceof EntityHitResult entityHit)
                     blindImpact(charge,owner,entityHit.getEntity(),end);
@@ -278,7 +289,8 @@ public final class LbcBlind {
         if(clouds.isEmpty()) return;
         cloudBatch.addAll(clouds);
         try {
-            for(RainCloud cloud:cloudBatch) {
+            for(int index=0;index<cloudBatch.size();index++) {
+                RainCloud cloud=cloudBatch.get(index);
                 if(!clouds.contains(cloud)) continue;
                 if(!validOwner(cloud.owner) || cloud.owner.level()!=cloud.level
                         || !game.items().currentEpoch(cloud.epoch) || !cloud.level.hasChunkAt(BlockPos.containing(cloud.position))
@@ -287,16 +299,42 @@ public final class LbcBlind {
                 }
                 if(paused(cloud.owner)) continue;
                 if((tick&1)==0) {
-                    int x=cloud.owner.getRandom().nextInt(21)-10;
-                    int z=cloud.owner.getRandom().nextInt(21)-10;
-                    Vec3 drop=new Vec3(Math.floor(cloud.position.x)+x,cloud.position.y,Math.floor(cloud.position.z)+z);
                     cloud.level.sendParticles(ParticleTypes.SQUID_INK,cloud.position.x,cloud.position.y,cloud.position.z,30,8,.1,8,0);
                     LbcOverload.sound(cloud.owner,cloud.position,"minecraft:entity.squid.squirt",1,1,0);
-                    spawn(cloud.owner,drop,new Vec3(0,-1.8,0),false,RAIN_LIFETIME,null,false);
+                    Vec3 drop=rainDropOrigin(cloud);
+                    if(drop!=null) spawn(cloud.owner,drop,RAIN_VELOCITY,false,RAIN_LIFETIME,null,false);
                 }
                 if(++cloud.age>=CLOUD_LIFETIME) clouds.remove(cloud);
             }
         } finally { cloudBatch.clear(); }
+    }
+
+    /** Cache the local native query; validate roles and use the target's current position for every drop. */
+    private Vec3 rainDropOrigin(RainCloud cloud) {
+        if(tick>=cloud.nextTargetTick) {
+            cloud.nextTargetTick=tick+RAIN_TARGET_REFRESH;
+            cloud.targets.clear();
+            Vec3 at=cloud.position;
+            var area=new AABB(at.x-RAIN_RADIUS,at.y-RAIN_SPEED*RAIN_LIFETIME,at.z-RAIN_RADIUS,
+                    at.x+RAIN_RADIUS,at.y,at.z+RAIN_RADIUS);
+            cloud.targets.addAll(cloud.level.getEntitiesOfClass(LivingEntity.class,area,
+                    target->rainTarget(cloud,target)));
+        } else cloud.targets.removeIf(target->!rainTarget(cloud,target));
+        if(cloud.targets.isEmpty()) return null;
+        var target=cloud.targets.get(cloud.owner.getRandom().nextInt(cloud.targets.size()));
+        // (user) Rain is concentrated around enemies, retaining a small spread instead of homing.
+        double x=target.getX()+(cloud.owner.getRandom().nextDouble()*2-1)*.6;
+        double z=target.getZ()+(cloud.owner.getRandom().nextDouble()*2-1)*.6;
+        return new Vec3(Math.clamp(x,cloud.position.x-RAIN_RADIUS,cloud.position.x+RAIN_RADIUS),cloud.position.y,
+                Math.clamp(z,cloud.position.z-RAIN_RADIUS,cloud.position.z+RAIN_RADIUS));
+    }
+
+    private boolean rainTarget(RainCloud cloud,LivingEntity target) {
+        return target.level()==cloud.level && game.items().lifetimes().target(cloud.owner,target)
+                && Math.abs(target.getX()-cloud.position.x)<=RAIN_RADIUS
+                && Math.abs(target.getZ()-cloud.position.z)<=RAIN_RADIUS
+                && target.getBoundingBox().minY<cloud.position.y
+                && target.getBoundingBox().maxY>=cloud.position.y-RAIN_SPEED*RAIN_LIFETIME;
     }
 
     private void tickGatlings() {

@@ -1,0 +1,35 @@
+{
+  "artifactSha256": "6fc4df11086934406fb8070f707ed4d45bf690580bcf9249843db9581d31537c",
+  "archive": "build/verification/skywars2-electro-shield-render-6fc4df11.jar",
+  "runtime": {
+    "passed": true,
+    "completed": [
+      "Cyberkatana and Electro Shield loot payloads and Polymer item restoration",
+      "Native Electro wand 2x2/3x3 recipe, legacy donor and preview/take restrictions",
+      "Native katana and shield recipes plus Electro gear combat checks"
+    ],
+    "artifactSha256": "6fc4df11086934406fb8070f707ed4d45bf690580bcf9249843db9581d31537c",
+    "elapsedSeconds": 46.23
+  },
+  "passedSuites": [
+    "bots",
+    "electro-gear-menu",
+    "electro-crafting",
+    "electro-gear"
+  ],
+  "sourceJavaFilesMatched": 2,
+  "crc": "passed",
+  "mainJarSha256": "a0c4cb03c4682c99e71e0c197b376f98dc6781e1f153ec7ee61cba67408606a5",
+  "installed": false,
+  "coverage": [
+    "Bare native shield default model is minecraft:shield",
+    "Loot and 2x2/3x3 crafting preview/taken output retain light-blue base and six exact ordered legacy banner layers",
+    "Real Polymer projection/restoration and recipient-context container-slot packet encoding preserve vanilla proxy, model and every pattern; source stacks unchanged",
+    "Existing crafting consumption, shield blocking, repeated reflection and owner attribution regression pass"
+  ],
+  "limits": [
+    "No real-client screenshot/manual render test",
+    "Bare give item retains plain vanilla default; decorated patterns come from the source loot/crafting payload",
+    "User resource pack and templates unchanged"
+  ]
+}

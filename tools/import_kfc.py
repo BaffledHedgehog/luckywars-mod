@@ -28,6 +28,13 @@ def main():
     entries[0]['name'] = 'skywars2:kfc_chick'
 
     payloads = {'ported/kfc_gun': gun, 'ported/kfc_chick': chicken, 'kfc_yumyumyummy': chicken}
+    # These food outcomes are emitted directly by the native service; legacy functions remain disabled.
+    for name in ('govno', 'govno_eaten', 'govno_lot', 'govno_lot_2', 'win_button', 'penis_cultus'):
+        payload = json.loads((SOURCE / f'loot_table/{name}.json').read_text(encoding='utf-8-sig'))
+        migrate_loot_schema(payload)
+        if name in ('govno_eaten', 'win_button', 'penis_cultus'):
+            payload['pools'][0]['entries'][0]['name'] = f'skywars2:{name}'
+        payloads[name] = payload
     for name, payload in payloads.items():
         path = RESOURCES / f'data/lbc/loot_table/{name}.json'
         write_table(path, payload)

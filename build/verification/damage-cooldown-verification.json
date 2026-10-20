@@ -1,0 +1,63 @@
+{
+  "artifactSha256": "f715e0c53cd0859f4cdb4eb5940f93b2e9368920213f56dc687bf3c61f1f42d3",
+  "archive": "build/verification/skywars2-damage-cooldown-f715e0c5.jar",
+  "runtime": {
+    "passed": true,
+    "completed": [
+      "All fourteen restored vanilla damage types bypass cooldown at runtime; actual repeated native hurt calls apply full damage with ownership, while native and managed lightning reject repeats",
+      "Two actual BowItem arrow impacts and two ordinary native Blind charge collisions damage the same victim in one tick without resetting timers",
+      "Managed and vanilla lightning on 1000HP cows and golems match damage and invulnerability over 20 and 40 ticks; projectile physics guards remain active",
+      "Blind wand payment, modes, ownership, pause, collision and input guards remain active",
+      "Electrical armor, owner, ally and observer damage guards remain active"
+    ],
+    "artifactSha256": "f715e0c53cd0859f4cdb4eb5940f93b2e9368920213f56dc687bf3c61f1f42d3",
+    "elapsedSeconds": 31.81
+  },
+  "passedSuites": [
+    "bots",
+    "electric-damage-menu",
+    "damage-cooldown",
+    "wand-physics",
+    "blind-wand",
+    "electro-gear",
+    "electric-damage",
+    "electric-damage-cleanup",
+    "blind-wand-cleanup"
+  ],
+  "legacySource": "E:\\servers_mew\\cringe1_21_4_skywars\\world\\datapacksdisabled\\LBC\\data\\minecraft\\tags\\damage_type\\bypasses_cooldown.json",
+  "legacySha256": "219f71eda49d72c2e6c2a2c29add7215d47a9a33ff38e8be6fcf3a5b3e7bc17b",
+  "legacyTypes": [
+    "minecraft:arrow",
+    "minecraft:falling_anvil",
+    "minecraft:falling_block",
+    "minecraft:falling_stalactite",
+    "minecraft:fireworks",
+    "minecraft:mob_projectile",
+    "minecraft:sting",
+    "minecraft:thorns",
+    "minecraft:thrown",
+    "minecraft:trident",
+    "minecraft:wither_skull",
+    "minecraft:outside_border",
+    "minecraft:generic",
+    "minecraft:generic_kill"
+  ],
+  "packagedTagValues": 25,
+  "replace": false,
+  "sourceJavaFilesMatched": 1,
+  "crc": "passed",
+  "mainJarSha256": "a0c4cb03c4682c99e71e0c197b376f98dc6781e1f153ec7ee61cba67408606a5",
+  "installed": false,
+  "coverage": [
+    "Each of 14 legacy damage types is present at runtime and accepts two full same-tick native hurts with ownership, without resetting timers",
+    "Two actual BowItem arrows and two actual ordinary Blind charge collisions damage the same victim in one tick",
+    "Ambient and managed lightning reject same-tick repeated damage; 20/40-tick native bolt comparisons remain equal to vanilla for cows and golems",
+    "Ordinary melee keeps native cooldown; electrical guards, native defense, intentional reflection, magic projectile physics and Blind modes/cleanup pass"
+  ],
+  "firstAttempt": "Old electric-damage negative generic oracle failed under the requested new generic bypass policy; updated it to positive generic and negative player_attack, then reran successfully",
+  "limits": [
+    "No real-client manual test",
+    "No throughput/MSPT benchmark",
+    "This is a global policy for all sources of the restored damage types"
+  ]
+}

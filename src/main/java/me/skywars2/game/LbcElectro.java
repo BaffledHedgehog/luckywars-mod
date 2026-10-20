@@ -90,8 +90,10 @@ public final class LbcElectro {
     private static Item registerShield() {
         var key = ResourceKey.create(Registries.ITEM, Identifier.parse("skywars2:electro_shield"));
         // ItemStack ещё недоступен до bind компонентов реестра. Используем нативный delayed builder щита.
-        var props = new Item.Properties().setId(key).durability(336).overrideDescription("energy_shield")
-                .component(DataComponents.ITEM_MODEL,Identifier.parse("minecraft:shield"))
+        // finalizeInitializer заново задаёт ITEM_MODEL из effectiveModel: простой component() здесь перезаписывается.
+        var props = new Item.Properties() {
+            @Override public Identifier effectiveModel() { return Identifier.parse("minecraft:shield"); }
+        }.setId(key).durability(336).overrideDescription("energy_shield")
                 .component(DataComponents.BANNER_PATTERNS,net.minecraft.world.level.block.entity.BannerPatternLayers.EMPTY)
                 .repairable(net.minecraft.tags.ItemTags.WOODEN_TOOL_MATERIALS)
                 .equippableUnswappable(net.minecraft.world.entity.EquipmentSlot.OFFHAND)
@@ -478,12 +480,20 @@ public final class LbcElectro {
             if(blocker) {
                 game.items().wands().reflectElectroblocker(player);
                 reflectYellow(player,true);
-                // (user) Сохраняем одну цель/тик исходной ауры, но применяем общий электрический DamageType.
+                // Одна цель/тик; электрическая защита и авторство проходят через общий hurt pipeline.
                 for(var target:player.level().getEntitiesOfClass(LivingEntity.class,new AABB(center,center).inflate(2.5),
                         entity->entity.distanceToSqr(player)>=.0001 && entity.distanceToSqr(player)<=6.25
                                 && game.items().wands().target(player,entity))) {
-                    target.hurtServer(player.level(),new net.minecraft.world.damagesource.DamageSource(
-                            player.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.ELECTRIC),player),.1f);
+                    var damage=new net.minecraft.world.damagesource.DamageSource(
+                            player.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.ELECTRIC),player);
+                    if(target.hurtServer(player.level(),damage,.1f)) {
+                        // ELECTRIC сам не отбрасывает: исключение действует только для ближней ауры.
+                        var before=target.getDeltaMovement();
+                        target.dealDefaultKnockback(damage,.1f,false);
+                        // Масштабируем весь нативный импульс, включая вертикаль, сохраняя внешнюю скорость.
+                        if(target instanceof ServerPlayer)
+                            target.setDeltaMovement(before.add(target.getDeltaMovement().subtract(before).scale(.1)));
+                    }
                     break;
                 }
                 if(game.stage()==GameController.Stage.ENDING) return;
@@ -555,6 +565,14 @@ public final class LbcElectro {
 
     public int charges(ServerPlayer player) {
         Charge state = charges.get(player.getUUID()); return state == null ? 0 : state.charges;
+    }
+    /** Source swordcharged1/5 and swordcharging1/5 are distinct player counters. */
+    void addPlayerCounters(ServerPlayer player,int amount) {
+        if(amount<=0) return;
+        var cyber=charges.computeIfAbsent(player.getUUID(),ignored->new Charge());
+        var yellow=yellowCharges.computeIfAbsent(player.getUUID(),ignored->new Charge());
+        cyber.charges+=amount; cyber.hits+=amount;
+        yellow.charges+=amount; yellow.hits+=amount;
     }
     public int charging(ServerPlayer player) {
         Charge state = charges.get(player.getUUID()); return state == null ? 0 : state.hits;

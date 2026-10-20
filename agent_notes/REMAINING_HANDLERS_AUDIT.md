@@ -2,7 +2,13 @@
 
 Bounded read-only audit after Duplicating 12/12. No Java/source-server changes. Legacy root: `E:/servers_mew/cringe1_21_4_skywars/world/datapacksdisabled/LBC/data/lbc/`. Checked live native source registrations/services, not merely item assets. `inventory/coverage_report.json` reports 10800 linked sources and explicitly warns that links do not prove semantic completeness.
 
-## Recommended next batch: SLR alone
+Обновление после аудита: [SLR](SLR_PORT.md) и [KFC вместе с едой/наградами](KFC_PORT.md)
+перенесены и проверены. KFC — SHA `4902c01a…`; следующими остаются Phantom
+Knives/Stand и Mobgun. Ниже сохранён исторический снимок после Duplicating;
+его утверждения об отсутствии SLR/KFC больше не описывают текущий код.
+Скорость курицы уточнена отдельным аудитом: 6, а не первоначально записанные 3.
+
+## Recommended next batch: SLR alone (historical)
 
 Exact entrypoints: `function/items/shooter/slr/click.mcfunction`, `change_mode.mcfunction`, `shoot.mcfunction`; continuation files `raycast_standart`, `raycast_poison`, `raycast_explode`, `raycast_electro` in the same directory. Sneak cycles four modes; ordinary activation requires arrows and `coldownMagnum`. Four payloads: standard/headshot, poison, explosion, electricity. No `slr` references found across current Java or `src/main/resources/skywars2` JSON; `LbcShooters` currently registers Razorpine only.
 

@@ -222,6 +222,18 @@ def import_ruby_family() -> None:
                        academy_modifiers=("add_upgrade_desc", "tiers/b"))
 
 
+def import_acid() -> None:
+    source_table = SOURCE / "loot_table/stacid_wand.json"
+    table = json.loads(source_table.read_text(encoding="utf-8-sig"))
+    migrate_loot_schema(table)
+    pool, entry = select_ordinary_wand_entry(table, "sauvojen_wand_acid", source_table)
+    entry = json.loads(json.dumps(entry))
+    entry["name"] = "skywars2:acid_wand"
+    destination = ROOT / "src/main/resources/data/lbc/loot_table/ported/acid_wand.json"
+    write_table(destination, build_single_entry_table(table, pool, entry))
+    print(f"Imported ordinary Acid wand payload to {destination.relative_to(ROOT)}")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--electro-family", action="store_true",
@@ -238,8 +250,12 @@ if __name__ == "__main__":
                         help="import only ordinary Teleport and its Academy upgrade")
     parser.add_argument("--ruby", action="store_true",
                         help="import only ordinary Ruby and its Academy upgrade")
+    parser.add_argument("--acid", action="store_true",
+                        help="import only ordinary Acid")
     arguments = parser.parse_args()
-    if arguments.ruby:
+    if arguments.acid:
+        import_acid()
+    elif arguments.ruby:
         import_ruby_family()
     elif arguments.teleport:
         import_teleport_family()

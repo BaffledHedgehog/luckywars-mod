@@ -137,22 +137,18 @@ public final class LbcTrinkets {
         game.maps().level().addFreshEntity(projectile);
     }
 
-    public void castWand(ServerPlayer player) {
-        castWand(player,player.position());
-    }
-
     /** Общий on_summon: 50% для первой копии Nether Plug, затем +10% за каждую. */
     public void summoned(ServerPlayer player) {
         if(!game.canUseGameplayItems(player) || player.level()!=game.maps().level() || game.config().lbcTrinketLimit==0) return;
         int copies=count(player,Items.AIR,NETHER_PLUG_DATA);
         if(copies>0 && player.getRandom().nextFloat()<.5f+.1f*(copies-1)) game.items().blaze().summonFriend(player);
     }
-    public void castWand(ServerPlayer player,Vec3 castOrigin) {
+    public void castWand(ServerPlayer player) {
         if (!game.canUseGameplayItems(player) || player.level() != game.maps().level()
                 || game.config().lbcTrinketLimit == 0) return;
         int copies = count(player, BLOOD_ANAL_BOOM, BLOOD_ANAL_BOOM_DATA);
         if (copies > 0 && (copies >= 16 || player.getRandom().nextFloat() < (copies == 1 ? .25f : .2f + .05f * copies))) {
-            game.items().castWandDynamite(player,castOrigin);
+            game.items().castWandDynamite(player);
         }
         copies = count(player, MANA_GEM, MANA_GEM_DATA);
         if (copies > 0) game.items().mana().add(player, 60 + 15 * (copies - 1));

@@ -1,0 +1,155 @@
+{
+  "artifactSha256": "4902c01a5c755bbe6d9bf0511c17273a219ed783694b79a92f940a8c137566b8",
+  "archive": "build/verification/skywars2-kfc-4902c01a.jar",
+  "sourceJavaPaths": [
+    "SkyWars2.java",
+    "game/GameController.java",
+    "game/MatchEvents.java",
+    "game/LbcItems.java",
+    "game/LbcWands.java",
+    "game/LbcShooters.java",
+    "game/LbcBlaze.java",
+    "game/LbcDamage.java",
+    "game/LbcKfcFood.java",
+    "game/LbcKfcRewards.java",
+    "game/LbcElectro.java",
+    "game/LbcPsycho.java",
+    "game/LbcTerra.java",
+    "game/LbcMagic.java",
+    "game/LbcIndirectKills.java",
+    "game/OriginalGuiDesign.java",
+    "game/GameChecks.java",
+    "mixin/KfcLightningMixin.java"
+  ],
+  "sourceJavaFilesMatched": 18,
+  "completeSourceLootPayloads": [
+    "govno",
+    "govno_eaten",
+    "govno_lot",
+    "govno_lot_2",
+    "kfc_yumyumyummy",
+    "penis_cultus",
+    "ported/kfc_chick",
+    "ported/kfc_gun",
+    "win_button"
+  ],
+  "lootReferences": [
+    "govno",
+    "govno_eaten"
+  ],
+  "packagedResourcePaths": [
+    "data/lbc/loot_table/ported/kfc_gun.json",
+    "data/lbc/loot_table/ported/kfc_chick.json",
+    "data/lbc/loot_table/kfc_yumyumyummy.json",
+    "data/lbc/loot_table/govno.json",
+    "data/lbc/loot_table/govno_eaten.json",
+    "data/lbc/loot_table/govno_lot.json",
+    "data/lbc/loot_table/govno_lot_2.json",
+    "data/lbc/loot_table/win_button.json",
+    "data/lbc/loot_table/penis_cultus.json",
+    "data/skywars2/damage_type/cultus_arrow.json",
+    "data/minecraft/tags/damage_type/bypasses_cooldown.json",
+    "data/minecraft/tags/damage_type/is_projectile.json",
+    "data/minecraft/tags/damage_type/arrow_only.json",
+    "data/minecraft/tags/damage_type/acceptable_for_manavampirism.json",
+    "skywars2.mixins.json"
+  ],
+  "crc": "passed",
+  "build": "SUCCESSFUL",
+  "design": {
+    "resourcePack": "C:\\Users\\yarik_temp\\AppData\\Roaming\\FreesmLauncher\\instances\\26.3(1)\\minecraft\\resourcepacks\\all_in_one_1.21.8",
+    "keys": [
+      "kfc_chick",
+      "kfc_chick.lore.1",
+      "kfc_gun",
+      "kfc_gun.lore.1",
+      "kfc_gun.lore.2",
+      "mana_on_activate",
+      "penis",
+      "penis_cultus",
+      "penis_cultus.lore.1",
+      "penis_cultus.lore.2",
+      "recharge_time",
+      "shit_1",
+      "shit_2",
+      "shit_3",
+      "shit_4",
+      "shooter",
+      "summoner",
+      "type",
+      "win_button"
+    ],
+    "models": [
+      "lbc:kfc_yum",
+      "lbc:kfcgun",
+      "lbc:penis_1",
+      "lbc:penis_2",
+      "lbc:penis_3",
+      "lbc:penis_4",
+      "lbc:penis_5",
+      "lbc:penis_6",
+      "lbc:penis_cultus",
+      "lbc:shit",
+      "lbc:win_button"
+    ],
+    "tooltipStyles": [
+      "lbc:tier_a",
+      "lbc:tier_b",
+      "lbc:tier_f",
+      "lbc:tier_ff",
+      "lbc:tier_u",
+      "lbc:tier_x"
+    ],
+    "languageSha256": {
+      "ru_ru": "3e7b3f2c6aa2e9e223db99d52d4d1a9de9954bd546bad5ba3543b775c7dfb47b",
+      "en_us": "d81685d3f4c65c833543ee9ece5f48904d01ba8b8c04e9a2dd2176dadeaa8782"
+    },
+    "readOnly": true
+  },
+  "mainJarSha256": "a0c4cb03c4682c99e71e0c197b376f98dc6781e1f153ec7ee61cba67408606a5",
+  "installed": false,
+  "runtime": {
+    "kfc-results": {
+      "passed": true,
+      "completed": [
+        "Native gun/food loot identity, source flags, translation, model and food components",
+        "Match 1: native gun input, chicken health/fire/physics, shared cooldown, accepted native hurt and three owned fireballs; real native consume and targeted food outcomes",
+        "Match 1: match stop clears tracked chickens/turrets and invalidates old object load",
+        "Match 2: native gun input, chicken health/fire/physics, shared cooldown, accepted native hurt and three owned fireballs; real native consume and targeted food outcomes",
+        "Match 2: match stop clears tracked chickens/turrets and invalidates old object load"
+      ],
+      "artifactSha256": "4902c01a5c755bbe6d9bf0511c17273a219ed783694b79a92f940a8c137566b8",
+      "elapsedSeconds": 65.27
+    },
+    "kfc-shared-results": {
+      "passed": true,
+      "completed": [
+        "regressions",
+        "pinegun-menu",
+        "slr-menu",
+        "electro-gear-menu",
+        "magic-menu",
+        "fireblaze-menu",
+        "psycho-menu",
+        "pinegun",
+        "slr",
+        "fireblaze-wand",
+        "psycho",
+        "electro-gear",
+        "magic",
+        "slr-stop-probe",
+        "pinegun-cleanup",
+        "slr-cleanup",
+        "fireblaze-cleanup",
+        "psycho-cleanup",
+        "magic-cleanup"
+      ],
+      "artifactSha256": "4902c01a5c755bbe6d9bf0511c17273a219ed783694b79a92f940a8c137566b8",
+      "elapsedSeconds": 45.32
+    }
+  },
+  "limits": [
+    "No real-client visual test",
+    "No mass-load/MSPT benchmark"
+  ]
+}

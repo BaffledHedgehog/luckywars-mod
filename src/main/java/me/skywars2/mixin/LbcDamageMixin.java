@@ -11,9 +11,20 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-/** Надбавка электричества до защиты и friendly fire проводимости/опасных испытаний. */
+/** Настроечная защита TNT/электричество до ванильной защиты и отдельные правила friendly fire. */
 @Mixin(ServerPlayer.class)
 public abstract class LbcDamageMixin {
+    @Mixin(Player.class)
+    public abstract static class TntProtection {
+        @WrapOperation(method="hurtServer",at=@At(value="INVOKE",target=
+                "Lnet/minecraft/world/entity/Avatar;hurtServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
+        private boolean skywars2$protectedBlast(Player victim,
+                net.minecraft.server.level.ServerLevel level,DamageSource source,float amount,Operation<Boolean> original) {
+            float reduced=victim instanceof ServerPlayer ? LbcDamage.protectedTntDamage(source,amount) : amount;
+            // Полная защита не должна запускать hurt cooldown/реакции от нулевого удара.
+            return !(amount>0 && reduced==0) && original.call(victim,level,source,reduced);
+        }
+    }
     @ModifyVariable(method="hurtServer",at=@At("HEAD"),argsOnly=true,ordinal=0)
     private float skywars2$electricAmount(float amount,@Local(argsOnly=true) DamageSource source) {
         return LbcDamage.incomingDamage((ServerPlayer)(Object)this,source,amount);

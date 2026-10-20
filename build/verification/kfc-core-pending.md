@@ -9,6 +9,13 @@ git apply --check build/verification/kfc-core-pending.patch
 git apply build/verification/kfc-core-pending.patch
 ```
 
+## Status after integration
+
+Applied and superseded by the complete verified KFC build `4902c01a`.
+Do not reapply the adjacent historical patch. Both documented lifecycle gaps
+were fixed before the two native KFC matches and shared regression passed.
+Current entrypoint: `agent_notes/KFC_PORT.md`; proof: `kfc-verification.json`.
+
 ## Integration APIs
 
 - `LbcShooters.KFC_GUN`: native Polymer carrot-on-a-stick, ID `skywars2:kfc_gun`, item model `lbc:kfcgun`.

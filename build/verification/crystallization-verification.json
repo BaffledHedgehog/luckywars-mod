@@ -1,0 +1,50 @@
+{
+  "artifactSha256": "75c8ed2bdfe55cdca60e19c62657f3728916ab7b9d6d256e4b2c5f116fa74254",
+  "archive": "build/verification/skywars2-crystallization-75c8ed2b.jar",
+  "runtime": {
+    "passed": true,
+    "completed": [
+      "Stonekivi and actual Tannerkivi loot payloads, lore/colors/tier/model/flags and Polymer projections",
+      "Native/Academy/legacy crafting in 2x2 and 3x3 grids, exact ingredients, preview and take",
+      "2499/2500 mana gate, one queued normal hit, bounded source templates, used-offhand four-mode cycle, Earth queue drain, and Comet item/allied-mob targets",
+      "Two concurrent paid Sun casts make first-turn progressive writes; cached competing edits survive, filled containers produce no drops, bounded spikes do not expand the flood, each area receives one 40-damage impact, and stop cancels retained work",
+      "Real-tick progressive Sun lava/magma writes, diagonal connectivity and attributed surface damage/Slowness V",
+      "Automatic 499/500/515 activation thresholds, block and Arrow conversion, exclusion marker, dual 1030 activation, 30-per-tick upkeep, and paid-work drain after aura stop",
+      "32 consecutive movement ticks, prompt front conversion, bounded coalesced fringe queue and paid dirty work after hand removal",
+      "Tannerkivi reactivates and drains paid work in a second match after lifecycle reset"
+    ],
+    "artifactSha256": "75c8ed2bdfe55cdca60e19c62657f3728916ab7b9d6d256e4b2c5f116fa74254",
+    "elapsedSeconds": 50.33
+  },
+  "passedSuites": [
+    "bots",
+    "stonekivi-menu",
+    "stonekivi-crafting",
+    "stonekivi-wand",
+    "stonekivi-sun-stream",
+    "stonekivi-sun-start",
+    "stonekivi-sun-finish",
+    "tannerkivi",
+    "tannerkivi-movement",
+    "stonekivi-cleanup",
+    "tannerkivi-cleanup"
+  ],
+  "fixture": {
+    "simultaneousCasts": 2,
+    "blocksPerArea": 1331,
+    "queueServiceCalls": 10,
+    "firstWitnessMs": 5.0821,
+    "completionMs": 42.1678,
+    "timingScope": "Wall time from casting to witness/drained queue within one synchronous test command, includes witness scans and dispatch; not full MSPT, real game ticks, pure CPU or client latency"
+  },
+  "sourceJavaFilesMatched": 3,
+  "crc": "passed",
+  "mainJarSha256": "a0c4cb03c4682c99e71e0c197b376f98dc6781e1f153ec7ee61cba67408606a5",
+  "installed": false,
+  "limits": [
+    "No before/after native timing benchmark",
+    "No real-client packet/render test",
+    "Concurrent disjoint casts and external contested edits tested; not arbitrary simultaneous-cast stress",
+    "Existing native solidRender classifier retained"
+  ]
+}

@@ -17,6 +17,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -86,6 +87,9 @@ public final class LbcExasperato {
         final Vec3 origin;
         final String epoch;
         java.util.function.Consumer<PrimedTnt> sourceInit;
+        Vec3[] offsets=NUKE_OFFSETS;
+        float radius=20;
+        boolean protectedDamage;
         int next;
         BlastBatch(ServerPlayer owner,Vec3 origin,String epoch) {
             this.owner=owner; this.level=owner.level(); this.origin=origin; this.epoch=epoch;
@@ -123,7 +127,7 @@ public final class LbcExasperato {
     public int mushroomCount() { return mushrooms.size(); }
     public int pendingBlasts() {
         int remaining=0;
-        for(var batch:blasts) remaining+=NUKE_OFFSETS.length-batch.next;
+        for(var batch:blasts) remaining+=batch.offsets.length-batch.next;
         return remaining;
     }
     List<Charge> snapshot() { return List.copyOf(charges); }
@@ -312,14 +316,15 @@ public final class LbcExasperato {
             var burst=blasts.removeFirst();
             if(!game.items().currentEpoch(burst.epoch) || game.stage()==GameController.Stage.ENDING
                     || burst.level!=game.maps().level()) continue;
-            Vec3 offset=NUKE_OFFSETS[burst.next];
+            Vec3 offset=burst.offsets[burst.next];
             if(!burst.level.hasChunkAt(BlockPos.containing(burst.origin.add(offset)))) {
                 // Временно недоступная точка остаётся в очереди: не теряем взрыв и не загружаем чанк ради него.
                 blasts.addLast(burst); continue;
             }
             burst.next++;
-            instantBlast(burst.owner,burst.level,burst.origin.add(offset),20,burst.epoch,burst.sourceInit);
-            if(burst.next<NUKE_OFFSETS.length && game.items().currentEpoch(burst.epoch)
+            nativeBlast(burst.owner,burst.level,burst.origin.add(offset),burst.radius,burst.epoch,
+                    burst.protectedDamage,burst.sourceInit);
+            if(burst.next<burst.offsets.length && game.items().currentEpoch(burst.epoch)
                     && game.stage()!=GameController.Stage.ENDING) blasts.addLast(burst);
             // Round-robin даёт прогресс каждой серии, даже при непрерывных новых попаданиях.
             if(System.nanoTime()-started>=BLAST_BUDGET_NANOS) break;
@@ -568,14 +573,31 @@ public final class LbcExasperato {
     }
     private void instantBlast(ServerPlayer owner,ServerLevel level,Vec3 at,float radius,String epoch,
             java.util.function.Consumer<PrimedTnt> sourceInit) {
+        nativeBlast(owner,level,at,radius,epoch,false,sourceInit);
+    }
+
+    /** Короткие fuse=1/2 были способом выдать защиту, не игровой задержкой. Сущность миру не нужна. */
+    void protectedBlast(LivingEntity owner,ServerLevel level,Vec3 at,float radius,
+            java.util.function.Consumer<PrimedTnt> sourceInit) {
+        nativeBlast(owner,level,at,radius,game.items().epoch(),true,sourceInit);
+    }
+
+    private void nativeBlast(LivingEntity owner,ServerLevel level,Vec3 at,float radius,String epoch,
+            boolean protectedDamage,java.util.function.Consumer<PrimedTnt> sourceInit) {
         if(level!=game.maps().level() || !level.hasChunkAt(BlockPos.containing(at))
+                || !level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES)
                 || !game.items().currentEpoch(epoch) || game.stage()==GameController.Stage.ENDING) return;
         PrimedTnt source=new PrimedTnt(level,at.x,at.y,at.z,owner);
-        source.setDeltaMovement(Vec3.ZERO); source.setFuse(0); source.entityTags().add(EXPLOSIVE);
+        source.setDeltaMovement(Vec3.ZERO); source.setFuse(0);
+        if(owner instanceof ServerPlayer) source.entityTags().add(EXPLOSIVE);
+        if(!protectedDamage) source.entityTags().add(LbcDamage.UNPROTECTED_TNT);
         game.items().markCurrentItemEpoch(source);
         if(sourceInit!=null) sourceInit.accept(source);
         try { level.explode(source,at.x,at.y,at.z,radius,Level.ExplosionInteraction.TNT); }
-        finally { if(sourceInit!=null) game.items().exoperso().blastFinished(source); }
+        finally {
+            game.items().academy().blastFinished(source);
+            game.items().exoperso().blastFinished(source);
+        }
     }
 
     private void step(Charge charge,ServerPlayer owner) {
@@ -613,26 +635,31 @@ public final class LbcExasperato {
     private void burst(ServerPlayer owner,Vec3 origin,boolean academyTrial) {
         var level=owner.level(); String epoch=game.items().epoch();
         var trial=game.items().academy().blastTrial(owner,academyTrial);
-        var spawned=new ArrayList<PrimedTnt>(85);
+        var offsets=new ArrayList<Vec3>(85);
         Vec3[] axes={new Vec3(0,0,1),new Vec3(0,1,0),new Vec3(1,0,0),
                 new Vec3(0,0,-1),new Vec3(0,-1,0),new Vec3(-1,0,0)};
         for(int axis=0;axis<axes.length;axis++) for(int i=axis==0 ? 0 : 1;i<=14;i++) {
             if(!game.items().currentEpoch(epoch) || game.stage()==GameController.Stage.ENDING) return;
             Vec3 at=origin.add(axes[axis].scale(i*.5));
             if(!level.hasChunkAt(BlockPos.containing(at))) continue;
-            var tnt=new PrimedTnt(level,at.x,at.y,at.z,owner);
-            // summon tnt в исходнике имеет нулевую Motion, в отличие от подожжённого вручную блока TNT.
-            tnt.setDeltaMovement(Vec3.ZERO); tnt.setFuse(2); tnt.entityTags().add(EXPLOSIVE);
-            game.items().markCurrentItemEpoch(tnt);
-            if(level.addFreshEntity(tnt)) {
-                spawned.add(tnt);
-                game.items().academy().blastSource(tnt,trial);
-            }
+            offsets.add(at.subtract(origin));
         }
-        for(int i=0;i<Math.min(50,spawned.size());i++) {
+        if(!offsets.isEmpty()) {
+            var burst=new BlastBatch(owner,origin,epoch);
+            burst.offsets=offsets.toArray(Vec3[]::new); burst.radius=4; burst.protectedDamage=true;
+            burst.sourceInit=source->game.items().academy().blastSource(source,trial);
+            blasts.addLast(burst);
+        }
+        for(int i=0;i<Math.min(50,offsets.size());i++) {
             if(!game.items().currentEpoch(epoch) || game.stage()==GameController.Stage.ENDING) return;
-            game.items().academy().blastSource(game.items().electro().lightning(owner,spawned.get(i).position()),trial);
+            game.items().academy().blastSource(game.items().electro().lightning(owner,origin.add(offsets.get(i))),trial);
         }
+    }
+
+    int pendingShortBlasts() {
+        int count=0;
+        for(var burst:blasts) if(burst.protectedDamage) count+=burst.offsets.length-burst.next;
+        return count;
     }
 
     /** Общая политика для всего native взрыва, до урона, knockback и расчёта exposure. */

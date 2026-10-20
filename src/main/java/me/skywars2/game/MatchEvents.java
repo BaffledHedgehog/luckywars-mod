@@ -364,7 +364,7 @@ public final class MatchEvents {
         victoryMarkerTag = null;
     }
 
-    private void spawnVictoryFirework(double x, double y, double z) {
+    void spawnVictoryFirework(double x, double y, double z) {
         int firstColor = randomFireworkColor();
         int secondColor = randomFireworkColor();
         int fadeColor = randomFireworkColor();

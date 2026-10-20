@@ -38,6 +38,13 @@ TTF содержит цифры/знаки, точка — 1×1 px с шагом
 [Отчёт](../build/verification/attribute-hud-icons.json),
 [каталог символов](../agent_notes/PLAYER_ATTRIBUTE_CATALOG.md).
 
+## Защита TNT 100% — 20 октября 2026
+
+В языках `assets/minecraft/lang/ru_ru.json` и `en_us.json` добавлен только
+недостающий ключ `skywars2.gui.source.page1000.s12-5.part0` для нового пятого
+уровня защиты. Объедини его со своим lang JSON; уровни 0..4 используют прежние
+ключи и оформление. Настоящий ресурспак не изменён.
+
 ## Языковая строка admin — предыдущая правка
 
 `assets/minecraft/lang/ru_ru.json` и `en_us.json` содержат

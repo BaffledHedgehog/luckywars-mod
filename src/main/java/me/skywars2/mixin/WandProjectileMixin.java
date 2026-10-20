@@ -1,6 +1,7 @@
 package me.skywars2.mixin;
 
 import me.skywars2.SkyWars2;
+import me.skywars2.game.ProjectileLifetimes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,6 +14,29 @@ import net.minecraft.world.phys.HitResult;
 /** Отсекаем защищённые цели до нативного onHitEntity, который сначала поджигает цель. */
 @Mixin(Projectile.class)
 public abstract class WandProjectileMixin {
+    @Inject(method="isPickable",at=@At("HEAD"),cancellable=true)
+    private void skywars2$spellNotPickable(CallbackInfoReturnable<Boolean> ci) {
+        if(ProjectileLifetimes.protectedWandProjectile((Entity)(Object)this)) ci.setReturnValue(false);
+    }
+
+    // Vanilla attacks and projectile redirection pass byAttack=true; Electro's explicit reflection passes false.
+    @Inject(method="deflect(Lnet/minecraft/world/entity/projectile/ProjectileDeflection;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/EntityReference;ZLnet/minecraft/world/phys/Vec3;)Z",
+            at=@At("HEAD"),cancellable=true)
+    private void skywars2$spellIgnoresAttackDeflection(net.minecraft.world.entity.projectile.ProjectileDeflection deflection,
+            Entity attacker,net.minecraft.world.entity.EntityReference<Entity> owner,boolean byAttack,
+            net.minecraft.world.phys.Vec3 power,CallbackInfoReturnable<Boolean> ci) {
+        if(byAttack && ProjectileLifetimes.protectedWandProjectile((Entity)(Object)this)) ci.setReturnValue(false);
+    }
+
+    @com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation(method="hitTargetOrDeflectSelf",at=@At(value="INVOKE",target=
+            "Lnet/minecraft/world/entity/Entity;deflection(Lnet/minecraft/world/entity/projectile/Projectile;)Lnet/minecraft/world/entity/projectile/ProjectileDeflection;"))
+    private net.minecraft.world.entity.projectile.ProjectileDeflection skywars2$spellIgnoresNativeDeflector(
+            Entity target,Projectile projectile,
+            com.llamalad7.mixinextras.injector.wrapoperation.Operation<net.minecraft.world.entity.projectile.ProjectileDeflection> original) {
+        return ProjectileLifetimes.protectedWandProjectile(projectile)
+                ? net.minecraft.world.entity.projectile.ProjectileDeflection.NONE : original.call(target,projectile);
+    }
+
     /** Перед нативной физикой обновляем самонаведение; пауза не допускает лишнего шага полёта. */
     @Mixin(net.minecraft.world.entity.projectile.hurtingprojectile.AbstractHurtingProjectile.class)
     public static abstract class Homing {
@@ -58,6 +82,11 @@ public abstract class WandProjectileMixin {
     }
     @Inject(method="canHitEntity",at=@At("HEAD"),cancellable=true)
     private void skywars2$wandTarget(Entity target,CallbackInfoReturnable<Boolean> ci) {
+        if(target instanceof Projectile && (ProjectileLifetimes.protectedWandProjectile(target)
+                || ProjectileLifetimes.protectedWandProjectile((Entity)(Object)this))) {
+            ci.setReturnValue(false);
+            return;
+        }
         var game=SkyWars2.game();
         if(game!=null && (!game.items().wands().canHit((Projectile)(Object)this,target)
                 || !game.items().shooters().canHit((Projectile)(Object)this,target)

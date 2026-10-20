@@ -23,6 +23,12 @@ vanilla shield item model, whose appearance is affected by the source
 `minecraft:base_color` and `minecraft:banner_patterns` components. The native
 identifier is `skywars2:electro_shield`.
 
+Исправление 20 октября (user): default item model фиксируется через
+`Item.Properties.effectiveModel() = minecraft:shield`. В 26.3 ранний
+`.component(ITEM_MODEL,...)` перезаписывался на `skywars2:electro_shield`,
+которого нет у vanilla-клиента. Сами цвет/узоры в луте и крафте не терялись.
+Используется штатный renderer щита, без нового ресурспака или текстуры.
+
 ## Resource pack reuse
 
 Both source loot payloads retain their original name and lore components,

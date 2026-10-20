@@ -157,6 +157,7 @@ public final class GameMenus {
                 case 5 -> () -> change(p, () -> config.stageOneEvent = cycle(config.stageOneEvent, 0, 9));
                 case 6 -> () -> change(p, () -> config.stageTwoEvent = cycle(config.stageTwoEvent, 0, 8));
                 case 8 -> () -> change(p, () -> config.offhandWands = !config.offhandWands);
+                case 12 -> () -> change(p, () -> config.tntProtection = cycle(config.tntProtection, 0, 5));
                 case 13 -> () -> change(p, () -> config.lbcKits = !config.lbcKits);
                 case 14 -> () -> change(p, () -> config.lbcSkills = !config.lbcSkills);
                 case 15 -> () -> change(p, () -> config.lbcLevelups = !config.lbcLevelups);
@@ -580,6 +581,7 @@ public final class GameMenus {
         to.stageOneEvent = from.stageOneEvent;
         to.stageTwoEvent = from.stageTwoEvent;
         to.pvpMode = from.pvpMode;
+        to.tntProtection = from.tntProtection;
         to.gameMode = from.gameMode;
         to.day = from.day;
         // A public lobby reset only resets match options, never OP-only service flags.

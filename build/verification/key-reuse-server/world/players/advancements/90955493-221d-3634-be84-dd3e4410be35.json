@@ -180,12 +180,6 @@
     },
     "done": true
   },
-  "lbc:true_advancements/legends/academy/acid_tuntija": {
-    "criteria": {
-      "requirement": "2026-10-16 21:27:59 +0300"
-    },
-    "done": true
-  },
   "lbc:true_advancements/legends/tuntija_wands/blind": {
     "criteria": {
       "requirement": "2026-10-16 22:42:34 +0300"
@@ -369,6 +363,42 @@
   "lbc:challenges/no_knowledge": {
     "criteria": {
       "requirement": "2026-10-20 17:04:38 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/potions/effect_high_nausea": {
+    "criteria": {
+      "requirement": "2026-10-20 21:07:21 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/summoner/penis_cultus": {
+    "criteria": {
+      "1": "2026-10-20 21:16:08 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/shooter/kfc_gun": {
+    "criteria": {
+      "requirement": "2026-10-20 21:23:33 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/academy/acid_tuntija": {
+    "criteria": {
+      "requirement": "2026-10-20 21:52:14 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/tuntija_wands/acid": {
+    "criteria": {
+      "requirement": "2026-10-20 23:30:04 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/tuntija_wands/stone": {
+    "criteria": {
+      "requirement": "2026-10-20 23:30:04 +0300"
     },
     "done": true
   },

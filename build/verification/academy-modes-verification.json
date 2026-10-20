@@ -1,0 +1,59 @@
+{
+  "artifactSha256": "fc764811ef43fd254fc390a308baa73d5d8d04ff6d2adeccabb19bf58c117c87",
+  "archive": "build/verification/skywars2-academy-modes-fc764811.jar",
+  "runtime": {
+    "passed": true,
+    "completed": [
+      "All 21 native Academy mode wands: complete wrap in both hands at mana 0/-1234, no debit, Mage bonus, entities or spell jobs; actual casts still reject missing mana",
+      "stone-wand: native input, paid casting, mode behavior and target/lifecycle regression",
+      "blind-wand: native input, paid casting, mode behavior and target/lifecycle regression",
+      "air-wand: native input, paid casting, mode behavior and target/lifecycle regression",
+      "Stop clears Stone, Blind and Air spell state"
+    ],
+    "artifactSha256": "fc764811ef43fd254fc390a308baa73d5d8d04ff6d2adeccabb19bf58c117c87",
+    "elapsedSeconds": 33.3
+  },
+  "passedSuites": [
+    "bots",
+    "academy-modes",
+    "stone-wand",
+    "blind-wand",
+    "air-wand",
+    "stone-wand-cleanup",
+    "blind-wand-cleanup",
+    "air-wand-cleanup"
+  ],
+  "modeWands": [
+    "ACADEMY_FIRE",
+    "ACADEMY_BLAZE",
+    "ACADEMY_FIREBLAZE",
+    "ACADEMY_FALLING_STARS",
+    "ACADEMY_CONSUMING",
+    "ACADEMY_DUPLICATING",
+    "ACADEMY_LIGHTNING_BOLTS",
+    "ACADEMY_BOLTBOLT",
+    "ACADEMY_EXAHOMING",
+    "ACADEMY_PSYCHOWAND",
+    "ACADEMY_PSYCHOBLIND",
+    "ACADEMY_BLIND",
+    "ACADEMY_AIR",
+    "ACADEMY_STONE",
+    "ACADEMY_TELEPORT",
+    "ACADEMY_RUBY",
+    "ACADEMY_ELECTRO",
+    "ACADEMY_STONEKIVI",
+    "ACADEMY_WALL",
+    "ACADEMY_BEDROCK",
+    "ACADEMY_EXASPERATO"
+  ],
+  "modeSwitches": 300,
+  "rejectedUnpaidCasts": 84,
+  "sourceJavaFilesMatched": 9,
+  "crc": "passed",
+  "mainJarSha256": "a0c4cb03c4682c99e71e0c197b376f98dc6781e1f153ec7ee61cba67408606a5",
+  "installed": false,
+  "limits": [
+    "No real-client manual visual test",
+    "No mass-load/MSPT benchmark"
+  ]
+}

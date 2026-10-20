@@ -63,7 +63,7 @@ public final class ElectroNativeMixins {
                 Operation<Boolean> original,@Local(argsOnly=true) LightningBolt bolt) {
             if(LbcElectro.managedLightning(bolt) && bolt.getCause()!=null)
                 source=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
-                        .getOrThrow(LbcDamage.ELECTRIC),bolt,bolt.getCause());
+                        .getOrThrow(LbcDamage.LIGHTNING),bolt,bolt.getCause());
             boolean applied=original.call(target,level,source,amount);
             var game=SkyWars2.game();
             if(game!=null && LbcElectro.managedLightning(bolt) && bolt.getCause()!=null && target instanceof LivingEntity living)
