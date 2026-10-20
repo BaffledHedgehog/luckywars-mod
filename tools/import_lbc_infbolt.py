@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Import the lightning egg donor and ordinary/Academy Infbolt payloads."""
+"""Import the lightning egg donor and Infbolt magic tool payloads."""
 from __future__ import annotations
 
 import json
@@ -7,7 +7,8 @@ import json
 from import_game_resources import migrate_loot_schema
 from import_lbc_fireblaze import PORTED
 from import_lbc_loadouts import SOURCE
-from import_lbc_wands import import_wand_family, write_table
+from import_lbc_fireblaze import import_item
+from import_lbc_wands import write_table
 
 
 def main() -> None:
@@ -19,12 +20,10 @@ def main() -> None:
     assert entry["name"] == "minecraft:panda_spawn_egg"
     entry["name"] = "skywars2:bolt_material"
     write_table(PORTED / "bolt_material.json", donor)
-    import_wand_family(
+    import_item(
         SOURCE / "loot_table/tuntijaa_bolts_reforging.json",
-        PORTED / "infbolt_wand.json", PORTED / "academy_infbolt_wand.json",
-        "infbolt_wand", "skywars2:infbolt_wand", "skywars2:academy_infbolt_wand",
-        academy_modifiers=("add_upgrade_desc", "tiers/x"),
-        academy_tag_fields=("upgraded:1", "mode:1"), data_marker="infbolt_wand:1",
+        PORTED / "infbolt_wand.json", "infbolt_wand", "infbolt_wand:1",
+        "skywars2:infbolt_wand",
     )
 
 

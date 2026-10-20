@@ -128,7 +128,8 @@ public final class MapManager {
     private final Map<Long, BoundingBox> changedBlockBounds = new HashMap<>();
     private final List<BlockPos> cageBlocks = new ArrayList<>();
     private final Set<String> missingLootReported = new HashSet<>();
-    private final Map<ChunkPos, CompletableFuture<?>> chunkLoads = new HashMap<>();
+    private record ChunkLoad(ServerLevel world,ChunkPos position) { }
+    private final Map<ChunkLoad, CompletableFuture<?>> chunkLoads = new HashMap<>();
     private Map<Identifier, PreparedTemplate> preparedTemplates = Map.of();
     private CompletableFuture<Map<Identifier, PreparedTemplate>> preparation;
     private Runnable afterPreparation;
@@ -266,13 +267,16 @@ public final class MapManager {
 
     /** Общая асинхронная загрузка для карты и событий; tickets освобождаются при следующей очистке/остановке. */
     CompletableFuture<?> prepareChunk(ChunkPos pos) {
-        return chunkLoads.computeIfAbsent(pos,
-                chunk -> level.getChunkSource().addTicketAndLoadWithRadius(LOADING_TICKET, chunk, 0));
+        return prepareChunk(level,pos);
+    }
+    CompletableFuture<?> prepareChunk(ServerLevel world,ChunkPos pos) {
+        return chunkLoads.computeIfAbsent(new ChunkLoad(world,pos),
+                chunk -> chunk.world.getChunkSource().addTicketAndLoadWithRadius(LOADING_TICKET, chunk.position, 0));
     }
 
     private void releaseChunkTickets() {
-        for (ChunkPos pos : chunkLoads.keySet()) {
-            level.getChunkSource().removeTicketWithRadius(LOADING_TICKET, pos, 0);
+        for (ChunkLoad chunk : chunkLoads.keySet()) {
+            chunk.world.getChunkSource().removeTicketWithRadius(LOADING_TICKET, chunk.position, 0);
         }
         chunkLoads.clear();
     }
@@ -1269,9 +1273,12 @@ public final class MapManager {
     }
 
     BlockSnapshot snapshot(BlockPos pos) {
-        BlockState state = level.getBlockState(pos);
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        return new BlockSnapshot(state, blockEntity == null ? null : blockEntity.saveWithFullMetadata(level.registryAccess()));
+        return snapshot(level,pos);
+    }
+    BlockSnapshot snapshot(ServerLevel source,BlockPos pos) {
+        BlockState state = source.getBlockState(pos);
+        BlockEntity blockEntity = source.getBlockEntity(pos);
+        return new BlockSnapshot(state, blockEntity == null ? null : blockEntity.saveWithFullMetadata(source.registryAccess()));
     }
 
     private boolean sameSnapshot(BlockPos pos, BlockSnapshot snapshot) {
@@ -1288,12 +1295,18 @@ public final class MapManager {
     }
 
     void restoreSnapshot(BlockPos pos, BlockSnapshot snapshot) {
-        level.setBlock(pos, snapshot.state, MAP_WRITE_FLAGS);
+        restoreSnapshot(level,pos,snapshot);
+    }
+    /** Копия полностью заменяет прежний контейнер, даже если тип блока остался тем же. */
+    void restoreSnapshot(ServerLevel target,BlockPos pos,BlockSnapshot snapshot) {
+        if(snapshot.entity==null && target.getBlockState(pos)==snapshot.state && target.getBlockEntity(pos)==null) return;
+        if(target.getBlockEntity(pos) instanceof net.minecraft.world.Clearable previous) previous.clearContent();
+        target.setBlock(pos, snapshot.state, MAP_WRITE_FLAGS);
         if (snapshot.entity != null) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
+            BlockEntity blockEntity = target.getBlockEntity(pos);
             if (blockEntity != null) {
                 blockEntity.loadWithComponents(TagValueInput.create(
-                        ProblemReporter.DISCARDING, level.registryAccess(), snapshot.entity));
+                        ProblemReporter.DISCARDING, target.registryAccess(), snapshot.entity));
                 blockEntity.setChanged();
             }
         }

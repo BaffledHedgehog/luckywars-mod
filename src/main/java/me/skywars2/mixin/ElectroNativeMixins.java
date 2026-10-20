@@ -45,15 +45,14 @@ public final class ElectroNativeMixins {
             var bolt=(LightningBolt)(Object)this; var game=SkyWars2.game();
             if(game==null || !LbcElectro.managedLightning(bolt) || bolt.getCause()==null
                     || !(bolt.level() instanceof ServerLevel level)) original.call();
-            else game.items().indirectKills().worldChanges(level,bolt.getCause(),()->original.call());
+            else game.items().indirectKills().worldChanges(level,bolt,()->original.call());
         }
         @WrapOperation(method="tick",at=@At(value="INVOKE",target=
                 "Lnet/minecraft/world/entity/Entity;thunderHit(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/LightningBolt;)V"))
         private void skywars2$lightningTarget(Entity target,ServerLevel level,LightningBolt bolt,Operation<Void> original) {
             var game=SkyWars2.game();
             if(!LbcElectro.managedLightning(bolt) || game==null || bolt.getCause()==null
-                    || target==bolt.getCause() && bolt.entityTags().contains(LbcElectro.SELF_SHOCK_BOLT)
-                    || game.items().wands().target(bolt.getCause(),target)) original.call(target,level,bolt);
+                    || game.items().electro().lightningTarget(bolt,target)) original.call(target,level,bolt);
         }
     }
     @Mixin(Entity.class)
@@ -68,7 +67,7 @@ public final class ElectroNativeMixins {
             boolean applied=original.call(target,level,source,amount);
             var game=SkyWars2.game();
             if(game!=null && LbcElectro.managedLightning(bolt) && bolt.getCause()!=null && target instanceof LivingEntity living)
-                game.items().indirectKills().ignited(living,bolt.getCause());
+                game.items().indirectKills().ignited(living,bolt.getCause(),LbcElectro.eggLightning(bolt));
             return applied;
         }
     }

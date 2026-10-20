@@ -1,0 +1,39 @@
+{
+  "sha256": "0e07a806d1aa7242ce4742483938c2d01ffd5affeeb1ea081e2ccd5eb194eec5",
+  "archive": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-academy-persistence-0e07a806.jar",
+  "runtime": {
+    "passed": true,
+    "completed": [
+      "Native GUI selection gates, separate resets, ranked access and challenge toggle",
+      "Vanilla/native Polymer names and lore hide for one viewer, preserve authoritative stacks and reveal on clear",
+      "Seven real NPC promotions persist unfinished active challenge progress immediately",
+      "Native disconnect/rejoin and repeated GUI selection retain active challenge and seven promotions",
+      "Full server restart retains unfinished activity, seven promotions and unselected reward",
+      "Thirteen further native NPC promotions resume seven-to-twenty and complete exactly once without selecting reward",
+      "Native completion and independent reward selection survive a full server restart",
+      "Actual start and native death/respawn grant one Academy token independently of normal kits"
+    ],
+    "artifactSha256": "0e07a806d1aa7242ce4742483938c2d01ffd5affeeb1ea081e2ccd5eb194eec5",
+    "elapsedSeconds": 133.14
+  },
+  "unchangedMainSha256": "a0c4cb03c4682c99e71e0c197b376f98dc6781e1f153ec7ee61cba67408606a5",
+  "unchangedProductionReferenceSha256": "90da0cbbc3cdcdcf850de4b9d04ba7dbf1c0d88ff8f51299a631d8e4abfb735c",
+  "changedJarEntries": [
+    "me/skywars2/game/GameChecks$1.class",
+    "me/skywars2/game/GameChecks$1Saved.class",
+    "me/skywars2/game/GameChecks$2.class",
+    "me/skywars2/game/GameChecks$3.class",
+    "me/skywars2/game/GameChecks$4.class",
+    "me/skywars2/game/GameChecks$5.class",
+    "me/skywars2/game/GameChecks$FireWandFixture.class",
+    "me/skywars2/game/GameChecks$StonekiviSunFixture.class",
+    "me/skywars2/game/GameChecks$TerraCraftFixture.class",
+    "me/skywars2/game/GameChecks$WandThirdPlayerState.class",
+    "me/skywars2/game/GameChecks.class"
+  ],
+  "regressionEvidence": "academy-challenge-verification.json; all production classes/resources byte-identical",
+  "limits": [
+    "Native fake players; no real-client visual test",
+    "No mass-load MSPT benchmark"
+  ]
+}

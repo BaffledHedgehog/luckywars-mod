@@ -19,6 +19,18 @@ import java.util.Collection;
 /** Изменения эффектов обновляют индексы маны/цветов и представление полной невидимости. */
 @Mixin(LivingEntity.class)
 public abstract class LbcColorEffectsMixin {
+    /** Оглушение убирает AI/прыжок, сохраняя обычный travel с гравитацией и внешней скоростью. */
+    @Inject(method="isImmobile",at=@At("HEAD"),cancellable=true)
+    private void skywars2$stunnedInput(CallbackInfoReturnable<Boolean> ci) {
+        var game = SkyWars2.game();
+        if (game != null && game.items().shooters().stunned((LivingEntity)(Object)this)) ci.setReturnValue(true);
+    }
+
+    @Inject(method="aiStep",at=@At(value="INVOKE",target="Lnet/minecraft/world/entity/LivingEntity;applyInput()V",shift=At.Shift.AFTER))
+    private void skywars2$clearStunnedInput(CallbackInfo ci) {
+        var game = SkyWars2.game();
+        if (game != null) game.items().shooters().prepareStunnedInput((LivingEntity)(Object)this);
+    }
     @Inject(method="resolvePlayerResponsibleForDamage",at=@At("TAIL"))
     private void skywars2$environmentOwner(net.minecraft.world.damagesource.DamageSource source,
             CallbackInfoReturnable<net.minecraft.world.entity.player.Player> ci) {

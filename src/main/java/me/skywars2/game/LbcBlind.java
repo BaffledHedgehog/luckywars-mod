@@ -88,7 +88,7 @@ public final class LbcBlind {
     private static final class RainCloud {
         final ServerPlayer owner;
         final net.minecraft.server.level.ServerLevel level;
-        final Vec3 position;
+        Vec3 position;
         final String epoch;
         int age;
         RainCloud(ServerPlayer owner,Vec3 position,String epoch) {
@@ -98,6 +98,15 @@ public final class LbcBlind {
     }
 
     LbcBlind(GameController game) { this.game=game; }
+    void transformOrigins(net.minecraft.server.level.ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
+        clouds.removeIf(cloud->{
+            if(cloud.level!=level) return false;
+            Vec3 next=transform.apply(cloud.position);
+            if(next==null) return true;
+            cloud.position=next; return false;
+        });
+    }
+
     public int count() { return charges.size(); }
     List<Charge> snapshot() { return List.copyOf(charges); }
     public int queued(ServerPlayer owner) {

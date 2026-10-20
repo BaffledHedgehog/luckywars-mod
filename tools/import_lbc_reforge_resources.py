@@ -17,6 +17,29 @@ CATEGORIES = "accessory axe bow hoe pickaxe potion shield shooter shovel staff s
 ROOT_TABLES = [f"transformables_{name}" for name in CATEGORIES] + ["spells_library", "halloween/metasola"]
 
 
+def migrate_score_attribute_amounts(value):
+    """Bridge legacy score float amounts through the native 26.3 int codec."""
+    if isinstance(value, list):
+        for child in value:
+            migrate_score_attribute_amounts(child)
+    elif isinstance(value, dict):
+        for child in list(value.values()):
+            migrate_score_attribute_amounts(child)
+        if value.get("type") != "minecraft:set_attributes":
+            return
+        for modifier in value.get("modifiers", []):
+            amount = modifier.get("amount")
+            if not isinstance(amount, dict) or amount.get("type") != "minecraft:score":
+                continue
+            # ScoreboardValue is an int provider in 26.3; FromInt preserves its
+            # conversion to the float consumed by set_attributes. Refuse scales
+            # this scoped migration cannot represent rather than dropping them.
+            if amount.get("scale", 1) != 1:
+                raise SystemExit(f"Unsupported legacy attribute score scale: {amount!r}")
+            score = {key: item for key, item in amount.items() if key != "scale"}
+            modifier["amount"] = {"type": "minecraft:from_int", "input": score}
+
+
 def dependencies(value, kind):
     if isinstance(value, list):
         for child in value:
@@ -69,6 +92,13 @@ def main():
             entries += sum(len(pool.get("entries", [])) for pool in data.get("pools", []))
         migrate_loot_schema(data)
         migrate_legacy_score_value_checks(data)
+        migrate_score_attribute_amounts(data)
+        # SLR now has a native behavior owner; preserve its complete source payload.
+        if kind == "loot_table" and name == "slr":
+            for pool in data.get("pools", []):
+                for entry in pool.get("entries", []):
+                    if entry.get("name") == "minecraft:carrot_on_a_stick":
+                        entry["name"] = "skywars2:slr"
         target = DEST / relative
         text = json.dumps(data, ensure_ascii=False, indent=2) + "\n"
         if not target.exists() or target.read_text(encoding="utf-8-sig") != text:

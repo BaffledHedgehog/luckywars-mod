@@ -1,0 +1,93 @@
+{
+  "nativeIds": [
+    "skywars2:duplicating_wand",
+    "skywars2:academy_duplicating_wand",
+    "skywars2:divider"
+  ],
+  "sourceComparison": "complete payload equality passed",
+  "paths": [
+    "src/main/resources/data/lbc/loot_table/ported/duplicating_wand.json",
+    "src/main/resources/data/lbc/loot_table/ported/academy_duplicating_wand.json",
+    "src/main/resources/data/lbc/loot_table/ported/divider.json"
+  ],
+  "sha256": {
+    "src/main/resources/data/lbc/loot_table/ported/duplicating_wand.json": "178a984faa2fe9054be252998e35224d6a3cb26a7b07c5869c971132943a08c3",
+    "src/main/resources/data/lbc/loot_table/ported/academy_duplicating_wand.json": "7dd8e1fdd183d31ea78461dcecea9bfe10893258d0b70c68d54df4de1db1be02",
+    "src/main/resources/data/lbc/loot_table/ported/divider.json": "c28fd8b7422a0c3958b14e6273baa0a1ab8831b4408c680a3b58be3b0916e432"
+  },
+  "design": {
+    "keys": [
+      "craft_with_metal_pipe",
+      "divider",
+      "divider.lore",
+      "divider.lore.1",
+      "dublicating_wand",
+      "dublicating_wand.lore",
+      "mana_on_activate",
+      "mode_black_hole",
+      "mode_default",
+      "mode_divide",
+      "mode_expand",
+      "staff",
+      "type",
+      "upgrade_condition_dublicating",
+      "upgrade_succesful_dublicating",
+      "upgraded_item"
+    ],
+    "models": [
+      "lbc:divider",
+      "lbc:dublicating_wand"
+    ],
+    "tooltipStyles": [
+      "lbc:tier_a",
+      "lbc:tier_s",
+      "lbc:tier_ss"
+    ],
+    "languages": {
+      "ru_ru": {
+        "sha256": "3e7b3f2c6aa2e9e223db99d52d4d1a9de9954bd546bad5ba3543b775c7dfb47b",
+        "values": {
+          "craft_with_metal_pipe": "Можно соединить с Металлической Трубой!",
+          "divider": "Умножение на 27",
+          "divider.lore": "Клонирует все вокруг игрока в разные стороны.",
+          "divider.lore.1": "Можно соединить с жезлом Сваргия Маника",
+          "dublicating_wand": "Тоистува Я Луова Ахнеус",
+          "dublicating_wand.lore": "Алчность, направленная в воссоздание.",
+          "mana_on_activate": " Расход маны на активацию",
+          "mode_black_hole": "Режим жезла: Чёрная дыра",
+          "mode_default": "Режим жезла: Стандартный",
+          "mode_divide": "Режим жезла: Умножение",
+          "mode_expand": "Режим жезла: Расширение",
+          "staff": "Магический жезл",
+          "type": "Тип предмета: ",
+          "upgrade_condition_dublicating": "Проведите в медитации некоторое время (Shift + ПКМ жезлом) - прочуствуйте на собственном теле влияние этой хаотически неопределённой магии! Осторожно, это разрушит большую часть окружения!",
+          "upgrade_succesful_dublicating": "Вы талила лулила чувствуете себя неразброчивым мультиплекс процесс регистрация мысли в управления страница шесть семнацать регистрацияёе ведьмы магиеее колдовство неразборчивой магией этогое жезлае! Теперь вы можете генерировать стимулировать флип флоп осциллировать сами определять, отклонение в какую отверстие кровь сторону отклонять лулила лулалила отклонение силы палочка! (Переключать новые жезлы Shift+ПКМ мышъ)",
+          "upgraded_item": "Этот жезл был улучшен в Академии Магов!"
+        }
+      },
+      "en_us": {
+        "sha256": "d81685d3f4c65c833543ee9ece5f48904d01ba8b8c04e9a2dd2176dadeaa8782",
+        "values": {
+          "craft_with_metal_pipe": "Can be combined with Metal Pipe!",
+          "divider": "Multiply by 27",
+          "divider.lore": "Clones everything around the player in different directions.",
+          "divider.lore.1": "Can be combined with Svargiy Manik's staff",
+          "dublicating_wand": "Toistuva Ya Luova Ahneus",
+          "dublicating_wand.lore": "Greed directed into recreation.",
+          "mana_on_activate": " Mana cost to activate",
+          "mode_black_hole": "Wand Mode: Black Hole",
+          "mode_default": "Wand Mode: Default",
+          "mode_divide": "Wand Mode: Multiply",
+          "mode_expand": "Wand Mode: Expand",
+          "staff": "Magic wand",
+          "type": "Item type: ",
+          "upgrade_condition_dublicating": "Spend some time in meditation (Shift + RMB with the wand) - feel the influence of this chaotically indefinite magic on your own body! Be careful, it will destroy most of the environment!",
+          "upgrade_succesful_dublicating": "You talila lulila feel yourself indiscriminate multiplex process registration thoughts in control page six seventeen registration witches magic witchcraft indiscriminate magic this wand! Now you can generate stimulate flip flop oscillate yourself determine, deviation in which hole blood side to reject lulila lulalila deviation of power wand! (Switch new wands Shift+RMB mouse)",
+          "upgraded_item": "This staff has been upgraded at the Academy of Mages!"
+        }
+      }
+    }
+  },
+  "resourcePackModified": false,
+  "templatesNeeded": []
+}

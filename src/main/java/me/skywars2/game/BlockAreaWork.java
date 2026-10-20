@@ -85,6 +85,15 @@ final class BlockAreaWork {
                 }
     }
 
+    /** Неизменяемый каст объединяет точные области: перекрытия обходятся один раз, промежутки не сканируются. */
+    void include(Bounds region) {
+        if(region==null) return;
+        bounds=bounds==null ? region : new Bounds(Math.min(bounds.minX,region.minX),Math.min(bounds.minY,region.minY),
+                Math.min(bounds.minZ,region.minZ),Math.max(bounds.maxX,region.maxX),Math.max(bounds.maxY,region.maxY),
+                Math.max(bounds.maxZ,region.maxZ));
+        add(region);
+    }
+
     void add(BlockPos pos) {
         add(new Bounds(pos.getX(), pos.getY(), pos.getZ(), pos.getX(), pos.getY(), pos.getZ()));
     }

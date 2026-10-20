@@ -145,7 +145,7 @@ public final class LbcItems {
     }
 
     /** Загружаем регистрацию до freeze реестров и чтения loot tables, а не при первом обращении к предмету. */
-    public static void register() { LbcClouds.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcTerra.register(); LbcShooters.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
+    public static void register() { LbcSkills.register(); LbcClouds.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcTerra.register(); LbcShooters.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
 
     private static final CompoundTag BROKEN_TOTEM = new CompoundTag();
     private static final CompoundTag DYNAMITE = new CompoundTag();
@@ -191,12 +191,14 @@ public final class LbcItems {
     private final LbcAir air;
     private final LbcTeleport teleport;
     private final LbcRuby ruby;
+    private final LbcConsuming consuming;
+    private final LbcDuplicating duplicating;
     private final LbcAcademy academy;
     private final LbcIndirectKills indirectKills;
     private record HudState(UUID source,int mana,int max,int regeneration,int jumps,int cooldown,
                             int cold,int coldCooldown,int frozen,int swordCharges,int noMagic,int reverse,int curse,
                             int addMana,int addMax,int addRegen,int removeMana,int boost,int teleport,
-                            int katanaCharges,int katanaCharging,int yellowCharges,int yellowCharging,int shock,int blindQueue,int blazeHead,int lookback,int piss,int scared,int screamray,int twitching,int targetCurse,int sentAt) { }
+                            int katanaCharges,int katanaCharging,int yellowCharges,int yellowCharging,int shock,int blindQueue,int blazeHead,int lookback,int piss,int scared,int screamray,int twitching,int targetCurse,int divider,int sentAt) { }
     private final Map<UUID,HudState> hudStates=new HashMap<>();
     private String entityEpochTag = newEntityEpochTag();
     private final Map<UUID, TurnCurse> turnCurses = new HashMap<>();
@@ -346,6 +348,10 @@ public final class LbcItems {
                 .append(Component.literal("/"))
                 .append(Component.literal("7§f]").withColor(0xA55E50));
         int blindQueue=blind.queued(source);
+        int divider=dividerHudValue(source);
+        if(divider>=0) component.append(Component.literal(divider>0?"    \uE105 ":"    \uE104 "))
+                .append(divider>0?Component.literal(Integer.toString(divider)).withStyle(ChatFormatting.WHITE)
+                        :Component.translatable("ready").withStyle(ChatFormatting.GREEN));
         if(blindQueue>0) component.append(Component.literal("  \uE112 ")).append(Component.literal(Integer.toString(blindQueue)).withStyle(ChatFormatting.GREEN));
         mana.appendHudEarlyStatuses(source,component);
         int blazeHead=blaze.headCharges(source);
@@ -370,7 +376,10 @@ public final class LbcItems {
         return component;
     }
     /** One shared actionbar; observers with a player camera see that target's live HUD. */
+    void invalidateHud(ServerPlayer viewer) { hudStates.remove(viewer.getUUID()); }
+
     void refreshHud(ServerPlayer viewer) {
+        if(game.lbc().hidesKnowledge(viewer)) { clearHud(viewer); return; }
         ServerPlayer source=viewer;
         if(game.isObserver(viewer)) {
             if(viewer.getCamera() instanceof ServerPlayer target && target!=viewer) source=target;
@@ -392,7 +401,7 @@ public final class LbcItems {
         int boost=mana.hudValue(source,"effect_boost_mana"), teleport=mana.hudValue(source,"effect_rtp_1");
         int lookback=psycho.hudValue(source,"lookback"),piss=psycho.hudValue(source,"piss");
         int scared=psycho.hudValue(source,"scared"),screamray=psycho.hudValue(source,"screamray"),twitching=psycho.hudValue(source,"twitching");
-        int targetCurse=homing.curseSeconds(source);
+        int targetCurse=homing.curseSeconds(source),divider=dividerHudValue(source);
         var old=hudStates.get(viewerId); int now=game.server().getTickCount(); UUID sourceId=source.getUUID();
         if(old!=null && old.source().equals(sourceId) && old.mana()==current && old.max()==max && old.regeneration()==regeneration
                 && old.jumps()==jumps && old.cooldown()==cooldown && old.cold()==cold && old.coldCooldown()==coldCooldown
@@ -402,11 +411,15 @@ public final class LbcItems {
                 && old.yellowCharges()==yellowCharges && old.yellowCharging()==yellowCharging && old.blindQueue()==blindQueue && old.blazeHead()==blazeHead
                 && old.lookback()==lookback && old.piss()==piss && old.scared()==scared && old.screamray()==screamray && old.twitching()==twitching && old.targetCurse()==targetCurse
                 && old.addMana()==addMana && old.addMax()==addMax && old.addRegen()==addRegen && old.removeMana()==removeMana
-                && old.boost()==boost && old.teleport()==teleport && now-old.sentAt()<20) return;
+                && old.boost()==boost && old.teleport()==teleport && old.divider()==divider && now-old.sentAt()<20) return;
         viewer.connection.send(new ClientboundSetActionBarTextPacket(hud(source)));
         hudStates.put(viewerId,new HudState(sourceId,current,max,regeneration,jumps,cooldown,cold,coldCooldown,frozen,
                 swordCharges,noMagic,reverse,curse,addMana,addMax,addRegen,removeMana,boost,teleport,
-                katanaCharges,katanaCharging,yellowCharges,yellowCharging,shock,blindQueue,blazeHead,lookback,piss,scared,screamray,twitching,targetCurse,now));
+                katanaCharges,katanaCharging,yellowCharges,yellowCharging,shock,blindQueue,blazeHead,lookback,piss,scared,screamray,twitching,targetCurse,divider,now));
+    }
+    private int dividerHudValue(ServerPlayer player) {
+        return LbcWands.isDivider(player.getMainHandItem()) || LbcWands.isDivider(player.getOffhandItem())
+                ? Math.max(0,mana.hudValue(player,"divider_cd")) : -1;
     }
     private void clearHud(ServerPlayer viewer) {
         if(hudStates.remove(viewer.getUUID())!=null) viewer.connection.send(new ClientboundSetActionBarTextPacket(Component.empty()));
@@ -553,6 +566,8 @@ public final class LbcItems {
         this.air = new LbcAir(game);
         this.teleport = new LbcTeleport(game);
         this.ruby = new LbcRuby(game);
+        this.consuming = new LbcConsuming(game);
+        this.duplicating = new LbcDuplicating(game);
         this.academy = new LbcAcademy(game);
         this.indirectKills = new LbcIndirectKills(game);
         this.stonekivi = new LbcStonekivi(game);
@@ -591,6 +606,10 @@ public final class LbcItems {
     public LbcBolts bolts() { return bolts; }
     public LbcTerra terra() { return terra; }
     public LbcShooters shooters() { return shooters; }
+    /** Запрет действий общий, но физика льда и электрического оглушения различается. */
+    public boolean actionsBlocked(net.minecraft.world.entity.LivingEntity entity) {
+        return frost.isFrozen(entity) || shooters.stunned(entity);
+    }
     public LbcElectro electro() { return electro; }
     public ProjectileLifetimes lifetimes() { return lifetimes; }
     public LbcExasperato exasperato() { return exasperato; }
@@ -601,6 +620,8 @@ public final class LbcItems {
     public LbcAir air() { return air; }
     public LbcTeleport teleport() { return teleport; }
     public LbcRuby ruby() { return ruby; }
+    public LbcConsuming consuming() { return consuming; }
+    public LbcDuplicating duplicating() { return duplicating; }
     public LbcAcademy academy() { return academy; }
     public LbcIndirectKills indirectKills() { return indirectKills; }
 
@@ -636,6 +657,7 @@ public final class LbcItems {
         air.loaded(entity);
         teleport.loaded(entity);
         ruby.loaded(entity);
+        consuming.loaded(entity);
         if (academy.loaded(entity)) return;
         if (shooters.loaded(entity)) { markCurrentItemEpoch(entity); return; }
         if (magic.loaded(entity)) { markCurrentItemEpoch(entity); return; }
@@ -668,6 +690,16 @@ public final class LbcItems {
         } else snowball.discard();
     }
 
+    /** Массовые заклинания затрагивают и лёгкие снаряды, у которых нет отдельной native entity. */
+    void transformSpellOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
+        wands.transformOrigins(level,transform);
+        electro.transformOrigins(level,transform);
+        bolts.transformOrigins(level,transform);
+        blaze.transformOrigins(level,transform);
+        blind.transformOrigins(level,transform);
+        homing.transformOrigins(level,transform);
+        duplicating.transformOrigins(level,transform);
+    }
     public void entityUnloaded(Entity entity) {
         academy.unloaded(entity);
         lifetimes.unloaded(entity);
@@ -678,6 +710,7 @@ public final class LbcItems {
         air.unloaded(entity);
         teleport.unloaded(entity);
         ruby.unloaded(entity);
+        consuming.unloaded(entity);
         terra.unloaded(entity);
         shooters.unloaded(entity);
         magic.unloaded(entity);
@@ -1033,6 +1066,8 @@ public final class LbcItems {
         air.tick();
         teleport.tick();
         ruby.tick();
+        consuming.tick();
+        duplicating.tick();
         lifetimes.tick();
         shooters.tick();
         tickDynamites();
@@ -1075,13 +1110,15 @@ public final class LbcItems {
         return curse == null ? 0 : curse.remaining;
     }
 
-    public void clear(ServerPlayer player) { turnCurses.remove(player.getUUID()); frost.clear(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
+    public void clear(ServerPlayer player) { turnCurses.remove(player.getUUID()); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
     public void forget(ServerPlayer player) {
         blind.forget(player);
         psycho.forget(player);
         summons.forget(player);
         homing.forget(player);
         bolts.forget(player);
+        consuming.forget(player);
+        duplicating.forget(player);
         teleport.forget(player);
         electro.forget(player);
         shooters.forget(player);
@@ -1117,6 +1154,8 @@ public final class LbcItems {
         air.stop();
         teleport.stop();
         ruby.stop();
+        consuming.stop();
+        duplicating.stop();
         lifetimes.stop();
         shooters.stop();
         electro.stop();

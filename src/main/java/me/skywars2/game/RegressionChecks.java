@@ -313,9 +313,10 @@ public final class RegressionChecks {
         require(game.inLobby(), "Regression suite requires the ready lobby");
         require(game.selectedMapReady(), "Regression suite requires the selected map to be ready");
         var advancements = game.server().getAdvancements().getAllAdvancements();
-        require(advancements.size() == 357 && advancements.stream().allMatch(a ->
-                a.id().getNamespace().equals("lbc") && a.id().getPath().startsWith("true_advancements/")),
-                "Only the 357 native LBC tree advancements are registered; vanilla listeners are absent");
+        require(advancements.size() == 358 && advancements.stream().allMatch(a ->
+                a.id().getNamespace().equals("lbc") && (a.id().getPath().startsWith("true_advancements/")
+                        || a.id().getPath().equals("challenges/no_knowledge") && a.value().display().isEmpty())),
+                "Only the 357 native LBC tree advancements and hidden impossible challenge flag are registered; vanilla listeners are absent");
         ServerPlayer alpha = bot(game, "TestAlpha");
         ServerPlayer beta = bot(game, "TestBeta");
         require(alpha != null && beta != null, "Run the existing /sw check bots fixture first");

@@ -1,0 +1,88 @@
+{
+  "paths": [
+    "data/lbc/loot_table/ported/academy_consuming_wand.json",
+    "data/lbc/loot_table/ported/consuming_wand.json",
+    "data/lbc/loot_table/ported/creeper_army_spell.json",
+    "data/lbc/loot_table/ported/destroyer_spell.json",
+    "data/lbc/loot_table/sauvojen_tuntija_blind.json",
+    "data/lbc/loot_table/voidman.json",
+    "skywars2/consuming_presets.json"
+  ],
+  "sha256": {
+    "data/lbc/loot_table/ported/consuming_wand.json": "e8726a53c965ec0069ad061b054769db2c62f4760adcf9e19ae2628fbda5283c",
+    "data/lbc/loot_table/ported/academy_consuming_wand.json": "9e1792d16be34480584be26648c7fe4dbe6bc103f2bedc3c7838277c167f3b15",
+    "data/lbc/loot_table/ported/creeper_army_spell.json": "e6f597ad65ede58d990d2f78055ded1b75614b1cb2d5422fb867e649ba88b1db",
+    "data/lbc/loot_table/ported/destroyer_spell.json": "ee0b3560c7eb963a60c20230bcc3492f40f2e57211de9803289b17e0b5da8073",
+    "skywars2/consuming_presets.json": "46165d162912a1f5adfd2afca4b661f5d95c1d48a3ff1ed708f4a4c7b33c6bc8",
+    "data/lbc/loot_table/voidman.json": "83f438aef4962f16cbf97c82bf113b153e70cd9888ef360d0b0ed367b25189c9",
+    "data/lbc/loot_table/sauvojen_tuntija_blind.json": "52a84c42c23e8a80b4cb53aa095b9b9bc196ee1add2e4db3b549131a3df53a03"
+  },
+  "reusedTemplates": {
+    "data/lbc/structure/meditation.nbt": "5b03cf143d1b662118cee5c211a3026054bbebf4c74c5425a3250c28af6f8bcd",
+    "data/lbc/structure/air11x11.nbt": "5b947b9adf49f0fde30f1807a9fe78c51d06ce32925c23d02d7c20ccbafa2926",
+    "data/lbc/structure/silence_1.nbt": "77deb16438a5121ae98081c4bd4075e2a9edf67a6054dba109569063c940620b",
+    "data/lbc/structure/silence_2.nbt": "e3e8c960742c4fd13e249263c89a969a3fb1b038919e44b7266fbc2d1cb095c6",
+    "data/lbc/structure/silence_3.nbt": "9cfbc607e42dac039fd0f011f78b6c5b2689b53d84051bf6e0f2cb9f8442ac4a",
+    "data/lbc/structure/silence_4.nbt": "c879ef155d661f6bbdcae9be49a86b877ed9a38255a5782c065e206caf3660bb",
+    "data/lbc/structure/silence_5.nbt": "90b508a8dfcd6fe9cc4e2dce4effb117d5c887a5ba762c81af9e35f5ebe15909",
+    "data/lbc/structure/silence_6.nbt": "13348d8d0fe9ae3c100895675df9e5118951487dda1926bd7a590cb36d72fac9",
+    "data/lbc/structure/silence_7.nbt": "51f5d1cb8fa03f26b7825dff48b40ce94d4fecd94fd996accc16278e946245d7",
+    "data/lbc/structure/silence_8.nbt": "4350b44a72343945e2cad127445ffe4d20e181a9f9a8f0b529e3b64b754f16d4"
+  },
+  "sourceComparison": "complete payload equality passed",
+  "voidManSpawns": 28,
+  "design": {
+    "keys": [
+      "consuming_wand",
+      "consuming_wand.lore",
+      "creeper_army_spell",
+      "creeper_army_spell.lore.1",
+      "creeper_army_spell.lore.2",
+      "creeper_army_spell.lore.3",
+      "destroyer_spell",
+      "destroyer_spell.lore.1",
+      "destroyer_spell.lore.2",
+      "destroyer_spell.lore.3",
+      "liquid_abyss",
+      "liquid_abyss.lore",
+      "magic_damage",
+      "mana_on_activate",
+      "mode_avarice",
+      "mode_default",
+      "mode_silence",
+      "mode_the_end",
+      "sauvojen_wand_blind",
+      "sauvojen_wand_blind.lore.1",
+      "sauvojen_wand_blind.lore.2",
+      "sauvojen_wand_blind.lore.3",
+      "sauvojen_wand_blind.lore.4",
+      "spell",
+      "staff",
+      "type",
+      "upgrade_condition_consuming",
+      "upgrade_succesful_consuming",
+      "upgraded_item",
+      "void_man"
+    ],
+    "models": [
+      "lbc:breaker",
+      "lbc:consuming_wand",
+      "lbc:creepers",
+      "lbc:liquidabyss",
+      "lbc:st/blind"
+    ],
+    "equipment": [
+      "lbc:void"
+    ],
+    "languages": {
+      "ru_ru": {
+        "sha256": "3e7b3f2c6aa2e9e223db99d52d4d1a9de9954bd546bad5ba3543b775c7dfb47b",
+        "allKeysPresent": true
+      },
+      "en_us": {
+        "sha256": "d81685d3f4c65c833543ee9ece5f48904d01ba8b8c04e9a2dd2176dadeaa8782",
+        "allKeysPresent": true
+      }
+    }
+  }
+}

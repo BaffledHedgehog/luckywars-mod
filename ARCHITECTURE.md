@@ -2,6 +2,71 @@
 
 ## Быстрая навигация
 
+«Незнание» и награда Academy — `LbcLoadouts`: раздельные active/progress/reward
+в `PlayerStore`, выбор/reset и 20 успешных повышений через `LbcAcademy`.
+Каждое повышение сохраняет профиль на диск; незавершённый прогресс переживает
+повторный вход и перезапуск. Сброс — только явный reset испытания или завершение.
+`lbcChallenges` включает выдачу жетона на старте/респауне независимо от наборов.
+GUI 12000 — `GameMenus`/`OriginalGuiDesign`; внутренний `challenges/no_knowledge`
+имеет impossible-критерий без display, видимая ветка достижений прежняя.
+`LbcSkills` использует глобальные Polymer context-check/modification для всех
+клиентских стеков и общий редкий resend инвентаря/курсора/экипировки/предметов.
+`LbcLoadouts` публикует concurrent-флаг и immutable-снимок имён отправителей;
+Netty не читает профили или мир. `KnowledgePacketMixin` скрывает системный чат,
+actionbar и scoreboard UI. Прежний UI очищается до фильтра и восстанавливается
+при снятии; `AttributeHud` и actionbar прекращают расчёт скрытого вывода.
+Игровые атрибуты/teams/scores сохраняются. См. `agent_notes/ACADEMY_CHALLENGE_PORT.md`.
+
+SLG-88 / SLR — существующий `LbcShooters`: четыре режима мгновенного луча,
+расход стрел и общий cooldown винтовки. Ввод — `LbcWands.use`, совместимость
+старого custom_data — `UseItemCallback` в `SkyWars2`; ЛКМ остаётся ближним ударом.
+Представление — нативный Polymer item и полные исходные loot-компоненты.
+Попадания используют общие фильтры целей, отложенный яд — `LbcIndirectKills`,
+TNT — существующий epoch/lifecycle в `LbcItems`. Второй движок снарядов не нужен.
+Оглушение хранится там же; `LbcItems.actionsBlocked` объединяет запрет действий
+льда и оглушения, сохраняя различие их физики. `MovementLimitsMixin` оставляет
+нативный travel игрока и отклоняет добровольный ввод/поворот и движение из ACK.
+`LobbyInventoryPacketMixin` блокирует инвентарь до SGui, без замены его содержимого.
+`LbcColorEffectsMixin.isImmobile` останавливает AI/прыжок, сохраняя внешнюю скорость.
+Исходник и оформление: `agent_notes/SLR_SOURCE.md`, `SLR_RESOURCES.md`;
+фактические проверки и ограничения — `SLR_PORT.md` и `SERVER_TESTS.md`.
+
+Duplicating и Divider — `LbcDuplicating`: лёгкие центры/случайные фрагменты и
+одна бюджетная очередь операций на последовательность копирования. Обычный
+режим переосмыслен по авторскому замыслу: COPY/MOVE/DELETE/ROTATE/MIRROR,
+четыре формы, размеры 1–7, настоящий native поворот/зеркало block state.
+Все блоки фрагмента читаются до записи; назначения проверяются до удаления
+оригинала. Divider/Divide используют один снимок центрального куба на 26 копий.
+BlackHole хранит одну последовательную работу: финальный clear идёт после
+всех импульсов. Пустая активная работа не занимает бюджет очереди.
+Ввод/регистрация — `LbcWands`, крафт — `LbcCraftingRecipe`, Academy — `LbcAcademy`.
+Межизмеренный Expand использует `MapManager.prepareChunk(world,pos)` и снимки
+`snapshot/restoreSnapshot(world,...)`; tickets учитывают измерение и снимаются
+при очистке карты/stop. Контейнер полностью заменяется перед загрузкой NBT.
+Чтение/запись мира остаётся серверным, план не создаёт постоянный forceload.
+`LbcIndirectKills` принимает явное измерение для замуровывания/потери опоры.
+Массовые Silence/Avarice используют общий transformOrigins, отдельного индекса
+целей или движка маны нет. Статус проверки — agent_notes/DUPLICATING_PORT.md.
+
+Consuming — `LbcConsuming`: один сервис частиц поглощения, двух расходуемых
+заклинаний-доноров и призывов испытания. Ввод/предметы — `LbcWands`, настоящий
+крафт — `LbcCraftingRecipe`, повышение — `LbcAcademy`. Полный источник и
+решения массовых режимов — agent_notes/RUBY_CONTINUATIONS_SOURCE.md.
+Перекрывающиеся области удаления собираются через `BlockAreaWork.include` в
+одну BitSet-очередь на каст/импульс. Порталы The End записываются после очистки,
+с сохранением последнего исходного действия для каждой позиции. Нативные
+шаблоны и 28 пресетов готовятся через worker MapManager; мир меняется только
+в общей очереди LbcStonekivi. Урон `skywars2:consuming` сохраняет стреловую
+защиту и исходную кратность без cooldown; ванильный arrow не меняется.
+Призывы сохраняют автора через LbcIndirectKills и native AI target hooks;
+смерть владельца/stop снимают их и отменяют принятые записи.
+Silence очищает сферу R48 напрямую и удаляет обычные сущности, Avarice
+стягивает обычные сущности всего загруженного измерения. LbcItems передаёт
+эти массовые действия в transformOrigins существующих сервисов для лёгких
+снарядов/областей без native entity; owner и lifetime при переносе сохраняются.
+Наведение активных частиц Consuming использует локальный spatial query R8.
+В unload ownership снимается перед discard, чтобы удаление не зацикливало callback.
+
 Infbolt — тот же `LbcBolts`: короткий луч по dropped item/блокам, обычная
 и расширенная перековка используют общий `reforgeTables` и очередь
 `LbcStonekivi.queuedWork`. Входные стеки фиксируются до обработки;
@@ -10,8 +75,12 @@ Infbolt — тот же `LbcBolts`: короткий луч по dropped item/б
 рекурсии старых reduce_count(_s). Донор `LbcWands.BOLT_MATERIAL` — настоящий
 SpawnEggItem с Polymer-представлением; `ElectroNativeMixins.Egg` присваивает
 нативной молнии владельца через `LbcElectro.manageLightning` перед её тиком.
+У молнии яйца отдельное исключение friendly fire (user), включая её огонь;
+флаг сохраняется в общей записи LbcIndirectKills.Owner, без второго трекера.
 Крафт использует `LbcCraftingRecipe.Kind.INFBOLT`, отдельного движка нет.
-Источник и незавершённые авторские решения: agent_notes/INFBOLT_SOURCE.md.
+При пустой выдаче исходный предмет сохраняется. Infbolt — бесплатный
+магический инструмент без Academy-версии (user); остаточный код не переносится.
+Источник: agent_notes/INFBOLT_SOURCE.md; уточнения: AGENTS.md.
 
 Lightning Bolts/Boltbolt — `LbcBolts`: обычные/Academy режимы, повторные цепи,
 пять зарядов на 200 тиков, Meteor и Watering. Молнии и shock используют
@@ -205,7 +274,7 @@ smart lifetime и достижение за убийства одной сери
 | `LbcTeleport` | Обычный и Academy заряды, первые swept-попадания, левитация/инверсия, учёт нативных стрел-облаков. Общий targets-only smart lifetime, shield/role guards, автор ловушки и падения. Облака не имеют боевых попаданий; native physics приостанавливается узким pre-tick hook и не загружает чанки. |
 | `LbcRuby` | Летящий бур и два Academy-рейкаста: сжатие с ловушкой/owner и сквозное разрушение. Общие block/drop, вставка структур и smart lifetime с terrain=true; задание/улучшение остаются в `LbcAcademy`, ввод/оплата — в `LbcWands`. |
 | `ArenaBlockMixin` | Сообщает `MapManager` об изменённых блоках арены, включая мосты за пределами исходной NBT. Не содержит правил игры. |
-| `LobbyInventoryPacketMixin`, `LobbyItemPickupMixin` | Технические hooks для пакетов изменения инвентаря и подбора предметов в лобби/при загрузке. Состояние блокировки и фиксированное содержимое принадлежат `GameController`; кнопки SGui продолжают работать. |
+| `LobbyInventoryPacketMixin`, `LobbyItemPickupMixin` | Пакеты инвентаря и подбор в лобби/при загрузке: состояние и фиксированное содержимое принадлежат `GameController`, кнопки SGui работают. Дополнительно packet hook блокирует любые инвентарные действия при SLR-оглушении до SGui; состояние — в `LbcShooters`, содержимое не заменяется. |
 | `Spectators`, observer mixins | `Spectators` хранит реестр наблюдателей и цели камеры. Отключённый наблюдатель остаётся Adventure для клиента, но серверный `Player.isSpectator()` возвращает true; attached-view входит в настоящий spectator через packet path. Vanilla target/physics paths that consult `isSpectator` treat them accordingly, while `@a` selectors may still include them and mod mechanics must check `game.isObserver`. Inventory ticks, awards and interaction actions for observers are cancelled; inventory and HUD effects are synchronized client-side without activating copied effects on the server. |
 
 `LbcItems.hud(source)` собирает одну строку маны, холода/заморозки, запретов,

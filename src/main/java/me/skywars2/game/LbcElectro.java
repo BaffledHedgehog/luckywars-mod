@@ -44,6 +44,7 @@ import java.util.UUID;
 public final class LbcElectro {
     public static final String SHOCK_BOLT = "skywars2.electro.shock";
     public static final String SELF_SHOCK_BOLT = "skywars2.electro.self_shock";
+    public static final String EGG_BOLT = "skywars2.electro.egg";
     // Старый tag охватывал также сущности вне Projectile. Не включаем ради этого все legacy-теги в JAR.
     private static final Set<EntityType<?>> REFLECTABLE = Set.of(EntityTypes.FALLING_BLOCK,EntityTypes.TNT,
             EntityTypes.MARKER,EntityTypes.ARMOR_STAND,EntityTypes.AREA_EFFECT_CLOUD,
@@ -126,6 +127,16 @@ public final class LbcElectro {
         return matches(stack,SHIELD,SHIELD_FLAG) || data!=null && data.copyTag().getIntOr("energyshield",0)==1;
     }
     public static boolean managedLightning(LightningBolt bolt) { return bolt.entityTags().contains(SHOCK_BOLT); }
+    public static boolean eggLightning(Entity entity) {
+        return entity instanceof LightningBolt && entity.entityTags().contains(EGG_BOLT);
+    }
+    /** Яйцо — опасность и для команды/владельца; служебные роли остаются защищены. */
+    public boolean lightningTarget(LightningBolt bolt,Entity target) {
+        var owner=bolt.getCause();
+        boolean egg=eggLightning(bolt);
+        return target==owner && (egg || bolt.entityTags().contains(SELF_SHOCK_BOLT))
+                || game.items().wands().target(owner,target,egg);
+    }
 
     private static final class Charge {
         int hits;
@@ -231,6 +242,15 @@ public final class LbcElectro {
             LbcOverload.sound(owner,"minecraft:entity.firework_rocket.twinkle",1,2,0);
         }
     }
+    void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
+        yellowTraces.removeIf(trace->{
+            if(trace.level!=level) return false;
+            Vec3 next=transform.apply(trace.position);
+            if(next==null) return true;
+            trace.position=next; return false;
+        });
+    }
+
     public int yellowCount() { return yellowTraces.size(); }
     java.util.List<YellowTrace> yellowSnapshot() { return java.util.List.copyOf(yellowTraces); }
     public int yellowCharges(ServerPlayer player) {
@@ -510,11 +530,10 @@ public final class LbcElectro {
                 100,.5,1,.5,1);
     }
 
-    /** Общая native молния: электрический тип, живой owner, защита союзников и очистка при stop. */
-    /** Adopt the native spawn-egg bolt through the existing lightning owner/damage/cleanup path. */
+    /** Молния из яйца использует общие электрический урон, владельца, защиту целей и очистку при stop. */
     public void manageLightning(ServerPlayer owner,LightningBolt bolt) {
         if(owner.level()!=bolt.level() || bolt.isRemoved()) return;
-        bolt.setCause(owner); bolt.entityTags().add(SHOCK_BOLT); liveBolts.add(bolt);
+        bolt.setCause(owner); bolt.entityTags().add(SHOCK_BOLT); bolt.entityTags().add(EGG_BOLT); liveBolts.add(bolt);
     }
     net.minecraft.world.entity.LightningBolt lightning(ServerPlayer owner,Vec3 position) {
         ServerLevel level=owner.level();

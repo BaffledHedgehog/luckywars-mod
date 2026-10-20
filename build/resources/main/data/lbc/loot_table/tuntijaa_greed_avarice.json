@@ -1,0 +1,80 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:carrot_on_a_stick",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:item_model": "lbc:dublicating_wand"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "dublicating_wand",
+                  "italic": false,
+                  "color": "light_purple"
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "staff",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                [
+                  {
+                    "score": {
+                      "name": "dublicating_wand_mana_use",
+                      "objective": "lbc.math"
+                    },
+                    "italic": false,
+                    "color": "aqua",
+                    "type": "score"
+                  },
+                  {
+                    "translate": "mana_on_activate",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "dublicating_wand.lore",
+                  "color": "white",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,staff:1,magicwand:1,dublicating_wand:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "artifact": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-slr-9b9fd0a5.jar",
+  "sha256": "9b9fd0a532366f0faf27b192a194d35b3cc72a335366c76b6b8a6dbd9ddb4501",
+  "unchangedMainSha256": "a0c4cb03c4682c99e71e0c197b376f98dc6781e1f153ec7ee61cba67408606a5",
+  "javaSourceFiles": [
+    "SkyWars2.java",
+    "game/LbcShooters.java",
+    "game/LbcWands.java",
+    "game/LbcItems.java",
+    "game/LbcMagic.java",
+    "game/GameMenus.java",
+    "game/GameChecks.java",
+    "mixin/MovementLimitsMixin.java",
+    "mixin/LobbyInventoryPacketMixin.java",
+    "mixin/ObserverPacketMixin.java",
+    "mixin/PlayerMechanicsMixin.java",
+    "mixin/CreativeBlockDropsMixin.java",
+    "mixin/LbcColorEffectsMixin.java"
+  ],
+  "packagedResources": [
+    "data/lbc/loot_table/ported/slr.json",
+    "data/lbc/loot_table/slr.json",
+    "data/minecraft/tags/block/breakable_slr.json",
+    "data/minecraft/tags/block/glasses_2.json",
+    "data/minecraft/tags/block/glasses.json",
+    "data/minecraft/tags/block/airs.json"
+  ],
+  "resourcePackLanguages": {
+    "ru_ru": {
+      "sha256": "3e7b3f2c6aa2e9e223db99d52d4d1a9de9954bd546bad5ba3543b775c7dfb47b",
+      "values": {
+        "karich_mode_1": "Режим стрельбы: Стандартный",
+        "karich_mode_2": "Режим стрельбы: Отравленный",
+        "karich_mode_3": "Режим стрельбы: Разрывной",
+        "karich_mode_4": "Режим стрельбы: Электрический",
+        "karich_rifle": "SLG-88",
+        "karich_rifle.lore.1": "ПКМ для выстрела, расходует стрелы.",
+        "karich_rifle.lore.2": "Shift+ПКМ для переключения типа стрельбы:",
+        "karich_rifle.lore.3": "Стандартный: 10 урона, попадание в голову ломает шлем",
+        "karich_rifle.lore.4": "Отравленный: 8 урона, накладывает отравление и т.д.",
+        "karich_rifle.lore.5": "Разрывной: 5 урона, взрывается",
+        "karich_rifle.lore.6": "Электрический: 0 урона, полностью станит игрока на 4 секунды",
+        "karich_rifle.lore.7": "Пробивает мягкие блоки.",
+        "karich_rifle.lore.8": "(Ближний бой) Штык нож:",
+        "karich_rifle.lore.9": "9 урон, 2.0 скорость атаки",
+        "shooter": "Прочее стрелковое",
+        "type": "Тип предмета: "
+      }
+    },
+    "en_us": {
+      "sha256": "d81685d3f4c65c833543ee9ece5f48904d01ba8b8c04e9a2dd2176dadeaa8782",
+      "values": {
+        "karich_mode_1": "Firing mode: Standard",
+        "karich_mode_2": "Firing mode: Poisoned",
+        "karich_mode_3": "Firing mode: Burst",
+        "karich_mode_4": "Firing mode: Electric",
+        "karich_rifle": "SLG-88",
+        "karich_rifle.lore.1": "RMB to shoot, uses up arrows.",
+        "karich_rifle.lore.2": "Shift+RMB to switch shooting type:",
+        "karich_rifle.lore.3": "Default: 10 damage, headshot breaks helmet",
+        "karich_rifle.lore.4": "Poisoned: 8 damage, inflicts poison, etc.",
+        "karich_rifle.lore.5": "Explosive: 5 damage, explodes",
+        "karich_rifle.lore.6": "Electric: 0 damage, completely stuns the player for 4 seconds",
+        "karich_rifle.lore.7": "Pierces soft blocks.",
+        "karich_rifle.lore.8": "(Close Combat) Bayonet Knife:",
+        "karich_rifle.lore.9": "9 damage, 2.0 attack speed",
+        "shooter": "Other shooting",
+        "type": "Item type: "
+      }
+    }
+  },
+  "slrRuntime": {
+    "completed": [
+      "Native loot, source flags, translation, Polymer model and attack attributes",
+      "Match 1: actual input route, four modes, cooldown/ammo/infinite, owned native damage/effects/TNT, soft/solid collisions and guards",
+      "Match 1: match stop removes owned TNT and clears shooter cooldowns",
+      "Match 2: actual input route, four modes, cooldown/ammo/infinite, owned native damage/effects/TNT, soft/solid collisions and guards",
+      "Match 2: match stop removes owned TNT and clears shooter cooldowns"
+    ],
+    "artifactSha256": "9b9fd0a532366f0faf27b192a194d35b3cc72a335366c76b6b8a6dbd9ddb4501",
+    "elapsedSeconds": 40.04
+  },
+  "shooterRegression": {
+    "completed": [
+      "frost-menu",
+      "pinegun-menu",
+      "frost",
+      "pinegun",
+      "frost-cleanup",
+      "pinegun-cleanup"
+    ],
+    "artifactSha256": "9b9fd0a532366f0faf27b192a194d35b3cc72a335366c76b6b8a6dbd9ddb4501",
+    "elapsedSeconds": 34.45
+  },
+  "limits": [
+    "No real-client visual test",
+    "No mass-load MSPT benchmark"
+  ]
+}

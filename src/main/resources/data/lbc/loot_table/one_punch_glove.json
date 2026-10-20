@@ -84,9 +84,12 @@
                 {
                   "attribute": "minecraft:attack_damage",
                   "amount": {
-                    "type": "minecraft:score",
-                    "target": "this",
-                    "score": "hplvl"
+                    "type": "minecraft:from_int",
+                    "input": {
+                      "type": "minecraft:score",
+                      "target": "this",
+                      "score": "hplvl"
+                    }
                   },
                   "operation": "add_value",
                   "id": "minecraft:base_attack_damage",

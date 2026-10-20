@@ -1,0 +1,121 @@
+{
+  "sha256": "90da0cbbc3cdcdcf850de4b9d04ba7dbf1c0d88ff8f51299a631d8e4abfb735c",
+  "archive": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-academy-challenge-90da0cbb.jar",
+  "unchangedMainSha256": "a0c4cb03c4682c99e71e0c197b376f98dc6781e1f153ec7ee61cba67408606a5",
+  "runtime": {
+    "passed": true,
+    "completed": [
+      "Native GUI selection gates, separate resets, ranked access and challenge toggle",
+      "Vanilla/native Polymer names and lore hide for one viewer, preserve authoritative stacks and reveal on clear",
+      "Twenty native NPC promotions complete the challenge once without selecting its reward",
+      "Native completion and independent reward selection survive a full server restart",
+      "Actual start and native death/respawn grant one Academy token independently of normal kits"
+    ],
+    "artifactSha256": "90da0cbbc3cdcdcf850de4b9d04ba7dbf1c0d88ff8f51299a631d8e4abfb735c",
+    "elapsedSeconds": 95.64
+  },
+  "sharedRegression": {
+    "completed": [
+      "regressions",
+      "attribute-hud",
+      "magic-menu",
+      "magic",
+      "magic-cleanup"
+    ],
+    "artifactSha256": "90da0cbbc3cdcdcf850de4b9d04ba7dbf1c0d88ff8f51299a631d8e4abfb735c",
+    "elapsedSeconds": 29.25
+  },
+  "javaSources": [
+    "SkyWars2.java",
+    "game/LbcLoadouts.java",
+    "game/GameMenus.java",
+    "game/PlayerStore.java",
+    "game/GameConfig.java",
+    "game/LbcAcademy.java",
+    "game/OriginalGuiDesign.java",
+    "game/LbcSkills.java",
+    "game/LbcItems.java",
+    "game/AttributeHud.java",
+    "game/GameController.java",
+    "game/GameChecks.java",
+    "game/RegressionChecks.java",
+    "mixin/AdvancementFilterMixin.java",
+    "mixin/KnowledgePacketMixin.java"
+  ],
+  "packagedResources": [
+    "data/lbc/advancement/challenges/no_knowledge.json",
+    "data/lbc/loot_table/ported/academy_token.json",
+    "skywars2.mixins.json",
+    "skywars2/gui_design.json"
+  ],
+  "sourceModels": [
+    "lbc:advancement_icon/academy",
+    "lbc:locked",
+    "lbc:no_knowledge"
+  ],
+  "languages": {
+    "ru_ru": {
+      "academy_token": "Жетон Магической Академии",
+      "academy_token.lore": "Бросьте на землю, чтобы создать академию магии!",
+      "challenge_completed": "Испытание Пройдено!",
+      "lbc.adv.academy_upgraded.lore": "Каждый жезл можно улучшить, выполнив задание улучшения в Академии Магов! Улучшите же свой первый жезл!",
+      "lbcchallenge.0": "Потерянные Знания",
+      "lbcchallenge.0.lore.1": "> Все предметы теряют описание и название",
+      "lbcchallenge.0.lore.2": "> Удалён дополнительный хотбар",
+      "lbcchallenge.0.lore.3": "> Чат захламляется пустотой",
+      "lbcchallenge.0.lore.4": "Цель испытания:",
+      "lbcchallenge.0.lore.5": "> Улучшите 20 жезлов в Академии Магов",
+      "lbcchallenge.0.lore.6": "Награда:",
+      "lbcchallenge.0.lore.7": "> Особый Набор Испытания",
+      "lbcchallenge.kit.0": "Знания - Сила!",
+      "lbcchallenge.kit.0.lore.1": "> Жетон Магической академии х1 (Создаёт Академию)",
+      "lbcchallenge.kit.0.lore.2": "<Набор Испытания>",
+      "lbcchallenge.lore.all.1": "Выполнено: ",
+      "lbcchallenge.lore.all.2": "/",
+      "lbcchallenge.lore.all.3": "(!) ПЕРЕКЛЮЧЕНИЕ ИСПЫТАНИЯ СБРОСИТ ПРОГРЕСС",
+      "new_challenge": "Разблокировано испытание!",
+      "pick_count": "%%, Персонально выбран раз: ",
+      "pick_rate": "Общий процент выбора: ",
+      "reset_challenge": "Отключить испытание",
+      "reset_challenge.lore": "Отключает текущее испытание и обнуляет его прогресс",
+      "reset_challenge_perks": "Сбросить бонусы пройденных испытаний",
+      "reset_challenge_perks.lore": "Отключает все бонусы, полученные за прохождение испытаний",
+      "win_count": "%%, Ваших побед: ",
+      "win_rate": "Общий процент побед: "
+    },
+    "en_us": {
+      "academy_token": "Magic Academy Token",
+      "academy_token.lore": "Throw on the ground to create Magic Academy!",
+      "challenge_completed": "Challenge Completed!",
+      "lbc.adv.academy_upgraded.lore": "Each wand can be upgraded by completing the upgrade quest at the Academy of Mages! So, Upgrade your first wand!",
+      "lbcchallenge.0": "Lost Knowledge",
+      "lbcchallenge.0.lore.1": "- All items lose their name and description",
+      "lbcchallenge.0.lore.2": "- Deleted additional actionbar",
+      "lbcchallenge.0.lore.3": "- Chat is bleeding with emptiness...",
+      "lbcchallenge.0.lore.4": "Challenge Goal:",
+      "lbcchallenge.0.lore.5": "- Upgrade 20 wand in Magic Academy",
+      "lbcchallenge.0.lore.6": "Reward:",
+      "lbcchallenge.0.lore.7": "- Unique Challenge Kit",
+      "lbcchallenge.kit.0": "Knowledge is Power!",
+      "lbcchallenge.kit.0.lore.1": "- Magic Academy Token x1 (Spawns Academy)",
+      "lbcchallenge.kit.0.lore.2": "<Challenge Kit>",
+      "lbcchallenge.lore.all.1": "Completion: ",
+      "lbcchallenge.lore.all.2": "/",
+      "lbcchallenge.lore.all.3": "(!) CHANGING CHALLENGE LEADS TO COMPLETION PROGRESS NULLIFY",
+      "new_challenge": "New Challenge Unlocked!",
+      "pick_count": "%%, Personally picked: ",
+      "pick_rate": "Overall pick rate: ",
+      "reset_challenge": "Disable Challenge",
+      "reset_challenge.lore": "Disables current challenge and resets its progress",
+      "reset_challenge_perks": "Reset challenge perks",
+      "reset_challenge_perks.lore": "Disables all perks, obtained from completing challenges.",
+      "win_count": "%%, Your wins: ",
+      "win_rate": "Overall win rate: "
+    }
+  },
+  "limits": [
+    "No real-client visual test",
+    "No mass-load MSPT benchmark",
+    "Legacy global reward pick/win statistics remain a separate migration"
+  ]
+}

@@ -237,15 +237,27 @@ public final class LbcOverload {
         sound(p,p.position(),id,volume,pitch,radius);
     }
     static void sound(ServerPlayer p,Vec3 position,String id,float volume,float pitch,double radius) {
+        sound(p,position,id,volume,pitch,radius,0);
+    }
+    /** Аналог minVolume у playsound: радиус selector и слышимость — разные ограничения. */
+    static void sound(ServerPlayer p,Vec3 position,String id,float volume,float pitch,double radius,float minVolume) {
         var sound=Holder.direct(SoundEvent.createVariableRangeEvent(Identifier.parse(id)));
         double range=sound.value().getRange(volume);
-        if(radius>0) range=Math.min(range,radius);
         double rangeSquared=range*range;
         long seed=p.getRandom().nextLong();
-        for(var viewer:p.level().getServer().getPlayerList().getPlayers())
-            if(viewer.level()==p.level() && viewer.position().distanceToSqr(position)<=rangeSquared)
+        for(var viewer:p.level().getServer().getPlayerList().getPlayers()) {
+            if(viewer.level()!=p.level()) continue;
+            double distanceSquared=viewer.position().distanceToSqr(position);
+            if(radius>0 && distanceSquared>radius*radius) continue;
+            Vec3 heardAt=position; float heardVolume=volume;
+            if(distanceSquared>rangeSquared) {
+                if(minVolume<=0) continue;
+                heardAt=viewer.position().add(position.subtract(viewer.position()).normalize().scale(2));
+                heardVolume=minVolume;
+            }
                 viewer.connection.send(new ClientboundSoundPacket(sound,SoundSource.MASTER,
-                        position.x,position.y,position.z,volume,pitch,seed));
+                        heardAt.x,heardAt.y,heardAt.z,heardVolume,pitch,seed));
+        }
     }
     private static void sendSound(ServerPlayer viewer,ServerPlayer source,String id,float volume,float pitch) {
         sendSound(viewer,source,source.position(),id,volume,pitch);

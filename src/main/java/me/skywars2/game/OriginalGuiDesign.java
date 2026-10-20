@@ -74,7 +74,10 @@ final class OriginalGuiDesign {
             }
         }
         if (page == null) throw failure("Missing imported source page " + namespace + ":" + pageId);
-        if (config != null && config.ranked && namespace.equals("lbc") && pageId.equals("12000") && slot == 0)
+        if (config != null && profile != null && namespace.equals("lbc") && pageId.equals("12000") && slot == 0
+                && (config.ranked || me.skywars2.SkyWars2.game() != null
+                    && me.skywars2.SkyWars2.game().lbc().challengeRewardAvailable(player)
+                    && unlocked(player, namespace, 12000, slot, profile, config)))
             return button(player, Identifier.parse("lbc:gui/page/12000/0_completed"), profile, config);
         for (JsonElement slotElement : requiredArray(page, "slots", "page " + pageId)) {
             JsonObject entry = slotElement.getAsJsonObject();
@@ -514,6 +517,7 @@ final class OriginalGuiDesign {
             case 15 -> setting = values.config.lbcLevelups ? 1 : 0;
             case 16 -> setting = values.config.lbcLevelupLimit;
             case 17 -> setting = values.config.lbcTrinketLimit;
+            case 22 -> setting = values.config.lbcChallenges ? 1 : 0;
             case 24 -> {
                 int[] presets = {2, 10, 20, 40, 60};
                 int index = java.util.Arrays.binarySearch(presets, values.config.health);
@@ -608,9 +612,7 @@ final class OriginalGuiDesign {
         if ("swrg.coins".equals(objective)) return Integer.toString(profile.coins);
         if ("swrg.memcoins".equals(objective)) return Integer.toString(profile.memcoins);
         if (objective.matches("swrg\\.keys[0-4]")) return Integer.toString(profile.keys[objective.charAt(objective.length() - 1) - '0']);
-        // Challenge progress is not migrated yet; preserve the unresolved source
-        // score's empty text rather than inventing a progress value.
-        if ("challenge_score".equals(objective)) return "";
+        if ("challenge_score".equals(objective)) return Integer.toString(profile.lbcChallengeProgress);
         if ("swrg.wr".equals(objective)) {
             return Integer.toString(profile.games == 0 ? 0 : profile.wins * 100 / profile.games);
         }

@@ -74,6 +74,20 @@ public final class LbcHoming {
         if(game.maps().level()!=null) for(var entity:game.maps().level().getAllEntities())
             if(entity instanceof Projectile || entity.getType().builtInRegistryHolder().is(PROJECTILES)) projectiles.add(entity);
     }
+    void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
+        transformOrigins(rains,level,transform);
+        transformOrigins(destinies,level,transform);
+    }
+    private static void transformOrigins(List<Effect> effects,ServerLevel level,
+            java.util.function.UnaryOperator<Vec3> transform) {
+        effects.removeIf(effect->{
+            if(effect.level!=level) return false;
+            Vec3 next=transform.apply(effect.position);
+            if(next==null) return true;
+            effect.position=next; return false;
+        });
+    }
+
     public int count() { return fireballs.size()+rains.size()+destinies.size()+curses.size(); }
     List<LargeFireball> snapshot() { return List.copyOf(fireballs); }
     public int rainCount() { return rains.size(); }

@@ -1,0 +1,18 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_traveller",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:neko_set_steampunk/boots_spectral"
+        }
+      ]
+    }
+  ]
+}

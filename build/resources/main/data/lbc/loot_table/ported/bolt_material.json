@@ -5,86 +5,75 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "skywars2:academy_infbolt_wand",
+          "name": "skywars2:bolt_material",
           "modifier": [
             {
-              "count": 1,
+              "count": 8,
               "type": "minecraft:set_count"
             },
             {
               "components": {
-                "minecraft:tooltip_style": "lbc:tier_x",
-                "minecraft:item_model": "lbc:infbolt"
+                "minecraft:item_model": "lbc:lightningegg",
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:entity_data": {
+                  "id": "minecraft:lightning_bolt"
+                }
               },
               "type": "minecraft:set_components"
             },
             {
               "name": [
                 {
-                  "translate": "infbolt_wand",
-                  "italic": false,
-                  "color": "aqua"
+                  "translate": "lightning_bolt.lbc",
+                  "italic": false
                 }
               ],
               "type": "minecraft:set_name"
             },
             {
               "mode": "replace_all",
-              "entity": "this",
               "lore": [
                 {
-                  "translate": "infbolt_wand.lore.1",
+                  "translate": "lightning_bolt.lore.1",
                   "color": "white",
                   "italic": false
                 },
                 {
-                  "translate": "infbolt_wand.lore.2",
+                  "translate": "lightning_bolt.lore.2",
                   "color": "white",
                   "italic": false
                 },
                 {
-                  "translate": "infbolt_wand.lore.3",
+                  "translate": "lightning_bolt.lore.3",
                   "color": "white",
                   "italic": false
                 },
                 {
-                  "translate": "infbolt_wand.lore.4",
+                  "translate": "lightning_bolt.lore.4",
                   "color": "white",
                   "italic": false
                 },
                 {
-                  "translate": "infbolt_wand.lore.5",
+                  "translate": "lightning_bolt.lore.5",
                   "color": "white",
                   "italic": false
                 },
                 {
-                  "translate": "infbolt_wand.lore.6",
+                  "translate": "lightning_bolt.lore.6",
                   "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "craft_with_wind",
+                  "color": "gold",
                   "italic": false
                 }
               ],
               "type": "minecraft:set_lore"
             },
             {
-              "tag": "{raycastspell:1,infbolt_wand:1,upgraded:1,mode:1}",
+              "tag": "{craftusable:1,bolt_material:1}",
               "type": "minecraft:set_custom_data"
-            },
-            {
-              "mode": "append",
-              "lore": [
-                {
-                  "translate": "upgraded_item",
-                  "italic": false,
-                  "color": "green"
-                }
-              ],
-              "type": "minecraft:set_lore"
-            },
-            {
-              "components": {
-                "minecraft:tooltip_style": "lbc:tier_x"
-              },
-              "type": "minecraft:set_components"
             }
           ]
         }

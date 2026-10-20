@@ -165,6 +165,7 @@ public final class GameController {
             if (maps.level() != null) teleport(player, maps.look(), 0, 0);
         }
         zoneBarrier.playerJoined(player);
+        lbc.joined(player);
     }
 
     public void leave(ServerPlayer player) {
@@ -172,6 +173,7 @@ public final class GameController {
         attributeHud.clear(player);
         items.forget(player);
         lbc.clear(player);
+        lbc.left(player);
         events.removePlayerSkill(player);
         spectators.remove(player);
         pendingLobby.remove(player.getUUID());

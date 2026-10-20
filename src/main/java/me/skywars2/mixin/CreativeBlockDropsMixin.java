@@ -5,6 +5,7 @@ import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
+import net.minecraft.world.InteractionResult;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -27,7 +28,7 @@ public abstract class CreativeBlockDropsMixin {
     private void skywars2$stopFrozenDestroyProgress(CallbackInfo ci) {
         if (!isDestroyingBlock && !hasDelayedDestroy) return;
         var game = SkyWars2.game();
-        if (game == null || !game.items().frost().isFrozen(player)) return;
+        if (game == null || !game.items().actionsBlocked(player)) return;
         if (isDestroyingBlock) player.level().destroyBlockProgress(player.getId(), destroyPos, -1);
         if (hasDelayedDestroy) player.level().destroyBlockProgress(player.getId(), delayedDestroyPos, -1);
         isDestroyingBlock = hasDelayedDestroy = false;
@@ -37,7 +38,14 @@ public abstract class CreativeBlockDropsMixin {
     @Inject(method = "destroyBlock", at = @At("HEAD"), cancellable = true)
     private void skywars2$frozenBlockBreak(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         var game = SkyWars2.game();
-        if (game != null && game.items().frost().isFrozen(player)) cir.setReturnValue(false);
+        if (game != null && game.items().actionsBlocked(player)) cir.setReturnValue(false);
+    }
+
+    /** Also reject native/server-script use paths, which do not pass through incoming packets. */
+    @Inject(method = {"useItem", "useItemOn"}, at = @At("HEAD"), cancellable = true)
+    private void skywars2$blockedNativeUse(CallbackInfoReturnable<InteractionResult> cir) {
+        var game = SkyWars2.game();
+        if (game != null && game.items().actionsBlocked(player)) cir.setReturnValue(InteractionResult.FAIL);
     }
 
     @ModifyExpressionValue(method = "destroyBlock", at = @At(value = "INVOKE",

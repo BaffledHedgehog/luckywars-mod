@@ -1,0 +1,77 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "quality": 0,
+          "name": "minecraft:carrot_on_a_stick",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:item_model": "lbc:ak47",
+                "minecraft:tooltip_style": "lbc:tier_s",
+                "enchantments": {
+                  "infinity": 1
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "text": "AK-47",
+                  "italic": false,
+                  "type": "text"
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "shooter",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                [
+                  {
+                    "text": "morgenshtern ",
+                    "color": "green",
+                    "italic": false,
+                    "type": "text"
+                  },
+                  {
+                    "text": "Beta Server Harem event",
+                    "color": "dark_gray",
+                    "italic": false,
+                    "type": "text"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,shooter:1,magicwand:1,ak47:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

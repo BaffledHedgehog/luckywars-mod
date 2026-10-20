@@ -40,6 +40,7 @@ public final class GameConfig {
     public boolean lbcKits = true;
     public boolean lbcSkills = true;
     public boolean lbcLevelups = true;
+    public boolean lbcChallenges = true;
     public boolean offhandWands;
     public int lbcLevelupLimit = 4;
     public int lbcTrinketLimit = 9;
@@ -148,6 +149,7 @@ public final class GameConfig {
             case "lbckits" -> { configured = lbcKits = bool(key, value); canonical = "lbcKits"; }
             case "lbcskills" -> { configured = lbcSkills = bool(key, value); canonical = "lbcSkills"; }
             case "lbclevelups" -> { configured = lbcLevelups = bool(key, value); canonical = "lbcLevelups"; }
+            case "lbcchallenges" -> { configured = lbcChallenges = bool(key, value); canonical = "lbcChallenges"; }
             case "offhandwands", "lefthandwands" -> { configured = offhandWands = bool(key, value); canonical = "offhandWands"; }
             case "lbcleveluplimit" -> { configured = lbcLevelupLimit = integer(key, value, 1, 12); canonical = "lbcLevelupLimit"; }
             case "lbctrinketlimit" -> { configured = lbcTrinketLimit = integer(key, value, 0, 12); canonical = "lbcTrinketLimit"; }

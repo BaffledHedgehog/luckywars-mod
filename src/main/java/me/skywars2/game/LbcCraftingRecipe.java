@@ -32,6 +32,8 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         EXAHOMING("exahoming_combine","exahoming_wand"),
         BOLTBOLT("boltbolt_combine","boltbolt_wand"),
         INFBOLT("infbolt_combine","infbolt_wand"),
+        CONSUMING("consuming_combine","consuming_wand"),
+        DUPLICATING("duplicating_combine","duplicating_wand"),
         SWORD("terra_sword_awakening","true_terra_sword"),
         RAZOR("terra_razorpine_awakening","terra_razorpine");
         final String id,loot;
@@ -74,7 +76,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         var terra=LbcTerra.craftingKind(input);
         if(terra!=null) return terra;
         if(input.ingredientCount()!=2) return null;
-        int air=0,exoperso=0,stone=0,wall=0,tanner=0,fire=0,kiuas=0,blaze=0,blind=0,psycho=0,vex=0,stars=0,teleport=0,bolts=0,material=0;
+        int air=0,exoperso=0,stone=0,wall=0,tanner=0,fire=0,kiuas=0,blaze=0,blind=0,psycho=0,vex=0,stars=0,teleport=0,bolts=0,material=0,ruby=0,consuming=0,divider=0;
         for(var stack:input.items()) if(!stack.isEmpty()) {
             var data=stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
             if(stack.is(LbcWands.AIR_WAND) || stack.is(LbcWands.ACADEMY_AIR)
@@ -86,6 +88,10 @@ public final class LbcCraftingRecipe extends CustomRecipe {
             else if(stack.is(LbcWands.TELEPORT_WAND) || stack.is(LbcWands.ACADEMY_TELEPORT)
                     || data!=null && data.matchedBy(TELEPORT_DONOR)) teleport++;
             else if(LbcWands.isBoltMaterial(stack)) material++;
+            else if(stack.is(LbcWands.RUBY_WAND) || stack.is(LbcWands.ACADEMY_RUBY)
+                    || data!=null && data.matchedBy(RUBY_DONOR)) ruby++;
+            else if(LbcWands.isConsumingMaterial(stack)) consuming++;
+            else if(LbcWands.isDivider(stack)) divider++;
             else if(stack.is(LbcWands.LIGHTNING_BOLTS_WAND) || stack.is(LbcWands.ACADEMY_LIGHTNING_BOLTS)
                     || data!=null && data.matchedBy(BOLTS_DONOR)) bolts++;
             else if(stack.is(LbcWands.STONE_WAND) || stack.is(LbcWands.ACADEMY_STONE)
@@ -113,6 +119,8 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         if(air==1 && stars==1) return Kind.EXAHOMING;
         if(teleport==1 && bolts==1) return Kind.BOLTBOLT;
         if(teleport==1 && material==1) return Kind.INFBOLT;
+        if(ruby==1 && consuming==1) return Kind.CONSUMING;
+        if(ruby==1 && divider==1) return Kind.DUPLICATING;
         if(stone==1 && wall==1) return Kind.BEDROCK;
         if(stone==1 && tanner==1) return Kind.STONEKIVI;
         if(fire==1 && kiuas==1) return Kind.SUN;
@@ -147,6 +155,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
     }
 
     private static final net.minecraft.nbt.CompoundTag AIR_DONOR=donorFlag("stair"),
+            RUBY_DONOR=donorFlag("struby"),
             EXOPERSO_DONOR=donorFlag("exoperso"), STONE_DONOR=donorFlag("ststone"), WALL_DONOR=donorFlag("wall"), FIRE_DONOR=donorFlag("stfire"), BLAZE_DONOR=donorFlag("fallingstars"), BLIND_DONOR=donorFlag("stblind"), PSYCHO_DONOR=donorFlag("psychowand"), VEX_DONOR=donorFlag("summonervexes"), STARS_DONOR=donorFlag("truefallingstars"), TELEPORT_DONOR=donorFlag("stteleport"), BOLTS_DONOR=donorFlag("lightning_bolts");
     private static net.minecraft.nbt.CompoundTag donorFlag(String name) {
         var tag=new net.minecraft.nbt.CompoundTag(); tag.putInt(name,1); return tag;
@@ -173,6 +182,13 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         game.items().rocketCraftTaken(player,input);
         var kind=craftingKind(input);
         if(kind==null) return;
+        if(kind==Kind.CONSUMING || kind==Kind.DUPLICATING) {
+            player.level().sendParticles(new net.minecraft.core.particles.DustParticleOptions(
+                            net.minecraft.util.ARGB.colorFromFloat(1,kind==Kind.DUPLICATING?.812f:.553f,kind==Kind.DUPLICATING?.643f:.129f,kind==Kind.DUPLICATING?.761f:.427f)&0xffffff,2),
+                    true,false,player.getX(),player.getY()+1,player.getZ(),100,1,1,1,1);
+            LbcOverload.sound(player,player.position(),"minecraft:block.enchantment_table.use",1,1,0);
+            return;
+        }
         if(kind==Kind.BOLTBOLT || kind==Kind.INFBOLT) {
             player.level().sendParticles(new net.minecraft.core.particles.DustParticleOptions(
                             net.minecraft.util.ARGB.colorFromFloat(1,kind==Kind.INFBOLT?.933f:.643f,kind==Kind.INFBOLT?.969f:.765f,kind==Kind.INFBOLT?.98532f:.812f)&0xffffff,kind==Kind.INFBOLT?4:2),

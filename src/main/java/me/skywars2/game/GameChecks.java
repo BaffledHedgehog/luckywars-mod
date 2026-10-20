@@ -626,10 +626,33 @@ public final class GameChecks {
                                 case "kiuas" -> checkKiuasRuntime(game);
                                 case "kiuas-crafting" -> checkKiuasCrafting(game);
                                 case "kiuas-cleanup" -> checkKiuasCleanup(game);
+                                case "duplicating", "divider", "duplicating-academy", "duplicating-expand", "duplicating-trial", "duplicating-stop-probe" -> {
+                                        prepareDuplicating(game,suite);
+                                        return;
+                                }
+                                case "duplicating-cleanup" -> checkDuplicatingCleanup(game);
+                                case "duplicating-menu" -> checkDuplicatingMenu(game);
+                                case "duplicating-crafting" -> checkDuplicatingCrafting(game);
+                                case "consuming" -> checkConsuming(game);
+                                case "consuming-donors" -> checkConsumingDonors(game);
+                                case "consuming-academy" -> {
+                                        prepareConsumingAcademy(game);
+                                        return;
+                                }
+                                case "consuming-trial" -> checkConsumingTrial(game);
+                                case "consuming-stop-probe" -> checkConsumingStopProbe(game);
+                                case "consuming-cleanup" -> checkConsumingCleanup(game);
+                                case "consuming-menu" -> checkConsumingMenu(game);
+                                case "consuming-crafting" -> checkConsumingCrafting(game);
+                                case "slr-menu" -> checkSlrMenu(game);
+                                case "slr" -> { prepareSlr(game); return; }
+                                case "slr-stop-probe" -> checkSlrStopProbe(game);
+                                case "slr-cleanup" -> checkSlrCleanup(game);
                                 case "infbolt-menu" -> checkInfboltMenu(game);
                                 case "infbolt-crafting" -> checkInfboltCrafting(game);
                                 case "infbolt" -> checkInfbolt(game);
                                 case "infbolt-egg" -> checkInfboltEgg(game);
+                                case "infbolt-empty" -> checkInfboltEmpty(game);
                                 case "infbolt-stop-probe" -> checkInfboltStopProbe(game);
                                 case "infbolt-cleanup" -> checkInfboltCleanup(game);
                                 case "boltbolt" -> checkBoltbolt(game);
@@ -667,6 +690,25 @@ public final class GameChecks {
                                 case "wall-menu" -> checkWallMenu(game);
                                 case "wall-wand" -> checkWallWand(game);
                                 case "explosion-benchmark", "explosion-benchmark-air" -> checkExplosionBenchmark(game, suite.endsWith("-air"));
+                                case "academy-challenge-menu" -> checkAcademyChallengeMenu(game);
+                                case "academy-challenge-projection" -> checkAcademyChallengeProjection(game);
+                                case "academy-challenge-trial" -> {
+                                        checkAcademyChallengeTrial(game);
+                                        return;
+                                }
+                                case "academy-challenge-partial", "academy-challenge-resume" -> {
+                                        checkAcademyChallengeTrial(game, suite.endsWith("partial") ? 0 : 7,
+                                                        suite.endsWith("partial") ? 7 : 20, suite);
+                                        return;
+                                }
+                                case "academy-challenge-rejoin" -> checkAcademyChallengeRejoin(game);
+                                case "academy-challenge-partial-persisted" -> checkAcademyChallengePartialPersisted(game);
+                                case "academy-challenge-select-reward" -> checkAcademyChallengeSelectReward(game);
+                                case "academy-challenge-persisted" -> checkAcademyChallengePersisted(game);
+                                case "academy-challenge-reward" -> {
+                                        checkAcademyChallengeReward(game);
+                                        return;
+                                }
                                 case "academy" -> {
                                         checkAcademyQuestStart(game);
                                         return;
@@ -7441,7 +7483,12 @@ public final class GameChecks {
                                                 "Free Reforge queues a full transformable stack without mana");
                                 drainInfboltWork(game);
                                 require(reforgeInput.isRemoved(),"Free Reforge drains the entire input stack");
-                        } finally { reforgeInput.discard(); }
+                        } finally {
+                                reforgeInput.discard();
+                                // The following trial counts separate dropped entities; isolate the Reforge outputs.
+                                level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,owner.getBoundingBox().inflate(10),
+                                                entity->!oldEntities.contains(entity)).forEach(net.minecraft.world.entity.Entity::discard);
+                        }
                         var target=frostProbeCow(level,cows,owner.getX(),259,owner.getZ());
                         var partner=frostProbeCow(level,cows,owner.getX()+12,259,owner.getZ());
                         var protectedNpc=frostProbeCow(level,cows,owner.getX()+1,259,owner.getZ()); protectedNpc.entityTags().add("magic_academy");
@@ -7603,6 +7650,260 @@ public final class GameChecks {
                 SkyWars2.LOGGER.info("[check] PASS boltbolt-cleanup");
         }
 
+        private static ItemStack slrStack(int mode) {
+                var stack=new ItemStack(LbcShooters.SLR);
+                var data=new net.minecraft.nbt.CompoundTag(); data.putInt("slr",1); data.putInt("mode",mode);
+                stack.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(data)); return stack;
+        }
+
+        private static void checkSlrMenu(GameController game) {
+                var player=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
+                require(player!=null,"SLR presentation player exists");
+                var loot=game.lbc().rollTable(player.level(),player.position(),player,"lbc:ported/slr");
+                require(loot.size()==1 && loot.getFirst().is(LbcShooters.SLR) && loot.getFirst().getCount()==1,"SLR source loot has native identity and count");
+                var stack=loot.getFirst();
+                require(net.minecraft.resources.Identifier.parse("lbc:super_rifle").equals(stack.get(DataComponents.ITEM_MODEL))
+                                && net.minecraft.resources.Identifier.parse("lbc:tier_s").equals(stack.get(DataComponents.TOOLTIP_STYLE))
+                                && translation(stack.get(DataComponents.CUSTOM_NAME),"karich_rifle")!=null && !stack.getHoverName().getStyle().isItalic(),
+                                "SLR preserves source model, tier and translated nonitalic name");
+                var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
+                for(String flag:new String[]{"transformable","shooter","magicwand","slr"}) require(data.getIntOr(flag,0)==1,"SLR source flag "+flag);
+                require(data.getIntOr("mode",0)==1,"SLR starts in standard mode");
+                var lore=stack.getOrDefault(DataComponents.LORE,net.minecraft.world.item.component.ItemLore.EMPTY).lines();
+                require(lore.size()==11,"SLR retains all source lore and author line");
+                for(int i=1;i<=9;i++) require(translation(lore.get(i),"karich_rifle.lore."+i)!=null && !lore.get(i).getStyle().isItalic(),"SLR translated source lore "+i);
+                var attributes=stack.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS,net.minecraft.world.item.component.ItemAttributeModifiers.EMPTY).modifiers();
+                require(attributes.stream().anyMatch(a->a.attribute().equals(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE) && a.modifier().amount()==8)
+                                && attributes.stream().anyMatch(a->a.attribute().equals(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_SPEED) && a.modifier().amount()==-2),"SLR source melee attributes survive native conversion");
+                requirePolymerStack(player,stack,Items.CARROT_ON_A_STICK,"SLR Polymer donor");
+                SkyWars2.LOGGER.info("[check] PASS slr-menu");
+        }
+
+        private static void prepareSlr(GameController game) {
+                require(game.playing(),"SLR runtime requires a live match");
+                // Let EntitySectionManager publish newly loaded sections before introducing native targets.
+                var level=game.maps().level();
+                for(int x=-1;x<=1;x++) for(int z=-1;z<=2;z++) level.getChunk(x,z);
+                deferredTicks=4; deferredCheck=()->checkSlr(game);
+        }
+
+        private static boolean slrUse(ServerPlayer player,net.minecraft.world.InteractionHand hand) {
+                return player.getItemInHand(hand).getItem().use(player.level(),player,hand).consumesAction();
+        }
+
+        private static void slrReady(GameController game,ServerPlayer owner,int mode) {
+                game.items().shooters().forget(owner); owner.setShiftKeyDown(false); owner.setYRot(0); owner.setXRot(0);
+                owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,slrStack(mode));
+                owner.getInventory().setItem(8,new ItemStack(Items.ARROW,8));
+        }
+
+        private static void checkSlr(GameController game) {
+                var owner=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
+                var other=game.server().getPlayerList().getPlayer(offlineUuid("TestBeta"));
+                require(owner!=null && other!=null && game.allowDamage(owner) && game.allowDamage(other),"SLR participants active");
+                var mana=game.items().mana(); var service=game.items().shooters(); var level=game.maps().level();
+                var saved=new WandThirdPlayerState(owner,mana); var savedOther=new WandThirdPlayerState(other,mana);
+                boolean shift=owner.isShiftKeyDown(),offhand=game.config().offhandWands;
+                var initial=new java.util.HashSet<net.minecraft.world.entity.Entity>(); level.getAllEntities().forEach(initial::add);
+                var cells=new java.util.LinkedHashMap<net.minecraft.core.BlockPos,MapManager.BlockSnapshot>();
+                var mobs=new java.util.ArrayList<net.minecraft.world.entity.animal.cow.Cow>();
+                var board=game.server().getScoreboard(); var previousTeam=owner.getTeam();
+                var team=board.addPlayerTeam("codex_slr"); team.setAllowFriendlyFire(false);
+                try {
+                        service.forget(owner); owner.closeContainer(); owner.getInventory().clearContent(); owner.removeAllEffects(); owner.setGameMode(GameType.SURVIVAL); owner.setNoGravity(true);
+                        other.setNoGravity(true); other.teleportTo(level,20.5,270,20.5,java.util.Set.of(),0,0,true);
+                        owner.teleportTo(level,.5,270,.5,java.util.Set.of(),0,0,true); owner.setYRot(0); owner.setXRot(0);
+                        game.config().offhandWands=false; mana.set(owner,0);
+                        for(var pos:net.minecraft.core.BlockPos.betweenClosed(0,270,0,1,274,24)) {
+                                var at=pos.immutable(); cells.put(at,game.maps().snapshot(at)); level.setBlock(at,net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),2);
+                        }
+                        var target=frostProbeCow(level,mobs,.5,271,5.5);
+                        target.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100); target.setHealth(100);
+                        slrReady(game,owner,1);
+                        require(net.fabricmc.fabric.api.event.player.AttackEntityCallback.EVENT.invoker().interact(owner,level,net.minecraft.world.InteractionHand.MAIN_HAND,target,null)==net.minecraft.world.InteractionResult.PASS
+                                        && owner.getInventory().getItem(8).getCount()==8 && service.cooldownRemaining(owner)==0 && target.getHealth()==100,
+                                        "Real left-click callback does not dispatch SLR shooting");
+                        owner.getInventory().setItem(8,ItemStack.EMPTY);
+                        require(!slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && service.cooldownRemaining(owner)==0,"No ammo rejects native use without cooldown");
+                        owner.getInventory().setItem(8,new ItemStack(Items.TIPPED_ARROW,2));
+                        require(!slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND),"SLR requires ordinary arrows");
+                        slrReady(game,owner,1);
+                        require(slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && target.getHealth()==90 && target.getLastDamageSource()!=null
+                                        && target.getLastDamageSource().is(net.minecraft.world.damagesource.DamageTypes.CACTUS) && target.getLastDamageSource().getEntity()==owner
+                                        && owner.getInventory().getItem(8).getCount()==7 && mana.get(owner)==0 && service.cooldownRemaining(owner)==15,
+                                        "Native standard shot spends one arrow, zero mana, deals owned cactus10 and arms15 ticks");
+                        for(int tick=0;tick<14;tick++) service.tick();
+                        require(service.cooldownRemaining(owner)==1 && !slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && owner.getInventory().getItem(8).getCount()==7,"Cooldown rejects before full15 ticks without charging");
+                        service.tick(); target.setInvulnerableTime(0); target.damageCooldownTime=0;
+                        require(slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && owner.getInventory().getItem(8).getCount()==6,"Full15 tick cooldown permits next shot");
+                        slrReady(game,owner,1); owner.setShiftKeyDown(true);
+                        for(int expected:new int[]{2,3,4,1}) require(slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND)
+                                        && LbcShooters.mode(owner.getMainHandItem())==expected && owner.getInventory().getItem(8).getCount()==8 && service.cooldownRemaining(owner)==0,"Sneak-right-click cycles four modes without cost");
+                        owner.setShiftKeyDown(false);
+                        var infinite=new ItemStack(Items.PAPER); var infiniteData=new net.minecraft.nbt.CompoundTag(); infiniteData.putInt("infinite_arrow",1);
+                        infinite.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(infiniteData)); owner.getInventory().setItem(7,infinite);
+                        owner.getInventory().setItem(8,ItemStack.EMPTY);
+                        require(!slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND),"Infinite arrow flag still requires ordinary arrow");
+                        owner.getInventory().setItem(8,new ItemStack(Items.ARROW)); target.setInvulnerableTime(0); target.damageCooldownTime=0;
+                        require(slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && owner.getInventory().getItem(8).getCount()==1,"Infinite arrow flag preserves the required arrow");
+                        owner.getInventory().setItem(7,ItemStack.EMPTY);
+                        slrReady(game,owner,1); target.setPos(.5,owner.getEyeY()-.2-target.getEyeHeight(),5.5); target.setHealth(100); target.setInvulnerableTime(0); target.damageCooldownTime=0;
+                        // Native cactus cooldown prevents forcing the second10 through after the head hit.
+                        target.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD,new ItemStack(Items.LEATHER_HELMET));
+                        require(slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && target.getHealth()==80
+                                        && target.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD).isEmpty(),"Head shot removes helmet and preserves native20 then10 cooldown");
+                        target.setPos(.5,271,5.5); target.setHealth(100); target.setInvulnerableTime(0); target.damageCooldownTime=0;
+                        slrReady(game,owner,2); require(slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && target.getHealth()==92,"Poison shot cactus8");
+                        for(var effect:java.util.List.of(MobEffects.POISON,MobEffects.SLOWNESS,MobEffects.BLINDNESS,MobEffects.HUNGER))
+                                require(target.getEffect(effect)!=null && target.getEffect(effect).getDuration()==200
+                                                && target.getEffect(effect).getAmplifier()==(effect==MobEffects.HUNGER?1:0),"Poison payload full10 seconds: "+effect);
+                        target.setInvulnerableTime(0); target.damageCooldownTime=0;
+                        target.setLastHurtByPlayer((net.minecraft.world.entity.player.Player)null,0); target.setLastHurtByMob(null);
+                        require(target.getKillCredit()==null,"Poison ownership probe clears direct-shot combat credit first");
+                        MobEffects.POISON.value().applyEffectTick(level,target,0);
+                        require(target.getHealth()==91 && target.getKillCredit()==owner,"Native poison tick retains shooter ownership");
+                        target.removeAllEffects(); target.setHealth(100); target.setInvulnerableTime(0); target.damageCooldownTime=0;
+                        slrReady(game,owner,4); require(slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && target.getHealth()==100,"Electro shot has no direct damage");
+                        for(var effect:java.util.List.of(MobEffects.SLOWNESS,MobEffects.WEAKNESS,MobEffects.MINING_FATIGUE))
+                                require(target.getEffect(effect)!=null && target.getEffect(effect).getDuration()==80 && target.getEffect(effect).getAmplifier()==127,"Electro stun full4 seconds amp127: "+effect);
+                        target.setLastHurtByPlayer((net.minecraft.world.entity.player.Player)null,0); target.setLastHurtByMob(null);
+                        target.setInvulnerableTime(0); target.damageCooldownTime=0;
+                        require(target.hurtServer(level,target.damageSources().fall(),200) && !target.isAlive() && target.getKillCredit()==owner,
+                                        "Fall after non-damaging SLR stun inherits the shooter without direct shot credit");
+                        target.discard();
+                        target=frostProbeCow(level,mobs,.5,271,5.5);
+                        target.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100); target.setHealth(100);
+                        var wall=new net.minecraft.core.BlockPos(0,271,3); level.setBlock(wall,net.minecraft.world.level.block.Blocks.GLASS.defaultBlockState(),2);
+                        slrReady(game,owner,1); target.setInvulnerableTime(0); target.damageCooldownTime=0;
+                        require(slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && target.getHealth()==90,"Soft glass is penetrated");
+                        level.setBlock(wall,net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(),2); slrReady(game,owner,1); target.setHealth(100); target.setInvulnerableTime(0); target.damageCooldownTime=0;
+                        require(slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && target.getHealth()==100,"Solid stone stops the native ray");
+                        level.setBlock(wall,net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),2);
+                        board.addPlayerToTeam(owner.getScoreboardName(),team); board.addPlayerToTeam(target.getScoreboardName(),team);
+                        slrReady(game,owner,1); require(slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && target.getHealth()==100,"Allied target is protected");
+                        board.removePlayerFromTeam(target.getScoreboardName()); target.entityTags().add("magic_academy");
+                        slrReady(game,owner,1); require(slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && target.getHealth()==100,"Technical NPC is protected");
+                        target.entityTags().remove("magic_academy"); target.entityTags().add("spectator");
+                        slrReady(game,owner,1); require(slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && target.getHealth()==100,"Observer target is protected"); target.entityTags().remove("spectator");
+                        target.discard();
+                        // Exercise the player's real packet paths, including a genuine outstanding teleport ID.
+                        other.getInventory().clearContent(); other.removeAllEffects(); other.setGameMode(GameType.SURVIVAL);
+                        other.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100); other.setHealth(100); other.setInvulnerableTime(0); other.damageCooldownTime=0;
+                        other.teleportTo(level,.5,270,5.5,java.util.Set.of(),0,0,true); other.setDeltaMovement(Vec3.ZERO);
+                        slrReady(game,owner,4); require(slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && service.stunned(other) && service.stunTicks(other)==80,"Electro shot establishes80 full ticks of input lock");
+                        var lockedPosition=other.position(); float lockedYaw=other.getYRot(),lockedPitch=other.getXRot();
+                        try {
+                                var listener=net.minecraft.server.network.ServerGamePacketListenerImpl.class;
+                                var teleportId=listener.getDeclaredField("awaitingTeleport"); teleportId.setAccessible(true);
+                                var awaitingPosition=listener.getDeclaredField("awaitingPositionFromClient"); awaitingPosition.setAccessible(true);
+                                require(awaitingPosition.get(other.connection)!=null,"Movement fixture has an actual pending teleport acknowledgement");
+                                other.connection.handleAcceptTeleportPacket(new net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket(
+                                                teleportId.getInt(other.connection),lockedPosition.x+1,lockedPosition.y+1,lockedPosition.z+1,lockedYaw+45,lockedPitch+30));
+                                require(awaitingPosition.get(other.connection)==null && other.position().equals(lockedPosition)
+                                                && other.getYRot()==lockedYaw && other.getXRot()==lockedPitch,"Real teleport ACK is accepted without client movement or look overriding stun");
+                        } catch(ReflectiveOperationException failure) { throw new AssertionError("Native teleport fixture fields changed",failure); }
+                        other.connection.handleMovePlayer(new net.minecraft.network.protocol.game.ServerboundMovePlayerPacket.PosRot(
+                                        lockedPosition.add(1,0,1),lockedYaw+60,lockedPitch+20,false,false));
+                        other.connection.handlePlayerInput(new net.minecraft.network.protocol.game.ServerboundPlayerInputPacket(
+                                        new net.minecraft.world.entity.player.Input(true,false,true,false,true,true,true)));
+                        require(other.position().equals(lockedPosition) && other.getYRot()==lockedYaw && other.getXRot()==lockedPitch
+                                        && other.getLastClientInput().equals(net.minecraft.world.entity.player.Input.EMPTY),"Stun rejects voluntary movement, jumping, crouching, sprinting and looking packets");
+                        other.getInventory().setSelectedSlot(0); other.getInventory().setItem(0,new ItemStack(Items.PAPER,2)); other.getInventory().setItem(1,new ItemStack(Items.FLINT,3));
+                        nativeMagicClick(other,36); other.connection.handleSetCarriedItem(new net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket(1));
+                        require(other.containerMenu.getCarried().isEmpty() && other.getInventory().getItem(0).is(Items.PAPER)
+                                        && other.getInventory().getSelectedSlot()==0,"Stun blocks real inventory clicks and hotbar selection");
+                        other.getInventory().setItem(0,new ItemStack(Items.SNOWBALL));
+                        other.connection.handleUseItem(new net.minecraft.network.protocol.game.ServerboundUseItemPacket(net.minecraft.world.InteractionHand.MAIN_HAND,301,lockedYaw,lockedPitch));
+                        require(other.getInventory().getItem(0).is(Items.SNOWBALL) && other.getInventory().getItem(0).getCount()==1,"Stun cancels native use packet before item consumption");
+                        var attackProbe=frostProbeCow(level,mobs,.5,270,6.5); float attackHealth=attackProbe.getHealth();
+                        other.attack(attackProbe); require(attackProbe.getHealth()==attackHealth,"Stun blocks direct native melee");
+                        var hand=net.minecraft.world.InteractionHand.MAIN_HAND;
+                        var hit=new net.minecraft.world.phys.BlockHitResult(Vec3.atCenterOf(other.blockPosition()),net.minecraft.core.Direction.UP,other.blockPosition(),false);
+                        require(net.fabricmc.fabric.api.event.player.UseBlockCallback.EVENT.invoker().interact(other,level,hand,hit)==net.minecraft.world.InteractionResult.FAIL
+                                        && net.fabricmc.fabric.api.event.player.UseEntityCallback.EVENT.invoker().interact(other,level,hand,attackProbe,null)==net.minecraft.world.InteractionResult.FAIL
+                                        && net.fabricmc.fabric.api.event.player.AttackBlockCallback.EVENT.invoker().interact(other,level,hand,other.blockPosition(),net.minecraft.core.Direction.UP)==net.minecraft.world.InteractionResult.FAIL,
+                                        "Stun blocks native block and entity interactions");
+                        other.knockback(.6,-1,0,other.damageSources().playerAttack(owner),1); double knockbackX=other.getDeltaMovement().x;
+                        require(knockbackX>0,"External native knockback establishes real motion while stunned");
+                        other.connection.tick();
+                        require(other.getX()>lockedPosition.x+.05 && other.getYRot()==lockedYaw && other.getXRot()==lockedPitch,
+                                        "Native connection tick preserves external knockback displacement while stun still locks look");
+                        for(int tick=0;tick<79;tick++) service.tick();
+                        require(service.stunTicks(other)==1,"Stun persists through79 complete ticks"); service.tick();
+                        require(!service.stunned(other) && !other.hasEffect(MobEffects.SLOWNESS),"Stun expires on tick80 with temporary effects removed");
+                        other.getInventory().setItem(0,new ItemStack(Items.PAPER,2)); nativeMagicClick(other,36);
+                        require(other.containerMenu.getCarried().is(Items.PAPER) && other.getInventory().getItem(0).isEmpty(),"After stun expires, native inventory click positive control works"); nativeMagicClick(other,36);
+                        other.getInventory().setItem(0,ItemStack.EMPTY); attackProbe.setInvulnerableTime(0); attackProbe.damageCooldownTime=0;
+                        other.resetAttackStrengthTicker(); other.attack(attackProbe); require(attackProbe.getHealth()<attackHealth,"After stun expires, native melee positive control works"); attackProbe.discard();
+                        other.teleportTo(level,.5,270,5.5,java.util.Set.of(),0,0,true); other.setDeltaMovement(Vec3.ZERO);
+                        slrReady(game,owner,4); require(slrUse(owner,hand) && service.stunned(other),"Second real stun arms cleanse lifecycle");
+                        game.items().clearEffects(other); require(!service.stunned(other) && other.getActiveEffects().isEmpty(),"Common immediate cleanse releases the full stun input lock");
+                        // Acquire the real artifact through its native inventory callback, before any passive tick.
+                        other.getInventory().clearContent(); other.removeAllEffects(); other.setGameMode(GameType.SURVIVAL);
+                        other.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100); other.setHealth(100); other.setInvulnerableTime(0); other.damageCooldownTime=0;
+                        other.teleportTo(level,.5,270,5.5,java.util.Set.of(),0,0,true);
+                        var artifact=game.lbc().rollTable(level,other.position(),other,"lbc:ported/mystical_artifact_debuff").getFirst();
+                        other.getInventory().setItem(0,artifact); triggerNativeInventoryChange(other,artifact);
+                        slrReady(game,owner,4); require(slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && other.getActiveEffects().isEmpty()
+                                        && other.getHealth()==100 && !service.stunned(other),"Equipped debuff artifact rejects SLR stun immediately before passive tick");
+                        other.teleportTo(level,20.5,270,20.5,java.util.Set.of(),0,0,true);
+                        slrReady(game,owner,1); owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,slrStack(1)); owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,ItemStack.EMPTY);
+                        require(!slrUse(owner,net.minecraft.world.InteractionHand.OFF_HAND) && owner.getInventory().getItem(8).getCount()==8,"Disabled offhand preserves ammo");
+                        game.config().offhandWands=true; require(slrUse(owner,net.minecraft.world.InteractionHand.OFF_HAND) && owner.getInventory().getItem(8).getCount()==7,"Enabled offhand native item route fires");
+                        slrReady(game,owner,1); owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,ItemStack.EMPTY);
+                        var legacy=new ItemStack(Items.CARROT_ON_A_STICK); legacy.set(DataComponents.CUSTOM_DATA,owner.getMainHandItem().get(DataComponents.CUSTOM_DATA));
+                        owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,legacy);
+                        require(net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.invoker().interact(owner,level,net.minecraft.world.InteractionHand.MAIN_HAND).consumesAction()
+                                        && owner.getInventory().getItem(8).getCount()==7 && service.cooldownRemaining(owner)==15,"Legacy custom flag enters the actual Fabric use callback");
+                        slrReady(game,owner,1); owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,ItemStack.EMPTY); owner.entityTags().add("time_stopped");
+                        require(!slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && owner.getInventory().getItem(8).getCount()==8,"Time stopped shooter cannot fire"); owner.entityTags().remove("time_stopped");
+                        game.spectators().enter(owner); owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,slrStack(1));
+                        require(!slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && service.cooldownRemaining(owner)==0,"Observer native item use cannot fire"); game.spectators().remove(owner);
+                } finally {
+                        service.clearStun(other); service.forget(owner); owner.setShiftKeyDown(shift); game.config().offhandWands=offhand;
+                        var cleanup=new java.util.ArrayList<net.minecraft.world.entity.Entity>();
+                        level.getAllEntities().forEach(cleanup::add);
+                        for(var entity:cleanup) if(!initial.contains(entity)) entity.discard();
+                        cells.forEach((pos,snapshot)->game.maps().restoreSnapshot(pos,snapshot));
+                        board.removePlayerFromTeam(owner.getScoreboardName()); for(var mob:mobs) board.removePlayerFromTeam(mob.getScoreboardName()); board.removePlayerTeam(team);
+                        if(previousTeam!=null) board.addPlayerToTeam(owner.getScoreboardName(),previousTeam);
+                        saved.restore(game); savedOther.restore(game);
+                }
+                SkyWars2.LOGGER.info("[check] PASS slr");
+        }
+
+        private static final java.util.Set<UUID> slrStopTnt=new java.util.HashSet<>();
+        private static UUID slrStopOwner;
+
+        private static void checkSlrStopProbe(GameController game) {
+                require(game.playing(),"SLR stop probe requires active match");
+                var owner=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha")); require(owner!=null,"SLR stop owner exists");
+                var saved=new WandThirdPlayerState(owner,game.items().mana()); boolean shift=owner.isShiftKeyDown(),offhand=game.config().offhandWands;
+                var level=game.maps().level(); var initial=new java.util.HashSet<UUID>(); level.getAllEntities().forEach(e->initial.add(e.getUUID()));
+                var pos=owner.blockPosition().atY(271).south(3); var cell=game.maps().snapshot(pos);
+                try {
+                        owner.getInventory().clearContent(); owner.removeAllEffects(); owner.setNoGravity(true); owner.setGameMode(GameType.SURVIVAL);
+                        owner.teleportTo(level,pos.getX()+.5,270,pos.getZ()-3+.5,java.util.Set.of(),0,0,true); owner.setYRot(0); owner.setXRot(0); game.config().offhandWands=false;
+                        level.setBlock(pos,net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(),2);
+                        slrReady(game,owner,3); require(slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND),"Explosive native use succeeds");
+                        slrStopTnt.clear(); slrStopOwner=owner.getUUID();
+                        for(var entity:level.getAllEntities()) if(!initial.contains(entity.getUUID()) && entity instanceof net.minecraft.world.entity.item.PrimedTnt tnt) {
+                                require(tnt.getOwner()==owner && tnt.getFuse()==2,"Explosive mode emits owned native TNT with fuse2");
+                                slrStopTnt.add(tnt.getUUID()); tnt.setFuse(200); // Retain the real payload across console round trips for stop cleanup.
+                        }
+                        require(slrStopTnt.size()==2 && game.items().shooters().cooldownRemaining(owner)==15,"Explosive shot creates exactly2 TNT and live cooldown");
+                } finally { game.maps().restoreSnapshot(pos,cell); owner.setShiftKeyDown(shift); game.config().offhandWands=offhand; saved.restore(game); }
+                SkyWars2.LOGGER.info("[check] PASS slr-stop-probe");
+        }
+
+        private static void checkSlrCleanup(GameController game) {
+                require(game.inLobby() && slrStopOwner!=null && slrStopTnt.size()==2,"SLR stop payload was armed");
+                var owner=game.server().getPlayerList().getPlayer(slrStopOwner);
+                require(owner!=null && game.items().shooters().cooldownRemaining(owner)==0,"Match stop clears actual SLR cooldown state");
+                for(var id:slrStopTnt) require(game.maps().level().getEntity(id)==null,"Owned explosive SLR TNT is removed by match stop");
+                slrStopTnt.clear(); slrStopOwner=null; SkyWars2.LOGGER.info("[check] PASS slr-cleanup");
+        }
+
         private static void requireInfboltCraftResult(ItemStack stack,ServerPlayer player,String label) {
                 require(stack.is(LbcWands.INFBOLT) && stack.getCount()==1,label+" native identity and count");
                 var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
@@ -7629,10 +7930,21 @@ public final class GameChecks {
                         owner.setNoGravity(true); owner.setShiftKeyDown(false); owner.setGameMode(GameType.SURVIVAL);
                         owner.teleportTo(level,owner.getX(),270,owner.getZ(),java.util.Set.of(),0,0,true);
                         for(int x=-1;x<=1;x++) for(int z=-1;z<=1;z++) level.getChunk((owner.blockPosition().getX()>>4)+x,(owner.blockPosition().getZ()>>4)+z);
+                        require(!net.minecraft.core.registries.BuiltInRegistries.ITEM.containsKey(net.minecraft.resources.Identifier.parse("skywars2:academy_infbolt_wand")),
+                                        "Infbolt has no Academy item registration");
+                        var tool=new ItemStack(LbcWands.INFBOLT); var toolData=tool.getOrDefault(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
+                        toolData.putInt("upgrade_available",1); tool.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(toolData));
+                        owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,tool); var beforeAcademy=tool.copy();
+                        var academy=new net.minecraft.world.entity.Interaction(net.minecraft.world.entity.EntityTypes.INTERACTION,level);
+                        academy.setPos(owner.position()); academy.entityTags().add("magic_academy");
+                        require(game.items().academy().interact(owner,net.minecraft.world.InteractionHand.MAIN_HAND,academy)
+                                        && ItemStack.isSameItemSameComponents(owner.getMainHandItem(),beforeAcademy),
+                                        "Academy NPC leaves Infbolt unchanged even with manually supplied upgrade readiness"); academy.discard();
                         var wand=new ItemStack(LbcWands.INFBOLT); owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,wand); mana.set(owner,0);
                         var mixed=legacyFireblazeDonor("transformable",Items.STICK).copyWithCount(3);
                         var data=mixed.get(DataComponents.CUSTOM_DATA).copyTag(); data.putInt("staff",1); data.putInt("sword",1);
                         mixed.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(data));
+                        var mixedTemplate=mixed.copy();
                         require(LbcBolts.reforgeTables(mixed,true).equals(java.util.List.of("transformables_staff_all","transformables_sword_all")),"Ultra preserves independent mixed category rolls");
                         var input=infboltInput(owner,mixed);
                         owner.entityTags().add("time_stopped");
@@ -7644,9 +7956,13 @@ public final class GameChecks {
                                 game.items().magic().blockChanged(beacon,level.getBlockState(beacon));
                                 require(!game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && service.pendingReforgeCount()==0,"Antimagic rejects free Infbolt before queueing");
                         } finally { game.maps().restoreSnapshot(beacon,oldBeacon); game.items().magic().blockChanged(beacon,level.getBlockState(beacon)); }
-                        game.spectators().enter(owner);
+                        var beforeObserver=new WandThirdPlayerState(owner,mana);
+                        game.spectators().enter(owner); owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,wand);
                         try { require(!game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND),"Observer cannot use Infbolt"); }
-                        finally { game.spectators().remove(owner); owner.setGameMode(GameType.SURVIVAL); }
+                        finally {
+                                game.spectators().remove(owner); beforeObserver.restore(game);
+                                owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,wand);
+                        }
                         require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && mana.get(owner)==0
                                         && input.getItem().getCount()==3 && service.pendingReforgeCount()>0,"Free Infbolt snapshots entire input into shared budget queue");
                         require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND),"Repeated cast may capture the same pending input");
@@ -7655,6 +7971,14 @@ public final class GameChecks {
                         var outputs=level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,owner.getBoundingBox().inflate(10),e->!initial.contains(e));
                         require(outputs.stream().mapToInt(e->e.getItem().getCount()).sum()==6,"Three mixed-category inputs roll each category once, without consuming fresh outputs");
                         outputs.forEach(net.minecraft.world.entity.Entity::discard);
+                        var unsupportedStack=legacyFireblazeDonor("transformable",Items.STICK).copyWithCount(7);
+                        var unsupported=infboltInput(owner,unsupportedStack); var unsupportedBefore=unsupportedStack.copy();
+                        require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND),"Unsupported dropped item can terminate Infbolt ray");
+                        drainInfboltWork(game);
+                        require(!unsupported.isRemoved() && unsupported.getItem().getCount()==7 && ItemStack.isSameItemSameComponents(unsupported.getItem(),unsupportedBefore),
+                                        "Unsupported category preserves the entire input and its components");
+                        require(level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,owner.getBoundingBox().inflate(10),e->!initial.contains(e)).size()==1,
+                                        "Unsupported category creates no output items"); unsupported.discard();
                         var arrows63=infboltInput(owner,new ItemStack(Items.ARROW,63));
                         require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND),"Nonexact arrows still terminate ray"); drainInfboltWork(game);
                         require(arrows63.getItem().getCount()==63,"63 arrows never exchange"); arrows63.discard();
@@ -7662,14 +7986,16 @@ public final class GameChecks {
                                         && LbcBolts.reforgeTables(new ItemStack(Items.ARROW,63),true).isEmpty(),"Only exact64 arrows select source magnum ammo table");
                         var arrows64=infboltInput(owner,new ItemStack(Items.ARROW,64));
                         require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND),"Exact64 arrows accepted"); drainInfboltWork(game);
-                        require(arrows64.isRemoved(),"Source exact64 exchange consumes all64 arrows");
-                        var ammo=level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,owner.getBoundingBox().inflate(10),e->!initial.contains(e));
+
+                        var ammo=level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,owner.getBoundingBox().inflate(10),e->e!=arrows64 && !initial.contains(e));
                         require(ammo.stream().allMatch(e->{
                                 var flags=e.getItem().getOrDefault(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
                                 return flags.getIntOr("standard_round",0)==1 || flags.getIntOr("incendiary_round",0)==1 || flags.getIntOr("electric_round",0)==1
                                                 || flags.getIntOr("acid_round",0)==1 || flags.getIntOr("void_round",0)==1 || flags.getIntOr("explosive_round",0)==1;
                         }) && ammo.stream().mapToInt(e->e.getItem().getCount()).sum()<=12,"Source ammo markers and four variable-count rolls survive a single64-arrow exchange");
-                        ammo.forEach(net.minecraft.world.entity.Entity::discard);
+                        require(ammo.isEmpty()?(!arrows64.isRemoved() && arrows64.getItem().getCount()==64):arrows64.isRemoved(),
+                                        "Exact64 exchange consumes all64 only when its ammo roll produces a result");
+                        arrows64.discard(); ammo.forEach(net.minecraft.world.entity.Entity::discard);
                         var armor=legacyFireblazeDonor("transformable",Items.IRON_CHESTPLATE); data=armor.get(DataComponents.CUSTOM_DATA).copyTag();
                         data.putInt("techno",1); data.putInt("reactive",1); data.putInt("technomk2",1); data.putInt("chestplate",1);
                         armor.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(data));
@@ -7682,7 +8008,7 @@ public final class GameChecks {
                         game.config().offhandWands=false;
                         require(!game.items().wands().use(owner,net.minecraft.world.InteractionHand.OFF_HAND),"Disabled offhand blocks Infbolt");
                         game.config().offhandWands=true;
-                        var cancelled=infboltInput(owner,mixed.copyWithCount(64));
+                        var cancelled=infboltInput(owner,mixedTemplate.copyWithCount(64));
                         require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.OFF_HAND) && service.pendingReforgeCount()>0,"Enabled offhand queues Infbolt");
                         service.forget(owner); drainInfboltWork(game);
                         require(cancelled.getItem().getCount()==64 && service.pendingReforgeCount()==0,"Owner lifecycle cancels queued units without consuming inputs"); cancelled.discard();
@@ -7691,6 +8017,38 @@ public final class GameChecks {
                         service.stop(); drainInfboltWork(game); game.config().offhandWands=offhand;
                         for(var entity:level.getAllEntities()) if(!initial.contains(entity)) entity.discard();
                         state.restore(game);
+                }
+        }
+
+        /** The isolated smoke runner supplies a zero-pool pickaxe table, exercising real empty loot. */
+        private static void checkInfboltEmpty(GameController game) {
+                var owner=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
+                require(owner!=null && game.allowDamage(owner),"Empty-result reforge participant active");
+                var level=owner.level(); var saved=new WandThirdPlayerState(owner,game.items().mana());
+                var initial=new java.util.HashSet<net.minecraft.world.entity.Entity>(); level.getAllEntities().forEach(initial::add);
+                boolean offhand=game.config().offhandWands;
+                try {
+                        game.items().bolts().stop(); drainInfboltWork(game); owner.closeContainer(); owner.getInventory().clearContent(); owner.removeAllEffects();
+                        owner.setNoGravity(true); owner.setShiftKeyDown(false); owner.setGameMode(GameType.SURVIVAL); game.config().offhandWands=false;
+                        owner.teleportTo(level,owner.getX(),270,owner.getZ(),java.util.Set.of(),0,0,true);
+                        require(game.lbc().rollTable(level,owner.position(),owner,"lbc:transformables_pickaxe").isEmpty(),"Isolated empty-roll test pack is active");
+                        for(boolean ultra:new boolean[]{false,true}) {
+                                owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,ultra?new ItemStack(LbcWands.INFBOLT):boltboltMode(true,2));
+                                var stack=legacyFireblazeDonor("transformable",Items.IRON_PICKAXE).copyWithCount(5);
+                                var data=stack.get(DataComponents.CUSTOM_DATA).copyTag(); data.putInt("pickaxe",1);
+                                stack.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(data)); var before=stack.copy();
+                                var input=infboltInput(owner,stack);
+                                require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && game.items().bolts().pendingReforgeCount()>0,
+                                                "Supported category queues its genuine empty loot roll"); drainInfboltWork(game);
+                                require(!input.isRemoved() && input.getItem().getCount()==5 && ItemStack.isSameItemSameComponents(input.getItem(),before),
+                                                "Empty loot roll preserves full input stack and components for normal and ultra reforge");
+                                require(level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,owner.getBoundingBox().inflate(10),e->!initial.contains(e)).size()==1,
+                                                "Empty loot produces no output entities and terminates the queued job"); input.discard();
+                        }
+                        SkyWars2.LOGGER.info("[check] PASS infbolt-empty");
+                } finally {
+                        game.items().bolts().stop(); drainInfboltWork(game); game.config().offhandWands=offhand;
+                        for(var entity:level.getAllEntities()) if(!initial.contains(entity)) entity.discard(); saved.restore(game);
                 }
         }
 
@@ -7716,25 +8074,39 @@ public final class GameChecks {
                         }
                         owner.teleportTo(level,pad.getX()+.5,271,pad.getZ()-2,java.util.Set.of(),0,0,true);
                         ally.teleportTo(level,pad.getX()+.5,271,pad.getZ()+.5,java.util.Set.of(),0,0,true);
-                        ally.setHealth(20); ally.setRemainingFireTicks(0); ally.invulnerableTime=0;
+                        ally.setHealth(20); ally.setRemainingFireTicks(0); ally.setInvulnerableTime(0); ally.damageCooldownTime=0;
                         var egg=game.lbc().rollTable(level,owner.position(),owner,"lbc:ported/bolt_material").getFirst();
                         owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,egg);
                         var hit=new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(pad).add(0,.5,0),net.minecraft.core.Direction.UP,pad,false);
-                        game.spectators().enter(owner);
+                        var beforeObserver=new WandThirdPlayerState(owner,game.items().mana());
+                        game.spectators().enter(owner); owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,egg);
                         try { require(!egg.useOn(new net.minecraft.world.item.context.UseOnContext(owner,net.minecraft.world.InteractionHand.MAIN_HAND,hit)).consumesAction()
                                         && egg.getCount()==8,"Observer cannot activate or consume native egg"); }
-                        finally { game.spectators().remove(owner); owner.setGameMode(GameType.SURVIVAL); }
+                        finally {
+                                game.spectators().remove(owner); beforeObserver.restore(game);
+                                owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,egg);
+                        }
                         require(egg.useOn(new net.minecraft.world.item.context.UseOnContext(owner,net.minecraft.world.InteractionHand.MAIN_HAND,hit)).consumesAction()
                                         && egg.getCount()==7,"Native spawn egg useOn consumes exactly one of source eight");
                         var bolts=level.getEntitiesOfClass(net.minecraft.world.entity.LightningBolt.class,new net.minecraft.world.phys.AABB(pad).inflate(5),b->!initial.contains(b));
                         require(bolts.size()==1 && bolts.getFirst().getCause()==owner && LbcElectro.managedLightning(bolts.getFirst()),"Spawn egg creates one managed native bolt with actual owner");
                         var mobs=new java.util.ArrayList<net.minecraft.world.entity.animal.cow.Cow>();
                         var victim=frostProbeCow(level,mobs,pad.getX()+.5,271,pad.getZ()+.5);
+                        victim.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100); victim.setHealth(100);
                         var npc=frostProbeCow(level,mobs,pad.getX()+1.5,271,pad.getZ()+.5); npc.entityTags().add("magic_academy");
+                        // Обычные молнии жезлов всё ещё защищают команду; исключение принадлежит только яйцу.
+                        var ordinary=game.items().electro().lightning(owner,bolts.getFirst().position());
+                        ordinary.tick(); ordinary.discard();
+                        require(ally.getHealth()==20 && ally.getRemainingFireTicks()==0 && npc.getHealth()==npc.getMaxHealth(),
+                                        "Ordinary owned lightning still protects allies and service NPCs");
                         float hp=victim.getHealth(),allyHp=ally.getHealth(),npcHp=npc.getHealth(); bolts.getFirst().tick();
                         require(victim.getHealth()<hp && victim.getLastDamageSource()!=null && victim.getLastDamageSource().getEntity()==owner
                                         && victim.getLastDamageSource().typeHolder().is(LbcDamage.ELECTRIC),"Native egg lightning damage preserves electrical type and owner");
-                        require(ally.getHealth()==allyHp && ally.getRemainingFireTicks()==0 && npc.getHealth()==npcHp,"Native egg lightning protects active ally and service NPC");
+                        require(ally.getHealth()<allyHp && ally.isOnFire() && ally.getLastDamageSource()!=null
+                                        && ally.getLastDamageSource().getEntity()==owner && npc.getHealth()==npcHp,
+                                        "Native egg lightning harms and ignites allies with owner while protecting service NPC");
+                        require(game.items().indirectKills().allowEnvironmentDamage(ally,level.damageSources().onFire()),
+                                        "Egg ignition retains friendly fire after the direct lightning strike");
                         SkyWars2.LOGGER.info("[check] PASS infbolt-egg");
                 } finally {
                         for(var entity:level.getAllEntities()) if(!initial.contains(entity)) entity.discard();
@@ -7799,12 +8171,973 @@ public final class GameChecks {
                         } else requireInfboltCraftResult(stack,player,table);
                         requirePolymerStack(player,stack,donor?Items.PANDA_SPAWN_EGG:Items.CARROT_ON_A_STICK,table);
                 }
+                var board=game.server().getScoreboard(); var oldObjective=board.getObjective("hplvl");
+                var oldScore=oldObjective==null?null:board.getPlayerScoreInfo(player,oldObjective);
+                Integer oldValue=oldScore==null?null:oldScore.value();
+                try {
+                        game.items().mana().score(player,"hplvl").set(13);
+                        var gloves=game.lbc().rollTable(player.level(),player.position(),player,"lbc:one_punch_glove");
+                        require(gloves.size()==1 && !gloves.getFirst().isEmpty(),"One Punch Glove source loot parses and rolls an item");
+                        var modifiers=gloves.getFirst().get(DataComponents.ATTRIBUTE_MODIFIERS);
+                        require(modifiers!=null && modifiers.modifiers().stream().anyMatch(entry->
+                                        entry.attribute().equals(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)
+                                        && entry.modifier().id().equals(net.minecraft.resources.Identifier.parse("minecraft:base_attack_damage"))
+                                        && entry.modifier().operation()==net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE
+                                        && entry.modifier().amount()==13 && entry.slot()==net.minecraft.world.entity.EquipmentSlotGroup.MAINHAND),
+                                        "Native from_int score amount reads the loot this entity's hplvl=13 as mainhand attack damage");
+                } finally {
+                        if(oldObjective==null) board.removeObjective(board.getObjective("hplvl"));
+                        else if(oldValue==null) board.resetSinglePlayerScore(player,oldObjective);
+                        else game.items().mana().score(player,"hplvl").set(oldValue);
+                }
                 SkyWars2.LOGGER.info("[check] PASS infbolt-menu");
         }
 
         private static void drainInfboltWork(GameController game) {
                 for(int i=0;i<2000 && game.items().stonekivi().count()>0;i++) game.items().stonekivi().tick();
                 require(game.items().stonekivi().count()==0,"Bounded reforge fixture drains shared work queue");
+        }
+
+        private static ItemStack consumingSource(GameController game,ServerPlayer owner,String name) {
+                var loot=game.lbc().rollTable(owner.level(),owner.position(),owner,"lbc:ported/"+name);
+                require(loot.size()==1,"Consuming fixture source loot exists: "+name); return loot.getFirst();
+        }
+
+        private static void drainConsumingTerrain(GameController game) {
+                for(int tick=0;tick<1000 && game.items().stonekivi().count()>0;tick++) game.items().stonekivi().tick();
+                require(game.items().stonekivi().count()==0,"Finite Consuming fixture drains shared terrain queue");
+        }
+
+        private static void checkConsuming(GameController game) {
+                var owner=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
+                var ally=game.server().getPlayerList().getPlayer(offlineUuid("TestBeta"));
+                require(owner!=null && ally!=null && game.allowDamage(owner) && game.allowDamage(ally)
+                                && game.items().consuming().ready(),"Consuming uses live participants and prepared source");
+                var mana=game.items().mana(); var service=game.items().consuming(); var level=owner.level();
+                var saved=new WandThirdPlayerState(owner,mana); var allySaved=new WandThirdPlayerState(ally,mana);
+                boolean shift=owner.isShiftKeyDown(),offhand=game.config().offhandWands;
+                var cells=new java.util.LinkedHashMap<net.minecraft.core.BlockPos,MapManager.BlockSnapshot>();
+                var cows=new java.util.ArrayList<net.minecraft.world.entity.animal.cow.Cow>();
+                var board=game.server().getScoreboard(); var ownerTeam=owner.getTeam(); var allyTeam=ally.getTeam();
+                var team=board.addPlayerTeam("codex_consuming"); team.setAllowFriendlyFire(false);
+                var base=owner.blockPosition().atY(260);
+                try {
+                        service.stop(); drainConsumingTerrain(game); owner.closeContainer(); owner.getInventory().clearContent(); owner.removeAllEffects();
+                        owner.setGameMode(GameType.SURVIVAL); owner.setNoGravity(true); owner.setShiftKeyDown(false); game.config().offhandWands=false; mana.noMagic(owner,0);
+                        owner.teleportTo(level,base.getX()+.5,260,base.getZ()+.5,java.util.Set.of(),0,0,true);
+                        board.addPlayerToTeam(owner.getScoreboardName(),team); board.addPlayerToTeam(ally.getScoreboardName(),team);
+                        ally.teleportTo(level,base.getX()+.5,260,base.getZ()+4.5,java.util.Set.of(),0,0,true);
+                        ally.setNoGravity(true); ally.removeAllEffects(); ally.setHealth(20);
+                        for(int x=-1;x<=1;x++) for(int y=0;y<=3;y++) for(int z=-1;z<=52;z++) {
+                                var cell=base.offset(x,y,z); level.getChunk(cell.getX()>>4,cell.getZ()>>4);
+                                cells.put(cell,game.maps().snapshot(cell)); level.setBlock(cell,net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),2);
+                        }
+                        var block=base.offset(0,1,10); level.setBlock(block,net.minecraft.world.level.block.Blocks.BEDROCK.defaultBlockState(),2);
+                        var target=frostProbeCow(level,cows,base.getX()+.5,260.5,base.getZ()+12.5);
+                        target.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(10000); target.setHealth(10000);
+                        var npc=frostProbeCow(level,cows,base.getX()+.5,260.5,base.getZ()+15.5); npc.entityTags().add("magic_academy");
+                        var source=consumingSource(game,owner,"consuming_wand");
+                        owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,source); mana.set(owner,1999);
+                        require(!game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && mana.get(owner)==1999 && service.count()==0,"Consuming rejects insufficient mana");
+                        owner.entityTags().add("time_stopped"); mana.set(owner,2000);
+                        require(!game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && service.count()==0,"Time stop blocks Consuming"); owner.entityTags().remove("time_stopped");
+                        var beacon=base.offset(1,1,0);
+                        level.setBlockAndUpdate(beacon,LbcMagic.MAGIC_BEACON_BLOCK.defaultBlockState());
+                        game.items().magic().blockChanged(beacon,level.getBlockState(beacon));
+                        require(!game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && mana.get(owner)==2000,"Actual antimagical beacon blocks Consuming without debit");
+                        level.setBlockAndUpdate(beacon,net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
+                        game.items().magic().blockChanged(beacon,level.getBlockState(beacon));
+                        require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && mana.get(owner)==0,"Normal cast spends exactly 2000 mana");
+                        require(target.getHealth()==target.getMaxHealth()-2 && target.getLastDamageSource()!=null
+                                        && target.getLastDamageSource().getEntity()==owner && target.getLastDamageSource().is(LbcDamage.CONSUMING)
+                                        && LbcDamage.isArrowDamage(target.getLastDamageSource())
+                                        && target.getLastDamageSource().is(net.minecraft.tags.DamageTypeTags.BYPASSES_COOLDOWN)
+                                        && target.getLastDamageSource().is(net.minecraft.tags.DamageTypeTags.IS_PROJECTILE),"Immediate source ray traverses bedrock and deals two owned arrow damage with source cooldown bypass");
+                        require(npc.getHealth()==npc.getMaxHealth() && ally.getHealth()==20,"Consuming protects service NPC and ally");
+                        require(service.partitionSnapshot().size()==44 && service.partitionSnapshot().stream().allMatch(part->part.owner()==owner && part.age()==0 && game.items().currentEpoch(part.epoch())),"Every source sample beyond seven creates an owned epoch partition");
+                        require(service.pendingWorkCount()>0 && level.getBlockState(block).is(net.minecraft.world.level.block.Blocks.BEDROCK),"Ray erasure is accepted as shared queued work");
+                        drainConsumingTerrain(game); require(level.getBlockState(block).isAir(),"Queued source erasure removes unbreakable terrain");
+                        for(int age=1;age<=59;age++) service.tick();
+                        require(service.partitionSnapshot().stream().allMatch(part->part.age()==59) && service.pendingWorkCount()==0,"Partitions are inert through age59");
+                        var first=service.partitionSnapshot().getFirst(); owner.entityTags().add("time_stopped"); service.tick();
+                        require(service.partitionSnapshot().getFirst().age()==59,"Time stop pauses partition lifetime"); owner.entityTags().remove("time_stopped");
+                        float hpAt59=target.getHealth(); service.tick();
+                        require(target.getHealth()==hpAt59-2 && target.getLastDamageSource().getEntity()==owner
+                                        && target.getLastDamageSource().is(LbcDamage.CONSUMING),"Age60 partition sample deals exactly two owned damage despite the immediate ray cooldown");
+                        require(service.pendingWorkCount()>0 && service.partitionSnapshot().getFirst().age()==60
+                                        && Math.abs(service.partitionSnapshot().getFirst().point().distanceTo(first.point())-.4)<.0001,"Age60 starts erasure and advances source partition by0.4");
+                        for(int age=61;age<=99;age++) service.tick();
+                        require(service.partitionSnapshot().size()==44 && service.partitionSnapshot().stream().allMatch(part->part.age()==99),"Partitions remain active through source age99");
+                        int pendingAt99=service.pendingWorkCount(); float hpAt99=target.getHealth(); service.tick();
+                        require(service.partitionSnapshot().isEmpty() && service.pendingWorkCount()>pendingAt99
+                                        && target.getHealth()<hpAt99 && (hpAt99-target.getHealth())%2==0,"Age100 executes its final source two-damage samples before partition expiry");
+                        // Cancel accepted writes before moving random partitions touch the arena.
+                        service.stop(); drainConsumingTerrain(game);
+                        game.config().offhandWands=true; owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,ItemStack.EMPTY);
+                        owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,source.copy()); mana.set(owner,2000);
+                        require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.OFF_HAND) && mana.get(owner)==0 && !service.partitionSnapshot().isEmpty(),"Correct offhand stack casts Consuming");
+                        service.forget(owner); drainConsumingTerrain(game); require(service.count()==0,"Owner lifecycle cancels all owned partitions and accepted work");
+                        var beforeObserver=new WandThirdPlayerState(owner,mana); game.spectators().enter(owner);
+                        owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,source.copy()); mana.set(owner,2000);
+                        require(!game.items().wands().use(owner,net.minecraft.world.InteractionHand.OFF_HAND) && service.count()==0,"Observer cannot cast Consuming");
+                        game.spectators().remove(owner); beforeObserver.restore(game);
+                        var academy=consumingSource(game,owner,"academy_consuming_wand"); owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,academy); owner.setShiftKeyDown(true);
+                        mana.set(owner,1999); require(!game.items().wands().use(owner,net.minecraft.world.InteractionHand.OFF_HAND),"Mode cycle keeps outer2000 admission gate");
+                        for(int mode:new int[]{2,3,4,1}) {
+                                mana.set(owner,2000); require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.OFF_HAND)
+                                                && academy.get(DataComponents.CUSTOM_DATA).copyTag().getIntOr("mode",0)==mode && mana.get(owner)==2000 && service.count()==0,"Academy four-mode offhand cycle is free: "+mode);
+                        }
+                        owner.setShiftKeyDown(false); var endData=academy.get(DataComponents.CUSTOM_DATA).copyTag(); endData.putInt("mode",3);
+                        academy.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(endData)); mana.set(owner,2000);
+                        target.setInvulnerableTime(0); target.damageCooldownTime=0; float hp=target.getHealth();
+                        require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.OFF_HAND) && mana.get(owner)==0
+                                        && service.partitionSnapshot().isEmpty() && service.pendingWorkCount()>0,"Academy The End queues its five source rays for2000");
+                        require(target.getHealth()==hp-150 && target.getLastDamageSource().getEntity()==owner
+                                        && target.getLastDamageSource().is(LbcDamage.CONSUMING)
+                                        && LbcDamage.isArrowDamage(target.getLastDamageSource())
+                                        && target.getLastDamageSource().is(net.minecraft.tags.DamageTypeTags.BYPASSES_COOLDOWN)
+                                        && npc.getHealth()==npc.getMaxHealth() && ally.getHealth()==20,"The End's five rays each hit five sphere samples for25 owned six-damage hits while protecting NPC/allies");
+                        service.stop(); drainConsumingTerrain(game);
+                        SkyWars2.LOGGER.info("[check] PASS consuming");
+                } finally {
+                        service.stop(); drainConsumingTerrain(game); cows.forEach(net.minecraft.world.entity.Entity::discard);
+                        cells.forEach((cell,snapshot)->{ game.maps().restoreSnapshot(cell,snapshot); game.items().magic().blockChanged(cell,level.getBlockState(cell)); });
+                        board.removePlayerFromTeam(owner.getScoreboardName()); board.removePlayerFromTeam(ally.getScoreboardName()); board.removePlayerTeam(team);
+                        if(ownerTeam!=null) board.addPlayerToTeam(owner.getScoreboardName(),ownerTeam); if(allyTeam!=null) board.addPlayerToTeam(ally.getScoreboardName(),allyTeam);
+                        owner.setShiftKeyDown(shift); game.config().offhandWands=offhand; saved.restore(game); allySaved.restore(game);
+                }
+        }
+
+        private static void checkConsumingDonors(GameController game) {
+                var owner=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
+                require(owner!=null && game.allowDamage(owner),"Donor fixture uses an active participant");
+                var service=game.items().consuming(); var level=owner.level(); var saved=new WandThirdPlayerState(owner,game.items().mana());
+                boolean shift=owner.isShiftKeyDown(),offhand=game.config().offhandWands; var base=owner.blockPosition().atY(270); var block=base.offset(0,1,3); var old=game.maps().snapshot(block);
+                try {
+                        service.stop(); drainConsumingTerrain(game); owner.closeContainer(); owner.getInventory().clearContent(); owner.setShiftKeyDown(false); owner.setNoGravity(true); game.config().offhandWands=false;
+                        owner.teleportTo(level,base.getX()+.5,270,base.getZ()+.5,java.util.Set.of(),0,0,true);
+                        level.setBlock(block,net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(),2);
+                        for(boolean destroyer:new boolean[]{false,true}) {
+                                var stack=consumingSource(game,owner,destroyer?"destroyer_spell":"creeper_army_spell").copyWithCount(2);
+                                owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,stack); game.items().mana().set(owner,0);
+                                owner.entityTags().add("time_stopped");
+                                require(!game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && stack.getCount()==2,"Paused donor preserves source stack"); owner.entityTags().remove("time_stopped");
+                                require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && stack.getCount()==1 && game.items().mana().get(owner)==0,"Independent donor consumes exactly one without mana");
+                                if(destroyer) require(service.pendingWorkCount()>0,"Destroyer queues widening terrain ray");
+                                else {
+                                        require(service.areaSnapshot().size()==1 && service.areaSnapshot().getFirst().owner()==owner
+                                                        && game.items().currentEpoch(service.areaSnapshot().getFirst().epoch()),"Creeper Army creates one owned destructive area");
+                                        for(int tick=0;tick<4;tick++) service.tick(); require(service.pendingWorkCount()==0,"Curved area waits four ticks");
+                                        service.tick(); require(service.pendingWorkCount()>0 && service.areaSnapshot().getFirst().age()==5,"Curved area queues first destructive ray every fifth tick");
+                                }
+                                require(level.getBlockState(block).is(net.minecraft.world.level.block.Blocks.STONE),"Donor terrain is queued before execution");
+                                service.forget(owner); drainConsumingTerrain(game);
+                                require(service.count()==0 && level.getBlockState(block).is(net.minecraft.world.level.block.Blocks.STONE),"Owner cleanup cancels pending donor writes");
+                        }
+                        SkyWars2.LOGGER.info("[check] PASS consuming-donors");
+                } finally { owner.entityTags().remove("time_stopped"); service.stop(); drainConsumingTerrain(game); game.maps().restoreSnapshot(block,old); owner.setShiftKeyDown(shift); game.config().offhandWands=offhand; saved.restore(game); }
+        }
+
+        private static ItemStack consumingMode(GameController game,ServerPlayer owner,int mode) {
+                var stack=consumingSource(game,owner,"academy_consuming_wand");
+                var data=stack.get(DataComponents.CUSTOM_DATA).copyTag(); data.putInt("mode",mode);
+                stack.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(data)); return stack;
+        }
+
+        private static void prepareConsumingAcademy(GameController game) {
+                var owner=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
+                require(owner!=null && game.playing(),"Academy preparation requires a live participant");
+                var pending=new java.util.ArrayList<java.util.concurrent.CompletableFuture<?>>();
+                int cx=owner.blockPosition().getX()>>4,cz=owner.blockPosition().getZ()>>4;
+                for(int x=-3;x<=4;x++) for(int z=-3;z<=3;z++)
+                        pending.add(game.maps().prepareChunk(new net.minecraft.world.level.ChunkPos(cx+x,cz+z)));
+                pending.add(game.maps().prepareChunk(new net.minecraft.world.level.ChunkPos(cx+20,cz+6)));
+                java.util.concurrent.CompletableFuture.allOf(pending.toArray(java.util.concurrent.CompletableFuture[]::new))
+                        .whenComplete((ignored,failure)->game.server().execute(()-> {
+                                if(failure!=null) SkyWars2.LOGGER.error("[check] FAIL Consuming preparation",failure);
+                                else { deferredTicks=4; deferredCheck=()->checkConsumingAcademy(game); }
+                        }));
+        }
+
+        private static void checkConsumingAcademy(GameController game) {
+                var owner=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
+                var beta=game.server().getPlayerList().getPlayer(offlineUuid("TestBeta"));
+                require(owner!=null && beta!=null && game.allowDamage(owner) && game.allowDamage(beta)
+                                && game.items().consuming().ready(),"Academy scope fixture has prepared source and active participants");
+                var level=owner.level(); var mana=game.items().mana(); var service=game.items().consuming();
+                var saved=new WandThirdPlayerState(owner,mana); var betaSaved=new WandThirdPlayerState(beta,mana);
+                boolean shift=owner.isShiftKeyDown(),offhand=game.config().offhandWands;
+                int resistance=mana.hudValue(beta,"void_resistance");
+                var board=game.server().getScoreboard(); var ownerTeam=owner.getTeam(); var betaTeam=beta.getTeam();
+                var team=board.addPlayerTeam("codex_consuming_modes"); team.setAllowFriendlyFire(false);
+                var protectedExisting=new java.util.ArrayList<net.minecraft.world.entity.Entity>();
+                var originalEntities=new java.util.HashSet<net.minecraft.world.entity.Entity>(); level.getAllEntities().forEach(originalEntities::add);
+                var cells=new java.util.LinkedHashMap<net.minecraft.core.BlockPos,MapManager.BlockSnapshot>();
+                var cows=new java.util.ArrayList<net.minecraft.world.entity.animal.cow.Cow>();
+                var fixtures=new java.util.ArrayList<net.minecraft.world.entity.Entity>();
+                var base=owner.blockPosition().atY(260); var center=base.above();
+                var inside=java.util.List.of(center,center.offset(47,0,0),center.offset(0,47,0),center.offset(30,30,0),center.offset(3,0,0));
+                var outside=java.util.List.of(center.offset(49,0,0),center.offset(35,35,0));
+                var wall=center.offset(0,0,5);
+                try {
+                        service.stop(); drainConsumingTerrain(game);
+                        // Protect original map actors while the real dimension-wide effect processes native fixtures.
+                        for(var entity:level.getAllEntities()) if(!(entity instanceof ServerPlayer) && !entity.entityTags().contains("strict_map_object")) {
+                                entity.entityTags().add("strict_map_object"); protectedExisting.add(entity);
+                        }
+                        owner.closeContainer(); owner.getInventory().clearContent(); owner.removeAllEffects(); beta.removeAllEffects();
+                        owner.setGameMode(GameType.SURVIVAL); beta.setGameMode(GameType.SURVIVAL); owner.setNoGravity(true); beta.setNoGravity(true);
+                        owner.setShiftKeyDown(false); game.config().offhandWands=false; mana.noMagic(owner,0); mana.score(beta,"void_resistance").set(0);
+                        owner.teleportTo(level,base.getX()+.5,260,base.getZ()+.5,java.util.Set.of(),0,0,true);
+                        beta.teleportTo(level,base.getX()+4.5,260,base.getZ()+.5,java.util.Set.of(),0,0,true);
+                        beta.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100); beta.setHealth(100); beta.setInvulnerableTime(0); beta.damageCooldownTime=0;
+                        board.addPlayerToTeam(owner.getScoreboardName(),team); board.removePlayerFromTeam(beta.getScoreboardName());
+                        // These loaded sections lie above the arena and lobby; retain only the planted probe cells.
+                        for(int x=-3;x<=3;x++) for(int z=-3;z<=3;z++) level.getChunk((base.getX()>>4)+x,(base.getZ()>>4)+z);
+                        for(var cell:inside) { cells.put(cell,game.maps().snapshot(cell)); level.setBlock(cell,net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(),2); }
+                        for(var cell:outside) { cells.put(cell,game.maps().snapshot(cell)); level.setBlock(cell,net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(),2); }
+                        level.setBlock(inside.getLast(),net.minecraft.world.level.block.Blocks.BEDROCK.defaultBlockState(),2);
+                        var allied=frostProbeCow(level,cows,base.getX()+2.5,261,base.getZ()+2.5); fixtures.add(allied); board.addPlayerToTeam(allied.getScoreboardName(),team);
+                        level.getChunk((base.getX()+60)>>4,base.getZ()>>4);
+                        var farCow=frostProbeCow(level,cows,base.getX()+60.5,261,base.getZ()+.5); fixtures.add(farCow);
+                        var observer=frostProbeCow(level,cows,base.getX()+2.5,261,base.getZ()+3.5); observer.entityTags().add("spectator"); fixtures.add(observer); var observerPosition=observer.position();
+                        var drop=new net.minecraft.world.entity.item.ItemEntity(level,base.getX()+1.5,261,base.getZ()+2.5,new ItemStack(Items.DIAMOND));
+                        require(level.addFreshEntity(drop),"Silence native drop fixture enters level"); fixtures.add(drop);
+                        var arrow=new net.minecraft.world.entity.projectile.arrow.Arrow(level,owner,new ItemStack(Items.ARROW),null);
+                        arrow.setPos(base.getX()+2.5,262,base.getZ()+1.5); require(level.addFreshEntity(arrow),"Silence native projectile fixture enters level"); fixtures.add(arrow);
+                        var cart=new net.minecraft.world.entity.vehicle.minecart.MinecartChest(net.minecraft.world.entity.EntityTypes.CHEST_MINECART,level);
+                        cart.setPos(base.getX()-2.5,262,base.getZ()+1.5); cart.entityTags().addAll(java.util.Set.of("swrg.center","swrg.chest","skywars2.airdrop"));
+                        require(level.addFreshEntity(cart),"Silence Airdrop cart fixture enters level"); fixtures.add(cart);
+                        var dragon=new net.minecraft.world.entity.boss.enderdragon.EnderDragon(net.minecraft.world.entity.EntityTypes.ENDER_DRAGON,level);
+                        dragon.setPos(base.getX()-20.5,262,base.getZ()+1.5);
+                        require(level.addFreshEntity(dragon),"Silence dragon fixture enters level"); fixtures.add(dragon);
+                        var npc=new net.minecraft.world.entity.Interaction(net.minecraft.world.entity.EntityTypes.INTERACTION,level);
+                        npc.setPos(base.getX()+3.5,261,base.getZ()+2.5); npc.entityTags().add("magic_academy");
+                        require(level.addFreshEntity(npc),"Silence protected NPC fixture enters level"); fixtures.add(npc); var npcPosition=npc.position();
+                        game.items().wands().cultistElectro(owner,owner.getEyePosition().add(2,0,2),0,0);
+                        var ownNear=game.items().wands().electroSnapshot().stream().filter(trace->trace.owner==owner).toList();
+                        game.items().wands().cultistElectro(beta,owner.getEyePosition().add(-2,0,2),0,0);
+                        var foreignNear=game.items().wands().electroSnapshot().stream().filter(trace->trace.owner==beta).toList();
+                        game.items().wands().cultistElectro(beta,owner.getEyePosition().add(60,0,0),0,0);
+                        var outsideTraces=game.items().wands().electroSnapshot().stream().filter(trace->trace.owner==beta && !foreignNear.contains(trace)).toList();
+                        require(ownNear.size()==6 && foreignNear.size()==6 && outsideTraces.size()==6,"Native cultist launch creates owned and foreign virtual Electro volleys inside and outside Silence");
+                        game.items().duplicating().stop();
+                        owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,duplicatingSource(game,owner,"duplicating_wand")); mana.set(owner,1000);
+                        require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND),"Silence fixture has actual caster-owned Duplicating marker");
+                        beta.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,duplicatingSource(game,beta,"duplicating_wand")); mana.set(beta,1000);
+                        require(game.items().wands().use(beta,net.minecraft.world.InteractionHand.MAIN_HAND),"Silence fixture has foreign-owned Duplicating marker");
+                        var duplicateNear=game.items().duplicating().markerSnapshot(); var betaNear=beta.position();
+                        beta.teleportTo(level,beta.getX()+60,beta.getY(),beta.getZ(),java.util.Set.of(),0,0,true); mana.set(beta,1000);
+                        require(game.items().wands().use(beta,net.minecraft.world.InteractionHand.MAIN_HAND),"Silence fixture has out-of-radius Duplicating marker");
+                        beta.teleportTo(level,betaNear.x,betaNear.y,betaNear.z,java.util.Set.of(),0,0,true);
+                        var duplicateFar=game.items().duplicating().markerSnapshot().stream().filter(marker->!duplicateNear.contains(marker)).findFirst().orElseThrow();
+                        owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,consumingMode(game,owner,2)); mana.set(owner,2000);
+                        require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && mana.get(owner)==0,"Silence activates its actual source mode for2000");
+                        require(beta.getHealth()==80 && beta.getLastDamageSource()!=null && beta.getLastDamageSource().getEntity()==owner
+                                        && beta.getLastDamageSource().is(net.minecraft.world.damagesource.DamageTypes.OUTSIDE_BORDER),"Silence deals20 owned outside-border damage to an enemy participant");
+                        require(owner.hasEffect(net.minecraft.world.effect.MobEffects.LEVITATION)
+                                        && owner.getEffect(net.minecraft.world.effect.MobEffects.LEVITATION).getAmplifier()==30
+                                        && owner.hasEffect(net.minecraft.world.effect.MobEffects.SLOW_FALLING),"Silence keeps source levitation and slow-falling");
+                        require(service.pendingWorkCount()>0 && level.getBlockState(inside.getFirst()).is(net.minecraft.world.level.block.Blocks.STONE),"Silence sphere is accepted into shared terrain work before writing");
+                        drainConsumingTerrain(game);
+                        require(!allied.isAlive() && drop.isRemoved() && arrow.isRemoved() && farCow.isAlive() && observer.isAlive() && !npc.isRemoved(),"Silence deletes allied ordinary mobs, drops and projectiles within48 while retaining distant mobs, observer roles and technical NPC");
+                        require(cart.isRemoved() && dragon.isRemoved(),"Silence deletes ordinary tagged Airdrop carts and removes dragons without a prolonged dying phase");
+                        var afterSilence=game.items().wands().electroSnapshot();
+                        require(ownNear.stream().noneMatch(afterSilence::contains) && foreignNear.stream().noneMatch(afterSilence::contains)
+                                        && afterSilence.containsAll(outsideTraces),"Silence clears owned and foreign virtual Electro origins inside48 while preserving outside origins");
+                        var duplicateAfter=game.items().duplicating().markerSnapshot();
+                        require(duplicateNear.stream().noneMatch(duplicateAfter::contains) && duplicateAfter.contains(duplicateFar),"Actual Silence removes caster and foreign Duplicating origins inside48 while preserving outside marker");
+                        game.items().duplicating().stop();
+                        require(inside.stream().allMatch(cell->level.getBlockState(cell).isAir())
+                                        && outside.stream().allMatch(cell->level.getBlockState(cell).is(net.minecraft.world.level.block.Blocks.STONE)),"Native sphere erases inside axis/diagonal and unbreakable probes while preserving outside axis/diagonal corners");
+                        board.addPlayerToTeam(beta.getScoreboardName(),team); beta.setInvulnerableTime(0); beta.damageCooldownTime=0;
+                        owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,consumingMode(game,owner,2)); mana.set(owner,2000);
+                        require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && beta.getHealth()==80 && !npc.isRemoved(),"Repeated Silence protects allied player and technical NPC");
+                        service.stop(); drainConsumingTerrain(game); owner.removeAllEffects();
+                        // Avarice operates across loaded dimension distance, including ordinary allied entities.
+                        cells.putIfAbsent(wall,game.maps().snapshot(wall)); level.setBlock(wall,net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(),2);
+                        var distant=base.offset(320,0,96); level.getChunk(distant.getX()>>4,distant.getZ()>>4);
+                        var enemy=frostProbeCow(level,cows,distant.getX()+.5,261,distant.getZ()+.5); fixtures.add(enemy);
+                        enemy.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100); enemy.setHealth(100);
+                        var farAlly=frostProbeCow(level,cows,distant.getX()+2.5,261,distant.getZ()+.5); fixtures.add(farAlly); board.addPlayerToTeam(farAlly.getScoreboardName(),team);
+                        var farDrop=new net.minecraft.world.entity.item.ItemEntity(level,distant.getX()+1.5,261,distant.getZ()+2.5,new ItemStack(Items.EMERALD));
+                        require(level.addFreshEntity(farDrop),"Avarice distant native drop enters level"); fixtures.add(farDrop);
+                        var farArrow=new net.minecraft.world.entity.projectile.arrow.Arrow(level,owner,new ItemStack(Items.ARROW),null);
+                        farArrow.setPos(distant.getX()+2.5,262,distant.getZ()+1.5); require(level.addFreshEntity(farArrow),"Avarice distant native projectile enters level"); fixtures.add(farArrow);
+                        board.removePlayerFromTeam(beta.getScoreboardName());
+                        game.items().wands().cultistElectro(owner,Vec3.atCenterOf(distant).add(0,1,0),0,0);
+                        game.items().wands().cultistElectro(beta,Vec3.atCenterOf(distant).add(2,1,0),0,0);
+                        var distantTraces=game.items().wands().electroSnapshot();
+                        require(distantTraces.size()==18 && distantTraces.stream().anyMatch(trace->trace.owner==owner)
+                                        && distantTraces.stream().anyMatch(trace->trace.owner==beta),"Avarice fixture contains allied caster and foreign-owned native Electro volleys at distant origins");
+                        var betaPosition=beta.position(); owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,consumingMode(game,owner,4)); mana.set(owner,2000);
+                        require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && mana.get(owner)==0,"Avarice activates actual fourth mode for2000");
+                        require(service.pendingWorkCount()>0 && enemy.position().distanceTo(owner.position())>300,"Avarice accepts broad relocation into shared bounded work");
+                        drainConsumingTerrain(game);
+                        require(enemy.position().distanceTo(owner.position())<8 && enemy.position().distanceTo(farDrop.position())<.001
+                                        && enemy.position().distanceTo(farArrow.position())<.001 && enemy.position().distanceTo(farAlly.position())<.001,"Avarice pulls distant native enemy, allied mob, item and projectile to one impact without a local radius: "+enemy.position()+" / "+farDrop.position()+" / "+farArrow.position()+" / "+farAlly.position()+" owner="+owner.position());
+                        var afterAvarice=game.items().wands().electroSnapshot();
+                        require(afterAvarice.containsAll(distantTraces) && distantTraces.stream().allMatch(trace->trace.position.distanceTo(enemy.position())<.001)
+                                        && distantTraces.stream().filter(trace->trace.owner==owner).count()==6
+                                        && distantTraces.stream().filter(trace->trace.owner==beta).count()==12,"Avarice relocates all allied and foreign virtual Electro origins dimension-wide without changing ownership");
+                        require(enemy.getHealth()==80 && enemy.getLastDamageSource()!=null && enemy.getLastDamageSource().getEntity()==owner
+                                        && farAlly.getHealth()==farAlly.getMaxHealth(),"Avarice deals20 owned damage to enemy while ordinary allied mob is pulled safely");
+                        require(!npc.isRemoved() && npc.position().equals(npcPosition) && beta.position().equals(betaPosition)
+                                        && observer.position().equals(observerPosition),"Avarice preserves technical NPC/observer positions and never pulls players");
+                        require(level.getBlockState(wall).is(net.minecraft.world.level.block.Blocks.STONE),"Avarice impact ray preserves its blocking wall");
+                        SkyWars2.LOGGER.info("[check] PASS consuming-academy");
+                } finally {
+                        service.stop(); drainConsumingTerrain(game); game.items().wands().stop(); game.items().duplicating().stop();
+                        for(var entity:fixtures) { board.removePlayerFromTeam(entity.getScoreboardName()); entity.discard(); }
+                        var extraEntities=new java.util.ArrayList<net.minecraft.world.entity.Entity>();
+                        for(var entity:level.getAllEntities()) if(!(entity instanceof ServerPlayer) && !originalEntities.contains(entity)) extraEntities.add(entity);
+                        extraEntities.forEach(net.minecraft.world.entity.Entity::discard);
+                        cells.forEach((cell,snapshot)->game.maps().restoreSnapshot(cell,snapshot));
+                        protectedExisting.forEach(entity->entity.entityTags().remove("strict_map_object"));
+                        board.removePlayerFromTeam(owner.getScoreboardName()); board.removePlayerFromTeam(beta.getScoreboardName()); board.removePlayerTeam(team);
+                        if(ownerTeam!=null) board.addPlayerToTeam(owner.getScoreboardName(),ownerTeam); if(betaTeam!=null) board.addPlayerToTeam(beta.getScoreboardName(),betaTeam);
+                        mana.score(beta,"void_resistance").set(resistance); owner.setShiftKeyDown(shift); game.config().offhandWands=offhand; saved.restore(game); betaSaved.restore(game);
+                }
+        }
+
+        private static void checkConsumingTrial(GameController game) {
+                var owner=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
+                require(owner!=null && game.allowDamage(owner) && game.items().consuming().ready(),"Trial requires prepared source and live participant");
+                var service=game.items().consuming(); var saved=new WandThirdPlayerState(owner,game.items().mana());
+                var ally=game.server().getPlayerList().getPlayer(offlineUuid("TestBeta"));
+                require(ally!=null && game.allowDamage(ally),"Trial ally is an active participant");
+                var board=game.server().getScoreboard(); var ownerTeam=owner.getTeam(); var allyTeam=ally.getTeam();
+                var team=board.addPlayerTeam("codex_consuming_trial"); team.setAllowFriendlyFire(false);
+                boolean shift=owner.isShiftKeyDown(),offhand=game.config().offhandWands;
+                var npc=new net.minecraft.world.entity.Interaction(net.minecraft.world.entity.EntityTypes.INTERACTION,owner.level());
+                npc.setPos(owner.position()); npc.entityTags().add("magic_academy");
+                try {
+                        board.addPlayerToTeam(owner.getScoreboardName(),team); board.addPlayerToTeam(ally.getScoreboardName(),team);
+                        service.stop(); drainConsumingTerrain(game); owner.closeContainer(); owner.getInventory().clearContent(); owner.setShiftKeyDown(true); game.config().offhandWands=true;
+                        for(int x=-2;x<=2;x++) for(int z=-2;z<=2;z++) owner.level().getChunk((owner.blockPosition().getX()>>4)+x,(owner.blockPosition().getZ()>>4)+z);
+                        var trial=consumingSource(game,owner,"consuming_wand"); var data=trial.get(DataComponents.CUSTOM_DATA).copyTag(); data.putInt("upgradable",1);
+                        trial.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(data));
+                        owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,ItemStack.EMPTY); owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,trial); game.items().mana().set(owner,2000);
+                        require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.OFF_HAND) && game.items().mana().get(owner)==0,"Normal trial activates from actual used offhand and spends2000");
+                        var summons=service.summonSnapshot(); require(summons.size()==28,"Source trial creates all28 hostile void men");
+                        require(summons.stream().allMatch(entity->entity instanceof net.minecraft.world.entity.monster.skeleton.Skeleton skeleton
+                                        && skeleton.getMaxHealth()==40 && skeleton.getHealth()==40 && skeleton.hasEffect(net.minecraft.world.effect.MobEffects.INVISIBILITY)
+                                        && skeleton.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)==10
+                                        && service.owner(entity)==owner && game.items().currentEpoch(entity)),"Trial skeletons retain source health/invisibility, owner and epoch");
+                        require(owner.hasEffect(net.minecraft.world.effect.MobEffects.DARKNESS) && owner.hasEffect(net.minecraft.world.effect.MobEffects.BLINDNESS),"Trial applies source blindness and darkness immediately");
+                        require(owner.level().addFreshEntity(npc),"Academy fixture NPC is live"); owner.setShiftKeyDown(false);
+                        require(service.canTrialTarget(summons.getFirst(),owner) && !service.canTrialTarget(summons.getFirst(),ally)
+                                        && !service.canTrialTarget(summons.getFirst(),npc),"Hostile trial preserves its caster target while protecting caster allies and service NPC");
+                        var hostile=(net.minecraft.world.entity.monster.skeleton.Skeleton)summons.getFirst();
+                        hostile.setTarget(owner); require(hostile.getTarget()==owner,"Native trial AI accepts its actual caster as a hostile target");
+                        hostile.setTarget(null); hostile.setTarget(ally);
+                        require(hostile.getTarget()==null,"Native trial AI hook rejects the caster's allied participant");
+                        require(trial.get(DataComponents.CUSTOM_DATA).copyTag().getIntOr("upgrade_available",0)==1,
+                                        "Trial marks the actual offhand stack ready for promotion");
+                        owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,ItemStack.EMPTY);
+                        owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,trial);
+                        require(game.items().academy().interact(owner,net.minecraft.world.InteractionHand.MAIN_HAND,npc)
+                                        && owner.getMainHandItem().is(LbcWands.ACADEMY_CONSUMING),"Ready trial stack promotes through the existing mainhand Academy NPC flow");
+                        service.forget(owner); drainConsumingTerrain(game);
+                        require(summons.stream().allMatch(net.minecraft.world.entity.Entity::isRemoved) && service.count()==0,"Owner lifecycle removes all trial summons and cancels meditation writes");
+                        SkyWars2.LOGGER.info("[check] PASS consuming-trial");
+                } finally {
+                        npc.discard(); service.stop(); drainConsumingTerrain(game);
+                        board.removePlayerFromTeam(owner.getScoreboardName()); board.removePlayerFromTeam(ally.getScoreboardName()); board.removePlayerTeam(team);
+                        if(ownerTeam!=null) board.addPlayerToTeam(owner.getScoreboardName(),ownerTeam); if(allyTeam!=null) board.addPlayerToTeam(ally.getScoreboardName(),allyTeam);
+                        owner.setShiftKeyDown(shift); game.config().offhandWands=offhand; saved.restore(game);
+                }
+        }
+
+        private static String consumingStopEpoch;
+        private static void checkConsumingStopProbe(GameController game) {
+                var owner=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
+                require(owner!=null && game.allowDamage(owner),"Consuming stop probe has active owner");
+                var saved=new WandThirdPlayerState(owner,game.items().mana()); boolean shift=owner.isShiftKeyDown();
+                try {
+                        game.items().consuming().stop(); owner.setShiftKeyDown(false);
+                        owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,consumingSource(game,owner,"consuming_wand")); game.items().mana().set(owner,2000);
+                        require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && game.items().consuming().count()>0,"Stop probe leaves real accepted runtime state");
+                        consumingStopEpoch=game.items().epoch();
+                } finally { owner.setShiftKeyDown(shift); saved.restore(game); }
+                SkyWars2.LOGGER.info("[check] PASS consuming-stop-probe");
+        }
+
+        private static void checkConsumingCleanup(GameController game) {
+                require(consumingStopEpoch!=null && !game.items().currentEpoch(consumingStopEpoch) && game.items().consuming().count()==0
+                                && game.items().consuming().pendingWorkCount()==0,"Actual match stop advances epoch and clears all Consuming state");
+                consumingStopEpoch=null; SkyWars2.LOGGER.info("[check] PASS consuming-cleanup");
+        }
+
+        private static ItemStack legacyConsumingDonor(String flag) {
+                var stack=legacyFireblazeDonor("cons_material",Items.CARROT_ON_A_STICK);
+                var tag=stack.get(DataComponents.CUSTOM_DATA).copyTag(); tag.putInt(flag,1);
+                stack.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(tag)); return stack;
+        }
+
+        private static void requireConsumingCraftResult(ItemStack stack,ServerPlayer player,String label) {
+                requireConsumingPayload(stack,player,0,label);
+                var data=stack.get(DataComponents.CUSTOM_DATA).copyTag();
+                require(data.getIntOr("upgraded",0)==0 && data.getIntOr("upgrade_available",0)==0
+                                && data.getIntOr("mode",0)==0,label+" starts without inherited donor upgrade/mode state");
+        }
+
+        private static void requireConsumingPayload(ItemStack stack,ServerPlayer player,int variant,String label) {
+                boolean academy=variant==1, donor=variant>=2;
+                var item=switch(variant) { case 0 -> LbcWands.CONSUMING; case 1 -> LbcWands.ACADEMY_CONSUMING;
+                        case 2 -> LbcWands.CREEPER_ARMY_SPELL; default -> LbcWands.DESTROYER_SPELL; };
+                String name=donor?(variant==2?"creeper_army_spell":"destroyer_spell"):"consuming_wand";
+                String model=donor?(variant==2?"creepers":"breaker"):"consuming_wand";
+                require(stack.is(item) && stack.getCount()==1,label+" native identity/count");
+                require(net.minecraft.resources.Identifier.parse("lbc:"+model).equals(stack.get(DataComponents.ITEM_MODEL))
+                                && net.minecraft.resources.Identifier.parse("lbc:tier_"+(donor?"a":academy?"x":"s")).equals(stack.get(DataComponents.TOOLTIP_STYLE))
+                                && translation(stack.get(DataComponents.CUSTOM_NAME),name)!=null && !stack.getHoverName().getStyle().isItalic(),label+" source name/model/tier/style");
+                var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
+                for(String flag:donor?new String[]{"craftusable","transformable","spellitem","raycastspell","spell","cons_material",variant==2?"creeperz":"trap2"}
+                                :new String[]{"transformable","staff","raycastspell","consuming_wand"})
+                        require(data.getIntOr(flag,0)==1,label+" original flag "+flag);
+                var lore=stack.getOrDefault(DataComponents.LORE,net.minecraft.world.item.component.ItemLore.EMPTY).lines();
+                require(lore.size()==(donor?(variant==2?5:4):(academy?5:4)),label+" complete source lore count");
+                require(translation(lore.getFirst(),"type")!=null && translation(lore.getFirst().getSiblings().getFirst(),donor?"spell":"staff")!=null,label+" source item type");
+                if(donor) {
+                        for(int row=1;row<lore.size();row++) {
+                                String key=variant==2&&row==4?"destroyer_spell.lore.3":name+".lore."+row;
+                                require(translation(lore.get(row),key)!=null && !lore.get(row).getStyle().isItalic(),label+" ordered lore "+row);
+                        }
+                        require(stack.getMaxStackSize()==64,label+" donor stacks to 64");
+                } else {
+                        require(lore.get(1).getString().startsWith("5 ") && translation(lore.get(1).getSiblings().getFirst(),"magic_damage")!=null
+                                        && translation(lore.get(2).getSiblings().getFirst(),"mana_on_activate")!=null && translation(lore.get(3),"consuming_wand.lore")!=null,label+" original damage/cost/description lore");
+                        if(academy) require(data.getIntOr("upgradable",-1)==0 && data.getIntOr("upgraded",0)==1
+                                        && data.getIntOr("upgrade_available",0)==1 && data.getIntOr("mode",0)==1
+                                        && translation(lore.getLast(),"upgraded_item")!=null,label+" Academy promotion metadata");
+                }
+                requirePolymerStack(player,stack,Items.CARROT_ON_A_STICK,label);
+        }
+
+        private static void checkConsumingMenu(GameController game) {
+                var player=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
+                require(player!=null && game.allowDamage(player),"Consuming presentation participant is active");
+                String[] names={"consuming_wand","academy_consuming_wand","creeper_army_spell","destroyer_spell"};
+                for(int variant=0;variant<names.length;variant++) {
+                        String table="lbc:ported/"+names[variant];
+                        var loot=game.lbc().rollTable(player.level(),player.position(),player,table);
+                        require(loot.size()==1,table+" rolls exactly one source item");
+                        requireConsumingPayload(loot.getFirst(),player,variant,table);
+                }
+                var math=game.server().getScoreboard().getObjective("lbc.math");
+                var cost=math==null?null:game.server().getScoreboard().getPlayerScoreInfo(net.minecraft.world.scores.ScoreHolder.forNameOnly("consuming_wand_mana_use"),math);
+                require(cost!=null && cost.value()==2000,"Consuming source activation cost is 2000");
+                SkyWars2.LOGGER.info("[check] PASS consuming-menu");
+        }
+
+        private static void checkConsumingCrafting(GameController game) {
+                require(game.playing(),"Consuming recipe checks require a live match");
+                var player=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
+                require(player!=null && game.allowDamage(player),"Consuming crafting participant is active");
+                var state=new WandThirdPlayerState(player,game.items().mana());
+                var tablePos=player.blockPosition().offset(1,0,0);
+                var oldTable=game.maps().snapshot(tablePos); boolean openedTable=false;
+                var fixtures=new java.util.ArrayList<Object[]>();
+                ItemStack[] airs={new ItemStack(LbcWands.RUBY_WAND),new ItemStack(LbcWands.ACADEMY_RUBY),legacyFireblazeDonor("struby",Items.CARROT_ON_A_STICK)};
+                ItemStack[] stars={new ItemStack(LbcWands.CREEPER_ARMY_SPELL),new ItemStack(LbcWands.DESTROYER_SPELL),legacyConsumingDonor("creeperz"),legacyConsumingDonor("trap2")};
+                for(int air=0;air<airs.length;air++) for(int star=0;star<stars.length;star++)
+                        fixtures.add(new Object[]{"Ruby variant "+air+" + cons material variant "+star,airs[air],stars[star]});
+                try {
+                        player.closeContainer(); player.getInventory().clearContent();
+                        var menu=player.inventoryMenu; var grid=menu.getCraftSlots();
+                        for(var fixture:fixtures) {
+                                var first=(ItemStack)fixture[1]; var second=(ItemStack)fixture[2];
+                                grid.clearContent(); menu.setCarried(ItemStack.EMPTY);
+                                grid.setItem(0,first.copyWithCount(2)); grid.setItem(3,second.copyWithCount(2));
+                                int activeBefore=game.items().consuming().count();
+                                requireConsumingCraftResult(menu.getResultSlot().getItem(),player,(String)fixture[0]+" 2x2 preview");
+                                require(LbcCraftingRecipe.craftingKind(grid.asCraftInput())==LbcCraftingRecipe.Kind.CONSUMING,
+                                                fixture[0]+" matches the Consuming recipe");
+                                require(grid.getItem(0).getCount()==2 && grid.getItem(3).getCount()==2
+                                                && game.items().consuming().count()==activeBefore,
+                                                fixture[0]+" preview does not consume inputs or create active effects");
+                                grid.setItem(1,new ItemStack(Items.STONE));
+                                require(menu.getResultSlot().getItem().isEmpty(),fixture[0]+" rejects extra 2x2 ingredients");
+                                grid.setItem(1,ItemStack.EMPTY);
+                                inventoryClick(player,0,0,ContainerInput.PICKUP);
+                                requireConsumingCraftResult(menu.getCarried(),player,(String)fixture[0]+" 2x2 take");
+                                require(grid.getItem(0).getCount()==1 && grid.getItem(3).getCount()==1,
+                                                fixture[0]+" take consumes exactly one of each ingredient");
+                        }
+                        game.maps().level().setBlockAndUpdate(tablePos,net.minecraft.world.level.block.Blocks.CRAFTING_TABLE.defaultBlockState());
+                        player.openMenu(new net.minecraft.world.SimpleMenuProvider((id,inventory,owner)->
+                                        new net.minecraft.world.inventory.CraftingMenu(id,inventory,
+                                                        net.minecraft.world.inventory.ContainerLevelAccess.create(game.maps().level(),tablePos)),
+                                        Component.translatable("container.crafting")));
+                        openedTable=true;
+                        var table=(net.minecraft.world.inventory.CraftingMenu)player.containerMenu;
+                        var inputs=table.getInputGridSlots();
+                        for(var fixture:fixtures) {
+                                for(var slot:inputs) slot.setByPlayer(ItemStack.EMPTY);
+                                table.setCarried(ItemStack.EMPTY);
+                        inputs.get(0).setByPlayer(((ItemStack)fixture[2]).copyWithCount(2));
+                        inputs.get(8).setByPlayer(((ItemStack)fixture[1]).copyWithCount(2));
+                        int activeBefore=game.items().consuming().count();
+                        requireConsumingCraftResult(table.getResultSlot().getItem(),player,"3x3 preview");
+                        require(inputs.get(0).getItem().getCount()==2 && inputs.get(8).getItem().getCount()==2
+                                        && game.items().consuming().count()==activeBefore,"3x3 preview has no consumption or active effects");
+                        inputs.get(4).setByPlayer(new ItemStack(Items.STONE));
+                        require(table.getResultSlot().getItem().isEmpty(),"3x3 Consuming recipe rejects extra ingredients");
+                        inputs.get(4).setByPlayer(ItemStack.EMPTY);
+                        inventoryClick(player,0,0,ContainerInput.PICKUP);
+                        requireConsumingCraftResult(table.getCarried(),player,"3x3 take");
+                        require(inputs.get(0).getItem().getCount()==1 && inputs.get(8).getItem().getCount()==1,
+                                        "3x3 take consumes exactly one of each ingredient");
+                        }
+                        SkyWars2.LOGGER.info("[check] PASS consuming-crafting");
+                } finally {
+                        if(openedTable) player.closeContainer();
+                        game.maps().restoreSnapshot(tablePos,oldTable); state.restore(game);
+                }
+        }
+
+        private static final net.minecraft.core.BlockPos DUPLICATING_FIXTURE=new net.minecraft.core.BlockPos(4096,220,4096);
+
+        private static void prepareDuplicating(GameController game,String suite) {
+                require(game.playing(),"Duplicating fixture requires a live match");
+                var pending=new java.util.ArrayList<java.util.concurrent.CompletableFuture<?>>();
+                for(int x=-3;x<=3;x++) for(int z=-3;z<=3;z++) pending.add(game.maps().prepareChunk(new net.minecraft.world.level.ChunkPos(256+x,256+z)));
+                if(suite.equals("duplicating-expand")) {
+                        for(var world:game.server().getAllLevels()) if(world!=game.maps().level())
+                                for(int x=-1;x<=1;x++) for(int z=-1;z<=1;z++) pending.add(game.maps().prepareChunk(world,new net.minecraft.world.level.ChunkPos(256+x,256+z)));
+                }
+                java.util.concurrent.CompletableFuture.allOf(pending.toArray(java.util.concurrent.CompletableFuture[]::new)).whenComplete((ignored,failure)->game.server().execute(()-> {
+                        if(failure!=null) SkyWars2.LOGGER.error("[check] FAIL Duplicating preparation",failure);
+                        else { deferredTicks=4; deferredCheck=()-> {
+                                switch(suite) {
+                                        case "duplicating" -> checkDuplicating(game);
+                                        case "divider" -> checkDivider(game);
+                                        case "duplicating-academy" -> checkDuplicatingAcademy(game);
+                                        case "duplicating-expand" -> checkDuplicatingExpand(game);
+                                        case "duplicating-trial" -> checkDuplicatingTrial(game);
+                                        case "duplicating-stop-probe" -> checkDuplicatingStopProbe(game);
+                                        default -> throw new IllegalArgumentException(suite);
+                                }
+                        }; }
+                }));
+        }
+
+        private static void drainDuplicating(GameController game) {
+                for(int tick=0;tick<3000 && game.items().duplicating().pendingWorkCount()>0;tick++) game.items().stonekivi().tick();
+                require(game.items().duplicating().pendingWorkCount()==0,"Finite Duplicating fixture drains every accepted terrain operation");
+                game.items().stonekivi().tick();
+        }
+
+        private static void duplicatingFixtureAir(GameController game,net.minecraft.core.BlockPos base,int radius,boolean clear) {
+                var level=game.maps().level();
+                for(var pos:net.minecraft.core.BlockPos.betweenClosed(base.offset(-radius,-radius,-radius),base.offset(radius,radius,radius))) {
+                        if(clear) { if(!level.getBlockState(pos).isAir()) level.setBlock(pos,net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),2); }
+                        else require(level.getBlockState(pos).isAir(),"Far void clone fixture starts empty: "+pos);
+                }
+        }
+
+        private static void duplicatingChest(GameController game,net.minecraft.core.BlockPos pos) {
+                var level=game.maps().level(); level.setBlock(pos,net.minecraft.world.level.block.Blocks.CHEST.defaultBlockState(),2);
+                var chest=(net.minecraft.world.level.block.entity.ChestBlockEntity)level.getBlockEntity(pos);
+                chest.setItem(0,new ItemStack(Items.DIAMOND,7)); chest.setChanged();
+        }
+
+        private static boolean duplicatingChestAt(GameController game,net.minecraft.core.BlockPos pos) {
+                return game.maps().level().getBlockEntity(pos) instanceof net.minecraft.world.level.block.entity.ChestBlockEntity chest
+                                && chest.getItem(0).is(Items.DIAMOND) && chest.getItem(0).getCount()==7;
+        }
+
+        private static void checkDuplicating(GameController game) {
+                var owner=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
+                require(owner!=null && game.allowDamage(owner) && game.items().duplicating().ready(),"Duplicating has active owner and prepared source");
+                var service=game.items().duplicating(); var mana=game.items().mana(); var saved=new WandThirdPlayerState(owner,mana);
+                boolean shift=owner.isShiftKeyDown(),offhand=game.config().offhandWands; var base=DUPLICATING_FIXTURE;
+                boolean fixtureReady=false;
+                try {
+                        service.stop(); drainDuplicating(game); duplicatingFixtureAir(game,base,36,false); fixtureReady=true;
+                        owner.closeContainer(); owner.getInventory().clearContent(); owner.removeAllEffects(); mana.noMagic(owner,0);
+                        owner.setGameMode(GameType.SURVIVAL); owner.setNoGravity(true); owner.setShiftKeyDown(false); game.config().offhandWands=false;
+                        owner.teleportTo(game.maps().level(),base.getX()+.5,base.getY(),base.getZ()+.5,java.util.Set.of(),0,0,true);
+                        owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,duplicatingSource(game,owner,"duplicating_wand")); mana.set(owner,999);
+                        require(!game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && service.count()==0 && mana.get(owner)==999,"Duplicating rejects insufficient mana");
+                        mana.set(owner,1000); owner.entityTags().add("time_stopped");
+                        require(!game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && mana.get(owner)==1000,"Time stop prevents Duplicating debit"); owner.entityTags().remove("time_stopped");
+                        require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && mana.get(owner)==0,"Normal Duplicating spends exactly1000");
+                        var marker=service.markerSnapshot().getFirst();
+                        require(marker.owner()==owner && game.items().currentEpoch(marker.epoch()) && marker.lifetime()==200 && marker.mode()==1,"Normal marker retains owner, epoch and source lifetime");
+                        var point=marker.point(); service.tick();
+                        require(service.markerSnapshot().getFirst().point().distanceTo(point)==1 && !service.seedSnapshot().isEmpty(),"Normal marker moves one block and creates a deferred seed");
+                        var seed=service.seedSnapshot().getFirst(); var origin=net.minecraft.core.BlockPos.containing(seed.point());
+                        require(seed.owner()==owner && !seed.expand(),"Random clone seed inherits its owner");
+                        service.tick(); require(service.pendingWorkCount()>0,"Random production seed accepts its actual chaos patch into bounded shared work");
+                        service.forget(owner); drainDuplicating(game); require(service.count()==0,"Owner lifecycle clears markers, seeds and accepted writes");
+                        checkDuplicatingPatches(game,owner);
+                        game.config().offhandWands=true; owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,ItemStack.EMPTY);
+                        owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,duplicatingSource(game,owner,"duplicating_wand")); mana.set(owner,1000);
+                        owner.setXRot(90);
+                        require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.OFF_HAND) && mana.get(owner)==0,"Duplicating casts from actual offhand");
+                        owner.entityTags().add("time_stopped"); service.tick();
+                        require(service.markerSnapshot().getFirst().age()==0,"Time stop pauses marker age and seeds"); owner.entityTags().remove("time_stopped");
+                        for(int tick=0;tick<199;tick++) service.tick();
+                        require(service.markerSnapshot().size()==1 && service.markerSnapshot().getFirst().age()==199,"Normal marker survives through source tick199");
+                        service.tick(); require(service.markerSnapshot().isEmpty() && !service.seedSnapshot().isEmpty(),"Tick200 emits the final seed before normal marker expiry");
+                        service.stop(); drainDuplicating(game);
+                        var beforeObserver=new WandThirdPlayerState(owner,mana); game.spectators().enter(owner); mana.set(owner,1000);
+                        require(!game.items().wands().use(owner,net.minecraft.world.InteractionHand.OFF_HAND) && service.count()==0,"Observer cannot cast Duplicating"); game.spectators().remove(owner); beforeObserver.restore(game);
+                        SkyWars2.LOGGER.info("[check] PASS duplicating");
+                } finally {
+                        owner.entityTags().remove("time_stopped"); service.stop(); drainDuplicating(game); if(fixtureReady) duplicatingFixtureAir(game,base,36,true);
+                        owner.setShiftKeyDown(shift); game.config().offhandWands=offhand; saved.restore(game);
+                }
+        }
+
+        private static void checkDuplicatingPatches(GameController game,ServerPlayer owner) {
+                var service=game.items().duplicating(); var level=game.maps().level();
+                var source=DUPLICATING_FIXTURE.offset(-12,0,-12); var target=source.offset(8,0,0);
+                for(var action:LbcDuplicating.Action.values()) {
+                        duplicatingFixtureAir(game,DUPLICATING_FIXTURE,36,true);
+                        duplicatingChest(game,source); level.setBlock(source.offset(1,0,2),net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(),2);
+                        var destination=action==LbcDuplicating.Action.MOVE?source.offset(1,0,0):target;
+                        service.applyPatch(owner,Vec3.atLowerCornerOf(source),Vec3.atLowerCornerOf(destination),2,1,3,LbcDuplicating.Shape.CUBOID,action,
+                                        net.minecraft.world.level.block.Rotation.CLOCKWISE_90,net.minecraft.world.level.block.Mirror.LEFT_RIGHT);
+                        require(service.pendingWorkCount()>0,"Production chaos action is accepted as bounded work: "+action); drainDuplicating(game);
+                        switch(action) {
+                                case COPY -> require(duplicatingChestAt(game,source) && duplicatingChestAt(game,target)
+                                                && level.getBlockState(target.offset(1,0,2)).is(net.minecraft.world.level.block.Blocks.STONE),"COPY preserves source and copies real state plus chest contents");
+                                case MOVE -> require(level.getBlockState(source).isAir() && duplicatingChestAt(game,destination)
+                                                && level.getBlockState(destination.offset(1,0,2)).is(net.minecraft.world.level.block.Blocks.STONE),"Overlapping MOVE snapshots first, clears source and retains translated chest contents");
+                                case DELETE -> require(level.getBlockState(source).isAir() && level.getBlockState(source.offset(1,0,2)).isAir()
+                                                && level.getBlockState(target).isAir(),"DELETE removes actual selected cells without writing target");
+                                case ROTATE -> require(level.getBlockState(source).isAir() && duplicatingChestAt(game,target.offset(2,0,0))
+                                                && level.getBlockState(target.offset(2,0,0)).getValue(net.minecraft.world.level.block.ChestBlock.FACING)==net.minecraft.core.Direction.EAST
+                                                && level.getBlockState(target.offset(0,0,1)).is(net.minecraft.world.level.block.Blocks.STONE),"ROTATE moves asymmetric block geometry, native facing and BlockEntity contents together");
+                                case MIRROR -> require(level.getBlockState(source).isAir() && duplicatingChestAt(game,target.offset(0,0,2))
+                                                && level.getBlockState(target.offset(0,0,2)).getValue(net.minecraft.world.level.block.ChestBlock.FACING)==net.minecraft.core.Direction.SOUTH
+                                                && level.getBlockState(target.offset(1,0,0)).is(net.minecraft.world.level.block.Blocks.STONE),"MIRROR reflects asymmetric geometry and native facing while retaining chest contents");
+                        }
+                }
+                duplicatingFixtureAir(game,DUPLICATING_FIXTURE,36,true);
+                var center=source.offset(1,1,1); level.setBlock(source,net.minecraft.world.level.block.Blocks.BEDROCK.defaultBlockState(),2);
+                level.setBlock(center,net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(),2);
+                service.applyPatch(owner,Vec3.atLowerCornerOf(source),Vec3.atLowerCornerOf(target),3,3,3,LbcDuplicating.Shape.SPHERE,LbcDuplicating.Action.DELETE,
+                                net.minecraft.world.level.block.Rotation.NONE,net.minecraft.world.level.block.Mirror.NONE); drainDuplicating(game);
+                require(level.getBlockState(center).isAir() && level.getBlockState(source).is(net.minecraft.world.level.block.Blocks.BEDROCK),"Ellipsoid selection deletes center while preserving cells outside its curved form");
+                duplicatingChest(game,source);
+                service.applyPatch(owner,Vec3.atLowerCornerOf(source),new Vec3(700000,220,700000),2,1,3,LbcDuplicating.Shape.CUBOID,LbcDuplicating.Action.MOVE,
+                                net.minecraft.world.level.block.Rotation.NONE,net.minecraft.world.level.block.Mirror.NONE); game.items().stonekivi().tick();
+                require(duplicatingChestAt(game,source) && service.pendingWorkCount()>0,"Missing destination chunk defers MOVE without deleting its source");
+                service.forget(owner); drainDuplicating(game);
+                require(duplicatingChestAt(game,source) && service.pendingWorkCount()==0,"Owner cancellation discards an unloaded-destination patch without source loss");
+                service.applyPatch(owner,Vec3.atLowerCornerOf(source),Vec3.atLowerCornerOf(target),2,1,3,LbcDuplicating.Shape.CUBOID,LbcDuplicating.Action.MOVE,
+                                net.minecraft.world.level.block.Rotation.NONE,net.minecraft.world.level.block.Mirror.NONE); service.forget(owner); drainDuplicating(game);
+                require(duplicatingChestAt(game,source) && level.getBlockState(target).isAir(),"Owner lifecycle cancels accepted chaos patch before its writes");
+                duplicatingFixtureAir(game,DUPLICATING_FIXTURE,36,true);
+        }
+
+        private static void checkDivider(GameController game) {
+                var owner=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
+                require(owner!=null && game.allowDamage(owner),"Divider uses a live participant");
+                var mana=game.items().mana(); var service=game.items().duplicating(); var saved=new WandThirdPlayerState(owner,mana);
+                boolean shift=owner.isShiftKeyDown(),offhand=game.config().offhandWands; var base=DUPLICATING_FIXTURE;
+                int oldCd=mana.score(owner,"divider_cd").get();
+                boolean fixtureReady=false;
+                try {
+                        service.stop(); drainDuplicating(game); duplicatingFixtureAir(game,base,38,false); fixtureReady=true;
+                        owner.closeContainer(); owner.getInventory().clearContent(); owner.setShiftKeyDown(false); owner.setNoGravity(true); game.config().offhandWands=false;
+                        owner.teleportTo(game.maps().level(),base.getX()+.5,base.getY(),base.getZ()+.5,java.util.Set.of(),0,0,true);
+                        duplicatingChest(game,base); owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,duplicatingSource(game,owner,"divider"));
+                        mana.set(owner,0); mana.score(owner,"divider_cd").set(0);
+                        require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && mana.get(owner)==0 && mana.score(owner,"divider_cd").get()==30,"Divider casts at zero mana and starts source30 cooldown");
+                        require(!game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND),"Divider rejects repeated use during cooldown");
+                        drainDuplicating(game);
+                        int copies=0; for(int x=-1;x<=1;x++) for(int y=-1;y<=1;y++) for(int z=-1;z<=1;z++) if(duplicatingChestAt(game,base.offset(x*25,y*25,z*25))) copies++;
+                        require(copies==27,"Divider makes all26 actual25cube copies including BlockEntity contents while retaining source");
+                        SkyWars2.LOGGER.info("[check] PASS divider");
+                } finally {
+                        service.stop(); drainDuplicating(game); if(fixtureReady) duplicatingFixtureAir(game,base,38,true); mana.score(owner,"divider_cd").set(oldCd);
+                        owner.setShiftKeyDown(shift); game.config().offhandWands=offhand; saved.restore(game);
+                }
+        }
+
+        private static ItemStack duplicatingMode(GameController game,ServerPlayer owner,int mode) {
+                var stack=duplicatingSource(game,owner,"academy_duplicating_wand"); var data=stack.get(DataComponents.CUSTOM_DATA).copyTag();
+                data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(data)); return stack;
+        }
+
+        private static void checkDuplicatingAcademy(GameController game) {
+                var owner=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
+                require(owner!=null && game.allowDamage(owner),"Academy Duplicating uses a live participant");
+                var service=game.items().duplicating(); var mana=game.items().mana(); var saved=new WandThirdPlayerState(owner,mana);
+                var base=DUPLICATING_FIXTURE; boolean shift=owner.isShiftKeyDown(),offhand=game.config().offhandWands;
+                var cows=new java.util.ArrayList<net.minecraft.world.entity.animal.cow.Cow>();
+                var board=game.server().getScoreboard(); var previous=owner.getTeam(); var team=board.addPlayerTeam("codex_duplicate"); team.setAllowFriendlyFire(false);
+                boolean fixtureReady=false;
+                try {
+                        service.stop(); drainDuplicating(game); duplicatingFixtureAir(game,base,36,false); fixtureReady=true; owner.closeContainer(); owner.getInventory().clearContent(); owner.setNoGravity(true);
+                        owner.teleportTo(game.maps().level(),base.getX()+.5,base.getY(),base.getZ()+.5,java.util.Set.of(),0,0,true); game.config().offhandWands=true; owner.setShiftKeyDown(true);
+                        var academy=duplicatingMode(game,owner,1); owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,academy); mana.set(owner,999);
+                        require(!game.items().wands().use(owner,net.minecraft.world.InteractionHand.OFF_HAND),"Academy free cycling retains source1000 admission gate");
+                        for(int expected:new int[]{2,3,4,1}) {
+                                mana.set(owner,1000); require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.OFF_HAND) && mana.get(owner)==1000
+                                                && academy.get(DataComponents.CUSTOM_DATA).copyTag().getIntOr("mode",0)==expected && service.count()==0,"Four Academy modes cycle freely on actual used offhand: "+expected);
+                        }
+                        owner.setShiftKeyDown(false); owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,ItemStack.EMPTY); game.config().offhandWands=false;
+                        var impact=base.offset(0,1,8); duplicatingChest(game,impact); owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,duplicatingMode(game,owner,3)); mana.set(owner,1000);
+                        require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && mana.get(owner)==0 && service.pendingWorkCount()>0,"Divide accepts native queued ray for1000");
+                        drainDuplicating(game); int copies=0;
+                        for(int x=-1;x<=1;x++) for(int y=-1;y<=1;y++) for(int z=-1;z<=1;z++) if(duplicatingChestAt(game,impact.offset(x*9,y*9,z*9))) copies++;
+                        require(copies==27,"Actual Divide impact creates all26 nine-cube copies with container contents");
+                        duplicatingFixtureAir(game,base,36,true);
+                        board.addPlayerToTeam(owner.getScoreboardName(),team);
+                        var enemy=frostProbeCow(game.maps().level(),cows,base.getX()+2.5,base.getY(),base.getZ()+8.5);
+                        var ally=frostProbeCow(game.maps().level(),cows,base.getX()+3.5,base.getY(),base.getZ()+8.5); board.addPlayerToTeam(ally.getScoreboardName(),team);
+                        var npc=frostProbeCow(game.maps().level(),cows,base.getX()-2.5,base.getY(),base.getZ()+8.5); npc.entityTags().add("magic_academy");
+                        var enemyPos=enemy.position(); var allyPos=ally.position(); var npcPos=npc.position(); var ownerPos=owner.position();
+                        owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,duplicatingMode(game,owner,4)); mana.set(owner,1000);
+                        require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && mana.get(owner)==0,"BlackHole costs exactly1000");
+                        var marker=service.markerSnapshot().getFirst(); require(marker.mode()==4 && marker.lifetime()==300 && marker.owner()==owner,"BlackHole carries source lifetime and owner");
+                        service.tick(); drainDuplicating(game);
+                        require(enemy.position().distanceTo(enemyPos)>.34 && enemy.getHealth()<enemy.getMaxHealth()
+                                        && enemy.getLastDamageSource()!=null && enemy.getLastDamageSource().getEntity()==owner
+                                        && enemy.getLastDamageSource().is(LbcDamage.DUPLICATING_HOLE)
+                                        && enemy.getLastDamageSource().is(net.minecraft.tags.DamageTypeTags.BYPASSES_COOLDOWN)
+                                        && enemy.getLastDamageSource().is(net.minecraft.tags.DamageTypeTags.NO_KNOCKBACK),"BlackHole pulls and deals actual owned outside-border damage with source cooldown bypass");
+                        require(ally.position().distanceTo(allyPos)>.34 && ally.getHealth()==ally.getMaxHealth(),"BlackHole pulls ordinary allied mobs without friendly damage");
+                        require(npc.position().equals(npcPos) && owner.position().equals(ownerPos),"BlackHole protects technical NPC and its owner");
+                        require(Math.abs(service.markerSnapshot().getFirst().point().distanceTo(marker.point())-.3)<.00001,"BlackHole advances by source0.3");
+                        int obsidian=0; for(var pos:net.minecraft.core.BlockPos.betweenClosed(base.offset(-8,-8,0),base.offset(8,8,16))) if(game.maps().level().getBlockState(pos).is(net.minecraft.world.level.block.Blocks.OBSIDIAN)) obsidian++;
+                        require(obsidian>0,"BlackHole places actual obsidian template terrain");
+                        // Reuse Avarice's production origin transform to retain the whole lifetime in this finite fixture.
+                        for(int age=1;age<300;age++) {
+                                service.transformOrigins(game.maps().level(),ignored->marker.point());
+                                service.tick();
+                        }
+                        require(service.markerSnapshot().isEmpty() && service.pendingWorkCount()>0,"BlackHole expires on tick300 with its ordered accepted terrain operations still pending");
+                        var finalCenter=net.minecraft.core.BlockPos.containing(marker.point());
+                        game.maps().level().setBlock(finalCenter,net.minecraft.world.level.block.Blocks.BEDROCK.defaultBlockState(),2);
+                        drainDuplicating(game);
+                        for(var pos:net.minecraft.core.BlockPos.betweenClosed(finalCenter.offset(-4,-4,-4),finalCenter.offset(4,4,4)))
+                                require(game.maps().level().getBlockState(pos).isAir(),"BlackHole final nine-cube remains entirely air after every earlier pulse drains: "+pos);
+                        require(service.pendingWorkCount()==0,"No earlier BlackHole operation remains to refill the final clear");
+                        service.forget(owner); drainDuplicating(game); require(service.count()==0,"Academy owner lifecycle clears marker and pending work");
+                        SkyWars2.LOGGER.info("[check] PASS duplicating-academy");
+                } finally {
+                        service.stop(); drainDuplicating(game); for(var cow:cows) { board.removePlayerFromTeam(cow.getScoreboardName()); cow.discard(); }
+                        if(fixtureReady) duplicatingFixtureAir(game,base,36,true); board.removePlayerFromTeam(owner.getScoreboardName()); board.removePlayerTeam(team); if(previous!=null) board.addPlayerToTeam(owner.getScoreboardName(),previous);
+                        owner.setShiftKeyDown(shift); game.config().offhandWands=offhand; saved.restore(game);
+                }
+        }
+
+        private static void duplicatingExpandRegion(GameController game,net.minecraft.server.level.ServerLevel level,
+                        java.util.Map<net.minecraft.server.level.ServerLevel,java.util.Map<net.minecraft.core.BlockPos,MapManager.BlockSnapshot>> saved,
+                        net.minecraft.core.BlockPos min,net.minecraft.core.BlockPos max) {
+                var cells=saved.computeIfAbsent(level,ignored->new java.util.LinkedHashMap<>());
+                for(var pos:net.minecraft.core.BlockPos.betweenClosed(min,max)) {
+                        var cell=pos.immutable(); cells.putIfAbsent(cell,game.maps().snapshot(level,cell));
+                        level.setBlock(cell,net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),2);
+                }
+        }
+
+        private static void checkDuplicatingExpand(GameController game) {
+                var owner=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
+                require(owner!=null && game.allowDamage(owner),"Expand uses a live participant");
+                var level=game.maps().level(); var nether=game.server().getLevel(net.minecraft.world.level.Level.NETHER); var end=game.server().getLevel(net.minecraft.world.level.Level.END);
+                require(nether!=null && end!=null && level!=game.server().overworld(),"Expand source worlds exist and destination fixture is a distinct arena dimension");
+                var base=DUPLICATING_FIXTURE.atY(200); var service=game.items().duplicating(); var mana=game.items().mana(); var state=new WandThirdPlayerState(owner,mana);
+                var saved=new java.util.LinkedHashMap<net.minecraft.server.level.ServerLevel,java.util.Map<net.minecraft.core.BlockPos,MapManager.BlockSnapshot>>();
+                boolean shift=owner.isShiftKeyDown(),offhand=game.config().offhandWands;
+                try {
+                        service.stop(); drainDuplicating(game);
+                        duplicatingExpandRegion(game,nether,saved,base.offset(5,-8,5),base.offset(8,-5,8));
+                        duplicatingExpandRegion(game,nether,saved,base.offset(-8,5,-8),base.offset(-5,8,-5));
+                        duplicatingExpandRegion(game,end,saved,base,base.offset(0,0,15));
+                        duplicatingExpandRegion(game,end,saved,base,base.offset(0,15,0));
+                        for(var destination:java.util.List.of(level,game.server().overworld())) {
+                                duplicatingExpandRegion(game,destination,saved,base.offset(-5,5,-5),base.offset(-2,8,-2));
+                                duplicatingExpandRegion(game,destination,saved,base.offset(5,-5,5),base.offset(8,-2,8));
+                                duplicatingExpandRegion(game,destination,saved,base.offset(0,0,-16),base.offset(0,0,-1));
+                                duplicatingExpandRegion(game,destination,saved,base.offset(0,-16,0),base.offset(0,-1,0));
+                                duplicatingExpandRegion(game,destination,saved,base.offset(5,-5,-5),base.offset(8,-2,-2));
+                                duplicatingExpandRegion(game,destination,saved,base.offset(5,5,-5),base.offset(8,8,-2));
+                        }
+                        nether.setBlock(base.offset(5,-8,5),net.minecraft.world.level.block.Blocks.DIAMOND_BLOCK.defaultBlockState(),2);
+                        nether.setBlock(base.offset(-8,5,-8),net.minecraft.world.level.block.Blocks.EMERALD_BLOCK.defaultBlockState(),2);
+                        end.setBlock(base,net.minecraft.world.level.block.Blocks.GOLD_BLOCK.defaultBlockState(),2);
+                        var untouched=base.offset(-5,5,-5); game.server().overworld().setBlock(untouched,net.minecraft.world.level.block.Blocks.BEDROCK.defaultBlockState(),2);
+                        service.applyExpandSources(owner,Vec3.atCenterOf(base),0,0); drainDuplicating(game);
+                        require(level.getBlockState(base.offset(-5,5,-5)).is(net.minecraft.world.level.block.Blocks.DIAMOND_BLOCK)
+                                        && level.getBlockState(base.offset(5,-5,5)).is(net.minecraft.world.level.block.Blocks.EMERALD_BLOCK),"Expand imports both Nether fragments at exact coordinates without dimension scaling");
+                        require(level.getBlockState(base.offset(0,0,-16)).is(net.minecraft.world.level.block.Blocks.GOLD_BLOCK)
+                                        && level.getBlockState(base.offset(0,-16,0)).is(net.minecraft.world.level.block.Blocks.GOLD_BLOCK),"Expand imports both End lines into the actual current spell dimension");
+                        require(game.server().overworld().getBlockState(untouched).is(net.minecraft.world.level.block.Blocks.BEDROCK),"Expand does not redirect current-arena destinations into Overworld");
+                        owner.closeContainer(); owner.getInventory().clearContent(); owner.setShiftKeyDown(false); game.config().offhandWands=false;
+                        owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,duplicatingMode(game,owner,2)); mana.set(owner,1000);
+                        require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && mana.get(owner)==0,"Actual Academy Expand cast costs1000");
+                        var marker=service.markerSnapshot().getFirst(); service.tick();
+                        require(marker.mode()==2 && marker.lifetime()==100 && marker.owner()==owner
+                                        && Math.abs(service.markerSnapshot().getFirst().point().distanceTo(marker.point())-2)<.00001
+                                        && service.seedSnapshot().getFirst().expand(),"Expand launches owned100-tick marker, moves2 and emits its production expansion seed");
+                        SkyWars2.LOGGER.info("[check] PASS duplicating-expand");
+                } finally {
+                        service.stop(); drainDuplicating(game); saved.forEach((world,cells)->cells.forEach((pos,snapshot)->game.maps().restoreSnapshot(world,pos,snapshot)));
+                        owner.setShiftKeyDown(shift); game.config().offhandWands=offhand; state.restore(game);
+                }
+        }
+
+        private static void checkDuplicatingTrial(GameController game) {
+                var owner=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
+                require(owner!=null && game.allowDamage(owner),"Duplicating trial uses a live participant");
+                var mana=game.items().mana(); var service=game.items().duplicating(); var saved=new WandThirdPlayerState(owner,mana);
+                boolean shift=owner.isShiftKeyDown(),offhand=game.config().offhandWands;
+                var npc=new net.minecraft.world.entity.Interaction(net.minecraft.world.entity.EntityTypes.INTERACTION,owner.level()); npc.setPos(owner.position()); npc.entityTags().add("magic_academy");
+                try {
+                        service.stop(); drainDuplicating(game); owner.closeContainer(); owner.getInventory().clearContent(); owner.setShiftKeyDown(true); game.config().offhandWands=true;
+                        var trial=duplicatingSource(game,owner,"duplicating_wand"); var data=trial.get(DataComponents.CUSTOM_DATA).copyTag(); data.putInt("upgradable",1); trial.set(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(data));
+                        owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,trial); mana.set(owner,1000);
+                        require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.OFF_HAND) && mana.get(owner)==0,"Duplicating trial uses actual offhand for1000");
+                        var markers=service.markerSnapshot(); require(markers.size()==91 && markers.stream().filter(marker->marker.lifetime()==30).count()==90
+                                        && markers.stream().allMatch(marker->marker.owner()==owner && game.items().currentEpoch(marker.epoch())),"Trial creates one main and90 short owned epoch markers");
+                        require(trial.get(DataComponents.CUSTOM_DATA).copyTag().getIntOr("upgrade_available",0)==1,"Trial immediately marks the used stack ready");
+                        owner.level().addFreshEntity(npc); owner.setShiftKeyDown(false); owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,ItemStack.EMPTY); owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,trial);
+                        require(game.items().academy().interact(owner,net.minecraft.world.InteractionHand.MAIN_HAND,npc) && owner.getMainHandItem().is(LbcWands.ACADEMY_DUPLICATING),"Trial promotes through native mainhand Academy NPC flow");
+                        service.forget(owner); drainDuplicating(game); require(service.count()==0,"Trial owner lifecycle cancels all91 markers");
+                        SkyWars2.LOGGER.info("[check] PASS duplicating-trial");
+                } finally { npc.discard(); service.stop(); drainDuplicating(game); owner.setShiftKeyDown(shift); game.config().offhandWands=offhand; saved.restore(game); }
+        }
+
+        private static String duplicatingStopEpoch;
+        private static void checkDuplicatingStopProbe(GameController game) {
+                var owner=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
+                require(owner!=null && game.allowDamage(owner),"Duplicating stop probe uses live participant");
+                var saved=new WandThirdPlayerState(owner,game.items().mana()); boolean shift=owner.isShiftKeyDown(),offhand=game.config().offhandWands;
+                try {
+                        game.items().duplicating().stop(); owner.setShiftKeyDown(false); game.config().offhandWands=false;
+                        owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,duplicatingSource(game,owner,"duplicating_wand")); game.items().mana().set(owner,1000);
+                        require(game.items().wands().use(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && game.items().duplicating().count()>0,"Stop probe leaves actual accepted native state");
+                        duplicatingStopEpoch=game.items().epoch();
+                } finally { owner.setShiftKeyDown(shift); game.config().offhandWands=offhand; saved.restore(game); }
+                SkyWars2.LOGGER.info("[check] PASS duplicating-stop-probe");
+        }
+
+        private static void checkDuplicatingCleanup(GameController game) {
+                require(duplicatingStopEpoch!=null && !game.items().currentEpoch(duplicatingStopEpoch) && game.items().duplicating().count()==0
+                                && game.items().duplicating().pendingWorkCount()==0,"Match stop advances epoch and clears every Duplicating state");
+                duplicatingStopEpoch=null; SkyWars2.LOGGER.info("[check] PASS duplicating-cleanup");
+        }
+
+        private static ItemStack duplicatingSource(GameController game,ServerPlayer owner,String name) {
+                var loot=game.lbc().rollTable(owner.level(),owner.position(),owner,"lbc:ported/"+name);
+                require(loot.size()==1,"Duplicating source table exists: "+name); return loot.getFirst();
+        }
+
+        private static void requireDuplicatingPayload(ItemStack stack,ServerPlayer player,int variant,String label) {
+                boolean academy=variant==1,divider=variant==2;
+                var item=divider?LbcWands.DIVIDER:academy?LbcWands.ACADEMY_DUPLICATING:LbcWands.DUPLICATING;
+                String name=divider?"divider":"dublicating_wand";
+                require(stack.is(item) && stack.getCount()==1,label+" native identity/count");
+                require(net.minecraft.resources.Identifier.parse("lbc:"+name).equals(stack.get(DataComponents.ITEM_MODEL))
+                                && net.minecraft.resources.Identifier.parse("lbc:tier_"+(divider?"s":academy?"ss":"a")).equals(stack.get(DataComponents.TOOLTIP_STYLE))
+                                && translation(stack.get(DataComponents.CUSTOM_NAME),name)!=null && !stack.getHoverName().getStyle().isItalic(),label+" original spelling, model, tier and styled name");
+                var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
+                for(String flag:divider?new String[]{"craftusable","magicwand","greed_greed","spellwithcooldown"}
+                                :new String[]{"transformable","staff","magicwand","dublicating_wand"})
+                        require(data.getIntOr(flag,0)==1,label+" source flag "+flag);
+                var lore=stack.getOrDefault(DataComponents.LORE,net.minecraft.world.item.component.ItemLore.EMPTY).lines();
+                require(lore.size()==(academy?4:3),label+" complete source lore");
+                if(divider) {
+                        for(int row=0;row<3;row++) require(translation(lore.get(row),new String[]{"divider.lore","divider.lore.1","craft_with_metal_pipe"}[row])!=null,label+" ordered Divider lore "+row);
+                } else {
+                        require(translation(lore.getFirst(),"type")!=null && translation(lore.getFirst().getSiblings().getFirst(),"staff")!=null
+                                        && translation(lore.get(1).getSiblings().getFirst(),"mana_on_activate")!=null
+                                        && translation(lore.get(2),"dublicating_wand.lore")!=null,label+" original staff and mana lore");
+                        if(academy) require(data.getIntOr("upgraded",0)==1 && data.getIntOr("mode",0)==1
+                                        && data.getIntOr("upgrade_available",0)==1 && translation(lore.getLast(),"upgraded_item")!=null,label+" Academy metadata");
+                }
+                requirePolymerStack(player,stack,Items.CARROT_ON_A_STICK,label);
+        }
+
+        private static void requireDuplicatingCraftResult(ItemStack stack,ServerPlayer player,String label) {
+                requireDuplicatingPayload(stack,player,0,label);
+                var data=stack.get(DataComponents.CUSTOM_DATA).copyTag();
+                require(data.getIntOr("upgraded",0)==0 && data.getIntOr("upgrade_available",0)==0 && data.getIntOr("mode",0)==0,label+" has fresh upgrade state");
+        }
+
+        private static void checkDuplicatingMenu(GameController game) {
+                var player=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
+                require(player!=null && game.allowDamage(player),"Duplicating presentation uses active participant");
+                String[] names={"duplicating_wand","academy_duplicating_wand","divider"};
+                for(int variant=0;variant<names.length;variant++) requireDuplicatingPayload(duplicatingSource(game,player,names[variant]),player,variant,names[variant]);
+                var math=game.server().getScoreboard().getObjective("lbc.math");
+                var cost=math==null?null:game.server().getScoreboard().getPlayerScoreInfo(net.minecraft.world.scores.ScoreHolder.forNameOnly("dublicating_wand_mana_use"),math);
+                require(cost!=null && cost.value()==1000,"Duplicating source activation cost is 1000");
+                SkyWars2.LOGGER.info("[check] PASS duplicating-menu");
+        }
+
+        private static void checkDuplicatingCrafting(GameController game) {
+                require(game.playing(),"Duplicating recipe checks require a live match");
+                var player=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
+                require(player!=null && game.allowDamage(player),"Duplicating crafting participant is active");
+                var state=new WandThirdPlayerState(player,game.items().mana());
+                var tablePos=player.blockPosition().offset(1,0,0);
+                var oldTable=game.maps().snapshot(tablePos); boolean openedTable=false;
+                var fixtures=new java.util.ArrayList<Object[]>();
+                ItemStack[] airs={new ItemStack(LbcWands.RUBY_WAND),new ItemStack(LbcWands.ACADEMY_RUBY),legacyFireblazeDonor("struby",Items.CARROT_ON_A_STICK)};
+                ItemStack[] stars={new ItemStack(LbcWands.DIVIDER),legacyFireblazeDonor("greed_greed",Items.CARROT_ON_A_STICK)};
+                for(int air=0;air<airs.length;air++) for(int star=0;star<stars.length;star++)
+                        fixtures.add(new Object[]{"Ruby variant "+air+" + Divider variant "+star,airs[air],stars[star]});
+                try {
+                        player.closeContainer(); player.getInventory().clearContent();
+                        var menu=player.inventoryMenu; var grid=menu.getCraftSlots();
+                        for(var fixture:fixtures) {
+                                var first=(ItemStack)fixture[1]; var second=(ItemStack)fixture[2];
+                                grid.clearContent(); menu.setCarried(ItemStack.EMPTY);
+                                grid.setItem(0,first.copyWithCount(2)); grid.setItem(3,second.copyWithCount(2));
+                                int activeBefore=game.items().duplicating().count();
+                                requireDuplicatingCraftResult(menu.getResultSlot().getItem(),player,(String)fixture[0]+" 2x2 preview");
+                                require(LbcCraftingRecipe.craftingKind(grid.asCraftInput())==LbcCraftingRecipe.Kind.DUPLICATING,
+                                                fixture[0]+" matches the Duplicating recipe");
+                                require(grid.getItem(0).getCount()==2 && grid.getItem(3).getCount()==2
+                                                && game.items().duplicating().count()==activeBefore,
+                                                fixture[0]+" preview does not consume inputs or create active effects");
+                                grid.setItem(1,new ItemStack(Items.STONE));
+                                require(menu.getResultSlot().getItem().isEmpty(),fixture[0]+" rejects extra 2x2 ingredients");
+                                grid.setItem(1,ItemStack.EMPTY);
+                                inventoryClick(player,0,0,ContainerInput.PICKUP);
+                                requireDuplicatingCraftResult(menu.getCarried(),player,(String)fixture[0]+" 2x2 take");
+                                require(grid.getItem(0).getCount()==1 && grid.getItem(3).getCount()==1,
+                                                fixture[0]+" take consumes exactly one of each ingredient");
+                        }
+                        game.maps().level().setBlockAndUpdate(tablePos,net.minecraft.world.level.block.Blocks.CRAFTING_TABLE.defaultBlockState());
+                        player.openMenu(new net.minecraft.world.SimpleMenuProvider((id,inventory,owner)->
+                                        new net.minecraft.world.inventory.CraftingMenu(id,inventory,
+                                                        net.minecraft.world.inventory.ContainerLevelAccess.create(game.maps().level(),tablePos)),
+                                        Component.translatable("container.crafting")));
+                        openedTable=true;
+                        var table=(net.minecraft.world.inventory.CraftingMenu)player.containerMenu;
+                        var inputs=table.getInputGridSlots();
+                        for(var fixture:fixtures) {
+                                for(var slot:inputs) slot.setByPlayer(ItemStack.EMPTY);
+                                table.setCarried(ItemStack.EMPTY);
+                        inputs.get(0).setByPlayer(((ItemStack)fixture[2]).copyWithCount(2));
+                        inputs.get(8).setByPlayer(((ItemStack)fixture[1]).copyWithCount(2));
+                        int activeBefore=game.items().duplicating().count();
+                        requireDuplicatingCraftResult(table.getResultSlot().getItem(),player,"3x3 preview");
+                        require(inputs.get(0).getItem().getCount()==2 && inputs.get(8).getItem().getCount()==2
+                                        && game.items().duplicating().count()==activeBefore,"3x3 preview has no consumption or active effects");
+                        inputs.get(4).setByPlayer(new ItemStack(Items.STONE));
+                        require(table.getResultSlot().getItem().isEmpty(),"3x3 Duplicating recipe rejects extra ingredients");
+                        inputs.get(4).setByPlayer(ItemStack.EMPTY);
+                        inventoryClick(player,0,0,ContainerInput.PICKUP);
+                        requireDuplicatingCraftResult(table.getCarried(),player,"3x3 take");
+                        require(inputs.get(0).getItem().getCount()==1 && inputs.get(8).getItem().getCount()==1,
+                                        "3x3 take consumes exactly one of each ingredient");
+                        }
+                        SkyWars2.LOGGER.info("[check] PASS duplicating-crafting");
+                } finally {
+                        if(openedTable) player.closeContainer();
+                        game.maps().restoreSnapshot(tablePos,oldTable); state.restore(game);
+                }
         }
 
         private static void checkInfboltCrafting(GameController game) {
@@ -9981,6 +11314,335 @@ public final class GameChecks {
                         if (oldAllyTeam != null) board.addPlayerToTeam(ally.getScoreboardName(), oldAllyTeam);
                         if (madeTeam) board.removePlayerTeam(team);
                 }
+        }
+
+        private static ServerPlayer academyChallengePlayer(GameController game) {
+                return java.util.Objects.requireNonNull(game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha")),
+                                "Create native challenge test players first");
+        }
+
+        private static boolean academyChallengeComplete(GameController game, ServerPlayer player) {
+                return player.getAdvancements().getOrStartProgress(advancement(game, "lbc:challenges/no_knowledge")).isDone();
+        }
+
+        private static void requireAcademyKnowledgeProjection(GameController game, ServerPlayer owner, boolean hidden) {
+                var other = java.util.Objects.requireNonNull(game.server().getPlayerList().getPlayer(offlineUuid("TestBeta")));
+                var board = new net.minecraft.world.scores.Scoreboard();
+                var objective = board.addObjective("knowledge_probe", net.minecraft.world.scores.criteria.ObjectiveCriteria.DUMMY,
+                                Component.literal("Attribute HUD"), net.minecraft.world.scores.criteria.ObjectiveCriteria.RenderType.INTEGER,
+                                false, net.minecraft.network.chat.numbers.BlankFormat.INSTANCE);
+                var filtered = java.util.List.<net.minecraft.network.protocol.Packet<?>>of(
+                                new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(Component.literal("system probe"), false),
+                                new net.minecraft.network.protocol.game.ClientboundSystemChatPacket(Component.literal("overlay probe"), true),
+                                new net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket(Component.literal("action bar probe")),
+                                new net.minecraft.network.protocol.game.ClientboundSetObjectivePacket(objective, 0),
+                                new net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket(net.minecraft.world.scores.DisplaySlot.SIDEBAR, objective),
+                                new net.minecraft.network.protocol.game.ClientboundSetScorePacket("probe", objective.getName(), 1,
+                                                java.util.Optional.of(Component.literal("attribute probe")),
+                                                java.util.Optional.of(net.minecraft.network.chat.numbers.BlankFormat.INSTANCE)),
+                                new net.minecraft.network.protocol.game.ClientboundResetScorePacket("probe", objective.getName()));
+                for (var packet : filtered) {
+                        require(game.lbc().shouldFilterKnowledgePacket(owner, packet) == hidden,
+                                        "Installed outgoing policy filters system chat, action bars and every scoreboard update only while active");
+                        require(!game.lbc().shouldFilterKnowledgePacket(other, packet),
+                                        "Outgoing knowledge policy leaves another client's UI packets unchanged");
+                }
+                var playerChat = new net.minecraft.network.protocol.game.ClientboundDisguisedChatPacket(
+                                Component.literal("actual player message"), net.minecraft.network.chat.ChatType.bind(
+                                                net.minecraft.network.chat.ChatType.CHAT, owner));
+                require(!game.lbc().shouldFilterKnowledgePacket(owner, playerChat),
+                                "Actual online player's native chat delivery survives the knowledge restriction");
+                require(!game.lbc().shouldFilterKnowledgePacket(owner,
+                                new net.minecraft.network.protocol.game.ClientboundSetHealthPacket(20, 20, 5)),
+                                "Knowledge filtering preserves gameplay health synchronization");
+                var vanilla = new ItemStack(Items.DIAMOND_SWORD);
+                vanilla.set(DataComponents.CUSTOM_NAME, Component.literal("Challenge real source name"));
+                vanilla.set(DataComponents.LORE, new net.minecraft.world.item.component.ItemLore(
+                                java.util.List.of(Component.literal("Challenge real source lore"))));
+                var nativeStack = game.lbc().rollTable(owner.level(), owner.position(), owner,
+                                "lbc:ported/electro_wand").getFirst();
+                for (var source : java.util.List.of(vanilla, nativeStack)) {
+                        var authoritative = source.copy();
+                        var normal = polymerArtifactView(other, source);
+                        var personal = polymerArtifactView(owner, source);
+                        require(ItemStack.matches(source, authoritative),
+                                        "Per-viewer knowledge projection preserves every authoritative item component");
+                        require(java.util.Objects.equals(normal.get(DataComponents.CUSTOM_NAME), authoritative.get(DataComponents.CUSTOM_NAME)),
+                                        "Another client retains the real name of vanilla and native items");
+                        var lore = personal.getOrDefault(DataComponents.LORE, net.minecraft.world.item.component.ItemLore.EMPTY);
+                        if (hidden) {
+                                require(personal.getHoverName().getString().equals("????????????????????????????")
+                                                && lore.lines().size() == 1 && lore.lines().getFirst().getString().equals("????????????????????????????"),
+                                                "Active challenge substitutes source-exact question marks for vanilla and native names/lore");
+                                var tooltip = personal.getTooltipLines(net.minecraft.world.item.Item.TooltipContext.of(owner.level()),
+                                                owner, net.minecraft.world.item.TooltipFlag.NORMAL);
+                                require(tooltip.stream().noneMatch(line -> line.getString().contains("Challenge real source")),
+                                                "Projected tooltip cannot reveal the original vanilla name or lore");
+                        } else {
+                                require(java.util.Objects.equals(personal.get(DataComponents.CUSTOM_NAME), normal.get(DataComponents.CUSTOM_NAME))
+                                                && java.util.Objects.equals(personal.get(DataComponents.LORE), normal.get(DataComponents.LORE)),
+                                                "Reset or completion reveals real components for the former challenge viewer");
+                        }
+                        require(ItemStack.matches(source, authoritative), "Tooltip construction leaves authoritative components unchanged");
+                }
+        }
+
+        private static void checkAcademyChallengeProjection(GameController game) {
+                require(game.playing(), "Knowledge projection check requires an actual match");
+                var owner = academyChallengePlayer(game);
+                var profile = game.players().get(owner.getUUID());
+                require(profile.lbcChallenge == 1 && game.lbc().hidesKnowledge(owner),
+                                "Active match publishes challenge knowledge restriction for its actual viewer");
+                requireAcademyKnowledgeProjection(game, owner, true);
+                try {
+                        profile.lbcChallenge = 0;
+                        game.lbc().refreshKnowledgeView(owner);
+                        require(!game.lbc().hidesKnowledge(owner), "Clearing the active challenge immediately clears its published viewer restriction");
+                        requireAcademyKnowledgeProjection(game, owner, false);
+                } finally {
+                        profile.lbcChallenge = 1;
+                        game.lbc().refreshKnowledgeView(owner);
+                }
+                require(game.lbc().hidesKnowledge(owner), "Restoring the active challenge reapplies its viewer restriction");
+        }
+
+        private static void checkAcademyChallengeMenu(GameController game) {
+                require(game.inLobby(), "Challenge selection requires the ready lobby");
+                var player = academyChallengePlayer(game);
+                var profile = game.players().get(player.getUUID());
+                game.config().ranked = false;
+                profile.lbcChallenge = 0; profile.lbcChallengeKit = 0; profile.lbcChallengeProgress = 0;
+                profile.lbcUnlocks.remove("lbc:challenges/no_knowledge");
+                profile.lbcUnlocks.remove("lbc:true_advancements/legends/academy/root");
+                revokeAdvancement(player, advancement(game, "lbc:challenges/no_knowledge"));
+                revokeAdvancement(player, advancement(game, "lbc:true_advancements/legends/academy/root"));
+                game.menus().open(player, GameMenus.Page.LBC_CHALLENGE);
+                inventoryClick(player, 0, 0, ContainerInput.PICKUP);
+                require(profile.lbcChallenge == 0 && profile.lbcChallengeKit == 0,
+                                "Academy root gates the challenge before completion");
+                awardAllCriteria(player, advancement(game, "lbc:true_advancements/legends/academy/root"));
+                game.menus().open(player, GameMenus.Page.LBC_CHALLENGE);
+                inventoryClick(player, 0, 0, ContainerInput.PICKUP);
+                require(profile.lbcChallenge == 1 && profile.lbcChallengeKit == 0,
+                                "Native challenge slot activates a trial without selecting its reward");
+                profile.lbcChallengeProgress = 7;
+                inventoryClick(player, 25, 0, ContainerInput.PICKUP);
+                require(profile.lbcChallenge == 1 && profile.lbcChallengeProgress == 7,
+                                "Reward reset preserves active challenge and earned trial progress");
+                game.config().ranked = true;
+                game.menus().open(player, GameMenus.Page.LBC_CHALLENGE);
+                inventoryClick(player, 0, 0, ContainerInput.PICKUP);
+                require(profile.lbcChallengeKit == 1 && !academyChallengeComplete(game, player),
+                                "Ranked selects the reward without awarding native challenge completion");
+                inventoryClick(player, 24, 0, ContainerInput.PICKUP);
+                require(profile.lbcChallenge == 0 && profile.lbcChallengeProgress == 0 && profile.lbcChallengeKit == 1,
+                                "Challenge reset clears only active challenge and its progress");
+                inventoryClick(player, 25, 0, ContainerInput.PICKUP);
+                require(profile.lbcChallengeKit == 0, "Reward reset clears its independent selection");
+                game.config().ranked = false;
+                profile.lbcChallengeKit = 1;
+                game.menus().open(player, GameMenus.Page.LBC_CHALLENGE);
+                inventoryClick(player, 0, 0, ContainerInput.PICKUP);
+                require(profile.lbcChallenge == 1 && profile.lbcChallengeKit == 1,
+                                "Starting an unfinished trial preserves an independently selected reward");
+                profile.lbcChallengeKit = 0;
+                game.menus().open(player, GameMenus.Page.SETTINGS);
+                inventoryClick(player, 22, 0, ContainerInput.PICKUP);
+                require(!game.config().lbcChallenges && !GameConfig.load().lbcChallenges,
+                                "Original challenge settings button disables and persists challenge bonuses");
+                inventoryClick(player, 22, 0, ContainerInput.PICKUP);
+                require(game.config().lbcChallenges && GameConfig.load().lbcChallenges && !game.config().lbcKits,
+                                "Challenge bonus toggle persists independently from normal kits");
+                game.players().save();
+                var saved = PlayerStore.load().get(player.getUUID());
+                require(saved.lbcChallenge == 1 && saved.lbcChallengeKit == 0 && saved.lbcChallengeProgress == 0,
+                                "Active challenge persists independently from its reward kit");
+                game.menus().open(player);
+        }
+
+        private static void checkAcademyChallengeSelectReward(GameController game) {
+                require(game.inLobby(), "Challenge reward selection requires the ready lobby");
+                var player = academyChallengePlayer(game);
+                var profile = game.players().get(player.getUUID());
+                require(academyChallengeComplete(game, player) && profile.lbcChallenge == 0
+                                && profile.lbcChallengeProgress == 0 && profile.lbcChallengeKit == 0,
+                                "Completion leaves the independent reward unselected");
+                game.menus().open(player, GameMenus.Page.LBC_CHALLENGE);
+                inventoryClick(player, 0, 0, ContainerInput.PICKUP);
+                require(profile.lbcChallenge == 0 && profile.lbcChallengeKit == 1,
+                                "Completed challenge slot selects its reward without restarting a trial");
+                game.players().save();
+                game.menus().open(player);
+        }
+
+        private static void checkAcademyChallengePersisted(GameController game) {
+                require(game.inLobby(), "Persisted challenge fixture requires the ready lobby");
+                var player = academyChallengePlayer(game);
+                var profile = game.players().get(player.getUUID());
+                require(academyChallengeComplete(game, player) && profile.lbcChallenge == 0
+                                && profile.lbcChallengeProgress == 0 && profile.lbcChallengeKit == 1,
+                                "Full restart retains native completion and the independently selected reward");
+                require(game.config().lbcChallenges && !game.config().lbcKits && !game.config().ranked,
+                                "Restart retains independent challenge configuration without ranked bypass");
+        }
+
+        private static void checkAcademyChallengePartialPersisted(GameController game) {
+                require(game.inLobby(), "Unfinished persistence fixture requires the ready lobby");
+                var player = academyChallengePlayer(game);
+                var profile = game.players().get(player.getUUID());
+                require(profile.lbcChallenge == 1 && profile.lbcChallengeProgress == 7 && profile.lbcChallengeKit == 0
+                                && !academyChallengeComplete(game, player),
+                                "Unfinished active challenge retains seven actual promotions without completion or reward");
+                var saved = PlayerStore.load().get(player.getUUID());
+                require(saved.lbcChallenge == 1 && saved.lbcChallengeProgress == 7 && saved.lbcChallengeKit == 0,
+                                "Unfinished challenge is already persisted without an explicit fixture save");
+                require(game.config().lbcChallenges && !game.config().lbcKits && !game.config().ranked,
+                                "Unfinished persistence check uses ordinary challenge access without ranked bypass");
+        }
+
+        private static void checkAcademyChallengeRejoin(GameController game) {
+                checkAcademyChallengePartialPersisted(game);
+                var previous = academyChallengePlayer(game);
+                // Reuse the real disconnect callback used by the native late-join fixture.
+                previous.connection.onDisconnect(new net.minecraft.network.DisconnectionDetails(
+                                me.skywars2.SkyWars2.text("test.disconnect")));
+                require(game.server().getPlayerList().getPlayer(previous.getUUID()) == null,
+                                "Challenge participant leaves the native player list");
+                var rejoined = createBot(game, "TestAlpha");
+                require(rejoined != previous && rejoined.getUUID().equals(previous.getUUID()),
+                                "Rejoin creates a new native player session with the same persistent identity");
+                checkAcademyChallengePartialPersisted(game);
+                game.menus().open(rejoined, GameMenus.Page.LBC_CHALLENGE);
+                inventoryClick(rejoined, 0, 0, ContainerInput.PICKUP);
+                checkAcademyChallengePartialPersisted(game);
+                game.menus().open(rejoined);
+        }
+
+        private static void checkAcademyChallengeTrial(GameController game) {
+                checkAcademyChallengeTrial(game, 0, 20, "academy-challenge-trial");
+        }
+
+        private static void checkAcademyChallengeTrial(GameController game, int completed, int target, String suite) {
+                require(game.playing() && deferredCheck == null, "Challenge trial requires an actual idle match");
+                var owner = academyChallengePlayer(game);
+                var profile = game.players().get(owner.getUUID());
+                require(profile.lbcChallenge == 1 && profile.lbcChallengeProgress == completed && !academyChallengeComplete(game, owner),
+                                "Actual match starts or resumes the selected challenge at its earned promotion count");
+                require(itemCount(owner, LbcAcademy.TOKEN) == 0,
+                                "Active challenge alone does not grant its completion reward");
+                var level = game.maps().level();
+                var token = game.lbc().rollTable(level, owner.position(), owner, "lbc:ported/academy_token").getFirst();
+                double x = owner.getX() + 32, y = Math.max(170, owner.getY() + 4), z = owner.getZ() + 32;
+                for (int cx = ((int) x - 16) >> 4; cx <= ((int) x + 16) >> 4; cx++)
+                        for (int cz = ((int) z - 16) >> 4; cz <= ((int) z + 16) >> 4; cz++) level.getChunk(cx, cz);
+                var drop = new net.minecraft.world.entity.item.ItemEntity(level, x, y, z, token);
+                drop.setOnGround(true);
+                require(level.addFreshEntity(drop), "Challenge fixture drops the real Academy token");
+                deferredTicks = 15;
+                deferredCheck = () -> {
+                        var npc = java.util.stream.StreamSupport.stream(level.getAllEntities().spliterator(), false)
+                                        .filter(entity -> entity.entityTags().contains("magic_academy")).findFirst().orElse(null);
+                        require(drop.isRemoved() && npc != null, "Token consumption places a real Academy NPC");
+                        var previous = owner.getMainHandItem().copy();
+                        boolean oldNoGravity = owner.isNoGravity();
+                        owner.setNoGravity(true);
+                        academyChallengePromotion(game, owner, npc, previous, oldNoGravity, completed, target, suite);
+                };
+        }
+
+        private static void academyChallengePromotion(GameController game, ServerPlayer owner,
+                        net.minecraft.world.entity.Entity npc, ItemStack previous, boolean oldNoGravity, int completed, int target, String suite) {
+                boolean deferred = false;
+                try {
+                        var profile = game.players().get(owner.getUUID());
+                        var wand = game.lbc().rollTable(owner.level(), owner.position(), owner, "lbc:ported/electro_wand").getFirst();
+                        var tag = wand.getOrDefault(DataComponents.CUSTOM_DATA,
+                                        net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
+                        tag.putInt("upgradable", 1); tag.putInt("upgraded", 0); tag.putInt("upgrade_available", 0);
+                        wand.set(DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(tag));
+                        owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, wand);
+                        // Existing quest checks prove how each trial becomes ready. Only a successful
+                        // native NPC promotion may advance this new challenge integration.
+                        game.items().academy().ready(owner, net.minecraft.world.InteractionHand.MAIN_HAND, wand);
+                        require(profile.lbcChallengeProgress == completed,
+                                        "Trial readiness alone cannot advance the challenge");
+                        require(game.items().academy().interact(owner, net.minecraft.world.InteractionHand.MAIN_HAND, npc)
+                                        && owner.getMainHandItem().is(LbcWands.ACADEMY_ELECTRO),
+                                        "Real Academy NPC promotes the ready source wand");
+                        int next = completed + 1;
+                        require(profile.lbcChallengeProgress == (next == 20 ? 0 : next),
+                                        "Each successful NPC promotion advances exactly once and completion resets progress");
+                        game.items().academy().interact(owner, net.minecraft.world.InteractionHand.MAIN_HAND, npc);
+                        require(profile.lbcChallengeProgress == (next == 20 ? 0 : next),
+                                        "Duplicate native NPC callback cannot count the same promotion twice");
+                        if (next < 20) {
+                                require(!academyChallengeComplete(game, owner) && profile.lbcChallenge == 1,
+                                                "Fewer than twenty promotions cannot award challenge completion");
+                                if (next < target) {
+                                        deferredTicks = 1;
+                                        deferredCheck = () -> academyChallengePromotion(game, owner, npc, previous, oldNoGravity, next, target, suite);
+                                        deferred = true;
+                                } else {
+                                        var saved = PlayerStore.load().get(owner.getUUID());
+                                        require(saved.lbcChallenge == 1 && saved.lbcChallengeProgress == next && saved.lbcChallengeKit == 0,
+                                                        "Successful native promotions persist unfinished progress immediately");
+                                        require(game.lbc().hidesKnowledge(owner), "Unfinished trial retains its viewer restriction");
+                                }
+                        } else {
+                                require(academyChallengeComplete(game, owner) && profile.lbcChallenge == 0 && profile.lbcChallengeKit == 0,
+                                                "Twentieth promotion awards native completion, clears trial and leaves reward unselected");
+                                require(!game.lbc().hidesKnowledge(owner), "Native twentieth promotion immediately removes its viewer knowledge restriction");
+                                requireAcademyKnowledgeProjection(game, owner, false);
+                                game.players().save();
+                        }
+                } finally {
+                        if (!deferred) {
+                                owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, previous);
+                                owner.setNoGravity(oldNoGravity);
+                        }
+                }
+                if (!deferred) SkyWars2.LOGGER.info("[check] PASS {}", suite);
+        }
+
+        private static void checkAcademyChallengeReward(GameController game) {
+                require(game.playing() && deferredCheck == null, "Challenge rewards require an actual idle match");
+                var owner = academyChallengePlayer(game);
+                var profile = game.players().get(owner.getUUID());
+                require(itemCount(owner, LbcAcademy.TOKEN) == 1 && !game.config().lbcKits,
+                                "Actual start grants one selected challenge token with normal kits disabled");
+                game.config().lbcChallenges = false;
+                owner.getInventory().clearContent();
+                game.lbc().apply(owner);
+                require(itemCount(owner, LbcAcademy.TOKEN) == 0, "Disabled challenge bonuses cannot grant a selected reward");
+                game.config().lbcChallenges = true;
+                revokeAdvancement(owner, advancement(game, "lbc:challenges/no_knowledge"));
+                game.lbc().apply(owner);
+                require(itemCount(owner, LbcAcademy.TOKEN) == 0, "Grant rechecks native completion instead of trusting stored selection");
+                game.config().ranked = true;
+                game.lbc().apply(owner);
+                require(itemCount(owner, LbcAcademy.TOKEN) == 1 && !academyChallengeComplete(game, owner),
+                                "Ranked bypass permits the reward without awarding native completion");
+                game.config().ranked = false;
+                awardAllCriteria(owner, advancement(game, "lbc:challenges/no_knowledge"));
+                profile.lbcKit = 23;
+                game.config().lbcKits = true;
+                owner.getInventory().clearContent();
+                game.lbc().apply(owner);
+                require(itemCount(owner, LbcAcademy.TOKEN) == 1 && itemCount(owner, Items.GOLDEN_SWORD) == 1,
+                                "Challenge reward composes with an ordinary selected kit");
+                game.config().lbcKits = false;
+                owner.hurtServer(owner.level(), owner.damageSources().genericKill(), 10000);
+                require(game.awaitingRespawn(owner.getUUID()), "Native death schedules the challenge owner for respawn");
+                sendRespawnPacket(owner);
+                deferredTicks = 2;
+                deferredCheck = () -> {
+                        var respawned = academyChallengePlayer(game);
+                        require(respawned != owner && game.allowDamage(respawned)
+                                        && itemCount(respawned, LbcAcademy.TOKEN) == 1
+                                        && itemCount(respawned, Items.GOLDEN_SWORD) == 0,
+                                        "Native respawn grants one challenge token independently from ordinary kits");
+                        SkyWars2.LOGGER.info("[check] PASS academy-challenge-reward");
+                };
         }
 
         /** Native NPC-driven Academy trial and per-cast unique-hit accounting. */

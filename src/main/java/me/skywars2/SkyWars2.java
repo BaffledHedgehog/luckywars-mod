@@ -62,6 +62,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             game.items().stonekivi().prepare();
             game.items().kiuas().prepare();
             game.items().ruby().prepare();
+            game.items().consuming().prepare();
+            game.items().duplicating().prepare();
             game.items().bolts().prepare();
             game.items().magic().refreshEntityIndexes();
         });
@@ -75,6 +77,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                 game.items().stonekivi().prepare();
                 game.items().kiuas().prepare();
                 game.items().ruby().prepare();
+                game.items().consuming().prepare();
+                game.items().duplicating().prepare();
                 game.items().bolts().prepare();
             }
         });
@@ -140,7 +144,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return allowed;
         });
         UseItemCallback.EVENT.register((player, level, hand) -> {
-            if (game != null && game.items().frost().isFrozen(player)) return InteractionResult.FAIL;
+            if (game != null && game.items().actionsBlocked(player)) return InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer serverPlayer && game.canUseMenus(serverPlayer)
                     && player.getItemInHand(hand).is(Items.COMPASS)) {
                 game.menus().open(serverPlayer); return InteractionResult.SUCCESS;
@@ -151,6 +155,10 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             }
             if (game != null && player instanceof ServerPlayer owner && LbcShooters.isPine(player.getItemInHand(hand))
                     && !player.getItemInHand(hand).is(LbcShooters.PINE))
+                return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+            // Старые стеки из перековки используют тот же ввод, что и нативная Polymer-винтовка.
+            if (game != null && player instanceof ServerPlayer owner && LbcShooters.isSlr(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(LbcShooters.SLR))
                 return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
             if(game!=null && player instanceof ServerPlayer owner && LbcElectro.isAnyKatana(player.getItemInHand(hand))
                     && !player.getItemInHand(hand).is(LbcElectro.CYBERKATANA)
@@ -173,7 +181,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         AttackBlockCallback.EVENT.register((player, level, hand, pos, direction) -> {
-            if (game != null && game.items().frost().isFrozen(player)) return InteractionResult.FAIL;
+            if (game != null && game.items().actionsBlocked(player)) return InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer serverPlayer && game.isObserver(serverPlayer)) return InteractionResult.FAIL;
             if (game != null && game.inLobby() && player instanceof ServerPlayer serverPlayer
                     && !game.isDeveloper(serverPlayer)
@@ -183,7 +191,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
-            if (game != null && game.items().frost().isFrozen(player)) return InteractionResult.FAIL;
+            if (game != null && game.items().actionsBlocked(player)) return InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer serverPlayer && game.isObserver(serverPlayer)) return InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer serverPlayer
                     && LbcItems.isNanobot(player.getItemInHand(hand)) && !game.canUseGameplayItems(serverPlayer))
@@ -196,7 +204,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
-            if (game != null && game.items().frost().isFrozen(player)) return InteractionResult.FAIL;
+            if (game != null && game.items().actionsBlocked(player)) return InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer serverPlayer && game.isObserver(serverPlayer)) {
                 game.spectators().watch(serverPlayer, entity); return InteractionResult.SUCCESS;
             }
@@ -209,7 +217,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return InteractionResult.PASS;
         });
         AttackEntityCallback.EVENT.register((player, level, hand, entity, hit) ->
-                game != null && (game.items().frost().isFrozen(player)
+                game != null && (game.items().actionsBlocked(player)
                         || player instanceof ServerPlayer serverPlayer && game.isObserver(serverPlayer))
                         ? InteractionResult.FAIL : InteractionResult.PASS);
         CommandRegistrationCallback.EVENT.register((dispatcher, registries, environment) -> {
@@ -281,7 +289,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                     .then(Commands.argument("parameter", StringArgumentType.word())
                             .suggests((ctx, builder) -> SharedSuggestionProvider.suggest(List.of(
                                     "lives", "health", "countdownSeconds", "stageOneSeconds", "stageTwoSeconds", "endingSeconds",
-                                    "stageOneEvent", "stageTwoEvent", "pvpMode", "day", "ranked", "vanillaKits", "vanillaSkills", "offhandWands", "lefthandWands", "noBorders", "map", "broken"), builder))
+                                    "stageOneEvent", "stageTwoEvent", "pvpMode", "day", "ranked", "vanillaKits", "vanillaSkills", "lbcChallenges", "offhandWands", "lefthandWands", "noBorders", "map", "broken"), builder))
                             .then(Commands.argument("value", StringArgumentType.word())
                                     .suggests((ctx, builder) -> settingValueSuggestions(
                                             StringArgumentType.getString(ctx, "parameter"), builder))

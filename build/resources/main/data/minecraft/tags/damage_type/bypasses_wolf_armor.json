@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "skywars2:strangeness"
+    "skywars2:strangeness",
+    "skywars2:duplicating_hole"
   ]
 }

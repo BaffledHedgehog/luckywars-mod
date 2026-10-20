@@ -66,6 +66,7 @@ public final class GameMenus {
     }
 
     public void open(ServerPlayer player, Page page) {
+        if (controller.items().shooters().stunned(player)) return;
         boolean observer = controller.isObserver(player);
         if (observer && !observerPage(page)) {
             player.sendSystemMessage(c("lobby_only"));
@@ -161,6 +162,7 @@ public final class GameMenus {
                 case 15 -> () -> change(p, () -> config.lbcLevelups = !config.lbcLevelups);
                 case 16 -> () -> change(p, () -> config.lbcLevelupLimit = cycle(config.lbcLevelupLimit, 1, 12));
                 case 17 -> () -> change(p, () -> config.lbcTrinketLimit = cycle(config.lbcTrinketLimit, 1, 12));
+                case 22 -> () -> change(p, () -> config.lbcChallenges = !config.lbcChallenges);
                 case 9 -> () -> change(p, () -> config.lives = cycle(config.lives, 1, 5));
                 case 10 -> () -> change(p, () -> config.noBorders = !config.noBorders);
                 case 24 -> {
@@ -392,14 +394,17 @@ public final class GameMenus {
         for (int slot = 0; slot < 27; slot++) {
             if (slot == 18 || slot == 25 || slot == 26) continue;
             int sourceSlot = slot;
-            Runnable click = page == Page.LBC_CHALLENGE && slot == 24
-                    ? () -> { p.lbcChallenge = 0; players.save(); open(player, page); } : null;
+            Runnable click = page == Page.LBC_CHALLENGE && (slot == 0 || slot == 24)
+                    ? () -> { if (controller.lbc().selectChallenge(player, sourceSlot)) open(player, page); } : null;
             if (loadoutKind != null) {
                 click = () -> {
                     if (controller.lbc().select(player, loadoutKind, sourcePage, sourceSlot)) open(player, page);
                 };
             }
-            boolean selected = loadoutKind != null
+            boolean selected = page == Page.LBC_CHALLENGE && slot == 0
+                    ? OriginalGuiDesign.unlocked(player, "lbc", sourcePage, slot, p, config)
+                        && controller.lbc().challengeSelected(player)
+                    : loadoutKind != null
                     && OriginalGuiDesign.unlocked(player, "lbc", sourcePage, sourceSlot, p, config)
                     && controller.lbc().selected(p, loadoutKind, sourcePage, sourceSlot);
             original(gui, player, slot,
@@ -411,9 +416,10 @@ public final class GameMenus {
             else open(player, Page.HUB);
         });
         if (page == Page.LBC_CHALLENGE) {
-            // Challenge-earned perks have separate source storage; they must not
-            // reset the player's ordinary LBC selections. Their migration is pending.
-            originalTable(gui, player, 25, "lbc:gui/page/12000/reset_challenge_perks", null, List.of(), null);
+            // Сброс награды независим от активного испытания и обычных перков.
+            originalTable(gui, player, 25, "lbc:gui/page/12000/reset_challenge_perks", null, List.of(), () -> {
+                if (controller.lbc().selectChallenge(player, 25)) open(player, page);
+            });
             return;
         }
         originalTable(gui, player, 25, "swrg:gui/reset",
@@ -582,6 +588,7 @@ public final class GameMenus {
         to.lbcKits = from.lbcKits;
         to.lbcSkills = from.lbcSkills;
         to.lbcLevelups = from.lbcLevelups;
+        to.lbcChallenges = from.lbcChallenges;
         to.offhandWands = from.offhandWands;
         to.lbcLevelupLimit = from.lbcLevelupLimit;
         to.lbcTrinketLimit = from.lbcTrinketLimit;
@@ -632,6 +639,11 @@ public final class GameMenus {
 
         @Override
         public boolean click(int index, ClickType type, ContainerInput action) {
+            var game = me.skywars2.SkyWars2.game();
+            if (game != null && game.items().shooters().stunned(getPlayer())) {
+                getPlayer().containerMenu.sendAllDataToRemote();
+                return true;
+            }
             // PICKUP_ALL — синтетический пакет сбора предметов после двух обычных PICKUP;
             // он не должен повторно выполнять кнопку третий раз.
             if (action == ContainerInput.PICKUP_ALL || type == ClickType.MOUSE_DOUBLE_CLICK) {

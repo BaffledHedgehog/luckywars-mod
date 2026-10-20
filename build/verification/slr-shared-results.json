@@ -1,0 +1,12 @@
+{
+  "completed": [
+    "frost-menu",
+    "pinegun-menu",
+    "frost",
+    "pinegun",
+    "frost-cleanup",
+    "pinegun-cleanup"
+  ],
+  "artifactSha256": "9b9fd0a532366f0faf27b192a194d35b3cc72a335366c76b6b8a6dbd9ddb4501",
+  "elapsedSeconds": 34.45
+}

@@ -34,6 +34,7 @@ public abstract class WandProjectileMixin {
         @Inject(method="setTarget",at=@At("HEAD"),cancellable=true)
         private void skywars2$blazeTarget(net.minecraft.world.entity.LivingEntity target,CallbackInfo ci) {
             var game=SkyWars2.game();
+            if(game!=null && !game.items().consuming().canTrialTarget((Entity)(Object)this,target)) { ci.cancel(); return; }
             if(game!=null && (Object)this instanceof net.minecraft.world.entity.monster.Blaze blaze
                     && !game.items().blaze().canTarget(blaze,target)) ci.cancel();
         }

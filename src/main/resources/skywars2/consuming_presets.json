@@ -1,0 +1,232 @@
+{
+  "originalDataVersion": 4440,
+  "presets": {
+    "void_man": "{id:\"minecraft:skeleton\",Tags:[\"clawed_entity\"],CustomName:{\"bold\":true,\"color\":\"black\",\"italic\":false,\"obfuscated\":true,\"translate\":\"void_man\"},CustomNameVisible:0b,Silent:1b,DeathLootTable:\"lbc:voidman\",PersistenceRequired:1b,Health:40.0f,equipment:{feet:{id:\"minecraft:leather_boots\",components:{\"minecraft:equippable\":{\"slot\":\"feet\",\"asset_id\":\"lbc:void\"}},count:1},chest:{id:\"minecraft:leather_chestplate\",components:{\"minecraft:equippable\":{\"slot\":\"chest\",\"asset_id\":\"lbc:void\"}},count:1},head:{id:\"minecraft:leather_helmet\",components:{\"minecraft:equippable\":{\"slot\":\"head\",\"asset_id\":\"lbc:void\"},\"minecraft:unbreakable\":{}},count:1}},drop_chances:{head:0.0f,chest:0.0f,legs:0.0f,feet:0.0f},active_effects:[{id:\"minecraft:invisibility\",amplifier:1b,duration:20000000,show_particles:0b}],attributes:[{id:\"minecraft:max_health\",base:40},{id:\"minecraft:attack_damage\",base:10}]}"
+  },
+  "spawns": [
+    {
+      "preset": "void_man",
+      "offset": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        0.0,
+        2.0,
+        0.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        0.0,
+        3.0,
+        0.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        0.0,
+        2.0,
+        0.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        0.0,
+        3.0,
+        0.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        0.0,
+        2.0,
+        0.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        0.0,
+        3.0,
+        0.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        0.0,
+        2.0,
+        0.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        0.0,
+        3.0,
+        0.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "preset": "void_man",
+      "offset": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ]
+}

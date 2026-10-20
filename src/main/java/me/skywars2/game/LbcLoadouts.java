@@ -43,6 +43,8 @@ public final class LbcLoadouts {
     private int skillTickCounter;
     // Сетевое отображение читает только опубликованный снимок, не изменяемые профили/файлы с Netty-потока.
     private final java.util.concurrent.ConcurrentMap<java.util.UUID, Boolean> artifactReaders = new java.util.concurrent.ConcurrentHashMap<>();
+    private final java.util.concurrent.ConcurrentMap<java.util.UUID, Boolean> knowledgeViews = new java.util.concurrent.ConcurrentHashMap<>();
+    private volatile Set<String> knowledgeChatSenders = Set.of();
 
     public LbcLoadouts(GameController game, GameConfig config, PlayerStore players) {
         this.game = game; this.config = config; this.players = players;
@@ -58,7 +60,69 @@ public final class LbcLoadouts {
     /** Периодическая сверка только флагов; инвентари и сущности отправляются лишь при изменившемся доступе. */
     void tickSecond() {
         refreshArtifactViews();
+        refreshKnowledgeViews();
         artifactReaders.keySet().removeIf(id -> game.server().getPlayerList().getPlayer(id) == null);
+        knowledgeViews.keySet().removeIf(id -> game.server().getPlayerList().getPlayer(id) == null);
+    }
+
+    /** Netty/Polymer читают только опубликованные флаги, без профилей, scoreboard и мира. */
+    public boolean hidesKnowledge(ServerPlayer player) {
+        return player != null && knowledgeViews.getOrDefault(player.getUUID(), false);
+    }
+
+    public boolean isKnowledgeChatSender(Component name) { return knowledgeChatSenders.contains(name.getString()); }
+
+    private void refreshKnowledgeViews() {
+        var names = new java.util.HashSet<String>();
+        for (var player : game.server().getPlayerList().getPlayers()) {
+            names.add(player.getDisplayName().getString());
+            names.add(player.getName().getString());
+            refreshKnowledgeView(player);
+        }
+        knowledgeChatSenders = Set.copyOf(names);
+    }
+
+    public void refreshKnowledgeView(ServerPlayer player) {
+        boolean hidden = players.get(player.getUUID()).lbcChallenge == 1;
+        boolean wasHidden = hidesKnowledge(player);
+        if (hidden == wasHidden) return;
+        if (hidden) {
+            // Очищаем ранее показанный UI до включения фильтра, иначе клиент сохранит его старые строки.
+            game.attributeHud().clear(player);
+            player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket(Component.empty()));
+            var objectives = new java.util.HashSet<net.minecraft.world.scores.Objective>();
+            var board = game.server().getScoreboard();
+            for (var slot : net.minecraft.world.scores.DisplaySlot.values()) {
+                var objective = board.getDisplayObjective(slot);
+                if (objective != null) objectives.add(objective);
+                player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket(slot, null));
+            }
+            for (var objective : objectives)
+                player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetObjectivePacket(objective, 1));
+        }
+        knowledgeViews.put(player.getUUID(), hidden);
+        LbcSkills.refreshKnowledgeViewer(player);
+        game.items().invalidateHud(player);
+        game.items().refreshHud(player);
+        if (!hidden) {
+            var board = game.server().getScoreboard();
+            var objectives = new java.util.HashSet<net.minecraft.world.scores.Objective>();
+            for (var slot : net.minecraft.world.scores.DisplaySlot.values()) {
+                var objective = board.getDisplayObjective(slot);
+                if (objective != null && objectives.add(objective))
+                    for (var packet : board.getStartTrackingPackets(objective)) player.connection.send(packet);
+            }
+        }
+    }
+
+    public void joined(ServerPlayer player) {
+        knowledgeViews.remove(player.getUUID());
+        refreshKnowledgeViews();
+    }
+
+    public void left(ServerPlayer player) {
+        knowledgeViews.remove(player.getUUID());
+        artifactReaders.remove(player.getUUID());
     }
     public boolean readsArtifacts(ServerPlayer player) { return artifactReaders.getOrDefault(player.getUUID(), false); }
     public void refreshArtifactViews() {
@@ -160,10 +224,64 @@ public final class LbcLoadouts {
     }
 
     private boolean allowed(ServerPlayer player, Entry entry) {
-        if (config.ranked || entry.gate == null || players.get(player.getUUID()).lbcUnlocks.contains(entry.gate)) return true;
+        return config.ranked || entry.gate == null || hasUnlock(player, entry.gate);
+    }
+
+    private boolean hasUnlock(ServerPlayer player, String gate) {
+        if (players.get(player.getUUID()).lbcUnlocks.contains(gate)) return true;
         // Нативное достижение либо явный административный grant открывает исходный перк.
-        var advancement = game.server().getAdvancements().get(Identifier.parse(entry.gate));
+        var advancement = game.server().getAdvancements().get(Identifier.parse(gate));
         return advancement != null && player.getAdvancements().getOrStartProgress(advancement).isDone();
+    }
+
+    public boolean challengeRewardAvailable(ServerPlayer player) {
+        return config.ranked || hasUnlock(player, "lbc:challenges/no_knowledge");
+    }
+
+    /** В одной исходной ячейке два разных выбора: испытание до достижения, набор после него. */
+    public boolean selectChallenge(ServerPlayer player, int slot) {
+        if (!game.canUseMenus(player) || game.items().actionsBlocked(player)) return false;
+        var profile = players.get(player.getUUID());
+        switch (slot) {
+            case 0 -> {
+                if (challengeRewardAvailable(player)) profile.lbcChallengeKit = 1;
+                else {
+                    if (!hasUnlock(player, "lbc:true_advancements/legends/academy/root")) {
+                        player.sendSystemMessage(Component.translatable("lbc.adv.academy_upgraded.lore"));
+                        return false;
+                    }
+                    profile.lbcChallenge = 1;
+                }
+            }
+            case 24 -> { profile.lbcChallenge = 0; profile.lbcChallengeProgress = 0; }
+            case 25 -> profile.lbcChallengeKit = 0;
+            default -> { return false; }
+        }
+        players.save();
+        refreshKnowledgeView(player);
+        return true;
+    }
+
+    public boolean challengeSelected(ServerPlayer player) {
+        var profile = players.get(player.getUUID());
+        return challengeRewardAvailable(player) ? profile.lbcChallengeKit == 1
+                : profile.lbcChallenge == 1 && hasUnlock(player, "lbc:true_advancements/legends/academy/root");
+    }
+
+    /** Считаем только состоявшееся повышение у NPC, а не готовность к нему или повторный клик. */
+    public void academyPromoted(ServerPlayer player) {
+        var profile = players.get(player.getUUID());
+        if (profile.lbcChallenge != 1 || !game.playing() || !game.canUseGameplayItems(player)) return;
+        if (++profile.lbcChallengeProgress >= 20) {
+            profile.lbcChallenge = 0;
+            profile.lbcChallengeProgress = 0;
+            game.items().mana().award(player, "lbc:challenges/no_knowledge");
+            refreshKnowledgeView(player);
+            player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket(Component.literal(" ")));
+            player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket(
+                    Component.translatable("challenge_completed")));
+        }
+        players.save();
     }
 
     public boolean select(ServerPlayer player, Kind kind, int page, int slot) {
@@ -221,6 +339,9 @@ public final class LbcLoadouts {
         // При старте и возрождении сначала снимаются старые бонусы, затем выдаются комплект и выбранные улучшения.
         clear(player);
         var profile = players.get(player.getUUID());
+        // Награды испытаний включаются отдельно от наборов и повторяются на новой жизни, как в source.
+        if (config.lbcChallenges && profile.lbcChallengeKit == 1 && challengeRewardAvailable(player))
+            grantTable(player, "lbc:ported/academy_token");
         if (config.lbcKits) {
             Entry kit = byId(Kind.KITS, profile.lbcKit);
             if (kit != null && allowed(player, kit)) {
@@ -289,5 +410,20 @@ public final class LbcLoadouts {
             if (attribute != null) attribute.removeModifier(modifier.value.id());
         }
         if (player.getHealth() > player.getMaxHealth()) player.setHealth(player.getMaxHealth());
+    }
+
+    /** Outgoing UI policy; only published snapshots are read, including from network threads. */
+    public boolean shouldFilterKnowledgePacket(ServerPlayer player, net.minecraft.network.protocol.Packet<?> packet) {
+        if (!hidesKnowledge(player)) return false;
+        // Player chat also carries signature/acknowledgement state and must reach the client intact.
+        if (packet instanceof net.minecraft.network.protocol.game.ClientboundDisguisedChatPacket chat) {
+            return !isKnowledgeChatSender(chat.chatType().name());
+        }
+        return packet instanceof net.minecraft.network.protocol.game.ClientboundSystemChatPacket
+                || packet instanceof net.minecraft.network.protocol.game.ClientboundSetActionBarTextPacket
+                || packet instanceof net.minecraft.network.protocol.game.ClientboundSetObjectivePacket
+                || packet instanceof net.minecraft.network.protocol.game.ClientboundSetDisplayObjectivePacket
+                || packet instanceof net.minecraft.network.protocol.game.ClientboundSetScorePacket
+                || packet instanceof net.minecraft.network.protocol.game.ClientboundResetScorePacket;
     }
 }

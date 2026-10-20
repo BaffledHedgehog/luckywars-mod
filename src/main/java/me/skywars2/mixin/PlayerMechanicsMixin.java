@@ -18,7 +18,7 @@ public abstract class PlayerMechanicsMixin {
     @Inject(method = "attack", at = @At("HEAD"), cancellable = true)
     private void skywars2$frozenAttack(Entity target, CallbackInfo ci) {
         var game = SkyWars2.game();
-        if (game != null && (Object) this instanceof ServerPlayer player && game.items().frost().isFrozen(player)) ci.cancel();
+        if (game != null && (Object) this instanceof ServerPlayer player && game.items().actionsBlocked(player)) ci.cancel();
     }
 
     @Inject(method = "tryToStartFallFlying", at = @At(value = "INVOKE",

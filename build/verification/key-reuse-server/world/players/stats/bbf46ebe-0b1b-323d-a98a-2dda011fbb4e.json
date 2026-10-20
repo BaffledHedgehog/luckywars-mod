@@ -1,34 +1,35 @@
 {
   "stats": {
-    "minecraft:mined": {
-      "minecraft:dirt": 2
-    },
     "minecraft:custom": {
-      "minecraft:damage_blocked_by_shield": 180,
-      "minecraft:time_since_rest": 48,
-      "minecraft:total_world_time": 533,
+      "minecraft:damage_blocked_by_shield": 230,
+      "minecraft:time_since_rest": 0,
+      "minecraft:total_world_time": 568,
+      "minecraft:fly_one_cm": 300,
       "minecraft:mob_kills": 18,
-      "minecraft:damage_taken": 6742709,
-      "minecraft:play_time": 533,
-      "minecraft:damage_dealt": 18,
-      "minecraft:deaths": 62,
+      "minecraft:damage_taken": 6845219,
+      "minecraft:play_time": 568,
+      "minecraft:damage_dealt": 30,
+      "minecraft:deaths": 63,
       "minecraft:player_kills": 15,
-      "minecraft:time_since_death": 48
+      "minecraft:time_since_death": 0
+    },
+    "minecraft:killed_by": {
+      "minecraft:player": 43
     },
     "minecraft:killed": {
       "minecraft:player": 15
     },
-    "minecraft:killed_by": {
-      "minecraft:player": 42
-    },
-    "minecraft:crafted": {
-      "minecraft:chainmail_boots": 70
-    },
     "minecraft:used": {
-      "minecraft:shield": 18,
+      "minecraft:shield": 23,
       "minecraft:snowball": 5,
       "minecraft:panda_spawn_egg": 153,
       "minecraft:diamond_sword": 7
+    },
+    "minecraft:mined": {
+      "minecraft:dirt": 3
+    },
+    "minecraft:crafted": {
+      "minecraft:chainmail_boots": 70
     }
   },
   "DataVersion": 5023

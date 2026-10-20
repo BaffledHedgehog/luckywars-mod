@@ -120,6 +120,8 @@ public final class PlayerStore {
         public int[] trinkets = new int[12];
         public int lbcTrinketSlot;
         public int lbcChallenge;
+        public int lbcChallengeProgress;
+        public int lbcChallengeKit;
         // Migration: old four-slot profiles keep their first four choices; new slots append to 12.
         public int[] levelups = new int[12];
         // Persist the next cyclic slot (0..11) so expanding the array does not reset selection order.
@@ -144,6 +146,8 @@ public final class PlayerStore {
             lbcSkill = Math.max(0, lbcSkill);
             lbcTrinket = Math.max(0, lbcTrinket);
             lbcChallenge = Math.max(0, lbcChallenge);
+            lbcChallengeProgress = Math.clamp(lbcChallengeProgress, 0, 19);
+            lbcChallengeKit = Math.clamp(lbcChallengeKit, 0, 1);
             keys = normalizeArray(keys, 5);
             levelups = normalizeArray(levelups, 12);
             trinkets = normalizeArray(trinkets, 12);

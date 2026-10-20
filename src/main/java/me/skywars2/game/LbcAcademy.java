@@ -51,6 +51,8 @@ public final class LbcAcademy {
         FALLING_STARS("truefallingstars", LbcWands.FALLING_STARS_WAND, LbcWands.ACADEMY_FALLING_STARS, "a", "upgrade_condition_truefallingstars", "upgrade_succesful_truefallingstars"),
         LIGHTNING_BOLTS("lightning_bolts", LbcWands.LIGHTNING_BOLTS_WAND, LbcWands.ACADEMY_LIGHTNING_BOLTS, "s", "upgrade_condition_lightning_bolt", "upgrade_succesful_lightning_bolt"),
         BOLTBOLT("boltbolt_wand", LbcWands.BOLTBOLT, LbcWands.ACADEMY_BOLTBOLT, "ss", "upgrade_condition_boltbolt", "upgrade_succesful_boltbolt"),
+        CONSUMING("consuming_wand", LbcWands.CONSUMING, LbcWands.ACADEMY_CONSUMING, "x", "upgrade_condition_consuming", "upgrade_succesful_consuming"),
+        DUPLICATING("dublicating_wand", LbcWands.DUPLICATING, LbcWands.ACADEMY_DUPLICATING, "ss", "upgrade_condition_dublicating", "upgrade_succesful_dublicating"),
         EXAHOMING("exahoming_wand", LbcWands.EXAHOMING, LbcWands.ACADEMY_EXAHOMING, "x", "upgrade_condition_exahoming", "upgrade_succesful_exahoming"),
         STONE("ststone", LbcWands.STONE_WAND, LbcWands.ACADEMY_STONE, "a", "upgrade_condition_ststone", "upgrade_succesful_ststone"),
         BEDROCK("bedrock_wand", LbcWands.BEDROCK, LbcWands.ACADEMY_BEDROCK, "ss", "upgrade_condition_bedrock", "upgrade_succesful_bedrock"),
@@ -157,6 +159,7 @@ public final class LbcAcademy {
                     .withLineAdded(Component.translatable("upgraded_item").withStyle(style ->
                             style.withColor(ChatFormatting.GREEN).withItalic(false))));
             player.setItemInHand(hand, upgraded);
+            game.lbc().academyPromoted(player);
             player.getInventory().setChanged();
             player.containerMenu.broadcastChanges();
             player.sendSystemMessage(Component.translatable(wand.successKey).withStyle(ChatFormatting.YELLOW));

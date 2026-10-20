@@ -22,7 +22,7 @@ public abstract class ObserverPacketMixin {
             shift = At.Shift.AFTER), cancellable = true)
     private void skywars2$blockFrozenItemUse(ServerboundUseItemPacket packet, CallbackInfo ci) {
         var game = SkyWars2.game();
-        if (game != null && game.items().frost().isFrozen(player)) {
+        if (game != null && game.items().actionsBlocked(player)) {
             skywars2$syncInventory();
             ci.cancel();
         }
@@ -33,7 +33,7 @@ public abstract class ObserverPacketMixin {
             shift = At.Shift.AFTER), cancellable = true)
     private void skywars2$blockFrozenBlockUse(ServerboundUseItemOnPacket packet, CallbackInfo ci) {
         var game = SkyWars2.game();
-        if (game != null && game.items().frost().isFrozen(player)) {
+        if (game != null && game.items().actionsBlocked(player)) {
             var hit = packet.hitResult();
             var pos = hit.getBlockPos();
             // Отказ не должен загружать чанки по координатам произвольного клиентского пакета.
@@ -45,6 +45,14 @@ public abstract class ObserverPacketMixin {
             skywars2$syncInventory();
             ci.cancel();
         }
+    }
+
+    @Inject(method = {"handleAttack", "handlePunch"}, at = @At(value = "INVOKE", target =
+            "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V",
+            shift = At.Shift.AFTER), cancellable = true)
+    private void skywars2$blockDisabledAttack(CallbackInfo ci) {
+        var game = SkyWars2.game();
+        if (game != null && game.items().actionsBlocked(player)) ci.cancel();
     }
 
     @org.spongepowered.asm.mixin.Unique
@@ -59,7 +67,7 @@ public abstract class ObserverPacketMixin {
             shift = At.Shift.AFTER), cancellable = true)
     private void skywars2$watch(ServerboundInteractPacket packet, CallbackInfo ci) {
         var game = SkyWars2.game();
-        if (game != null && game.items().frost().isFrozen(player)) { ci.cancel(); return; }
+        if (game != null && game.items().actionsBlocked(player)) { ci.cancel(); return; }
         if (game == null || !game.isObserver(player)) return;
         var target = player.level().getEntityOrPart(packet.entityId());
         if (target != null && player.isWithinEntityInteractionRange(target.getBoundingBox(), 3.0)

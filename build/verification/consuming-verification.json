@@ -1,0 +1,157 @@
+{
+  "artifactSha256": "9f6872df88c51ff19b45bdb312c97e941289a43a3671f4fa267ebc18aa56fd6e",
+  "archive": "build/verification/skywars2-consuming-9f6872df.jar",
+  "fullSourceLootPayloads": [
+    "consuming_wand",
+    "academy_consuming_wand",
+    "creeper_army_spell",
+    "destroyer_spell"
+  ],
+  "sourceJavaFilesMatched": 18,
+  "sourceJavaPaths": [
+    "SkyWars2.java",
+    "game/BlockAreaWork.java",
+    "game/GameChecks.java",
+    "game/LbcAcademy.java",
+    "game/LbcConsuming.java",
+    "game/LbcCraftingRecipe.java",
+    "game/LbcDamage.java",
+    "game/LbcIndirectKills.java",
+    "game/LbcItems.java",
+    "game/LbcWands.java",
+    "game/LbcBlaze.java",
+    "game/LbcBlind.java",
+    "game/LbcBolts.java",
+    "game/LbcElectro.java",
+    "game/LbcHoming.java",
+    "game/LbcOverload.java",
+    "mixin/ElectroNativeMixins.java",
+    "mixin/WandProjectileMixin.java"
+  ],
+  "sourcePresetSpawns": 28,
+  "voidManLootClosure": [
+    "data/lbc/loot_table/voidman.json",
+    "data/lbc/loot_table/sauvojen_tuntija_blind.json"
+  ],
+  "reusedTemplates": [
+    "meditation",
+    "air11x11"
+  ],
+  "packagedResourceBytesMatched": 13,
+  "crc": "passed",
+  "recipe": "passed",
+  "damageTypeAndTags": "passed",
+  "design": {
+    "keys": [
+      "consuming_wand",
+      "consuming_wand.lore",
+      "creeper_army_spell",
+      "creeper_army_spell.lore.1",
+      "creeper_army_spell.lore.2",
+      "creeper_army_spell.lore.3",
+      "destroyer_spell",
+      "destroyer_spell.lore.1",
+      "destroyer_spell.lore.2",
+      "destroyer_spell.lore.3",
+      "liquid_abyss",
+      "liquid_abyss.lore",
+      "magic_damage",
+      "mana_on_activate",
+      "mode_avarice",
+      "mode_default",
+      "mode_silence",
+      "mode_the_end",
+      "sauvojen_wand_blind",
+      "sauvojen_wand_blind.lore.1",
+      "sauvojen_wand_blind.lore.2",
+      "sauvojen_wand_blind.lore.3",
+      "sauvojen_wand_blind.lore.4",
+      "spell",
+      "staff",
+      "type",
+      "upgrade_condition_consuming",
+      "upgrade_succesful_consuming",
+      "upgraded_item",
+      "void_man"
+    ],
+    "models": [
+      "lbc:breaker",
+      "lbc:consuming_wand",
+      "lbc:creepers",
+      "lbc:liquidabyss",
+      "lbc:st/blind"
+    ],
+    "equipment": [
+      "lbc:void"
+    ],
+    "languages": {
+      "ru_ru": {
+        "sha256": "3e7b3f2c6aa2e9e223db99d52d4d1a9de9954bd546bad5ba3543b775c7dfb47b",
+        "allKeysPresent": true
+      },
+      "en_us": {
+        "sha256": "d81685d3f4c65c833543ee9ece5f48904d01ba8b8c04e9a2dd2176dadeaa8782",
+        "allKeysPresent": true
+      }
+    }
+  },
+  "mainJarSha256": "a0c4cb03c4682c99e71e0c197b376f98dc6781e1f153ec7ee61cba67408606a5",
+  "installed": false,
+  "completed": {
+    "consuming": 11,
+    "shared": 11,
+    "boltbolt": 5
+  },
+  "limits": [
+    "No real-client visual test",
+    "No mass-load benchmark",
+    "Known Polymer packet-context warning for fake-player chunks"
+  ],
+  "runtime": {
+    "consuming-results": {
+      "completed": [
+        "consuming-menu",
+        "consuming-crafting",
+        "consuming",
+        "consuming-donors",
+        "consuming-academy",
+        "consuming-trial",
+        "infbolt-egg",
+        "second match: consuming",
+        "second match: consuming-donors",
+        "second match: consuming-academy",
+        "second match: consuming-trial"
+      ],
+      "artifactSha256": "9f6872df88c51ff19b45bdb312c97e941289a43a3671f4fa267ebc18aa56fd6e",
+      "elapsedSeconds": 44.86
+    },
+    "consuming-shared-results": {
+      "completed": [
+        "teleport-wand",
+        "wands-electro",
+        "electro-gear",
+        "exahoming",
+        "tannerkivi",
+        "tannerkivi-movement",
+        "teleport-wand-cleanup",
+        "electro-family-cleanup",
+        "exahoming-cleanup",
+        "boltbolt-cleanup",
+        "tannerkivi-cleanup"
+      ],
+      "artifactSha256": "9f6872df88c51ff19b45bdb312c97e941289a43a3671f4fa267ebc18aa56fd6e",
+      "elapsedSeconds": 40.41
+    },
+    "boltbolt-results": {
+      "completed": [
+        "Source Lightning Bolts/Boltbolt ordinary and Academy name, lore, models, tiers and Polymer proxy",
+        "All native/Academy/legacy Teleport and Lightning Bolts pairs, exact 2x2/3x3 consumption and extra ingredient rejection",
+        "Source charged lightning lifetime, shock, owner, input protection, mana, Academy modes and NPC promotion",
+        "Snow Meteor real collision, native freeze damage, cold and queued snow; Watering real fills, movement, 200-tick lifetime and queued-write cancellation",
+        "Boltbolt runtime checks resume in the second match"
+      ],
+      "artifactSha256": "9f6872df88c51ff19b45bdb312c97e941289a43a3671f4fa267ebc18aa56fd6e",
+      "elapsedSeconds": 46.71
+    }
+  }
+}

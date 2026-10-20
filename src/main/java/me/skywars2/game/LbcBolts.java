@@ -181,6 +181,32 @@ public final class LbcBolts {
         });
     }
     public boolean ready() { return templates.size()==2; }
+    void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
+        // Chain is attached to living targets; it has no independent spell origin.
+        transformOrigins(bolts,level,transform);
+        transformOrigins(waters,level,transform);
+        // Remove before discard: the display unload callback also updates meteors.
+        for(var meteor:List.copyOf(meteors)) if(meteor.level==level) {
+            Vec3 next=transform.apply(meteor.position);
+            if(next==null) {
+                meteors.remove(meteor);
+                if(!meteor.display.isRemoved()) meteor.display.discard();
+            } else {
+                meteor.position=next;
+                if(!meteor.display.isRemoved()) meteor.display.setPos(next);
+            }
+        }
+    }
+    private static <T extends Owned> void transformOrigins(Set<T> states,ServerLevel level,
+            java.util.function.UnaryOperator<Vec3> transform) {
+        states.removeIf(state->{
+            if(state.level!=level) return false;
+            Vec3 next=transform.apply(state.position);
+            if(next==null) return true;
+            state.position=next; return false;
+        });
+    }
+
     public int count() { return bolts.size()+waters.size()+meteors.size()+chains.size()+reforgeJobs.size(); }
     List<Bolt> snapshot() { return List.copyOf(bolts); }
     List<Water> waterSnapshot() { return List.copyOf(waters); }
@@ -359,10 +385,11 @@ public final class LbcBolts {
                 entity->entity.isAlive() && target(owner,entity) && entity.position().distanceToSqr(at)<=1
                         && (transformable(entity.getItem()) || ultra && arrow64(entity.getItem())))) {
             ItemStack input=item.getItem(),snapshot=input.copy();
-            // Unsupported-category consumption awaits the author's decision.
+            // User: preserve inputs when no category can produce a result.
             if(reforgeTables(snapshot,ultra).isEmpty()) continue;
             jobs.add(new LbcStonekivi.Work() {
                 int remaining=snapshot.getCount();
+                boolean convertedArrowStack;
                 public boolean step() {
                     if(item.isRemoved() || item.level()!=state.level || item.getItem()!=input
                             || input.getCount()!=remaining || !ItemStack.isSameItemSameComponents(input,snapshot)
@@ -371,11 +398,16 @@ public final class LbcBolts {
                     // Source tests exact 64 arrows on each recursive invocation: ammo rolls once.
                     for(String table:reforgeTables(input,ultra))
                         output.addAll(game.lbc().rollTable(state.level,item.position(),item,"lbc:"+table));
+                    output.removeIf(ItemStack::isEmpty);
+                    // Finish this input without retrying an empty roll, preserving its remaining stack.
+                    // Once 64 arrows yield ammo, source consumes the remaining 63 without more ammo rolls.
+                    if(output.isEmpty() && !convertedArrowStack) return true;
+                    if(ultra && arrow64(input)) convertedArrowStack=true;
                     Vec3 position=item.position();
                     input.shrink(1); remaining--;
                     if(remaining==0) item.discard();
                     else item.setItem(input);
-                    for(var result:output) if(!result.isEmpty())
+                    for(var result:output)
                         state.level.addFreshEntity(new ItemEntity(state.level,position.x,position.y,position.z,result));
                     game.items().mana().award(owner,"lbc:true_advancements/"+(ultra?"lightning_smith_ultra":"lightning_smith"));
                     return remaining==0;

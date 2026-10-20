@@ -27,6 +27,7 @@
     "LbcRepairRecipeMixin",
     "ObserverPlayerMixin",
     "ObserverPacketMixin",
+    "KnowledgePacketMixin",
     "ObserverInventoryMixin",
     "ObserverAdvancementMixin",
     "AdvancementFilterMixin",

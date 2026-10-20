@@ -90,18 +90,6 @@
     },
     "done": true
   },
-  "lbc:true_advancements/legends/academy/snow_wand": {
-    "criteria": {
-      "requirement": "2026-10-15 14:36:24 +0300"
-    },
-    "done": true
-  },
-  "lbc:true_advancements/legends/academy/ice_wand": {
-    "criteria": {
-      "requirement": "2026-10-15 14:36:24 +0300"
-    },
-    "done": true
-  },
   "lbc:true_advancements/swords/ice": {
     "criteria": {
       "requirement": "2026-10-15 23:37:38 +0300"
@@ -175,12 +163,6 @@
     "done": true
   },
   "lbc:true_advancements/legends/academy/terra": {
-    "criteria": {
-      "requirement": "2026-10-16 18:16:27 +0300"
-    },
-    "done": true
-  },
-  "lbc:true_advancements/legends/academy/root": {
     "criteria": {
       "requirement": "2026-10-16 18:16:27 +0300"
     },
@@ -321,6 +303,72 @@
   "lbc:true_advancements/legends/academy/boltbolt": {
     "criteria": {
       "requirement": "2026-10-19 19:53:57 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/lightning_smith_ultra": {
+    "criteria": {
+      "requirement": "2026-10-20 08:42:22 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/academy/consuming": {
+    "criteria": {
+      "requirement": "2026-10-20 14:09:28 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/tuntija_wands/consuming": {
+    "criteria": {
+      "requirement": "2026-10-20 14:09:28 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/tuntija_wands/dublicating": {
+    "criteria": {
+      "requirement": "2026-10-20 14:36:11 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/academy/dublicating": {
+    "criteria": {
+      "requirement": "2026-10-20 14:36:11 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/shooter/slr": {
+    "criteria": {
+      "requirement": "2026-10-20 15:05:39 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/academy/snow_wand": {
+    "criteria": {
+      "requirement": "2026-10-20 15:13:35 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/academy/ice_wand": {
+    "criteria": {
+      "requirement": "2026-10-20 15:13:35 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/academy/electro": {
+    "criteria": {
+      "requirement": "2026-10-20 16:15:14 +0300"
+    },
+    "done": true
+  },
+  "lbc:true_advancements/legends/academy/root": {
+    "criteria": {
+      "requirement": "2026-10-20 17:03:11 +0300"
+    },
+    "done": true
+  },
+  "lbc:challenges/no_knowledge": {
+    "criteria": {
+      "requirement": "2026-10-20 17:04:38 +0300"
     },
     "done": true
   },

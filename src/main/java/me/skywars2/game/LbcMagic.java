@@ -802,6 +802,7 @@ public final class LbcMagic {
     }
     private void clearDebuffs(ServerPlayer player) {
         game.items().electro().clearEffects(player);
+        game.items().shooters().clearStun(player);
         if (player.getActiveEffects().isEmpty()) return;
         // Snapshot нужен: native onEffectsRemoved синхронно запускает другие обработчики.
         for (var effect : List.copyOf(player.getActiveEffects()))

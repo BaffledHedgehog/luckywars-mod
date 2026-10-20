@@ -1,0 +1,230 @@
+--- a/src/main/java/me/skywars2/game/LbcShooters.java
++++ b/src/main/java/me/skywars2/game/LbcShooters.java
+@@ -12,6 +12,9 @@
+ import net.minecraft.world.entity.EquipmentSlot;
+ import net.minecraft.world.entity.LivingEntity;
+ import net.minecraft.world.entity.item.PrimedTnt;
++import net.minecraft.world.entity.item.ItemEntity;
++import net.minecraft.world.entity.animal.chicken.Chicken;
++import net.minecraft.world.entity.ai.attributes.Attributes;
+ import net.minecraft.world.item.component.CustomData;
+ import net.minecraft.world.level.BlockGetter;
+ import net.minecraft.world.level.block.Block;
+@@ -58,12 +61,18 @@
+     private static final TagKey<Item> BEST_AMMO = TagKey.create(Registries.ITEM, Identifier.parse("minecraft:razor_ammo_best"));
+     public static final Item PINE = registerPine();
+     public static final Item SLR = registerSlr();
++    public static final Item KFC_GUN = registerKfc();
++    private static final String KFC_OWNER = "skywars2.kfc.owner.";
++    private static final CompoundTag KFC_FLAG = new CompoundTag();
++    static { KFC_FLAG.putInt("kfcgun",1); }
+     static { PINE_FLAG.putInt("razorpine", 1); SLR_FLAG.putInt("slr",1); INFINITE_ARROW.putInt("infinite_arrow",1); }
+ 
+     private final GameController game;
+     private final Map<UUID, Burst> bursts = new HashMap<>();
+     private final Set<Arrow> arrows = new LinkedHashSet<>();
+     private final Map<UUID,Integer> slrCooldowns = new HashMap<>();
++    private final Map<UUID,Integer> kfcCooldowns = new HashMap<>();
++    private final Map<Chicken,UUID> chickens = new java.util.IdentityHashMap<>();
+     private final Map<LivingEntity,Stun> stuns = new java.util.IdentityHashMap<>();
+     private static final class Stun {
+         final ServerPlayer owner;
+@@ -83,6 +92,81 @@
+ 
+     LbcShooters(GameController game) { this.game = game; }
+     static void register() { }
++    private static Item registerKfc() {
++        var key=ResourceKey.create(Registries.ITEM,Identifier.parse("skywars2:kfc_gun"));
++        return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(
++                new Item.Properties().setId(key).durability(25).overrideDescription("kfcgun")
++                        .component(DataComponents.ITEM_MODEL,Identifier.parse("lbc:kfcgun")),Items.CARROT_ON_A_STICK,true) {
++            @Override public InteractionResult use(Level level,Player player,InteractionHand hand) {
++                var controller=me.skywars2.SkyWars2.game();
++                return controller!=null && player instanceof ServerPlayer owner
++                        && controller.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
++            }
++        });
++    }
++    public static boolean isKfcGun(ItemStack stack) {
++        var data=stack.get(DataComponents.CUSTOM_DATA);
++        return stack.is(KFC_GUN) || data!=null && data.matchedBy(KFC_FLAG);
++    }
++    int kfcCooldownRemaining(ServerPlayer owner) { return kfcCooldowns.getOrDefault(owner.getUUID(),0); }
++    int chickenCount() { return chickens.size(); }
++    private boolean useKfc(ServerPlayer owner,InteractionHand hand) {
++        if(hand==InteractionHand.OFF_HAND && !game.config().offhandWands || !canFire(owner)
++                || game.items().magic().suppressedAt(owner.level(),owner.getEyePosition()) || kfcCooldownRemaining(owner)>0) return false;
++        var chicken=new Chicken(EntityTypes.CHICKEN,owner.level());
++        var preset=new CompoundTag();
++        preset.putString("DeathLootTable","minecraft:empty");
++        preset.putInt("Age",-19980); preset.putInt("EggLayTime",1999980); preset.putBoolean("HasVisualFire",true);
++        chicken.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,owner.registryAccess(),preset));
++        chicken.getAttribute(Attributes.MAX_HEALTH).setBaseValue(30); chicken.setHealth(30);
++        chicken.setRemainingFireTicks(2000);
++        chicken.setPos(owner.getEyePosition().add(owner.getLookAngle()));
++        var direction=owner.getLookAngle();
++        chicken.setDeltaMovement(new Vec3(Math.floor(direction.x*6000)*.001,
++                Math.floor(direction.y*6000)*.001,Math.floor(direction.z*6000)*.001));
++        chicken.entityTags().add("chick"); chicken.entityTags().add("lucky_mob");
++        chicken.entityTags().add(KFC_OWNER+owner.getUUID()); game.items().markCurrentItemEpoch(chicken);
++        if(!owner.level().addFreshEntity(chicken)) return false;
++        chickens.put(chicken,owner.getUUID()); kfcCooldowns.put(owner.getUUID(),20);
++        return true;
++    }
++    ServerPlayer owner(Entity entity) {
++        var id=entity instanceof Chicken chicken?chickens.get(chicken):null;
++        return id==null?null:game.server().getPlayerList().getPlayer(id);
++    }
++    /** Accepted native damage, not a separate collision attack, activates the original chicken turret. */
++    public void damaged(LivingEntity target,DamageSource source) {
++        if(!(target instanceof Chicken chicken) || !chickens.containsKey(chicken) || !chicken.isAlive()
++                || chicken.getHealth()>20 || chicken.entityTags().contains("time_stopped")
++                || game.items().wands().timeStopped()) return;
++        var owner=owner(chicken);
++        if(owner==null || !active(owner) || !game.items().currentEpoch(chicken)) return;
++        chickens.remove(chicken);
++        game.items().blaze().chickenTurret(owner,chicken.position().add(0,1,0));
++        chicken.discard();
++    }
++    private void tickChickens() {
++        for(var chicken:List.copyOf(chickens.keySet())) {
++            var owner=owner(chicken);
++            if(owner==null || !active(owner) || !chicken.isAlive() || chicken.isRemoved()
++                    || chicken.level()!=owner.level() || !game.items().currentEpoch(chicken)) {
++                chickens.remove(chicken); chicken.discard(); continue;
++            }
++            if(game.items().wands().timeStopped() || chicken.entityTags().contains("time_stopped")) continue;
++            if(!chicken.isOnFire()) {
++                // Remove the tracked state before spawning anything: load/unload callbacks cannot duplicate the drop.
++                chickens.remove(chicken);
++                var point=chicken.position();
++                for(var stack:game.lbc().rollTable(owner.level(),point,owner,"lbc:kfc_yumyumyummy")) {
++                    var drop=new ItemEntity(owner.level(),point.x,point.y,point.z,stack);
++                    drop.setDefaultPickUpDelay(); owner.level().addFreshEntity(drop);
++                }
++                LbcOverload.sound(owner,point,"minecraft:entity.player.levelup",.5f,1,0);
++                owner.level().sendParticles(ParticleTypes.CLOUD,point.x,point.y,point.z,10,0,0,0,0);
++                chicken.discard();
++            }
++        }
++    }
+     private static Item registerPine() {
+         var key = ResourceKey.create(Registries.ITEM, Identifier.parse("skywars2:razorpine"));
+         return Registry.register(BuiltInRegistries.ITEM, key, new SimplePolymerItem(
+@@ -287,6 +371,7 @@
+                 + (game.config().offhandWands && isPine(player.getOffhandItem()) ? 1 : 0);
+     }
+     public boolean use(ServerPlayer player, InteractionHand hand) {
++        if(isKfcGun(player.getItemInHand(hand))) return useKfc(player,hand);
+         if(isSlr(player.getItemInHand(hand))) return useSlr(player,hand);
+         if (!isPine(player.getItemInHand(hand)) || hand == InteractionHand.OFF_HAND && !game.config().offhandWands
+                 || bursts.containsKey(player.getUUID()) || !canFire(player)) return false;
+@@ -307,6 +392,9 @@
+     }
+     public void tick() {
+         tickStuns();
++        tickChickens();
++        kfcCooldowns.replaceAll((id,ticks)->ticks-1);
++        kfcCooldowns.values().removeIf(ticks->ticks<=0);
+         slrCooldowns.replaceAll((id,ticks)->ticks-1);
+         slrCooldowns.values().removeIf(ticks->ticks<=0);
+         if (bursts.isEmpty()) return;
+@@ -355,6 +443,12 @@
+         return (Math.floor(direction * speed) + owner.getRandom().nextInt(601) - 300) * .001;
+     }
+     boolean loaded(Entity entity) {
++        if(entity instanceof Chicken chicken) for(String tag:entity.entityTags()) if(tag.startsWith(KFC_OWNER)) {
++            if(!game.items().currentEpoch(chicken)) { chicken.discard(); return true; }
++            try { chickens.put(chicken,UUID.fromString(tag.substring(KFC_OWNER.length()))); }
++            catch(IllegalArgumentException ignored) { chicken.discard(); }
++            return true;
++        }
+         if (!(entity instanceof Arrow arrow) || !entity.entityTags().contains(PROJECTILE_TAG)) return false;
+         if (entity.level() == game.maps().level() && (game.playing() || game.items().currentEpoch(entity)
+                 || arrow.getOwner() instanceof ServerPlayer owner && active(owner))) arrows.add(arrow);
+@@ -363,6 +457,7 @@
+     }
+     void unloaded(Entity entity) {
+         arrows.remove(entity);
++        chickens.remove(entity);
+         if(entity instanceof LivingEntity living) clearStun(living);
+     }
+     public boolean canHit(Projectile projectile, Entity target) {
+@@ -378,10 +473,16 @@
+     public int arrowCount() { return arrows.size(); }
+     public void forget(ServerPlayer player) {
+         bursts.remove(player.getUUID()); slrCooldowns.remove(player.getUUID());
++        kfcCooldowns.remove(player.getUUID());
++        for(var chicken:List.copyOf(chickens.keySet())) if(player.getUUID().equals(chickens.get(chicken))) {
++            chickens.remove(chicken); chicken.discard();
++        }
+         for(var target:List.copyOf(stuns.keySet())) if(target==player || stuns.get(target).owner==player) clearStun(target);
+     }
+     void stop() {
+         bursts.clear(); slrCooldowns.clear();
++        kfcCooldowns.clear();
++        var chicks=List.copyOf(chickens.keySet()); chickens.clear(); for(var chicken:chicks) chicken.discard();
+         for(var target:List.copyOf(stuns.keySet())) clearStun(target);
+         var removed = List.copyOf(arrows); arrows.clear();
+         for (var arrow : removed) arrow.discard();
+--- a/src/main/java/me/skywars2/game/LbcBlaze.java
++++ b/src/main/java/me/skywars2/game/LbcBlaze.java
+@@ -46,7 +46,7 @@
+     private final Map<Blaze,UUID> blazes=new HashMap<>();
+     private final ArrayDeque<Terrain> terrain=new ArrayDeque<>();
+     private int ticks;
+-    private record Turret(ServerPlayer owner,ServerLevel level,Vec3 position,String epoch,int remaining) { }
++    private record Turret(ServerPlayer owner,ServerLevel level,Vec3 position,String epoch,int remaining,double speed) { }
+     private record Terrain(ServerPlayer owner,ServerLevel level,ArrayDeque<BlockAreaWork> areas) { }
+ 
+     LbcBlaze(GameController game) { this.game=game; }
+@@ -57,7 +57,7 @@
+             Vec3 next=transform.apply(turret.position);
+             if(next==null) turrets.remove(i);
+             else if(!next.equals(turret.position))
+-                turrets.set(i,new Turret(turret.owner,turret.level,next,turret.epoch,turret.remaining));
++                turrets.set(i,new Turret(turret.owner,turret.level,next,turret.epoch,turret.remaining,turret.speed));
+         }
+     }
+ 
+@@ -161,8 +161,13 @@
+             game.items().mana().award(owner,"lbc:true_advancements/staffs/blaze");
+             LbcOverload.sound(owner,end,"minecraft:entity.villager.trade",1,1,0);
+         }
+-        turrets.add(new Turret(owner,owner.level(),end.add(0,1,0),game.items().epoch(),5));
++        turrets.add(new Turret(owner,owner.level(),end.add(0,1,0),game.items().epoch(),5,.7));
+         LbcOverload.sound(owner,end,"minecraft:entity.blaze.ambient",1,1.3f,0);
++    }
++
++    /** KFC uses the same one-second pulse and owner/fire lifecycle, with three native shots at speed 1.6. */
++    void chickenTurret(ServerPlayer owner,Vec3 position) {
++        turrets.add(new Turret(owner,owner.level(),position,game.items().epoch(),3,1.6));
+     }
+ 
+     private boolean target(ServerPlayer owner,LivingEntity entity) {
+@@ -309,13 +314,13 @@
+             var target=nearest(owner,turret.position,true,candidates);
+             if(target!=null) {
+                 var projectile=new SmallFireball(EntityTypes.SMALL_FIREBALL,turret.level);
+-                Vec3 velocity=target.getEyePosition().subtract(turret.position).normalize().scale(.7);
++                Vec3 velocity=target.getEyePosition().subtract(turret.position).normalize().scale(turret.speed);
+                 game.items().wands().launchFire(owner,projectile,turret.position,velocity);
+                 LbcOverload.sound(owner,turret.position,"minecraft:entity.blaze.shoot",1,1,0);
+             }
+             turret.level.sendParticles(TURRET_DUST,true,false,turret.position.x,turret.position.y,turret.position.z,10,.2,.5,.2,0);
+             if(turret.remaining<=1) turrets.remove(i);
+-            else turrets.set(i,new Turret(owner,turret.level,turret.position,turret.epoch,turret.remaining-1));
++            else turrets.set(i,new Turret(owner,turret.level,turret.position,turret.epoch,turret.remaining-1,turret.speed));
+         }
+         if(now%10==0) for(var owner:List.copyOf(heads.values())) {
+             if(!valid(owner) || headCharges(owner)<=0 || game.items().magic().rejectCustomEffect(owner)) { clearEffects(owner); continue; }
+--- a/src/main/java/me/skywars2/game/LbcIndirectKills.java
++++ b/src/main/java/me/skywars2/game/LbcIndirectKills.java
+@@ -91,6 +91,7 @@
+         var game=me.skywars2.SkyWars2.game();
+         if(game==null) return null;
+         var summoner=game.items().blaze().owner(source);
++        if(summoner==null) summoner=game.items().shooters().owner(source);
+         if(summoner!=null) return summoner;
+         summoner=game.items().psycho().owner(source);
+         if(summoner==null) summoner=game.items().summons().owner(source);

@@ -34,6 +34,10 @@ public final class LbcDamage {
             ResourceKey.create(Registries.DAMAGE_TYPE, Identifier.parse("skywars2:electro_meditation"));
     public static final ResourceKey<DamageType> TERRA_BEAM =
             ResourceKey.create(Registries.DAMAGE_TYPE, Identifier.parse("skywars2:terra_beam"));
+    public static final ResourceKey<DamageType> CONSUMING =
+            ResourceKey.create(Registries.DAMAGE_TYPE, Identifier.parse("skywars2:consuming"));
+    public static final ResourceKey<DamageType> DUPLICATING_HOLE =
+            ResourceKey.create(Registries.DAMAGE_TYPE, Identifier.parse("skywars2:duplicating_hole"));
     public static final ResourceKey<DamageType> STRANGENESS =
             ResourceKey.create(Registries.DAMAGE_TYPE, Identifier.parse("skywars2:strangeness"));
     private static final TagKey<DamageType> ELECTRIC_TYPES =
@@ -103,11 +107,13 @@ public final class LbcDamage {
     }
     /** Проводимость и дуги медитации вредят союзникам; только прямые дуги дают knockback. */
     public static boolean allowsElectricFriendlyFire(DamageSource source) {
-        return source.is(ELECTRO_CONDUCTION) || source.is(ELECTRO_MEDITATION);
+        return source.is(ELECTRO_CONDUCTION) || source.is(ELECTRO_MEDITATION)
+                || LbcElectro.eggLightning(source.getDirectEntity());
     }
     /** Отдельные типы с исходным arrow-уроном сохраняют исключение arrow_only для атакующих пассивов. */
     public static boolean isArrowDamage(DamageSource source) {
-        return source.is(DamageTypes.ARROW) || source.is(ELECTRO_BOLT) || source.is(TERRA_BEAM) || source.is(YELLOW_BOLT);
+        return source.is(DamageTypes.ARROW) || source.is(ELECTRO_BOLT) || source.is(TERRA_BEAM)
+                || source.is(CONSUMING) || source.is(YELLOW_BOLT);
     }
     public static boolean allowDamage(LivingEntity victim, DamageSource source) {
         var game=me.skywars2.SkyWars2.game();

@@ -1,0 +1,234 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "quality": 8,
+          "name": "minecraft:carrot_on_a_stick",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:item_model": "lbc:vex_wand"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "vex_wand",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "staff",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                [
+                  {
+                    "score": {
+                      "name": "vex_wand_mana_use",
+                      "objective": "lbc.math"
+                    },
+                    "italic": false,
+                    "color": "aqua",
+                    "type": "score"
+                  },
+                  {
+                    "translate": "mana_on_activate",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "vex_wand.lore.1",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "vex_wand.lore.2",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "halloween.lore",
+                  "color": "#ff670f",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,staff:1,magicwand:1,vex_wand:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "quality": 9,
+          "name": "minecraft:carrot_on_a_stick",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:item_model": "lbc:soulcorruptwand"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "soulcorruption_wand",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "staff",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                [
+                  {
+                    "text": "0-6 ",
+                    "italic": false,
+                    "color": "aqua",
+                    "type": "text"
+                  },
+                  {
+                    "translate": "magic_damage",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                [
+                  {
+                    "score": {
+                      "name": "soulcorruption_wand_mana_use",
+                      "objective": "lbc.math"
+                    },
+                    "italic": false,
+                    "color": "aqua",
+                    "type": "score"
+                  },
+                  {
+                    "translate": "mana_on_activate",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                [
+                  {
+                    "text": "15 ",
+                    "italic": false,
+                    "color": "aqua",
+                    "type": "text"
+                  },
+                  {
+                    "translate": "cast_radius",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "soulcorruption_wand.lore.1",
+                  "color": "gold",
+                  "italic": false
+                },
+                {
+                  "translate": "soulcorruption_wand.lore.2",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "soulcorruption_wand.lore.3",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "soulcorruption_wand.lore.4",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "soulcorruption_wand.lore.5",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "soulcorruption_wand.lore.6",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "soulcorruption_wand.lore.7",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "soulcorruption_wand.lore.8",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "soulcorruption_wand.lore.9",
+                  "color": "gold",
+                  "italic": false
+                },
+                {
+                  "translate": "craft_with_antichrist_mace",
+                  "color": "yellow",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{craftusable:1,transformable:1,staff:1,magicwand:1,soulcorrupter:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

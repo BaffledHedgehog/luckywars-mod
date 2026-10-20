@@ -2,6 +2,18 @@
 
 Scope: READ ONLY audit; no code/resources changed. Old root `E:/servers_mew/cringe1_21_4_skywars/world/datapacksdisabled/LBC/data/`; paths below relative to this root. Runtime not tested.
 
+## Author decisions after audit — 2026-10-20
+
+«Да, не расходовать без результата» (user): preserve inputs for unsupported
+categories and empty loot results rather than copying legacy deletion.
+
+«infbolt - не волшебный жезл, а просто магический инструмент, он не расходует
+ману и поэтому у него нет улучшения в академии вообще. А тот код - ну я
+случайно оставил их, можно убрать просто» (user).
+The historical Academy paragraph below describes dormant source only.
+Do not port that item, trial or announcements. Existing project-wide rules
+already require a single terminal and real 2x2/3x3 crafting with exact 1+1 cost.
+
 ## Identity, donors, obtain and recipe
 
 - `lbc/loot_table/lightning_bolt_egg.json`: **8** panda_spawn_egg, entity_data.id=lightning_bolt, model `lbc:lightningegg`, tier_b, custom_data `{craftusable:1,bolt_material:1}`. Name `lightning_bolt.lbc`, white/nonitalic lore `.lore.1`…`.lore.6`, gold `craft_with_wind`. Ordinary item is a native lightning spawn egg, not the Lightning Bolts wand and not an Academy weapon. `lucky_items.json:179` and `lucky_items_high_quality.json:10` reference its loot table. `source_of_energy.json` also embeds this exact donor alongside its other pool; `function/other/shishend/11.mcfunction` rolls source_of_energy for players.
@@ -19,7 +31,7 @@ loop: increment Distance; dust_color_transition red/pink→white; any item AABB 
 
 end: at endpoint process **all** transformable item entities within1 and separately exact64-arrow entities within1; at each item's own position call ultra_reforge. Then firework blast_far, anvil(volume.4,pitch2), 30 end_rod particles; set Distance=120. End can be called twice in one loop (item and block conditions), effects twice; transformed outputs could enter second query/pass.
 
-ultra_reforge uses independent category checks, not exclusive else-if: accessory/axe/bow/hoe/shooter/staff/sword/totem/summoner/moisei/trident/arcanum use `transformables_*_all` (moisei→boots); pickaxe/potion/shield/shovel use `transformables_*`; spellitem→transformables_spells; libspell→spells_library; exact64arrows→magnum_ammo. It also has bespoke armor/category rolls: assasin, berserk, chaoschestplate, mage, paladin, phantom, gownoleggings, shulkshell, reactive, techno, technomk2, nyauwu, jumpboost, randchanted, multiplying, dynamite, erosion, nanobots, flesh, glass, overload, metasola with source-specific exclusions. **Use file as authority for exclusions**. It grants lightning_smith_ultra to nearest nonspectator player then recursively processes the **entire stack**: count1 is killed, otherwise reduce_count decrements and invokes ultra_reforge again. This continues even with no output category. Exact64 arrows produce ammo once, then remaining63 fail the exact64 predicate yet are recursively consumed. Previous one-unit interpretation is incorrect. Owner attribution is not set on output or advancement target.
+ultra_reforge uses independent category checks, not exclusive else-if: accessory/axe/bow/hoe/shooter/staff/sword/summoner/moisei/arcanum use `transformables_*_all` (moisei→boots); pickaxe/potion/shield/shovel/totem/trident use `transformables_*`; spellitem→transformables_spells; libspell→spells_library; exact64arrows→magnum_ammo. It also has bespoke armor/category rolls: assasin, berserk, chaoschestplate, mage, paladin, phantom, gownoleggings, shulkshell, reactive, techno, technomk2, nyauwu, jumpboost, randchanted, multiplying, dynamite, erosion, nanobots, flesh, glass, overload, metasola with source-specific exclusions. **Use file as authority for exclusions**. It grants lightning_smith_ultra to nearest nonspectator player then recursively processes the **entire stack**: count1 is killed, otherwise reduce_count decrements and invokes ultra_reforge again. This continues even with no output category. Exact64 arrows produce ammo once, then remaining63 fail the exact64 predicate yet are recursively consumed. Previous one-unit interpretation is incorrect. Owner attribution is not set on output or advancement target.
 
 ## Academy and imba donor ray
 

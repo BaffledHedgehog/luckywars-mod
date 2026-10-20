@@ -50,6 +50,17 @@ public final class LbcBlaze {
     private record Terrain(ServerPlayer owner,ServerLevel level,ArrayDeque<BlockAreaWork> areas) { }
 
     LbcBlaze(GameController game) { this.game=game; }
+    void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
+        for(int i=turrets.size()-1;i>=0;i--) {
+            var turret=turrets.get(i);
+            if(turret.level!=level) continue;
+            Vec3 next=transform.apply(turret.position);
+            if(next==null) turrets.remove(i);
+            else if(!next.equals(turret.position))
+                turrets.set(i,new Turret(turret.owner,turret.level,next,turret.epoch,turret.remaining));
+        }
+    }
+
     public int count() { return turrets.size()+heads.size()+terrain.size()+blazes.size(); }
     int turretCount() { return turrets.size(); }
     int terrainCount() { return terrain.size(); }

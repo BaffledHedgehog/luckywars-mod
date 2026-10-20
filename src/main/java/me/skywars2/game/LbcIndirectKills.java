@@ -42,7 +42,7 @@ public final class LbcIndirectKills {
                     && !old.isSuffocating(level,pos)) stonePlaced(level,pos,owner);
         }
     }
-    private record Owner(UUID player, long order) { }
+    private record Owner(UUID player, long order, boolean friendlyFire) { }
     private record TrapFrame(ServerPlayer owner, ServerLevel level, Map<BlockPos,BlockState> candidates) { }
     private static final class Fall {
         final Owner owner;
@@ -73,13 +73,15 @@ public final class LbcIndirectKills {
     private TrapFrame trapFrame;
 
     LbcIndirectKills(GameController game) { this.game=game; }
-    private Owner owner(ServerPlayer player) { return new Owner(player.getUUID(),++order); }
+    private Owner owner(ServerPlayer player) { return owner(player,false); }
+    private Owner owner(ServerPlayer player,boolean friendlyFire) { return new Owner(player.getUUID(),++order,friendlyFire); }
 
     /** Нативное зелье передаёт source как игрока, снаряд или облако — разворачиваем владельца. */
     public static ServerPlayer playerSource(Entity source) {
         if(source instanceof Projectile projectile) source=projectile.getOwner();
         if(source instanceof AreaEffectCloud cloud) source=cloud.getOwner();
         if(source instanceof PrimedTnt tnt) source=tnt.getOwner();
+        if(source instanceof net.minecraft.world.entity.LightningBolt bolt) source=bolt.getCause();
         if(source instanceof ServerPlayer player) return player;
         return summonedOwner(source);
     }
@@ -91,7 +93,8 @@ public final class LbcIndirectKills {
         var summoner=game.items().blaze().owner(source);
         if(summoner!=null) return summoner;
         summoner=game.items().psycho().owner(source);
-        return summoner!=null ? summoner : game.items().summons().owner(source);
+        if(summoner==null) summoner=game.items().summons().owner(source);
+        return summoner!=null ? summoner : game.items().consuming().owner(source);
     }
 
     public void effectChanged(LivingEntity target, MobEffectInstance effect, Entity source) {
@@ -145,7 +148,9 @@ public final class LbcIndirectKills {
 
     /** До удаления собираем только стоящих именно на этой collision shape, не всех соседей. */
     public void supportRemoved(ServerPlayer player, BlockPos pos) {
-        var level=player.level();
+        supportRemoved(player.level(),player,pos);
+    }
+    public void supportRemoved(ServerLevel level,ServerPlayer player,BlockPos pos) {
         var state=level.getBlockState(pos);
         if(state.getCollisionShape(level,pos).isEmpty()) return;
         Owner owner=owner(player);
@@ -182,7 +187,9 @@ public final class LbcIndirectKills {
 
     /** События собирают только новые удушающие блоки этой серии, без обхода всего объёма. */
     public void trapChanges(ServerPlayer owner, Runnable writes) {
-        var level=owner.level();
+        trapChanges(owner.level(),owner,writes);
+    }
+    public void trapChanges(ServerLevel level,ServerPlayer owner,Runnable writes) {
         var previous=trapFrame;
         var frame=new TrapFrame(owner,level,new HashMap<>());
         trapFrame=frame;
@@ -228,7 +235,7 @@ public final class LbcIndirectKills {
     }
     public void worldChanges(ServerLevel level, Entity source, Runnable writes) {
         var player=playerSource(source);
-        blockWrites(level,player==null ? null : owner(player),writes);
+        blockWrites(level,player==null ? null : owner(player,LbcElectro.eggLightning(source)),writes);
     }
     private void blockWrites(ServerLevel level, Owner source, Runnable writes) {
         var previous=hazardWriter; var previousLevel=hazardLevel;
@@ -262,7 +269,7 @@ public final class LbcIndirectKills {
         var cause=environmentOwner(target,source);
         if(cause==null) return true;
         var owner=game.server().getPlayerList().getPlayer(cause.player);
-        return owner==null || owner==target || game.items().wands().target(owner,target);
+        return owner==null || owner==target || game.items().wands().target(owner,target,cause.friendlyFire);
     }
     private Owner environmentOwner(LivingEntity target, DamageSource source) {
         if(source.is(DamageTypes.IN_WALL)) return suffocationOwner(target);
@@ -316,7 +323,10 @@ public final class LbcIndirectKills {
     }
     /** Нативное поджигание сущностью, которому не предшествовал контакт с принадлежащим игроку блоком огня. */
     public void ignited(LivingEntity target,ServerPlayer player) {
-        if(target.isAlive() && target.isOnFire()) burning.put(target,owner(player));
+        ignited(target,player,false);
+    }
+    public void ignited(LivingEntity target,ServerPlayer player,boolean friendlyFire) {
+        if(target.isAlive() && target.isOnFire()) burning.put(target,owner(player,friendlyFire));
     }
     public void poisoned(LivingEntity target, ServerPlayer player) {
         var effect=target.getEffect(MobEffects.POISON);

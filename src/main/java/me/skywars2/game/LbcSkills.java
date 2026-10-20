@@ -11,6 +11,8 @@ import net.minecraft.world.item.component.ItemLore;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import eu.pb4.polymer.common.api.PolymerCommonUtils;
+import eu.pb4.polymer.core.api.item.PolymerItemUtils;
+import net.minecraft.world.item.component.TooltipDisplay;
 import me.skywars2.SkyWars2;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
@@ -24,12 +26,52 @@ import java.util.List;
 
 /** Native handlers for the small set of migrated LBC skills. */
 public final class LbcSkills {
+    private static final String UNKNOWN_ITEM = "????????????????????????????";
+    private static boolean registered;
     private static final EquipmentSlot[] EQUIPMENT_SLOTS = EquipmentSlot.values();
     private static final List<String> ARTIFACT_KEYS = List.of(
             "artifact_1", "artifact_2", "artifact_3", "artifact_4", "artifact_5", "artifact_6", "artifact_7", "artifact_8",
             "artifact_9", "artifact_10", "artifact_11", "artifact_12", "artifact_13", "artifact_14", "artifact_15", "artifact_16",
             "artifact_17", "artifact_18", "artifact_19", "artifact_20", "artifact_21", "artifact_22", "artifact_23");
     private LbcSkills() { }
+
+    /** Global Polymer projection also covers vanilla stacks, without changing authoritative components. */
+    public static void register() {
+        if (registered) return;
+        registered = true;
+        PolymerItemUtils.CONTEXT_ITEM_CHECK.register((stack, context) -> hidesKnowledge(context));
+        PolymerItemUtils.ITEM_MODIFICATION_EVENT.register((original, client, context) -> {
+            if (client.isEmpty() || !hidesKnowledge(context)) return client;
+            // A callback may receive the original vanilla stack: never mutate either supplied reference.
+            var projected = client.copy();
+            projected.set(DataComponents.ITEM_NAME, Component.literal(UNKNOWN_ITEM));
+            projected.set(DataComponents.CUSTOM_NAME, Component.literal(UNKNOWN_ITEM));
+            projected.set(DataComponents.LORE, new ItemLore(List.of(Component.literal(UNKNOWN_ITEM))));
+            // Polymer has already rendered component tooltips into lore. Keep those components hidden,
+            // replace every rendered line, and show only the source modifier's question-mark line.
+            var display = projected.getOrDefault(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT);
+            display = new TooltipDisplay(false, display.hiddenComponents())
+                    .withHidden(DataComponents.LORE, false)
+                    .withHidden(DataComponents.ATTRIBUTE_MODIFIERS, true)
+                    .withHidden(DataComponents.CAN_BREAK, true)
+                    .withHidden(DataComponents.CAN_PLACE_ON, true)
+                    .withHidden(DataComponents.DYED_COLOR, true)
+                    .withHidden(DataComponents.ENCHANTMENTS, true)
+                    .withHidden(DataComponents.JUKEBOX_PLAYABLE, true)
+                    .withHidden(DataComponents.STORED_ENCHANTMENTS, true)
+                    .withHidden(DataComponents.TRIM, true)
+                    .withHidden(DataComponents.UNBREAKABLE, true);
+            projected.set(DataComponents.TOOLTIP_DISPLAY, display);
+            return projected;
+        });
+    }
+
+    private static boolean hidesKnowledge(PacketContext context) {
+        var player = PolymerCommonUtils.getPlayer(context);
+        var game = SkyWars2.game();
+        // Packet encoding may run on Netty; the owner exposes only its published cosmetic snapshot.
+        return player != null && game != null && game.lbc().hidesKnowledge(player);
+    }
 
     /** Косметический доступ получателя: наблюдатели также могут смотреть свои выбранные билды. */
     public static boolean canReadArtifacts(ServerPlayer player) {
@@ -61,12 +103,21 @@ public final class LbcSkills {
 
     /** Повторная отправка неизменённых данных нужна только при смене перка/настройки получателя. */
     public static void refreshViewer(ServerPlayer player) {
+        refreshViewer(player, false);
+    }
+
+    /** Challenge visibility changes resend every tracked presentation only to this viewer. */
+    public static void refreshKnowledgeViewer(ServerPlayer player) {
+        refreshViewer(player, true);
+    }
+
+    private static void refreshViewer(ServerPlayer player, boolean allItems) {
         player.inventoryMenu.sendAllDataToRemote();
         if (player.containerMenu != player.inventoryMenu) player.containerMenu.sendAllDataToRemote();
         // Редкая смена доступа, не тик: полный список загруженных сущностей покрывает и крайние высоты Creative.
         for (var entity : player.level().getAllEntities()) {
             if (entity.isRemoved()) continue;
-            if (entity instanceof ItemEntity item && item.getItem().is(LbcMagic.MYSTICAL_ARTIFACT)) {
+            if (entity instanceof ItemEntity item && (allItems || item.getItem().is(LbcMagic.MYSTICAL_ARTIFACT))) {
                 if (!PlayerLookup.tracking(entity).contains(player)) continue;
                 var data = entity.getEntityData().getNonDefaultValues();
                 if (data != null) player.connection.send(new ClientboundSetEntityDataPacket(entity.getId(), data));
@@ -74,7 +125,7 @@ public final class LbcSkills {
                 ArrayList<Pair<EquipmentSlot, ItemStack>> equipment = null;
                 for (var slot : EQUIPMENT_SLOTS) {
                     var stack = living.getItemBySlot(slot);
-                    if (stack.is(LbcMagic.MYSTICAL_ARTIFACT)) {
+                    if (!stack.isEmpty() && (allItems || stack.is(LbcMagic.MYSTICAL_ARTIFACT))) {
                         if (equipment == null) equipment = new ArrayList<>();
                         equipment.add(Pair.of(slot, stack));
                     }

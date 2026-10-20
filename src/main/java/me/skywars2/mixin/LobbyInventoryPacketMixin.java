@@ -2,6 +2,9 @@ package me.skywars2.mixin;
 
 import eu.pb4.sgui.api.SguiUtils;
 import me.skywars2.SkyWars2;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketUtils;
+import net.minecraft.network.protocol.game.ClientboundSetHeldSlotPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
 import net.minecraft.network.protocol.game.ServerboundPlaceRecipePacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
@@ -13,15 +16,38 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /** Блокирует изменения инвентаря после переноса обработки пакета на серверный поток. */
-@Mixin(ServerGamePacketListenerImpl.class)
+@Mixin(value = ServerGamePacketListenerImpl.class, priority = 1100)
 public abstract class LobbyInventoryPacketMixin {
     @Shadow public ServerPlayer player;
     @Unique private static final String skywars2$THREAD_CHECK =
             "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V";
+
+    /** Dispatch before every SGui callback as well as vanilla inventory mutations. */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    @Inject(method = {
+            "handleContainerClick", "handleContainerClose", "handleContainerButtonClick",
+            "handleSetCreativeModeSlot", "handlePlaceRecipe", "handleSetCarriedItem",
+            "handlePickItemFromBlock", "handlePickItemFromEntity", "handleRenameItem",
+            "handleSelectTrade", "handleSetBeaconPacket", "handleContainerSlotStateChanged",
+            "handleBundleItemSelectedPacket", "handleEditBook", "handleSignUpdate"
+    }, at = @At("HEAD"), cancellable = true)
+    private void skywars2$lockStunnedMutation(@Coerce Packet<?> packet, CallbackInfo ci) {
+        // Some text packets normally dispatch only after filtering. Always read stun state on the server thread.
+        PacketUtils.ensureRunningOnSameThread((Packet) packet, (ServerGamePacketListenerImpl) (Object) this, player.level());
+        if (skywars2$rejectStunnedMutation(ci))
+            player.connection.send(new ClientboundSetHeldSlotPacket(player.getInventory().getSelectedSlot()));
+    }
+
+    /** Recheck asynchronous text commits: stun may have started while text was being filtered. */
+    @Inject(method = {"updateSignText", "updateBookContents", "signBook"}, at = @At("HEAD"), cancellable = true)
+    private void skywars2$lockStunnedTextCommit(CallbackInfo ci) {
+        skywars2$rejectStunnedMutation(ci);
+    }
 
     @Inject(method = "handleContainerClick", at = @At(value = "INVOKE", target = skywars2$THREAD_CHECK, shift = At.Shift.AFTER), cancellable = true)
     private void skywars2$lockContainer(ServerboundContainerClickPacket packet, CallbackInfo ci) {
@@ -32,7 +58,7 @@ public abstract class LobbyInventoryPacketMixin {
     @Inject(method = "handlePlayerAction", at = @At(value = "INVOKE", target = skywars2$THREAD_CHECK, shift = At.Shift.AFTER), cancellable = true)
     private void skywars2$lockDropAndSwap(ServerboundPlayerActionPacket packet, CallbackInfo ci) {
         var game = SkyWars2.game();
-        if (game != null && game.items().frost().isFrozen(player)) {
+        if (game != null && game.items().actionsBlocked(player)) {
             switch (packet.getAction()) {
                 case RELEASE_USE_ITEM -> {
                     player.stopUsingItem();
@@ -70,8 +96,20 @@ public abstract class LobbyInventoryPacketMixin {
     }
 
     @Unique
+    private boolean skywars2$rejectStunnedMutation(CallbackInfo ci) {
+        var game = SkyWars2.game();
+        if (game == null || !game.items().shooters().stunned(player)) return false;
+        // Never apply lobby inventory replacement to an in-match stunned player.
+        player.containerMenu.sendAllDataToRemote();
+        if (player.containerMenu != player.inventoryMenu) player.inventoryMenu.sendAllDataToRemote();
+        ci.cancel();
+        return true;
+    }
+
+    @Unique
     private void skywars2$rejectMutation(CallbackInfo ci) {
         var game = SkyWars2.game();
+        if (skywars2$rejectStunnedMutation(ci)) return;
         if (game != null && game.inventoryLocked(player)) {
             game.enforceLobbyInventory(player);
             player.containerMenu.sendAllDataToRemote();

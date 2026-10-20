@@ -1,0 +1,17 @@
+{
+  "completed": [
+    "teleport-wand",
+    "wands-electro",
+    "electro-gear",
+    "exahoming",
+    "tannerkivi",
+    "tannerkivi-movement",
+    "teleport-wand-cleanup",
+    "electro-family-cleanup",
+    "exahoming-cleanup",
+    "boltbolt-cleanup",
+    "tannerkivi-cleanup"
+  ],
+  "artifactSha256": "9f6872df88c51ff19b45bdb312c97e941289a43a3671f4fa267ebc18aa56fd6e",
+  "elapsedSeconds": 40.41
+}

@@ -1,0 +1,12 @@
+{
+  "completed": [
+    "Original Infinite Bolt and native lightning egg source payload and Polymer presentation",
+    "Native spawn egg consumes one, creates owned electrical lightning and protects ally and NPC",
+    "Native and legacy Teleport/bolt material pairs, exact 2x2/3x3 consumption and extra rejection",
+    "Real empty loot preserves complete normal and ultra reforge inputs and finishes queued jobs",
+    "Free/offhand/observer/time-stop, full-stack queue, no Academy upgrade, unsupported input preservation and conditional64-arrow consumption",
+    "Infbolt runtime checks resume in the second match"
+  ],
+  "artifactSha256": "3dd622a666875c3332e05c4f8ba9fb9f542d6b17ba493d985ae1801c4c4600ac",
+  "elapsedSeconds": 51.72
+}

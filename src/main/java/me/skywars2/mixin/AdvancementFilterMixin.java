@@ -26,7 +26,9 @@ public abstract class AdvancementFilterMixin {
         Map<Identifier, AdvancementHolder> allowed = new LinkedHashMap<>();
         advancements.forEach((id, holder) -> {
             if (id.getNamespace().equals("lbc") && (id.getPath().equals("true_advancements")
-                    || id.getPath().startsWith("true_advancements/"))) allowed.put(id, holder);
+                    || id.getPath().startsWith("true_advancements/")
+                    // Внутренний impossible-флаг награды; без display он не создаёт ещё одну ветку UI.
+                    || id.getPath().equals("challenges/no_knowledge"))) allowed.put(id, holder);
         });
         advancements = Map.copyOf(allowed);
         tree = new AdvancementTree();

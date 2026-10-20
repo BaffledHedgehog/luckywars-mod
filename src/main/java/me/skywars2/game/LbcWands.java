@@ -69,7 +69,13 @@ public final class LbcWands {
     public static final Item ACADEMY_FALLING_STARS=register("skywars2:academy_falling_stars_wand","falling_stars_wand","lbc:starwand");
     public static final Item BOLT_MATERIAL=registerBoltMaterial();
     public static final Item INFBOLT=register("skywars2:infbolt_wand","infbolt_wand","lbc:infbolt");
-    public static final Item ACADEMY_INFBOLT=register("skywars2:academy_infbolt_wand","infbolt_wand","lbc:infbolt");
+    public static final Item CONSUMING=register("skywars2:consuming_wand","consuming_wand","lbc:consuming_wand");
+    public static final Item ACADEMY_CONSUMING=register("skywars2:academy_consuming_wand","consuming_wand","lbc:consuming_wand");
+    public static final Item DUPLICATING=register("skywars2:duplicating_wand","dublicating_wand","lbc:dublicating_wand");
+    public static final Item ACADEMY_DUPLICATING=register("skywars2:academy_duplicating_wand","dublicating_wand","lbc:dublicating_wand");
+    public static final Item DIVIDER=register("skywars2:divider","divider","lbc:divider");
+    public static final Item CREEPER_ARMY_SPELL=register("skywars2:creeper_army_spell","creeper_army_spell","lbc:creepers",0);
+    public static final Item DESTROYER_SPELL=register("skywars2:destroyer_spell","destroyer_spell","lbc:breaker",0);
     public static final Item LIGHTNING_BOLTS_WAND=register("skywars2:lightning_bolts_wand","lightning_bolt_wand","lbc:lightningboltwand");
     public static final Item ACADEMY_LIGHTNING_BOLTS=register("skywars2:academy_lightning_bolts_wand","lightning_bolt_wand","lbc:lightningboltwand");
     public static final Item BOLTBOLT=register("skywars2:boltbolt_wand","boltbolt_wand","lbc:boltbolt_wand");
@@ -125,6 +131,10 @@ public final class LbcWands {
         ACADEMY_FALLING_STARS(LbcWands.ACADEMY_FALLING_STARS,"truefallingstars","falling_stars_wand_mana_use",4000),
         REGULAR_FALLING_STARS(LbcWands.FALLING_STARS_WAND,"truefallingstars","falling_stars_wand_mana_use",4000),
         INFBOLT(LbcWands.INFBOLT,"infbolt_wand","infbolt_wand_mana_use",0),
+        ACADEMY_CONSUMING(LbcWands.ACADEMY_CONSUMING,"consuming_wand","consuming_wand_mana_use",2000),
+        REGULAR_CONSUMING(LbcWands.CONSUMING,"consuming_wand","consuming_wand_mana_use",2000),
+        ACADEMY_DUPLICATING(LbcWands.ACADEMY_DUPLICATING,"dublicating_wand","dublicating_wand_mana_use",1000),
+        REGULAR_DUPLICATING(LbcWands.DUPLICATING,"dublicating_wand","dublicating_wand_mana_use",1000),
         ACADEMY_LIGHTNING_BOLTS(LbcWands.ACADEMY_LIGHTNING_BOLTS,"lightning_bolts","lightning_bolt_wand_mana_use",3000),
         REGULAR_LIGHTNING_BOLTS(LbcWands.LIGHTNING_BOLTS_WAND,"lightning_bolts","lightning_bolt_wand_mana_use",3000),
         ACADEMY_BOLTBOLT(LbcWands.ACADEMY_BOLTBOLT,"boltbolt_wand","boltbolt_wand_mana_use",1830),
@@ -175,6 +185,8 @@ public final class LbcWands {
         final int defaultCost;
         Spell(Item item,String flag,String cost,int defaultCost) {
             this.item=item; this.flag=flag(flag); this.cost=ScoreHolder.forNameOnly(cost); this.defaultCost=defaultCost;
+            if(item==LbcWands.ACADEMY_CONSUMING) this.flag.putInt("upgraded",1);
+            if(item==LbcWands.ACADEMY_DUPLICATING) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_PSYCHOWAND || item==LbcWands.ACADEMY_PSYCHOBLIND) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_BLAZE || item==LbcWands.ACADEMY_FIREBLAZE) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_LIGHTNING_BOLTS || item==LbcWands.ACADEMY_BOLTBOLT) this.flag.putInt("upgraded",1);
@@ -230,10 +242,14 @@ public final class LbcWands {
     public void prepare() { game.server().getStructureTemplateManager().get(LbcWall.STAIR); }
 
     private static Item register(String id,String name,String model) {
+        return register(id,name,model,25);
+    }
+    private static Item register(String id,String name,String model,int durability) {
         var key=ResourceKey.create(Registries.ITEM,Identifier.parse(id));
         var properties=new Item.Properties() {
             @Override public Identifier effectiveModel() { return Identifier.parse(model); }
-        }.setId(key).durability(25).overrideDescription(name);
+        }.setId(key).overrideDescription(name);
+        if(durability>0) properties.durability(durability);
         return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(properties,Items.CARROT_ON_A_STICK,true) {
             @Override public InteractionResult use(Level level,Player player,InteractionHand hand) {
                 var game=SkyWars2.game();
@@ -269,6 +285,13 @@ public final class LbcWands {
     public static boolean isBoltMaterial(ItemStack stack) {
         return stack.is(BOLT_MATERIAL) || stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("bolt_material",0)==1;
     }
+    public static boolean isConsumingMaterial(ItemStack stack) {
+        return stack.is(CREEPER_ARMY_SPELL) || stack.is(DESTROYER_SPELL)
+                || stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("cons_material",0)==1;
+    }
+    public static boolean isDivider(ItemStack stack) {
+        return stack.is(DIVIDER) || stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("greed_greed",0)==1;
+    }
     static void register() { }
     private static CompoundTag flag(String name) { var value=new CompoundTag(); value.putInt(name,1); return value; }
     private static boolean matches(ItemStack stack,Item nativeItem,CompoundTag flag) {
@@ -295,17 +318,27 @@ public final class LbcWands {
         return applied;
     }
     private boolean cast(ServerPlayer player,InteractionHand hand) {
-        if(game.items().frost().isFrozen(player)) return false;
+        if(game.items().actionsBlocked(player)) return false;
         var stack=player.getItemInHand(hand);
         // Общий dispatch двух рук: хвоемёт платит боеприпасами и не проходит проверку маны жезлов.
-        if (LbcShooters.isPine(stack)) return game.items().shooters().use(player, hand);
+        if (LbcShooters.isPine(stack) || LbcShooters.isSlr(stack)) return game.items().shooters().use(player, hand);
         if (LbcElectro.isAnyKatana(stack)) return game.items().electro().use(player,hand);
+        var scrollData=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+        if(isDivider(stack)) return game.items().duplicating().useDivider(player,hand,stack);
+        if(stack.is(DESTROYER_SPELL) || scrollData.getIntOr("trap2",0)==1)
+            return game.items().consuming().useScroll(player,hand,stack,true);
+        if(stack.is(CREEPER_ARMY_SPELL) || scrollData.getIntOr("creeperz",0)==1)
+            return game.items().consuming().useScroll(player,hand,stack,false);
         Spell spell=null;
         for(var candidate:SPELLS) if(matches(stack,candidate.item,candidate.flag)) { spell=candidate; break; }
         if(spell==null) return false;
         if(spell==Spell.SUMMONER_VEXES || spell==Spell.PSYCHOVEX)
             return game.items().summons().use(player,hand,stack,spell==Spell.PSYCHOVEX);
         if(spell==Spell.INFBOLT) return game.items().bolts().useInfbolt(player,hand,stack);
+        if(spell==Spell.REGULAR_CONSUMING || spell==Spell.ACADEMY_CONSUMING)
+            return game.items().consuming().use(player,hand,stack,spell==Spell.ACADEMY_CONSUMING);
+        if(spell==Spell.REGULAR_DUPLICATING || spell==Spell.ACADEMY_DUPLICATING)
+            return game.items().duplicating().use(player,hand,stack,spell==Spell.ACADEMY_DUPLICATING);
         if(spell==Spell.REGULAR_LIGHTNING_BOLTS || spell==Spell.ACADEMY_LIGHTNING_BOLTS
                 || spell==Spell.REGULAR_BOLTBOLT || spell==Spell.ACADEMY_BOLTBOLT)
             return game.items().bolts().use(player,hand,stack,
@@ -592,10 +625,16 @@ public final class LbcWands {
     }
     net.minecraft.world.phys.HitResult firstHit(ServerPlayer owner,Vec3 from,Vec3 to,
             java.util.function.Predicate<Entity> extraFilter) {
+        return firstHit(owner,from,to,extraFilter,false);
+    }
+    net.minecraft.world.phys.HitResult firstHit(ServerPlayer owner,Vec3 from,Vec3 to,
+            java.util.function.Predicate<Entity> extraFilter,boolean includeAllies) {
         var wall=LbcTerra.wallHit(owner.level(),from,to);
         Vec3 end=wall==null ? to : wall.getLocation();
         var entity=ProjectileUtil.getEntityHitResult(owner.level(),owner,from,end,new AABB(from,end).inflate(1),
-                target->game.items().lifetimes().target(owner,target) && extraFilter.test(target),0);
+                target->(includeAllies ? target instanceof LivingEntity && target(owner,target,true)
+                        && target.getType().builtInRegistryHolder().is(MOBS)
+                        : game.items().lifetimes().target(owner,target)) && extraFilter.test(target),0);
         return entity==null ? wall : entity;
     }
     /** Вместо рекурсивных 200 запросов: один native clip и один локальный поиск ближайшей цели. */
@@ -806,6 +845,15 @@ public final class LbcWands {
         if(distance>1e-7) electroHits(new ElectroTrace(owner,from,game.items().epoch()),from,end,.1,.4f,1);
         LbcOverload.sound(owner,from,"minecraft:entity.firework_rocket.twinkle",1,1,0);
     }
+    void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
+        electroTraces.removeIf(trace->{
+            if(trace.level!=level) return false;
+            Vec3 next=transform.apply(trace.position);
+            if(next==null) return true;
+            trace.position=next; return false;
+        });
+    }
+
     java.util.List<ElectroTrace> electroSnapshot() { return java.util.List.copyOf(electroTraces); }
     /** Electro хранится записями, поэтому глобальный Curse использует тот же выбор цели без marker-сущностей. */
     void redirectCursedElectro() {
@@ -1049,6 +1097,7 @@ public final class LbcWands {
     }
     /** Нативный canHitEntity пропускает союзников и наблюдателей до поджигания/урона small fireball. */
     public boolean canHit(Projectile projectile,Entity target) {
+        if(!game.items().consuming().canTrialTarget(projectile.getOwner(),target)) return false;
         var summoner=game.items().summons().owner(projectile.getOwner());
         if(summoner==null && projectile.entityTags().contains(LbcSummons.PROJECTILE)
                 && projectile.getOwner() instanceof ServerPlayer player) summoner=player;
@@ -1061,6 +1110,7 @@ public final class LbcWands {
     }
     /** Радиус взрыва native firework обходит canHitEntity; союзников защищаем и в финальном уроне. */
     public boolean allowDamage(Entity victim,DamageSource source) {
+        if(!game.items().consuming().canTrialTarget(source.getEntity(),victim)) return false;
         var friendlySummoner=game.items().summons().owner(source.getEntity());
         if(friendlySummoner==null && source.getDirectEntity()!=null
                 && source.getDirectEntity().entityTags().contains(LbcSummons.PROJECTILE))
