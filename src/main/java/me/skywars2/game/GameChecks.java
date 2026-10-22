@@ -717,6 +717,12 @@ public final class GameChecks {
                                 case "falling-netherite-drops" -> { FallingNetheriteDropChecks.run(game); return; }
                                 case "home-drop" -> { HomeDropChecks.run(game); return; }
                                 case "scare-drops" -> { ScareDropChecks.run(game); return; }
+                                case "lucky-pigs" -> { LuckyPigDropChecks.run(game); return; }
+                                case "enzan-drop" -> { EnzanDropChecks.run(game); return; }
+                                case "enzan-drop-stop-probe" -> EnzanDropChecks.stopProbe(game);
+                                case "enzan-drop-cleanup" -> EnzanDropChecks.cleanup(game);
+                                case "lucky-pigs-stop-probe" -> LuckyPigDropChecks.stopProbe(game);
+                                case "lucky-pigs-cleanup" -> LuckyPigDropChecks.cleanup(game);
                                 case "scare-drops-stop-probe" -> ScareDropChecks.stopProbe(game);
                                 case "scare-drops-cleanup" -> ScareDropChecks.cleanup(game);
                                 case "home-drop-stop-probe" -> HomeDropChecks.stopProbe(game);
@@ -1008,6 +1014,8 @@ public final class GameChecks {
                 FallingNetheriteDropChecks.tick(game);
                 HomeDropChecks.tick(game);
                 ScareDropChecks.tick(game);
+                LuckyPigDropChecks.tick(game);
+                EnzanDropChecks.tick(game);
                 MapFluidChecks.tick(game);
                 LightningAcquisitionChecks.tick(game);
                 // These native ServerPlayers have no socket registered with the network

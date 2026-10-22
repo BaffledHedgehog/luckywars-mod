@@ -1,5 +1,29 @@
 # Проверка игрового цикла на Fabric
 
+## Enzan waterdrop and Lucky Pigs - QUALIFIED (22 October 2026)
+
+Build and two actual isolated mode1 matches passed on3236fe1c:72 suite results,
+79.24s. Contracts:[Enzan](agent_notes/ENZAN_DROP_PORT.md),
+[Lucky pigs](agent_notes/LUCKY_PIGS_PORT.md). Source/native loot+prototypes,
+Polymer roundtrip, fractional pig geometry/vanilla attributes, actual apple
+death loot and luck, native lightning conversion/equipment/loot, causal melee
+statistics, self/ally/role safety, epoch/unload/time stop and quiet real stop
+passed. Enzan checks exact named bucket, any nearest target, immediate cleansing,
+accepted and rejected source precedence, native fall/void mob deaths and safe
+player dying-hook attribution, no mana/magic gate, full-inventory fallback.
+All previous special-drop suites/probes/cleanups repeat in both matches.
+
+178Java sources/526classes/2671processed resources match source/release JARs;
+both leaves and internal applepig reward are explicitly whitelisted and present.
+Ready build/verification/skywars2-enzan-pigs-3236fe1c.jar; evidence
+build/verification/enzan-pigs-final/qualification.json and server log. Hardened
+runner restored isolated JAR/config/profiles/scoreboard and released locks.
+Main96ee50a7/user Reroll/RP/template unchanged; not installed. Existing fake-bot
+Polymer packet-context ERROR pair remains; no new errors. Real client sound,
+rendering, natural player clutch/coins, actual disk restart/breeding and peak
+capacity are not qualified. Full Creative fallback is source-reviewed; the
+native full-inventory fixture uses Survival.
+
 ## Rifle zoom toggle - QUALIFIED (22 October 2026)
 
 [Contract](agent_notes/RIFLE_ZOOM_PORT.md). Build and two isolated mode1 matches

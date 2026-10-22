@@ -1,5 +1,24 @@
 # Проект SkyWars
 
+## Enzan waterdrop and Lucky Pigs - QUALIFIED (22 October 2026)
+
+Contracts: [Enzan](agent_notes/ENZAN_DROP_PORT.md), [Lucky pigs](agent_notes/LUCKY_PIGS_PORT.md).
+Author approved Levitation128/3seconds. Shared dispatcher preserves one debit,
+nearest any eligible player, source ordering and independent bucket/sound after
+effect rejection; actual accepted source retains fall/void provenance. Lucky pigs
+preserve four native positions/name/luck-sensitive apples; native lightning
+conversion retains ordinary piglin loot plus causal/cleanup state and role/ally
+guards. No whole loot pool or game mode is opened; RP/template unchanged.
+
+Build and two actual isolated mode1 matches passed on3236fe1c:72 suite results,
+79.24s, all previous special drops included.178sources/526classes/2671resources
+match tested JAR; public leaves and applepig reward explicitly whitelisted.
+Ready build/verification/skywars2-enzan-pigs-3236fe1c.jar, not installed; evidence
+build/verification/enzan-pigs-final/. Main96ee50a7/user Reroll unchanged. Client
+sound/rendering, natural player clutch/coins, actual disk persistence/breeding
+and peak capacity remain limits. Next: complete Library drop closure, see
+[source audit](agent_notes/NEXT_DROPS_AFTER_ENZAN_SOURCE.md).
+
 ## Rifle zoom toggle - QUALIFIED (22 October 2026)
 
 [Current contract](agent_notes/RIFLE_ZOOM_PORT.md). User chose server-only left-click

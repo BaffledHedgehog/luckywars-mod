@@ -1,5 +1,18 @@
 # Следующие этапы переноса
 
+## Enzan waterdrop and Lucky Pigs - QUALIFIED (22 October 2026)
+
+Contracts: [Enzan](ENZAN_DROP_PORT.md), [Lucky pigs](LUCKY_PIGS_PORT.md).
+Build/two isolated mode1 matches passed on3236fe1c:72 suite results,79.24s,
+including all preceding special drops. Ready
+build/verification/skywars2-enzan-pigs-3236fe1c.jar; evidence
+build/verification/enzan-pigs-final/. Main96ee50a7/user Reroll/RP/template
+unchanged; not installed. Public leaves:lbc:ported/levitation_drop and
+lbc:ported/lucky_pigs_drop. Whole pools/modes remain gated.
+Next complete closure: Library drop, [audit](NEXT_DROPS_AFTER_ENZAN_SOURCE.md).
+Infinity/forest remain dependencies; completed scare/Enzan/pig work below is
+historical and must not be selected as a fresh migration scope.
+
 ## Nuclear fade guide update - QUALIFIED (22 October 2026)
 
 [Current contract](NUCLEAR_SHADER_PORT.md). Explicit independent fade carriers

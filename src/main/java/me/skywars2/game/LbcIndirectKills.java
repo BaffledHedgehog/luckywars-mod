@@ -93,6 +93,7 @@ public final class LbcIndirectKills {
         var game=me.skywars2.SkyWars2.game();
         if(game==null) return null;
         if(game.items().creeperDrops().owner(source) instanceof ServerPlayer player) return player;
+        if(game.items().luckyPigs().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().zombieTntDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().fallingNetheriteDrops().owner(source) instanceof ServerPlayer player) return player;
         var summoner=game.items().blaze().owner(source);

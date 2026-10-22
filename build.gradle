@@ -26,6 +26,8 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/lucky_pigs_drop.json', 'data/lbc/loot_table/applepig.json',
+            'data/lbc/loot_table/ported/levitation_drop.json'
     include 'data/lbc/loot_table/ported/scare_drop.json', 'data/lbc/loot_table/ported/scare_drop_old.json'
     include 'data/lbc/loot_table/ported/home_drop.json', 'data/lbc/loot_table/ported/magic_mirror.json'
     include 'data/lbc/loot_table/ported/falling_netherite_drop.json', 'data/lbc/loot_table/ported/falling_netherite_drop_old.json'
