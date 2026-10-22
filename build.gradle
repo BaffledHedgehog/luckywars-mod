@@ -26,6 +26,7 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/zombie_tnt_drop.json'
     include 'data/lbc/loot_table/ported/corrosion_drop.json', 'data/lbc/loot_table/ported/corrosion_drop_old.json'
     include 'data/lbc/loot_table/ported/hole_drop.json', 'data/lbc/loot_table/ported/hole_drop_old.json'
     include 'data/lbc/loot_table/ported/cage_drop_anvil.json', 'data/lbc/loot_table/ported/cage_drop_fireball.json',

@@ -1192,6 +1192,7 @@ public final class LbcWands {
     /** Радиус взрыва native firework обходит canHitEntity; союзников защищаем и в финальном уроне. */
     public boolean allowDamage(Entity victim,DamageSource source) {
         if(LbcCageDrops.managed(source.getDirectEntity())) return game.items().cageDrops().canAffect(source.getDirectEntity(),victim);
+        if(LbcZombieTntDrops.managed(source.getDirectEntity())) return game.items().zombieTntDrops().canAffect(source.getDirectEntity(),victim);
         if(LbcDamage.isNativeLightning(source)) return validTarget(victim);
         if(LbcBlaze.isKfcSpirit(source.getDirectEntity())) return canHit((Projectile)source.getDirectEntity(),victim);
         if(source.getDirectEntity() instanceof Projectile shot && game.items().stand().isStandProjectile(shot))

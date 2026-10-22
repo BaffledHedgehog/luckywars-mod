@@ -1,5 +1,25 @@
 # Следующие этапы переноса
 
+## Zombie TNT drop - QUALIFIED (22 October 2026)
+
+[Current contract](ZOMBIE_TNT_DROP_PORT.md). User selected no carrier melee and
+WILD TNT, including thrower/allied players. Native four-baby payload retains
+cardinal fractional positions, zero initial rotation/motion and real fuse-200
+TNT passengers. Native AI, conversion, death loot and detached TNT remain.
+Shared dispatch, role guards, reflection/chain cause and quiet cleanup are reused.
+Explosion terrain scopes now retain the direct trap's WILD flag alongside its
+indirect player; existing cage behavior receives the same correction.
+
+Build and two actual mode-1 fixture matches passed on 9929b971: 42 suite results,
+62.26s, including earlier drops. Native passenger ticking/time stop, no melee,
+protection/WILD, lethal ownership/reflection, save/load/chain, Drowned conversion,
+ordinary death/live TNT release and quiet actual stop passed. Ready
+build/verification/skywars2-zombie-tnt-drop-9929b971.jar, not installed; evidence
+build/verification/zombie-tnt-drop-final/. Main 69de8601 and RP/template unchanged.
+Full client graphics, persistence and concurrent capacity remain unqualified.
+Next bounded audit: sethome/falling-block special drops; keep whole Lucky Block
+pools, unresolved encounters and unfinished modes gated.
+
 ## Two corrosion drops - QUALIFIED (22 October 2026)
 
 [Current contract](CORROSION_DROPS_PORT.md). Normal/old Polymer leaves preserve

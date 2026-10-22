@@ -119,9 +119,10 @@ public final class LbcDamage {
     public static boolean allowsKfcFriendlyFire(DamageSource source) {
         return LbcBlaze.isKfcSpirit(source.getDirectEntity());
     }
-    public static boolean allowsCageFriendlyFire(DamageSource source) {
+    public static boolean allowsTrapFriendlyFire(DamageSource source) {
         var game=me.skywars2.SkyWars2.game();
-        return game!=null && game.items().cageDrops().wild(source.getDirectEntity());
+        return game!=null && (game.items().cageDrops().wild(source.getDirectEntity())
+                || game.items().zombieTntDrops().wild(source.getDirectEntity()));
     }
     public static boolean allowsElectricFriendlyFire(DamageSource source) {
         return isNativeLightning(source) || source.is(ELECTRO_CONDUCTION) || source.is(ELECTRO_MEDITATION);
@@ -134,7 +135,7 @@ public final class LbcDamage {
     public static boolean allowDamage(LivingEntity victim, DamageSource source) {
         var game=me.skywars2.SkyWars2.game();
         if(game!=null && !game.items().indirectKills().allowEnvironmentDamage(victim,source)) return false;
-        if(game!=null && source.getDirectEntity()!=null && !isNativeLightning(source) && !allowsKfcFriendlyFire(source) && !allowsCageFriendlyFire(source)) {
+        if(game!=null && source.getDirectEntity()!=null && !isNativeLightning(source) && !allowsKfcFriendlyFire(source) && !allowsTrapFriendlyFire(source)) {
             var reflected=game.items().electro().reflectedOwner(source.getDirectEntity());
             if(reflected!=null && !game.items().wands().projectileTarget(reflected,victim)) return false;
         }

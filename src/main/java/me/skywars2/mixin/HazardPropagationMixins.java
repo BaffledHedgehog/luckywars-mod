@@ -39,6 +39,7 @@ public final class HazardPropagationMixins {
             if(game!=null) {
                 var authority=game.items().creeperDrops().owner(source);
                 if(authority==null) authority=game.items().cageDrops().owner(source);
+                if(authority==null) authority=game.items().zombieTntDrops().owner(source);
                 if(authority==null && damageSource.getEntity()==null) authority=game.items().mobgun().owner(source);
                 if(authority!=null) damageSource=new net.minecraft.world.damagesource.DamageSource(
                         damageSource.typeHolder(),source,authority);
@@ -78,6 +79,7 @@ public final class HazardPropagationMixins {
                 entities.removeIf(entity->!game.items().tntDrops().explosionTarget(source,entity));
                 entities.removeIf(entity->!game.items().creeperDrops().explosionTarget(source,entity));
                 entities.removeIf(entity->!game.items().cageDrops().canAffect(source,entity));
+                entities.removeIf(entity->!game.items().zombieTntDrops().canAffect(source,entity));
                 if(source!=null && source.entityTags().contains(me.skywars2.game.LbcExasperato.EXPLOSIVE))
                     entities.removeIf(entity->!game.items().exasperato().explosionTarget(source,entity));
                 else if(source instanceof net.minecraft.world.entity.projectile.Projectile projectile
@@ -105,6 +107,8 @@ public final class HazardPropagationMixins {
             var blast=(ServerExplosion)(Object)this;
             var creeperOwner=game.items().creeperDrops().owner(blast.getDirectSourceEntity());
             if(creeperOwner!=null) return creeperOwner;
+            var zombieOwner=game.items().zombieTntDrops().owner(blast.getDirectSourceEntity());
+            if(zombieOwner!=null) return zombieOwner;
             var cageOwner=game.items().cageDrops().owner(blast.getDirectSourceEntity());
             if(cageOwner!=null) return cageOwner;
             var authority=game.items().mobgun().owner(blast.getDirectSourceEntity());
@@ -122,7 +126,11 @@ public final class HazardPropagationMixins {
             var blast=(ServerExplosion)(Object)this;
             if(game==null || blast.getIndirectSourceEntity()==null) return original.call();
             int[] result={0};
-            game.items().indirectKills().worldChanges(blast.level(),blast.getIndirectSourceEntity(),()->result[0]=original.call());
+            var direct=blast.getDirectSourceEntity();
+            // Keep the indirect player as author, and the actual trap as the source of WILD permission.
+            boolean wild=game.items().cageDrops().wild(direct) || game.items().zombieTntDrops().wild(direct);
+            if(wild) game.items().indirectKills().worldChanges(blast.level(),blast.getIndirectSourceEntity(),true,()->result[0]=original.call());
+            else game.items().indirectKills().worldChanges(blast.level(),blast.getIndirectSourceEntity(),()->result[0]=original.call());
             return result[0];
         }
     }
@@ -138,6 +146,7 @@ public final class HazardPropagationMixins {
                 game.items().tntDrops().inheritChain(source,spawned);
                 game.items().creeperDrops().inheritChild(source,spawned);
                 game.items().cageDrops().inheritChild(source,spawned);
+                game.items().zombieTntDrops().inheritChild(source,spawned);
             }
             if(game!=null && source!=null && source.entityTags().contains(me.skywars2.game.LbcExasperato.EXPLOSIVE)) {
                 spawned.entityTags().add(me.skywars2.game.LbcExasperato.EXPLOSIVE);

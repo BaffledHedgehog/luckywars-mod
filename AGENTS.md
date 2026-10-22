@@ -1,5 +1,27 @@
 # Проект SkyWars
 
+## Zombie TNT drop - QUALIFIED (22 October 2026)
+
+[Current contract](agent_notes/ZOMBIE_TNT_DROP_PORT.md). User explicitly requires
+fully disabled carrier melee and WILD TNT including thrower/allied players.
+Four native baby zombies carry real TNT with fuse 200, ordinary movement/loot,
+native passenger attachments and source cardinal offsets. Constructor rotation
+must reset to source zero before insertion; do not introduce priming motion.
+
+The shared dispatcher owns one debit. Native/reflected/chain TNT, Drowned
+conversion and detached charges retain cause/epoch; stop quietly discards all.
+Role/NPC guards apply before targeting, damage and knockback. TNT protection
+uses the existing pipeline once. Explosion terrain scopes preserve WILD from
+the direct trap independently of the indirect player; this also fixes cages.
+
+Build/two actual fixture matches passed on 9929b971: 42 suite results, 62.26s,
+with all earlier drop regressions. Native conversion/death/loot, TNT save/load,
+reflection/kill credit, WILD/protection and actual stop are checked. Main 69de8601
+not installed; RP/template unchanged. Ready build/verification/skywars2-zombie-tnt-drop-9929b971.jar;
+evidence build/verification/zombie-tnt-drop-final/. Real-client visuals, actual
+restart/unload/disconnect persistence and saturation remain explicit limits.
+Next remaining special drops: sethome/falling-block source audit.
+
 ## Two corrosion drops - QUALIFIED (22 October 2026)
 
 [Current contract](agent_notes/CORROSION_DROPS_PORT.md). Two native Polymer tokens

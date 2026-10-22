@@ -1,0 +1,46 @@
+package me.skywars2.mixin;
+
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import me.skywars2.SkyWars2;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+/** Native trap carriers keep ordinary AI, with the same role and allegiance policy as their TNT. */
+@Mixin(Mob.class)
+public abstract class ZombieTntDropMixin {
+    @Inject(method="canAttack", at=@At("HEAD"), cancellable=true)
+    private void skywars2$trapTarget(LivingEntity target, CallbackInfoReturnable<Boolean> ci) {
+        var game=SkyWars2.game();
+        if(game!=null && !game.items().zombieTntDrops().canTarget((Entity)(Object)this,target)) ci.setReturnValue(false);
+    }
+
+    @Inject(method="setTarget", at=@At("HEAD"), cancellable=true)
+    private void skywars2$trapSetTarget(LivingEntity target, CallbackInfo ci) {
+        var game=SkyWars2.game();
+        if(game!=null && !game.items().zombieTntDrops().canTarget((Entity)(Object)this,target)) ci.cancel();
+    }
+
+    @Inject(method="doHurtTarget", at=@At("HEAD"), cancellable=true)
+    private void skywars2$trapMelee(ServerLevel level, Entity target, CallbackInfoReturnable<Boolean> ci) {
+        var game=SkyWars2.game();
+        if(game!=null && !game.items().zombieTntDrops().canMelee((Entity)(Object)this,target)) ci.setReturnValue(false);
+    }
+
+    // Drowning creates a different native mob. Stamp it before ENTITY_LOAD, without replacing conversion.
+    @WrapOperation(method="convertTo(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/entity/ConversionParams;Lnet/minecraft/world/entity/EntitySpawnReason;Lnet/minecraft/world/entity/ConversionParams$AfterConversion;)Lnet/minecraft/world/entity/Mob;",
+            at=@At(value="INVOKE", target="Lnet/minecraft/server/level/ServerLevel;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z"))
+    private boolean skywars2$trapConversion(ServerLevel level, Entity converted, Operation<Boolean> original) {
+        var game=SkyWars2.game();
+        if(game!=null) game.items().zombieTntDrops().inheritConversion((Entity)(Object)this,converted);
+        return original.call(level,converted);
+    }
+
+}
