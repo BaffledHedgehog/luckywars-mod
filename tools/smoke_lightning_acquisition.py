@@ -54,6 +54,12 @@ def run(server_dir: Path) -> None:
         with zipfile.ZipFile(pack_bytes, "w") as archive:
             archive.writestr("pack.mcmeta", json.dumps(metadata))
             archive.writestr("data/lbc/loot_table/transformables_pickaxe.json", json.dumps({"pools": []}))
+            # Deterministic, stackable reward to check exact full/partial overflow in both game modes.
+            archive.writestr("data/lbc/loot_table/transformables_hoe.json", json.dumps({"pools": [{
+                "rolls": 1, "entries": [{"type": "minecraft:item", "name": "minecraft:wheat_seeds",
+                    "modifier": [{"type": "minecraft:set_count", "count": 16},
+                                  {"type": "minecraft:set_custom_data",
+                                   "tag": "{transformable:1,hoe:1,check_overflow_reward:1}"}]}]}]}))
             archive.writestr("data/codex_probe/function/infbolt_ready.mcfunction", f"say {ready_marker}\n")
         empty_pack.parent.mkdir(parents=True, exist_ok=True)
         empty_pack.write_bytes(pack_bytes.getvalue())

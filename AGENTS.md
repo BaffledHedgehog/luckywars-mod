@@ -1,5 +1,21 @@
 # Проект SkyWars
 
+## Lightning reforge overflow - QUALIFIED (user, 22 October 2026)
+
+[Current contract](agent_notes/LIGHTNING_ACQUISITION_PORT.md). Author requires full-inventory lightning rewards to
+drop at the nearest recipient. Survival fallback already existed; native add()
+could still delete Creative overflow. Lightning now reuses the crafting delivery
+helper: insert only fitting portions, drop the complete remainder with unchanged
+components, and stamp before insertion to exclude same-tick re-reforging.
+The same helper fixes Creative overflow in committed random crafting.
+
+Build and four isolated native matches passed on91e08fee (36 suite results).
+Full/partial inventories in Survival/Creative, nearest recipient, exact counts,
+components and repeated bolt deduplication are checked, plus shared crafting.
+Ready: build/verification/skywars2-lightning-overflow-91e08fee.jar; evidence:
+build/verification/lightning-overflow-final/. Main remains69de8601, not installed;
+original RP/template unchanged. Earlier acquisition evidence below is historical.
+
 ## Hostile Helicopter Boss encounter - QUALIFIED (user)
 
 [Current contract](agent_notes/HELICOPTER_ENCOUNTER_PORT.md). The dropped Polymer token now creates the hostile

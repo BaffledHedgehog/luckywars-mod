@@ -113,11 +113,8 @@ public final class LbcLightningAcquisition {
         }
     }
     private void deliver(ServerPlayer player,ItemStack result) {
-        if(player.getInventory().add(result) || result.isEmpty()) return;
-        var dropped=new ItemEntity(player.level(),player.getX(),player.getY(),player.getZ(),result);
         // Inventory overflow must not become another input during the same source tick.
-        capturedTick.put(dropped,game.server().getTickCount());
-        player.level().addFreshEntity(dropped);
+        LbcReforgeCrafting.deliver(player,result,dropped->capturedTick.put(dropped,game.server().getTickCount()));
     }
     private void ensureWorker() {
         if(worker!=null) return;

@@ -105,6 +105,9 @@ public final class LightningAcquisitionChecks {
         void reset() {
             bolts(); game.items().lightningAcquisition().stop(); flush(game);
             inputs.forEach(Entity::discard); inputs.clear(); alpha.getInventory().clearContent(); beta.getInventory().clearContent();
+            var outputs=new ArrayList<ItemEntity>();
+            level.getAllEntities().forEach(e->{if(e instanceof ItemEntity item && !initial.contains(item)) outputs.add(item);});
+            outputs.forEach(Entity::discard);
         }
         void preserved(ItemEntity item,int units,String label) {
             require(!item.isRemoved() && item.getItem().getCount()==units && item.getItem()==identity,label+" retains exact stack identity/count");
@@ -244,6 +247,36 @@ public final class LightningAcquisitionChecks {
                             && outputs.get(i).getItem().getCount()==snapshots.get(i).getCount()
                             && ItemStack.isSameItemSameComponents(outputs.get(i).getItem(),snapshots.get(i)),"same source tick never recaptures delivered transformable overflow: "+outputs.get(i).getItem()+" removed="+outputs.get(i).isRemoved());
                     preserved(input,2,"overflow and repeated native tick remain deduplicated"); bolts();
+                }
+                case 19,20,21,22 -> {
+                    reset(); move(beta,1);
+                    int scenario=phase-20;
+                    boolean creative=scenario>=2,partial=scenario%2==1;
+                    beta.setGameMode(creative?GameType.CREATIVE:GameType.SURVIVAL);
+                    var reward=new ItemStack(Items.WHEAT_SEEDS,16);
+                    var data=new CompoundTag(); data.putInt("transformable",1); data.putInt("hoe",1);
+                    data.putInt("check_overflow_reward",1); reward.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
+                    for(int slot=0;slot<beta.getInventory().getContainerSize();slot++)
+                        beta.getInventory().setItem(slot,new ItemStack(Items.DIAMOND,64));
+                    if(partial) beta.getInventory().setItem(0,reward.copyWithCount(63));
+                    var before=new HashSet<Entity>(); level.getAllEntities().forEach(before::add);
+                    input=input(donor(3,false,"hoe")); identity=input.getItem();
+                    var bolt=strike(level,at,alpha); flush(game);
+                    preserved(input,2,"overflow consumes exactly one donor in "+beta.gameMode.getGameModeForPlayer());
+                    var outputs=new ArrayList<ItemEntity>();
+                    level.getAllEntities().forEach(e->{if(e instanceof ItemEntity item && item!=input
+                            && !before.contains(item) && !item.isRemoved()) outputs.add(item);});
+                    require(outputs.size()==1,"one overflow stack in scenario "+scenario+": "+outputs.stream().map(ItemEntity::getItem).toList());
+                    var output=outputs.getFirst();
+                    require(output.getItem().getCount()==(partial?15:16)
+                            && ItemStack.isSameItemSameComponents(output.getItem(),reward),"complete native reward/components retained");
+                    require(output.position().distanceToSqr(beta.position())<1e-9,"overflow drops at nearest recipient, not bolt or caster");
+                    require(output.hasPickUpDelay(),"overflow cannot be picked up immediately");
+                    require(beta.getInventory().getItem(0).getCount()==64 && count(alpha)==0,"only available recipient space filled");
+                    bolt.tick(); game.items().lightningAcquisition().tick(); flush(game);
+                    preserved(input,2,"overflow native bolt remains deduplicated");
+                    require(!output.isRemoved() && output.getItem().getCount()==(partial?15:16),"overflow is not immediately reforged again");
+                    bolts(); output.discard(); beta.setGameMode(GameType.SURVIVAL);
                 }
                 default -> { return true; }
             }

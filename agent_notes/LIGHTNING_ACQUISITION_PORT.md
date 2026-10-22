@@ -1,5 +1,38 @@
 # Ambient lightning acquisition - qualified, 21 October 2026
 
+## Overflow requirement - 22 October 2026 (user)
+
+> кстати - при перековке с помощью удара ванильной lightning_bolt перекованные предметы в датапаке give-лись близжайшему игроку, и был баг, что если инвентарь заполнен, предмет просто удалялся. Я хочу исправить его на этом переходе, чтоб он просто выбрасывался из близжайшего игрока
+
+The port already dropped Survival overflow at the nearest eligible recipient.
+The remaining native Inventory.add pitfall was Creative's infinite-materials
+fallback: it clears rewards that do not fit. Lightning now reuses the crafting
+reforge delivery helper, which inserts bounded portions into available native
+slots and drops the complete remainder at the recipient's position. Components
+are retained; no replacement recipient or reward reroll is introduced. The
+shared helper also closes the same Creative gap in committed crafting rewards.
+Drops reuse the existing recipient pickup target and default pickup delay.
+Lightning stamps its output before entity insertion to prevent same-tick recapture.
+
+The native regression adds deterministic 16-item loot and checks full/partial
+inventories in Survival/Creative: zero/one item fits, 16/15 drop at the nearest
+recipient, donor consumption is exactly one, components survive, and repeated
+bolt ticks cannot immediately reforge the overflow. Temporary test loot uses
+the current modifier/type schema. Each phase removes its own prior drops so
+an earlier phase's reward cannot become an unrelated input in the next phase.
+Build and four isolated native matches passed on SHA256
+91e08fee73f3afd11ae15c3f43b07c68ba930224e57ae53d37816e563c9aeea5:
+18 lightning acquisition/shared gameplay results in 46.74 seconds, then 18
+crafting/shared gameplay results in 45.09 seconds. Source JAR matches all 137
+current Java files; 2643 processed resource files match the release JAR, with
+Loom-transformed Fabric metadata and bundled jars verified separately.
+
+Ready archive: build/verification/skywars2-lightning-overflow-91e08fee.jar.
+Evidence: build/verification/lightning-overflow-final/ (logs, both result sets
+and qualification.json). Temporary fixture loot is removed after shutdown.
+Main JAR remains 69de8601; no main-server or resource-pack/template installation.
+Tests use native server players without real clients; no new graphics claim.
+
 ## Behavior
 
 Every live native lightning bolt, owned or ownerless, can reforge a dropped item

@@ -100,14 +100,30 @@ public final class LbcReforgeCrafting {
         menu.sendAllDataToRemote();
         return true;
     }
-    private static void deliver(ServerPlayer player,ItemStack stack) {
-        if(!player.getInventory().add(stack) && !stack.isEmpty()) drop(player,stack);
+    static void deliver(ServerPlayer player,ItemStack stack) {
+        deliver(player,stack,entity->{});
+    }
+    static void deliver(ServerPlayer player,ItemStack stack,java.util.function.Consumer<ItemEntity> beforeDrop) {
+        var inventory=player.getInventory();
+        // Like native placeItemBackInInventory: insert only what fits. A general add()
+        // silently deletes its remainder for players with infinite materials.
+        while(!stack.isEmpty()) {
+            int slot=inventory.getSlotWithRemainingSpace(stack);
+            if(slot==-1) slot=inventory.getFreeSlot();
+            if(slot==-1) { drop(player,stack,beforeDrop); return; }
+            int space=Math.min(stack.getMaxStackSize(),inventory.getMaxStackSize())-inventory.getItem(slot).getCount();
+            inventory.add(slot,stack.split(space));
+        }
     }
     private static void drop(ServerPlayer player,ItemStack stack) {
+        drop(player,stack,entity->{});
+    }
+    private static void drop(ServerPlayer player,ItemStack stack,java.util.function.Consumer<ItemEntity> beforeDrop) {
         // Explicit overflow policy: committed rewards always survive a full inventory.
         var entity=new ItemEntity(player.level(),player.getX(),player.getY(),player.getZ(),stack);
         entity.setTarget(player.getUUID());
         entity.setDefaultPickUpDelay();
+        beforeDrop.accept(entity);
         player.level().addFreshEntity(entity);
     }
 }
