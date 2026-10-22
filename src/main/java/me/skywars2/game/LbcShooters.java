@@ -562,6 +562,8 @@ public final class LbcShooters {
         var key=ResourceKey.create(Registries.ITEM,Identifier.parse("skywars2:slr"));
         return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(
                 new Item.Properties().setId(key).durability(25).overrideDescription("slr")
+                        .component(DataComponents.INTERACT_ANIMATION,new net.minecraft.world.item.component.SwingAnimation(
+                                net.minecraft.world.item.SwingAnimationType.NONE,6))
                         .component(DataComponents.ITEM_MODEL,Identifier.parse("lbc:super_rifle")),Items.CARROT_ON_A_STICK,true) {
             @Override public InteractionResult use(Level level,Player player,InteractionHand hand) {
                 var controller=me.skywars2.SkyWars2.game();

@@ -1,5 +1,14 @@
 # Проект SkyWars
 
+## Firearm interaction animation (user, 22 October 2026)
+
+Laser Minigun, Magnum, both AK47 variants and SLR use
+`minecraft:interact_animation={type:"none",duration:6}` in their native item
+prototypes. User requires resource-pack model switching to own the firing visual.
+Both AK47 loot variants share one native item type. Do not add consumption or
+change attack animations, fire rate, burst timing or model switching for this fix.
+Build checks compilation; real client hand animation remains a manual check.
+
 ## Nuclear fade carrier - QUALIFIED (22 October 2026)
 
 [Current contract](agent_notes/NUCLEAR_SHADER_PORT.md). Updated author guide replaces

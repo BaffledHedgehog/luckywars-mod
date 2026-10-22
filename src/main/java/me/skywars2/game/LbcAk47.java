@@ -48,7 +48,9 @@ public final class LbcAk47 {
         var key=ResourceKey.create(Registries.ITEM,Identifier.parse("skywars2:ak47"));
         return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(new Item.Properties() {
             @Override public Identifier effectiveModel() { return Identifier.parse("lbc:ak47"); }
-        }.setId(key).stacksTo(1).overrideDescription("AK-47"),Items.CARROT_ON_A_STICK,true) {
+        }.setId(key).stacksTo(1).overrideDescription("AK-47")
+                .component(DataComponents.INTERACT_ANIMATION,new net.minecraft.world.item.component.SwingAnimation(
+                        net.minecraft.world.item.SwingAnimationType.NONE,6)),Items.CARROT_ON_A_STICK,true) {
             @Override public InteractionResult use(Level level,Player player,InteractionHand hand) {
                 var controller=me.skywars2.SkyWars2.game();
                 return controller!=null && player instanceof ServerPlayer owner

@@ -83,6 +83,8 @@ public final class LbcMagnum {
         return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(new Item.Properties() {
             @Override public Identifier effectiveModel() { return Identifier.parse("lbc:magnum"); }
         }.setId(key).stacksTo(1).overrideDescription("magnum_mode_standard")
+                .component(DataComponents.INTERACT_ANIMATION,new net.minecraft.world.item.component.SwingAnimation(
+                        net.minecraft.world.item.SwingAnimationType.NONE,6))
                 .component(DataComponents.ITEM_MODEL,Identifier.parse("lbc:magnum"))
                 .component(DataComponents.TOOLTIP_STYLE,Identifier.parse("lbc:tier_ss"))
                 .component(DataComponents.CUSTOM_DATA,CustomData.of(data))
