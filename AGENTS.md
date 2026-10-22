@@ -1,5 +1,26 @@
 # Проект SkyWars
 
+## Creeper special drops - QUALIFIED (user, 22 October 2026)
+
+[Current contract](agent_notes/CREEPER_DROPS_PORT.md). Author selected kill credit
+for the player who threw the trap. Polymer normal/old tokens emit20/16 exact native
+creepers, radii1/2, old local-forward4 geometry and final yaw+300. Native hostile
+AI, gravity, fuse30 and ordinary despawn remain; attribution adds no owner lifetime.
+Normal combat deaths retain5% native Air reward; self explosions have no reward.
+Use26.3 singular condition/type in the reward table; legacy conditions is ignored.
+
+LbcSpecialDrops now captures causal throwers for all trap families, eliminating
+TNT's duplicate token-owner map. DropTrapMergeMixin only compares matching causal
+trap tokens during native merge attempts. Native cloud/chain TNT inherit cause
+and epoch before insertion, reflection retains precedence. Role/allied-player,
+time-stop and quiet stop guards are checked. Real unload persistence remains
+unqualified; same-match cause retention is implemented without a forced lifespan.
+
+Build and two isolated matches passed on56a15ffb:18 suite results,55.84s, including
+TNT/chest regressions. Ready build/verification/skywars2-creeper-drops-56a15ffb.jar;
+evidence build/verification/creeper-drops-final/. Main remains69de8601, not
+installed; RP/template unchanged. Next cage traps; unfinished mode guards remain.
+
 ## Thirteen-TNT special drop - QUALIFIED (user, 22 October 2026)
 
 [Current contract](agent_notes/TNT_DROP_PORT.md). Polymer tnt_drop preserves source trap_tnt/trap_desc/model/tier.

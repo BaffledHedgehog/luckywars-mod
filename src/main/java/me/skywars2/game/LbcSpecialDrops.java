@@ -8,6 +8,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
 import net.minecraft.world.RandomizableContainer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
@@ -19,21 +20,37 @@ import java.util.Set;
 /** Shared dropped-token dispatcher: source order, one activation/debit per tick and epoch. */
 public final class LbcSpecialDrops {
     private final GameController game;
-    private final Map<ItemEntity, String> pending = new IdentityHashMap<>();
+    private record Pending(String epoch, LivingEntity owner) { }
+    private final Map<ItemEntity, Pending> pending = new IdentityHashMap<>();
     private final Map<ItemEntity, Integer> lastAttempt = new IdentityHashMap<>();
     private int lastTick = Integer.MIN_VALUE;
 
     public LbcSpecialDrops(GameController game) { this.game = game; }
 
     private static boolean recognized(net.minecraft.world.item.ItemStack stack) {
-        return LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack);
+        return LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack) || LbcCreeperDropItem.kind(stack) != null;
     }
 
     public void loaded(Entity entity) {
         // /give creates a temporary visual item and marks it fake after ENTITY_LOAD.
         // Do not place blocks from inside the entity insertion callback.
         if (entity instanceof ItemEntity token && recognized(token.getItem())
-                && active(token)) pending.putIfAbsent(token, game.items().epoch());
+                && active(token)) pending.putIfAbsent(token, new Pending(game.items().epoch(),
+                        token.getOwner() instanceof LivingEntity owner ? owner : null));
+    }
+
+    /** Actual thrower, retained at admission independently of the pickup target. */
+    public LivingEntity owner(ItemEntity token) {
+        if (token.getOwner() instanceof LivingEntity living) return living;
+        var entry = pending.get(token);
+        return entry == null ? null : entry.owner();
+    }
+
+    /** Only causal trap tokens reach this native merge guard; no world or tick scan. */
+    public boolean canMerge(ItemEntity first, ItemEntity second) {
+        var a = owner(first);
+        var b = owner(second);
+        return java.util.Objects.equals(a == null ? null : a.getUUID(), b == null ? null : b.getUUID());
     }
 
     public void unloaded(Entity entity) {
@@ -51,7 +68,7 @@ public final class LbcSpecialDrops {
         lastTick = now;
         for (var token : List.copyOf(pending.keySet())) {
             if (token.isRemoved() || token.getAge() >= 5999 || !active(token)
-                    || !game.items().currentEpoch(pending.get(token)) || !recognized(token.getItem())) {
+                    || !game.items().currentEpoch(pending.get(token).epoch()) || !recognized(token.getItem())) {
                 unloaded(token);
                 continue;
             }
@@ -64,16 +81,23 @@ public final class LbcSpecialDrops {
     boolean spawn(ItemEntity token) {
         if (token.isRemoved() || token.getAge() >= 5999 || !active(token)
                 || !(token.level() instanceof ServerLevel level) || game.items().timeStop().stopped(level)) return false;
-        if (pending.containsKey(token) && !game.items().currentEpoch(pending.get(token))) return false;
+        if (pending.containsKey(token) && !game.items().currentEpoch(pending.get(token).epoch())) return false;
         boolean chest = LbcChestDropItem.kind(token.getItem()) != null;
         boolean tnt = LbcTntDropItem.matches(token.getItem());
-        if (!chest && !tnt) return false;
+        boolean creeper = LbcCreeperDropItem.kind(token.getItem()) != null;
+        if (!chest && !tnt && !creeper) return false;
         int now = game.server().getTickCount();
         if (lastAttempt.getOrDefault(token, Integer.MIN_VALUE) == now) return false;
         var pos = BlockPos.containing(token.position());
         if (!resident(level, pos, chest ? 1 : 0)) return false;
+        for (var kind : LbcCreeperDropItem.Kind.values()) {
+            if (LbcCreeperDropItem.matches(token.getItem(), kind) && !game.items().creeperDrops().ready(token, kind)) return false;
+        }
         lastAttempt.put(token, now);
         // The source dispatcher executes every matching flag in order, then debits once.
+        for (var kind : LbcCreeperDropItem.Kind.values()) {
+            if (LbcCreeperDropItem.matches(token.getItem(), kind)) game.items().creeperDrops().spawn(token, kind);
+        }
         if (!level.isOutsideBuildHeight(pos) && !level.isDebug()) {
             for (var kind : LbcChestDropItem.Kind.values()) if (LbcChestDropItem.matches(token.getItem(), kind)) {
                 place(level, pos, kind);

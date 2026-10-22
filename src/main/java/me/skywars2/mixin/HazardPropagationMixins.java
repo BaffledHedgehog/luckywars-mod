@@ -36,8 +36,9 @@ public final class HazardPropagationMixins {
                     && (source.entityTags().contains(me.skywars2.game.LbcExasperato.EXPLOSIVE)
                         || me.skywars2.game.LbcTntDrops.managed(source));
             var game=SkyWars2.game();
-            if(game!=null && damageSource.getEntity()==null) {
-                var authority=game.items().mobgun().owner(source);
+            if(game!=null) {
+                var authority=game.items().creeperDrops().owner(source);
+                if(authority==null && damageSource.getEntity()==null) authority=game.items().mobgun().owner(source);
                 if(authority!=null) damageSource=new net.minecraft.world.damagesource.DamageSource(
                         damageSource.typeHolder(),source,authority);
             }
@@ -74,6 +75,7 @@ public final class HazardPropagationMixins {
                 var source=((ServerExplosion)(Object)this).getDirectSourceEntity();
                 entities.removeIf(entity->!game.items().helicopterEncounter().explosionTarget(source,entity));
                 entities.removeIf(entity->!game.items().tntDrops().explosionTarget(source,entity));
+                entities.removeIf(entity->!game.items().creeperDrops().explosionTarget(source,entity));
                 if(source!=null && source.entityTags().contains(me.skywars2.game.LbcExasperato.EXPLOSIVE))
                     entities.removeIf(entity->!game.items().exasperato().explosionTarget(source,entity));
                 else if(source instanceof net.minecraft.world.entity.projectile.Projectile projectile
@@ -99,6 +101,8 @@ public final class HazardPropagationMixins {
             var game=SkyWars2.game();
             if(game==null) return nativeSource;
             var blast=(ServerExplosion)(Object)this;
+            var creeperOwner=game.items().creeperDrops().owner(blast.getDirectSourceEntity());
+            if(creeperOwner!=null) return creeperOwner;
             var authority=game.items().mobgun().owner(blast.getDirectSourceEntity());
             if(authority==null) return nativeSource;
             // The constructor calls this while its DamageSource field is still null.
@@ -126,7 +130,10 @@ public final class HazardPropagationMixins {
         private boolean skywars2$wandChain(ServerLevel level,Entity spawned,Operation<Boolean> original,
                 @Local(argsOnly=true) net.minecraft.world.level.Explosion explosion) {
             var source=explosion.getDirectSourceEntity(); var game=SkyWars2.game();
-            if(game!=null) game.items().tntDrops().inheritChain(source,spawned);
+            if(game!=null) {
+                game.items().tntDrops().inheritChain(source,spawned);
+                game.items().creeperDrops().inheritChild(source,spawned);
+            }
             if(game!=null && source!=null && source.entityTags().contains(me.skywars2.game.LbcExasperato.EXPLOSIVE)) {
                 spawned.entityTags().add(me.skywars2.game.LbcExasperato.EXPLOSIVE);
                 spawned.entityTags().add(game.items().epoch());
@@ -134,6 +141,29 @@ public final class HazardPropagationMixins {
                 game.items().exoperso().inheritBlast(source, spawned);
             }
             return original.call(level,spawned);
+        }
+    }
+    /** Native creeper clouds otherwise lose all causal ownership. */
+    @Mixin(net.minecraft.world.entity.monster.Creeper.class)
+    public abstract static class CreeperCloud {
+        @WrapOperation(method="spawnLingeringCloud",at=@At(value="INVOKE",target=
+                "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z"))
+        private boolean skywars2$creeperCloud(net.minecraft.world.level.Level level,Entity child,Operation<Boolean> original) {
+            var game=SkyWars2.game();
+            if(game!=null) game.items().creeperDrops().inheritChild((Entity)(Object)this,child);
+            return original.call(level,child);
+        }
+    }
+    /** A removed thrower can still own its already-created potion cloud. */
+    @Mixin(net.minecraft.world.entity.AreaEffectCloud.class)
+    public abstract static class CreeperCloudOwner {
+        @org.spongepowered.asm.mixin.injection.Inject(method="getOwner",at=@At("HEAD"),cancellable=true)
+        private void skywars2$cloudOwner(org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<net.minecraft.world.entity.LivingEntity> ci) {
+            var game=SkyWars2.game();
+            if(game!=null) {
+                var owner=game.items().creeperDrops().owner((Entity)(Object)this);
+                if(owner!=null) ci.setReturnValue(owner);
+            }
         }
     }
     @Mixin(FireBlock.class)

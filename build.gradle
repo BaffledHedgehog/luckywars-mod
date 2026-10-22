@@ -26,6 +26,8 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/creeper_drop.json',
+            'data/lbc/loot_table/ported/creeper_drop_old.json', 'data/lbc/loot_table/creeper_wand.json'
     include 'data/lbc/loot_table/ported/tnt_drop.json'
     include 'data/lbc/loot_table/ported/chest_drop_bastion.json',
             'data/lbc/loot_table/ported/chest_drop_end_city.json',

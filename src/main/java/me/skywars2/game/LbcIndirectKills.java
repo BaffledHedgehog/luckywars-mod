@@ -90,6 +90,7 @@ public final class LbcIndirectKills {
     private static ServerPlayer summonedOwner(Entity source) {
         var game=me.skywars2.SkyWars2.game();
         if(game==null) return null;
+        if(game.items().creeperDrops().owner(source) instanceof ServerPlayer player) return player;
         var summoner=game.items().blaze().owner(source);
         if(summoner==null) summoner=game.items().shooters().owner(source);
         if(summoner==null) summoner=game.items().mobgun().owner(source);

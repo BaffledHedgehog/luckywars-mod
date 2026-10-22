@@ -1,5 +1,26 @@
 # Следующие этапы переноса
 
+## Creeper special drops - QUALIFIED (user, 22 October 2026)
+
+[Current contract](CREEPER_DROPS_PORT.md). Both ordinary and old tokens are native
+Polymer items. Shared dispatch emits exact20/16 native hostile creepers, with
+ordinary native5% Air combat-death reward for the first variant. Author requires
+throwing-player kill credit; primary explosions, potion clouds and chained TNT
+retain it. Shared thrower capture replaces TNT's duplicate map. Source geometry,
+native AI/physics/fuse/despawn, mobGriefing and TNT-only protection are preserved.
+
+Build and two real mode1 fixture matches passed on56a15ffb:18 suite results,
+55.84s, including TNT/chest regressions and all real stop/epoch cleanup probes.
+Ready build/verification/skywars2-creeper-drops-56a15ffb.jar, not installed.
+Evidence build/verification/creeper-drops-final/. Main69de8601 and RP unchanged.
+Full chunk-unload/offline-author persistence and real-client visuals remain
+manual checks, with no measured peak-capacity claim.
+
+Next: cage traps with source shaft/placement geometry and native falling-entity
+ownership, reusing LbcSpecialDrops instead of another token scan. Keep public
+loot limited to qualified leaves. Crocodildo's separate author/reward questions
+and unfinished modes2..4 remain outstanding.
+
 ## Thirteen-TNT special drop - QUALIFIED (user, 22 October 2026)
 
 [Current contract](TNT_DROP_PORT.md). Native Polymer tnt_drop emits13 source TNT with fuse70, exact velocities

@@ -8,7 +8,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
-import net.minecraft.world.phys.Vec3;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -26,8 +25,6 @@ public final class LbcTntDrops {
     private final GameController game;
     private final Set<PrimedTnt> tracked = Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<PrimedTnt, LivingEntity> causes = new IdentityHashMap<>();
-    // Causal references only: activation and all pending-token work belong to the dispatcher.
-    private final Map<ItemEntity, LivingEntity> throwers = new IdentityHashMap<>();
 
     public LbcTntDrops(GameController game) { this.game = game; }
 
@@ -44,7 +41,7 @@ public final class LbcTntDrops {
         var pos = BlockPos.containing(at);
         if (level.getChunkSource().getChunkNow(pos.getX() >> 4, pos.getZ() >> 4) == null) return false;
         // getOwner is ItemEntity's thrower, independently of its pickup-target UUID.
-        var owner = tokenOwner(token);
+        var owner = game.items().specialDrops().owner(token);
         for (var velocity : VELOCITIES) {
             // Keep the exact native class so the shared TNT block-discovery cache applies.
             var tnt = new PrimedTnt(level, at.x, at.y, at.z, owner);
@@ -62,17 +59,6 @@ public final class LbcTntDrops {
 
     public static boolean managed(Entity entity) {
         return entity instanceof PrimedTnt && entity.entityTags().contains(TNT);
-    }
-
-    private LivingEntity tokenOwner(ItemEntity token) {
-        return token.getOwner() instanceof LivingEntity living ? living : throwers.get(token);
-    }
-
-    /** Only matching TNT tokens reach this comparison; ordinary item merges stay native. */
-    public boolean canMerge(ItemEntity first, ItemEntity second) {
-        var a = tokenOwner(first);
-        var b = tokenOwner(second);
-        return java.util.Objects.equals(a == null ? null : a.getUUID(), b == null ? null : b.getUUID());
     }
 
     /** Called before native insertion; preserve chain physics and its native randomized fuse. */
@@ -94,10 +80,6 @@ public final class LbcTntDrops {
     }
 
     public void loaded(Entity entity) {
-        // Native player drops assign the thrower before ENTITY_LOAD. Retain it before
-        // deferred dispatch can outlive that player entity's death or disconnect.
-        if (entity instanceof ItemEntity token && LbcTntDropItem.matches(token.getItem())
-                && token.getOwner() instanceof LivingEntity owner) throwers.put(token, owner);
         if (!managed(entity)) return;
         var tnt = (PrimedTnt) entity;
         // Native saving preserves fuse, velocity, owner UUID and the match epoch tag.
@@ -111,15 +93,11 @@ public final class LbcTntDrops {
 
     public void unloaded(Entity entity) {
         tracked.remove(entity);
-        throwers.remove(entity);
         // Native TNT discards before explode(). Its synchronous explosion/chain callbacks
         // still need the retained cause; reclaim it on the next service tick instead.
     }
 
     public void tick() {
-        throwers.keySet().removeIf(token -> token.isRemoved() || token.getAge() >= 5999
-                || !LbcTntDropItem.matches(token.getItem()) || !game.playing()
-                || game.stage() == GameController.Stage.ENDING || token.level() != game.maps().level());
         for (var tnt : List.copyOf(tracked)) {
             if (tnt.isRemoved()) tracked.remove(tnt);
             else if (!active(tnt)) {
@@ -144,7 +122,6 @@ public final class LbcTntDrops {
     }
 
     public void stop() {
-        throwers.clear();
         var detached = List.copyOf(tracked);
         tracked.clear();
         for (var tnt : detached) if (!tnt.isRemoved()) tnt.discard();

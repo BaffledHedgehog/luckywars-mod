@@ -1,5 +1,13 @@
 # Thirteen-TNT special drop — 22 October 2026
 
+Current shared-helper update: [CREEPER_DROPS_PORT.md](CREEPER_DROPS_PORT.md)
+adds the two creeper outcomes. `LbcSpecialDrops` now owns the one admission-time
+thrower capture used by both actor services. `DropTrapMergeMixin` replaces the
+TNT-only hook and applies the same narrow UUID comparison to both trap families.
+TNT no longer keeps a duplicate token-owner map. Two native regression matches
+passed on56a15ffb alongside the creeper/chest checks; original qualification below
+remains historical evidence for the TNT/cache batch.
+
 ## Author ownership and performance decisions (user)
 
 For the thrown trap tokens themselves, rather than ordinary loot after a blast:
@@ -11,7 +19,7 @@ Subsequent performance preference:
 > вообще такое в норм игре не будет случаться, так что если это валияет на производительность можно этого не делать
 
 The narrow merge hook runs only during a native merge attempt. Ordinary stacks
-without custom data return immediately; only identical TNT trap tokens compare
+without custom data return immediately; only identical TNT/creeper trap tokens compare
 causal author UUIDs. Same-author and ownerless stacks still merge natively.
 No world query, timer or separate per-tick merge scan is added. This is an
 implementation cost bound, not a measured throughput claim.
@@ -104,7 +112,7 @@ active RP verification; [CHEST_DROPS_PORT.md](CHEST_DROPS_PORT.md) retains the
 five chest behavior contract. No whole Lucky Block pool or unfinished game
 mode is enabled by publishing this one ready outcome.
 
-Next: creeper drops and cage traps, using the same dispatcher, native actors,
+The creeper drops are now qualified in the linked current contract. Next: cage traps, using the same dispatcher, native actors,
 shared target policies and damage ownership. Their reward dependencies and
 terrain behavior require a bounded source audit before those leaves become
 public test entries. Crocodildo remains a separate author-decision/reward task.
