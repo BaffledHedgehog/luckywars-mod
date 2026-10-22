@@ -28,6 +28,7 @@ dependencies {
 processResources {
     include 'data/lbc/loot_table/ported/island_raise_drop.json', 'data/lbc/loot_table/ported/island_lower_drop_old.json'
     include 'data/lbc/loot_table/ported/old_bob_drop.json', 'data/lbc/loot_table/ported/old_tnt_drone_drop.json'
+    include 'data/lbc/loot_table/ported/acid_burst_drop.json', 'data/lbc/loot_table/ported/ant_swarm_drop.json', 'data/lbc/loot_table/ant_rewards.json'
     include 'data/lbc/loot_table/ported/potion_spawner_drop.json', 'data/lbc/loot_table/ported/potion_spawner_drop_old.json'
     include 'data/lbc/loot_table/ported/old_vex_drop.json', 'data/lbc/loot_table/ported/old_skeleton_drop.json',
             'data/lbc/loot_table/ported/shulker_bullets_drop.json', 'data/lbc/loot_table/ported/shulker_bullets_drop_old.json'

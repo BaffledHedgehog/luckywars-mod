@@ -1,0 +1,17 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        { "type": "minecraft:item", "name": "skywars2:acid_burst_drop" }
+      ]
+    },
+    {
+      "rolls": 1,
+      "condition": { "type": "minecraft:random_chance", "chance": 0.1 },
+      "entries": [
+        { "type": "minecraft:loot_table", "value": "lbc:ported/acid_wand" }
+      ]
+    }
+  ]
+}

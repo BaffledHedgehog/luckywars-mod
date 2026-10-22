@@ -85,6 +85,7 @@ public final class LbcIndirectKills {
         var original=source;
         var game=me.skywars2.SkyWars2.game();
         if(game!=null && game.items().cageDrops().owner(source) instanceof ServerPlayer player) return player;
+        if(game!=null && game.items().clouds().sourceAcidOwner(source) instanceof ServerPlayer player) return player;
         if(source instanceof Projectile projectile) source=projectile.getOwner();
         if(source instanceof AreaEffectCloud cloud) source=cloud.getOwner();
         if(source instanceof PrimedTnt tnt) source=tnt.getOwner();
@@ -105,6 +106,7 @@ public final class LbcIndirectKills {
         if(game.items().slabDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().creatureDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().droneDrops().owner(source) instanceof ServerPlayer player) return player;
+        if(game.items().antDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().potionSpawnerDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().opAnvilDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().zombieTntDrops().owner(source) instanceof ServerPlayer player) return player;
@@ -125,6 +127,7 @@ public final class LbcIndirectKills {
     }
     public boolean allowProjectileEffect(LivingEntity target,Holder<MobEffect> effect,Entity source) {
         if(LbcPotionSpawnerDrops.managed(source)) return game.items().potionSpawnerDrops().canAffect(source,target);
+        if(LbcClouds.sourceAcidManaged(source)) return game.items().clouds().sourceAcidCanAffect(source,target);
         if(effect.value().getCategory()!=net.minecraft.world.effect.MobEffectCategory.HARMFUL
                 || !(source instanceof net.minecraft.world.entity.projectile.throwableitemprojectile.AbstractThrownPotion)
                     && !(source instanceof AreaEffectCloud)) return true;

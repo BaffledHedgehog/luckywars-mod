@@ -93,6 +93,7 @@ public final class LbcClouds {
         /** Check the actual native gravity/drag segment, already clipped at its first collision. */
         private boolean stopAtShield(Vec3 end) {
             var game = SkyWars2.game();
+            if (sourceAcidManaged(this) && !entityTags().contains("shield_blockable2"))return false;
             if (shieldFrom == null || game == null || !(getOwner() instanceof ServerPlayer owner)
                     || !(level() instanceof ServerLevel level)
                     || !(game.playing() || game.items().currentEpoch(this))) return false;
@@ -106,10 +107,8 @@ public final class LbcClouds {
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder) { }
         @Override public EntityType<?> getPolymerEntityType(PacketContext context) { return EntityTypes.MARKER; }
         @Override protected boolean canHitEntity(Entity entity) {
-            var game = SkyWars2.game();
-            return super.canHitEntity(entity) && !entity.entityTags().contains("spectator")
-                    && (!(entity instanceof ServerPlayer player) || game != null && game.allowDamage(player))
-                    && (!entityTags().contains(WAND_ACID) || game != null && game.items().clouds().wandAcidTarget(this,entity));
+            // User: every shared acid variant retains the source marker's passage through actors.
+            return false;
         }
         @Override protected void onHit(HitResult hit) {
             if (stopAtShield(hit.getLocation())) return;
@@ -150,6 +149,8 @@ public final class LbcClouds {
     private static final String ACID = "skywars2.acid";
     private static final String WAND_ACID = "skywars2.wand.acid";
     private static final String ORDINARY_WAND_ACID = "skywars2.wand.acid.regular";
+    private static final String SOURCE_ACID="skywars2.source_acid",ACID_500="skywars2.acid_500",ACID_OWNER="skywars2.acid_owner.";
+    private final Map<java.util.UUID,ServerPlayer> acidAuthors=new java.util.HashMap<>();
     private static final String ACID_STUCK = "skywars2.acid_stuck";
     private static final class CloudState {
         final AreaEffectCloud cloud;
@@ -200,7 +201,7 @@ public final class LbcClouds {
             return true;
         }
         if (entity instanceof AcidProjectile projectile) {
-            if (!mayRun(entity, projectile.getOwner())) entity.discard();
+            if (sourceAcidManaged(projectile) ? !sourceAcidActive(projectile) : !mayRun(entity, projectile.getOwner())) entity.discard();
             else {
                 if (projectile.entityTags().contains(ACID_STUCK)) stick(projectile, projectile.position());
                 acids.put(projectile, new AcidState(projectile));
@@ -398,21 +399,65 @@ public final class LbcClouds {
         return projectile;
     }
 
+    /** Exact source variants share acid movement, collision, reactivity and effect code. */
+    public AcidProjectile sourceAcid(ServerLevel level,Vec3 origin,float yaw,float pitch,int lifetime,boolean shield,ServerPlayer author){
+        if(lifetime!=300 && lifetime!=500)throw new IllegalArgumentException("Source acid budget must be 300 or 500");
+        var projectile=new AcidProjectile(ACID_PROJECTILE,level);
+        projectile.setPos(origin);projectile.setYRot(yaw);projectile.setXRot(pitch);
+        var direction=projectile.getLookAngle();projectile.shoot(direction.x,direction.y,direction.z,.5f,0);
+        projectile.entityTags().addAll(List.of(ACID,SOURCE_ACID,"raycastacid","player","slowraycast","magic","actived",game.items().epoch()));
+        if(shield)projectile.entityTags().add("shield_blockable2");
+        if(lifetime==500)projectile.entityTags().add(ACID_500);
+        projectile.setAttached(ACID_AGE,0);
+        if(author!=null){acidAuthors.put(author.getUUID(),author);projectile.entityTags().add(ACID_OWNER+author.getUUID());}
+        // Keep the native owner empty: source acid must not gain projectile owner collision immunity.
+        game.items().timeStop().prepareFrozen(projectile);level.addFreshEntity(projectile);return projectile;
+    }
+    public static boolean sourceAcidManaged(Entity entity){return entity instanceof AcidProjectile && entity.entityTags().contains(SOURCE_ACID);}
+    public LivingEntity sourceAcidOwner(Entity entity){
+        if(!sourceAcidManaged(entity))return null;
+        var reflected=game.items().electro().reflectedOwner(entity);if(reflected!=null)return reflected;
+        if(((AcidProjectile)entity).getOwner() instanceof LivingEntity nativeOwner)return nativeOwner;
+        for(var tag:entity.entityTags())if(tag.startsWith(ACID_OWNER))try{
+            var id=java.util.UUID.fromString(tag.substring(ACID_OWNER.length()));var online=game.server().getPlayerList().getPlayer(id);
+            return online==null?acidAuthors.get(id):online;
+        }catch(IllegalArgumentException ignored){}
+        return null;
+    }
+    private boolean sourceAcidActive(Entity entity){return game.playing() && game.stage()!=GameController.Stage.ENDING
+            && entity.level()==game.maps().level() && game.items().currentEpoch(entity);}
+    public boolean sourceAcidCanAffect(Entity source,Entity target){
+        return !sourceAcidManaged(source) || sourceAcidActive(source) && target!=null && game.items().wands().validTarget(target)
+                && (!source.entityTags().contains("skywars2.ant_acid") || game.items().antDrops().acidCanAffect(source,target));
+    }
+    public boolean sourceAcidWild(Entity source){return sourceAcidManaged(source)
+            && (!source.entityTags().contains("skywars2.ant_acid") || game.items().antDrops().acidWild(source));}
+    public void sourceSound(ServerLevel level,Vec3 origin,net.minecraft.sounds.SoundEvent event,float volume,float pitch){
+        sound(level,origin,event,volume,pitch,Double.POSITIVE_INFINITY,0);
+    }
+    public static int acidLifetime(AcidProjectile projectile){return projectile.entityTags().contains(ACID_500)?500:300;}
+    public int acidAge(AcidProjectile projectile){var state=acids.get(projectile);return state==null?projectile.getAttachedOrCreate(ACID_AGE):state.lifetime;}
+    public List<AcidProjectile> acidSnapshot(){return List.copyOf(acids.keySet());}
+
     private void tickAcid(AcidState state) {
         var projectile = state.projectile;
         var level = (ServerLevel) projectile.level();
+        if(sourceAcidManaged(projectile)){
+            if(!sourceAcidActive(projectile)){projectile.discard();return;}
+        }
+        if(game.items().timeStop().stopped(level))return;
         state.lifetime++;
         if (projectile.entityTags().contains(ACID_STUCK)) stick(projectile, projectile.position());
         if (!level.hasChunkAt(projectile.blockPosition())) {
             projectile.setAttached(ACID_AGE, state.lifetime);
-            if (state.lifetime >= 300) projectile.discard();
+            if (state.lifetime >= acidLifetime(projectile)) projectile.discard();
             return;
         }
         acidImpact(projectile);
         if (projectile.isRemoved()) return;
         if (projectile.entityTags().contains("on_fire")) state.lifetime += 3;
         projectile.setAttached(ACID_AGE, state.lifetime);
-        if (state.lifetime >= 300) projectile.discard();
+        if (state.lifetime >= acidLifetime(projectile)) projectile.discard();
     }
 
     private void stick(AcidProjectile projectile, Vec3 position) {
@@ -430,9 +475,11 @@ public final class LbcClouds {
         boolean ordinary=projectile.entityTags().contains(ORDINARY_WAND_ACID);
         boolean air = level.getBlockState(projectile.blockPosition()).is(AIRS);
         // shield_block_2 выполняется на блок впереди защищающегося игрока, без углового сектора.
-        if (air && !level.getEntitiesOfClass(ServerPlayer.class, projectile.getBoundingBox().inflate(3), player ->
+        if (air && (!sourceAcidManaged(projectile) || projectile.entityTags().contains("shield_blockable2"))
+                && !level.getEntitiesOfClass(ServerPlayer.class, projectile.getBoundingBox().inflate(3), player ->
                 game.allowDamage(player) && player.isBlocking()
                         && (!wand || wandAcidTarget(projectile,player))
+                        && (!sourceAcidManaged(projectile) || sourceAcidCanAffect(projectile,player))
                         && player.position().add(player.getLookAngle()).distanceToSqr(projectile.position()) <= 4).isEmpty()) {
             sound(level, projectile.position(), SoundEvents.SHIELD_BLOCK.value(), 1, 1, Double.POSITIVE_INFINITY, 0);
             projectile.discard(); return;
@@ -457,9 +504,10 @@ public final class LbcClouds {
                 level.sendParticles(ParticleTypes.FLAME,behind.x,behind.y,behind.z,15,.5,.1,.5,.2);
             } else level.sendParticles(ParticleTypes.FLAME, origin.x, origin.y, origin.z, 5, .3, .3, .3, .15);
         }
-        var damage=burning ? ownedDamage(level,DamageTypes.ON_FIRE,projectile,projectile.getOwner()) : null;
+        var damage=burning ? ownedDamage(level,DamageTypes.ON_FIRE,projectile,sourceAcidManaged(projectile)?sourceAcidOwner(projectile):projectile.getOwner()) : null;
         for (var entity : targets(level, origin, ordinary ? 5 : 2.5)) {
             if(wand && !wandAcidTarget(projectile,entity)) continue;
+            if(sourceAcidManaged(projectile) && !sourceAcidCanAffect(projectile,entity))continue;
             if (burning) {
                 entity.hurtServer(level, damage, ordinary ? 4 : 3);
                 level.sendParticles(ParticleTypes.FLAME, entity.getX(), entity.getY() + 1, entity.getZ(), 1, .3, .6, .3, .05);
@@ -513,7 +561,7 @@ public final class LbcClouds {
     void stop() {
         var entities = new ArrayList<Entity>();
         entities.addAll(clouds.keySet()); entities.addAll(acids.keySet()); entities.addAll(potions);
-        clouds.clear(); acids.clear(); potions.clear();
+        clouds.clear(); acids.clear(); potions.clear();acidAuthors.clear();
         for (var entity : entities) entity.discard();
     }
 }

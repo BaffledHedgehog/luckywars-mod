@@ -28,7 +28,7 @@ public final class LbcSpecialDrops {
     public LbcSpecialDrops(GameController game) { this.game = game; }
 
     private static boolean recognized(net.minecraft.world.item.ItemStack stack) {
-        return LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack) || LbcCreeperDropItem.kind(stack) != null || LbcCageDropItem.kind(stack) != null || LbcHoleDropItem.kind(stack) != null || LbcCorrosionDropItem.kind(stack) != null || LbcZombieTntDropItem.matches(stack) || LbcFallingNetheriteDropItem.kind(stack) != null || LbcHomeItems.matchesDrop(stack) || LbcScareDropItem.kind(stack) != null || LbcLuckyPigDropItem.matches(stack) || LbcLevitationDropItem.matches(stack) || LbcLibraryDropItem.matches(stack) || LbcBeeDropItem.matches(stack) || LbcOpAnvilDropItem.kind(stack) != null || LbcSlabDropItem.kind(stack) != null || LbcFeedbackDropItem.matches(stack) || LbcCreatureDropItem.matches(stack) || LbcPotionSpawnerDropItem.matches(stack) || LbcIslandDropItem.matches(stack) || LbcDroneDropItem.matches(stack);
+        return LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack) || LbcCreeperDropItem.kind(stack) != null || LbcCageDropItem.kind(stack) != null || LbcHoleDropItem.kind(stack) != null || LbcCorrosionDropItem.kind(stack) != null || LbcZombieTntDropItem.matches(stack) || LbcFallingNetheriteDropItem.kind(stack) != null || LbcHomeItems.matchesDrop(stack) || LbcScareDropItem.kind(stack) != null || LbcLuckyPigDropItem.matches(stack) || LbcLevitationDropItem.matches(stack) || LbcLibraryDropItem.matches(stack) || LbcBeeDropItem.matches(stack) || LbcOpAnvilDropItem.kind(stack) != null || LbcSlabDropItem.kind(stack) != null || LbcFeedbackDropItem.matches(stack) || LbcCreatureDropItem.matches(stack) || LbcPotionSpawnerDropItem.matches(stack) || LbcIslandDropItem.matches(stack) || LbcDroneDropItem.matches(stack) || LbcAntDropItem.matches(stack);
     }
 
     public void loaded(Entity entity) {
@@ -111,11 +111,12 @@ public final class LbcSpecialDrops {
         boolean potionSpawner = LbcPotionSpawnerDropItem.matches(token.getItem());
         boolean island = LbcIslandDropItem.matches(token.getItem());
         boolean drone = LbcDroneDropItem.matches(token.getItem());
+        boolean ants = LbcAntDropItem.matches(token.getItem());
         boolean bob = LbcCreatureDropItem.matches(token.getItem(),LbcCreatureDropItem.Kind.OLD_BOB);
         boolean bees = LbcBeeDropItem.matches(token.getItem());
         boolean pigs = LbcLuckyPigDropItem.matches(token.getItem());
         boolean enzan = LbcLevitationDropItem.matches(token.getItem());
-        if (!chest && !tnt && !creeper && !cage && !hole && !corrosion && !zombieTnt && !falling && !home && !scare && !pigs && !enzan && !library && !bees && !opAnvil && !slab && !feedback && !vex && !skeleton && !bullets && !potionSpawner && !island && !drone && !bob) return false;
+        if (!chest && !tnt && !creeper && !cage && !hole && !corrosion && !zombieTnt && !falling && !home && !scare && !pigs && !enzan && !library && !bees && !opAnvil && !slab && !feedback && !vex && !skeleton && !bullets && !potionSpawner && !island && !drone && !bob && !ants) return false;
         int now = game.server().getTickCount();
         if (lastAttempt.getOrDefault(token, Integer.MIN_VALUE) == now) return false;
         var pos = BlockPos.containing(token.position());
@@ -135,6 +136,8 @@ public final class LbcSpecialDrops {
         if (library && !game.items().libraryDrop().ready(token)) return false;
         if (island && !game.items().islandDrops().ready(token)) return false;
         if (drone && !game.items().droneDrops().ready(token)) return false;
+        for (var kind : LbcAntDropItem.Kind.values())
+            if (LbcAntDropItem.matches(token.getItem(),kind) && !game.items().antDrops().ready(token,kind)) return false;
         if (bob && !game.items().creatureDrops().ready(token,LbcCreatureDrops.Kind.BOB_OLD)) return false;
         if (pigs && !game.items().luckyPigs().ready(token)) return false;
         for (var kind : LbcCreeperDropItem.Kind.values()) {
@@ -208,6 +211,8 @@ public final class LbcSpecialDrops {
         if(skeleton) game.items().creatureDrops().spawn(token,LbcCreatureDrops.Kind.SKELETON_OLD);
         if(bob) game.items().creatureDrops().spawn(token,LbcCreatureDrops.Kind.BOB_OLD);
         if (enzan) game.items().enzanDrop().spawn(token);
+        for (var kind : new LbcAntDropItem.Kind[]{LbcAntDropItem.Kind.ANTS,LbcAntDropItem.Kind.ACID_BURST})
+            if (LbcAntDropItem.matches(token.getItem(),kind)) game.items().antDrops().spawn(token,kind);
         if (LbcFeedbackDropItem.matches(token.getItem(), LbcFeedbackDropItem.Kind.DEATH_LUST))
             game.items().feedbackDrops().spawn(token, LbcFeedbackDropItem.Kind.DEATH_LUST);
         var remaining = token.getItem().copy();

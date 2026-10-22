@@ -105,3 +105,10 @@ Current read-only RP26.3(1) contains drop_acid EN Trap: Acid,drop_muravei EN
 Trap: Ants,muravei EN Ant. IlkaKilka | BLS Event.,drop_portals EN
 Drop: Two-way portal. Preserve exact existing RU/RPR/EN components when each leaf
 is promoted. No new translations or RP/template writes performed here.
+
+## Current implementation status (22 October 2026)
+
+Acid Burst and Ant Swarm are now qualified together; the earlier source-only
+status above records the audit stage. See [the tested contract](ACID_ANT_DROPS_PORT.md)
+for artifact08f09e8f,136 suite results and exact native fixture limits.
+Normal Fat Skeleton / normal-old portal remain [next source candidates](NEXT_DROPS_AFTER_ACID_ANT_SOURCE.md).

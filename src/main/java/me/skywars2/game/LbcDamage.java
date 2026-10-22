@@ -124,7 +124,9 @@ public final class LbcDamage {
         return game!=null && (game.items().cageDrops().wild(source.getDirectEntity())
                 || game.items().zombieTntDrops().wild(source.getDirectEntity())
                 || game.items().potionSpawnerDrops().wild(source.getDirectEntity())
-                || game.items().droneDrops().wild(source.getDirectEntity()));
+                || game.items().droneDrops().wild(source.getDirectEntity())
+                || game.items().antDrops().wild(source.getDirectEntity())
+                || game.items().clouds().sourceAcidWild(source.getDirectEntity()));
     }
     public static boolean allowsElectricFriendlyFire(DamageSource source) {
         return isNativeLightning(source) || source.is(ELECTRO_CONDUCTION) || source.is(ELECTRO_MEDITATION);

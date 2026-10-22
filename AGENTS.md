@@ -1,5 +1,26 @@
 # Проект SkyWars
 
+## Acid Burst / Ant Swarm - QUALIFIED (22 October 2026)
+
+[Contract](agent_notes/ACID_ANT_DROPS_PORT.md). Ready leaves: `lbc:ported/acid_burst_drop` and
+`lbc:ported/ant_swarm_drop`. Exact source tokens, five native baby zombies,
+three 500-tick acid charges and real native ant rewards are migrated. User chose
+WILD ant targeting/melee/acid. All shared acid now passes through entities while
+retaining block sticking, aura and authored budgets. Time Stop pauses acid age
+and aura as well as native movement. Native reinforcement/new jockey/conversion
+lineage, role safety, indirect credit and quiet actual-stop closure are included.
+No extra TTL/cap or RP/template edit.
+
+Offline build/two actual isolated mode1 matches passed on08f09e8f:136 recorded
+suite results,112.47s;220sources/615classes/2697resources match tested artifacts.
+Ready `build/verification/skywars2-acid-ant-batch-08f09e8f.jar`, not installed;
+evidence `build/verification/acid-ant-batch-final/`. Main96ee50a7/user Reroll
+unchanged. Real client/disk restart/unload/disconnect/natural AI/peak capacity
+remain limits; see contract for exact native fixture scope and retained attempts.
+Earlier pending Acid/Ant recommendations are superseded. Next source-only group:
+normal Fat Skeleton plus normal/old Random Portal, not implemented in this patch.
+
+
 ## Old Bob / old TNT Drone - QUALIFIED (22 October 2026)
 
 [Contract](agent_notes/BOB_DRONE_DROPS_PORT.md). Ready leaves: lbc:ported/old_bob_drop and
@@ -2326,3 +2347,13 @@ Bind producer shutdown to its own hoglin's identity and actual death. Foreign
 nearby hoglins/zoglins cannot keep the cart running; a living dismounted or
 unloaded host is not dead. Source facts and current qualification are recorded in
 [the drone contract](agent_notes/BOB_DRONE_DROPS_PORT.md).
+
+## Ants and acid entity collision (user, 22 October 2026)
+
+> Да, муравьи опасны для всех
+
+Ant target selection, melee and acid are WILD, including the thrower/allies; retain protected roles and source muravei poison immunity.
+
+> Да, вернуть прохождение сквозь существ
+
+This applies to ALL shared acid variants. Preserve block sticking, physical reactivity and source lifetimes. [Current contract](agent_notes/ACID_ANT_DROPS_PORT.md).

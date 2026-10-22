@@ -19,6 +19,7 @@
     "DroneDropMixin$Candidates",
     "DroneDropMixin$Ground",
     "DroneDropMixin$HostDeath",
+    "AntDropMixin$Reinforcements",
     "CreatureDropIgniteMixin",
     "BeeDropMixin$BeeMelee",
     "BeeDropMixin$Hive",
