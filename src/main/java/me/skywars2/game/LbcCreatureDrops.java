@@ -16,6 +16,7 @@ import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Vex;
+import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
 import net.minecraft.world.entity.projectile.ShulkerBullet;
 import net.minecraft.world.level.Level;
@@ -26,11 +27,14 @@ import java.util.*;
 
 /** Native closed creature drops; actual source attribution never changes native mob/projectile owners. */
 public final class LbcCreatureDrops {
-    public enum Kind { VEX_OLD, SKELETON_OLD, BULLETS }
+    public enum Kind { VEX_OLD, SKELETON_OLD, BOB_OLD, BULLETS }
     private static final String ACTOR="skywars2.creature_drop", OWNER="skywars2.creature_owner.";
     private static final CompoundTag VEX=preset("{Health:1.0f,attributes:[{id:\"minecraft:max_health\",base:1}]}");
     private static final CompoundTag SKELETON=preset("""
             {PersistenceRequired:1b,CustomNameVisible:1b,CustomName:{"italic":false,"translate":"fat_skeleton"},equipment:{mainhand:{id:"minecraft:bone",components:{"minecraft:enchantments":{"minecraft:knockback":1},"minecraft:custom_name":{"italic":false,"translate":"omega_bone"},"minecraft:attribute_modifiers":[{type:"minecraft:attack_damage",slot:"mainhand",amount:7,operation:"add_value",id:"minecraft:base_attack_damage"},{type:"minecraft:attack_speed",slot:"mainhand",id:"minecraft:base_attack_speed",amount:-3.5,operation:"add_value"},{type:"minecraft:knockback_resistance",slot:"mainhand",id:"d90ihe89fyw39tg",amount:1,operation:"add_value"},{type:"minecraft:movement_speed",slot:"mainhand",id:"ih89urgh8ghfdg",amount:-0.7,operation:"add_multiplied_base"}]},count:1},feet:{id:"minecraft:bone_meal",count:64},legs:{id:"minecraft:bone",count:32},chest:{id:"minecraft:iron_chestplate",count:1},head:{id:"minecraft:skeleton_skull",count:1}},drop_chances:{mainhand:1.0f,legs:1.0f,feet:1.0f},attributes:[{id:"minecraft:movement_speed",base:0.6d},{id:"minecraft:armor",base:20},{id:"minecraft:attack_knockback",base:100},{id:"minecraft:armor_toughness",base:5}]}
+            """);
+    private static final CompoundTag BOB=preset("""
+            {CustomNameVisible:1b,PersistenceRequired:1b,IsBaby:0b,CustomName:{"color":"green","italic":false,"translate":"bob"},equipment:{mainhand:{id:"minecraft:netherite_sword",components:{"minecraft:enchantments":{"minecraft:sharpness":5,"minecraft:smite":5,"minecraft:bane_of_arthropods":5,"minecraft:knockback":2,"minecraft:fire_aspect":2,"minecraft:looting":3,"minecraft:sweeping_edge":3,"minecraft:unbreaking":3},"minecraft:custom_name":{"italic":false,"translate":"bob_sword"}},count:1},offhand:{id:"minecraft:enchanted_golden_apple",components:{"minecraft:custom_name":{"italic":false,"translate":"bob_apple"}},count:6},feet:{id:"minecraft:netherite_boots",components:{"minecraft:enchantments":{"minecraft:protection":4,"minecraft:fire_protection":4,"minecraft:feather_falling":4,"minecraft:blast_protection":4,"minecraft:projectile_protection":4,"minecraft:thorns":3,"minecraft:depth_strider":3,"minecraft:frost_walker":2,"minecraft:unbreaking":3,"minecraft:soul_speed":3},"minecraft:custom_name":{"italic":false,"translate":"bob_boots"}},count:1},legs:{id:"minecraft:netherite_leggings",components:{"minecraft:enchantments":{"minecraft:protection":4,"minecraft:fire_protection":4,"minecraft:blast_protection":4,"minecraft:projectile_protection":4,"minecraft:thorns":3,"minecraft:unbreaking":3},"minecraft:custom_name":{"italic":false,"translate":"bob_leggings"}},count:1},chest:{id:"minecraft:netherite_chestplate",components:{"minecraft:enchantments":{"minecraft:protection":4,"minecraft:fire_protection":4,"minecraft:blast_protection":4,"minecraft:projectile_protection":4,"minecraft:thorns":3,"minecraft:unbreaking":3},"minecraft:custom_name":{"italic":false,"translate":"bob_chestplate"}},count:1},head:{id:"minecraft:netherite_helmet",components:{"minecraft:enchantments":{"minecraft:protection":4,"minecraft:fire_protection":4,"minecraft:blast_protection":4,"minecraft:projectile_protection":4,"minecraft:respiration":3,"minecraft:aqua_affinity":1,"minecraft:thorns":1,"minecraft:unbreaking":1},"minecraft:custom_name":{"italic":false,"translate":"bob_helmet"}},count:1}},drop_chances:{mainhand:0.5f,offhand:0.5f,head:0.5f,chest:0.5f,legs:0.5f,feet:0.5f},attributes:[{id:"minecraft:follow_range",base:400}]}
             """);
     private static final CompoundTag BULLET=preset("{Tags:[\"angry\"],Steps:40}");
     private static final int[][] BULLET_OFFSETS={{0,1},{0,-1},{1,1},{1,-1},{-1,1},{-1,-1},{1,0},{-1,0},{0,0}};
@@ -39,7 +43,7 @@ public final class LbcCreatureDrops {
     private final Map<UUID,ServerPlayer> authors=new HashMap<>();
     public LbcCreatureDrops(GameController game){this.game=game;}
     private static CompoundTag preset(String snbt){try{return TagParser.parseCompoundFully(snbt);}catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new ExceptionInInitializerError(error);}}
-    private static boolean matches(ItemEntity token,Kind kind){return LbcCreatureDropItem.matches(token.getItem(),switch(kind){case VEX_OLD->LbcCreatureDropItem.Kind.OLD_VEX;case SKELETON_OLD->LbcCreatureDropItem.Kind.OLD_SKELETON;case BULLETS->LbcCreatureDropItem.Kind.BULLETS;});}
+    private static boolean matches(ItemEntity token,Kind kind){return LbcCreatureDropItem.matches(token.getItem(),switch(kind){case VEX_OLD->LbcCreatureDropItem.Kind.OLD_VEX;case SKELETON_OLD->LbcCreatureDropItem.Kind.OLD_SKELETON;case BOB_OLD->LbcCreatureDropItem.Kind.OLD_BOB;case BULLETS->LbcCreatureDropItem.Kind.BULLETS;});}
     public boolean ready(ItemEntity token,Kind kind){
         if(token.isRemoved() || token.getAge()>=5999 || !matches(token,kind) || !game.playing()
                 || game.stage()==GameController.Stage.ENDING || token.level()!=game.maps().level()
@@ -72,6 +76,12 @@ public final class LbcCreatureDrops {
                     if(skeleton!=null){skeleton.load(TagValueInput.create(ProblemReporter.DISCARDING,level.registryAccess(),SKELETON.copy()));admit(level,skeleton,token.position(),author);}
                 }
             }
+            case BOB_OLD->{
+                if(Level.isInSpawnableBounds(token.blockPosition())){
+                    var bob=EntityTypes.ZOMBIE.create(level,EntitySpawnReason.COMMAND);
+                    if(bob!=null){bob.load(TagValueInput.create(ProblemReporter.DISCARDING,level.registryAccess(),BOB.copy()));admit(level,bob,token.position(),author);}
+                }
+            }
             case BULLETS->{
                 for(var offset:BULLET_OFFSETS){
                     var at=token.position().add(offset[0],2,offset[1]);
@@ -102,7 +112,7 @@ public final class LbcCreatureDrops {
         game.items().markCurrentItemEpoch(actor);tracked.add(actor);game.items().timeStop().prepareFrozen(actor);
         if(!level.addFreshEntity(actor)){tracked.remove(actor);actor.discard();}
     }
-    public static boolean managed(Entity actor){return actor!=null && (actor instanceof Vex || actor instanceof AbstractSkeleton || actor instanceof ShulkerBullet) && actor.entityTags().contains(ACTOR);}
+    public static boolean managed(Entity actor){return actor!=null && (actor instanceof Vex || actor instanceof AbstractSkeleton || actor instanceof Zombie || actor instanceof ShulkerBullet) && actor.entityTags().contains(ACTOR);}
     public LivingEntity owner(Entity actor){
         if(actor instanceof ItemEntity token && LbcCreatureDropItem.matches(token.getItem()))return game.items().specialDrops().owner(token);
         if(!managed(actor))return null;

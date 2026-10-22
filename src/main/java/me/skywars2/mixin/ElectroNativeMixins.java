@@ -84,7 +84,7 @@ public final class ElectroNativeMixins {
         @Inject(method="addAdditionalSaveData",at=@At("TAIL"))
         private void skywars2$saveDropOwner(net.minecraft.world.level.storage.ValueOutput output,CallbackInfo ci) {
             var tnt=(PrimedTnt)(Object)this;
-            if(me.skywars2.game.LbcTntDrops.managed(tnt) || me.skywars2.game.LbcCreeperDrops.managed(tnt) || me.skywars2.game.LbcCageDrops.managed(tnt) || me.skywars2.game.LbcZombieTntDrops.managed(tnt))
+            if(me.skywars2.game.LbcTntDrops.managed(tnt) || me.skywars2.game.LbcCreeperDrops.managed(tnt) || me.skywars2.game.LbcCageDrops.managed(tnt) || me.skywars2.game.LbcZombieTntDrops.managed(tnt) || me.skywars2.game.LbcDroneDrops.managed(tnt))
                 net.minecraft.world.entity.EntityReference.store(
                         net.minecraft.world.entity.EntityReference.of(tnt.getOwner()),output,"owner");
         }
@@ -97,6 +97,7 @@ public final class ElectroNativeMixins {
                 if(owner==null) owner=game.items().creeperDrops().owner((Entity)(Object)this);
                 if(owner==null) owner=game.items().cageDrops().retainedOwner((Entity)(Object)this);
                 if(owner==null) owner=game.items().zombieTntDrops().retainedOwner((Entity)(Object)this);
+                if(owner==null) owner=game.items().droneDrops().retainedOwner((Entity)(Object)this);
                 if(owner!=null) ci.setReturnValue(owner);
             }
         }

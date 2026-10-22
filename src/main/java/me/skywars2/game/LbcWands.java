@@ -1173,6 +1173,7 @@ public final class LbcWands {
     public boolean canHit(Projectile projectile,Entity target) {
         if(LbcPotionSpawnerDrops.managed(projectile)) return game.items().potionSpawnerDrops().canAffect(projectile,target);
         if(LbcCreatureDrops.managed(projectile)) return game.items().creatureDrops().canAffect(projectile,target);
+        if(LbcDroneDrops.managed(projectile)) return game.items().droneDrops().canAffect(projectile,target);
         if(LbcCageDrops.managed(projectile)) return game.items().cageDrops().canAffect(projectile,target);
         if(LbcBlaze.isKfcSpirit(projectile)) return projectile.getOwner() instanceof ServerPlayer owner
                 && !game.isObserver(owner) && validTarget(target);
@@ -1196,6 +1197,7 @@ public final class LbcWands {
     public boolean allowDamage(Entity victim,DamageSource source) {
         if(LbcPotionSpawnerDrops.managed(source.getDirectEntity())) return game.items().potionSpawnerDrops().canAffect(source.getDirectEntity(),victim);
         if(LbcCreatureDrops.managed(source.getDirectEntity())) return game.items().creatureDrops().canAffect(source.getDirectEntity(),victim);
+        if(LbcDroneDrops.managed(source.getDirectEntity())) return game.items().droneDrops().canAffect(source.getDirectEntity(),victim);
         if(LbcCageDrops.managed(source.getDirectEntity())) return game.items().cageDrops().canAffect(source.getDirectEntity(),victim);
         if(LbcZombieTntDrops.managed(source.getDirectEntity())) return game.items().zombieTntDrops().canAffect(source.getDirectEntity(),victim);
         if(LbcDamage.isNativeLightning(source)) return validTarget(victim);

@@ -26,7 +26,8 @@ public final class LbcCreatureDropItem {
         OLD_VEX("skywars2:old_vex_drop", "vex_old"),
         OLD_SKELETON("skywars2:old_skeleton_drop", "skeleton_old"),
         BULLETS("skywars2:shulker_bullets_drop", "bullets"),
-        BULLETS_OLD("skywars2:shulker_bullets_drop_old", "bullets");
+        BULLETS_OLD("skywars2:shulker_bullets_drop_old", "bullets"),
+        OLD_BOB("skywars2:old_bob_drop", "bob_old");
 
         private final Item item;
         private final String flag;

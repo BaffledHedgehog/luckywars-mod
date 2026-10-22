@@ -1,5 +1,25 @@
 # Проект SkyWars
 
+## Old Bob / old TNT Drone - QUALIFIED (22 October 2026)
+
+[Contract](agent_notes/BOB_DRONE_DROPS_PORT.md). Ready leaves: lbc:ported/old_bob_drop and
+lbc:ported/old_tnt_drone_drop. Exact native Bob equipment/drop chances and drone
+bat/cart/hoglin -> TNT/pig payloads, landing fuse and configurable TNT protection
+are migrated. User-selected own-host death closes the producer; foreign mobs
+cannot keep it alive and unload/dismount is not death. Causal author/epoch,
+native Fire Aspect burning credit, conversion, WILD blast roles and quiet
+actual-stop cleanup are integrated. RP/template unchanged; no extra TTL/cap.
+
+Offline build/two actual isolated mode1 matches passed onb6ce92ce:130 recorded
+suite results,88.84s;216sources/608classes/2694resources match tested artifacts.
+Ready build/verification/skywars2-bob-drone-batch-b6ce92ce.jar, not installed;
+evidence build/verification/bob-drone-batch-final/. Main96ee50a7/user Reroll
+unchanged. Native client/disk restart/unload/disconnect/natural AI/peak capacity
+remain limits. See contract for exact fixture scope and retained failed attempts.
+Historical next-Bob/Drone recommendations below are superseded. Next source-only
+group: Acid Burst + Ant Swarm; neither is implemented by this batch.
+
+
 ## Island Raise / old Island Lower - QUALIFIED (22 October 2026)
 
 [Contract](agent_notes/ISLAND_DROPS_PORT.md). Two ready leaves: lbc:ported/island_raise_drop and
@@ -2297,3 +2317,12 @@ source/destination terrain, execute only their native entity-teleport sequence,
 and debit one token. Old Resistance is granted only after a successful copy.
 Qualification is recorded in ISLAND_DROPS_PORT.md; source descriptions of the
 original unconditional clear remain historical facts.
+
+## TNT drone host (user, 22 October 2026)
+
+> Отключать после гибели своего хоглина
+
+Bind producer shutdown to its own hoglin's identity and actual death. Foreign
+nearby hoglins/zoglins cannot keep the cart running; a living dismounted or
+unloaded host is not dead. Source facts and current qualification are recorded in
+[the drone contract](agent_notes/BOB_DRONE_DROPS_PORT.md).

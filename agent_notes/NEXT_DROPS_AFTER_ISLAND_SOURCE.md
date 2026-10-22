@@ -68,3 +68,7 @@ raycast closure. Portal remains unaudited gateway/spread/marker cross-instance
 scope. Normal Bob should not be promoted without independent full lbc:bob reward
 closure. Infinity/forest/LuckyRoom/magicbean/Vexsword stay deferred. No reward
 placeholder or already completed acquisition was chosen to enlarge the batch.
+
+## Subsequent qualification - 22 October 2026
+
+Old Bob and old TNT Drone are now qualified, including user-selected own-host shutdown. See [Bob/drone contract](BOB_DRONE_DROPS_PORT.md). Historical recommendations above are superseded; [the next source-only group](NEXT_DROPS_AFTER_BOB_DRONE_SOURCE.md) remains unimplemented.

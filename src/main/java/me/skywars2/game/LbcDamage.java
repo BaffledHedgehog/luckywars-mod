@@ -123,7 +123,8 @@ public final class LbcDamage {
         var game=me.skywars2.SkyWars2.game();
         return game!=null && (game.items().cageDrops().wild(source.getDirectEntity())
                 || game.items().zombieTntDrops().wild(source.getDirectEntity())
-                || game.items().potionSpawnerDrops().wild(source.getDirectEntity()));
+                || game.items().potionSpawnerDrops().wild(source.getDirectEntity())
+                || game.items().droneDrops().wild(source.getDirectEntity()));
     }
     public static boolean allowsElectricFriendlyFire(DamageSource source) {
         return isNativeLightning(source) || source.is(ELECTRO_CONDUCTION) || source.is(ELECTRO_MEDITATION);

@@ -104,6 +104,7 @@ public final class LbcIndirectKills {
         if(game.items().beeDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().slabDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().creatureDrops().owner(source) instanceof ServerPlayer player) return player;
+        if(game.items().droneDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().potionSpawnerDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().opAnvilDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().zombieTntDrops().owner(source) instanceof ServerPlayer player) return player;
@@ -322,7 +323,7 @@ public final class LbcIndirectKills {
     }
     public void worldChanges(ServerLevel level, Entity source, Runnable writes) {
         worldChanges(level,source,source instanceof net.minecraft.world.entity.LightningBolt || game.items().cageDrops().wild(source)
-                || game.items().zombieTntDrops().wild(source),writes);
+                || game.items().zombieTntDrops().wild(source) || game.items().droneDrops().wild(source),writes);
     }
     /** Terrain traps retain WILD consequences after their source item has been consumed. */
     public void worldChanges(ServerLevel level, Entity source, boolean friendlyFire, Runnable writes) {
