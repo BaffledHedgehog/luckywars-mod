@@ -10,6 +10,8 @@ random-template fill-volume gate, direct damage or block-drop loot is invented.
 
 Corrosion shares the existing3ms Stonekivi terrain scheduler, sparse section
 traversal, native shape/neighbor updates and retained WILD support-removal cause.
+Author confirmed progressive CPU-budgeted processing with immediate intermediate
+changes (user,22 October2026); see the verbatim answer in the current contract.
 No accepted-job cap; time stop/unresident halo pause, epoch/match stop cancel.
 Dispatch order is admission order; manually combined corrosion+pit/cage tokens
 do not retain atomic source world-write ordering. Preserve this explicit limit.

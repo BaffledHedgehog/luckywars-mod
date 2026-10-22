@@ -7,6 +7,8 @@ distinct decoration, exact48-cell random50% erasure and native flags2 container
 ejection. Old strict two-cell cleanup retains its own bounds/volume checks.
 The existing3ms terrain scheduler handles sparse section work and native shape
 updates; accepted jobs remain until completion, time/halo pause or match cancel.
+User confirmed processing across ticks with a CPU budget and immediate changes;
+this matches the qualified implementation and needs no gameplay-code change.
 Actual thrower/WILD support-removal cause and newer attacker precedence remain.
 Manually combined corrosion+pit/cage flags do not have atomic source write order.
 

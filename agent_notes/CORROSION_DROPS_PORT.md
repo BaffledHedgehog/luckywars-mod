@@ -54,9 +54,12 @@ storage and a compact occupancy mask. Native non-strict edge-shape and neighbour
 updates are retained. Random draw and face visitation order may differ from the
 datapack while preserving the independent removal distribution.
 
-After an optional timing question remained unanswered, the implementation choice
-was stated explicitly: progressive processing through the existing Stonekivi
-terrain scheduler, with a shared soft budget of 3 ms per tick. Every job retains
+Processing timing (user, 22 October 2026):
+
+> С бюджетом CPU по нескольким тикам, показывая изменения сразу
+
+This confirms the implemented progressive processing through the existing
+Stonekivi terrain scheduler, with a shared soft budget of 3 ms per tick. Every job retains
 its captured origin, fractional particle position, owner and epoch after the
 token is consumed. No accepted activation is discarded to bound the queue.
 Intermediate changes use ordinary native block-update delivery.
