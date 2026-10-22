@@ -3,6 +3,12 @@
 Status: build and two isolated native match cycles **QUALIFIED** on09a1cf09.
 The checked JAR is ready locally; the main server remains unchanged.
 
+Shared-helper update: [HOLE_DROPS_PORT.md](HOLE_DROPS_PORT.md) extracts native fill
+into `LbcDropBlocks`, skips unused strict-fill allocations/old-state reads and
+adds the native per-cuboid `MAX_BLOCK_MODIFICATIONS` gate. Two cage regression
+matches passed on2478ebdc alongside holes and the earlier drop families. The
+original cage qualification below remains historical evidence for its batch.
+
 ## Author decisions (user)
 
 > близжайшего игрока (не спектатора) любого (даже себя или союзника)

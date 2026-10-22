@@ -1,5 +1,24 @@
 # Следующие этапы переноса
 
+## Two hole drops - QUALIFIED (22 October 2026)
+
+[Current contract](HOLE_DROPS_PORT.md). Two native Polymer leaves preserve normal
+trap_hole styling and old plain barrier. Normal five strict fills and old four
+ordinary fills retain exact144-air shaft/web/fire/support layers. Shared nearest
+ANY target, WILD policy, source order and per-unit debit are reused, without a
+new scheduler or actor lifecycle. Native fill is shared with cages in LbcDropBlocks
+and now honors per-cuboid MAX_BLOCK_MODIFICATIONS. Support removal retains the
+original write-scope Owner/order/WILD permission through indirect deaths.
+
+Build and two actual mode1 fixture matches passed on2478ebdc:30 suite results,
+51.49s, including all earlier drop families and real stop/epoch cleanup. Native
+support removal/fall/void credit, later attacker, fire contact/allied harm and
+limit100 behavior passed. Ready build/verification/skywars2-hole-drops-2478ebdc.jar,
+not installed; evidence build/verification/hole-drops-final/. Main69de8601 and RP
+unchanged. Complete natural trajectories, client visuals and persistence remain
+explicit limits. Next bounded audit: corrosion/corrosion_old. Keep whole Lucky
+Block pools, unresolved encounters/rewards and unfinished modes2..4 gated.
+
 ## Five cage drops - QUALIFIED (user, 22 October 2026)
 
 [Current contract](CAGE_DROPS_PORT.md). User approved nearest ANY nonspectator

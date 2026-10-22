@@ -1,6 +1,5 @@
 package me.skywars2.game;
 
-import net.minecraft.commands.arguments.blocks.BlockInput;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
@@ -18,11 +17,8 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.TagValueInput;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -122,38 +118,24 @@ public final class LbcCageDrops {
     private static void geometry(ServerLevel level, BlockPos center, LbcCageDropItem.Kind kind) {
         if (level.isDebug()) return;
         if (kind == LbcCageDropItem.Kind.OBSIDIAN) {
-            fill(level, center.offset(-1,-1,-1), center.offset(1,2,1), Blocks.OBSIDIAN, true);
-            fill(level, center, center.above(), Blocks.WATER, false);
-            fill(level, center.offset(1,1,0), center.offset(1,1,0), Blocks.GLASS, true);
-            fill(level, center.offset(0,1,1), center.offset(0,1,1), Blocks.GLASS, true);
-            fill(level, center.offset(-1,1,0), center.offset(-1,1,0), Blocks.GLASS, true);
-            fill(level, center.offset(0,1,-1), center.offset(0,1,-1), Blocks.GLASS, true);
+            LbcDropBlocks.fill(level, center.offset(-1,-1,-1), center.offset(1,2,1), Blocks.OBSIDIAN, true);
+            LbcDropBlocks.fill(level, center, center.above(), Blocks.WATER, false);
+            LbcDropBlocks.fill(level, center.offset(1,1,0), center.offset(1,1,0), Blocks.GLASS, true);
+            LbcDropBlocks.fill(level, center.offset(0,1,1), center.offset(0,1,1), Blocks.GLASS, true);
+            LbcDropBlocks.fill(level, center.offset(-1,1,0), center.offset(-1,1,0), Blocks.GLASS, true);
+            LbcDropBlocks.fill(level, center.offset(0,1,-1), center.offset(0,1,-1), Blocks.GLASS, true);
         } else {
-            fill(level, center.offset(-1,-1,-1), center.offset(1,-1,1), Blocks.STONE_BRICKS, false);
-            fill(level, center.offset(-1,0,-1), center.offset(1,3,1), Blocks.IRON_BARS, false);
+            LbcDropBlocks.fill(level, center.offset(-1,-1,-1), center.offset(1,-1,1), Blocks.STONE_BRICKS, false);
+            LbcDropBlocks.fill(level, center.offset(-1,0,-1), center.offset(1,3,1), Blocks.IRON_BARS, false);
             if (kind == LbcCageDropItem.Kind.LAVA) {
-                fill(level, center, center.above(2), Blocks.AIR, false);
-                fill(level, center.above(3), center.above(3), Blocks.LAVA, false);
+                LbcDropBlocks.fill(level, center, center.above(2), Blocks.AIR, false);
+                LbcDropBlocks.fill(level, center.above(3), center.above(3), Blocks.LAVA, false);
             } else {
                 // The shaft only opens upward; the old absolute255 pass could erase the floor.
                 if (center.getY() <= level.getMaxY())
-                    fill(level, center, new BlockPos(center.getX(),level.getMaxY(),center.getZ()), Blocks.AIR, false);
+                    LbcDropBlocks.fill(level, center, new BlockPos(center.getX(),level.getMaxY(),center.getZ()), Blocks.AIR, false);
             }
         }
-    }
-
-    /** Same flags, neighbour-shape resolution and deferred updates as native /fill replace. */
-    private static void fill(ServerLevel level, BlockPos from, BlockPos to, Block block, boolean strict) {
-        if (level.isOutsideBuildHeight(from) || level.isOutsideBuildHeight(to)) return;
-        var input = new BlockInput(block.defaultBlockState(), Set.of(), null);
-        record Updated(BlockPos pos, BlockState oldState) { }
-        var updated = new ArrayList<Updated>();
-        for (var pos : BlockPos.betweenClosed(Math.min(from.getX(),to.getX()), Math.min(from.getY(),to.getY()), Math.min(from.getZ(),to.getZ()),
-                Math.max(from.getX(),to.getX()), Math.max(from.getY(),to.getY()), Math.max(from.getZ(),to.getZ()))) {
-            var old = level.getBlockState(pos);
-            if (input.place(level, pos, strict ? 818 : 258) && !strict) updated.add(new Updated(pos.immutable(), old));
-        }
-        for (var update : updated) level.updateNeighboursOnBlockSet(update.pos(), update.oldState());
     }
 
     private void insert(ServerLevel level, Entity actor, CompoundTag preset, double x, double y, double z, LivingEntity owner) {

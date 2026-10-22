@@ -193,9 +193,12 @@ public final class LbcIndirectKills {
         supportRemoved(player.level(),player,pos);
     }
     public void supportRemoved(ServerLevel level,ServerPlayer player,BlockPos pos) {
+        supportRemoved(level,owner(player),pos);
+    }
+    /** The write scope already owns the cause, even if its author has since left. */
+    private void supportRemoved(ServerLevel level,Owner owner,BlockPos pos) {
         var state=level.getBlockState(pos);
         if(state.getCollisionShape(level,pos).isEmpty()) return;
-        Owner owner=owner(player);
         var area=new AABB(pos).inflate(.001, .0625, .001).expandTowards(0,4,0);
         for(var target:level.getEntitiesOfClass(LivingEntity.class,area,e->e.isAlive() && e.onGround())) {
             var feet=feet(target);
@@ -306,8 +309,7 @@ public final class LbcIndirectKills {
             }
         }
         if(hazardWriter==null || hazardLevel!=level || !state.getCollisionShape(level,pos).isEmpty()) return;
-        var player=game.server().getPlayerList().getPlayer(hazardWriter.player);
-        if(player!=null && player.level()==level) supportRemoved(player,pos);
+        supportRemoved(level,hazardWriter,pos);
     }
     public void environmentDamage(LivingEntity target, DamageSource source) {
         var cause=environmentOwner(target,source);

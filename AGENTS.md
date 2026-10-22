@@ -1,5 +1,27 @@
 # Проект SkyWars
 
+## Two hole drops - QUALIFIED (22 October 2026)
+
+[Current contract](agent_notes/HOLE_DROPS_PORT.md). Normal and old Polymer tokens
+preserve distinct decorated/undecorated source presentation. Both clear3x3x16;
+normal uses strict web/fire/log/cobble layers, old ordinary web/soul-fire/soil.
+They reuse nearest ANY nonspectator/self/allies and WILD trap policy, shared
+source-order dispatch after TNT/before cages, and one debit without a new queue.
+
+LbcDropBlocks extracts the cage fill implementation. Strict fills avoid unused
+old-state reads/update lists; all fills respect native per-cuboid build-height
+and MAX_BLOCK_MODIFICATIONS gates. Do not clip rejected cuboids or add initial
+strict-fire scheduling. Support removal preserves the write-scope Owner/order/
+WILD flag instead of reconstructing it through an online player lookup.
+
+Build/two isolated matches passed on2478ebdc:30 suite results,51.49s. Exact pits,
+native support removal plus fall/void kill credit, newer attacker precedence,
+native fire contact/WILD allied harm, fill limit100 and earlier drop regressions
+passed. Full natural trajectories, client graphics and departed-author/restart
+persistence remain unqualified. Ready build/verification/skywars2-hole-drops-2478ebdc.jar;
+evidence build/verification/hole-drops-final/. Main69de8601, not installed;
+RP/template unchanged. Next corrosion source audit; unfinished mode guards remain.
+
 ## Five cage drops - QUALIFIED (user, 22 October 2026)
 
 [Current contract](agent_notes/CAGE_DROPS_PORT.md). Author requires nearest ANY

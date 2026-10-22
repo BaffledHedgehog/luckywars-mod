@@ -147,7 +147,7 @@ public final class LbcItems {
     }
 
     /** Загружаем регистрацию до freeze реестров и чтения loot tables, а не при первом обращении к предмету. */
-    public static void register() { LbcSkills.register(); LbcClouds.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcTntDropItem.register(); LbcCreeperDropItem.register(); LbcCageDropItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
+    public static void register() { LbcSkills.register(); LbcClouds.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcTntDropItem.register(); LbcCreeperDropItem.register(); LbcCageDropItem.register(); LbcHoleDropItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
 
     private static final CompoundTag BROKEN_TOTEM = new CompoundTag();
     private static final CompoundTag DYNAMITE = new CompoundTag();
@@ -201,6 +201,7 @@ public final class LbcItems {
     private final LbcTntDrops tntDrops;
     private final LbcCreeperDrops creeperDrops;
     private final LbcCageDrops cageDrops;
+    private final LbcHoleDrops holeDrops;
     private final LbcElectro electro;
     private final ProjectileLifetimes lifetimes;
     private final LbcExasperato exasperato;
@@ -616,6 +617,7 @@ public final class LbcItems {
         this.tntDrops = new LbcTntDrops(game);
         this.creeperDrops = new LbcCreeperDrops(game);
         this.cageDrops = new LbcCageDrops(game);
+        this.holeDrops = new LbcHoleDrops(game);
         this.electro = new LbcElectro(game);
         this.lifetimes = new ProjectileLifetimes(game);
         this.exasperato = new LbcExasperato(game);
@@ -701,6 +703,7 @@ public final class LbcItems {
     public LbcTntDrops tntDrops() { return tntDrops; }
     public LbcCreeperDrops creeperDrops() { return creeperDrops; }
     public LbcCageDrops cageDrops() { return cageDrops; }
+    public LbcHoleDrops holeDrops() { return holeDrops; }
     /** Запрет действий общий, но физика льда и электрического оглушения различается. */
     public boolean actionsBlocked(net.minecraft.world.entity.LivingEntity entity) {
         return frost.isFrozen(entity) || shooters.stunned(entity) || timeStop.frozen(entity);
