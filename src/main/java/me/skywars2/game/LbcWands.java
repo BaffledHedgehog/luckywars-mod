@@ -332,6 +332,7 @@ public final class LbcWands {
     private boolean cast(ServerPlayer player,InteractionHand hand) {
         if(game.items().actionsBlocked(player)) return false;
         var stack=player.getItemInHand(hand);
+        if (LbcHomeItems.isMirror(stack)) return game.items().homes().use(player, hand);
         // Общий dispatch двух рук: хвоемёт платит боеприпасами и не проходит проверку маны жезлов.
         if (LbcShooters.isPine(stack) || LbcShooters.isSlr(stack) || LbcShooters.isKfcGun(stack)
                 || LbcShooters.isBossHelicopter(stack) || LbcShooters.isPhantomKnives(stack) || LbcShooters.isWoodificator(stack) || LbcShooters.isHelicopter(stack))

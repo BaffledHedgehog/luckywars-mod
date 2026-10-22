@@ -1,5 +1,28 @@
 # Проект SkyWars
 
+## Home drop and magic mirror - QUALIFIED (22 October 2026)
+
+[Current contract](agent_notes/HOME_DROP_PORT.md). Complete home drop plus transferable UUID-bound
+mirror; source names/models/tier/lore, fractional marker geometry, same-dimension
+right-click teleport, two-hand dispatch, zero mana/cooldown/consumption and
+20-active-tick strict renewal remain. Explicit handles replace nearest-selector
+races. Native Spectator/input guards, permanent beacon20/artifact25 deletion,
+time-stop pause and epoch cleanup apply. Own nonpersistent chunk tickets are
+refcounted; no home code changes global forceloads or synchronously loads chunks.
+
+Build/two actual mode-1 matches passed on93ca702a:54 suite results,84.93s with
+all preceding drops. 168 source files and2666 processed resources match JARs.
+Ready build/verification/skywars2-home-drop-93ca702a.jar; evidence
+build/verification/home-drop-final/. Main69de8601 not installed; RP/template
+unchanged. Client graphics, actual persistence/cross-dimension fixtures and
+capacity remain limits. Public leaves: lbc:ported/home_drop and the intentionally
+unbound lbc:ported/magic_mirror; activate the drop to obtain a usable bound mirror.
+
+Author clarification about whole-hitbox clearance at arrival is pending; keep
+source two-cell/fractional geometry until answered. MapManager's separate arena
+forceload reset is outside this home ticket contract. Next: remaining special-drop
+acquisition audit; keep whole Lucky Block pools/unfinished modes gated.
+
 ## Falling netherite drops - QUALIFIED (22 October 2026)
 
 [Current contract](agent_notes/FALLING_NETHERITE_DROPS_PORT.md). User clarified

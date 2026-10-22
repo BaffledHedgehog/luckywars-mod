@@ -400,6 +400,16 @@ public final class LbcMagic {
                 && artifactActive(player) && position.distanceToSqr(player.position()) <= RADIUS_SQUARED).isEmpty()
                 || level==game.maps().level() && beaconSuppressed(position);
     }
+    /** Home markers use the source artifact's 25-block deletion radius; beacon suppression stays 20. */
+    boolean homeMarkerSuppressedAt(ServerLevel level, Vec3 position) {
+        if (level == game.maps().level() && beaconSuppressed(position)) return true;
+        for (var id : activeArtifacts) {
+            var holder = game.server().getPlayerList().getPlayer(id);
+            if (holder != null && holder.level() == level && holder.isAlive() && !holder.isRemoved()
+                    && game.canUseGameplayItems(holder) && holder.distanceToSqr(position) <= 625) return true;
+        }
+        return false;
+    }
     /** Ближайшая граница подавления на луче: один проход по известным источникам вместо опроса каждого шага. */
     double suppressionFraction(ServerLevel level,Vec3 from,Vec3 to) {
         double nearest=Double.POSITIVE_INFINITY;

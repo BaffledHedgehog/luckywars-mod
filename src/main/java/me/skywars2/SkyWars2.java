@@ -44,6 +44,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
     public void onInitializeServer() {
         // Здесь связываются жизненный цикл сервера, игровые события и команды; состояние матча хранит контроллер.
         MapManager.registerLoadingTicket();
+        LbcHomes.registerTicket();
         LbcItems.register();
         LbcCraftingRecipe.register();
         FullInvisibility.register();
@@ -162,6 +163,9 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                 return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer owner && LbcStand.isClocks(player.getItemInHand(hand))
                     && !player.getItemInHand(hand).is(LbcStand.CLOCKS))
+                return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+            if (game != null && player instanceof ServerPlayer owner && LbcHomeItems.isMirror(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(LbcHomeItems.MIRROR))
                 return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer owner && LbcStand.isOraora(player.getItemInHand(hand))
                     && !player.getItemInHand(hand).is(LbcStand.ORAORA))
