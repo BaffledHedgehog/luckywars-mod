@@ -94,6 +94,7 @@ public final class LbcIndirectKills {
         if(game==null) return null;
         if(game.items().creeperDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().zombieTntDrops().owner(source) instanceof ServerPlayer player) return player;
+        if(game.items().fallingNetheriteDrops().owner(source) instanceof ServerPlayer player) return player;
         var summoner=game.items().blaze().owner(source);
         if(summoner==null) summoner=game.items().shooters().owner(source);
         if(summoner==null) summoner=game.items().mobgun().owner(source);

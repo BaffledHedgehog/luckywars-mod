@@ -15,6 +15,7 @@
     "TypedItemDamageMixin",
     "DropTrapMergeMixin",
     "ZombieTntDropMixin",
+    "FallingNetheriteDropMixin",
     "PlayerMechanicsMixin",
     "ConsumableSkillMixin",
     "LbcEffectTriggerMixin",

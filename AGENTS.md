@@ -1,5 +1,29 @@
 # Проект SkyWars
 
+## Falling netherite drops - QUALIFIED (22 October 2026)
+
+[Current contract](agent_notes/FALLING_NETHERITE_DROPS_PORT.md). User clarified
+that the block calls lightning on landing; the shared25-tick schedule/global
+scan/Y-4 approximation was a datapack workaround. Trigger one native bolt at
+physical ground contact, including native placement's synchronous discard.
+Do not restore timers or affect unrelated falling netherite blocks.
+
+Two Polymer leaves retain normal tier_f/drop_not_trap/drop_netherite styling and
+old plain barrier. Source strict/ordinary16-cell fills, fractional Y+14, normal
+centered XZ/old fractional XZ and native zero-motion netherite defaults remain.
+No invented crushing damage. Landing writes reuse WILD trapChanges for support
+and suffocation causes; native lightning keeps vanilla damage/cooldown and role
+guards. Actual thrower/epoch/time stop and quiet cleanup remain shared.
+
+Build/two actual fixture matches passed on9ea7d9b2:48 suite results,77.22s with
+all earlier drops. Real flight past25ticks, native placement/one bolt, attribution,
+self/allies/roles, native airborne item expiry and stop passed. Ready
+build/verification/skywars2-falling-netherite-drops-9ea7d9b2.jar; evidence
+build/verification/falling-netherite-drops-final/. Main69de8601 not installed;
+RP/template unchanged. Client packets, persistence, piston/fallback/suffocation
+fixtures and peak capacity remain limits. Next full sethome/mirror contract is
+audited in HOME_AND_FALLING_DROPS_SOURCE.md; home is not yet exposed.
+
 ## Zombie TNT drop - QUALIFIED (22 October 2026)
 
 [Current contract](agent_notes/ZOMBIE_TNT_DROP_PORT.md). User explicitly requires

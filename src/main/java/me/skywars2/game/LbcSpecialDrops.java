@@ -28,7 +28,7 @@ public final class LbcSpecialDrops {
     public LbcSpecialDrops(GameController game) { this.game = game; }
 
     private static boolean recognized(net.minecraft.world.item.ItemStack stack) {
-        return LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack) || LbcCreeperDropItem.kind(stack) != null || LbcCageDropItem.kind(stack) != null || LbcHoleDropItem.kind(stack) != null || LbcCorrosionDropItem.kind(stack) != null || LbcZombieTntDropItem.matches(stack);
+        return LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack) || LbcCreeperDropItem.kind(stack) != null || LbcCageDropItem.kind(stack) != null || LbcHoleDropItem.kind(stack) != null || LbcCorrosionDropItem.kind(stack) != null || LbcZombieTntDropItem.matches(stack) || LbcFallingNetheriteDropItem.kind(stack) != null;
     }
 
     public void loaded(Entity entity) {
@@ -89,7 +89,8 @@ public final class LbcSpecialDrops {
         boolean hole = LbcHoleDropItem.kind(token.getItem()) != null;
         boolean corrosion = LbcCorrosionDropItem.kind(token.getItem()) != null;
         boolean zombieTnt = LbcZombieTntDropItem.matches(token.getItem());
-        if (!chest && !tnt && !creeper && !cage && !hole && !corrosion && !zombieTnt) return false;
+        boolean falling = LbcFallingNetheriteDropItem.kind(token.getItem()) != null;
+        if (!chest && !tnt && !creeper && !cage && !hole && !corrosion && !zombieTnt && !falling) return false;
         int now = game.server().getTickCount();
         if (lastAttempt.getOrDefault(token, Integer.MIN_VALUE) == now) return false;
         var pos = BlockPos.containing(token.position());
@@ -101,6 +102,9 @@ public final class LbcSpecialDrops {
             if (LbcCorrosionDropItem.matches(token.getItem(), kind) && !game.items().corrosionDrops().ready(token, kind)) return false;
         }
         if (zombieTnt && !game.items().zombieTntDrops().ready(token)) return false;
+        for (var kind : LbcFallingNetheriteDropItem.Kind.values()) {
+            if (LbcFallingNetheriteDropItem.matches(token.getItem(), kind) && !game.items().fallingNetheriteDrops().ready(token, kind)) return false;
+        }
         var target = cage || hole ? game.items().cageDrops().target(token) : null;
         if (target != null) for (var kind : LbcCageDropItem.Kind.values()) {
             if (LbcCageDropItem.matches(token.getItem(), kind) && !game.items().cageDrops().ready(token, kind, target)) return false;
@@ -123,6 +127,9 @@ public final class LbcSpecialDrops {
             if (LbcCorrosionDropItem.matches(token.getItem(), kind)) game.items().corrosionDrops().spawn(token, kind);
         }
         if (zombieTnt) game.items().zombieTntDrops().spawn(token);
+        for (var kind : LbcFallingNetheriteDropItem.Kind.values()) {
+            if (LbcFallingNetheriteDropItem.matches(token.getItem(), kind)) game.items().fallingNetheriteDrops().spawn(token, kind);
+        }
         if (target != null) for (var kind : LbcHoleDropItem.Kind.values()) {
             if (LbcHoleDropItem.matches(token.getItem(), kind)) game.items().holeDrops().spawn(token, kind, target);
         }

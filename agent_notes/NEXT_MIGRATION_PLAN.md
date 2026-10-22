@@ -1,5 +1,27 @@
 # Следующие этапы переноса
 
+## Falling netherite drops - QUALIFIED (22 October 2026)
+
+[Current contract](FALLING_NETHERITE_DROPS_PORT.md). User replaced the legacy
+shared25-tick/global scan with actual landing: each managed block produces one
+native bolt at impact. Both Polymer variants preserve source styling, strict/
+ordinary16-cell shaft and native non-crushing block physics, with their distinct
+XZ positioning. Native placement/discard callbacks retain ownership, WILD
+support/suffocation scope, vanilla lightning damage/cooldown and role guards.
+
+Build and two actual mode-1 fixture matches passed on9ea7d9b2:48 suite results,
+77.22s, including all previous drops. Real long flight/landing, one own bolt,
+unmanaged-block exclusion, lethal cause, self/allies/roles, airborne item expiry,
+debit/time stop/epoch/quiet actual stop passed. Ready
+build/verification/skywars2-falling-netherite-drops-9ea7d9b2.jar; not installed;
+evidence build/verification/falling-netherite-drops-final/. Main69de8601 and
+RP/template unchanged. Client packets, actual persistence, piston/blocked-landing/
+suffocation fixtures and capacity remain unqualified.
+Next: full sethome plus produced magic mirror, using
+[the shared source audit](HOME_AND_FALLING_DROPS_SOURCE.md), including source-ID,
+suppression, chunk-ticket and cleanup semantics. Do not publish only its token.
+Whole Lucky Block pools and unfinished modes remain gated.
+
 ## Zombie TNT drop - QUALIFIED (22 October 2026)
 
 [Current contract](ZOMBIE_TNT_DROP_PORT.md). User selected no carrier melee and
