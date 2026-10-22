@@ -642,6 +642,9 @@ public final class GameChecks {
                                 case "woodificator" -> checkWoodificator(game);
                                 case "shooter-pair-menu" -> checkShooterPairMenu(game);
                                 case "magnum" -> { MagnumChecks.run(game); return; }
+                                case "rifle-zoom" -> { RifleZoomChecks.run(game); return; }
+                                case "rifle-zoom-stop-probe" -> { RifleZoomChecks.stopProbe(game); return; }
+                                case "rifle-zoom-cleanup" -> { RifleZoomChecks.cleanup(game); return; }
                                 case "magnum-stop-probe" -> { MagnumChecks.stopProbe(game); return; }
                                 case "magnum-cleanup" -> { MagnumChecks.cleanup(game); return; }
                                 case "ak47", "ak47-prepared" -> { checkAk47Prepared(game); return; }
@@ -9340,7 +9343,8 @@ public final class GameChecks {
                         require(slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && target.getHealth()==100,"Solid stone stops the native ray");
                         level.setBlock(wall,net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),2);
                         board.addPlayerToTeam(owner.getScoreboardName(),team); board.addPlayerToTeam(target.getScoreboardName(),team);
-                        slrReady(game,owner,1); require(slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && target.getHealth()==100,"Allied target is protected");
+                        slrReady(game,owner,1); require(slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && target.getHealth()==90,"Allied mobs remain valid projectile targets (user)");
+                        target.setHealth(100); target.setInvulnerableTime(0); target.damageCooldownTime=0;
                         board.removePlayerFromTeam(target.getScoreboardName()); target.entityTags().add("magic_academy");
                         slrReady(game,owner,1); require(slrUse(owner,net.minecraft.world.InteractionHand.MAIN_HAND) && target.getHealth()==100,"Technical NPC is protected");
                         target.entityTags().remove("magic_academy"); target.entityTags().add("spectator");

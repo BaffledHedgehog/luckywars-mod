@@ -1,5 +1,20 @@
 # Проверка игрового цикла на Fabric
 
+## Rifle zoom toggle - QUALIFIED (22 October 2026)
+
+[Contract](agent_notes/RIFLE_ZOOM_PORT.md). Build and two isolated mode1 matches
+passed on5e46c6b4:10 suite results,44.59s. Native handlePunch, SLR/Magnum loot
+and prototypes, either hand, duplicate/mining stream, unrelated posteffect,
+equal-stack replacement, native Stand lock, death/forget and actual match stop
+are checked alongside complete existing Magnum/SLR regressions. The old allied
+cow expectation now follows the prior user-approved friendly-mob hit policy;
+combat code did not change.172sources/516classes/2668resources match artifacts.
+Ready build/verification/skywars2-rifle-zoom-5e46c6b4.jar; evidence
+build/verification/rifle-zoom-final/. Main96ee50a7/user Reroll/RP/template
+unchanged; not installed. Existing fake-bot Polymer packet-context ERROR pair
+remains, no new errors. Real client mouse/packets/GPU and dimension-change fixture
+remain limits. Packet stream timing uses explicit deterministic tick numbers.
+
 ## Nuclear explicit fade carrier - QUALIFIED (22 October 2026)
 
 [Current contract](agent_notes/NUCLEAR_SHADER_PORT.md). Updated author shader guide

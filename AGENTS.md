@@ -1,5 +1,19 @@
 # Проект SkyWars
 
+## Rifle zoom toggle - QUALIFIED (22 October 2026)
+
+[Current contract](agent_notes/RIFLE_ZOOM_PORT.md). User chose server-only left-click
+toggle instead of held input requiring a client mod. SLR/Magnum, either hand,
+use native add/remove of only lbc:zoom; no command execution or global post clear.
+Native punch hook preserves ordinary attacks/fire; continuous mining duplicates
+are grouped. Unequip/replacement, death, dimension/action lock, forget and stop
+clear the scope. Build and two isolated matches passed on5e46c6b4:10 suite
+results,44.59s including SLR/Magnum regressions and actual match-stop cleanup.
+172sources/516classes/2668resources match the tested JAR. Ready, not installed:
+build/verification/skywars2-rifle-zoom-5e46c6b4.jar; evidence
+build/verification/rifle-zoom-final/. Main96ee50a7, user Reroll and RP/template
+unchanged. Real mouse/client shader pixels remain manual checks.
+
 ## Firearm interaction animation (user, 22 October 2026)
 
 Laser Minigun, Magnum, both AK47 variants and SLR use

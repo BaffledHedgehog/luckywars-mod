@@ -189,6 +189,7 @@ public final class LbcItems {
     private final LbcLaserMinigun laserMinigun;
     private final LbcAk47 ak47;
     private final LbcMagnum magnum;
+    private final LbcRifleZoom rifleZoom;
     private final LbcGovnomet govnomet;
     private final LbcStand stand;
     private final LbcTimeStop timeStop;
@@ -609,6 +610,7 @@ public final class LbcItems {
         this.laserMinigun = new LbcLaserMinigun(game);
         this.ak47 = new LbcAk47(game);
         this.magnum = new LbcMagnum(game);
+        this.rifleZoom = new LbcRifleZoom(game);
         this.govnomet = new LbcGovnomet(game);
         this.stand = new LbcStand(game);
         this.timeStop = new LbcTimeStop(game);
@@ -683,6 +685,7 @@ public final class LbcItems {
     public LbcLaserMinigun laserMinigun() { return laserMinigun; }
     public LbcAk47 ak47() { return ak47; }
     public LbcMagnum magnum() { return magnum; }
+    public LbcRifleZoom rifleZoom() { return rifleZoom; }
     public LbcGovnomet govnomet() { return govnomet; }
     public static net.minecraft.world.item.component.ItemAttributeModifiers minigunAttributes() {
         return LbcMinigunMovement.attributes();
@@ -1198,6 +1201,7 @@ public final class LbcItems {
         timeStop.tick();
         lightningAcquisition.tick();
         nuclearVisuals.tick();
+        rifleZoom.tick();
         if(game.maps().level()!=null && timeStop.stopped(game.maps().level())) {
             // Исключения Stand: кулаки двигаются, ножи лишь выпускаются и ждут native thaw.
             blackHoleVisuals.tick();
@@ -1322,6 +1326,7 @@ public final class LbcItems {
         laserMinigun.forget(player);
         ak47.forget(player);
         magnum.forget(player);
+        rifleZoom.forget(player);
         govnomet.forget(player);
         LbcMinigunMovement.clear(player);
         stand.forget(player);
@@ -1373,6 +1378,7 @@ public final class LbcItems {
         laserMinigun.stop();
         ak47.stop();
         magnum.stop();
+        rifleZoom.stop();
         govnomet.stop();
         for(var player:game.server().getPlayerList().getPlayers()) LbcMinigunMovement.clear(player);
         stand.stop();

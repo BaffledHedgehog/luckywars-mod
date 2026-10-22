@@ -61,6 +61,13 @@ public abstract class ObserverPacketMixin {
         if (player.containerMenu != player.inventoryMenu) player.inventoryMenu.sendAllDataToRemote();
     }
 
+    /** Every ordinary left click, including entity attacks, ends with one punch packet. */
+    @Inject(method = "handlePunch", at = @At("TAIL"))
+    private void skywars2$toggleRifleZoom(CallbackInfo ci) {
+        var game = SkyWars2.game();
+        if (game != null) game.items().rifleZoom().punch(player);
+    }
+
     /** Обрабатываем ПКМ раньше vanilla spectator-проверки, запрещая обычное взаимодействие с целью. */
     @Inject(method = "handleInteract", at = @At(value = "INVOKE", target =
             "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V",
