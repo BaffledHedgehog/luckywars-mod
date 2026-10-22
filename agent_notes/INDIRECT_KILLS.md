@@ -30,6 +30,17 @@
 
 > Последнему воздействовавшему игроку — более поздний удар перебивает старый жезл
 
+## Accepted blindness and fall/void provenance (22 October 2026)
+
+Screamer drops reuse the native effect hooks: accepted player-sourced BLINDNESS
+is retained in the existing status provenance map. On lethal fall/void, the
+newest active blindness or physical fall cause participates in attribution;
+the existing later-attacker rule still applies. Cleansing, removal, expiry and
+effect replacement invalidate the retained instance. An ineffective shorter
+application cannot steal the unchanged effect's owner. This extension also
+covers the existing psychic screamer helper, with no new world scan or damage.
+Implementation and native fixtures: [screamer contract](SCARE_DROPS_PORT.md).
+
 ## Реализация
 
 Уточнение проверки аннигиляции маны: [Carpet-регрессия](MANA_ANNIHILATION_FIX.md).

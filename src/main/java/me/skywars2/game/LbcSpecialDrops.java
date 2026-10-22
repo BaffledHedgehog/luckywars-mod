@@ -28,7 +28,7 @@ public final class LbcSpecialDrops {
     public LbcSpecialDrops(GameController game) { this.game = game; }
 
     private static boolean recognized(net.minecraft.world.item.ItemStack stack) {
-        return LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack) || LbcCreeperDropItem.kind(stack) != null || LbcCageDropItem.kind(stack) != null || LbcHoleDropItem.kind(stack) != null || LbcCorrosionDropItem.kind(stack) != null || LbcZombieTntDropItem.matches(stack) || LbcFallingNetheriteDropItem.kind(stack) != null || LbcHomeItems.matchesDrop(stack);
+        return LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack) || LbcCreeperDropItem.kind(stack) != null || LbcCageDropItem.kind(stack) != null || LbcHoleDropItem.kind(stack) != null || LbcCorrosionDropItem.kind(stack) != null || LbcZombieTntDropItem.matches(stack) || LbcFallingNetheriteDropItem.kind(stack) != null || LbcHomeItems.matchesDrop(stack) || LbcScareDropItem.kind(stack) != null;
     }
 
     public void loaded(Entity entity) {
@@ -58,6 +58,12 @@ public final class LbcSpecialDrops {
         lastAttempt.remove(entity);
     }
 
+    private boolean stale(ItemEntity token) {
+        for (var tag : token.entityTags())
+            if (tag.startsWith("skywars2.items.") && !game.items().currentEpoch(tag)) return true;
+        return false;
+    }
+
     private boolean active(ItemEntity token) {
         return game.playing() && game.stage() != GameController.Stage.ENDING && token.level() == game.maps().level();
     }
@@ -67,7 +73,7 @@ public final class LbcSpecialDrops {
         if (lastTick == now) return;
         lastTick = now;
         for (var token : List.copyOf(pending.keySet())) {
-            if (token.isRemoved() || token.getAge() >= 5999 || !active(token)
+            if (token.isRemoved() || token.getAge() >= 5999 || stale(token) || !active(token)
                     || !game.items().currentEpoch(pending.get(token).epoch()) || !recognized(token.getItem())) {
                 unloaded(token);
                 continue;
@@ -79,7 +85,7 @@ public final class LbcSpecialDrops {
 
     /** Returns whether an active loaded attempt was dispatched, even when native placement fails. */
     boolean spawn(ItemEntity token) {
-        if (token.isRemoved() || token.getAge() >= 5999 || !active(token)
+        if (token.isRemoved() || token.getAge() >= 5999 || stale(token) || !active(token)
                 || !(token.level() instanceof ServerLevel level) || game.items().timeStop().stopped(level)) return false;
         if (pending.containsKey(token) && !game.items().currentEpoch(pending.get(token).epoch())) return false;
         boolean chest = LbcChestDropItem.kind(token.getItem()) != null;
@@ -91,7 +97,8 @@ public final class LbcSpecialDrops {
         boolean zombieTnt = LbcZombieTntDropItem.matches(token.getItem());
         boolean falling = LbcFallingNetheriteDropItem.kind(token.getItem()) != null;
         boolean home = LbcHomeItems.matchesDrop(token.getItem());
-        if (!chest && !tnt && !creeper && !cage && !hole && !corrosion && !zombieTnt && !falling && !home) return false;
+        boolean scare = LbcScareDropItem.kind(token.getItem()) != null;
+        if (!chest && !tnt && !creeper && !cage && !hole && !corrosion && !zombieTnt && !falling && !home && !scare) return false;
         int now = game.server().getTickCount();
         if (lastAttempt.getOrDefault(token, Integer.MIN_VALUE) == now) return false;
         var pos = BlockPos.containing(token.position());
@@ -138,6 +145,15 @@ public final class LbcSpecialDrops {
         }
         if (target != null) for (var kind : LbcCageDropItem.Kind.values()) {
             if (LbcCageDropItem.matches(token.getItem(), kind)) game.items().cageDrops().spawn(token, kind, target);
+        }
+        if (scare) {
+            // This trap chooses any eligible nearest player, independently of allegiance.
+            var victim = game.items().cageDrops().target(token);
+            if (victim != null) for (var kind : LbcScareDropItem.Kind.values()) {
+                if (LbcScareDropItem.matches(token.getItem(), kind))
+                    game.items().screamer(victim, owner(token) instanceof net.minecraft.server.level.ServerPlayer player ? player : null,
+                            kind == LbcScareDropItem.Kind.OLD);
+            }
         }
         var remaining = token.getItem().copy();
         remaining.shrink(1);

@@ -147,7 +147,7 @@ public final class LbcItems {
     }
 
     /** Загружаем регистрацию до freeze реестров и чтения loot tables, а не при первом обращении к предмету. */
-    public static void register() { LbcSkills.register(); LbcClouds.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcTntDropItem.register(); LbcCreeperDropItem.register(); LbcCageDropItem.register(); LbcHoleDropItem.register(); LbcCorrosionDropItem.register(); LbcZombieTntDropItem.register(); LbcFallingNetheriteDropItem.register(); LbcHomeItems.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
+    public static void register() { LbcSkills.register(); LbcClouds.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcTntDropItem.register(); LbcCreeperDropItem.register(); LbcCageDropItem.register(); LbcHoleDropItem.register(); LbcCorrosionDropItem.register(); LbcZombieTntDropItem.register(); LbcFallingNetheriteDropItem.register(); LbcHomeItems.register(); LbcScareDropItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
 
     private static final CompoundTag BROKEN_TOTEM = new CompoundTag();
     private static final CompoundTag DYNAMITE = new CompoundTag();
@@ -1072,26 +1072,37 @@ public final class LbcItems {
 
     /** Один исходный скример для сломанного тотема и психических жезлов; проклятие тотема отдельно. */
     public void screamer(LivingEntity target, ServerPlayer owner) {
+        screamer(target,owner,false);
+    }
+
+    /** The dropped legacy variant keeps its separate sound volume, smoke and duration. */
+    public void screamer(LivingEntity target, ServerPlayer owner, boolean old) {
+        int duration=old ? 200 : 120;
         if (!(target instanceof ServerPlayer player)) {
-            target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS,120,10,false,false),owner);
+            target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS,duration,10,false,false),owner);
             return;
         }
+        float volume=old ? 100000 : 1; // Explicitly retained by the author for the old trap.
         for (int repeat = 0; repeat < 3; repeat++) {
-            sound(player, SoundEvents.GHAST_HURT, 0);
-            sound(player, SoundEvents.GHAST_HURT, 1);
-            sound(player, SoundEvents.AMBIENT_CAVE.value(), 0);
-            sound(player, SoundEvents.AMBIENT_CAVE.value(), 1);
-            sound(player, SoundEvents.AMBIENT_CAVE.value(), 2);
+            sound(player, SoundEvents.GHAST_HURT, 0,volume);
+            sound(player, SoundEvents.GHAST_HURT, 1,volume);
+            sound(player, SoundEvents.AMBIENT_CAVE.value(), 0,volume);
+            sound(player, SoundEvents.AMBIENT_CAVE.value(), 1,volume);
+            sound(player, SoundEvents.AMBIENT_CAVE.value(), 2,volume);
         }
-        sound(player, SoundEvents.WITHER_SPAWN, 0);
-        player.level().sendParticles(player, ParticleTypes.CAMPFIRE_COSY_SMOKE, false, false,
+        if (!old) sound(player, SoundEvents.WITHER_SPAWN, 0);
+        player.level().sendParticles(player, old ? ParticleTypes.CAMPFIRE_SIGNAL_SMOKE : ParticleTypes.CAMPFIRE_COSY_SMOKE, old, false,
                 player.getX(), player.getY() + 1.62, player.getZ(), 5000, 0.5, 0.3, 0.5, 0.05);
-        player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 120, 10, false, false),owner);
+        player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, duration, 10, false, false),owner);
     }
 
     private static void sound(ServerPlayer player, net.minecraft.sounds.SoundEvent sound, float pitch) {
+        sound(player,sound,pitch,1);
+    }
+
+    private static void sound(ServerPlayer player, net.minecraft.sounds.SoundEvent sound, float pitch, float volume) {
         player.connection.send(new ClientboundSoundPacket(net.minecraft.core.Holder.direct(sound), SoundSource.MASTER,
-                player.getX(), player.getY(), player.getZ(), 1, pitch, player.getRandom().nextLong()));
+                player.getX(), player.getY(), player.getZ(), volume, pitch, player.getRandom().nextLong()));
     }
 
     /** Twitching имитирует обычный одиночный клик, сохраняя Fabric hooks и расход предметов.

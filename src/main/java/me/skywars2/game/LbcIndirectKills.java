@@ -147,7 +147,7 @@ public final class LbcIndirectKills {
             levitationChanged(target);
             if(player!=null && player!=target) levitated(target,player);
         }
-        if(effect.is(MobEffects.POISON) || effect.is(MobEffects.WITHER)) {
+        if(effect.is(MobEffects.POISON) || effect.is(MobEffects.WITHER) || effect.is(MobEffects.BLINDNESS)) {
             effectRemoved(target,effect);
             if(player!=null && player!=target) statuses.computeIfAbsent(target,ignored->new HashMap<>())
                     .put(effect.getEffect(),new Status(owner(player),effect));
@@ -456,6 +456,11 @@ public final class LbcIndirectKills {
         else if(damage.is(DamageTypes.FALL) || damage.is(DamageTypes.FELL_OUT_OF_WORLD)) {
             var fall=falls.get(target);
             if(fall!=null) cause=fall.owner;
+            // Accepted blindness can hide a ledge; cleansing/expiry must end that attribution.
+            var effects=statuses.get(target);
+            var blindness=effects==null ? null : effects.get(MobEffects.BLINDNESS);
+            if(blindness!=null && target.getEffect(MobEffects.BLINDNESS)==blindness.effect
+                    && (cause==null || blindness.owner.order>cause.order)) cause=blindness.owner;
         } else if(damage.is(DamageTypes.IN_WALL)) cause=suffocationOwner(target);
         else if(effectTarget==target && (damage.is(DamageTypes.MAGIC) && tickingEffect==MobEffects.POISON
                 || damage.is(DamageTypes.WITHER) && tickingEffect==MobEffects.WITHER)) {

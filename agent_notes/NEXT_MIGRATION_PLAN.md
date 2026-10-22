@@ -1,5 +1,29 @@
 # Следующие этапы переноса
 
+## Screamer drops - QUALIFIED (22 October 2026)
+
+[Current contract](SCARE_DROPS_PORT.md). Normal/old Polymer leaves preserve distinct
+source presentation and target-only feedback:16sounds/normal cosy smoke/120ticks
+versus15sounds/force signal smoke/200ticks. Author explicitly retained old sound
+volume100000 (user). Nearest any eligible player includes self/allies/Creative;
+role guards, shared source order, unit debit, time-stop/epoch/stop remain.
+No new actor, scan or magic prohibition is introduced. Immediate cleansing
+rejects blindness. Accepted sourced blindness now retains fall/void provenance
+through existing status hooks; removal/rejection and later-attacker priority apply.
+
+Build/two actual mode-1 matches passed on1d07ce8a:60 suite results,89.75s,
+including all previous drops/home plus native broken-totem regression and
+blindness lethal attribution.170sources/512classes/2668resources match JARs.
+Ready build/verification/skywars2-scare-drops-1d07ce8a.jar; evidence
+build/verification/scare-drops-final/. Main69de8601 not installed; RP/template
+unchanged. Real client packets/rendering/loudness, natural player/coins/Carpet
+trajectories, actual persistence, full psychic casts and capacity remain limits.
+Public leaves:lbc:ported/scare_drop and lbc:ported/scare_drop_old.
+
+Next: remaining acquisition audit with complete reward closure. Infinity/forest
+remain deferred dependencies, and whole Lucky Block/trap/legacy/imba pools and
+unfinished modes remain gated; see NEXT_DROPS_AFTER_HOME_SOURCE.md.
+
 ## Home drop and magic mirror - QUALIFIED (22 October 2026)
 
 [Current contract](HOME_DROP_PORT.md). Complete home drop plus transferable UUID-bound
