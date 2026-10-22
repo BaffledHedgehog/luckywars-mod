@@ -68,7 +68,9 @@ public final class ElectroNativeMixins {
             var type=LbcElectro.managedLightning(bolt) && bolt.getCause()!=null
                     ? level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.LIGHTNING)
                     : source.typeHolder();
-            source=new DamageSource(type,bolt,bolt.getCause());
+            var controller=SkyWars2.game();
+            LivingEntity cause=controller==null ? null : controller.items().kfcRewards().lightningOwner(bolt);
+            source=new DamageSource(type,bolt,cause==null ? bolt.getCause() : cause);
             boolean applied=original.call(target,level,source,amount);
             var game=SkyWars2.game();
             if(game!=null && bolt.getCause()!=null && target instanceof LivingEntity living)

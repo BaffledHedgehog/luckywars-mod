@@ -545,7 +545,10 @@ public final class LbcExasperato {
         if(level!=game.maps().level() || !level.hasChunkAt(BlockPos.containing(at))
                 || !level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES)
                 || !game.items().currentEpoch(epoch) || game.stage()==GameController.Stage.ENDING) return;
-        PrimedTnt source=new PrimedTnt(level,at.x,at.y,at.z,owner);
+        // A queued blast can outlive its living author; native EntityReference drops removed owners.
+        PrimedTnt source=new PrimedTnt(level,at.x,at.y,at.z,owner) {
+            @Override public LivingEntity getOwner() { return owner; }
+        };
         source.setDeltaMovement(Vec3.ZERO); source.setFuse(0);
         if(owner instanceof ServerPlayer) source.entityTags().add(EXPLOSIVE);
         if(!protectedDamage) source.entityTags().add(LbcDamage.UNPROTECTED_TNT);

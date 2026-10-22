@@ -709,6 +709,9 @@ public final class GameChecks {
                                 case "infbolt-empty" -> checkInfboltEmpty(game);
                                 case "infbolt-stop-probe" -> checkInfboltStopProbe(game);
                                 case "infbolt-cleanup" -> checkInfboltCleanup(game);
+                                case "helicopter-encounter" -> { HelicopterEncounterChecks.run(game); return; }
+                                case "helicopter-encounter-stop-probe" -> HelicopterEncounterChecks.stopProbe(game);
+                                case "helicopter-encounter-cleanup" -> HelicopterEncounterChecks.cleanup(game);
                                 case "lucky-modifiers-snapshot" -> LuckyModifierChecks.snapshot(game);
                                 case "lucky-modifiers-resolver" -> LuckyModifierChecks.resolver(game);
                                 case "lucky-modifiers-menu" -> LuckyModifierChecks.menu(game);
@@ -959,6 +962,7 @@ public final class GameChecks {
 
         /** Called once per server tick after the controller tick. */
         public static void tick(GameController game) {
+            HelicopterEncounterChecks.tick(game);
                 if (game == null)
                         return;
                 MapFluidChecks.tick(game);

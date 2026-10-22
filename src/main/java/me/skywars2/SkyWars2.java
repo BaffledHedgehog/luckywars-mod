@@ -125,6 +125,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null) game.items().stand().onAcceptedDamage(entity, damage);
             if (game != null) game.items().academy().damaged(entity, damage);
             if (game != null) game.items().exoperso().died(entity, damage);
+            if (game != null) game.items().helicopterEncounter().died(entity, damage);
             if (game != null && entity instanceof ServerPlayer player) game.items().magic().clear(player);
             if (game != null) game.items().frost().clear(entity);
             if (game != null && entity instanceof ServerPlayer player) game.died(player, damage);

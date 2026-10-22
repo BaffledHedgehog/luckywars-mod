@@ -111,7 +111,8 @@ public abstract class WandProjectileMixin {
         var game=SkyWars2.game();
         if(game!=null && (!game.items().wands().canHit((Projectile)(Object)this,target)
                 || !game.items().shooters().canHit((Projectile)(Object)this,target)
-                || !game.items().electro().canHit((Projectile)(Object)this,target))) ci.setReturnValue(false);
+                || !game.items().electro().canHit((Projectile)(Object)this,target)
+                || !game.items().helicopterEncounter().canHit((Projectile)(Object)this,target))) ci.setReturnValue(false);
         else if(game!=null && me.skywars2.game.LbcBlaze.isKfcSpirit((Entity)(Object)this))
             ci.setReturnValue(target.canBeHitByProjectile());
     }

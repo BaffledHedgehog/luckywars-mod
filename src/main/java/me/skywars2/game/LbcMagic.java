@@ -930,6 +930,7 @@ public final class LbcMagic {
                             entity.getX(),entity.getY(),entity.getZ(),20,.3,.3,.3,.1);
                 var owner=state.mechanism ? beaconOwner(state) : null;
                 if (state.mechanism && entity.entityTags().contains("nuke")) cleanLegacyNuke(entity.blockPosition(),owner);
+                if (state.mechanism && game.items().helicopterEncounter().mechanismRemoved(entity)) continue;
                 if (owner!=null && entity instanceof net.minecraft.world.entity.LivingEntity living) {
                     var damage=new net.minecraft.world.damagesource.DamageSource(level.registryAccess()
                             .lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(net.minecraft.world.damagesource.DamageTypes.GENERIC_KILL),owner);

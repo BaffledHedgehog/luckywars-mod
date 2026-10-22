@@ -71,6 +71,7 @@ public final class HazardPropagationMixins {
             var entities=original.call(level,except,area); var game=SkyWars2.game();
             if(game!=null) {
                 var source=((ServerExplosion)(Object)this).getDirectSourceEntity();
+                entities.removeIf(entity->!game.items().helicopterEncounter().explosionTarget(source,entity));
                 if(source!=null && source.entityTags().contains(me.skywars2.game.LbcExasperato.EXPLOSIVE))
                     entities.removeIf(entity->!game.items().exasperato().explosionTarget(source,entity));
                 else if(source instanceof net.minecraft.world.entity.projectile.Projectile projectile

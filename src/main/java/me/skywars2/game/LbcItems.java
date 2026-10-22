@@ -147,7 +147,7 @@ public final class LbcItems {
     }
 
     /** Загружаем регистрацию до freeze реестров и чтения loot tables, а не при первом обращении к предмету. */
-    public static void register() { LbcSkills.register(); LbcClouds.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
+    public static void register() { LbcSkills.register(); LbcClouds.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
 
     private static final CompoundTag BROKEN_TOTEM = new CompoundTag();
     private static final CompoundTag DYNAMITE = new CompoundTag();
@@ -196,6 +196,7 @@ public final class LbcItems {
     private final BlackHoleVisuals blackHoleVisuals;
     private final LbcKfcFood kfcFood;
     private final LbcKfcRewards kfcRewards;
+    private final LbcHelicopterEncounter helicopterEncounter;
     private final LbcElectro electro;
     private final ProjectileLifetimes lifetimes;
     private final LbcExasperato exasperato;
@@ -606,6 +607,7 @@ public final class LbcItems {
         this.blackHoleVisuals = new BlackHoleVisuals(game);
         this.kfcFood = new LbcKfcFood(game);
         this.kfcRewards = new LbcKfcRewards(game);
+        this.helicopterEncounter = new LbcHelicopterEncounter(game);
         this.electro = new LbcElectro(game);
         this.lifetimes = new ProjectileLifetimes(game);
         this.exasperato = new LbcExasperato(game);
@@ -677,10 +679,12 @@ public final class LbcItems {
         return LbcDamage.allowDamage(victim,source)
                 && (!(source.getEntity() instanceof ServerPlayer attacker) || !game.isObserver(attacker) || timeStop.replaying(source))
                 && (!(victim instanceof ServerPlayer player) || game.allowDamage(player))
-                && wands.allowDamage(victim,source) && kfcRewards.allowDamage(victim,source);
+                && wands.allowDamage(victim,source) && kfcRewards.allowDamage(victim,source)
+                && helicopterEncounter.allowDamage(victim,source);
     }
     public LbcKfcFood kfcFood() { return kfcFood; }
     public LbcKfcRewards kfcRewards() { return kfcRewards; }
+    public LbcHelicopterEncounter helicopterEncounter() { return helicopterEncounter; }
     /** Запрет действий общий, но физика льда и электрического оглушения различается. */
     public boolean actionsBlocked(net.minecraft.world.entity.LivingEntity entity) {
         return frost.isFrozen(entity) || shooters.stunned(entity) || timeStop.frozen(entity);
@@ -727,6 +731,7 @@ public final class LbcItems {
             entity.discard();
             return;
         }
+        helicopterEncounter.loaded(entity);
         lightningAcquisition.loaded(entity);
         terra.loaded(entity);
         lifetimes.loaded(entity);
@@ -762,7 +767,8 @@ public final class LbcItems {
             } else marker.discard();
             return;
         }
-        if (entity instanceof PrimedTnt tnt && tnt.entityTags().contains(entityEpochTag)) {
+        if (entity instanceof PrimedTnt tnt && tnt.entityTags().contains(entityEpochTag)
+                && !tnt.entityTags().contains(LbcHelicopterEncounter.ATTACK)) {
             if (inArena(tnt)) dynamites.add(tnt);
             else tnt.discard();
             return;
@@ -803,6 +809,7 @@ public final class LbcItems {
         terra.unloaded(entity);
         shooters.unloaded(entity);
         stand.unloaded(entity);
+        helicopterEncounter.entityUnloaded(entity);
         kfcRewards.entityUnloaded(entity);
         magic.unloaded(entity);
         frost.unloaded(entity);
@@ -1179,6 +1186,7 @@ public final class LbcItems {
         govnomet.tick();
         stand.tick();
         kfcFood.tick();
+        helicopterEncounter.tick();
         kfcRewards.tick();
         tickDynamites();
         tickNanoTraps();
@@ -1306,6 +1314,7 @@ public final class LbcItems {
         for(var player:game.server().getPlayerList().getPlayers()) LbcMinigunMovement.clear(player);
         stand.stop();
         kfcFood.stop();
+        helicopterEncounter.stop();
         kfcRewards.stop();
         electro.stop();
         trinkets.stop();

@@ -1,5 +1,12 @@
 # Helicopter hostile encounter: bounded source contract
 
+Author decisions and qualified native implementation now supersede this audit's
+open questions: mechanism suppression gives the normal death reward, and all four
+animation frames cycle. See [HELICOPTER_ENCOUNTER_PORT.md](HELICOPTER_ENCOUNTER_PORT.md)
+for the implemented contract and two-match evidence. The source observations
+below remain unchanged.
+
+
 22 October 2026. Documentation/source inspection only. **No encounter implementation or runtime qualification is claimed.** Only this new note was written. Read repository AGENTS.md, agent_notes/AGENTS.md, RESOURCE_PACK.md and NEXT_LUCKY_ACQUISITION_SOURCE.md. Legacy and resource pack remain read-only; no Java/resources/build/server/git edits.
 
 ## Roots and corrections
@@ -83,4 +90,3 @@ Existing implementations are reusable patterns, not proof encounter exists:
 Necessary author-visible decisions before exact behavioral sign-off: (1) correct accidental 1/4/3/2/4 model sequence to all four frames or preserve literal sequence; (2) beacon destruction terminal behavior/reward versus ordinary death (source destroys display but has unreliable orphan detection). Any wish to change ownerless hostility, scatter quantization, very high source bomb rate or the weird phase2 steering would be a deliberate change, not a prerequisite question. Do not ask whether hostile NPC must be owned by token player, or whether weapon TECH rules automatically apply.
 
 Tests still required after implementation: actual dropped stack debit; two simultaneous UUID pairs; one dispatch/unstopped tick and same-dispatch transitions; phase2 geometry/random loose item/contact/pickup and all six effects; exact bomb scatter and contact fuse/default powers; native arrow/bomb attribution to boss; source teamless hostility plus observer/service guards; mechanism destruction; one real reward, actual reward decoration; orphan removal and match cleanup without rewards; qualified handheld weapon regression. **None of these encounter tests, builds or graphical RP comparisons ran in this audit.** Existing qualified weapon and KFC tests do not qualify this encounter.
-

@@ -1,5 +1,27 @@
 # Указатель документации SkyWars
 
+## Hostile Helicopter Boss encounter - QUALIFIED (user)
+
+[Current contract](HELICOPTER_ENCOUNTER_PORT.md). The dropped Polymer token now creates the hostile
+ravager/display pair and source three-phase encounter, separate from the handheld
+weapon. Author approved a complete four-frame animation and ordinary reward death
+under mechanism suppression. Combat/beacon death emits exactly30 source TNT and
+one decorated qualified weapon; unloading/match stop is quiet and reward-free.
+Free Cultus drops reuse all six effects without bats, preserving real NPC causes.
+Native lightning stays WILD; native arrow owner changes replace retained causes.
+
+Build and two isolated match cycles passed on497c091e (18 suite results,44.06s).
+Ready, not installed: build/verification/skywars2-helicopter-encounter-497c091e.jar.
+Evidence: build/verification/helicopter-encounter-final/. Native give/ported loot,
+stack debit, concurrent pairs, defenses, arrows/time stop, six payloads, reward,
+beacon and cleanup are checked. Random phase3 scatter and real-client visuals
+remain manual checks. Main remains69de8601; original RP unchanged, no new assets.
+
+Repository maintenance: b0fe490 removes generated/local files from the index;
+12beb0a checkpoints preceding migration. Useful local builds/evidence/worlds remain.
+Next: remaining special-drop encounters/acquisition; unfinished mode guards remain.
+
+
 ## LuckyWars modifier owner - QUALIFIED (user)
 
 [Current contract](LUCKY_MODIFIERS_PORT.md). Author clarified: ordinary SkyWars has no Lucky Blocks

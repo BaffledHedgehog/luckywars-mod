@@ -32,6 +32,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Marker;
 import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.core.Holder;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -58,7 +63,8 @@ public final class LbcKfcRewards {
     private final Map<CultItem,Bomb> bombs=new IdentityHashMap<>();
     private final List<Celebration> celebrations=new ArrayList<>();
     private final Map<LbcStonekivi.Work,UUID> multicasts=new IdentityHashMap<>();
-    private record Bomb(UUID owner,String epoch,int variant) { }
+    private final Map<Entity,LivingEntity> looseConsequences=new IdentityHashMap<>();
+    private record Bomb(UUID owner,LivingEntity hostileOwner,String epoch,int variant) { }
     private static final class Celebration {
         final UUID owner; final String epoch,tag; final List<Marker> markers=new ArrayList<>();
         int delay=20;
@@ -151,12 +157,56 @@ public final class LbcKfcRewards {
         item.entityTags().add("penis"); item.entityTags().add("penis_bomb");
         game.items().markCurrentItemEpoch(bat); game.items().markCurrentItemEpoch(item);
         owned.put(bat,owner.getUUID()); owned.put(item,owner.getUUID());
-        bombs.put(item,new Bomb(owner.getUUID(),game.items().epoch(),variant));
+        bombs.put(item,new Bomb(owner.getUUID(),null,game.items().epoch(),variant));
         if(!owner.level().addFreshEntity(bat) || !owner.level().addFreshEntity(item)) {
             bombs.remove(item); owned.remove(item); owned.remove(bat); bat.discard(); item.discard(); return null;
         }
         item.startRiding(bat,true,true);
         return item;
+    }
+    /** Source phase2 payload: a free native item, without the player Cultus bat. */
+    ItemEntity spawnLooseBomb(LivingEntity hostileOwner,Vec3 position,int variant) {
+        if(variant<1 || variant>6) throw new IllegalArgumentException("Unknown cultus variant "+variant);
+        if(!(hostileOwner.level() instanceof ServerLevel level)) return null;
+        var stack=new ItemStack(Items.REPEATING_COMMAND_BLOCK);
+        stack.set(DataComponents.ITEM_MODEL,Identifier.parse("lbc:penis_"+variant));
+        stack.set(DataComponents.ITEM_NAME,Component.translatable("penis"));
+        stack.set(DataComponents.MAX_STACK_SIZE,1);
+        stack.set(DataComponents.TOOLTIP_STYLE,Identifier.parse("lbc:tier_ff"));
+        var flags=new CompoundTag(); flags.putInt("instantitem",1); flags.putInt("penis_bomb",1); flags.putInt("penis_num",variant);
+        if(variant==2) flags.putInt("govnoq",1);
+        stack.set(DataComponents.CUSTOM_DATA,CustomData.of(flags));
+        var item=new CultItem(level,position,stack); item.setPermanentlyInvulnerable(true);
+        var random=hostileOwner.getRandom();
+        item.setDeltaMovement((random.nextInt(21)-10)*.01,(random.nextInt(21)-10)*.01,(random.nextInt(21)-10)*.01);
+        item.entityTags().add("penis_bomb"); game.items().markCurrentItemEpoch(item);
+        bombs.put(item,new Bomb(hostileOwner.getUUID(),hostileOwner,game.items().epoch(),variant));
+        if(level.addFreshEntity(item)) return item;
+        bombs.remove(item); item.discard(); return null;
+    }
+    private LivingEntity bombOwner(Bomb state) {
+        return state==null?null:state.hostileOwner!=null?state.hostileOwner:game.server().getPlayerList().getPlayer(state.owner);
+    }
+    private boolean payloadOwner(LivingEntity owner) {
+        // A dead hostile boss remains the causal owner of payloads it already dropped.
+        return owner!=null && (!(owner instanceof ServerPlayer player) || active(player));
+    }
+    private boolean payloadTarget(LivingEntity owner,LivingEntity victim) {
+        return owner instanceof ServerPlayer player?game.items().wands().projectileTarget(player,victim)
+                :victim!=owner && !victim.entityTags().contains("helicopter_boss_hitbox")
+                        && game.items().wands().validTarget(victim) && !owner.isAlliedTo(victim);
+    }
+    /** Native bolt damage wrapper reads the real NPC causal entity. */
+    public LivingEntity lightningOwner(LightningBolt bolt) { return looseConsequences.get(bolt); }
+    private final class LooseBolt extends LightningBolt {
+        final String epoch=game.items().epoch();
+        LooseBolt(ServerLevel level) { super(EntityTypes.LIGHTNING_BOLT,level); }
+        @Override public boolean shouldBeSaved() { return false; }
+        @Override public void tick() {
+            if(!game.items().currentEpoch(epoch)) { discard(); return; }
+            if(game.items().wands().timeStopped() || entityTags().contains("time_stopped")) return;
+            super.tick();
+        }
     }
     private static final class CultBat extends Bat {
         CultBat(ServerLevel level) { super(EntityTypes.BAT,level); }
@@ -172,8 +222,15 @@ public final class LbcKfcRewards {
             setDeltaMovement(Vec3.ZERO);
         }
         @Override public boolean shouldBeSaved() { return false; }
+        @Override public void tick() {
+            var state=bombs.get(this);
+            if(state!=null && state.hostileOwner!=null
+                    && (game.items().wands().timeStopped() || entityTags().contains("time_stopped"))) return;
+            super.tick();
+        }
         @Override public void playerTouch(Player player) {
-            if(!(player instanceof ServerPlayer target) || hasPickUpDelay()) return;
+            if(!(player instanceof ServerPlayer target) || hasPickUpDelay()
+                    || game.items().wands().timeStopped() || entityTags().contains("time_stopped")) return;
             // Native item pickup requires room. Restrict inspection to the contacting player's inventory.
             boolean room=target.getInventory().getFreeSlot()>=0 || target.getInventory().contains(stack->
                     ItemStack.isSameItemSameComponents(stack,getItem()) && stack.getCount()<stack.getMaxStackSize());
@@ -185,19 +242,21 @@ public final class LbcKfcRewards {
     }
     public boolean allowDamage(LivingEntity victim,DamageSource source) {
         if(LbcDamage.isNativeLightning(source)) return game.items().wands().validTarget(victim);
+        var hostile=looseConsequences.get(source.getDirectEntity());
+        if(hostile!=null) return payloadTarget(hostile,victim);
         var owner=owner(source.getDirectEntity());
         return owner==null || game.items().wands().projectileTarget(owner,victim);
     }
 
     private boolean activate(CultItem item,LivingEntity victim) {
-        var state=bombs.get(item); var owner=state==null?null:game.server().getPlayerList().getPlayer(state.owner);
-        if(!active(owner) || !game.items().currentEpoch(state.epoch) || !game.items().wands().projectileTarget(owner,victim)
+        var state=bombs.get(item); var owner=bombOwner(state);
+        if(!payloadOwner(owner) || !game.items().currentEpoch(state.epoch) || !payloadTarget(owner,victim)
                 || victim.entityTags().contains("no_penis")) return false;
         // Detach before discard: the bat remains native and dies from its source wither effect.
         bombs.remove(item); owned.remove(item); item.stopRiding(); item.discard();
         effect(owner,victim,state.variant); return true;
     }
-    private void effect(ServerPlayer owner,LivingEntity victim,int variant) {
+    private void effect(LivingEntity owner,LivingEntity victim,int variant) {
         var level=(ServerLevel)victim.level(); var at=victim.position();
         String[] keys={"normal","dirty","nigger","holy","horse","multi"};
         ChatFormatting[] colors={ChatFormatting.LIGHT_PURPLE,ChatFormatting.DARK_RED,ChatFormatting.DARK_GRAY,
@@ -223,18 +282,26 @@ public final class LbcKfcRewards {
             case 4 -> {
                 victim.addEffect(new MobEffectInstance(MobEffects.BLINDNESS,160,1,false,false),owner);
                 victim.addEffect(new MobEffectInstance(MobEffects.LEVITATION,20,15,false,false),owner);
-                var bolt=game.items().electro().lightning(owner,at);
+                LightningBolt bolt;
+                if(owner instanceof ServerPlayer player) bolt=game.items().electro().lightning(player,at);
+                else {
+                    bolt=new LooseBolt(level); bolt.setPos(at); game.items().markCurrentItemEpoch(bolt);
+                    looseConsequences.put(bolt,owner);
+                    if(!level.addFreshEntity(bolt)) { looseConsequences.remove(bolt); bolt.discard(); bolt=null; }
+                }
                 if(bolt!=null) {
                     // Shared native lifetime/fire tracking, with the source vanilla lightning damage type.
                     bolt.entityTags().remove(LbcElectro.SHOCK_BOLT);
-                    game.items().markCurrentItemEpoch(bolt); owned.put(bolt,owner.getUUID());
+                    game.items().markCurrentItemEpoch(bolt); if(owner instanceof ServerPlayer) owned.put(bolt,owner.getUUID());
                 }
                 level.sendParticles(ColorParticleOption.create(ParticleTypes.FLASH,0xFFFFFFCC),at.x,at.y+1,at.z,100,2,2,2,1);
             }
             case 5 -> {
+                String effectEpoch=game.items().epoch();
                 victim.addEffect(new MobEffectInstance(MobEffects.SLOWNESS,20,127,false,false),owner); damage(owner,victim,10);
+                if(!victim.isAlive() || !game.items().currentEpoch(effectEpoch) || game.stage()==GameController.Stage.ENDING) return;
                 var destination=at.add(victim.getLookAngle().scale(-5)).add(0,5,0);
-                game.items().indirectKills().displaced(victim,owner);
+                if(owner instanceof ServerPlayer player) game.items().indirectKills().displaced(victim,player);
                 victim.teleportTo(destination.x,destination.y,destination.z);
                 at=victim.position();
                 level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.REDSTONE_BLOCK.defaultBlockState()),at.x,at.y+1,at.z,100,2,2,2,1);
@@ -243,18 +310,25 @@ public final class LbcKfcRewards {
             default -> throw new IllegalArgumentException("Unknown cultus variant "+variant);
         }
         String[] sounds={"suction","dick_1","spank","woo","shityeah","weewee"};
-        LbcOverload.sound(owner,at,"minecraft:lbcsounds."+sounds[variant-1],1,1,0);
+        if(owner instanceof ServerPlayer player) LbcOverload.sound(player,at,"minecraft:lbcsounds."+sounds[variant-1],1,1,0);
+        else {
+            var sound=Holder.direct(SoundEvent.createVariableRangeEvent(Identifier.parse("minecraft:lbcsounds."+sounds[variant-1])));
+            long seed=owner.getRandom().nextLong(); double range=sound.value().getRange(1);
+            for(var viewer:level.players()) if(viewer.distanceToSqr(at)<=range*range)
+                viewer.connection.send(new ClientboundSoundPacket(sound,SoundSource.MASTER,at.x,at.y,at.z,1,1,seed));
+        }
     }
-    /** Each original 0.1 hit retains its own native armor calculation and bypasses hurt cooldown. */
-    private void multicast(ServerPlayer owner,LivingEntity victim) {
+    /** Shared arrow damage keeps the established source protection and cooldown rules. */
+    private void multicast(LivingEntity owner,LivingEntity victim) {
         int count=0;
-        for(var entity:owner.level().getAllEntities()) if(!entity.entityTags().contains("spectator")) count++;
+        for(var entity:((ServerLevel)owner.level()).getAllEntities()) if(!entity.entityTags().contains("spectator")) count++;
         final int repetitions=count; final String epoch=game.items().epoch();
         var job=new LbcStonekivi.Work() {
             int remaining=repetitions;
             public boolean step() {
-                if(!multicasts.containsKey(this) || !active(owner) || !game.items().currentEpoch(epoch)
-                        || !game.items().wands().projectileTarget(owner,victim)) { cancel(); return true; }
+                if(!multicasts.containsKey(this) || !payloadOwner(owner) || !game.items().currentEpoch(epoch)
+                        || !payloadTarget(owner,victim)) { cancel(); return true; }
+                if(game.items().wands().timeStopped() || victim.entityTags().contains("time_stopped")) return false;
                 if(remaining>0) { damage(owner,victim,.1f); remaining--; }
                 if(remaining==0) { cancel(); return true; }
                 return false;
@@ -263,23 +337,24 @@ public final class LbcKfcRewards {
         };
         multicasts.put(job,owner.getUUID()); game.items().stonekivi().queuedWork(job);
     }
-    private void damage(ServerPlayer owner,LivingEntity victim,float amount) {
+    private void damage(LivingEntity owner,LivingEntity victim,float amount) {
         var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(CULTUS_ARROW),owner);
         victim.hurtServer((ServerLevel)victim.level(),source,amount);
     }
     public void tick() {
         for(var item:List.copyOf(bombs.keySet())) {
-            var state=bombs.get(item); var owner=game.server().getPlayerList().getPlayer(state.owner);
-            if(item.isRemoved() || !active(owner) || !game.items().currentEpoch(state.epoch)) { remove(item); continue; }
+            var state=bombs.get(item); var owner=bombOwner(state);
+            if(item.isRemoved() || !payloadOwner(owner) || !game.items().currentEpoch(state.epoch)) { remove(item); continue; }
             if(game.items().wands().timeStopped() || item.entityTags().contains("time_stopped")) continue;
             // Only the tracked item neighbourhood; native playerTouch handles player contact.
             var candidates=item.level().getEntitiesOfClass(LivingEntity.class,item.getBoundingBox().inflate(1.2),
                     target->!(target instanceof Player) && !target.entityTags().contains("no_penis")
-                            && game.items().wands().projectileTarget(owner,target) && target.distanceToSqr(item)<=1.44);
+                            && payloadTarget(owner,target) && target.distanceToSqr(item)<=1.44);
             var target=candidates.stream().min(java.util.Comparator.comparingDouble(item::distanceToSqr)).orElse(null);
             if(target!=null) activate(item,target);
         }
         owned.keySet().removeIf(Entity::isRemoved);
+        looseConsequences.keySet().removeIf(Entity::isRemoved);
         for(var state:List.copyOf(celebrations)) {
             if(!game.items().currentEpoch(state.epoch)) { remove(state); continue; }
             if(--state.delay>0) continue; state.delay=20;
@@ -291,7 +366,7 @@ public final class LbcKfcRewards {
     private void remove(Celebration state) { celebrations.remove(state); for(var marker:state.markers) marker.discard(); }
     public void entityUnloaded(Entity entity) {
         if(entity instanceof CultItem item) remove(item);
-        owned.remove(entity);
+        owned.remove(entity); looseConsequences.remove(entity);
         for(var state:List.copyOf(celebrations)) if(state.markers.contains(entity)) remove(state);
     }
     public void clear(ServerPlayer owner) {
@@ -300,6 +375,8 @@ public final class LbcKfcRewards {
         for(var job:List.copyOf(multicasts.keySet())) if(multicasts.get(job).equals(owner.getUUID())) job.cancel();
     }
     public void stop() {
+        for(var entity:List.copyOf(looseConsequences.keySet())) entity.discard();
+        looseConsequences.clear();
         for(var item:List.copyOf(bombs.keySet())) remove(item);
         for(var entity:List.copyOf(owned.keySet())) { owned.remove(entity); entity.discard(); }
         for(var state:List.copyOf(celebrations)) remove(state);

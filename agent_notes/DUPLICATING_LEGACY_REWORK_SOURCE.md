@@ -57,4 +57,3 @@ NEW user request means ordinary operation family should also apply to Expand, at
 ## Current source observed before rework
 
 `src/main/java/me/skywars2/game/LbcDuplicating.java`: ordinary `seed()` delegates `randomPatch`: uniform1..7 sizes; CUBOID/SLAB/LINE/SPHERE; COPY/MOVE/DELETE/ROTATE/MIRROR. This implements prior20 October instruction but differs from latest restoration request and exact legacy. Expand currently uses two local clones, cross sources and five cube clones. Its light Seed is consumed once next tick; current source does NOT move seeds. Main center moves1 or2 each active tick. Current black-hole placement origin floor(point−7) matches decoded legacy structure center; do not shift by another7.
-
