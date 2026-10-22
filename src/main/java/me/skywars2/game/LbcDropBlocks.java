@@ -29,4 +29,13 @@ final class LbcDropBlocks {
         if (updated != null) for (var update : updated) level.updateNeighboursOnBlockSet(update.pos(), update.oldState());
     }
 
+    /** Native /setblock has no fill-volume gamerule check, even for a one-cell write. */
+    static void setBlock(ServerLevel level, BlockPos pos, BlockState state, boolean strict) {
+        if (level.isDebug() || level.isOutsideBuildHeight(pos)) return;
+        var old = strict ? null : level.getBlockState(pos);
+        var input = new BlockInput(state, Set.of(), null);
+        if (input.place(level, pos, strict ? 818 : 258) && !strict)
+            level.updateNeighboursOnBlockSet(pos, old);
+    }
+
 }

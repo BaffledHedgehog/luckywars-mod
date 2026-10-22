@@ -718,6 +718,9 @@ public final class GameChecks {
                                 case "home-drop" -> { HomeDropChecks.run(game); return; }
                                 case "scare-drops" -> { ScareDropChecks.run(game); return; }
                                 case "lucky-pigs" -> { LuckyPigDropChecks.run(game); return; }
+                                case "library-drop" -> { LibraryDropChecks.run(game); return; }
+                                case "library-drop-stop-probe" -> LibraryDropChecks.stopProbe(game);
+                                case "library-drop-cleanup" -> LibraryDropChecks.cleanup(game);
                                 case "enzan-drop" -> { EnzanDropChecks.run(game); return; }
                                 case "enzan-drop-stop-probe" -> EnzanDropChecks.stopProbe(game);
                                 case "enzan-drop-cleanup" -> EnzanDropChecks.cleanup(game);
@@ -1016,6 +1019,7 @@ public final class GameChecks {
                 ScareDropChecks.tick(game);
                 LuckyPigDropChecks.tick(game);
                 EnzanDropChecks.tick(game);
+                LibraryDropChecks.tick(game);
                 MapFluidChecks.tick(game);
                 LightningAcquisitionChecks.tick(game);
                 // These native ServerPlayers have no socket registered with the network

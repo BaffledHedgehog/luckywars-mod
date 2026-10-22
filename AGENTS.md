@@ -1,5 +1,26 @@
 # Проект SkyWars
 
+## Library drops - QUALIFIED (22 October 2026)
+
+[Current contract](agent_notes/LIBRARY_DROP_PORT.md). Normal/old Library tokens
+preserve distinct source presentation and complete native payload:16 ordered
+strict commands, fractional recipient geometry, lapis32/one orb1395/one bottle.
+Shared nearest-role selection, source order, loaded-chunk preflight, actual
+thrower terrain scope, unit debit, epoch/time-stop/quiet stop remain. Native
+setblock helper preserves the downward rod and has no fill-volume gamerule gate.
+No full loot pools or modes opened; RP/template unchanged.
+
+Build/two actual isolated mode1 matches passed on0e005c40:78 suite results,
+83.52s.181sources/531classes/2673resources match tested artifacts; both leaves
+explicitly whitelisted. Ready build/verification/skywars2-library-drop-0e005c40.jar,
+not installed; evidence build/verification/library-drop-final/. Main96ee50a7/
+user Reroll unchanged. Probe isolation and pre-existing Cage fixture iterator
+cleanup corrected; no gameplay cage change. An earlier Library admission failure
+remains undiagnosed/nonreproduced, retained in evidence with detailed diagnostics.
+Real client/disk persistence/capacity and separate Library death fixtures remain
+limits. Next:[Bees source audit](agent_notes/NEXT_DROPS_AFTER_LIBRARY_SOURCE.md).
+Historical next-Library recommendations below are superseded by this section.
+
 ## Enzan waterdrop and Lucky Pigs - QUALIFIED (22 October 2026)
 
 Contracts: [Enzan](agent_notes/ENZAN_DROP_PORT.md), [Lucky pigs](agent_notes/LUCKY_PIGS_PORT.md).

@@ -28,7 +28,7 @@ public final class LbcSpecialDrops {
     public LbcSpecialDrops(GameController game) { this.game = game; }
 
     private static boolean recognized(net.minecraft.world.item.ItemStack stack) {
-        return LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack) || LbcCreeperDropItem.kind(stack) != null || LbcCageDropItem.kind(stack) != null || LbcHoleDropItem.kind(stack) != null || LbcCorrosionDropItem.kind(stack) != null || LbcZombieTntDropItem.matches(stack) || LbcFallingNetheriteDropItem.kind(stack) != null || LbcHomeItems.matchesDrop(stack) || LbcScareDropItem.kind(stack) != null || LbcLuckyPigDropItem.matches(stack) || LbcLevitationDropItem.matches(stack);
+        return LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack) || LbcCreeperDropItem.kind(stack) != null || LbcCageDropItem.kind(stack) != null || LbcHoleDropItem.kind(stack) != null || LbcCorrosionDropItem.kind(stack) != null || LbcZombieTntDropItem.matches(stack) || LbcFallingNetheriteDropItem.kind(stack) != null || LbcHomeItems.matchesDrop(stack) || LbcScareDropItem.kind(stack) != null || LbcLuckyPigDropItem.matches(stack) || LbcLevitationDropItem.matches(stack) || LbcLibraryDropItem.matches(stack);
     }
 
     public void loaded(Entity entity) {
@@ -98,13 +98,15 @@ public final class LbcSpecialDrops {
         boolean falling = LbcFallingNetheriteDropItem.kind(token.getItem()) != null;
         boolean home = LbcHomeItems.matchesDrop(token.getItem());
         boolean scare = LbcScareDropItem.kind(token.getItem()) != null;
+        boolean library = LbcLibraryDropItem.matches(token.getItem());
         boolean pigs = LbcLuckyPigDropItem.matches(token.getItem());
         boolean enzan = LbcLevitationDropItem.matches(token.getItem());
-        if (!chest && !tnt && !creeper && !cage && !hole && !corrosion && !zombieTnt && !falling && !home && !scare && !pigs && !enzan) return false;
+        if (!chest && !tnt && !creeper && !cage && !hole && !corrosion && !zombieTnt && !falling && !home && !scare && !pigs && !enzan && !library) return false;
         int now = game.server().getTickCount();
         if (lastAttempt.getOrDefault(token, Integer.MIN_VALUE) == now) return false;
         var pos = BlockPos.containing(token.position());
         if (!resident(level, pos, chest ? 1 : 0)) return false;
+        if (library && !game.items().libraryDrop().ready(token)) return false;
         if (pigs && !game.items().luckyPigs().ready(token)) return false;
         for (var kind : LbcCreeperDropItem.Kind.values()) {
             if (LbcCreeperDropItem.matches(token.getItem(), kind) && !game.items().creeperDrops().ready(token, kind)) return false;
@@ -158,6 +160,7 @@ public final class LbcSpecialDrops {
                             kind == LbcScareDropItem.Kind.OLD);
             }
         }
+        if (library) game.items().libraryDrop().spawn(token);
         if (pigs) game.items().luckyPigs().spawn(token);
         if (enzan) game.items().enzanDrop().spawn(token);
         var remaining = token.getItem().copy();

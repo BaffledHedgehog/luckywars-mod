@@ -295,7 +295,10 @@ public final class CageDropChecks {
         public void close(){
             game.items().timeStop().end(level);tokens.forEach(Entity::discard);game.items().specialDrops().stop();clear();
             // Remove only fixture-created native leftovers (container ejection, anvil items, fire).
-            for(var e:level.getAllEntities())if(!existing.contains(e) && !(e instanceof ServerPlayer) && e.position().distanceTo(origin)<30)e.discard();
+            // Discard after traversal: native removal mutates the live entity iterator.
+            var leftovers=new java.util.ArrayList<Entity>();
+            for(var e:level.getAllEntities())if(e!=null && !existing.contains(e) && !(e instanceof ServerPlayer) && e.position().distanceTo(origin)<30)leftovers.add(e);
+            leftovers.forEach(Entity::discard);
             for(var entry:blocks.entrySet())game.maps().restoreSnapshot(entry.getKey(),entry.getValue());
             for(long key:forced)level.setChunkForced(net.minecraft.world.level.ChunkPos.getX(key),net.minecraft.world.level.ChunkPos.getZ(key),false);
             level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING,griefing,game.server());level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES,tntExplodes,game.server());game.config().tntProtection=protection;

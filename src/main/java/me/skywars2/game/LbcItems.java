@@ -147,7 +147,7 @@ public final class LbcItems {
     }
 
     /** Загружаем регистрацию до freeze реестров и чтения loot tables, а не при первом обращении к предмету. */
-    public static void register() { LbcSkills.register(); LbcClouds.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcTntDropItem.register(); LbcCreeperDropItem.register(); LbcCageDropItem.register(); LbcHoleDropItem.register(); LbcCorrosionDropItem.register(); LbcZombieTntDropItem.register(); LbcFallingNetheriteDropItem.register(); LbcHomeItems.register(); LbcScareDropItem.register(); LbcLuckyPigDropItem.register(); LbcLevitationDropItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
+    public static void register() { LbcSkills.register(); LbcClouds.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcTntDropItem.register(); LbcCreeperDropItem.register(); LbcCageDropItem.register(); LbcHoleDropItem.register(); LbcCorrosionDropItem.register(); LbcZombieTntDropItem.register(); LbcFallingNetheriteDropItem.register(); LbcHomeItems.register(); LbcScareDropItem.register(); LbcLuckyPigDropItem.register(); LbcLevitationDropItem.register(); LbcLibraryDropItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
 
     private static final CompoundTag BROKEN_TOTEM = new CompoundTag();
     private static final CompoundTag DYNAMITE = new CompoundTag();
@@ -201,6 +201,7 @@ public final class LbcItems {
     private final LbcSpecialDrops specialDrops;
     private final LbcLuckyPigs luckyPigs;
     private final LbcEnzanDrop enzanDrop;
+    private final LbcLibraryDrop libraryDrop;
     private final LbcTntDrops tntDrops;
     private final LbcCreeperDrops creeperDrops;
     private final LbcCageDrops cageDrops;
@@ -624,6 +625,7 @@ public final class LbcItems {
         this.specialDrops = new LbcSpecialDrops(game);
         this.luckyPigs = new LbcLuckyPigs(game);
         this.enzanDrop = new LbcEnzanDrop(game);
+        this.libraryDrop = new LbcLibraryDrop(game);
         this.tntDrops = new LbcTntDrops(game);
         this.creeperDrops = new LbcCreeperDrops(game);
         this.cageDrops = new LbcCageDrops(game);
@@ -718,6 +720,7 @@ public final class LbcItems {
     public LbcSpecialDrops specialDrops() { return specialDrops; }
     public LbcLuckyPigs luckyPigs() { return luckyPigs; }
     public LbcEnzanDrop enzanDrop() { return enzanDrop; }
+    public LbcLibraryDrop libraryDrop() { return libraryDrop; }
     public LbcTntDrops tntDrops() { return tntDrops; }
     public LbcCreeperDrops creeperDrops() { return creeperDrops; }
     public LbcCageDrops cageDrops() { return cageDrops; }
@@ -775,6 +778,7 @@ public final class LbcItems {
         helicopterEncounter.loaded(entity);
         specialDrops.loaded(entity);
         luckyPigs.loaded(entity);
+        libraryDrop.loaded(entity);
         tntDrops.loaded(entity);
         creeperDrops.loaded(entity);
         cageDrops.loaded(entity);
@@ -843,6 +847,7 @@ public final class LbcItems {
     public void entityUnloaded(Entity entity) {
         specialDrops.unloaded(entity);
         luckyPigs.unloaded(entity);
+        libraryDrop.unloaded(entity);
         tntDrops.unloaded(entity);
         creeperDrops.unloaded(entity);
         cageDrops.unloaded(entity);
@@ -1258,6 +1263,7 @@ public final class LbcItems {
         helicopterEncounter.tick();
         specialDrops.tick();
         luckyPigs.tick();
+        libraryDrop.tick();
         tntDrops.tick();
         creeperDrops.tick();
         cageDrops.tick();
@@ -1396,6 +1402,7 @@ public final class LbcItems {
         helicopterEncounter.stop();
         specialDrops.stop();
         luckyPigs.stop();
+        libraryDrop.stop();
         corrosionDrops.stop();
         tntDrops.stop();
         creeperDrops.stop();

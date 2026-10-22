@@ -1,5 +1,27 @@
 # Проверка игрового цикла на Fabric
 
+## Library drops - QUALIFIED (22 October 2026)
+
+[Contract](agent_notes/LIBRARY_DROP_PORT.md). Build and two actual isolated mode1
+matches passed on0e005c40:78 recorded suite results,83.52s. Both normal/old loot
+leaves and Polymer prototypes, exact native geometry/default rewards, strict
+container handling, per-command gamerule gates, targeting/source order/debit,
+time-stop/epoch/unload callbacks and actual match cleanup passed. All preceding
+special-drop regressions/probes/cleanup run in both matches. Library stop probe
+preserves earlier probes; Cage fixture removes actors after traversing its live
+iterator. Production cage behavior is unchanged. An initial Library admission
+failure remains undiagnosed/nonreproduced; failed attempts and diagnostics are
+retained separately, without a production fix claim.
+
+181sources/531classes/2673resources match source/release JARs. Ready
+build/verification/skywars2-library-drop-0e005c40.jar; evidence
+build/verification/library-drop-final/qualification.json and server log.
+Isolated server stopped, files restored, locks released. Main96ee50a7/user Reroll/
+RP/template unchanged; not installed. Existing fake-bot Polymer ERROR pair only.
+Real client pixels/packets, actual disk reload/restart and peak capacity are not
+qualified. Native bottle offspring/orb merging use ordinary world lifecycle;
+terrain causality and height-limit behavior are source-reviewed/common-hook reuse.
+
 ## Enzan waterdrop and Lucky Pigs - QUALIFIED (22 October 2026)
 
 Build and two actual isolated mode1 matches passed on3236fe1c:72 suite results,

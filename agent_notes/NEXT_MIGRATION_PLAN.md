@@ -1,5 +1,20 @@
 # Следующие этапы переноса
 
+## Library drops - QUALIFIED (22 October 2026)
+
+[Contract](LIBRARY_DROP_PORT.md). Normal and old complete Library leaves are ready:
+`lbc:ported/library_drop` and `lbc:ported/library_drop_old`. Exact ordered room,
+native rewards, shared role/debit/epoch/time-stop and quiet cleanup are migrated.
+Build and two isolated mode1 matches passed on0e005c40:78results,83.52s.
+Ready build/verification/skywars2-library-drop-0e005c40.jar; evidence
+build/verification/library-drop-final/. Main96ee50a7/user Reroll/RP/template
+unchanged; not installed. Full pools and unfinished modes remain gated.
+
+Next recommendation:[normal/old Bees](NEXT_DROPS_AFTER_LIBRARY_SOURCE.md), including
+native hive storage/exit and complete honey reward closure. This is source audit,
+not implemented or opened loot. Do not reselect completed Library/Enzan/pig leaves.
+Historical next-Library recommendations below are superseded here.
+
 ## Enzan waterdrop and Lucky Pigs - QUALIFIED (22 October 2026)
 
 Contracts: [Enzan](ENZAN_DROP_PORT.md), [Lucky pigs](LUCKY_PIGS_PORT.md).
