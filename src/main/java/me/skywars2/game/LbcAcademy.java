@@ -45,6 +45,7 @@ public final class LbcAcademy {
     private static final CompoundTag TOKEN_DATA = flag("academy_token"), BUILDING_DATA = flag("magic_academy");
     public static final Item TOKEN = registerToken();
     private enum Wand {
+        LIFESTEALER("lifestealer", LbcWands.LIFESTEALER, LbcWands.ACADEMY_LIFESTEALER, "a", "upgrade_condition_lifestealer", "upgrade_succesful_lifestealer"),
         FIRE("stfire", LbcWands.FIRE_WAND, LbcWands.ACADEMY_FIRE, "a", "upgrade_condition_stfire", "upgrade_succesful_stfire"),
         BLAZE("fallingstars", LbcWands.BLAZE_WAND, LbcWands.ACADEMY_BLAZE, "a", "upgrade_condition_fallingstars", "upgrade_succesful_fallingstars"),
         FIREBLAZE("fireblaze_wand", LbcWands.FIREBLAZE, LbcWands.ACADEMY_FIREBLAZE, "s", "upgrade_condition_fireblaze", "upgrade_succesful_fireblaze"),
@@ -193,6 +194,10 @@ public final class LbcAcademy {
             if (player.getRandom().nextFloat() < .2f) ready(player, hand, stack);
         } else player.sendSystemMessage(Component.translatable("not_on_grass"));
         return true;
+    }
+    /** One cast must affect at least fifteen eligible mobs; use the casting hand. */
+    public void lifestealerCast(ServerPlayer player, InteractionHand hand, ItemStack stack, int targets) {
+        if (targets >= 15 && wand(stack) == Wand.LIFESTEALER && trial(stack)) ready(player, hand, stack);
     }
     public void electroTrial(ServerPlayer player, InteractionHand hand, ItemStack stack) { ready(player, hand, stack); }
     /** Пять запусков с заданием дают готовность Exoperso; счётчик принадлежит используемому жезлу. */

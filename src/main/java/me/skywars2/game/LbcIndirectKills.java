@@ -42,7 +42,7 @@ public final class LbcIndirectKills {
                     && !old.isSuffocating(level,pos)) stonePlaced(level,pos,owner);
         }
     }
-    private record Owner(UUID player, long order, boolean friendlyFire) { }
+    private record Owner(UUID player, long order, boolean friendlyFire, boolean projectile) { }
     private record TrapFrame(ServerPlayer owner, ServerLevel level, Map<BlockPos,BlockState> candidates) { }
     private static final class Fall {
         final Owner owner;
@@ -74,7 +74,7 @@ public final class LbcIndirectKills {
 
     LbcIndirectKills(GameController game) { this.game=game; }
     private Owner owner(ServerPlayer player) { return owner(player,false); }
-    private Owner owner(ServerPlayer player,boolean friendlyFire) { return new Owner(player.getUUID(),++order,friendlyFire); }
+    private Owner owner(ServerPlayer player,boolean friendlyFire) { return new Owner(player.getUUID(),++order,friendlyFire,false); }
 
     /** Нативное зелье передаёт source как игрока, снаряд или облако — разворачиваем владельца. */
     public static ServerPlayer playerSource(Entity source) {
@@ -92,11 +92,47 @@ public final class LbcIndirectKills {
         if(game==null) return null;
         var summoner=game.items().blaze().owner(source);
         if(summoner==null) summoner=game.items().shooters().owner(source);
+        if(summoner==null) summoner=game.items().mobgun().owner(source);
         if(summoner==null) summoner=game.items().kfcRewards().owner(source);
         if(summoner!=null) return summoner;
         summoner=game.items().psycho().owner(source);
         if(summoner==null) summoner=game.items().summons().owner(source);
         return summoner!=null ? summoner : game.items().consuming().owner(source);
+    }
+
+    /** Only harmful potion/cloud effects use projectile allegiance; beneficial effects retain vanilla behavior. */
+    public boolean allowProjectileEffect(LivingEntity target,MobEffectInstance effect,Entity source) {
+        return allowProjectileEffect(target,effect.getEffect(),source);
+    }
+    public boolean allowProjectileEffect(LivingEntity target,Holder<MobEffect> effect,Entity source) {
+        if(effect.value().getCategory()!=net.minecraft.world.effect.MobEffectCategory.HARMFUL
+                || !(source instanceof net.minecraft.world.entity.projectile.throwableitemprojectile.AbstractThrownPotion)
+                    && !(source instanceof AreaEffectCloud)) return true;
+        var player=playerSource(source);
+        return player==null || player==target && game.items().wands().validTarget(target)
+                && (source instanceof Projectile projectile && projectile.getOwner()==player
+                    || source instanceof AreaEffectCloud cloud && cloud.getOwner()==player)
+                || game.items().wands().projectileTarget(player,target);
+    }
+    /** A duration-only grant preserves the existing cause instead of becoming a fresh self-cast. */
+    void extendEffectDuration(LivingEntity target,MobEffectInstance effect) {
+        if(target.getEffect(effect.getEffect())!=effect || effect.isInfiniteDuration()
+                || effect.getDuration()==Integer.MAX_VALUE) return;
+        var effects=statuses.get(target);
+        var status=effects==null?null:effects.get(effect.getEffect());
+        var pending=pendingMana.get(target);
+        var fall=effect.is(MobEffects.LEVITATION)?falls.get(target):null;
+        int amplifier=effect.getAmplifier(),duration=effect.getDuration();
+        boolean updated=target.addEffect(new MobEffectInstance(effect.getEffect(),duration+1,amplifier,
+                effect.isAmbient(),effect.isVisible(),effect.showIcon()));
+        // Native addEffect updates this exact instance and sends the usual effect packet. A cleanse
+        // or replacement during its callbacks must never resurrect the removed effect's attribution.
+        if(!updated || target.getEffect(effect.getEffect())!=effect
+                || effect.getAmplifier()!=amplifier || effect.getDuration()!=duration+1) return;
+        if(status!=null && status.effect==effect)
+            statuses.computeIfAbsent(target,ignored->new HashMap<>()).put(effect.getEffect(),status);
+        if(pending!=null && pending.effect==effect) pendingMana.put(target,pending);
+        if(fall!=null) falls.put(target,fall);
     }
 
     public void effectChanged(LivingEntity target, MobEffectInstance effect, Entity source) {
@@ -237,7 +273,8 @@ public final class LbcIndirectKills {
     }
     public void worldChanges(ServerLevel level, Entity source, Runnable writes) {
         var player=playerSource(source);
-        blockWrites(level,player==null ? null : owner(player,LbcElectro.eggLightning(source)),writes);
+        blockWrites(level,player==null ? null : new Owner(player.getUUID(),++order,source instanceof net.minecraft.world.entity.LightningBolt,
+                source instanceof Projectile || source instanceof net.minecraft.world.entity.LightningBolt),writes);
     }
     private void blockWrites(ServerLevel level, Owner source, Runnable writes) {
         var previous=hazardWriter; var previousLevel=hazardLevel;
@@ -271,7 +308,8 @@ public final class LbcIndirectKills {
         var cause=environmentOwner(target,source);
         if(cause==null) return true;
         var owner=game.server().getPlayerList().getPlayer(cause.player);
-        return owner==null || owner==target || game.items().wands().target(owner,target,cause.friendlyFire);
+        return owner==null || owner==target || (cause.friendlyFire ? game.items().wands().target(owner,target,true)
+                : cause.projectile ? game.items().wands().projectileTarget(owner,target) : game.items().wands().target(owner,target));
     }
     private Owner environmentOwner(LivingEntity target, DamageSource source) {
         if(source.is(DamageTypes.IN_WALL)) return suffocationOwner(target);
@@ -329,6 +367,12 @@ public final class LbcIndirectKills {
     }
     public void ignited(LivingEntity target,ServerPlayer player,boolean friendlyFire) {
         if(target.isAlive() && target.isOnFire()) burning.put(target,owner(player,friendlyFire));
+    }
+    public void projectileIgnited(LivingEntity target,ServerPlayer player) {
+        projectileIgnited(target,player,false);
+    }
+    public void projectileIgnited(LivingEntity target,ServerPlayer player,boolean friendlyFire) {
+        if(target.isAlive() && target.isOnFire()) burning.put(target,new Owner(player.getUUID(),++order,friendlyFire,true));
     }
     public void poisoned(LivingEntity target, ServerPlayer player) {
         var effect=target.getEffect(MobEffects.POISON);

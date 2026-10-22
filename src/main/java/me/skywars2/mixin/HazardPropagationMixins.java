@@ -25,6 +25,8 @@ public final class HazardPropagationMixins {
     public abstract static class Blast {
         @org.spongepowered.asm.mixin.Shadow @org.spongepowered.asm.mixin.Final
         private net.minecraft.world.level.ExplosionDamageCalculator damageCalculator;
+        @org.spongepowered.asm.mixin.Shadow @org.spongepowered.asm.mixin.Final @org.spongepowered.asm.mixin.Mutable
+        private net.minecraft.world.damagesource.DamageSource damageSource;
         @org.spongepowered.asm.mixin.Unique
         private boolean skywars2$skipEmptyBlastBlocks;
         @org.spongepowered.asm.mixin.injection.Inject(method="<init>",at=@At("TAIL"))
@@ -32,6 +34,12 @@ public final class HazardPropagationMixins {
             var source=((ServerExplosion)(Object)this).getDirectSourceEntity();
             skywars2$skipEmptyBlastBlocks=source instanceof net.minecraft.world.entity.item.PrimedTnt
                     && source.entityTags().contains(me.skywars2.game.LbcExasperato.EXPLOSIVE);
+            var game=SkyWars2.game();
+            if(game!=null && damageSource.getEntity()==null) {
+                var authority=game.items().mobgun().owner(source);
+                if(authority!=null) damageSource=new net.minecraft.world.damagesource.DamageSource(
+                        damageSource.typeHolder(),source,authority);
+            }
         }
 
         // Only replace block discovery for our native TNT; entity damage and block application stay native.
@@ -67,10 +75,35 @@ public final class HazardPropagationMixins {
                     entities.removeIf(entity->!game.items().exasperato().explosionTarget(source,entity));
                 else if(source instanceof net.minecraft.world.entity.projectile.Projectile projectile
                         && game.items().wands().isFireProjectile(source))
-                    entities.removeIf(entity->!(projectile.getOwner() instanceof net.minecraft.server.level.ServerPlayer owner)
-                            || !game.items().wands().target(owner,entity));
+                    entities.removeIf(entity->!game.items().wands().canHit(projectile,entity));
+                else {
+                    var authority=game.items().mobgun().owner(source);
+                    if(authority!=null) {
+                        var nativeAttacker=me.skywars2.game.LbcIndirectKills.playerSource(
+                                ((ServerExplosion)(Object)this).getIndirectSourceEntity());
+                        var owner=nativeAttacker!=null?nativeAttacker:authority;
+                        entities.removeIf(entity->entity!=owner && !game.items().wands().projectileTarget(owner,entity));
+                    }
+                }
             }
             return entities;
+        }
+        /** Native crystal/cart explosions have no indirect source; preserve their scoped Mobgun author. */
+        @WrapMethod(method="getIndirectSourceEntity")
+        private net.minecraft.world.entity.LivingEntity skywars2$mobgunBlastOwner(
+                Operation<net.minecraft.world.entity.LivingEntity> original) {
+            var nativeSource=original.call();
+            var game=SkyWars2.game();
+            if(game==null) return nativeSource;
+            var blast=(ServerExplosion)(Object)this;
+            var authority=game.items().mobgun().owner(blast.getDirectSourceEntity());
+            if(authority==null) return nativeSource;
+            // The constructor calls this while its DamageSource field is still null.
+            var damage=blast.getDamageSource();
+            var explicit=damage==null?null:me.skywars2.game.LbcIndirectKills.playerSource(damage.getEntity());
+            if(explicit!=null) return explicit;
+            var nativeOwner=me.skywars2.game.LbcIndirectKills.playerSource(nativeSource);
+            return nativeOwner!=null?nativeOwner:authority;
         }
         @WrapMethod(method="explode")
         private int skywars2$blastOwner(Operation<Integer> original) {

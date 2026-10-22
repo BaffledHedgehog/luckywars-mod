@@ -1,0 +1,156 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:transformables_shooter",
+          "weight": 7
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:stalin",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "skywars2:magnum",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_ss",
+                "minecraft:item_model": "lbc:magnum",
+                "minecraft:custom_name": {
+                  "italic": false,
+                  "translate": "magnum_mode_standard"
+                },
+                "minecraft:lore": [
+                  [
+                    {
+                      "translate": "type",
+                      "italic": false,
+                      "color": "aqua"
+                    },
+                    {
+                      "translate": "shooter",
+                      "italic": false,
+                      "color": "aqua"
+                    }
+                  ],
+                  {
+                    "translate": "magnum_lore_1",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "magnum_lore_2",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "magnum_lore_3",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ]
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "tag": "{transformable:1,shooter:1,magnum:1,mode:0,raycastspell:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:tuntijaa_terra_razor",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 1,
+          "name": "skywars2:govnomet",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_d",
+                "minecraft:item_model": "lbc:govnomet"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "shit_cannon",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "shooter",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "shit_cannon.lore",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "shitgun.lore",
+                  "color": "white",
+                  "italic": false
+                },
+                [
+                  {
+                    "text": "Nightmare_23",
+                    "color": "green",
+                    "italic": false,
+                    "type": "text"
+                  },
+                  {
+                    "text": " Beta Server Harem event",
+                    "color": "dark_gray",
+                    "italic": false,
+                    "type": "text"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{govnoq:1,transformable:1,shooter:1,magicwand:1,craftusable:1,govnomet:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:helicopter_boss"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "value": "lbc:slr"
+        }
+      ]
+    }
+  ]
+}

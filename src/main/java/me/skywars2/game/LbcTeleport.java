@@ -294,6 +294,11 @@ public final class LbcTeleport {
         if(arrow.entityTags().contains(WIND_RACER) && owner.getVehicle()==arrow) {
             arrow.setDeltaMovement(owner.getLookAngle().normalize().scale(2));
             LbcShooters.orient(arrow);
+            // Vanilla arrows sync every 20 ticks. Steering changes velocity every tick,
+            // so send both position and motion each tick instead of letting the rider's
+            // client keep simulating the old direction and drag until the next correction.
+            arrow.needsSync=true;
+            arrow.syncVelocity=true;
         }
         Vec3 from=arrow.position(),to=from.add(arrow.getDeltaMovement());
         boolean loaded=net.minecraft.world.level.BlockGetter.traverseBlocks(from,to,owner.level(),

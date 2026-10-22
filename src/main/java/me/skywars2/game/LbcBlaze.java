@@ -39,6 +39,10 @@ public final class LbcBlaze {
     private static final DustParticleOptions CHICKEN_DUST=new DustParticleOptions(0xfda500,4);
     private static final DustParticleOptions CHICKEN_BURST=new DustParticleOptions(0xfff59a,4);
     public static final String TRIAL_PROJECTILE="skywars2.blaze.trial";
+    public static final String KFC_SPIRIT_PROJECTILE="skywars2.kfc.spirit";
+    public static boolean isKfcSpirit(Entity entity) {
+        return entity instanceof SmallFireball && entity.entityTags().contains(KFC_SPIRIT_PROJECTILE);
+    }
     private static final String OWNER_TAG="skywars2.blaze.owner.";
     private static final int FLAGS=Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE|Block.UPDATE_SUPPRESS_DROPS
             |Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS|Block.UPDATE_SKIP_ON_PLACE;
@@ -48,7 +52,7 @@ public final class LbcBlaze {
     private final Map<Blaze,UUID> blazes=new HashMap<>();
     private final ArrayDeque<Terrain> terrain=new ArrayDeque<>();
     private int ticks;
-    private record Turret(ServerPlayer owner,ServerLevel level,Vec3 position,String epoch,int remaining,double speed,DustParticleOptions dust) { }
+    private record Turret(ServerPlayer owner,ServerLevel level,Vec3 position,String epoch,int remaining,double speed,DustParticleOptions dust,boolean wild) { }
     private record Terrain(ServerPlayer owner,ServerLevel level,ArrayDeque<BlockAreaWork> areas) { }
 
     LbcBlaze(GameController game) { this.game=game; }
@@ -59,7 +63,7 @@ public final class LbcBlaze {
             Vec3 next=transform.apply(turret.position);
             if(next==null) turrets.remove(i);
             else if(!next.equals(turret.position))
-                turrets.set(i,new Turret(turret.owner,turret.level,next,turret.epoch,turret.remaining,turret.speed,turret.dust));
+                turrets.set(i,new Turret(turret.owner,turret.level,next,turret.epoch,turret.remaining,turret.speed,turret.dust,turret.wild));
         }
     }
 
@@ -162,13 +166,13 @@ public final class LbcBlaze {
             game.items().mana().award(owner,"lbc:true_advancements/staffs/blaze");
             LbcOverload.sound(owner,end,"minecraft:entity.villager.trade",1,1,0);
         }
-        turrets.add(new Turret(owner,owner.level(),end.add(0,1,0),game.items().epoch(),5,.7,TURRET_DUST));
+        turrets.add(new Turret(owner,owner.level(),end.add(0,1,0),game.items().epoch(),5,.7,TURRET_DUST,false));
         LbcOverload.sound(owner,end,"minecraft:entity.blaze.ambient",1,1.3f,0);
     }
 
     /** KFC uses the same one-second pulse and owner/fire lifecycle, with three native shots at speed 1.6. */
     void chickenTurret(ServerPlayer owner,Vec3 position) {
-        turrets.add(new Turret(owner,owner.level(),position,game.items().epoch(),3,1.6,CHICKEN_DUST));
+        turrets.add(new Turret(owner,owner.level(),position,game.items().epoch(),3,1.6,CHICKEN_DUST,true));
         owner.level().sendParticles(CHICKEN_BURST,true,false,position.x,position.y-1,position.z,10,.2,.5,.2,0);
     }
 
@@ -176,10 +180,10 @@ public final class LbcBlaze {
         return game.items().wands().target(owner,entity) && !entity.entityTags().contains("strict_map_object")
                 && !entity.entityTags().contains("chick");
     }
-    private LivingEntity nearest(ServerPlayer owner,Vec3 point,boolean turret,List<LivingEntity> candidates) {
+    private LivingEntity nearest(ServerPlayer owner,Vec3 point,boolean turret,boolean wild,List<LivingEntity> candidates) {
         LivingEntity nearest=null; double distance=Double.POSITIVE_INFINITY;
         // Раз в 10/20 тиков на активную способность, а не каждый тик на каждую сущность мира.
-        for(var living:candidates) if(living.level()==owner.level() && target(owner,living)
+        for(var living:candidates) if(living.level()==owner.level() && (wild ? game.items().wands().validTarget(living) : target(owner,living))
                 && (!turret || !living.entityTags().contains("nomagic_active"))) {
             double d=living.position().distanceToSqr(point);
             if(d<distance) { distance=d; nearest=living; }
@@ -240,6 +244,15 @@ public final class LbcBlaze {
         if(!areas.isEmpty()) terrain.add(new Terrain(owner,owner.level(),areas));
         if(mode==3 || mode==4) owner.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE,-1,0));
         if(mode!=4) LbcOverload.sound(owner,mode==3?"minecraft:block.lava.ambient":"minecraft:item.firecharge.use",1,1,0);
+    }
+
+    /** Magnum's exact 3x3x3 incendiary fill, using the shared queued fire conversion. */
+    void incendiaryCube(ServerPlayer owner,Vec3 impact) {
+        var center=BlockPos.containing(impact);
+        var areas=new ArrayDeque<BlockAreaWork>();
+        enqueue(owner,areas,new BlockAreaWork.Bounds(center.getX()-1,center.getY()-1,center.getZ()-1,
+                center.getX()+1,center.getY()+1,center.getZ()+1),false);
+        terrain.add(new Terrain(owner,owner.level(),areas));
     }
 
     private void enqueue(ServerPlayer owner,ArrayDeque<BlockAreaWork> areas,BlockAreaWork.Bounds bounds,boolean lava) {
@@ -304,30 +317,30 @@ public final class LbcBlaze {
     public void tick() {
         int now=++ticks;
         // Один снимок живых кандидатов на общий импульс, независимо от числа турелей и снарядов.
-        List<LivingEntity> candidates=new ArrayList<>();
-        if(now%10==0 && (!turrets.isEmpty() || !heads.isEmpty()))
-            for(var entity:game.maps().level().getAllEntities()) if(entity instanceof LivingEntity living && living.isAlive()) candidates.add(living);
+        List<LivingEntity> candidates=now%10==0 && (!turrets.isEmpty() || !heads.isEmpty())
+                ? game.items().lifetimes().loadedTargets() : List.of();
         if(now%20==0) for(int i=turrets.size()-1;i>=0;i--) {
             var turret=turrets.get(i); var owner=turret.owner;
             if(!game.items().currentEpoch(turret.epoch) || !valid(owner) || owner.level()!=turret.level
                     || !turret.level.hasChunkAt(BlockPos.containing(turret.position))
                     || game.items().magic().suppressedAt(turret.level,turret.position)) { turrets.remove(i); continue; }
             if(paused(owner)) continue;
-            var target=nearest(owner,turret.position,true,candidates);
+            var target=nearest(owner,turret.position,true,turret.wild,candidates);
             if(target!=null) {
                 var projectile=new SmallFireball(EntityTypes.SMALL_FIREBALL,turret.level);
+                if(turret.wild) projectile.entityTags().add(KFC_SPIRIT_PROJECTILE);
                 Vec3 velocity=target.getEyePosition().subtract(turret.position).normalize().scale(turret.speed);
                 game.items().wands().launchFire(owner,projectile,turret.position,velocity);
                 LbcOverload.sound(owner,turret.position,"minecraft:entity.blaze.shoot",1,1,0);
             }
             turret.level.sendParticles(turret.dust,true,false,turret.position.x,turret.position.y,turret.position.z,10,.2,.5,.2,0);
             if(turret.remaining<=1) turrets.remove(i);
-            else turrets.set(i,new Turret(owner,turret.level,turret.position,turret.epoch,turret.remaining-1,turret.speed,turret.dust));
+            else turrets.set(i,new Turret(owner,turret.level,turret.position,turret.epoch,turret.remaining-1,turret.speed,turret.dust,turret.wild));
         }
         if(now%10==0) for(var owner:List.copyOf(heads.values())) {
             if(!valid(owner) || headCharges(owner)<=0 || game.items().magic().rejectCustomEffect(owner)) { clearEffects(owner); continue; }
             if(paused(owner)) continue;
-            var target=nearest(owner,owner.getEyePosition(),false,candidates);
+            var target=nearest(owner,owner.getEyePosition(),false,false,candidates);
             Vec3 velocity=target==null?owner.getLookAngle().scale(.7):target.getEyePosition().subtract(owner.getEyePosition()).normalize().scale(.7);
             game.items().wands().launchFire(owner,new SmallFireball(EntityTypes.SMALL_FIREBALL,owner.level()),owner.getEyePosition(),velocity);
             owner.level().sendParticles(ParticleTypes.FLAME,owner.getX(),owner.getEyeY(),owner.getZ(),5,.4,.4,.4,0);
@@ -346,7 +359,10 @@ public final class LbcBlaze {
                 terrain.addLast(job); if(++stalledJobs>=terrain.size()) break; continue;
             }
             var area=job.areas.getFirst();
-            int used=area.step(game,job.owner,Math.min(256,left),deadline); left-=Math.max(1,used);
+            int[] processed={0};
+            int allowance=Math.min(256,left);
+            game.items().indirectKills().trapChanges(job.owner,()->processed[0]=area.step(game,job.owner,allowance,deadline));
+            int used=processed[0]; left-=Math.max(1,used);
             if(!area.hasWork()) job.areas.removeFirst();
             if(!job.areas.isEmpty()) terrain.addLast(job);
             if(used==0) { if(++stalledJobs>=Math.max(1,terrain.size())) break; }

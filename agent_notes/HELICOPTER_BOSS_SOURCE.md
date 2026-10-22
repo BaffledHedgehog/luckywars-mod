@@ -1,0 +1,35 @@
+﻿# Helicopter Boss: bounded source audit (21 October 2026)
+
+Current implementation and resolved author decisions: [NEXT_SHOOTER_PORT](NEXT_SHOOTER_PORT.md).
+The bounded source findings below are historical source observations; they do not override that contract.
+
+Read-only legacy audit; no implementation/runtime qualification. Scope is loot table `lbc:helicopter_boss` and custom-data `boss_helicopter`, distinct from the already qualified Attack Helicopter (`attack_helicopter`, `workingitems/attackhelicopter*`). Fabric currently contains the loot definition but no Java `boss_helicopter` implementation. The separate hostile encounter below supplies this weapon; its AI is not the weapon's use action.
+
+All source paths below are relative to `E:/servers_mew/cringe1_21_4_skywars/world/datapacksdisabled/LBC/data/`.
+
+## Weapon
+
+- `lbc/loot_table/helicopter_boss.json`: carrot_on_a_stick, tier_s, model `lbc:helicopter_boss`, name `boss_helicopter`, three lore translation keys, credit Akim04ka. Custom data transformable/shooter/spellwithcooldown/magicwand/boss_helicopter; lore says recharge 30 seconds.
+- `lbc/function/items/spells.mcfunction` routes both hands through magicwand; this activation is blocked by own `nomagic_active` or any nonspectator nomagic player within 20. `workingitems/spell1_default.mcfunction:76` and `_left:64` set shared player `cd_helicopter=600` only if not positive; these particular branches have no mana, stopper_magic or mechanism-marker check.
+- `players_tick.mcfunction:44` calls `workingitems/boss_helicopter/tick.mcfunction` whenever cd>=1. Both held hands independently fire when cd>=400, then timer decrements once. Literal uninterrupted count is 201 firing ticks (600 through 400 inclusive), two arrows per held hand per tick: 402 per hand, 804 dual-held. Thirty seconds total timer; roughly ten seconds active followed by twenty seconds recovery. Dropping/unholding stops that hand, but timer continues; reholding before 400 resumes. No active-tick suppression checks.
+- `workingitems/boss_helicopter/shoot.mcfunction` and `shoot_left.mcfunction`: native arrows, speed vector 6, damage coefficient 0.2, PierceLevel 10, pickup 2, tags helicopterbullet/groundbreaker. Main offsets +/-0.75; offhand +/-1.45. Copies lbcID2/team_number. Attempts `UUID set from entity @s`, not Owner; this is malformed attribution, not a requirement to preserve. No random spread. One firework blast sound per firing call.
+- `projectiles/prein.mcfunction` dispatches groundbreaker to `other/groundbreak.mcfunction`: destroy a tiny +/-0.1 cube around projectile, explosion particle/sound, kill arrow. Native collision context must be respected when porting; do not replace with ticking AoE damage. Damage coefficient is not fixed HP damage.
+
+## Hostile encounter supplying weapon
+
+- `drops/specialdrops.mcfunction:72` consumes special dropped-item custom-data `helicopter_boss` through `drops/helicopter_boss_spawn.mcfunction`; not the weapon custom-data `boss_helicopter`.
+- Spawn produces exactly one item_display and one invisible NoAI/NoGravity ravager at local ^ ^20 ^50. Display scale 3, mecha/mob/slowraycast/other/phase_1 tags; ravager HP150, armor10, toughness10, persistent, empty loot, visible translated name. Pair linked by lbcID2 in spawn_2; model starts helicopter_1. No player owner assigned here.
+- `tick_not_timestopped.mcfunction` -> raycastselector -> raycastselector_other:19 -> `drops/helicopter_boss/tick.mcfunction`. No bounded lifetime in this spawn. Pair follows display at Y-3; display is restored above hitbox if displaced >5. Missing partner triggers death. HurtTime10 produces 50 yellow particles and blaze-hurt sound. Team nodamage setup is used when display has a team.
+- Phase1 moves forward 1 block per active tick. If any eligible mob R50, 1% transition to phase3; targets R100 and fires one alternating side arrow each phase1 tick, speed6 coefficient1, Owner=display UUID, pickup2/killedarrow. No LOS check. If no target R100 switches to phase2. Selectors exclude hitboxes, spectator/nodamage; facing additionally excludes strict_map_object. Sequential phase dispatch allows phase1->phase3 to execute phase3 in same tick.
+- Phase2 steers toward nearest eligible mob with no distance cap in facing selector, moves 1 block/tick. 40% chance drops one uniformly random six-variant instant bomb item if eligible mob in an 8x8 downward column under paired hitbox, distance<=150; delegates `workingitems/penispenispenis_random_penis_big_penis_small_penispenis_only_spawn`. Returns phase1 with 0.5% chance/tick. Payload helper is a reuse dependency, not re-audited fully here.
+- Phase3 rotates yaw +10 each tick and drops exactly one TNT (groundbam, fuse1000, explosion_power1), randomized integer X/Z +/-7 by `universal_pos_razb_7_y`; 10% drop sound, 1% phase1 transition. Groundbam contact switches fuse to2 via `projectilestick_tnt` -> `other/groundbam`.
+- Death: `drops/helicopter_boss/death.mcfunction` stops BOTH helicopter sounds globally, summons exactly 30 groundbam TNT (several duplicate coordinates), spawns one weapon loot, marks a nearby item invulnerable/no-gravity/glowing/Age-32768, kills executor. Nearest-item selector is not guaranteed to select fresh loot. No user kill attribution on TNT or drops. Model mutation ordering yields irregular frames (2->1->4 and 1->4 within same tick), not a clean four-frame cycle.
+- Mechanism suppression: display tag mecha is killed by `other/stopper.mcfunction:4` -> `stopper_marker_destroy`; hitbox lacks mecha. Its orphan cleanup depends on display tick and can strand ravager after raw display removal. Magic stopper does not gate boss AI. Treat this as legacy source behavior, not an approved weapon TECH classification.
+
+## Questions before implementation
+
+Confirm burst duration/count (literal 201 vs intended200), dual-hand behavior, whether suppression should stop an already active burst and which TECH/MAGIC gate applies. Confirm whether encounter itself belongs in this bounded weapon batch; it is a separate world acquisition event. Confirm terrain drilling/piercing semantics, 30 duplicate-position death TNT, global sound stop and irregular frame order only if encounter is included. Missing Owner/kill inheritance must be corrected under existing user attribution contract, not put to a preservation vote.
+
+## Reuse and boundary
+
+Reuse LbcShooters native Arrow/onHit, shared projectile collision/owner/lifetime policies and indirect-kill child attribution; LbcWands input and shared per-player timers/ready sound. Use `LbcMagic` existing suppression service after category decision, existing Polymer models/keys and LbcItems stop/forget/match cleanup. Preserve friendly-mob projectile hits versus hostile AI target selection under current user contract. Do not reimplement global selectors, add a second projectile engine, or silently expand into encounter/instant-bomb systems. Source pools/resource pack/template untouched. This note changes documentation only.

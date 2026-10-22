@@ -122,6 +122,8 @@ public final class PlayerStore {
         public int lbcChallenge;
         public int lbcChallengeProgress;
         public int lbcChallengeKit;
+        // -1 means legacy scoreboard state has not been migrated yet.
+        public int standOverheavenMatches = -1;
         // Migration: old four-slot profiles keep their first four choices; new slots append to 12.
         public int[] levelups = new int[12];
         // Persist the next cyclic slot (0..11) so expanding the array does not reset selection order.
@@ -148,6 +150,7 @@ public final class PlayerStore {
             lbcChallenge = Math.max(0, lbcChallenge);
             lbcChallengeProgress = Math.clamp(lbcChallengeProgress, 0, 19);
             lbcChallengeKit = Math.clamp(lbcChallengeKit, 0, 1);
+            standOverheavenMatches = Math.max(-1, standOverheavenMatches);
             keys = normalizeArray(keys, 5);
             levelups = normalizeArray(levelups, 12);
             trinkets = normalizeArray(trinkets, 12);

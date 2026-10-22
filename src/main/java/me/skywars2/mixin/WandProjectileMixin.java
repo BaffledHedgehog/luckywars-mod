@@ -14,6 +14,27 @@ import net.minecraft.world.phys.HitResult;
 /** Отсекаем защищённые цели до нативного onHitEntity, который сначала поджигает цель. */
 @Mixin(Projectile.class)
 public abstract class WandProjectileMixin {
+    /** Прямой setter вместо полной загрузки NBT для каждого ножа в массовом залпе. */
+    @Mixin(net.minecraft.world.entity.projectile.arrow.AbstractArrow.class)
+    public interface ArrowAccess {
+        @org.spongepowered.asm.mixin.gen.Invoker("setPierceLevel")
+        void skywars2$setPierceLevel(byte level);
+    }
+
+    /** Splash status effects normally pass the shooter as source, so check allegiance at their native call site. */
+    @Mixin(net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownSplashPotion.class)
+    public static abstract class Potion {
+        @com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation(method="onHitAsPotion",at=@At(value="INVOKE",target=
+                "Lnet/minecraft/world/entity/LivingEntity;addEffect(Lnet/minecraft/world/effect/MobEffectInstance;Lnet/minecraft/world/entity/Entity;)Z"))
+        private boolean skywars2$splashTarget(net.minecraft.world.entity.LivingEntity target,
+                net.minecraft.world.effect.MobEffectInstance effect,Entity source,
+                com.llamalad7.mixinextras.injector.wrapoperation.Operation<Boolean> original) {
+            var game=SkyWars2.game();
+            return (game==null || game.items().indirectKills().allowProjectileEffect(target,effect,(Entity)(Object)this))
+                    && original.call(target,effect,source);
+        }
+    }
+
     @Inject(method="isPickable",at=@At("HEAD"),cancellable=true)
     private void skywars2$spellNotPickable(CallbackInfoReturnable<Boolean> ci) {
         if(ProjectileLifetimes.protectedWandProjectile((Entity)(Object)this)) ci.setReturnValue(false);
@@ -91,6 +112,8 @@ public abstract class WandProjectileMixin {
         if(game!=null && (!game.items().wands().canHit((Projectile)(Object)this,target)
                 || !game.items().shooters().canHit((Projectile)(Object)this,target)
                 || !game.items().electro().canHit((Projectile)(Object)this,target))) ci.setReturnValue(false);
+        else if(game!=null && me.skywars2.game.LbcBlaze.isKfcSpirit((Entity)(Object)this))
+            ci.setReturnValue(target.canBeHitByProjectile());
     }
     @Inject(method="onHit",at=@At("TAIL"))
     private void skywars2$shooterHit(HitResult hit, CallbackInfo ci) {
@@ -111,7 +134,7 @@ public abstract class WandProjectileMixin {
             if(applied && game!=null && game.items().wands().isFireProjectile(projectile)
                     && projectile.getOwner() instanceof net.minecraft.server.level.ServerPlayer owner
                     && target instanceof net.minecraft.world.entity.LivingEntity living)
-                game.items().indirectKills().ignited(living,owner);
+                game.items().indirectKills().projectileIgnited(living,owner,me.skywars2.game.LbcBlaze.isKfcSpirit(projectile));
             return applied;
         }
         @com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod(method="onHitBlock")
@@ -120,7 +143,7 @@ public abstract class WandProjectileMixin {
             var projectile=(Projectile)(Object)this; var game=SkyWars2.game();
             if(game!=null && game.items().wands().isFireProjectile(projectile)
                     && projectile.getOwner() instanceof net.minecraft.server.level.ServerPlayer owner)
-                game.items().indirectKills().worldChanges(owner.level(),owner,()->original.call(hit));
+                game.items().indirectKills().worldChanges(owner.level(),projectile,()->original.call(hit));
             else original.call(hit);
         }
     }

@@ -132,12 +132,9 @@ public final class LbcElectro {
     public static boolean eggLightning(Entity entity) {
         return entity instanceof LightningBolt && entity.entityTags().contains(EGG_BOLT);
     }
-    /** Яйцо — опасность и для команды/владельца; служебные роли остаются защищены. */
+    /** Native bolts ignore friendship; observers and service entities remain protected. */
     public boolean lightningTarget(LightningBolt bolt,Entity target) {
-        var owner=bolt.getCause();
-        boolean egg=eggLightning(bolt);
-        return target==owner && (egg || bolt.entityTags().contains(SELF_SHOCK_BOLT))
-                || game.items().wands().target(owner,target,egg);
+        return game.items().wands().validTarget(target);
     }
 
     private static final class Charge {
@@ -291,7 +288,7 @@ public final class LbcElectro {
         } finally { yellowBatch.clear(); }
     }
     private boolean yellowTarget(ServerPlayer owner,Entity entity) {
-        return entity.getType().builtInRegistryHolder().is(MOBS) && game.items().wands().target(owner,entity);
+        return entity.getType().builtInRegistryHolder().is(MOBS) && game.items().wands().projectileTarget(owner,entity);
     }
     private net.minecraft.world.damagesource.DamageSource yellowDamage(YellowTrace trace,
             ResourceKey<net.minecraft.world.damagesource.DamageType> type) {
@@ -514,8 +511,9 @@ public final class LbcElectro {
     }
 
     public boolean canHit(net.minecraft.world.entity.projectile.Projectile projectile,Entity target) {
+        if(LbcBlaze.isKfcSpirit(projectile)) return game.items().wands().validTarget(target);
         return !projectile.entityTags().contains("skywars2.electro.reflected")
-                || projectile.getOwner() instanceof ServerPlayer owner && game.items().wands().target(owner,target);
+                || projectile.getOwner() instanceof ServerPlayer owner && game.items().wands().projectileTarget(owner,target);
     }
 
     public ServerPlayer reflectedOwner(Entity entity) { return reflectedOwners.get(entity); }
@@ -534,7 +532,7 @@ public final class LbcElectro {
 
     private void emitLightning(ServerPlayer owner, LivingEntity target) {
         var bolt=lightning(owner,target.position());
-        // Медитация намеренно бьёт заклинателя; обычные молнии по-прежнему исключают владельца.
+        // Keep the meditation marker for compatibility; native bolts can hit their caster.
         if(bolt!=null && target==owner) bolt.entityTags().add(SELF_SHOCK_BOLT);
         if(bolt!=null) owner.level().sendParticles(ParticleTypes.END_ROD,target.getX(),target.getY()+1,target.getZ(),
                 100,.5,1,.5,1);
@@ -571,6 +569,8 @@ public final class LbcElectro {
         if(amount<=0) return;
         var cyber=charges.computeIfAbsent(player.getUUID(),ignored->new Charge());
         var yellow=yellowCharges.computeIfAbsent(player.getUUID(),ignored->new Charge());
+        var shock=shocks.get(player);
+        if(shock!=null && !game.items().magic().rejectCustomEffect(player)) shock.untilNext+=amount;
         cyber.charges+=amount; cyber.hits+=amount;
         yellow.charges+=amount; yellow.hits+=amount;
     }

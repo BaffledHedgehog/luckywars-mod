@@ -63,6 +63,7 @@ public final class LbcConsuming {
     private final GameController game;
     private final List<Partition> partitions=new ArrayList<>();
     private final List<Area> areas=new ArrayList<>();
+    private final List<SilenceErase> silences=new ArrayList<>();
     private final Map<Entity,Owned> summons=new IdentityHashMap<>();
     private final Map<LbcStonekivi.Work,Owned> work=new IdentityHashMap<>();
     private final Map<ServerPlayer,Terrain> terrain=new IdentityHashMap<>();
@@ -89,6 +90,14 @@ public final class LbcConsuming {
     private static final class Area extends Owned {
         Vec3 point; int age;
         Area(ServerPlayer owner,String epoch,Vec3 point) { super(owner,epoch); this.point=point; }
+    }
+
+    /** Bounded event guard: accepts delayed native gravity/drop spawns until terrain settles. */
+    private static final class SilenceErase extends Owned {
+        final Vec3 center;
+        int pending=2,settle=40;
+        SilenceErase(ServerPlayer owner,String epoch,Vec3 center) { super(owner,epoch); this.center=center; }
+        boolean contains(Entity entity) { return entity.level()==level && entity.position().distanceToSqr(center)<=48*48; }
     }
 
     LbcConsuming(GameController game) { this.game=game; }
@@ -185,11 +194,15 @@ public final class LbcConsuming {
                 && !entity.entityTags().contains("strict_map_object")
                 && !game.items().magic().suppressedAt(owner.level(),entity.position());
     }
+    private boolean projectileTarget(ServerPlayer owner,Entity entity) {
+        return entity instanceof LivingEntity && game.items().wands().projectileTarget(owner,entity)
+                && !game.items().magic().suppressedAt(owner.level(),entity.position());
+    }
     private void hits(ServerPlayer owner,Vec3 from,Vec3 to,Vec3 padding,double spacing,float damage,int limit) {
         var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.CONSUMING),owner);
         var eligible=new IdentityHashMap<Entity,Boolean>();
         LbcDamage.hurtSegment(owner.level(),source,from,to,padding,spacing,damage,limit,
-                entity->entity.isAlive() && eligible.computeIfAbsent(entity,candidate->target(owner,candidate)),false);
+                entity->entity.isAlive() && eligible.computeIfAbsent(entity,candidate->projectileTarget(owner,candidate)),false);
     }
     private void erase(ServerPlayer owner,Vec3 point,double half) {
         var first=BlockPos.containing(point.x-half,point.y-half,point.z-half);
@@ -282,7 +295,7 @@ public final class LbcConsuming {
         int[] attempts=new int[samples];
         var damage=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.CONSUMING),owner);
         for(var entity:game.items().lifetimes().loadedTargets()) {
-            if(entity.level()!=owner.level() || !target(owner,entity)) continue;
+            if(entity.level()!=owner.level() || !projectileTarget(owner,entity)) continue;
             Vec3 offset=entity.position().subtract(start);
             double projection=offset.dot(direction),perpendicular=offset.lengthSqr()-projection*projection;
             if(perpendicular>25) continue;
@@ -317,6 +330,8 @@ public final class LbcConsuming {
         owner.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,1200));
         var stop=new net.minecraft.network.protocol.game.ClientboundStopSoundPacket(null,null);
         for(var player:game.server().getPlayerList().getPlayers()) player.connection.send(stop);
+        var erasure=new SilenceErase(owner,game.items().epoch(),center);
+        silences.add(erasure);
         var scan=new BlockAreaWork(owner.level(),state->!state.isAir(),(pos,state)-> {
             if(Vec3.atCenterOf(pos).distanceToSqr(center)>48*48) return null;
             game.items().indirectKills().supportRemoved(owner,pos);
@@ -328,9 +343,10 @@ public final class LbcConsuming {
             public boolean step() {
                 try { scan.step(game,owner,512,System.nanoTime()+500_000); }
                 finally { game.items().indirectKills().finishSupportRemoval(); }
-                return !scan.hasWork();
+                if(scan.hasWork()) return false;
+                erasure.pending--; return true;
             }
-            public void cancel() { scan.clear(); }
+            public void cancel() { scan.clear(); erasure.cancelled=true; }
         });
         partitions.removeIf(part->part.level==owner.level() && part.point.distanceToSqr(center)<=48*48);
         areas.removeIf(area->area.level==owner.level() && area.point.distanceToSqr(center)<=48*48);
@@ -341,25 +357,21 @@ public final class LbcConsuming {
             if(entity.entityTags().contains("god_hedgehog")) { if(hedgehog==null) hedgehog=entity; continue; }
             if(ordinary(entity)) doomed.add(entity);
         }
-        var kill=damage(owner,DamageTypes.GENERIC_KILL);
         queue(owner,new LbcStonekivi.Work() {
             int cursor;
             public boolean step() {
                 long deadline=System.nanoTime()+500_000;
                 for(int count=0;count<32 && cursor<doomed.size() && System.nanoTime()<deadline;count++) {
                     var entity=doomed.get(cursor++);
-                    if(entity.level()!=owner.level() || !ordinary(entity)) continue;
-                    if(entity instanceof LivingEntity living) {
-                        living.hurtServer(owner.level(),kill,Float.MAX_VALUE);
-                        // Dragon's damage path starts a long dying phase; native /kill removes it immediately.
-                        if(living instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon && !living.isRemoved())
-                            living.kill(owner.level());
-                    }
-                    else entity.kill(owner.level());
+                    if(entity.level()!=owner.level() || !ordinary(entity) || entity.entityTags().contains("god_hedgehog")) continue;
+                    // Native discard has no damage, death events, drops or XP. Cube disposal also
+                    // bypasses AbstractCubeMob.remove, whose dead-slime path can still split.
+                    game.items().mobgun().dispose(entity);
                 }
-                return cursor==doomed.size();
+                if(cursor<doomed.size()) return false;
+                erasure.pending--; return true;
             }
-            public void cancel() { doomed.clear(); }
+            public void cancel() { doomed.clear(); erasure.cancelled=true; }
         });
         var outside=damage(owner,DamageTypes.OUTSIDE_BORDER);
         for(var player:owner.level().players()) if(player.position().distanceToSqr(center)<=48*48
@@ -459,6 +471,7 @@ public final class LbcConsuming {
         flushTerrain(); stack.shrink(1); return true;
     }
     public void tick() {
+        silences.removeIf(state->!valid(state) || state.pending==0 && !paused(state.owner) && --state.settle<=0);
         partitions.removeIf(part->!valid(part) || game.items().magic().suppressedAt(part.level,part.point));
         areas.removeIf(area->!valid(area) || game.items().magic().suppressedAt(area.level,area.point));
         for(var part:partitions) {
@@ -508,6 +521,20 @@ public final class LbcConsuming {
         var caster=owner(source);
         return caster==null || target==null || target==caster || game.items().wands().target(caster,target);
     }
+    public boolean canTrialProjectileTarget(Entity source,Entity target) {
+        var caster=owner(source);
+        return caster==null || target==null || target==caster || game.items().wands().projectileTarget(caster,target);
+    }
+    /** Called before item services adopt a native entity, including deferred FallingBlockEntity spawns. */
+    public boolean eraseLoaded(Entity entity) {
+        if(silences.isEmpty() || !ordinary(entity) || entity.entityTags().contains("god_hedgehog")) return false;
+        for(var state:silences) if(valid(state) && state.contains(entity)) {
+            game.items().mobgun().dispose(entity);
+            return true;
+        }
+        return false;
+    }
+    int silenceEraseCount() { return silences.size(); }
     void loaded(Entity entity) {
         if(!entity.entityTags().contains(TRIAL_ACTOR)) return;
         var state=summons.get(entity);
@@ -517,7 +544,7 @@ public final class LbcConsuming {
         // Remove ownership before native discard: unload may re-enter through entity removal.
         if(summons.remove(entity)!=null && !entity.isRemoved()) entity.discard();
     }
-    public int count() { return partitions.size()+areas.size()+summons.size()+work.size(); }
+    public int count() { return partitions.size()+areas.size()+summons.size()+work.size()+silences.size(); }
     record PartitionView(ServerPlayer owner,String epoch,Vec3 point,int age) { }
     record AreaView(ServerPlayer owner,String epoch,Vec3 point,int age) { }
     List<PartitionView> partitionSnapshot() { return partitions.stream().map(part->new PartitionView(part.owner,part.epoch,part.point,part.age)).toList(); }
@@ -526,13 +553,14 @@ public final class LbcConsuming {
     int pendingWorkCount() { return work.size(); }
     public void forget(ServerPlayer owner) {
         partitions.removeIf(part->part.owner==owner); areas.removeIf(area->area.owner==owner);
+        silences.removeIf(state->state.owner==owner);
         for(var entry:List.copyOf(work.entrySet())) if(entry.getValue().owner==owner) entry.getKey().cancel();
         for(var entry:List.copyOf(summons.entrySet())) if(entry.getValue().owner==owner) {
             entry.getKey().discard(); summons.remove(entry.getKey());
         }
     }
     public void stop() {
-        partitions.clear(); areas.clear(); terrain.clear();
+        partitions.clear(); areas.clear(); terrain.clear(); silences.clear();
         for(var job:List.copyOf(work.keySet())) job.cancel();
         for(var entity:List.copyOf(summons.keySet())) entity.discard(); summons.clear();
     }

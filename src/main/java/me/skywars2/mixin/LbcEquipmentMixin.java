@@ -18,11 +18,19 @@ public abstract class LbcEquipmentMixin {
         var game=SkyWars2.game();
         if(game!=null && (Object)this instanceof ServerPlayer player) game.items().mana().overload().armor().jump(player);
     }
+    /** Normalize old miniguns before vanilla snapshots and applies equipment attribute modifiers. */
+    @Inject(method = "onEquipItem", at = @At("HEAD"))
+    private void skywars2$minigunEquipment(EquipmentSlot slot, ItemStack previous, ItemStack next, CallbackInfo ci) {
+        if ((Object)this instanceof ServerPlayer) me.skywars2.game.LbcMinigunMovement.ensureStack(next);
+    }
     /** RETURN покрывает ранние выходы vanilla (firstTick/observer), в том числе начальную экипировку. */
     @Inject(method = "onEquipItem", at = @At("RETURN"))
     private void skywars2$rocketEquipment(EquipmentSlot slot, ItemStack previous, ItemStack next, CallbackInfo ci) {
         var game = SkyWars2.game();
-        if(game!=null && (Object)this instanceof ServerPlayer player) game.items().mana().inventoryChanged(player);
+        if(game!=null && (Object)this instanceof ServerPlayer player) {
+            game.items().mana().inventoryChanged(player);
+            game.items().refreshMinigunMovement(player);
+        }
         if (slot == EquipmentSlot.FEET && game != null && (Object) this instanceof ServerPlayer player) {
             game.items().rocketEquipment(player, next);
         }

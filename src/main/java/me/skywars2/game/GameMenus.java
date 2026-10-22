@@ -157,6 +157,7 @@ public final class GameMenus {
                 case 5 -> () -> change(p, () -> config.stageOneEvent = cycle(config.stageOneEvent, 0, 9));
                 case 6 -> () -> change(p, () -> config.stageTwoEvent = cycle(config.stageTwoEvent, 0, 8));
                 case 8 -> () -> change(p, () -> config.offhandWands = !config.offhandWands);
+                case 11 -> () -> change(p, () -> config.luckyModifier = cycle(config.luckyModifier, 0, 12));
                 case 12 -> () -> change(p, () -> config.tntProtection = cycle(config.tntProtection, 0, 5));
                 case 13 -> () -> change(p, () -> config.lbcKits = !config.lbcKits);
                 case 14 -> () -> change(p, () -> config.lbcSkills = !config.lbcSkills);
@@ -192,6 +193,7 @@ public final class GameMenus {
                     String previousMap = config.mapId;
                     boolean previousBroken = config.broken;
                     copyConfig(GameConfig.resetDefaults(), config);
+                    controller.luckyModifiers().syncConfig();
                     if (!previousMap.equals(config.mapId) || previousBroken != config.broken)
                         controller.selectMap(p, config.mapId, config.broken);
                     open(p, Page.SETTINGS);
@@ -478,6 +480,7 @@ public final class GameMenus {
         if (!controller.allowMatchControl(player)) return;
         mutation.run();
         config.save();
+        controller.luckyModifiers().syncConfig();
         controller.lbc().syncRanked();
         controller.lbc().refreshArtifactViews();
         open(player, Page.SETTINGS);
@@ -583,6 +586,7 @@ public final class GameMenus {
         to.pvpMode = from.pvpMode;
         to.tntProtection = from.tntProtection;
         to.gameMode = from.gameMode;
+        to.luckyModifier = from.luckyModifier;
         to.day = from.day;
         // A public lobby reset only resets match options, never OP-only service flags.
         to.vanillaKits = from.vanillaKits;

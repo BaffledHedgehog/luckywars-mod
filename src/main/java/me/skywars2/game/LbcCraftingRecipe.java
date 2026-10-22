@@ -16,6 +16,8 @@ import net.minecraft.world.level.Level;
 public final class LbcCraftingRecipe extends CustomRecipe {
     public enum Kind {
         ROCKET("rocket_boots_transfer",null),
+        TINY_REFORGE("tiny_reforge",null),
+        REROLL_MACHINE("reroll_machine",null),
         TERRA("terra_combine","terra_wand"),
         ELECTRO("electro_combine","electro_wand"),
         FIRE("fire_combine","fire_wand"),
@@ -41,6 +43,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         INFBOLT("infbolt_combine","infbolt_wand"),
         CONSUMING("consuming_combine","consuming_wand"),
         DUPLICATING("duplicating_combine","duplicating_wand"),
+        STAND_CLOCKS("stand_clocks","stand_clocks"),
         SWORD("terra_sword_awakening","true_terra_sword"),
         RAZOR("terra_razorpine_awakening","terra_razorpine");
         final String id,loot;
@@ -70,6 +73,8 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         var game = SkyWars2.game();
         if(game==null) return ItemStack.EMPTY;
         if(kind==Kind.ROCKET) return game.items().rocketCraftResult(input);
+        if(kind==Kind.TINY_REFORGE) return craftingKind(input)==kind ? LbcTinyReforge.placeholder() : ItemStack.EMPTY;
+        if(kind==Kind.REROLL_MACHINE) return craftingKind(input)==kind ? LbcRerollCrafting.placeholder() : ItemStack.EMPTY;
         if(craftingKind(input)!=kind) return ItemStack.EMPTY;
         var result=game.lbc().rollTable(game.maps().level(),net.minecraft.world.phys.Vec3.ZERO,null,"lbc:ported/"+kind.loot);
         if(result.isEmpty()) return ItemStack.EMPTY;
@@ -98,9 +103,18 @@ public final class LbcCraftingRecipe extends CustomRecipe {
 
     /** Общее распознавание семейств: ровно два занятых слота, без расхода и случайности в preview. */
     public static Kind craftingKind(CraftingInput input) {
-        if(input.ingredientCount()!=2) return null;
+        if(input.ingredientCount()!=2) return LbcRerollCrafting.matches(input) ? Kind.REROLL_MACHINE : null;
+        int standArrow=0,timeStopper=0;
+        for(var stack:input.items()) if(!stack.isEmpty()) {
+            if(LbcStand.isArrow(stack)) standArrow++;
+            else if(stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
+                    net.minecraft.world.item.component.CustomData.EMPTY).matchedBy(TIME_STOPPER_DONOR)) timeStopper++;
+        }
+        if(standArrow==1 && timeStopper==1) return Kind.STAND_CLOCKS;
         var tiny=tinyPair(input);
         if(tiny!=null) return tiny;
+        if(LbcTinyReforge.matches(input)) return Kind.TINY_REFORGE;
+        if(LbcRerollCrafting.matches(input)) return Kind.REROLL_MACHINE;
         var terra=LbcTerra.craftingKind(input);
         if(terra!=null) return terra;
         int air=0,exoperso=0,stone=0,wall=0,tanner=0,fire=0,kiuas=0,blaze=0,blind=0,psycho=0,vex=0,stars=0,teleport=0,bolts=0,material=0,ruby=0,consuming=0,divider=0;
@@ -215,6 +229,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
     }
 
     private static final net.minecraft.nbt.CompoundTag AIR_DONOR=donorFlag("stair"),
+            TIME_STOPPER_DONOR=donorFlag("time_stopper"),
             RUBY_DONOR=donorFlag("struby"),
             EXOPERSO_DONOR=donorFlag("exoperso"), STONE_DONOR=donorFlag("ststone"), WALL_DONOR=donorFlag("wall"), FIRE_DONOR=donorFlag("stfire"), BLAZE_DONOR=donorFlag("fallingstars"), BLIND_DONOR=donorFlag("stblind"), PSYCHO_DONOR=donorFlag("psychowand"), VEX_DONOR=donorFlag("summonervexes"), STARS_DONOR=donorFlag("truefallingstars"), TELEPORT_DONOR=donorFlag("stteleport"), BOLTS_DONOR=donorFlag("lightning_bolts");
     private static final net.minecraft.nbt.CompoundTag TINY_FIRE_DONOR=donorFlag("stfire_tiny"),
@@ -247,6 +262,13 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         game.items().rocketCraftTaken(player,input);
         var kind=craftingKind(input);
         if(kind==null) return;
+        if(kind==Kind.STAND_CLOCKS) {
+            player.level().sendParticles(new net.minecraft.core.particles.DustParticleOptions(
+                            net.minecraft.util.ARGB.colorFromFloat(1,.38f,.133f,.388f)&0xffffff,2),
+                    true,false,player.getX(),player.getY()+1,player.getZ(),100,1,1,1,1);
+            LbcOverload.sound(player,player.position(),"minecraft:block.enchantment_table.use",1,1,0);
+            return;
+        }
         if(kind==Kind.CONSUMING || kind==Kind.DUPLICATING) {
             player.level().sendParticles(new net.minecraft.core.particles.DustParticleOptions(
                             net.minecraft.util.ARGB.colorFromFloat(1,kind==Kind.DUPLICATING?.812f:.553f,kind==Kind.DUPLICATING?.643f:.129f,kind==Kind.DUPLICATING?.761f:.427f)&0xffffff,2),

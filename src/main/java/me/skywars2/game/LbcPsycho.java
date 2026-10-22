@@ -124,6 +124,12 @@ public final class LbcPsycho {
         if(amount<=0 || !valid(owner) || game.items().magic().rejectCustomEffect(owner)) return;
         rays.merge(owner,amount,Integer::sum);
     }
+    void addPlayerCounters(ServerPlayer player) {
+        var current=effects.get(player);
+        if(current!=null && current.forcedTicks>0 && !game.items().magic().rejectCustomEffect(player)) current.forcedTicks++;
+        afflict(player,player,1,1,1,1);
+        addRayTicks(player,1);
+    }
     int forcedUseTicks(ServerPlayer player) {
         var effect=effects.get(player); return effect==null?0:effect.forcedTicks;
     }
@@ -153,6 +159,11 @@ public final class LbcPsycho {
     }
     private boolean target(ServerPlayer owner,Entity entity) {
         return game.items().wands().target(owner,entity)
+                && !game.items().magic().suppressedAt(owner.level(),entity.position())
+                && !entity.entityTags().contains("nomagic_active");
+    }
+    private boolean projectileTarget(ServerPlayer owner,Entity entity) {
+        return game.items().wands().projectileTarget(owner,entity)
                 && !game.items().magic().suppressedAt(owner.level(),entity.position())
                 && !entity.entityTags().contains("nomagic_active");
     }
@@ -273,7 +284,7 @@ public final class LbcPsycho {
             double suppression=game.items().magic().suppressionFraction(owner.level(),from,to);
             if(Double.isFinite(suppression)) { remove(charge); continue; }
             // Снаряды исходника проходят сквозь блоки; один swept query вместо восьми поисков .25.
-            var candidates=owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(from,to).inflate(1),e->target(owner,e) && game.items().lifetimes().target(owner,e));
+            var candidates=owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(from,to).inflate(1),e->projectileTarget(owner,e) && game.items().lifetimes().target(owner,e));
             candidates.removeIf(e->e.getBoundingBox().inflate(.5).clip(from,to).isEmpty() && !e.getBoundingBox().inflate(.5).contains(from));
             candidates.sort(Comparator.comparingDouble(e->e.position().distanceToSqr(from)));
             int hits=0;
@@ -420,7 +431,7 @@ public final class LbcPsycho {
             var wall=LbcTerra.wallHit(owner.level(),from,to);
             if(wall!=null) to=wall.getLocation();
             double length=from.distanceTo(to);
-            for(var target:owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(from,to).inflate(3.5),e->target(owner,e)
+            for(var target:owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(from,to).inflate(3.5),e->projectileTarget(owner,e)
                     && game.items().lifetimes().target(owner,e))) {
                 double projection=Math.clamp(target.position().subtract(from).dot(direction),0,length);
                 if(target.position().distanceToSqr(from.add(direction.scale(projection)))>12.25) continue;

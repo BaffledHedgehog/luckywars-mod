@@ -66,6 +66,7 @@ public final class LbcKfcFood {
             "living_legend","skill_issue","coldowntimestand","coldownlightning","cd_helicopter","metal_divider_cd","nexus_roadgun_cd",
             "nexus_corrupter_cd","MagnumNyauwu","speed","danmaku","danmaku_score","pulsar_cd","adv_game_minigun_shooted"
     };
+    static List<String> sourceScoreAdditions() { return List.of(SOURCE_SCORE_ADDITIONS); }
     private final GameController game;
     private final Map<UUID,Integer> gigaponos=new HashMap<>();
     LbcKfcFood(GameController game) { this.game=game; }
@@ -182,12 +183,28 @@ public final class LbcKfcFood {
                 default -> mana.score(p,name).add(1);
             }
         }
-        game.items().psycho().afflict(p,p,1,1,1,1);
-        game.items().psycho().addRayTicks(p,1);
+        game.items().psycho().addPlayerCounters(p);
         game.items().electro().shock(p,p,1);
         game.items().electro().addPlayerCounters(p,1);
         game.items().shooters().addPlayerCounters(p);
+        game.items().laserMinigun().addPlayerCounters(p);
+        game.items().ak47().addPlayerCounters(p);
+        game.items().magnum().addPlayerCounters(p);
+        game.items().mobgun().addCounters(p);
+        game.items().stand().addPlayerCounters(p);
+        game.items().timeStop().addPlayerCounters(p);
         game.items().terra().addPlayerCounter(p);
+        game.items().blind().addPlayerCounters(p);
+        game.items().homing().addPlayerCounters(p);
+        game.items().duplicating().addPlayerCounters(p);
+        game.items().frost().addPlayerCounters(p);
+        game.items().magic().colors().addPlayerCounters(p);
+        mana.addPlayerCounters(p);
+        game.items().addPlayerCounters(p);
+        if(gigaponosRemaining(p)>0 && !game.items().magic().rejectEffect(p,MobEffects.HUNGER))
+            setGigaponos(p,gigaponosRemaining(p)+1);
+        // Extend finite native effects in their own tick units, preserving visible flags and amplifier.
+        for(var current:List.copyOf(p.getActiveEffects())) game.items().indirectKills().extendEffectDuration(p,current);
         p.entityTags().add("have_lucky_effects");
     }
     private void effect(ServerPlayer p,Holder<MobEffect> type,int seconds,int amplifier,boolean hidden) {

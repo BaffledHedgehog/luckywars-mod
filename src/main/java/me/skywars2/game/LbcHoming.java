@@ -97,7 +97,15 @@ public final class LbcHoming {
     public int curseValue(LivingEntity entity) {
         var curse=curses.get(entity); return curse==null?0:(curse.remaining+19)/20;
     }
+    int curseTicks(LivingEntity entity) { var curse=curses.get(entity); return curse==null?0:curse.remaining; }
     public int curseSeconds(LivingEntity entity) { return curseValue(entity); }
+    void addPlayerCounters(ServerPlayer player) {
+        if(!game.items().magic().rejectCustomEffect(player))
+            curses.computeIfAbsent(player,ignored->new Curse(player,0)).remaining++;
+        // These are sustained casts owned by the player, rather than projectile/entity ages.
+        for(var effect:rains) if(effect.owner==player) effect.remaining++;
+        for(var effect:destinies) if(effect.owner==player) effect.remaining++;
+    }
     public void clearEffects(LivingEntity entity) { clear(entity); }
     private boolean valid(ServerPlayer owner) { return owner!=null && game.items().mana().visible(owner); }
     private boolean paused(ServerPlayer owner) {
@@ -105,6 +113,9 @@ public final class LbcHoming {
                 || game.items().frost().isFrozen(owner) || game.items().magic().suppressed(owner);
     }
     private boolean target(ServerPlayer owner,LivingEntity entity) {
+        return projectileTarget(owner,entity) && game.items().wands().target(owner,entity);
+    }
+    private boolean projectileTarget(ServerPlayer owner,LivingEntity entity) {
         return entity.level()==owner.level() && game.items().lifetimes().target(owner,entity)
                 && !entity.entityTags().contains("strict_map_object")
                 && !game.items().magic().suppressedAt(owner.level(),entity.getEyePosition());
@@ -153,7 +164,8 @@ public final class LbcHoming {
         Vec3 to=from.add(direction.scale(range));
         double barrier=game.items().magic().suppressionFraction(owner.level(),from,to);
         if(Double.isFinite(barrier)) to=from.lerp(to,barrier);
-        var hit=game.items().wands().firstHit(owner,from,to,e->e instanceof LivingEntity living && target(owner,living));
+        var hit=game.items().wands().firstHit(owner,from,to,e->e instanceof LivingEntity living && game.items().lifetimes().target(owner,living)
+                && !game.items().magic().suppressedAt(owner.level(),living.getEyePosition()));
         Vec3 end=hit==null?to:hit.getLocation();
         double length=from.distanceTo(end);
         for(double d=0;d<=length;d+=step) {
@@ -326,7 +338,7 @@ public final class LbcHoming {
     private void curseRay(ServerPlayer owner) {
         requestRay(owner,owner.getEyePosition(),owner.getLookAngle(),false,null,hit->{
             if(!(hit instanceof EntityHitResult entityHit) || !(entityHit.getEntity() instanceof LivingEntity living)
-                    || !target(owner,living)) return;
+                    || !projectileTarget(owner,living)) return;
             if(living instanceof ServerPlayer player && game.items().magic().rejectCustomEffect(player)) return;
             curses.compute(living,(entity,old)->new Curse(owner,(old==null?0:old.remaining)+1200));
             owner.level().sendParticles(new DustParticleOptions(net.minecraft.util.ARGB.colorFromFloat(1,.314f,.294f,.129f)&0xffffff,3),
@@ -354,7 +366,7 @@ public final class LbcHoming {
     private void tickCurses() {
         for(var entry:List.copyOf(curses.entrySet())) {
             var victim=entry.getKey(); var curse=entry.getValue();
-            if(!valid(curse.owner) || !target(curse.owner,victim)
+            if(!valid(curse.owner) || !projectileTarget(curse.owner,victim)
                     || victim instanceof ServerPlayer player && game.items().magic().rejectCustomEffect(player)) { clear(victim); continue; }
             if(paused(curse.owner) || victim.entityTags().contains("time_stopped")
                     || game.items().frost().isFrozen(victim)) continue;

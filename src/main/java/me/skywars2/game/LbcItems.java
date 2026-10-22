@@ -130,6 +130,7 @@ public final class LbcItems {
 
     /** Мечи используют свои триггеры; немагическая киберкатана работает и под антимагией. */
     public void damaged(LivingEntity victim, DamageSource source) {
+        stand.onAcceptedDamage(victim,source);
         summons.damaged(victim,source);
         shooters.damaged(victim,source);
         if (!game.playing() && !debugItemUseWindow() || !inArena(victim) || LbcDamage.isArrowDamage(source)
@@ -146,7 +147,7 @@ public final class LbcItems {
     }
 
     /** Загружаем регистрацию до freeze реестров и чтения loot tables, а не при первом обращении к предмету. */
-    public static void register() { LbcSkills.register(); LbcClouds.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcTerra.register(); LbcShooters.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
+    public static void register() { LbcSkills.register(); LbcClouds.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
 
     private static final CompoundTag BROKEN_TOTEM = new CompoundTag();
     private static final CompoundTag DYNAMITE = new CompoundTag();
@@ -173,6 +174,8 @@ public final class LbcItems {
     private final LbcMana mana;
     private final LbcTerra terra;
     private final LbcWands wands;
+    private final LbcLifestealer lifestealer;
+    private final LbcMobgun mobgun;
     private final LbcStonekivi stonekivi;
     private final LbcTanner tanner;
     private final LbcKiuas kiuas;
@@ -181,7 +184,16 @@ public final class LbcItems {
     private final LbcSummons summons;
     private final LbcHoming homing;
     private final LbcBolts bolts;
+    private final LbcLightningAcquisition lightningAcquisition;
     private final LbcShooters shooters;
+    private final LbcLaserMinigun laserMinigun;
+    private final LbcAk47 ak47;
+    private final LbcMagnum magnum;
+    private final LbcGovnomet govnomet;
+    private final LbcStand stand;
+    private final LbcTimeStop timeStop;
+    private final NuclearVisuals nuclearVisuals;
+    private final BlackHoleVisuals blackHoleVisuals;
     private final LbcKfcFood kfcFood;
     private final LbcKfcRewards kfcRewards;
     private final LbcElectro electro;
@@ -201,7 +213,7 @@ public final class LbcItems {
     private record HudState(UUID source,int mana,int max,int regeneration,int jumps,int cooldown,
                             int cold,int coldCooldown,int frozen,int swordCharges,int noMagic,int reverse,int curse,
                             int addMana,int addMax,int addRegen,int removeMana,int boost,int teleport,
-                            int katanaCharges,int katanaCharging,int yellowCharges,int yellowCharging,int shock,int blindQueue,int blazeHead,int lookback,int piss,int scared,int screamray,int twitching,int targetCurse,int divider,int sentAt) { }
+                            int katanaCharges,int katanaCharging,int yellowCharges,int yellowCharging,int shock,int blindQueue,int blazeHead,int lookback,int piss,int scared,int screamray,int twitching,int targetCurse,int divider,int helicopter,int bossHelicopter,int akAmmo,int sentAt) { }
     private final Map<UUID,HudState> hudStates=new HashMap<>();
     private String entityEpochTag = newEntityEpochTag();
     private final Map<UUID, TurnCurse> turnCurses = new HashMap<>();
@@ -278,8 +290,9 @@ public final class LbcItems {
         boolean elytra = player.getItemBySlot(EquipmentSlot.CHEST).is(Items.ELYTRA);
         if (!active(player)) return !elytra;
         RocketState state = rockets.computeIfAbsent(player.getUUID(), ignored -> new RocketState(player));
-        // Paper проверял куб 20 блоков; сферическая проверка здесь изменила бы подавление способности.
-        boolean stopped = !player.level().getEntitiesOfClass(Marker.class,
+        // Native mechanism beacons use a sphere; legacy markers retain the Paper cube check.
+        boolean stopped = magic.mechanismSuppressedAt(player.level(),player.position())
+                || !player.level().getEntitiesOfClass(Marker.class,
                 new AABB(player.position(), player.position()).inflate(20), marker -> marker.entityTags().contains("stopper")).isEmpty();
         if (stopped || state.jumps == 0) return !elytra;
         state.jumps--;
@@ -351,6 +364,14 @@ public final class LbcItems {
                 .append(Component.literal("/"))
                 .append(Component.literal("7§f]").withColor(0xA55E50));
         int blindQueue=blind.queued(source);
+        int helicopter=helicopterHudValue(source);
+        if(helicopter>=0) component.append(Component.literal(helicopter>0?"    \uE105 ":"    \uE104 "))
+                .append(helicopter>0?Component.literal(Integer.toString(helicopter)).withStyle(ChatFormatting.WHITE)
+                        :Component.translatable("ready").withStyle(ChatFormatting.GREEN));
+        int bossHelicopter=bossHelicopterHudValue(source);
+        if(bossHelicopter>=0) component.append(Component.literal(bossHelicopter>0?"    \uE105 ":"    \uE104 "))
+                .append(bossHelicopter>0?Component.literal(Integer.toString(bossHelicopter)).withStyle(ChatFormatting.WHITE)
+                        :Component.translatable("ready").withStyle(ChatFormatting.GREEN));
         int divider=dividerHudValue(source);
         if(divider>=0) component.append(Component.literal(divider>0?"    \uE105 ":"    \uE104 "))
                 .append(divider>0?Component.literal(Integer.toString(divider)).withStyle(ChatFormatting.WHITE)
@@ -369,6 +390,8 @@ public final class LbcItems {
         if(twitching>0) component.append(Component.literal(" \uE123 ")).append(Component.literal(Integer.toString(twitching)).withStyle(ChatFormatting.RED));
         int targetCurse=homing.curseSeconds(source);
         if(targetCurse>0) component.append(Component.literal("  \uE122 ")).append(Component.literal(Integer.toString(targetCurse)).withStyle(ChatFormatting.RED));
+        int akAmmo=akAmmoHudValue(source);
+        if(akAmmo>=0) component.append(Component.literal("  \uE206 ")).append(Component.literal(Integer.toString(akAmmo)).withStyle(ChatFormatting.WHITE));
         int curse=curseTicks(source);
         if(curse>0) component.append(Component.literal("  \uE129 ")).append(Component.literal(Integer.toString(curse)).withStyle(ChatFormatting.RED));
         mana.appendHudManaStatuses(source,component);
@@ -404,7 +427,9 @@ public final class LbcItems {
         int boost=mana.hudValue(source,"effect_boost_mana"), teleport=mana.hudValue(source,"effect_rtp_1");
         int lookback=psycho.hudValue(source,"lookback"),piss=psycho.hudValue(source,"piss");
         int scared=psycho.hudValue(source,"scared"),screamray=psycho.hudValue(source,"screamray"),twitching=psycho.hudValue(source,"twitching");
-        int targetCurse=homing.curseSeconds(source),divider=dividerHudValue(source);
+        int targetCurse=homing.curseSeconds(source),divider=dividerHudValue(source),helicopter=helicopterHudValue(source);
+        int bossHelicopter=bossHelicopterHudValue(source);
+        int akAmmo=akAmmoHudValue(source);
         var old=hudStates.get(viewerId); int now=game.server().getTickCount(); UUID sourceId=source.getUUID();
         if(old!=null && old.source().equals(sourceId) && old.mana()==current && old.max()==max && old.regeneration()==regeneration
                 && old.jumps()==jumps && old.cooldown()==cooldown && old.cold()==cold && old.coldCooldown()==coldCooldown
@@ -414,11 +439,23 @@ public final class LbcItems {
                 && old.yellowCharges()==yellowCharges && old.yellowCharging()==yellowCharging && old.blindQueue()==blindQueue && old.blazeHead()==blazeHead
                 && old.lookback()==lookback && old.piss()==piss && old.scared()==scared && old.screamray()==screamray && old.twitching()==twitching && old.targetCurse()==targetCurse
                 && old.addMana()==addMana && old.addMax()==addMax && old.addRegen()==addRegen && old.removeMana()==removeMana
-                && old.boost()==boost && old.teleport()==teleport && old.divider()==divider && now-old.sentAt()<20) return;
+                && old.boost()==boost && old.teleport()==teleport && old.divider()==divider && old.helicopter()==helicopter && old.bossHelicopter()==bossHelicopter && old.akAmmo()==akAmmo && now-old.sentAt()<20) return;
         viewer.connection.send(new ClientboundSetActionBarTextPacket(hud(source)));
         hudStates.put(viewerId,new HudState(sourceId,current,max,regeneration,jumps,cooldown,cold,coldCooldown,frozen,
                 swordCharges,noMagic,reverse,curse,addMana,addMax,addRegen,removeMana,boost,teleport,
-                katanaCharges,katanaCharging,yellowCharges,yellowCharging,shock,blindQueue,blazeHead,lookback,piss,scared,screamray,twitching,targetCurse,divider,now));
+                katanaCharges,katanaCharging,yellowCharges,yellowCharging,shock,blindQueue,blazeHead,lookback,piss,scared,screamray,twitching,targetCurse,divider,helicopter,bossHelicopter,akAmmo,now));
+    }
+    private int akAmmoHudValue(ServerPlayer player) {
+        return LbcAk47.isFinite(player.getMainHandItem()) || LbcAk47.isFinite(player.getOffhandItem())
+                ? mana.hudValue(player,"hitbullet") : -1;
+    }
+    private int bossHelicopterHudValue(ServerPlayer player) {
+        return LbcShooters.isBossHelicopter(player.getMainHandItem()) || LbcShooters.isBossHelicopter(player.getOffhandItem())
+                ? Math.max(0,shooters.bossHelicopterCooldownRemaining(player)) : -1;
+    }
+    private int helicopterHudValue(ServerPlayer player) {
+        return LbcShooters.isHelicopter(player.getMainHandItem()) || LbcShooters.isHelicopter(player.getOffhandItem())
+                ? Math.max(0,shooters.helicopterCooldownRemaining(player)) : -1;
     }
     private int dividerHudValue(ServerPlayer player) {
         return LbcWands.isDivider(player.getMainHandItem()) || LbcWands.isDivider(player.getOffhandItem())
@@ -559,6 +596,14 @@ public final class LbcItems {
         this.mana = new LbcMana(game); this.magic = new LbcMagic(game); this.wands = new LbcWands(game,mana);
         this.terra = new LbcTerra(game);
         this.shooters = new LbcShooters(game);
+        this.laserMinigun = new LbcLaserMinigun(game);
+        this.ak47 = new LbcAk47(game);
+        this.magnum = new LbcMagnum(game);
+        this.govnomet = new LbcGovnomet(game);
+        this.stand = new LbcStand(game);
+        this.timeStop = new LbcTimeStop(game);
+        this.nuclearVisuals = new NuclearVisuals(game);
+        this.blackHoleVisuals = new BlackHoleVisuals(game);
         this.kfcFood = new LbcKfcFood(game);
         this.kfcRewards = new LbcKfcRewards(game);
         this.electro = new LbcElectro(game);
@@ -572,6 +617,8 @@ public final class LbcItems {
         this.teleport = new LbcTeleport(game);
         this.ruby = new LbcRuby(game);
         this.consuming = new LbcConsuming(game);
+        this.lifestealer = new LbcLifestealer(game);
+        this.mobgun = new LbcMobgun(game);
         this.duplicating = new LbcDuplicating(game);
         this.academy = new LbcAcademy(game);
         this.indirectKills = new LbcIndirectKills(game);
@@ -583,6 +630,7 @@ public final class LbcItems {
         this.summons = new LbcSummons(game);
         this.homing = new LbcHoming(game);
         this.bolts = new LbcBolts(game);
+        this.lightningAcquisition = new LbcLightningAcquisition(game);
         this.summons.prepare();
     }
 
@@ -609,13 +657,33 @@ public final class LbcItems {
     public LbcSummons summons() { return summons; }
     public LbcHoming homing() { return homing; }
     public LbcBolts bolts() { return bolts; }
+    public LbcLightningAcquisition lightningAcquisition() { return lightningAcquisition; }
     public LbcTerra terra() { return terra; }
     public LbcShooters shooters() { return shooters; }
+    public LbcLaserMinigun laserMinigun() { return laserMinigun; }
+    public LbcAk47 ak47() { return ak47; }
+    public LbcMagnum magnum() { return magnum; }
+    public LbcGovnomet govnomet() { return govnomet; }
+    public static net.minecraft.world.item.component.ItemAttributeModifiers minigunAttributes() {
+        return LbcMinigunMovement.attributes();
+    }
+    public void refreshMinigunMovement(ServerPlayer player) { LbcMinigunMovement.refresh(player); }
+    public LbcStand stand() { return stand; }
+    public LbcTimeStop timeStop() { return timeStop; }
+    public NuclearVisuals nuclearVisuals() { return nuclearVisuals; }
+    public BlackHoleVisuals blackHoleVisuals() { return blackHoleVisuals; }
+    /** Common role/team/source guard is also checked before accepting a deferred hit. */
+    public boolean allowDamage(LivingEntity victim,DamageSource source) {
+        return LbcDamage.allowDamage(victim,source)
+                && (!(source.getEntity() instanceof ServerPlayer attacker) || !game.isObserver(attacker) || timeStop.replaying(source))
+                && (!(victim instanceof ServerPlayer player) || game.allowDamage(player))
+                && wands.allowDamage(victim,source) && kfcRewards.allowDamage(victim,source);
+    }
     public LbcKfcFood kfcFood() { return kfcFood; }
     public LbcKfcRewards kfcRewards() { return kfcRewards; }
     /** Запрет действий общий, но физика льда и электрического оглушения различается. */
     public boolean actionsBlocked(net.minecraft.world.entity.LivingEntity entity) {
-        return frost.isFrozen(entity) || shooters.stunned(entity);
+        return frost.isFrozen(entity) || shooters.stunned(entity) || timeStop.frozen(entity);
     }
     public LbcElectro electro() { return electro; }
     public ProjectileLifetimes lifetimes() { return lifetimes; }
@@ -628,6 +696,8 @@ public final class LbcItems {
     public LbcTeleport teleport() { return teleport; }
     public LbcRuby ruby() { return ruby; }
     public LbcConsuming consuming() { return consuming; }
+    public LbcLifestealer lifestealer() { return lifestealer; }
+    public LbcMobgun mobgun() { return mobgun; }
     public LbcDuplicating duplicating() { return duplicating; }
     public LbcAcademy academy() { return academy; }
     public LbcIndirectKills indirectKills() { return indirectKills; }
@@ -650,11 +720,14 @@ public final class LbcItems {
 
     /** Native snowball use retains consumption, statistics, throw sound and projectile velocity. */
     public void entityLoaded(Entity entity) {
+        if (consuming.eraseLoaded(entity)) return;
+        mobgun.claimChild(entity);
         frost.loaded(entity);
         if (hasStaleItemEpoch(entity)) {
             entity.discard();
             return;
         }
+        lightningAcquisition.loaded(entity);
         terra.loaded(entity);
         lifetimes.loaded(entity);
         exasperato.loaded(entity);
@@ -665,6 +738,9 @@ public final class LbcItems {
         teleport.loaded(entity);
         ruby.loaded(entity);
         consuming.loaded(entity);
+        lifestealer.loaded(entity);
+        govnomet.loaded(entity);
+        mobgun.loaded(entity);
         if (academy.loaded(entity)) return;
         if (shooters.loaded(entity)) { markCurrentItemEpoch(entity); return; }
         if (magic.loaded(entity)) { markCurrentItemEpoch(entity); return; }
@@ -674,6 +750,7 @@ public final class LbcItems {
         summons.loaded(entity);
         homing.loaded(entity);
         bolts.loaded(entity);
+        stand.loaded(entity);
         if (trinkets.loaded(entity)) { markCurrentItemEpoch(entity); return; }
         if (entity instanceof ItemEntity item && game.playing() && inArena(item) && rocketIngredient(item.getItem())) {
             rocketCraftDrops.add(item);
@@ -706,8 +783,11 @@ public final class LbcItems {
         blind.transformOrigins(level,transform);
         homing.transformOrigins(level,transform);
         duplicating.transformOrigins(level,transform);
+        stand.transformOrigins(level,transform);
     }
     public void entityUnloaded(Entity entity) {
+        lightningAcquisition.unloaded(entity);
+        govnomet.unloaded(entity);
         academy.unloaded(entity);
         lifetimes.unloaded(entity);
         exasperato.unloaded(entity);
@@ -718,8 +798,11 @@ public final class LbcItems {
         teleport.unloaded(entity);
         ruby.unloaded(entity);
         consuming.unloaded(entity);
+        lifestealer.unloaded(entity);
+        mobgun.unloaded(entity);
         terra.unloaded(entity);
         shooters.unloaded(entity);
+        stand.unloaded(entity);
         kfcRewards.entityUnloaded(entity);
         magic.unloaded(entity);
         frost.unloaded(entity);
@@ -1049,6 +1132,15 @@ public final class LbcItems {
 
     /** Only cursed owners are visited. Local stopper queries run only while a curse is active. */
     public void tick() {
+        timeStop.tick();
+        lightningAcquisition.tick();
+        nuclearVisuals.tick();
+        if(game.maps().level()!=null && timeStop.stopped(game.maps().level())) {
+            // Исключения Stand: кулаки двигаются, ножи лишь выпускаются и ждут native thaw.
+            blackHoleVisuals.tick();
+            stand.tick(); shooters.tickPhantomBursts();
+            return;
+        }
         academy.tick();
         indirectKills.tick();
         magic.flushCleansing();
@@ -1076,9 +1168,16 @@ public final class LbcItems {
         teleport.tick();
         ruby.tick();
         consuming.tick();
+        lifestealer.tick();
+        mobgun.tick();
         duplicating.tick();
+        blackHoleVisuals.tick();
         lifetimes.tick();
         shooters.tick();
+        laserMinigun.tick();
+        magnum.tick();
+        govnomet.tick();
+        stand.tick();
         kfcFood.tick();
         kfcRewards.tick();
         tickDynamites();
@@ -1116,12 +1215,25 @@ public final class LbcItems {
         player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 40, 0));
     }
 
+    /** Only gameplay counts/deadlines; published HUD caches and tick clocks are never incremented. */
+    void addPlayerCounters(ServerPlayer player) {
+        if(!magic.rejectCustomEffect(player))
+            turnCurses.computeIfAbsent(player.getUUID(),ignored->new TurnCurse(player)).remaining++;
+        var rocket=rockets.get(player.getUUID());
+        if(rocket!=null) {
+            rocket.jumps++;
+            if(rocket.nextCharge!=0) rocket.nextCharge++;
+            syncRocketGlider(player.getItemBySlot(EquipmentSlot.FEET),rocket.jumps>0);
+            rocketHud(rocket);
+        }
+    }
+
     public int curseTicks(ServerPlayer player) {
         var curse = turnCurses.get(player.getUUID());
         return curse == null ? 0 : curse.remaining;
     }
 
-    public void clear(ServerPlayer player) { turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
+    public void clear(ServerPlayer player) { shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
     public void forget(ServerPlayer player) {
         blind.forget(player);
         psycho.forget(player);
@@ -1129,10 +1241,20 @@ public final class LbcItems {
         homing.forget(player);
         bolts.forget(player);
         consuming.forget(player);
+        lifestealer.forget(player);
+        mobgun.forget(player);
         duplicating.forget(player);
+        blackHoleVisuals.forget(player);
         teleport.forget(player);
         electro.forget(player);
         shooters.forget(player);
+        laserMinigun.forget(player);
+        ak47.forget(player);
+        magnum.forget(player);
+        govnomet.forget(player);
+        LbcMinigunMovement.clear(player);
+        stand.forget(player);
+        timeStop.forget(player);
         blaze.forget(player);
         kfcFood.forget(player);
         kfcRewards.clear(player);
@@ -1144,6 +1266,7 @@ public final class LbcItems {
         if(hudStates.remove(player.getUUID())!=null) player.connection.send(new ClientboundSetActionBarTextPacket(Component.empty()));
     }
     public void stop() {
+        timeStop.stop();
         academy.stop();
         indirectKills.stop();
         magic.stop();
@@ -1164,14 +1287,24 @@ public final class LbcItems {
         summons.stop();
         homing.stop();
         bolts.stop();
+        lightningAcquisition.stop();
         blind.stop();
         air.stop();
         teleport.stop();
         ruby.stop();
         consuming.stop();
+        lifestealer.stop();
+        mobgun.stop();
         duplicating.stop();
+        blackHoleVisuals.stop();
         lifetimes.stop();
         shooters.stop();
+        laserMinigun.stop();
+        ak47.stop();
+        magnum.stop();
+        govnomet.stop();
+        for(var player:game.server().getPlayerList().getPlayers()) LbcMinigunMovement.clear(player);
+        stand.stop();
         kfcFood.stop();
         kfcRewards.stop();
         electro.stop();

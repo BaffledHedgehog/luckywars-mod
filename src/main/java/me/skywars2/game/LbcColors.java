@@ -237,6 +237,10 @@ public final class LbcColors {
         var timer=score(target,"effect_rtp_1"); timer.add(ticks); teleporting.add(target);
     }
     public int teleportTicks(LivingEntity target) { return score(target,"effect_rtp_1").get(); }
+    void addPlayerCounters(ServerPlayer player) {
+        int remaining=teleportTicks(player);
+        if(remaining>0 && !game.items().magic().rejectCustomEffect(player)) score(player,"effect_rtp_1").set(remaining+1);
+    }
     void clearEffects(LivingEntity target) { score(target,"effect_rtp_1").set(0); teleporting.remove(target); }
     void loaded(Entity e) {
         if(e instanceof LivingEntity living) {

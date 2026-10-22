@@ -25,7 +25,7 @@ public abstract class MovementLimitsMixin {
 
     @Unique private boolean skywars2$stunned() {
         var game=SkyWars2.game();
-        return game!=null && game.items().shooters().stunned(player);
+        return game!=null && (game.items().shooters().stunned(player) || game.items().timeStop().frozen(player));
     }
 
     /** 26.3 already performs travel in doTick; normally this snap discards its server position. */
@@ -46,7 +46,10 @@ public abstract class MovementLimitsMixin {
             "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V",
             shift=At.Shift.AFTER),cancellable=true)
     private void skywars2$rejectStunMovement(ServerboundMovePlayerPacket packet,CallbackInfo ci) {
-        if(skywars2$stunned()) ci.cancel();
+        if(skywars2$stunned()) {
+            SkyWars2.game().items().timeStop().handleFrozenPlayer(player);
+            ci.cancel();
+        }
     }
 
     @Inject(method="handlePlayerInput",at=@At(value="INVOKE",target=

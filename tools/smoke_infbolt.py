@@ -55,9 +55,13 @@ def run(server_dir: Path) -> None:
         raise FileNotFoundError(f"Build the released project artifact before running smoke checks: {artifact}")
     installed_jar = cycle.SERVER / "mods/skywars2.jar"
     installed_jar.parent.mkdir(parents=True, exist_ok=True)
+    source_sha256 = hashlib.sha256(artifact.read_bytes()).hexdigest()
     shutil.copyfile(artifact, installed_jar)
     tested_sha256 = hashlib.sha256(installed_jar.read_bytes()).hexdigest()
+    if source_sha256 != tested_sha256:
+        raise AssertionError("Installed Infbolt artifact differs from source")
     active = None
+    success = False
     started = time.monotonic()
     completed = []
     try:
@@ -113,6 +117,7 @@ def run(server_dir: Path) -> None:
         cursor = active.send("sw stop")
         active.expect("LOADING -> LOBBY", cursor)
         active.check("infbolt-cleanup")
+        success = True
         print("INFBOLT CHECKS PASSED", flush=True)
     finally:
         try:
@@ -129,7 +134,8 @@ def run(server_dir: Path) -> None:
                 else:
                     path.write_bytes(original)
             (cycle.OUT / "infbolt-results.json").write_text(
-                json.dumps({"completed": completed, "artifactSha256": tested_sha256,
+                json.dumps({"success": success, "completed": completed, "artifactSha256": tested_sha256,
+                            "sourceArtifactSha256": source_sha256,
                             "elapsedSeconds": round(time.monotonic() - started, 2)},
                            indent=2) + "\n", encoding="utf-8")
 

@@ -45,12 +45,6 @@ public final class LbcExasperato {
     private static final double[] BLAST_RAYS=blastRays();
     private static final net.minecraft.tags.TagKey<net.minecraft.world.level.block.Block> AIRS=
             net.minecraft.tags.TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
-    private static final net.minecraft.core.particles.BlockParticleOption MUSHROOM_FIRE=
-            new net.minecraft.core.particles.BlockParticleOption(ParticleTypes.BLOCK_MARKER,net.minecraft.world.level.block.Blocks.FIRE.defaultBlockState());
-    private static final net.minecraft.core.particles.BlockParticleOption MUSHROOM_LAVA=
-            new net.minecraft.core.particles.BlockParticleOption(ParticleTypes.BLOCK_MARKER,net.minecraft.world.level.block.Blocks.LAVA.defaultBlockState());
-    private static final net.minecraft.core.particles.BlockParticleOption MUSHROOM_MAGMA=
-            new net.minecraft.core.particles.BlockParticleOption(ParticleTypes.BLOCK_MARKER,net.minecraft.world.level.block.Blocks.MAGMA_BLOCK.defaultBlockState());
     private static final net.minecraft.core.particles.DustColorTransitionOptions NUKE_PARTICLE=
             new net.minecraft.core.particles.DustColorTransitionOptions(0xFFDC40,0,4);
     private static final class Search {
@@ -69,18 +63,7 @@ public final class LbcExasperato {
             this.direction=direction; this.position=from; this.remaining=remaining; this.walls=walls; this.trail=trail;
         }
     }
-    private static final class Mushroom {
-        final ServerLevel level;
-        final Vec3 origin;
-        final String epoch;
-        boolean exoperso;
-        int age;
-        Mushroom(ServerLevel level,Vec3 origin,String epoch) {
-            this.level=level; this.origin=origin.add(0,-4,0); this.epoch=epoch;
-        }
-    }
     private final ArrayDeque<Search> searches=new ArrayDeque<>();
-    private final ArrayList<Mushroom> mushrooms=new ArrayList<>();
     private static final class BlastBatch {
         final ServerPlayer owner;
         final ServerLevel level;
@@ -124,7 +107,7 @@ public final class LbcExasperato {
     LbcExasperato(GameController game) { this.game=game; }
     public int count() { return charges.size(); }
     public int pendingSearches() { return searches.size(); }
-    public int mushroomCount() { return mushrooms.size(); }
+    public int mushroomCount() { return game.items().nuclearVisuals().count(); }
     public int pendingBlasts() {
         int remaining=0;
         for(var batch:blasts) remaining+=batch.offsets.length-batch.next;
@@ -305,7 +288,6 @@ public final class LbcExasperato {
         } finally { batch.clear(); }
         searchTick();
         blastTick();
-        mushroomTick();
     }
 
     /** Один нативный взрыв неделим; бюджет проверяется между взрывами, до следующего. */
@@ -370,12 +352,10 @@ public final class LbcExasperato {
     }
     private void nuclearBurst(ServerPlayer owner,Vec3 origin,java.util.function.Consumer<PrimedTnt> sourceInit,boolean exoperso) {
         String epoch=game.items().epoch();
-        var mushroom=new Mushroom(owner.level(),origin,epoch); mushroom.exoperso=exoperso;
-        mushrooms.add(mushroom);
+        game.items().nuclearVisuals().show(owner.level(),origin,12,exoperso);
         String[] sounds={"minecraft:entity.dragon_fireball.explode","minecraft:entity.generic.explode",
                 "minecraft:item.firecharge.use","minecraft:entity.firework_rocket.large_blast","minecraft:entity.firework_rocket.large_blast_far"};
         for(var sound:sounds) LbcOverload.sound(owner,origin,sound,100,0,0);
-        owner.level().sendParticles(ParticleTypes.EXPLOSION_EMITTER,true,false,origin.x,origin.y+10,origin.z,500,15,10,15,0);
         var batch=new BlastBatch(owner,origin,epoch); batch.sourceInit=sourceInit;
         blasts.addLast(batch);
     }
@@ -390,28 +370,6 @@ public final class LbcExasperato {
         new Vec3(7,-5,0),new Vec3(-7,-5,0),new Vec3(0,-5,7),new Vec3(0,-5,-7),
         new Vec3(7,-5,7),new Vec3(-7,-5,-7),new Vec3(7,-5,-7),new Vec3(-7,-5,7)
     };
-
-    private void mushroomTick() {
-        if(game.items().wands().timeStopped()) return;
-        for(int i=mushrooms.size()-1;i>=0;i--) {
-            var cloud=mushrooms.get(i);
-            if(!game.items().currentEpoch(cloud.epoch) || ++cloud.age>200
-                    || !cloud.level.hasChunkAt(BlockPos.containing(cloud.origin))
-                    || cloud.exoperso && game.items().magic().suppressedAt(cloud.level,cloud.origin)) { mushrooms.remove(i); continue; }
-            Vec3 p=cloud.origin;
-            cloud.level.sendParticles(MUSHROOM_FIRE,true,false,p.x,p.y-3,p.z,15,20,5,15,0);
-            cloud.level.sendParticles(MUSHROOM_FIRE,true,false,p.x,p.y+15,p.z,20,3,10,3,0);
-            cloud.level.sendParticles(MUSHROOM_LAVA,true,false,p.x,p.y+35,p.z,20,13,8,13,0);
-            if(cloud.exoperso) {
-                cloud.level.sendParticles(MUSHROOM_FIRE,true,false,p.x,p.y-3,p.z,15,20,5,15,0);
-                cloud.level.sendParticles(MUSHROOM_FIRE,true,false,p.x,p.y+15,p.z,20,3,10,3,0);
-                cloud.level.sendParticles(MUSHROOM_LAVA,true,false,p.x,p.y+35,p.z,20,13,8,13,0);
-                cloud.level.sendParticles(MUSHROOM_MAGMA,true,false,p.x,p.y-3,p.z,20,15,5,15,0);
-                cloud.level.sendParticles(MUSHROOM_MAGMA,true,false,p.x,p.y+15,p.z,20,3,10,3,0);
-                cloud.level.sendParticles(MUSHROOM_MAGMA,true,false,p.x,p.y+35,p.z,20,13,8,13,0);
-            }
-        }
-    }
 
     private void electroRayStep(Charge charge,ServerPlayer owner) {
         ServerLevel level=owner.level();
@@ -666,11 +624,11 @@ public final class LbcExasperato {
     public boolean explosionTarget(Entity source,Entity target) {
         if(!(source instanceof PrimedTnt tnt) || !source.entityTags().contains(EXPLOSIVE)) return true;
         return tnt.getOwner() instanceof ServerPlayer owner && game.items().currentEpoch(tnt)
-                && game.items().wands().target(owner,target);
+                && game.items().wands().projectileTarget(owner,target);
     }
     void stop() {
         for(var search:searches) search.result.cancel(false);
-        searches.clear(); mushrooms.clear(); blasts.clear();
+        searches.clear(); game.items().nuclearVisuals().stop(); blasts.clear();
         var detached=List.copyOf(charges); charges.clear();
         for(var charge:detached) charge.discard();
     }

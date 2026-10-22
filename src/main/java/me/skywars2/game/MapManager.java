@@ -124,6 +124,8 @@ public final class MapManager {
     private final Map<BlockPos, BlockSnapshot> mapUnderLobby = new HashMap<>();
     private boolean lobbyOverlayActive;
     private boolean placingMapSlice;
+    private boolean applyingMapWork;
+    private List<BoundingBox> placementExternalBounds = List.of();
     private final Set<BlockPos> mapWritesUnderLobby = new HashSet<>();
     private final Map<Long, BoundingBox> changedBlockBounds = new HashMap<>();
     private final List<BlockPos> cageBlocks = new ArrayList<>();
@@ -186,6 +188,9 @@ public final class MapManager {
 
     public boolean preparing() { return busy && reading; }
 
+    /** Keep queued native fluid ticks intact while clear/paste slices replace the world. */
+    public boolean suspendsFluidTicks() { return busy && !reading; }
+
     public int loadingChunkCount() { return chunkLoads.size(); }
 
     public boolean brokenAvailable(String id) {
@@ -231,7 +236,9 @@ public final class MapManager {
                 }
                 if (System.nanoTime() >= deadline || !chunksReady(next.bounds)) return;
                 work.remove();
-                next.action.accept(level);
+                applyingMapWork = true;
+                try { next.action.accept(level); }
+                finally { applyingMapWork = false; }
                 completedSlices++;
                 if (work.isEmpty()) {
                     maxWorkTickNanos = Math.max(maxWorkTickNanos, System.nanoTime() - started);
@@ -335,6 +342,7 @@ public final class MapManager {
             fail(Component.translatable("skywars2.map.error.inspect_map", id, error.getMessage()));
             return;
         }
+        recoverLoadedFluidBounds();
         flushChangedBlockBounds();
         if (blockBoundsDirty) {
             fail(Component.translatable("skywars2.map.error.persist_changes"));
@@ -348,6 +356,7 @@ public final class MapManager {
 
         pendingMap = id;
         pendingBounds = targetBounds;
+        placementExternalBounds = List.of();
         removeMapEntitiesWithin(mapBounds);
         restoreCages();
         clearForcedChunksOutsideLobby();
@@ -397,6 +406,7 @@ public final class MapManager {
             fail(Component.translatable("skywars2.map.error.inspect_lobby", error.getMessage()));
             return;
         }
+        recoverLoadedFluidBounds();
         flushChangedBlockBounds();
         if (blockBoundsDirty) {
             fail(Component.translatable("skywars2.map.error.persist_changes"));
@@ -410,6 +420,7 @@ public final class MapManager {
 
         pendingMap = null;
         pendingBounds = targetBounds;
+        placementExternalBounds = List.of();
         removeArenaEntities();
         restoreCages();
         clearForcedChunks();
@@ -658,8 +669,9 @@ public final class MapManager {
     /** Records a server-thread block mutation in the arena for eventual cleanup. */
     public void recordBlockChange(BlockPos pos) {
         if (pos == null) return;
-        // Recovery bounds were persisted before these native placement/clear writes.
-        if (busy && activeBoxes.stream().anyMatch(box -> box.isInside(pos))) return;
+        // Loader writes are already covered by its persisted recovery envelope.
+        // Native flow and player edits in LOBBY/LOADING still need their own bounds.
+        if (applyingMapWork || placingMapSlice) return;
         int x = pos.getX(), y = pos.getY(), z = pos.getZ();
         if (x < -8192 || x > 8192 || y < -2048 || y > 4096 || z < -8192 || z > 8192) {
             if (!changeBoundsOutOfRangeReported) {
@@ -680,6 +692,25 @@ public final class MapManager {
         blockBoundsDirty = true;
     }
 
+    /** Recover fluids left by older builds or direct chunk writers without scanning every cell. */
+    private void recoverLoadedFluidBounds() {
+        var cache = level.getChunkSource();
+        var holders = ((me.skywars2.mixin.ArenaChunkAccess) cache.chunkMap).skywars2$visibleChunks();
+        for (var holder : holders.values()) {
+            var pos = holder.getPos();
+            var chunk = cache.getChunkNow(pos.x(), pos.z());
+            if (chunk == null) continue;
+            var sections = chunk.getSections();
+            for (int index = 0; index < sections.length; index++) {
+                var section = sections[index];
+                if (section.hasOnlyAir() || !section.maybeHas(state -> !state.getFluidState().isEmpty())) continue;
+                int y = chunk.getSectionYFromSectionIndex(index) << 4;
+                recordBlockChange(new BlockPos(pos.getMinBlockX(), y, pos.getMinBlockZ()));
+                recordBlockChange(new BlockPos(pos.getMaxBlockX(), y + 15, pos.getMaxBlockZ()));
+            }
+        }
+    }
+
     private void flushChangedBlockBounds() {
         ticksSinceBoundsFlush = 0;
         if (!blockBoundsDirty || !boundsJournalValid) return;
@@ -697,6 +728,10 @@ public final class MapManager {
             }
         }
         if (writeBoundsJournal(expanded)) {
+            // The next replacement clears mapBounds, not just the recovery journal.
+            var edits = new ArrayList<>(changedBlockBounds.values());
+            mapBounds = combineBounds(mapBounds, edits);
+            if (suspendsFluidTicks()) placementExternalBounds = combineBounds(placementExternalBounds, edits);
             activeBoxes.clear();
             activeBoxes.addAll(expanded);
             changedBlockBounds.clear();
@@ -1139,7 +1174,7 @@ public final class MapManager {
             lobbyOverlayActive = true;
             cacheLobbyOverlay();
         } else {
-            mapBounds = pendingBounds;
+            mapBounds = combineBounds(pendingBounds, placementExternalBounds);
         }
         replaceActiveBounds(combineBounds(lobbyBounds, mapBounds));
         if (blockBoundsDirty) {

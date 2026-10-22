@@ -16,7 +16,7 @@
         {
           "type": "minecraft:item",
           "weight": 1,
-          "name": "minecraft:carrot_on_a_stick",
+          "name": "skywars2:magnum",
           "modifier": [
             {
               "components": {
@@ -72,7 +72,7 @@
         {
           "type": "minecraft:item",
           "weight": 1,
-          "name": "minecraft:carrot_on_a_stick",
+          "name": "skywars2:govnomet",
           "modifier": [
             {
               "count": 1,

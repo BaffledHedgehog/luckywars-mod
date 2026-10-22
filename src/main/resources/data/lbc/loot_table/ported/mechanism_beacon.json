@@ -1,0 +1,56 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:mechanism_beacon",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:item_model": "lbc:stopper",
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:entity_data": {
+                  "id": "minecraft:marker",
+                  "Tags": [
+                    "stopper",
+                    "rc_1sec",
+                    "marker_2t"
+                  ]
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "mecha_breaker",
+                  "color": "red",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "mecha_breaker.lore.1",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "mecha_breaker.lore.2",
+                  "color": "white",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

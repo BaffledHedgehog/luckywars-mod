@@ -33,7 +33,7 @@ public abstract class LbcDamageMixin {
             "Lnet/minecraft/server/level/ServerPlayer;canHarmPlayer(Lnet/minecraft/world/entity/player/Player;)Z"))
     private boolean skywars2$conduction(ServerPlayer victim,Player attacker,Operation<Boolean> original,
                                        @Local(argsOnly=true) DamageSource source) {
-        return LbcDamage.allowsElectricFriendlyFire(source)
+        return LbcDamage.allowsElectricFriendlyFire(source) || LbcDamage.allowsKfcFriendlyFire(source)
                 || source.getDirectEntity() instanceof net.minecraft.world.entity.projectile.Projectile projectile
                     && projectile.entityTags().contains(me.skywars2.game.LbcBlaze.TRIAL_PROJECTILE)
                 || original.call(victim,attacker);

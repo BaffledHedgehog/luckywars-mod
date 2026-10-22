@@ -26,6 +26,28 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/kit/reroll_machine.json', 'data/lbc/loot_table/ported/reroll_machine.json'
+    include 'data/lbc/loot_table/ported/magnum.json', 'data/lbc/loot_table/ported/magnum_ammo.json',
+            'data/lbc/loot_table/magnum_ammo.json',
+            'data/minecraft/tags/block/indestructible_very.json'
+    include 'data/lbc/loot_table/ported/ak47.json', 'data/lbc/loot_table/ported/ak47_finite.json'
+    // Individually qualified weapons are public; the broader source pools remain gated.
+    include 'data/lbc/loot_table/ported/govnomet.json', 'data/lbc/loot_table/ported/helicopter_boss.json'
+    include 'data/lbc/loot_table/ported/transformables_shooter.json',
+            'data/lbc/loot_table/ported/transformables_shooter_all.json'
+    include 'data/lbc/loot_table/ported/mechanism_beacon.json',
+            'data/minecraft/tags/block/mecha.json', 'data/minecraft/tags/entity_type/mecha.json'
+    include 'data/lbc/loot_table/ported/attack_helicopter.json', 'data/lbc/loot_table/ported/laser_minigun.json'
+    include 'data/lbc/loot_table/ported/woodificator.json', 'skywars2/woodificator_palette.json'
+    include 'data/lbc/loot_table/ported/mobgun.json', 'skywars2/mobgun_presets.json'
+    include 'data/lbc/loot_table/ported/lifestealer.json',
+            'data/lbc/loot_table/ported/lifestealer_upgraded.json'
+    include 'data/lbc/loot_table/ported/stand_clocks.json',
+            'data/lbc/loot_table/ported/homing_lightning.json',
+            'data/lbc/loot_table/time_stopper.json'
+    include 'data/lbc/loot_table/ported/stand_arrow.json',
+            'data/lbc/loot_table/ported/stand_oraora.json'
+    include 'data/lbc/loot_table/ported/phantom_knives.json'
     include 'data/skywars2/damage_type/cultus_arrow.json'
     include 'data/minecraft/tags/damage_type/arrow_only.json',
             'data/minecraft/tags/damage_type/acceptable_for_manavampirism.json'

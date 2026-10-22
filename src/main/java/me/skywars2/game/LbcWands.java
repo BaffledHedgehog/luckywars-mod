@@ -56,6 +56,8 @@ import net.minecraft.world.scores.ScoreHolder;
 
 /** Жезлы используют общий расход маны и каст-хуки; временные снаряды хранит существующий трекер. */
 public final class LbcWands {
+    public static final Item LIFESTEALER=register("skywars2:lifestealer_wand","vampire_wand","lbc:vampirewand");
+    public static final Item ACADEMY_LIFESTEALER=register("skywars2:academy_lifestealer_wand","vampire_wand","lbc:vampirewand");
     public static final Item TINY_FIRE=register("skywars2:tiny_fire_wand","wand_fire_tiny","lbc:st/fire_tiny");
     public static final Item FIRE_WAND=register("skywars2:fire_wand","sauvojen_wand_fire","lbc:st/fire");
     public static final Item ACADEMY_FIRE=register("skywars2:academy_fire_wand","sauvojen_wand_fire","lbc:st/fire");
@@ -120,6 +122,8 @@ public final class LbcWands {
     public static final Item ACADEMY_EXOPERSO=register("skywars2:academy_exoperso_wand","megumin_wand","lbc:exoperso");
     public static final Item ACADEMY_EXASPERATO=register("skywars2:academy_exasperato_wand","exasperato_wand","lbc:exasperato");
     private enum Spell {
+        ACADEMY_LIFESTEALER(LbcWands.ACADEMY_LIFESTEALER,"lifestealer","vampire_wand_mana_use",250),
+        REGULAR_LIFESTEALER(LbcWands.LIFESTEALER,"lifestealer","vampire_wand_mana_use",250),
         FIRE(TINY_FIRE,"stfire_tiny","tiny_fire_wand_mana_use",25),
         ACADEMY_FIRE(LbcWands.ACADEMY_FIRE,"stfire","stfire_wand_mana_use",100),
         REGULAR_FIRE(LbcWands.FIRE_WAND,"stfire","stfire_wand_mana_use",100),
@@ -187,6 +191,7 @@ public final class LbcWands {
         final int defaultCost;
         Spell(Item item,String flag,String cost,int defaultCost) {
             this.item=item; this.flag=flag(flag); this.cost=ScoreHolder.forNameOnly(cost); this.defaultCost=defaultCost;
+            if(item==LbcWands.ACADEMY_LIFESTEALER) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_CONSUMING) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_DUPLICATING) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_PSYCHOWAND || item==LbcWands.ACADEMY_PSYCHOBLIND) this.flag.putInt("upgraded",1);
@@ -219,6 +224,7 @@ public final class LbcWands {
         final String epoch;
         final int lifetime;
         final boolean meditation;
+        boolean mechanism;
         Vec3 position;
         float yaw,pitch;
         int age;
@@ -295,6 +301,10 @@ public final class LbcWands {
         return stack.is(DIVIDER) || stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("greed_greed",0)==1;
     }
     static void register() { }
+    public static boolean isLifestealer(ItemStack stack) {
+        return stack.is(LIFESTEALER) || stack.is(ACADEMY_LIFESTEALER)
+                || stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).matchedBy(Spell.REGULAR_LIFESTEALER.flag);
+    }
     private static CompoundTag flag(String name) { var value=new CompoundTag(); value.putInt(name,1); return value; }
     private static boolean matches(ItemStack stack,Item nativeItem,CompoundTag flag) {
         var data=stack.get(DataComponents.CUSTOM_DATA);
@@ -323,8 +333,16 @@ public final class LbcWands {
         if(game.items().actionsBlocked(player)) return false;
         var stack=player.getItemInHand(hand);
         // Общий dispatch двух рук: хвоемёт платит боеприпасами и не проходит проверку маны жезлов.
-        if (LbcShooters.isPine(stack) || LbcShooters.isSlr(stack) || LbcShooters.isKfcGun(stack))
+        if (LbcShooters.isPine(stack) || LbcShooters.isSlr(stack) || LbcShooters.isKfcGun(stack)
+                || LbcShooters.isBossHelicopter(stack) || LbcShooters.isPhantomKnives(stack) || LbcShooters.isWoodificator(stack) || LbcShooters.isHelicopter(stack))
             return game.items().shooters().use(player, hand);
+        if (LbcGovnomet.isGovnomet(stack)) return game.items().govnomet().use(player,hand);
+        if (LbcMagnum.isMagnum(stack)) return game.items().magnum().use(player,hand);
+        if (LbcAk47.isAk47(stack)) return game.items().ak47().use(player,hand);
+        if (LbcLaserMinigun.isMinigun(stack)) return game.items().laserMinigun().use(player,hand);
+        if (LbcStand.isOraora(stack) || LbcStand.isClocks(stack) || LbcStand.isHomingLightning(stack))
+            return game.items().stand().use(player,hand);
+        if (LbcMobgun.isMobgun(stack)) return game.items().mobgun().use(player,hand);
         if (LbcKfcRewards.isCultus(stack)) return game.items().kfcRewards().useCultus(player);
         if (LbcElectro.isAnyKatana(stack)) return game.items().electro().use(player,hand);
         var scrollData=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
@@ -336,6 +354,8 @@ public final class LbcWands {
         Spell spell=null;
         for(var candidate:SPELLS) if(matches(stack,candidate.item,candidate.flag)) { spell=candidate; break; }
         if(spell==null) return false;
+        if(spell==Spell.REGULAR_LIFESTEALER || spell==Spell.ACADEMY_LIFESTEALER)
+            return game.items().lifestealer().use(player,hand,stack,spell==Spell.ACADEMY_LIFESTEALER);
         if(spell==Spell.SUMMONER_VEXES || spell==Spell.PSYCHOVEX)
             return game.items().summons().use(player,hand,stack,spell==Spell.PSYCHOVEX);
         if(spell==Spell.INFBOLT) return game.items().bolts().useInfbolt(player,hand,stack);
@@ -375,7 +395,8 @@ public final class LbcWands {
                     || game.items().magic().suppressedAt(player.level(),player.getEyePosition()))) return false;
         // (user) Смена режима — настройка предмета: не требует маны и не запускает бонусы каста.
         if(spell==Spell.ACADEMY_STONEKIVI && player.isShiftKeyDown()) {
-            if(!mana.visible(player) || player.entityTags().contains("time_stopped") || game.items().magic().suppressed(player)) return false;
+            if(!mana.visible(player) || player.entityTags().contains("time_stopped") || game.items().magic().suppressed(player)
+) return false;
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             int mode=Math.floorMod(data.getIntOr("mode",1),4)+1;
             data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
@@ -395,7 +416,8 @@ public final class LbcWands {
         if((spell==Spell.REGULAR_RUBY || spell==Spell.ACADEMY_RUBY) && timeStopped()) return false;
         if(spell==Spell.ACADEMY_RUBY && player.isShiftKeyDown()) {
             if(!mana.visible(player) || player.entityTags().contains("time_stopped")
-                    || game.items().magic().suppressed(player)) return false;
+                    || game.items().magic().suppressed(player)
+) return false;
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             int mode=Math.floorMod(data.getIntOr("mode",1),3)+1;
             data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
@@ -409,7 +431,8 @@ public final class LbcWands {
         if((spell==Spell.REGULAR_TELEPORT || spell==Spell.ACADEMY_TELEPORT) && timeStopped()) return false;
         if(spell==Spell.ACADEMY_TELEPORT && player.isShiftKeyDown()) {
             if(!mana.visible(player) || player.entityTags().contains("time_stopped")
-                    || game.items().magic().suppressed(player)) return false;
+                    || game.items().magic().suppressed(player)
+) return false;
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             int mode=Math.floorMod(data.getIntOr("mode",1),3)+1;
             data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
@@ -423,7 +446,8 @@ public final class LbcWands {
         if((spell==Spell.REGULAR_AIR || spell==Spell.ACADEMY_AIR) && timeStopped()) return false;
         if(spell==Spell.ACADEMY_AIR && player.isShiftKeyDown()) {
             if(!mana.visible(player) || player.entityTags().contains("time_stopped")
-                    || game.items().magic().suppressed(player)) return false;
+                    || game.items().magic().suppressed(player)
+) return false;
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             int mode=Math.floorMod(data.getIntOr("mode",1),3)+1;
             data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
@@ -437,7 +461,8 @@ public final class LbcWands {
         if((spell==Spell.REGULAR_BLIND || spell==Spell.ACADEMY_BLIND) && timeStopped()) return false;
         if(spell==Spell.ACADEMY_BLIND && player.isShiftKeyDown()) {
             if(!mana.visible(player) || player.entityTags().contains("time_stopped")
-                    || game.items().magic().suppressed(player)) return false;
+                    || game.items().magic().suppressed(player)
+) return false;
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             int mode=Math.floorMod(data.getIntOr("mode",1),4)+1;
             data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
@@ -451,7 +476,8 @@ public final class LbcWands {
         }
         if(spell==Spell.ACADEMY_STONE && player.isShiftKeyDown()) {
             if(!mana.visible(player) || player.entityTags().contains("time_stopped")
-                    || game.items().magic().suppressed(player)) return false;
+                    || game.items().magic().suppressed(player)
+) return false;
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             int mode=Math.floorMod(data.getIntOr("mode",1),4)+1;
             data.putInt("mode",mode); stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
@@ -715,9 +741,9 @@ public final class LbcWands {
         // (user) Нативный отрезок против хитбоксов: один spatial query и одна проверка на кандидата.
         // 101 visual samples выше больше не умножают число проверок сущностей.
         var hits=ProjectileUtil.getManyEntityHitResult(level,player,origin,end,new AABB(origin,end).inflate(1),
-                entity->target(player,entity),0,ClipContext.Block.COLLIDER,true,false);
+                entity->projectileTarget(player,entity),0,ClipContext.Block.COLLIDER,true,false);
         var damage=new DamageSource(player.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.CACTUS),player);
-        for(var hit:hits) if(target(player,hit.getEntity())) {
+        for(var hit:hits) if(projectileTarget(player,hit.getEntity())) {
             // Каждая цель встречается один раз; нативную защиту от повторного урона не сбрасываем.
             hit.getEntity().hurtServer(level,damage,5);
         }
@@ -758,7 +784,7 @@ public final class LbcWands {
             }
         }
         var hit=ProjectileUtil.getEntityHitResult(level,owner,from,end,new AABB(from,end).inflate(1),
-                entity->target(owner,entity) && !entity.entityTags().contains("raycaster"),0);
+                entity->projectileTarget(owner,entity) && !entity.entityTags().contains("raycaster"),0);
         if(hit!=null) end=hit.getLocation();
         double distance=from.distanceTo(end);
         for(int i=0;i<=100 && i*.35<=distance+1e-7;i++) {
@@ -810,6 +836,20 @@ public final class LbcWands {
     }
     void racerLightning(ServerPlayer owner,Vec3 origin) {
         electroVolley(owner,origin,0,90,30,4);
+    }
+    /** Magnum uses the same arcs, with its short lifetimes and mechanism-beacon policy. */
+    void magnumElectro(ServerPlayer owner,Vec3 origin,Vec3 target) {
+        Vec3 direction=target.subtract(origin);
+        float yaw=direction.horizontalDistanceSqr()<1e-12 ? owner.getYRot()
+                : (float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
+        float pitch=direction.lengthSqr()<1e-12 ? owner.getXRot()
+                : (float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));
+        for(int i=0;i<4;i++) {
+            var trace=new ElectroTrace(owner,origin,game.items().epoch(),5+i*2);
+            trace.yaw=yaw; trace.pitch=pitch; trace.mechanism=true;
+            electroTraces.add(trace);
+        }
+        LbcOverload.sound(owner,origin,"minecraft:entity.firework_rocket.twinkle",1,1,0);
     }
     private void electroVolley(ServerPlayer owner,Vec3 origin,float yaw,float pitch,int firstLifetime,int count) {
         for(int i=0;i<count;i++) {
@@ -863,6 +903,15 @@ public final class LbcWands {
         for(var trace:electroTraces) game.items().homing().redirect(trace);
     }
     boolean timeStopped() {
+        return game.maps().level()!=null && game.items().timeStop().stopped(game.maps().level())
+                || legacyTimeStopped();
+    }
+    /** Stand/часы освобождают ввод владельца, но не таймеры и полёт всего измерения. */
+    boolean inputTimeStopped(ServerPlayer player) {
+        return game.items().timeStop().frozen(player) || player.entityTags().contains("time_stopped")
+                || legacyTimeStopped();
+    }
+    private boolean legacyTimeStopped() {
         var board=game.server().getScoreboard(); var objective=board.getObjective("lbc.math");
         var stopped=objective==null ? null : board.getPlayerScoreInfo(TIME_STOPPED,objective);
         return stopped!=null && stopped.value()>=1;
@@ -894,9 +943,13 @@ public final class LbcWands {
         int samples=trace.meditation ? 18 : 10;
         var shield=shieldHit(trace.owner,from,from.add(direction.scale(samples*.2)),trace.meditation);
         double shieldDistance=shield==null ? Double.POSITIVE_INFINITY : from.distanceTo(shield.getLocation());
+        double mechanismFraction=trace.mechanism ? game.items().magic().mechanismSuppressionFraction(
+                level,from,from.add(direction.scale(samples*.2))) : Double.POSITIVE_INFINITY;
+        double mechanismDistance=mechanismFraction*samples*.2;
+        double stopDistance=Math.min(shieldDistance,mechanismDistance);
         Vec3 end=from,conductor=null;
         boolean clear=true;
-        for(int i=0;i<=samples && i*.2<shieldDistance-1e-7;i++) {
+        for(int i=0;i<=samples && i*.2<stopDistance-1e-7;i++) {
             Vec3 point=from.add(direction.scale(i*.2));
             var pos=BlockPos.containing(point);
             if(!level.hasChunkAt(pos)) { clear=false; break; }
@@ -914,7 +967,9 @@ public final class LbcWands {
             }
         }
         // (user) Щит обрезает путь на границе сферы, не отменяя эффекты уже пройденной части.
-        if(clear && shield!=null) {
+        if(clear && Double.isFinite(mechanismDistance) && mechanismDistance<=shieldDistance) {
+            end=from.add(direction.scale(mechanismDistance)); clear=false;
+        } else if(clear && shield!=null) {
             end=shield.getLocation(); clear=false;
             LbcOverload.sound(trace.owner,shield.getEntity().position(),"minecraft:item.shield.block",1,1,0);
         }
@@ -963,7 +1018,7 @@ public final class LbcWands {
                         && electroTarget(trace.owner,entity,trace.meditation),trace.meditation);
     }
     private boolean electroTarget(ServerPlayer owner,Entity entity,boolean meditation) {
-        if(!meditation) return target(owner,entity);
+        if(!meditation) return projectileTarget(owner,entity);
         var tags=entity.entityTags();
         return entity.isAlive() && !entity.isRemoved() && !entity.isSpectator() && !tags.contains("spectator")
                 && !tags.contains("rcdenyalways") && !tags.contains("sauvojen_tuntija")
@@ -997,7 +1052,7 @@ public final class LbcWands {
     }
     private void ray(ServerPlayer player,Spell spell) {
         Vec3 origin=player.getEyePosition(), step=player.getLookAngle().scale(.35);
-        var candidates=player.level().getEntities((Entity)null,rayBounds(origin,step),e->target(player,e));
+        var candidates=player.level().getEntities((Entity)null,rayBounds(origin,step),e->projectileTarget(player,e));
         ParticleOptions particle=switch(spell) {
             case BLIND -> ParticleTypes.SQUID_INK;
             case AIR -> ParticleTypes.FIREWORK;
@@ -1056,7 +1111,7 @@ public final class LbcWands {
             case TELEPORT -> {
                 var cell=new AABB(point,point.add(1,1,1));
                 // Union исходных двух селекторов: одинаковый эффект не требует двух записей одной цели.
-                for(var entity:player.level().getEntitiesOfClass(LivingEntity.class,new AABB(point,point).inflate(12),e->target(player,e)))
+                for(var entity:player.level().getEntitiesOfClass(LivingEntity.class,new AABB(point,point).inflate(12),e->projectileTarget(player,e)))
                     if(entity.getType().builtInRegistryHolder().is(MOBS) && (entity.position().distanceToSqr(point)<=4
                             || entity.position().distanceToSqr(point)<=144 && entity.getBoundingBox().intersects(cell)))
                         if(entity.addEffect(new MobEffectInstance(MobEffects.LEVITATION,20,30),player))
@@ -1073,7 +1128,7 @@ public final class LbcWands {
     }
     private Entity rayTarget(ServerPlayer player,java.util.List<Entity> candidates,Vec3 point) {
         var cell=new AABB(point,point.add(1,1,1));
-        for(var entity:candidates) if(target(player,entity) && entity.position().distanceToSqr(point)<=64
+        for(var entity:candidates) if(projectileTarget(player,entity) && entity.position().distanceToSqr(point)<=64
                 && entity.getBoundingBox().intersects(cell)) return entity;
         return null;
     }
@@ -1085,14 +1140,21 @@ public final class LbcWands {
         }
         LbcOverload.sound(player,point,"minecraft:entity.squid.squirt",1,2,0);
     }
+    /** Projectile impacts protect allied players; friendly mobs remain physical damage targets. */
+    public boolean projectileTarget(ServerPlayer player,Entity entity) {
+        return target(player,entity,true)
+                && (!(entity instanceof ServerPlayer) || !player.isAlliedTo(entity));
+    }
     public boolean target(ServerPlayer player,Entity entity) {
         return target(player,entity,false);
     }
     /** Узкое исключение притягивания Ruby: роли остаются защищены, союзников можно включить отдельно. */
     boolean target(ServerPlayer player,Entity entity,boolean includeAllies) {
-        return entity!=player && entity.isAlive() && !entity.isRemoved()
-                && (includeAllies || !player.isAlliedTo(entity) && !game.items().blaze().friendly(player,entity) && !game.items().summons().friendly(player,entity))
-                && !entity.isSpectator() && !entity.entityTags().contains("spectator")
+        return entity!=player && validTarget(entity)
+                && (includeAllies || !player.isAlliedTo(entity) && !game.items().blaze().friendly(player,entity) && !game.items().summons().friendly(player,entity));
+    }
+    boolean validTarget(Entity entity) {
+        return entity.isAlive() && !entity.isRemoved() && !entity.isSpectator() && !entity.entityTags().contains("spectator")
                 && !entity.entityTags().contains("rcdenyalways") && !entity.entityTags().contains("sauvojen_tuntija")
                 && !entity.entityTags().contains("strict_map_object")
                 && !entity.entityTags().contains("magic_academy")
@@ -1100,32 +1162,60 @@ public final class LbcWands {
                 && (!(entity instanceof ServerPlayer p) || game.canUseGameplayItems(p));
     }
     /** Нативный canHitEntity пропускает союзников и наблюдателей до поджигания/урона small fireball. */
+    private boolean nativeSelfTarget(Projectile projectile,Entity target) {
+        return projectile.getOwner()==target && target instanceof ServerPlayer && validTarget(target)
+                && !ProjectileLifetimes.protectedWandProjectile(projectile)
+                && !(projectile instanceof LbcClouds.AcidProjectile)
+                && game.items().shooters().canHit(projectile,target)
+                && game.items().electro().canHit(projectile,target);
+    }
     public boolean canHit(Projectile projectile,Entity target) {
-        if(!game.items().consuming().canTrialTarget(projectile.getOwner(),target)) return false;
+        if(LbcBlaze.isKfcSpirit(projectile)) return projectile.getOwner() instanceof ServerPlayer owner
+                && !game.isObserver(owner) && validTarget(target);
+        if(game.items().stand().isStandProjectile(projectile)) return game.items().stand().canHit(projectile,target);
+        if(!game.items().consuming().canTrialProjectileTarget(projectile.getOwner(),target)) return false;
         var summoner=game.items().summons().owner(projectile.getOwner());
         if(summoner==null && projectile.entityTags().contains(LbcSummons.PROJECTILE)
                 && projectile.getOwner() instanceof ServerPlayer player) summoner=player;
-        if(summoner!=null && !target(summoner,target)) return false;
+        if(summoner!=null && !projectileTarget(summoner,target)) return false;
         if(!game.items().teleport().canHit(projectile,target)) return false;
-        if(!projectile.entityTags().contains(FIRE_PROJECTILE) && !projectile.entityTags().contains(AIR_PROJECTILE)) return true;
+        if(!projectile.entityTags().contains(FIRE_PROJECTILE) && !projectile.entityTags().contains(AIR_PROJECTILE)) {
+            var owner=LbcIndirectKills.playerSource(projectile);
+            return owner==null || nativeSelfTarget(projectile,target)
+                    || game.items().consuming().owner(projectile)==target || projectileTarget(owner,target);
+        }
         return projectile.getOwner() instanceof ServerPlayer owner && !game.isObserver(owner)
                 && (projectile.entityTags().contains(LbcBlaze.TRIAL_PROJECTILE)
-                    ? target==owner || target(owner,target,true) : target(owner,target));
+                    ? target==owner || target(owner,target,true) : projectileTarget(owner,target));
     }
     /** Радиус взрыва native firework обходит canHitEntity; союзников защищаем и в финальном уроне. */
     public boolean allowDamage(Entity victim,DamageSource source) {
-        if(!game.items().consuming().canTrialTarget(source.getEntity(),victim)) return false;
+        if(LbcDamage.isNativeLightning(source)) return validTarget(victim);
+        if(LbcBlaze.isKfcSpirit(source.getDirectEntity())) return canHit((Projectile)source.getDirectEntity(),victim);
+        if(source.getDirectEntity() instanceof Projectile shot && game.items().stand().isStandProjectile(shot))
+            return game.items().stand().canHit(shot,victim);
+        if(!(source.getDirectEntity() instanceof Projectile
+                ? game.items().consuming().canTrialProjectileTarget(source.getEntity(),victim)
+                : game.items().consuming().canTrialTarget(source.getEntity(),victim))) return false;
         var friendlySummoner=game.items().summons().owner(source.getEntity());
         if(friendlySummoner==null && source.getDirectEntity()!=null
                 && source.getDirectEntity().entityTags().contains(LbcSummons.PROJECTILE))
             friendlySummoner=LbcIndirectKills.playerSource(source.getEntity());
-        if(friendlySummoner!=null) return target(friendlySummoner,victim);
+        if(friendlySummoner!=null) return source.getDirectEntity() instanceof Projectile
+                ? projectileTarget(friendlySummoner,victim) : target(friendlySummoner,victim);
         var summonedOwner=game.items().blaze().owner(source.getEntity());
         if(summonedOwner!=null) return victim==summonedOwner && source.getEntity().entityTags().contains(LbcBlaze.TRIAL_PROJECTILE)
-                || target(summonedOwner,victim,source.getEntity().entityTags().contains(LbcBlaze.TRIAL_PROJECTILE));
-        if(!(source.getDirectEntity() instanceof Projectile projectile)
-                || !projectile.entityTags().contains(AIR_PROJECTILE) && !isFireProjectile(projectile)) return true;
+                || (source.getEntity().entityTags().contains(LbcBlaze.TRIAL_PROJECTILE)
+                    ? target(summonedOwner,victim,true) : source.getDirectEntity() instanceof Projectile
+                        ? projectileTarget(summonedOwner,victim) : target(summonedOwner,victim));
+        if(!(source.getDirectEntity() instanceof Projectile projectile)) return true;
+        if(!projectile.entityTags().contains(AIR_PROJECTILE) && !isFireProjectile(projectile)) {
+            var owner=LbcIndirectKills.playerSource(projectile);
+            return owner==null || nativeSelfTarget(projectile,victim)
+                    || game.items().consuming().owner(projectile)==victim || projectileTarget(owner,victim);
+        }
         return projectile.getOwner() instanceof ServerPlayer owner && !game.isObserver(owner)
-                && (victim==owner || target(owner,victim,projectile.entityTags().contains(LbcBlaze.TRIAL_PROJECTILE)));
+                && (victim==owner || (projectile.entityTags().contains(LbcBlaze.TRIAL_PROJECTILE)
+                    ? target(owner,victim,true) : projectileTarget(owner,victim)));
     }
 }

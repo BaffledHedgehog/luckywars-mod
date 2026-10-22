@@ -37,8 +37,18 @@ public abstract class LbcColorEffectsMixin {
         var game=SkyWars2.game();
         if(game!=null) game.items().indirectKills().environmentDamage((LivingEntity)(Object)this,source);
     }
+    @Inject(method="addEffect(Lnet/minecraft/world/effect/MobEffectInstance;Lnet/minecraft/world/entity/Entity;)Z",
+            at=@At("HEAD"),cancellable=true)
+    private void skywars2$projectileEffect(MobEffectInstance effect,Entity source,CallbackInfoReturnable<Boolean> ci) {
+        var game=SkyWars2.game();
+        if(game!=null && !game.items().indirectKills().allowProjectileEffect((LivingEntity)(Object)this,effect,source))
+            ci.setReturnValue(false);
+    }
     @Inject(method="canBeAffected",at=@At("HEAD"),cancellable=true)
     private void skywars2$artifactEffectGuard(MobEffectInstance effect, CallbackInfoReturnable<Boolean> ci) {
+        // Raid Omen 119 служил транспортом Stand-стрелы в датапаке. Настоящее
+        // попадание уже обработано один раз; не запускаем эффект и повторные попытки.
+        if(me.skywars2.game.LbcStand.isArrowMarker(effect)) { ci.setReturnValue(false); return; }
         var game = SkyWars2.game();
         if (game != null && (Object)this instanceof ServerPlayer player
                 && game.items().magic().rejectEffect(player, effect.getEffect())) ci.setReturnValue(false);

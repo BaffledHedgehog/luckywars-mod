@@ -7,7 +7,7 @@
           "type": "minecraft:item",
           "weight": 10,
           "quality": 0,
-          "name": "minecraft:carrot_on_a_stick",
+          "name": "skywars2:ak47",
           "modifier": [
             {
               "count": 1,

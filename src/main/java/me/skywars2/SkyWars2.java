@@ -65,6 +65,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             game.items().consuming().prepare();
             game.items().duplicating().prepare();
             game.items().bolts().prepare();
+            game.items().mobgun().prepare();
             game.items().magic().refreshEntityIndexes();
         });
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, resources, success) -> {
@@ -80,6 +81,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                 game.items().consuming().prepare();
                 game.items().duplicating().prepare();
                 game.items().bolts().prepare();
+                game.items().mobgun().prepare();
             }
         });
         ServerTickEvents.END_SERVER_TICK.register(server -> {
@@ -120,6 +122,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         });
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, damage) -> {
             // Fabric пропускает AFTER_DAMAGE при смертельном ударе; испытания должны учитывать и такие попадания.
+            if (game != null) game.items().stand().onAcceptedDamage(entity, damage);
             if (game != null) game.items().academy().damaged(entity, damage);
             if (game != null) game.items().exoperso().died(entity, damage);
             if (game != null && entity instanceof ServerPlayer player) game.items().magic().clear(player);
@@ -133,14 +136,10 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null && !blocked && damage > 0) game.items().trinkets().damaged(entity, source);
             if (game != null && !blocked && entity instanceof ServerPlayer player) game.hurtForSkill(player);
             if (game != null && !blocked && damage > 0 && entity instanceof ServerPlayer player)
-                game.damaged(player, source, damage);
+                { game.items().ak47().receivedDamage(player,damage); game.damaged(player, source, damage); }
         });
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, damage, amount) -> {
-            boolean allowed=LbcDamage.allowDamage(entity, damage)
-                        && (game == null || (!(damage.getEntity() instanceof ServerPlayer attacker) || !game.isObserver(attacker))
-                        && (!(entity instanceof ServerPlayer player) || game.allowDamage(player))
-                        && game.items().wands().allowDamage(entity, damage)
-                        && game.items().kfcRewards().allowDamage(entity,damage));
+            boolean allowed=game==null ? LbcDamage.allowDamage(entity,damage) : game.items().allowDamage(entity,damage);
             if(allowed && game!=null && amount>0) game.items().academy().beforeDamage(entity,damage);
             return allowed;
         });
@@ -157,12 +156,54 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null && player instanceof ServerPlayer owner && LbcShooters.isPine(player.getItemInHand(hand))
                     && !player.getItemInHand(hand).is(LbcShooters.PINE))
                 return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+            if (game != null && player instanceof ServerPlayer owner && LbcShooters.isPhantomKnives(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(LbcShooters.PHANTOM_KNIVES))
+                return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+            if (game != null && player instanceof ServerPlayer owner && LbcStand.isClocks(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(LbcStand.CLOCKS))
+                return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+            if (game != null && player instanceof ServerPlayer owner && LbcStand.isOraora(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(LbcStand.ORAORA))
+                return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+            if (game != null && player instanceof ServerPlayer owner && LbcStand.isHomingLightning(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(LbcStand.HOMING_LIGHTNING))
+                return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+            if (game != null && player instanceof ServerPlayer owner
+                    && me.skywars2.game.LbcMobgun.isMobgun(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(me.skywars2.game.LbcMobgun.ITEM))
+                return game.items().wands().use(owner,hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+            if (game != null && player instanceof ServerPlayer owner
+                    && me.skywars2.game.LbcWands.isLifestealer(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(me.skywars2.game.LbcWands.LIFESTEALER)
+                    && !player.getItemInHand(hand).is(me.skywars2.game.LbcWands.ACADEMY_LIFESTEALER))
+                return game.items().wands().use(owner,hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
             // Старые стеки из перековки используют тот же ввод, что и нативная Polymer-винтовка.
             if (game != null && player instanceof ServerPlayer owner && LbcShooters.isKfcGun(player.getItemInHand(hand))
                     && !player.getItemInHand(hand).is(LbcShooters.KFC_GUN))
                 return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer owner && LbcShooters.isSlr(player.getItemInHand(hand))
                     && !player.getItemInHand(hand).is(LbcShooters.SLR))
+                return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+            if (game != null && player instanceof ServerPlayer owner && LbcShooters.isWoodificator(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(LbcShooters.WOODIFICATOR))
+                return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+            if (game != null && player instanceof ServerPlayer owner && LbcShooters.isHelicopter(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(LbcShooters.HELICOPTER))
+                return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+            if (game != null && player instanceof ServerPlayer owner && LbcShooters.isBossHelicopter(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(LbcShooters.BOSS_HELICOPTER))
+                return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+            if (game != null && player instanceof ServerPlayer owner && me.skywars2.game.LbcGovnomet.isGovnomet(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(me.skywars2.game.LbcGovnomet.ITEM))
+                return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+            if (game != null && player instanceof ServerPlayer owner && me.skywars2.game.LbcMagnum.isMagnum(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(me.skywars2.game.LbcMagnum.ITEM))
+                return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+            if (game != null && player instanceof ServerPlayer owner && me.skywars2.game.LbcAk47.isAk47(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(me.skywars2.game.LbcAk47.ITEM))
+                return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+            if (game != null && player instanceof ServerPlayer owner && me.skywars2.game.LbcLaserMinigun.isMinigun(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(me.skywars2.game.LbcLaserMinigun.ITEM))
                 return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
             if(game!=null && player instanceof ServerPlayer owner && me.skywars2.game.LbcKfcRewards.isCultus(player.getItemInHand(hand))
                     && !player.getItemInHand(hand).is(me.skywars2.game.LbcKfcRewards.PENIS_CULTUS))
@@ -296,7 +337,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                     .then(Commands.argument("parameter", StringArgumentType.word())
                             .suggests((ctx, builder) -> SharedSuggestionProvider.suggest(List.of(
                                     "lives", "health", "countdownSeconds", "stageOneSeconds", "stageTwoSeconds", "endingSeconds",
-                                    "stageOneEvent", "stageTwoEvent", "pvpMode", "tntProtection", "day", "ranked", "vanillaKits", "vanillaSkills", "lbcChallenges", "offhandWands", "lefthandWands", "noBorders", "map", "broken"), builder))
+                                    "stageOneEvent", "stageTwoEvent", "pvpMode", "tntProtection", "luckyModifier", "cfg_lucky_modifier", "day", "ranked", "vanillaKits", "vanillaSkills", "lbcChallenges", "offhandWands", "lefthandWands", "noBorders", "map", "broken"), builder))
                             .then(Commands.argument("value", StringArgumentType.word())
                                     .suggests((ctx, builder) -> settingValueSuggestions(
                                             StringArgumentType.getString(ctx, "parameter"), builder))
@@ -338,6 +379,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             case "stagetwoevent", "stage2event" -> List.of("0", "1", "2", "3", "4", "5", "6", "7", "8");
             case "pvp", "pvpmode" -> List.of("1", "2");
             case "tntprotection" -> List.of("0", "1", "2", "3", "4", "5");
+            case "luckymodifier", "cfg_lucky_modifier" -> List.of("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12");
             case "day" -> List.of("1", "2", "3");
             default -> List.of();
         };

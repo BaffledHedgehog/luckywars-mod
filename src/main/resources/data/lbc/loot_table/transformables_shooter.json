@@ -7,7 +7,7 @@
           "type": "minecraft:item",
           "weight": 10,
           "quality": 9,
-          "name": "minecraft:carrot_on_a_stick",
+          "name": "skywars2:phantom_knives",
           "modifier": [
             {
               "count": 1,
@@ -73,7 +73,7 @@
           "type": "minecraft:item",
           "weight": 10,
           "quality": 0,
-          "name": "minecraft:carrot_on_a_stick",
+          "name": "skywars2:mobgun",
           "modifier": [
             {
               "count": 1,
@@ -112,7 +112,7 @@
                 ],
                 [
                   {
-                    "text": "3.5 ",
+                    "text": "2.5 ",
                     "italic": false,
                     "color": "aqua",
                     "type": "text"
@@ -141,7 +141,7 @@
           "type": "minecraft:item",
           "weight": 10000,
           "quality": 0,
-          "name": "minecraft:carrot_on_a_stick",
+          "name": "skywars2:mobgun",
           "modifier": [
             {
               "count": 1,
@@ -180,7 +180,7 @@
                 ],
                 [
                   {
-                    "text": "3.5 ",
+                    "text": "2.5 ",
                     "italic": false,
                     "color": "aqua",
                     "type": "text"
@@ -221,7 +221,7 @@
           "type": "minecraft:item",
           "weight": 10,
           "quality": 0,
-          "name": "minecraft:carrot_on_a_stick",
+          "name": "skywars2:kfc_gun",
           "modifier": [
             {
               "count": 1,
@@ -300,7 +300,7 @@
           "type": "minecraft:item",
           "weight": 10,
           "quality": 8,
-          "name": "minecraft:carrot_on_a_stick",
+          "name": "skywars2:attack_helicopter",
           "modifier": [
             {
               "count": 1,
@@ -379,7 +379,7 @@
           "type": "minecraft:item",
           "weight": 10,
           "quality": 8,
-          "name": "minecraft:carrot_on_a_stick",
+          "name": "skywars2:laser_minigun",
           "modifier": [
             {
               "count": 1,
@@ -401,6 +401,34 @@
                     "type": "minecraft:attack_speed",
                     "slot": "offhand",
                     "id": "gjcjgfcjhjgjgjed",
+                    "amount": -1,
+                    "operation": "add_multiplied_total"
+                  },
+                  {
+                    "type": "minecraft:movement_speed",
+                    "slot": "mainhand",
+                    "id": "skywars2:laser_minigun_movement_mainhand",
+                    "amount": -0.5,
+                    "operation": "add_multiplied_total"
+                  },
+                  {
+                    "type": "minecraft:movement_speed",
+                    "slot": "offhand",
+                    "id": "skywars2:laser_minigun_movement_offhand",
+                    "amount": -0.5,
+                    "operation": "add_multiplied_total"
+                  },
+                  {
+                    "type": "minecraft:jump_strength",
+                    "slot": "mainhand",
+                    "id": "skywars2:laser_minigun_jump_mainhand",
+                    "amount": -1,
+                    "operation": "add_multiplied_total"
+                  },
+                  {
+                    "type": "minecraft:jump_strength",
+                    "slot": "offhand",
+                    "id": "skywars2:laser_minigun_jump_offhand",
                     "amount": -1,
                     "operation": "add_multiplied_total"
                   }
@@ -440,7 +468,7 @@
                 ],
                 [
                   {
-                    "text": "4 ",
+                    "text": "2.5 ",
                     "italic": false,
                     "color": "aqua",
                     "type": "text"
@@ -482,7 +510,7 @@
           "type": "minecraft:item",
           "weight": 10,
           "quality": 8,
-          "name": "minecraft:carrot_on_a_stick",
+          "name": "skywars2:woodificator",
           "modifier": [
             {
               "count": 1,

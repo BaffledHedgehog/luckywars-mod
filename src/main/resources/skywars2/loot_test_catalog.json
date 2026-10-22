@@ -1,0 +1,19 @@
+{
+  "managed_namespaces": [
+    "lbc",
+    "swrg"
+  ],
+  "id_prefixes": [
+    "lbc:ported/"
+  ],
+  "tables": [
+    "lbc:kfc_yumyumyummy",
+    "lbc:trinket/blaze",
+    "lbc:trinket/ghast",
+    "lbc:trinket/intercal",
+    "lbc:trinket/gneiss_stone",
+    "lbc:trinket/snow_gem",
+    "lbc:trinket/ice_gem",
+    "lbc:kit/reroll_machine"
+  ]
+}

@@ -169,7 +169,8 @@ public final class LbcAir {
         double best=100;
         // Один локальный native query; куб broad phase уточняется до исходного радиуса 10.
         for(var target:owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(10),
-                target->!target.entityTags().contains("strict_map_object") && game.items().lifetimes().target(owner,target))) {
+                target->!target.entityTags().contains("strict_map_object") && game.items().wands().target(owner,target)
+                        && game.items().lifetimes().target(owner,target))) {
             double distance=target.position().distanceToSqr(at);
             if(distance<=best) { best=distance; nearest=target; }
         }

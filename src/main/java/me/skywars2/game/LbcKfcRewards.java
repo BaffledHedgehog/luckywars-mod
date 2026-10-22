@@ -30,14 +30,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Marker;
-import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.SnowballItem;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -76,14 +74,16 @@ public final class LbcKfcRewards {
         return Registry.register(BuiltInRegistries.ITEM,key,new WinButton(new Item.Properties().setId(key).stacksTo(16)
                 .overrideDescription("win_button").component(DataComponents.ITEM_MODEL,Identifier.parse("lbc:win_button"))));
     }
-    private static final class WinButton extends SnowballItem implements PolymerItem {
+    private static final class WinButton extends Item implements PolymerItem {
         WinButton(Properties properties) { super(properties); }
-        @Override public Item getPolymerItem(ItemStack stack,PacketContext context) { return Items.SNOWBALL; }
+        @Override public Item getPolymerItem(ItemStack stack,PacketContext context) { return Items.PAPER; }
         @Override public InteractionResult use(Level level,Player player,InteractionHand hand) {
             var controller=me.skywars2.SkyWars2.game();
             if(!(player instanceof ServerPlayer owner) || controller==null
                     || !controller.items().kfcRewards().useWin(owner)) return InteractionResult.FAIL;
-            return super.use(level,player,hand);
+            // Snowball throwing was only the datapack consumption trigger.
+            owner.getItemInHand(hand).consume(1,owner);
+            return InteractionResult.SUCCESS;
         }
     }
     private static Item registerCultus() {
@@ -184,15 +184,14 @@ public final class LbcKfcRewards {
         var id=owned.get(entity); return id==null || !game.items().currentEpoch(entity)?null:game.server().getPlayerList().getPlayer(id);
     }
     public boolean allowDamage(LivingEntity victim,DamageSource source) {
+        if(LbcDamage.isNativeLightning(source)) return game.items().wands().validTarget(victim);
         var owner=owner(source.getDirectEntity());
-        return owner==null || game.items().wands().target(owner,victim);
+        return owner==null || game.items().wands().projectileTarget(owner,victim);
     }
-    public boolean lightningTarget(LightningBolt bolt,Entity target) {
-        var owner=owner(bolt); return owner==null || game.items().wands().target(owner,target);
-    }
+
     private boolean activate(CultItem item,LivingEntity victim) {
         var state=bombs.get(item); var owner=state==null?null:game.server().getPlayerList().getPlayer(state.owner);
-        if(!active(owner) || !game.items().currentEpoch(state.epoch) || !game.items().wands().target(owner,victim)
+        if(!active(owner) || !game.items().currentEpoch(state.epoch) || !game.items().wands().projectileTarget(owner,victim)
                 || victim.entityTags().contains("no_penis")) return false;
         // Detach before discard: the bat remains native and dies from its source wither effect.
         bombs.remove(item); owned.remove(item); item.stopRiding(); item.discard();
@@ -255,7 +254,7 @@ public final class LbcKfcRewards {
             int remaining=repetitions;
             public boolean step() {
                 if(!multicasts.containsKey(this) || !active(owner) || !game.items().currentEpoch(epoch)
-                        || !game.items().wands().target(owner,victim)) { cancel(); return true; }
+                        || !game.items().wands().projectileTarget(owner,victim)) { cancel(); return true; }
                 if(remaining>0) { damage(owner,victim,.1f); remaining--; }
                 if(remaining==0) { cancel(); return true; }
                 return false;
@@ -276,7 +275,7 @@ public final class LbcKfcRewards {
             // Only the tracked item neighbourhood; native playerTouch handles player contact.
             var candidates=item.level().getEntitiesOfClass(LivingEntity.class,item.getBoundingBox().inflate(1.2),
                     target->!(target instanceof Player) && !target.entityTags().contains("no_penis")
-                            && game.items().wands().target(owner,target) && target.distanceToSqr(item)<=1.44);
+                            && game.items().wands().projectileTarget(owner,target) && target.distanceToSqr(item)<=1.44);
             var target=candidates.stream().min(java.util.Comparator.comparingDouble(item::distanceToSqr)).orElse(null);
             if(target!=null) activate(item,target);
         }

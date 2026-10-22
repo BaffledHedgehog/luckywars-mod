@@ -145,8 +145,12 @@ public final class LbcBolts {
     }
     static final class Bolt extends Owned {
         final int lifetime;
+        final int strikeInterval;
         Bolt(ServerPlayer owner,Vec3 position,String epoch) {
-            super(owner,position,epoch); this.lifetime=EVERLASTING_TICKS;
+            this(owner,position,epoch,EVERLASTING_TICKS,40);
+        }
+        Bolt(ServerPlayer owner,Vec3 position,String epoch,int lifetime,int strikeInterval) {
+            super(owner,position,epoch); this.lifetime=lifetime; this.strikeInterval=strikeInterval;
         }
     }
     static final class Water extends Owned {
@@ -154,6 +158,7 @@ public final class LbcBolts {
     }
     static final class Meteor extends Owned {
         final Display.ItemDisplay display;
+        int impactVisualTicks;
         Meteor(ServerPlayer owner,Vec3 position,String epoch,Display.ItemDisplay display) {
             super(owner,position,epoch); this.display=display;
         }
@@ -169,7 +174,7 @@ public final class LbcBolts {
     private static Identifier id(String namespace,String path) { return Identifier.fromNamespaceAndPath(namespace,path); }
     private static net.minecraft.nbt.CompoundTag meteorPreset() {
         try {
-            return net.minecraft.nbt.TagParser.parseCompoundFully("{view_range:10f,teleport_duration:2,interpolation_duration:2,Rotation:[-90f,-90f],transformation:{scale:[3f,3f,3f]},item:{id:\"minecraft:repeating_command_block\",count:1,components:{\"minecraft:item_model\":\"lbc:big_snowball\"}}}");
+            return net.minecraft.nbt.TagParser.parseCompoundFully("{view_range:10f,teleport_duration:2,interpolation_duration:2,Rotation:[-90f,-90f],transformation:{translation:[0f,0f,0f],left_rotation:[0f,0f,0f,1f],scale:[3f,3f,3f],right_rotation:[0f,0f,0f,1f]},item:{id:\"minecraft:repeating_command_block\",count:1,components:{\"minecraft:item_model\":\"lbc:big_snowball\"}}}");
         } catch(com.mojang.brigadier.exceptions.CommandSyntaxException error) { throw new ExceptionInInitializerError(error); }
     }
     public void prepare() {
@@ -234,9 +239,29 @@ public final class LbcBolts {
                 && !game.items().magic().suppressedAt(owner.level(),target.position())
                 && !target.entityTags().contains("nomagic_active");
     }
+    private boolean projectileTarget(ServerPlayer owner,Entity target) {
+        return target.level()==owner.level() && game.items().wands().projectileTarget(owner,target)
+                && !game.items().magic().suppressedAt(owner.level(),target.position())
+                && !target.entityTags().contains("nomagic_active");
+    }
+    private List<LivingEntity> projectileTargets(ServerPlayer owner,Vec3 at,double radius) {
+        var result=new ArrayList<LivingEntity>();
+        for(var target:game.items().lifetimes().loadedTargets())
+            if(projectileTarget(owner,target) && target.position().distanceToSqr(at)<=radius*radius) result.add(target);
+        return result;
+    }
     private boolean chainTarget(ServerPlayer owner,LivingEntity target) {
-        return target(owner,target) && (!(target instanceof ServerPlayer player)
-                || !game.items().magic().rejectCustomEffect(player));
+        return target.level()==owner.level() && game.items().wands().validTarget(target)
+                && !game.items().magic().suppressedAt(owner.level(),target.position())
+                && !target.entityTags().contains("nomagic_active")
+                && (!(target instanceof ServerPlayer player) || !game.items().magic().rejectCustomEffect(player));
+    }
+    /** Chain lightning is wild: allies and caster share the same magic/role checks. */
+    private List<LivingEntity> chainTargets(ServerPlayer owner,Vec3 at,double radius) {
+        var result=new ArrayList<LivingEntity>();
+        for(var target:game.items().lifetimes().loadedTargets())
+            if(chainTarget(owner,target) && target.position().distanceToSqr(at)<=radius*radius) result.add(target);
+        return result;
     }
     private List<LivingEntity> targets(ServerPlayer owner,Vec3 at,double radius) {
         var result=new ArrayList<LivingEntity>();
@@ -279,12 +304,16 @@ public final class LbcBolts {
     }
     /** The shared collision helper yields exactly one terminal and never probes an unloaded chunk. */
     private Vec3 ray(ServerPlayer owner,InteractionHand hand,double range,net.minecraft.core.particles.ParticleOptions particle,boolean items) {
+        return ray(owner,hand,range,particle,items,false);
+    }
+    private Vec3 ray(ServerPlayer owner,InteractionHand hand,double range,net.minecraft.core.particles.ParticleOptions particle,boolean items,boolean wild) {
         Vec3 from=owner.getEyePosition();
         if(hand==InteractionHand.OFF_HAND) from=from.add(owner.getLookAngle().scale(.5));
         Vec3 direction=owner.getLookAngle().normalize(),to=from.add(direction.scale(range));
         double suppressed=game.items().magic().suppressionFraction(owner.level(),from,to);
         if(Double.isFinite(suppressed)) to=from.lerp(to,suppressed);
-        var hit=game.items().wands().firstHit(owner,from,to);
+        var hit=wild ? game.items().wands().firstHit(owner,from,to,entity->entity instanceof LivingEntity living && chainTarget(owner,living),true)
+                : game.items().wands().firstHit(owner,from,to);
         Vec3 point=hit==null?to:hit.getLocation();
         if(items) {
             double nearest=from.distanceToSqr(point);
@@ -306,17 +335,17 @@ public final class LbcBolts {
         return point;
     }
     private void donor(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,boolean upgraded) {
-        Vec3 at=ray(owner,hand,mode==2?7:100,ParticleTypes.END_ROD,mode==2);
+        Vec3 at=ray(owner,hand,mode==2?7:100,ParticleTypes.END_ROD,mode==2,mode==3);
         if(at==null) return;
         if(mode==2) { reforge(owner,at); return; }
         game.items().electro().lightning(owner,at);
         if(mode==3) {
             var chain=new Chain(owner,at,game.items().epoch());
-            for(var target:targets(owner,at,3)) if(chainTarget(owner,target)) chain.current.add(target);
+            chain.current.addAll(chainTargets(owner,at,3));
             if(!chain.current.isEmpty()) chains.add(chain);
         } else {
             double radius=upgraded?5:3;
-            for(var entity:owner.level().getEntities(owner,new AABB(at,at).inflate(radius),e->target(owner,e)
+            for(var entity:owner.level().getEntities(owner,new AABB(at,at).inflate(radius),e->projectileTarget(owner,e)
                     && !(e instanceof net.minecraft.world.entity.LightningBolt) && e.position().distanceToSqr(at)<=radius*radius)) {
                 game.items().electro().lightning(owner,entity.position());
                 if(!entity.onGround()) game.items().mana().award(owner,"lbc:true_advancements/staffs/lightning");
@@ -376,6 +405,97 @@ public final class LbcBolts {
         if(ultra && arrow64(stack)) result.add("magnum_ammo");
         return result;
     }
+    enum ReforgeFamily { NORMAL, ULTRA, LIGHTNING }
+    // Natural lightning's independent flags and order are distinct from the wand donor.
+    private static final ReforgeRule[] LIGHTNING_REFORGE={
+            new ReforgeRule("accessory","transformables_accessory"),
+            new ReforgeRule("axe","transformables_axe"),
+            new ReforgeRule("bow","transformables_bow"),
+            new ReforgeRule("chestplate","transformables_chestplate"),
+            new ReforgeRule("hoe","transformables_hoe"),
+            new ReforgeRule("pickaxe","transformables_pickaxe"),
+            new ReforgeRule("potion","transformables_potion"),
+            new ReforgeRule("shield","transformables_shield"),
+            new ReforgeRule("shooter","transformables_shooter"),
+            new ReforgeRule("shovel","transformables_shovel"),
+            new ReforgeRule("staff","transformables_staff"),
+            new ReforgeRule("sword","transformables_sword"),
+            new ReforgeRule("totem","transformables_totem"),
+            new ReforgeRule("spellitem","transformables_spells"),
+            new ReforgeRule("summoner","transformables_summons"),
+            new ReforgeRule("boots","transformables_boots"),
+            new ReforgeRule("leggings","transformables_leggings"),
+            new ReforgeRule("helmet","transformables_helmet"),
+            new ReforgeRule("trident","transformables_trident"),
+            new ReforgeRule("arcanum","transformables_arcanum"),
+            new ReforgeRule("metasola","halloween/metasola")};
+    static List<String> lightningReforgeTables(ItemStack stack) {
+        var result=new ArrayList<String>();
+        var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+        for(var rule:LIGHTNING_REFORGE) if(rule.matches(data)) result.add(rule.table());
+        return result;
+    }
+    private static List<String> reforgeTables(ItemStack stack,ReforgeFamily family) {
+        return family==ReforgeFamily.LIGHTNING?lightningReforgeTables(stack):reforgeTables(stack,family==ReforgeFamily.ULTRA);
+    }
+    /** One normalized loot bundle shared by dropped-item and committed crafting transactions. */
+    List<ItemStack> rollReforge(Entity context,List<String> tables) {
+        return rollReforge(context,context.position(),tables);
+    }
+    List<ItemStack> rollReforge(Entity context,Vec3 origin,List<String> tables) {
+        var output=new ArrayList<ItemStack>();
+        for(String table:tables)
+            output.addAll(game.lbc().rollTable((ServerLevel)context.level(),origin,context,"lbc:"+table));
+        output.removeIf(ItemStack::isEmpty);
+        return output;
+    }
+    /** Exact donor, explicit unit budget and delivery context; never captures nearby inputs. */
+    private ReforgeInput reforgeInput(ItemEntity item,ReforgeFamily family,int units,ServerPlayer recipient,
+                                      java.util.function.Consumer<ItemStack> delivery) {
+        if(units<=0 || reforgeTables(item.getItem(),family).isEmpty()) return null;
+        return new ReforgeInput(item,family,units,recipient,delivery);
+    }
+    ReforgeInput lightningReforgeInput(ItemEntity item) {
+        return reforgeInput(item,ReforgeFamily.LIGHTNING,item.getItem().getCount(),null,null);
+    }
+    final class ReforgeInput implements LbcStonekivi.Work {
+        final ItemEntity item;
+        final ItemStack input,snapshot;
+        final ServerLevel level;
+        final String epoch;
+        final ReforgeFamily family;
+        final ServerPlayer recipient;
+        final java.util.function.Consumer<ItemStack> delivery;
+        int remaining,units,converted;
+        boolean convertedArrowStack;
+        ReforgeInput(ItemEntity item,ReforgeFamily family,int units,ServerPlayer recipient,
+                     java.util.function.Consumer<ItemStack> delivery) {
+            this.item=item; this.input=item.getItem(); this.snapshot=input.copy(); this.remaining=input.getCount();
+            this.level=(ServerLevel)item.level(); this.epoch=game.items().epoch(); this.family=family;
+            this.units=units; this.recipient=recipient; this.delivery=delivery;
+        }
+        public boolean step() { return step(recipient,delivery); }
+        boolean step(ServerPlayer awardRecipient,java.util.function.Consumer<ItemStack> sink) {
+            if(item.isRemoved() || item.level()!=level || item.getItem()!=input || !epoch.equals(game.items().epoch())
+                    || input.getCount()!=remaining || !ItemStack.isSameItemSameComponents(input,snapshot)
+                    || !level.hasChunkAt(item.blockPosition())) return true;
+            if(sink!=null && !game.items().lightningAcquisition().eligibleRecipient(awardRecipient,level)) return true;
+            // Exact64 is retested each recursion: Ultra rolls ammo once, then consumes the other 63.
+            var output=rollReforge(item,reforgeTables(input,family));
+            if(output.isEmpty() && !convertedArrowStack) return true;
+            if(family==ReforgeFamily.ULTRA && arrow64(input)) convertedArrowStack=true;
+            Vec3 position=item.position();
+            input.shrink(1); remaining--; units--; converted++;
+            if(remaining==0) item.discard(); else item.setItem(input);
+            for(var result:output) {
+                if(sink!=null) sink.accept(result);
+                else level.addFreshEntity(new ItemEntity(level,position.x,position.y,position.z,result));
+            }
+            if(awardRecipient!=null) game.items().mana().award(awardRecipient,"lbc:true_advancements/"
+                    +(family==ReforgeFamily.ULTRA?"lightning_smith_ultra":"lightning_smith"));
+            return remaining==0 || units==0;
+        }
+    }
     /** Capture inputs once so this cast never reforges the outputs it creates. */
     private void reforge(ServerPlayer owner,Vec3 at,boolean ultra) {
         var jobs=new ArrayDeque<LbcStonekivi.Work>();
@@ -383,35 +503,9 @@ public final class LbcBolts {
         for(var item:owner.level().getEntitiesOfClass(ItemEntity.class,new AABB(at,at).inflate(1),
                 entity->entity.isAlive() && target(owner,entity) && entity.position().distanceToSqr(at)<=1
                         && (transformable(entity.getItem()) || ultra && arrow64(entity.getItem())))) {
-            ItemStack input=item.getItem(),snapshot=input.copy();
-            // User: preserve inputs when no category can produce a result.
-            if(reforgeTables(snapshot,ultra).isEmpty()) continue;
-            jobs.add(new LbcStonekivi.Work() {
-                int remaining=snapshot.getCount();
-                boolean convertedArrowStack;
-                public boolean step() {
-                    if(item.isRemoved() || item.level()!=state.level || item.getItem()!=input
-                            || input.getCount()!=remaining || !ItemStack.isSameItemSameComponents(input,snapshot)
-                            || !state.level.hasChunkAt(item.blockPosition())) return true;
-                    var output=new ArrayList<ItemStack>();
-                    // Source tests exact 64 arrows on each recursive invocation: ammo rolls once.
-                    for(String table:reforgeTables(input,ultra))
-                        output.addAll(game.lbc().rollTable(state.level,item.position(),item,"lbc:"+table));
-                    output.removeIf(ItemStack::isEmpty);
-                    // Finish this input without retrying an empty roll, preserving its remaining stack.
-                    // Once 64 arrows yield ammo, source consumes the remaining 63 without more ammo rolls.
-                    if(output.isEmpty() && !convertedArrowStack) return true;
-                    if(ultra && arrow64(input)) convertedArrowStack=true;
-                    Vec3 position=item.position();
-                    input.shrink(1); remaining--;
-                    if(remaining==0) item.discard();
-                    else item.setItem(input);
-                    for(var result:output)
-                        state.level.addFreshEntity(new ItemEntity(state.level,position.x,position.y,position.z,result));
-                    game.items().mana().award(owner,"lbc:true_advancements/"+(ultra?"lightning_smith_ultra":"lightning_smith"));
-                    return remaining==0;
-                }
-            });
+            var input=reforgeInput(item,ultra?ReforgeFamily.ULTRA:ReforgeFamily.NORMAL,
+                    item.getItem().getCount(),owner,null);
+            if(input!=null) jobs.add(input);
         }
         if(jobs.isEmpty()) return;
         int generation=workGeneration,ownerGeneration=ownerWorkGeneration.getOrDefault(owner,0);
@@ -435,11 +529,20 @@ public final class LbcBolts {
     private void terminal(ServerPlayer owner,InteractionHand hand,ItemStack stack,Vec3 at) {
         game.items().electro().lightning(owner,at);
         for(var offset:OFFSETS) bolts.add(new Bolt(owner,at.add(offset),game.items().epoch()));
-        for(var target:targets(owner,at,5)) {
+        for(var target:projectileTargets(owner,at,5)) {
             game.items().electro().shock(target,owner,10);
             if(LbcAcademy.trial(stack) && game.items().electro().shocks(target)>=60) game.items().academy().ready(owner,hand,stack);
         }
         game.server().setWeatherParameters(0,1200,true,true);
+    }
+    /** Field of Lightning shares Boltbolt's steering, strikes and lifecycle. */
+    void homingField(ServerPlayer owner,int lifetime) {
+        Vec3 origin=owner.position();
+        String epoch=game.items().epoch();
+        for(int i=0;i<20;i++) {
+            Vec3 at=origin.add(owner.getRandom().nextInt(201)-100,0,owner.getRandom().nextInt(201)-100);
+            bolts.add(new Bolt(owner,at,epoch,lifetime,20));
+        }
     }
     private void watering(ServerPlayer owner) {
         owner.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING,4800,0));
@@ -495,7 +598,8 @@ public final class LbcBolts {
         if(game.items().wands().timeStopped()) return;
         ticks++;
         for(var bolt:List.copyOf(bolts)) {
-            if(!valid(bolt) || !bolt.level.hasChunkAt(BlockPos.containing(bolt.position))) { bolts.remove(bolt); continue; }
+            if(!valid(bolt) || !bolt.level.hasChunkAt(BlockPos.containing(bolt.position))
+                    || game.items().magic().suppressedAt(bolt.level,bolt.position)) { bolts.remove(bolt); continue; }
             if(paused(bolt.owner)) continue;
             if(++bolt.age>bolt.lifetime) { bolts.remove(bolt); continue; }
             {
@@ -509,7 +613,7 @@ public final class LbcBolts {
                     }
                     if(nearest!=null) bolt.position=bolt.position.add(nearest.getEyePosition().subtract(bolt.position).normalize().scale(.5));
                 }
-                if(bolt.age%20==0) game.items().electro().lightning(bolt.owner,bolt.position);
+                if(bolt.age%bolt.strikeInterval==0) game.items().electro().lightning(bolt.owner,bolt.position);
             }
             if(bolt.age>=bolt.lifetime) bolts.remove(bolt);
             bolt.level.sendParticles(ParticleTypes.CLOUD,true,false,bolt.position.x,bolt.position.y,bolt.position.z,1,0,0,0,0);
@@ -528,7 +632,7 @@ public final class LbcBolts {
             Set<LivingEntity> next=Collections.newSetFromMap(new IdentityHashMap<>());
             for(var target:List.copyOf(chain.current)) {
                 game.items().electro().lightning(chain.owner,target.position());
-                for(var nearby:targets(chain.owner,target.position(),16))
+                for(var nearby:chainTargets(chain.owner,target.position(),16))
                     if(nearby!=target && chainTarget(chain.owner,nearby)
                             && nearby.position().distanceToSqr(target.position())>=.000001) next.add(nearby);
             }
@@ -555,26 +659,38 @@ public final class LbcBolts {
                 meteors.remove(meteor); meteor.display.discard(); continue;
             }
             if(paused(meteor.owner)) continue;
-            meteor.age++; if(meteor.age%2!=0) continue;
-            double fall=.5; for(int age=5;age<=25;age+=5) if(meteor.age>=age) fall+=.5+age*.1;
-            Vec3 next=meteor.position.add(0,-fall,0);
-            boolean impact=false;
-            // Sweep the complete fall plus five-block body, so accelerated meteors cannot tunnel.
-            for(double down=1;down<=fall+5;down+=.5) {
-                BlockPos pos=BlockPos.containing(meteor.position.add(0,-down,0));
-                if(!meteor.level.hasChunkAt(pos)) break;
-                if(!meteor.level.getBlockState(pos).isAir()) { impact=true; next=new Vec3(next.x,pos.getY()+5,next.z); break; }
+            if(meteor.impactVisualTicks>0) {
+                if(--meteor.impactVisualTicks==0) { meteors.remove(meteor); meteor.display.discard(); }
+                continue;
             }
+            meteor.age++;
+            // The first legacy 2-tick callback only initializes. Its relative tp commands
+            // share one execution origin: the last matching offset wins, they never sum.
+            if(meteor.age<=2 || meteor.age%2!=0) continue;
+            double fall=.5+.5*Math.min(meteor.age/5,5);
+            Vec3 next=meteor.position.add(0,-fall,0);
+            // Source model spans -16..32 pixels: scale3 gives a 4.5-block body radius
+            // before spin. Sweep the lower centerline to contact rather than exploding
+            // from a block sampled five blocks ahead of an undersized display.
+            final double radius=4.5;
+            // Include exact endpoint contact: native shape clipping otherwise waits until inside.
+            var hit=LbcTerra.wallHit(meteor.level,meteor.position.add(0,-radius,0),next.add(0,-radius-1e-6,0));
+            boolean impact=hit!=null && meteor.level.hasChunkAt(hit.getBlockPos());
+            if(impact) next=new Vec3(next.x,hit.getLocation().y+radius,next.z);
             meteor.position=next; meteor.display.setPos(next); meteor.display.setYRot(meteor.display.getYRot()+6); meteor.display.setXRot(meteor.display.getXRot()+6);
+            meteor.display.needsSync=true;
             meteor.level.sendParticles(ParticleTypes.SNOWFLAKE,next.x,next.y,next.z,20,2,2,2,.5);
-            if(impact) { meteors.remove(meteor); explode(meteor); meteor.display.discard(); }
-            else if(next.y<meteor.level.getMinY()-16) { meteors.remove(meteor); meteor.display.discard(); }
+            if(impact) {
+                explode(meteor);
+                // Let the client's two-tick interpolation reach the contact point before removal.
+                meteor.impactVisualTicks=2;
+            } else if(hit!=null || next.y<meteor.level.getMinY()-16) { meteors.remove(meteor); meteor.display.discard(); }
         }
     }
     private void explode(Meteor meteor) {
         var owner=meteor.owner; Vec3 at=meteor.position; BlockPos center=BlockPos.containing(at);
         meteor.level.sendParticles(ParticleTypes.SNOWFLAKE,at.x,at.y,at.z,1000,3,3,3,1.5);
-        for(var target:targets(owner,at,10)) {
+        for(var target:projectileTargets(owner,at,10)) {
             target.hurtServer(meteor.level,new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.FREEZE),owner),35);
             for(int i=0;i<5;i++) game.items().frost().add(target,owner);
         }

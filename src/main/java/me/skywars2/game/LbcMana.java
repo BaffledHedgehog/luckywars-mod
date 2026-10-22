@@ -130,6 +130,19 @@ public final class LbcMana {
         noMagic(p,noMagic(p)+seconds);
         set(p,0);
     }
+    /** Active potion timers are native player counters, separate from mana resources. */
+    void addPlayerCounters(ServerPlayer player) {
+        if(game.items().magic().rejectCustomEffect(player)) return;
+        for(String name:POTION_TIMERS) {
+            int remaining=hudValue(player,name);
+            if(remaining>0) write(player,name,remaining+1);
+        }
+        for(String name:List.of("overload_jump","overload_slam")) {
+            int remaining=hudValue(player,name);
+            if(remaining>0) write(player,name,remaining+1);
+        }
+    }
+
     public void add(ServerPlayer p,int amount) { set(p,get(p)+amount); }
 
     public boolean visible(ServerPlayer p) {

@@ -490,6 +490,26 @@ final class OriginalGuiDesign {
         }
         if (!components.has(root)) throw failure("Missing prepared localized source component " + path);
         JsonElement value = components.get(root);
+        if (path.equals("page1000.s11.Name") && values.config != null) {
+            JsonObject modifier = value.getAsJsonObject().getAsJsonObject("Name").deepCopy();
+            modifier.addProperty("translate", switch (values.config.luckyModifier) {
+                case 0 -> "swrg.cfg_lucky_modifier_0";
+                case 1 -> "swrg.cfg_lucky_modifier_1";
+                case 2 -> "swrg.cfg_lucky_modifier_2";
+                case 3 -> "swrg.cfg_lucky_modifier_3";
+                case 4 -> "swrg.cfg_lucky_modifier_4";
+                case 5 -> "swrg.cfg_lucky_modifier_5";
+                case 6 -> "swrg.cfg_lucky_modifier_6";
+                case 7 -> "swrg.cfg_lucky_modifier_7";
+                case 8 -> "swrg.cfg_lucky_modifier_8";
+                case 9 -> "swrg.cfg_lucky_modifier_9";
+                case 10 -> "swrg.cfg_lucky_modifier_10";
+                case 11 -> "swrg.cfg_lucky_modifier_11";
+                case 12 -> "swrg.cfg_lucky_modifier_12";
+                default -> throw failure("Unknown LuckyWars modifier category " + values.config.luckyModifier);
+            });
+            return modifier;
+        }
         if (suffix.equals("Name")) {
             if (!value.isJsonObject() || !value.getAsJsonObject().has("Name")) throw failure("Missing Name in source component " + path);
             return value.getAsJsonObject().get("Name");
@@ -518,7 +538,24 @@ final class OriginalGuiDesign {
             case 8 -> { return values.config.offhandWands ? "lefthand_on" : "lefthand_off"; }
             case 9 -> { return "lives_" + values.config.lives; }
             case 10 -> { return values.config.noBorders ? "no_borders_on" : "no_borders_off"; }
-            case 11 -> { return "cfg_lucky_modifier_0"; }
+            case 11 -> {
+                return switch (values.config.luckyModifier) {
+                    case 0 -> "cfg_lucky_modifier_0";
+                    case 1 -> "cfg_lucky_modifier_1";
+                    case 2 -> "cfg_lucky_modifier_2";
+                    case 3 -> "cfg_lucky_modifier_3";
+                    case 4 -> "cfg_lucky_modifier_4";
+                    case 5 -> "cfg_lucky_modifier_5";
+                    case 6 -> "cfg_lucky_modifier_6";
+                    case 7 -> "cfg_lucky_modifier_7";
+                    case 8 -> "cfg_lucky_modifier_8";
+                    case 9 -> "cfg_lucky_modifier_9";
+                    case 10 -> "cfg_lucky_modifier_10";
+                    case 11 -> "cfg_lucky_modifier_11";
+                    case 12 -> "cfg_lucky_modifier_12";
+                    default -> throw failure("Unknown LuckyWars modifier category " + values.config.luckyModifier);
+                };
+            }
             case 0 -> setting = values.config.pvpMode;
             case 1 -> setting = values.config.day;
             case 2 -> setting = values.config.gameMode;

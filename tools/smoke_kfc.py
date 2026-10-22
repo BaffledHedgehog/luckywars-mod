@@ -29,8 +29,10 @@ def run(server_dir: Path) -> None:
         raise FileNotFoundError(f"Build the project artifact first: {artifact}")
     installed_jar = cycle.SERVER / "mods/skywars2.jar"
     installed_jar.parent.mkdir(parents=True, exist_ok=True)
+    source_sha256 = hashlib.sha256(artifact.read_bytes()).hexdigest()
     shutil.copyfile(artifact, installed_jar)
     tested_sha256 = hashlib.sha256(installed_jar.read_bytes()).hexdigest()
+    assert tested_sha256 == source_sha256, "Installed test JAR differs from source"
     active = None
     started = time.monotonic()
     completed = []
@@ -55,9 +57,11 @@ def run(server_dir: Path) -> None:
         completed.append("Native gun/food loot identity, source flags, translation, model and food components")
         for match in (1, 2):
             active.check("kfc")
+            active.check("kfc-wild")
             active.check("kfc-food")
             active.check("kfc-rewards")
             active.check("kfc-scores")
+            active.check("kfc-counters")
             active.check("kfc-cultus")
             completed.append(f"Match {match}: native gun input, chicken health/fire/physics, shared cooldown, accepted native hurt and three owned fireballs; real native consume and targeted food outcomes")
             active.check("kfc-stop-probe")
@@ -83,7 +87,7 @@ def run(server_dir: Path) -> None:
                     path.write_bytes(original)
             (cycle.OUT / "kfc-results.json").write_text(
                 json.dumps({"passed": passed, "completed": completed, "artifactSha256": tested_sha256,
-                            "elapsedSeconds": round(time.monotonic() - started, 2)},
+                            "sourceArtifactSha256": source_sha256, "elapsedSeconds": round(time.monotonic() - started, 2)},
                            indent=2) + "\n", encoding="utf-8")
 
 

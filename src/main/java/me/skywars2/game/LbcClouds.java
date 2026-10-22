@@ -75,6 +75,7 @@ public final class LbcClouds {
 
     /** Нативные velocity, gravity, drag и swept collision; клиенту видны только прежние частицы. */
     public static final class AcidProjectile extends ThrowableProjectile implements PolymerEntity {
+        private Vec3 shieldFrom;
         AcidProjectile(EntityType<? extends AcidProjectile> type, Level level) { super(type, level); }
         @Override public void tick() {
             if (entityTags().contains(ACID_STUCK)) {
@@ -83,7 +84,24 @@ public final class LbcClouds {
                 setDeltaMovement(Vec3.ZERO);
                 return;
             }
-            super.tick();
+            shieldFrom = position();
+            try {
+                super.tick();
+                if (!isRemoved()) stopAtShield(position());
+            } finally { shieldFrom = null; }
+        }
+        /** Check the actual native gravity/drag segment, already clipped at its first collision. */
+        private boolean stopAtShield(Vec3 end) {
+            var game = SkyWars2.game();
+            if (shieldFrom == null || game == null || !(getOwner() instanceof ServerPlayer owner)
+                    || !(level() instanceof ServerLevel level)
+                    || !(game.playing() || game.items().currentEpoch(this))) return false;
+            var shield = game.items().wands().shieldHit(owner, shieldFrom, end);
+            if (shield == null || !level.hasChunkAt(BlockPos.containing(shield.getLocation()))
+                    || !level.getBlockState(BlockPos.containing(shield.getLocation())).is(AIRS)) return false;
+            game.items().clouds().sound(level, shield.getLocation(), SoundEvents.SHIELD_BLOCK.value(), 1, 1, Double.POSITIVE_INFINITY, 0);
+            discard();
+            return true;
         }
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder) { }
         @Override public EntityType<?> getPolymerEntityType(PacketContext context) { return EntityTypes.MARKER; }
@@ -94,6 +112,7 @@ public final class LbcClouds {
                     && (!entityTags().contains(WAND_ACID) || game != null && game.items().clouds().wandAcidTarget(this,entity));
         }
         @Override protected void onHit(HitResult hit) {
+            if (stopAtShield(hit.getLocation())) return;
             super.onHit(hit);
             var game = SkyWars2.game();
             if (game != null && level() instanceof ServerLevel
@@ -336,25 +355,45 @@ public final class LbcClouds {
 
     private boolean wandAcidTarget(AcidProjectile projectile,Entity target) {
         return projectile.getOwner() instanceof ServerPlayer owner && !game.isObserver(owner)
-                && (!projectile.entityTags().contains(ORDINARY_WAND_ACID) || game.items().wands().target(owner,target))
-                && target!=owner && !owner.isAlliedTo(target) && !target.isSpectator()
-                && !target.entityTags().contains("spectator")
-                && (!(target instanceof ServerPlayer player) || game.canUseGameplayItems(player));
+                && game.items().wands().projectileTarget(owner,target);
     }
 
     /** Обычный жезл сохраняет исходный разброс, но летит на общей нативной физике кислоты (user). */
     AcidProjectile ordinaryWandAcid(ServerPlayer owner) {
         var level=owner.level();
+        float yaw=(Mth.floor(owner.getYRot()*100)+level.getRandom().nextInt(6001)-3000)*.01f;
+        float pitch=(Mth.floor(owner.getXRot()*100)+level.getRandom().nextInt(4001)-2000)*.01f;
+        return aimedWandAcid(owner,owner.getEyePosition(),yaw,pitch,true);
+    }
+
+    /** Reuse acid physics/effects; source acid_get_id spreads each normal charge around the supplied aim. */
+    void magnumAcid(ServerPlayer owner,Vec3 origin,Vec3 direction,boolean big) {
+        var level=owner.level();
+        Vec3 forward=direction.lengthSqr()<1e-12 ? owner.getLookAngle() : direction.normalize();
+        float yaw=forward.horizontalDistanceSqr()<1e-12 ? 0
+                : (float)Math.toDegrees(Math.atan2(-forward.x,forward.z));
+        float pitch=(float)-Math.toDegrees(Math.atan2(forward.y,forward.horizontalDistance()));
+        for(int i=0;i<(big?1:6);i++) {
+            float shotYaw=big ? yaw : (Mth.floor(yaw*100)+level.getRandom().nextInt(6001)-3000)*.01f;
+            float shotPitch=big ? pitch : (Mth.floor(pitch*100)+level.getRandom().nextInt(4001)-2000)*.01f;
+            aimedWandAcid(owner,origin.add(forward.scale(i*.01)),shotYaw,shotPitch,big);
+        }
+        sound(level,origin,SoundEvents.ZOMBIE_VILLAGER_CURE,1,2,Double.POSITIVE_INFINITY,0);
+    }
+
+    private AcidProjectile aimedWandAcid(ServerPlayer owner,Vec3 origin,float yaw,float pitch,boolean big) {
+        var level=owner.level();
         var projectile=new AcidProjectile(ACID_PROJECTILE,level);
         projectile.setOwner(owner);
-        projectile.setPos(owner.getEyePosition());
-        projectile.setYRot((Mth.floor(owner.getYRot()*100)+level.getRandom().nextInt(6001)-3000)*.01f);
-        projectile.setXRot((Mth.floor(owner.getXRot()*100)+level.getRandom().nextInt(4001)-2000)*.01f);
+        projectile.setPos(origin);
+        projectile.setYRot(yaw);
+        projectile.setXRot(pitch);
         var direction=projectile.getLookAngle();
-        projectile.shoot(direction.x,direction.y,direction.z,.2f,0);
+        projectile.shoot(direction.x,direction.y,direction.z,big?.2f:.5f,0);
         // Entity tags persist with owner, age and stuck state, including after reflection/reload.
-        projectile.entityTags().addAll(List.of(ACID,WAND_ACID,ORDINARY_WAND_ACID,"raycastacidbig",
+        projectile.entityTags().addAll(List.of(ACID,WAND_ACID,big?"raycastacidbig":"raycastacid",
                 "player","slowraycast","shield_blockable2","magic","actived",game.items().epoch()));
+        if(big) projectile.entityTags().add(ORDINARY_WAND_ACID);
         level.addFreshEntity(projectile);
         return projectile;
     }

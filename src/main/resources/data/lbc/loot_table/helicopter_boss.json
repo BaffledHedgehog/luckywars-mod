@@ -6,7 +6,7 @@
         {
           "type": "minecraft:item",
           "weight": 10,
-          "name": "minecraft:carrot_on_a_stick",
+          "name": "skywars2:boss_helicopter",
           "modifier": [
             {
               "count": 1,

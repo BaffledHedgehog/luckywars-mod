@@ -10,9 +10,14 @@ import smoke_game_cycle as cycle
 
 
 def run(server_dir: Path) -> None:
-    cycle.SERVER = server_dir.resolve()
-    if cycle.SERVER == cycle.PROJECT.parent:
-        raise ValueError("--server-dir must name an isolated server directory")
+    allowed = (cycle.PROJECT / "build/verification/key-reuse-server").resolve()
+    if server_dir.resolve() != allowed:
+        raise ValueError("Boltbolt checks require build/verification/key-reuse-server")
+    cycle.SERVER = allowed
+    properties = dict(line.split("=", 1) for line in (allowed / "server.properties").read_text(
+        encoding="utf-8").splitlines() if line and not line.startswith("#") and "=" in line)
+    if properties.get("server-port") != "25576":
+        raise ValueError("Boltbolt isolated server must use port25576")
     launcher = cycle.SERVER / "fabric-server-launch.jar"
     if not launcher.is_file():
         raise FileNotFoundError(f"Isolated server has no {launcher.name}: {cycle.SERVER}")
@@ -27,11 +32,14 @@ def run(server_dir: Path) -> None:
         raise FileNotFoundError(f"Build the released project artifact before running smoke checks: {artifact}")
     installed_jar = cycle.SERVER / "mods/skywars2.jar"
     installed_jar.parent.mkdir(parents=True, exist_ok=True)
+    source_sha256 = hashlib.sha256(artifact.read_bytes()).hexdigest()
     shutil.copyfile(artifact, installed_jar)
     tested_sha256 = hashlib.sha256(installed_jar.read_bytes()).hexdigest()
+    assert tested_sha256 == source_sha256, "Isolated installed JAR differs from source"
     active = None
     started = time.monotonic()
     completed = []
+    success = False
     try:
         settings = json.loads(backups[settings_path] or b"{}")
         settings.update(lives=2, health=20, day=1, gameMode=1, countdownSeconds=1,
@@ -53,9 +61,9 @@ def run(server_dir: Path) -> None:
         active.check("boltbolt-crafting")
         completed.append("All native/Academy/legacy Teleport and Lightning Bolts pairs, exact 2x2/3x3 consumption and extra ingredient rejection")
         active.check("boltbolt")
-        completed.append("Source charged lightning lifetime, shock, owner, input protection, mana, Academy modes and NPC promotion")
+        completed.append("Five charges/40-tick strikes, source steering, owner, cloud per-tick sync, restored meteor scale/motion, mana and Academy")
         active.check("boltbolt-terrain")
-        completed.append("Snow Meteor real collision, native freeze damage, cold and queued snow; Watering real fills, movement, 200-tick lifetime and queued-write cancellation")
+        completed.append("Snow Meteor ground contact and interpolation retention, one impact, native freeze/cold and queued snow; Watering real fills and cleanup")
         active.check("boltbolt-stop-probe")
         cursor = active.send("sw stop")
         active.expect("LOADING -> LOBBY", cursor)
@@ -69,6 +77,7 @@ def run(server_dir: Path) -> None:
         cursor = active.send("sw stop")
         active.expect("LOADING -> LOBBY", cursor)
         active.check("boltbolt-cleanup")
+        success = True
         print("BOLTBOLT CHECKS PASSED", flush=True)
     finally:
         try:
@@ -81,7 +90,8 @@ def run(server_dir: Path) -> None:
                 else:
                     path.write_bytes(original)
             (cycle.OUT / "boltbolt-results.json").write_text(
-                json.dumps({"completed": completed, "artifactSha256": tested_sha256,
+                json.dumps({"success": success, "completed": completed, "artifactSha256": tested_sha256,
+                            "sourceArtifactSha256": source_sha256,
                             "elapsedSeconds": round(time.monotonic() - started, 2)},
                            indent=2) + "\n", encoding="utf-8")
 

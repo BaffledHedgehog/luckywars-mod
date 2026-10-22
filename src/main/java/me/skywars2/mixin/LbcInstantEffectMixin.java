@@ -19,6 +19,8 @@ public abstract class LbcInstantEffectMixin {
     private void skywars2$artifactInstantEffect(ServerLevel level, Entity source, Entity owner,
             LivingEntity target, int amplifier, double scale, CallbackInfo ci) {
         var game = SkyWars2.game();
+        if(game!=null && !game.items().indirectKills().allowProjectileEffect(target,
+                BuiltInRegistries.MOB_EFFECT.wrapAsHolder((MobEffect)(Object)this),source)) { ci.cancel(); return; }
         if (game != null && target instanceof ServerPlayer player && game.items().magic().rejectEffect(player,
                 BuiltInRegistries.MOB_EFFECT.wrapAsHolder((MobEffect)(Object)this))) ci.cancel();
     }

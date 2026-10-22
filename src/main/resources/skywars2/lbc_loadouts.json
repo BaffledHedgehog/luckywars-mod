@@ -85,6 +85,14 @@
       "page": 9000,
       "slot": 23,
       "table": "lbc:kit/fast_sword"
+    },
+    {
+      "id": 25,
+      "page": 9100,
+      "slot": 0,
+      "table": "lbc:kit/reroll_machine",
+      "gate": "lbc:true_advancements/legends/academy/lightning",
+      "lockedKey": "lbc.adv.upgraded_tuntija.lightning.lore"
     }
   ],
   "skills": [

@@ -133,3 +133,20 @@ default font символы U+F800…F80F / U+F820…F82F. Одна строка
 Обычный режим `tools/build_attribute_hud_font.py` не воссоздаёт исходный
 template при наличии шрифтов в паке. Новый режим `--import-icons` создаёт
 только отличия для авторских значков; их слот теперь 10 px, как описано выше.
+
+## Tiny Teleport random crafting - 21 October 2026
+
+Merge only the two new skywars2.crafting.tiny_reforge keys from
+assets/minecraft/lang/ru_ru.json and en_us.json into your actual resource pack.
+The crafting result deliberately displays a generic preview. The real random
+reward is rolled only when taking it, together with ingredient consumption.
+The current mod includes an English fallback until these keys are merged.
+The original resource pack has not been modified.
+
+## Reroll Machine random crafting - 21 October 2026
+
+Merge the single new skywars2.crafting.reroll_machine.lore key per locale into
+your current language files. Existing lbckit.24 item name and both original lore
+lines are reused unchanged; no duplicate source translations are provided.
+Only the neutral crafting preview uses this new line. An English fallback is
+available until it is merged. The original resource pack remains read-only.

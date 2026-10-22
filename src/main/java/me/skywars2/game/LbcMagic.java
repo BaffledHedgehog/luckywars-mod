@@ -117,10 +117,14 @@ public final class LbcMagic {
     private static final EntityTypeTest<Entity, Entity> ENTITIES = EntityTypeTest.forClass(Entity.class);
     private static final EntityTypeTest<Entity, ServerPlayer> PLAYERS = EntityTypeTest.forClass(ServerPlayer.class);
     public static final Item MYSTICAL_ARTIFACT = registerArtifact();
-    public static final Block MAGIC_BEACON_BLOCK = registerBlock();
+    public static final Block MAGIC_BEACON_BLOCK = registerBlock(false);
+    public static final Block MECHANISM_BEACON_BLOCK = registerBlock(true);
     public static final BlockEntityType<BeaconData> BEACON_DATA = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE,
-            Identifier.parse("skywars2:magic_beacon"), new BlockEntityType<>(BeaconData::new, Set.of(MAGIC_BEACON_BLOCK)));
-    public static final Item MAGIC_BEACON = registerBeacon();
+            Identifier.parse("skywars2:magic_beacon"), new BlockEntityType<>(BeaconData::new, Set.of(MAGIC_BEACON_BLOCK, MECHANISM_BEACON_BLOCK)));
+    public static final Item MAGIC_BEACON = registerBeacon(false);
+    public static final Item MECHANISM_BEACON = registerBeacon(true);
+    private static final TagKey<Block> MECHANISM_BLOCKS = TagKey.create(Registries.BLOCK, Identifier.parse("minecraft:mecha"));
+    private static final TagKey<EntityType<?>> MECHANISM_ENTITIES = TagKey.create(Registries.ENTITY_TYPE, Identifier.parse("minecraft:mecha"));
     private static final TagKey<Block> MAGIC_BLOCKS = TagKey.create(Registries.BLOCK, Identifier.parse("minecraft:magic"));
     private static final TagKey<EntityType<?>> MAGIC_ENTITIES = TagKey.create(Registries.ENTITY_TYPE, Identifier.parse("minecraft:magic_entities"));
     private static final TagKey<EntityType<?>> MOBS = TagKey.create(Registries.ENTITY_TYPE, Identifier.parse("minecraft:mobs"));
@@ -129,15 +133,23 @@ public final class LbcMagic {
     private static final int RADIUS = 20, RADIUS_SQUARED = RADIUS * RADIUS, BLOCK_BUDGET = 2048;
     // Геометрия вычисляется один раз: серверный тик читает только позиции внутри сферы.
     private static final List<BlockPos> SPHERE = sphere();
+    private static final List<BlockPos> MECHANISM_CUBE = mechanismCube();
+    private static List<BlockPos> mechanismCube() {
+        var offsets = new ArrayList<BlockPos>();
+        for (int x=-15;x<=15;x++) for (int y=-15;y<=15;y++) for (int z=-15;z<=15;z++) offsets.add(new BlockPos(x,y,z));
+        return List.copyOf(offsets);
+    }
 
     private static final class Beacon {
         final BlockPos pos;
         final Vec3 center;
+        final boolean mechanism;
         BeaconData data;
         boolean queued;
         int cursor;
         Beacon(BeaconData data) {
             this.data = data; pos = data.getBlockPos().immutable(); center = Vec3.atCenterOf(pos);
+            mechanism = data.getBlockState().is(MECHANISM_BEACON_BLOCK);
         }
     }
     /** Только включённые области; подавленный маяком носитель остаётся в наборе артефактов для возобновления. */
@@ -200,21 +212,21 @@ public final class LbcMagic {
             }
         });
     }
-    private static Block registerBlock() {
-        var key = ResourceKey.create(Registries.BLOCK, Identifier.parse("skywars2:magic_beacon"));
+    private static Block registerBlock(boolean mechanism) {
+        var key = ResourceKey.create(Registries.BLOCK, Identifier.parse(mechanism ? "skywars2:mechanism_beacon" : "skywars2:magic_beacon"));
         return Registry.register(BuiltInRegistries.BLOCK, key, new BeaconBlock(BlockBehaviour.Properties
-                .ofFullCopy(Blocks.LIGHTNING_ROD.weathering().unaffected()).setId(key).overrideDescription("magic_breaker")));
+                .ofFullCopy(Blocks.LIGHTNING_ROD.weathering().unaffected()).setId(key).overrideDescription(mechanism ? "mecha_breaker" : "magic_breaker"), mechanism));
     }
-    private static Item registerBeacon() {
-        var key = ResourceKey.create(Registries.ITEM, Identifier.parse("skywars2:magic_beacon"));
+    private static Item registerBeacon(boolean mechanism) {
+        var key = ResourceKey.create(Registries.ITEM, Identifier.parse(mechanism ? "skywars2:mechanism_beacon" : "skywars2:magic_beacon"));
         // Старый компонент остаётся частью исходного стека/tooltip, но больше не создаёт сущность.
         var data = new CompoundTag(); var tags = new ListTag();
-        for (String tag : List.of("stopper_magic", "rc_1sec", "marker_2t")) tags.add(StringTag.valueOf(tag));
+        for (String tag : List.of(mechanism ? "stopper" : "stopper_magic", "rc_1sec", "marker_2t")) tags.add(StringTag.valueOf(tag));
         data.put("Tags", tags);
-        var properties = new Item.Properties().setId(key).overrideDescription("magic_breaker")
-                .component(DataComponents.ITEM_MODEL, Identifier.parse("lbc:stopper_magic"))
+        var properties = new Item.Properties().setId(key).overrideDescription(mechanism ? "mecha_breaker" : "magic_breaker")
+                .component(DataComponents.ITEM_MODEL, Identifier.parse(mechanism ? "lbc:stopper" : "lbc:stopper_magic"))
                 .component(DataComponents.ENTITY_DATA, TypedEntityData.of(EntityTypes.MARKER, data));
-        return Registry.register(BuiltInRegistries.ITEM, key, new PolymerBlockItem(MAGIC_BEACON_BLOCK, properties, Items.PANDA_SPAWN_EGG, true) {
+        return Registry.register(BuiltInRegistries.ITEM, key, new PolymerBlockItem(mechanism ? MECHANISM_BEACON_BLOCK : MAGIC_BEACON_BLOCK, properties, Items.PANDA_SPAWN_EGG, true) {
             @Override public InteractionResult useOn(UseOnContext context) {
                 var game = SkyWars2.game();
                 if (!(context.getPlayer() instanceof ServerPlayer player) || game == null
@@ -226,7 +238,19 @@ public final class LbcMagic {
 
     /** Род — только клиентское представление; сервер хранит отдельный тип блока и его нативный loot. */
     private static final class BeaconBlock extends LightningRodBlock implements PolymerBlock, EntityBlock {
-        BeaconBlock(BlockBehaviour.Properties properties) { super(properties); }
+        final boolean mechanism;
+        BeaconBlock(BlockBehaviour.Properties properties, boolean mechanism) { super(properties); this.mechanism = mechanism; }
+        private String lootTable() { return mechanism ? "lbc:ported/mechanism_beacon" : "lbc:ported/magic_beacon"; }
+        @Override public void setPlacedBy(net.minecraft.world.level.Level level, BlockPos pos, BlockState state,
+                net.minecraft.world.entity.LivingEntity placer, ItemStack stack) {
+            super.setPlacedBy(level,pos,state,placer,stack);
+            var entityData = stack.get(DataComponents.ENTITY_DATA);
+            if (level.getBlockEntity(pos) instanceof BeaconData data) {
+                data.placer = placer instanceof ServerPlayer player ? player.getUUID() : null;
+                data.notBlock = entityData != null && entityData.copyTagWithoutId().getListOrEmpty("Tags").contains(StringTag.valueOf("not_block"));
+                data.setChanged();
+            }
+        }
         @Override public BlockState getPolymerBlockState(BlockState state, PacketContext context) {
             return Blocks.LIGHTNING_ROD.weathering().unaffected().defaultBlockState()
                     .setValue(FACING, state.getValue(FACING)).setValue(POWERED, state.getValue(POWERED))
@@ -240,27 +264,34 @@ public final class LbcMagic {
         @Override protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
             var game = SkyWars2.game();
             return game == null ? List.of() : game.lbc().rollTable(params.getLevel(), params.getParameter(LootContextParams.ORIGIN),
-                    params.getOptionalParameter(LootContextParams.THIS_ENTITY), "lbc:ported/magic_beacon");
+                    params.getOptionalParameter(LootContextParams.THIS_ENTITY), lootTable());
         }
         @Override protected ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData) {
             var game = SkyWars2.game();
             if (game != null && level == game.maps().level()) {
-                var drops = game.lbc().rollTable(game.maps().level(), Vec3.atCenterOf(pos), null, "lbc:ported/magic_beacon");
+                var drops = game.lbc().rollTable(game.maps().level(), Vec3.atCenterOf(pos), null, lootTable());
                 if (!drops.isEmpty()) return drops.getFirst();
             }
-            return new ItemStack(MAGIC_BEACON);
+            return new ItemStack(mechanism ? MECHANISM_BEACON : MAGIC_BEACON);
         }
     }
 
     /** Только сохранение эпохи матча. Тикера и сетевых BE-пакетов нет; используется общая эпоха LbcItems. */
     public static final class BeaconData extends BlockEntity {
         private String epoch;
+        private boolean notBlock;
+        private UUID placer;
         public BeaconData(BlockPos pos, BlockState state) {
             super(BEACON_DATA, pos, state);
             var game = SkyWars2.game(); epoch = game == null ? "" : game.items().epoch();
         }
-        @Override protected void loadAdditional(ValueInput input) { super.loadAdditional(input); epoch = input.getStringOr("epoch", ""); }
-        @Override protected void saveAdditional(ValueOutput output) { super.saveAdditional(output); output.putString("epoch", epoch); }
+        @Override protected void loadAdditional(ValueInput input) { super.loadAdditional(input); epoch = input.getStringOr("epoch", ""); notBlock = input.getBooleanOr("not_block",false);
+            String owner=input.getStringOr("placer", "");
+            try { placer=owner.isEmpty() ? null : UUID.fromString(owner); } catch (IllegalArgumentException invalid) { placer=null; }
+        }
+        @Override protected void saveAdditional(ValueOutput output) { super.saveAdditional(output); output.putString("epoch", epoch); output.putBoolean("not_block",notBlock);
+            if(placer!=null) output.putString("placer",placer.toString());
+        }
     }
 
     public void inventoryChanged(ServerPlayer player) {
@@ -378,8 +409,8 @@ public final class LbcMagic {
                 nearest=Math.min(nearest,sphereEntry(from,to,player.position()));
         }
         if(level==game.maps().level()) {
-            for(var beacon:loadedBeacons) nearest=Math.min(nearest,sphereEntry(from,to,beacon.center));
-            for(var marker:legacyMarkers) if(!marker.isRemoved())
+            for(var beacon:loadedBeacons) if(!beacon.mechanism) nearest=Math.min(nearest,sphereEntry(from,to,beacon.center));
+            for(var marker:legacyMarkers) if(!marker.isRemoved() && marker.entityTags().contains("stopper_magic"))
                 nearest=Math.min(nearest,sphereEntry(from,to,marker.position()));
         }
         return nearest;
@@ -395,17 +426,32 @@ public final class LbcMagic {
         double t=(-b-Math.sqrt(discriminant))/a;
         return t>=0 && t<=1 ? t : Double.POSITIVE_INFINITY;
     }
-    public boolean beaconSuppressed(Vec3 position) {
+    public boolean mechanismSuppressed(ServerPlayer owner) { return mechanismSuppressedAt(owner.level(),owner.position()); }
+    public boolean mechanismSuppressedAt(ServerLevel level, Vec3 position) {
+        return level == game.maps().level() && beaconSuppressed(position,true);
+    }
+    public double mechanismSuppressionFraction(ServerLevel level, Vec3 from, Vec3 to) {
+        double nearest = Double.POSITIVE_INFINITY;
+        if (level != game.maps().level()) return nearest;
+        for (var beacon : loadedBeacons) if (beacon.mechanism) nearest=Math.min(nearest,sphereEntry(from,to,beacon.center));
+        for (var marker : legacyMarkers) if (!marker.isRemoved() && marker.entityTags().contains("stopper"))
+            nearest=Math.min(nearest,sphereEntry(from,to,marker.position()));
+        return nearest;
+    }
+    public boolean beaconSuppressed(Vec3 position) { return beaconSuppressed(position,false); }
+    private boolean beaconSuppressed(Vec3 position, boolean mechanism) {
         var nearby = regions.get(ChunkPos.pack(((int)Math.floor(position.x))>>4, ((int)Math.floor(position.z))>>4));
-        if (nearby != null) for (var state : nearby) if (state.center.distanceToSqr(position) <= RADIUS_SQUARED) return true;
-        var area = new AABB(position, position).inflate(RADIUS + 1e-6);
-        return !game.maps().level().getEntitiesOfClass(Marker.class, area, marker -> marker.entityTags().contains("stopper_magic")
-                && marker.position().distanceToSqr(position) <= RADIUS_SQUARED).isEmpty();
+        if (nearby != null) for (var state : nearby)
+            if (state.mechanism == mechanism && state.center.distanceToSqr(position) <= RADIUS_SQUARED) return true;
+        for (var marker : legacyMarkers) if (!marker.isRemoved()
+                && marker.entityTags().contains(mechanism ? "stopper" : "stopper_magic")
+                && marker.position().distanceToSqr(position) <= RADIUS_SQUARED) return true;
+        return false;
     }
     /** Комната теряет метку целиком, если сфера маяка касается её объёма (user). */
     boolean beaconIntersects(AABB bounds) {
-        for(var beacon:loadedBeacons) if(bounds.distanceToSqr(beacon.center)<=RADIUS_SQUARED) return true;
-        for(var marker:legacyMarkers) if(!marker.isRemoved() && bounds.distanceToSqr(marker.position())<=RADIUS_SQUARED) return true;
+        for(var beacon:loadedBeacons) if(!beacon.mechanism && bounds.distanceToSqr(beacon.center)<=RADIUS_SQUARED) return true;
+        for(var marker:legacyMarkers) if(!marker.isRemoved() && marker.entityTags().contains("stopper_magic") && bounds.distanceToSqr(marker.position())<=RADIUS_SQUARED) return true;
         return false;
     }
     public boolean loaded(Entity entity) {
@@ -417,11 +463,11 @@ public final class LbcMagic {
             if (entity.getType().builtInRegistryHolder().is(UNSTABLE)) unstable.add(entity);
             if (entity instanceof FallingBlockEntity) falling.add(entity);
         }
-        if (!(entity instanceof Marker marker) || !marker.entityTags().contains("stopper_magic")) return false;
+        if (!(entity instanceof Marker marker) || !(marker.entityTags().contains("stopper_magic") || marker.entityTags().contains("stopper"))) return false;
         if (stopping || !game.playing() || entity.level() != game.maps().level()) marker.discard();
         else {
             legacyMarkers.add(marker);
-            game.items().bedrock().beaconPlaced(marker.position(),RADIUS);
+            if (marker.entityTags().contains("stopper_magic")) game.items().bedrock().beaconPlaced(marker.position(),RADIUS);
         }
         return true;
     }
@@ -441,7 +487,8 @@ public final class LbcMagic {
     }
     private static boolean inside(Beacon state, BlockPos pos) {
         long x = (long)state.pos.getX()-pos.getX(), y = (long)state.pos.getY()-pos.getY(), z = (long)state.pos.getZ()-pos.getZ();
-        return x*x+y*y+z*z <= RADIUS_SQUARED;
+        return state.mechanism ? Math.abs(x)<=15 && Math.abs(y)<=15 && Math.abs(z)<=15 && !state.data.notBlock
+                : x*x+y*y+z*z <= RADIUS_SQUARED;
     }
     private void index(Beacon state) {
         if (!loadedBeacons.add(state)) return;
@@ -463,26 +510,30 @@ public final class LbcMagic {
             game.maps().recordBlockChange(pos);
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), STRICT_FLAGS); return;
         }
+        var previous = beacons.get(pos);
+        if (previous != null && previous.mechanism != data.getBlockState().is(MECHANISM_BEACON_BLOCK)) {
+            beacons.remove(pos); unindex(previous); previous.data = null;
+        }
         var state = beacons.computeIfAbsent(pos.immutable(), ignored -> new Beacon(data));
         if (state.data == data && loadedBeacons.contains(state)) return;
         state.data = data; index(state); schedule(state);
         // Событие размещения действует даже при удалении маяка до следующего тика.
-        game.items().bedrock().beaconPlaced(state.center,RADIUS);
+        if (!state.mechanism) game.items().bedrock().beaconPlaced(state.center,RADIUS);
     }
-    private boolean covers(BlockPos pos) {
+    private boolean covers(BlockPos pos, boolean mechanism) {
         var nearby = regions.get(ChunkPos.pack(pos.getX()>>4,pos.getZ()>>4));
-        if (nearby != null) for (var state : nearby) if (inside(state,pos)) return true;
+        if (nearby != null) for (var state : nearby) if (state.mechanism == mechanism && state.data != null && inside(state,pos)) return true;
         return false;
     }
     public void blockChanged(BlockPos pos, BlockState state) {
         if (stopping) return;
-        if (state.is(MAGIC_BEACON_BLOCK)) {
+        if (state.is(MAGIC_BEACON_BLOCK) || state.is(MECHANISM_BEACON_BLOCK)) {
             if (game.maps().level().getBlockEntity(pos) instanceof BeaconData data) loadedBlock(data);
         } else {
             var removed = beacons.remove(pos);
             if (removed != null) { unindex(removed); removed.data = null; }
         }
-        if (state.is(MAGIC_BLOCKS) && covers(pos)) dirtyBlocks.add(pos.immutable());
+        if (state.is(MAGIC_BLOCKS) && covers(pos,false) || state.is(MECHANISM_BLOCKS) && covers(pos,true)) dirtyBlocks.add(pos.immutable());
         // Очередь хранит только новые жидкости внутри активных областей, а не все изменения мира.
         if (!liquidAuras.isEmpty() && IS_LIQUID.test(state) && liquidCovered(pos)) dirtyLiquids.add(pos.immutable());
     }
@@ -493,7 +544,7 @@ public final class LbcMagic {
     public void chunkLoaded(LevelChunk chunk) {
         // Штатный список BE включает упакованный NBT: нет обхода всех блоков или синхронной загрузки соседей.
         for (var pos : chunk.getBlockEntitiesPos())
-            if (chunk.getBlockState(pos).is(MAGIC_BEACON_BLOCK) && chunk.getBlockEntity(pos) instanceof BeaconData data) loadedBlock(data);
+            if ((chunk.getBlockState(pos).is(MAGIC_BEACON_BLOCK) || chunk.getBlockState(pos).is(MECHANISM_BEACON_BLOCK)) && chunk.getBlockEntity(pos) instanceof BeaconData data) loadedBlock(data);
         var nearby = regions.get(ChunkPos.pack(chunk.getPos().x(),chunk.getPos().z()));
         if (nearby != null) for (var state : nearby) schedule(state);
         long chunkKey = ChunkPos.pack(chunk.getPos().x(),chunk.getPos().z());
@@ -520,22 +571,25 @@ public final class LbcMagic {
         var changed = dirtyBlocks.iterator();
         while (budget > 0 && changed.hasNext()) {
             var pos = changed.next(); changed.remove(); budget--;
-            if (covers(pos)) erase(pos);
+            if (covers(pos,false)) erase(pos,false);
+            if (covers(pos,true)) erase(pos,true);
         }
         while (budget > 0 && !scans.isEmpty()) {
             var state = scans.removeFirst(); state.queued = false;
             if (state.data == null || state.data.isRemoved() || beacons.get(state.pos) != state) continue;
-            int work = Math.min(Math.min(64,budget), SPHERE.size()-state.cursor); budget -= work;
+            var offsets = state.mechanism ? MECHANISM_CUBE : SPHERE;
+            if (state.mechanism && state.data.notBlock) continue;
+            int work = Math.min(Math.min(64,budget), offsets.size()-state.cursor); budget -= work;
             for (int end = state.cursor+work; state.cursor < end; state.cursor++) {
-                var offset = SPHERE.get(state.cursor);
-                erase(scanPos.setWithOffset(state.pos,offset.getX(),offset.getY(),offset.getZ()));
+                var offset = offsets.get(state.cursor);
+                erase(scanPos.setWithOffset(state.pos,offset.getX(),offset.getY(),offset.getZ()),state.mechanism,beaconOwner(state));
             }
-            if (state.cursor < SPHERE.size()) { state.queued = true; scans.addLast(state); }
+            if (state.cursor < offsets.size()) { state.queued = true; scans.addLast(state); }
         }
     }
     void second() {
         var level = game.maps().level();
-        for (var state : loadedBeacons)
+        for (var state : loadedBeacons) if (!state.mechanism)
             level.sendParticles(ParticleTypes.WITCH,state.center.x,state.center.y,state.center.z,10,.2,.4,.2,0);
     }
     /** Однократная сверка после старта/перезагрузки тегов: события могли пройти до создания контроллера. */
@@ -544,6 +598,7 @@ public final class LbcMagic {
         var level = game.maps().level();
         if (level == null) return;
         for (var entity : level.getAllEntities()) if (entity.isAlive()) {
+            if (entity instanceof Marker marker && (marker.entityTags().contains("stopper_magic") || marker.entityTags().contains("stopper"))) loaded(marker);
             if(entity instanceof net.minecraft.world.entity.LivingEntity living) game.items().mana().loaded(living);
             colors.loaded(entity);
             if (entity.getType().builtInRegistryHolder().is(ARROWS)) arrows.add(entity);
@@ -841,20 +896,104 @@ public final class LbcMagic {
     }
     void pulse() {
         var level = game.maps().level();
+        // Legacy eggs are migrated once to the same persistent native carrier and shared scan/index.
+        for (var marker : List.copyOf(legacyMarkers)) {
+            if (marker.isRemoved()) { legacyMarkers.remove(marker); continue; }
+            if (!marker.entityTags().contains("stopper")) continue;
+            var pos = marker.blockPosition();
+            var old = level.getBlockState(pos);
+            if (old.is(MECHANISM_BEACON_BLOCK) && level.getBlockEntity(pos) instanceof BeaconData existing) {
+                existing.notBlock = marker.entityTags().contains("not_block"); existing.setChanged();
+                loadedBlock(existing); marker.discard(); continue;
+            }
+            if (marker.entityTags().contains("activated") && !old.is(Blocks.LIGHTNING_ROD.weathering().unaffected())
+                    && !old.is(MECHANISM_BEACON_BLOCK)) {
+                marker.discard(); continue;
+            }
+            if (!old.isAir() && !old.is(Blocks.LIGHTNING_ROD.weathering().unaffected()) && !old.is(MECHANISM_BEACON_BLOCK)) pos=pos.above();
+            if (level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)==null) continue;
+            if (level.setBlock(pos,MECHANISM_BEACON_BLOCK.defaultBlockState(),Block.UPDATE_ALL)
+                    && level.getBlockEntity(pos) instanceof BeaconData data) {
+                data.notBlock = marker.entityTags().contains("not_block"); data.setChanged();
+                loadedBlock(data); marker.discard();
+            }
+        }
         for (var state : List.copyOf(loadedBeacons)) {
             var area = new AABB(state.center,state.center).inflate(RADIUS+1e-6);
-            for (Entity entity : level.getEntities((Entity)null,area,entity -> magical(entity) && !entity.isRemoved()
+            for (Entity entity : level.getEntities((Entity)null,area,entity -> !entity.isRemoved() && entity.isAlive()
+                    && (state.mechanism ? mechanical(entity) : magical(entity))
                     && state.center.distanceToSqr(entity.position()) <= RADIUS_SQUARED)) {
                 if (stopping || game.stage() == GameController.Stage.ENDING) return;
-                if (entity.isRemoved() || !magical(entity)) continue;
-                level.sendParticles(ParticleTypes.WITCH,entity.getX(),entity.getY(),entity.getZ(),20,.3,.3,.3,.1);
-                entity.kill(level);
+                if (entity.isRemoved() || !(state.mechanism ? mechanical(entity) : magical(entity))) continue;
+                if (!state.mechanism || entity.getType().builtInRegistryHolder().is(MECHANISM_ENTITIES))
+                    level.sendParticles(state.mechanism ? ParticleTypes.SOUL_FIRE_FLAME : ParticleTypes.WITCH,
+                            entity.getX(),entity.getY(),entity.getZ(),20,.3,.3,.3,.1);
+                var owner=state.mechanism ? beaconOwner(state) : null;
+                if (state.mechanism && entity.entityTags().contains("nuke")) cleanLegacyNuke(entity.blockPosition(),owner);
+                if (owner!=null && entity instanceof net.minecraft.world.entity.LivingEntity living) {
+                    var damage=new net.minecraft.world.damagesource.DamageSource(level.registryAccess()
+                            .lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(net.minecraft.world.damagesource.DamageTypes.GENERIC_KILL),owner);
+                    living.hurtServer(level,damage,Float.MAX_VALUE);
+                } else entity.kill(level);
+            }
+            if (state.mechanism) for (var player : level.getEntitiesOfClass(ServerPlayer.class,area,
+                    player -> !player.isSpectator() && player.position().distanceToSqr(state.center)<=RADIUS_SQUARED)) {
+                removeLegacyModifier(player,net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED,"c1cda724-0ea2-460a-98b8-9631eafd2515");
+                removeLegacyModifier(player,net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE,"585f98b8-a8b8-4e4c-838a-f2e124831040");
             }
         }
     }
-    private void erase(BlockPos pos) {
+    private boolean mechanical(Entity entity) {
+        var tags=entity.entityTags();
+        return !(entity instanceof ServerPlayer) && !entity.isSpectator() && !tags.contains("spectator")
+                && !tags.contains("strict_map_object") && !tags.contains("core_marker") && !tags.contains("map_object")
+                && !tags.contains("rcdenyalways") && !tags.contains("sauvojen_tuntija")
+                && !tags.contains("magic_academy") && !tags.contains("transformator")
+                && (!(entity instanceof Marker || entity instanceof net.minecraft.world.entity.Display
+                    || entity instanceof net.minecraft.world.entity.Interaction || entity instanceof net.minecraft.world.entity.AreaEffectCloud)
+                    || tags.stream().noneMatch(tag -> tag.startsWith("swrg.")))
+                && (entity.getType().builtInRegistryHolder().is(MECHANISM_ENTITIES) || tags.contains("mecha")
+                    || entity.getType()==EntityTypes.SKELETON && tags.contains("cyborg_boss"));
+    }
+    private static void removeLegacyModifier(ServerPlayer player, Holder<net.minecraft.world.entity.ai.attributes.Attribute> attribute, String id) {
+        var instance=player.getAttribute(attribute);
+        if(instance!=null) instance.removeModifier(Identifier.parse("minecraft:"+id));
+    }
+    private void cleanLegacyNuke(BlockPos center, ServerPlayer owner) {
+        var level=game.maps().level();
+        for(int x=-1;x<=1;x++) for(int y=-1;y<=1;y++) for(int z=-1;z<=1;z++) {
+            var pos=center.offset(x,y,z);
+            if(level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)==null) continue;
+            var old=level.getBlockState(pos);
+            if(old.is(Blocks.NETHERITE_BLOCK) || old.is(Blocks.BEACON)) eraseOwnedBlock(pos,owner);
+        }
+        var top=center.above(2);
+        if(level.getChunkSource().getChunkNow(top.getX()>>4,top.getZ()>>4)!=null) eraseOwnedBlock(top,owner);
+    }
+    private ServerPlayer beaconOwner(Beacon state) {
+        return state.data == null || state.data.placer == null ? null : game.server().getPlayerList().getPlayer(state.data.placer);
+    }
+    private void erase(BlockPos pos, boolean mechanism) {
+        ServerPlayer owner=null;
+        if(mechanism) {
+            var nearby=regions.get(ChunkPos.pack(pos.getX()>>4,pos.getZ()>>4));
+            if(nearby!=null) for(var state:nearby) if(state.mechanism && state.data!=null && inside(state,pos)) {
+                owner=beaconOwner(state); if(owner!=null) break;
+            }
+        }
+        erase(pos,mechanism,owner);
+    }
+    private void erase(BlockPos pos, boolean mechanism, ServerPlayer owner) {
         var level = game.maps().level();
-        if (level.hasChunkAt(pos) && level.getBlockState(pos).is(MAGIC_BLOCKS)) level.setBlock(pos,Blocks.AIR.defaultBlockState(),STRICT_FLAGS);
+        if (level.hasChunkAt(pos) && level.getBlockState(pos).is(mechanism ? MECHANISM_BLOCKS : MAGIC_BLOCKS))
+            eraseOwnedBlock(pos,mechanism ? owner : null);
+    }
+    private void eraseOwnedBlock(BlockPos pos, ServerPlayer owner) {
+        var level=game.maps().level();
+        if(owner==null) { level.setBlock(pos,Blocks.AIR.defaultBlockState(),STRICT_FLAGS); return; }
+        game.items().indirectKills().supportRemoved(level,owner,pos);
+        // worldChanges also finishes this bounded support-removal batch in its finally block.
+        game.items().indirectKills().worldChanges(level,owner,()->level.setBlock(pos,Blocks.AIR.defaultBlockState(),STRICT_FLAGS));
     }
     public int beaconCount() { return beacons.size(); }
     public int pendingBlockCount() { return dirtyBlocks.size()+scans.size(); }
@@ -869,7 +1008,7 @@ public final class LbcMagic {
         for (var state : states) {
             // Выгруженные блоки уберёт существующий журнал/очередь MapManager, без принудительной загрузки чанков.
             game.maps().recordBlockChange(state.pos);
-            if (game.maps().level().hasChunkAt(state.pos) && game.maps().level().getBlockState(state.pos).is(MAGIC_BEACON_BLOCK))
+            if (game.maps().level().hasChunkAt(state.pos) && (game.maps().level().getBlockState(state.pos).is(MAGIC_BEACON_BLOCK) || game.maps().level().getBlockState(state.pos).is(MECHANISM_BEACON_BLOCK)))
                 game.maps().level().setBlock(state.pos,Blocks.AIR.defaultBlockState(),STRICT_FLAGS);
         }
         for (var player : game.server().getPlayerList().getPlayers()) player.entityTags().remove("nomagic_active");

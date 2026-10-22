@@ -43,7 +43,8 @@ public final class ElectroNativeMixins {
         @WrapMethod(method="tick")
         private void skywars2$lightningFireOwner(Operation<Void> original) {
             var bolt=(LightningBolt)(Object)this; var game=SkyWars2.game();
-            if(game==null || !LbcElectro.managedLightning(bolt) || bolt.getCause()==null
+            if(game!=null) game.items().lightningAcquisition().beforeLightningTick(bolt);
+            if(game==null || bolt.getCause()==null
                     || !(bolt.level() instanceof ServerLevel level)) original.call();
             else game.items().indirectKills().worldChanges(level,bolt,()->original.call());
         }
@@ -51,8 +52,9 @@ public final class ElectroNativeMixins {
                 "Lnet/minecraft/world/entity/Entity;thunderHit(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/LightningBolt;)V"))
         private void skywars2$lightningTarget(Entity target,ServerLevel level,LightningBolt bolt,Operation<Void> original) {
             var game=SkyWars2.game();
-            if(!LbcElectro.managedLightning(bolt) || game==null || bolt.getCause()==null
-                    || game.items().electro().lightningTarget(bolt,target)) original.call(target,level,bolt);
+            if(game!=null && target instanceof net.minecraft.world.entity.item.ItemEntity item
+                    && game.items().lightningAcquisition().protectsLightning(item,bolt)) return;
+            if(game==null || game.items().electro().lightningTarget(bolt,target)) original.call(target,level,bolt);
         }
     }
     @Mixin(Entity.class)
@@ -61,13 +63,16 @@ public final class ElectroNativeMixins {
                 "Lnet/minecraft/world/entity/Entity;hurtServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
         private boolean skywars2$lightningDamage(Entity target,ServerLevel level,DamageSource source,float amount,
                 Operation<Boolean> original,@Local(argsOnly=true) LightningBolt bolt) {
-            if(LbcElectro.managedLightning(bolt) && bolt.getCause()!=null)
-                source=new DamageSource(level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
-                        .getOrThrow(LbcDamage.LIGHTNING),bolt,bolt.getCause());
+            // Vanilla thunderHit loses the bolt in its DamageSource. Retain it even for
+            // weather/commands so the common friendly-fire rule sees the actual entity.
+            var type=LbcElectro.managedLightning(bolt) && bolt.getCause()!=null
+                    ? level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.LIGHTNING)
+                    : source.typeHolder();
+            source=new DamageSource(type,bolt,bolt.getCause());
             boolean applied=original.call(target,level,source,amount);
             var game=SkyWars2.game();
-            if(game!=null && LbcElectro.managedLightning(bolt) && bolt.getCause()!=null && target instanceof LivingEntity living)
-                game.items().indirectKills().ignited(living,bolt.getCause(),LbcElectro.eggLightning(bolt));
+            if(game!=null && bolt.getCause()!=null && target instanceof LivingEntity living)
+                game.items().indirectKills().projectileIgnited(living,bolt.getCause(),true);
             return applied;
         }
     }

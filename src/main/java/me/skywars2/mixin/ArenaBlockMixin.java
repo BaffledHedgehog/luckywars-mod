@@ -29,7 +29,7 @@ public abstract class ArenaBlockMixin {
         if(callback.getReturnValueZ() && game!=null && (Object)this instanceof net.minecraft.server.level.ServerLevel level)
             game.items().indirectKills().blockChanged(level,pos,state);
         if (callback.getReturnValueZ() && game != null && (Object) this == game.maps().level()) {
-            if (game.playing() || game.stage() == GameController.Stage.ENDING) game.maps().recordBlockChange(pos);
+            game.maps().recordBlockChange(pos);
             game.items().magic().blockChanged(pos, state);
             game.items().bedrock().blockChanged(pos, state);
             game.items().tanner().blockChanged(pos, state);

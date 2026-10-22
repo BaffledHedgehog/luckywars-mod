@@ -53,6 +53,7 @@ public final class GameController {
     private final MatchEvents events;
     private final LbcLoadouts lbc;
     private final LbcItems items;
+    private final GameLuckyModifiers luckyModifiers;
     private final Spectators spectators;
     private final AttributeHud attributeHud;
     private final ZoneBarrier zoneBarrier;
@@ -88,6 +89,7 @@ public final class GameController {
         this.events = new MatchEvents(this, maps, config, players);
         this.lbc = new LbcLoadouts(this, config, players);
         this.items = new LbcItems(this);
+        this.luckyModifiers = new GameLuckyModifiers(this);
         this.lbc.syncRanked();
         this.spectators = new Spectators(this);
         this.attributeHud = new AttributeHud(this);
@@ -124,6 +126,7 @@ public final class GameController {
     public GameMenus menus() { return menus; }
     public LbcLoadouts lbc() { return lbc; }
     public LbcItems items() { return items; }
+    public GameLuckyModifiers luckyModifiers() { return luckyModifiers; }
     MatchEvents events() { return events; }
     public AttributeHud attributeHud() { return attributeHud; }
 
@@ -167,6 +170,7 @@ public final class GameController {
         }
         zoneBarrier.playerJoined(player);
         lbc.joined(player);
+        items.stand().joined(player);
     }
 
     public void leave(ServerPlayer player) {
@@ -294,6 +298,7 @@ public final class GameController {
             return text("settings.broken", text(brokenVariant ? "common.enabled" : "common.disabled"));
         }
         var result = config.setSetting(parameter, value);
+        luckyModifiers.syncConfig();
         lbc.syncRanked();
         lbc.refreshArtifactViews();
         if (key.equals("ranked")) menus.refreshOpen();
@@ -510,6 +515,7 @@ public final class GameController {
     private void startPlaying() {
         // После открытия клеток переключаем участников в выживание и выдаём ванильные и LBC-наборы.
         if (alivePlayers().size() < 2) { restoreLobby(); return; }
+        luckyModifiers.startMatch();
         maps.cages(false); maps.fillChests(false);
         transition(Stage.PLAYING); gameTicks = 0;
         events.start();
@@ -519,6 +525,7 @@ public final class GameController {
             if (config.vanillaSkills) events.giveSkill(player);
             items.magic().colors().resetResources(player);
             lbc.apply(player);
+            items.stand().matchStarted(player);
         }
         maps.level().getGameRules().set(GameRules.BLOCK_DROPS, true, server);
         maps.level().getGameRules().set(GameRules.ENTITY_DROPS, true, server);
@@ -545,6 +552,8 @@ public final class GameController {
         Participant p = participants.get(player.getUUID());
         if (p == null || p.lives <= 0 || p.awaitingRespawn) return;
         events.removePlayerSkill(player);
+        items.stand().died(player);
+        items.mobgun().forget(player);
         p.lives--; p.awaitingRespawn = true;
         attributeHud.clear(player);
         items.resetRocket(player);
@@ -577,6 +586,7 @@ public final class GameController {
             if (config.vanillaKits) events.giveKit(player);
             if (config.vanillaSkills) events.giveSkill(player);
             lbc.apply(player, false);
+            items.stand().respawned(player);
         } else if (stage == Stage.LOBBY && lobbyReady) lobbyPlayer(player);
         else if (stage == Stage.LOADING) loadingPlayer(player);
         else { if (p != null) p.awaitingRespawn = false; spectators.enter(player); teleport(player, maps.look(), 0, 0); }
@@ -603,6 +613,7 @@ public final class GameController {
     public void entityUnloaded(Entity entity) { events.entityUnloaded(entity); items.entityUnloaded(entity); }
 
     private void finish() {
+        luckyModifiers.endMatch();
         items.stop();
         events.stop(); maps.cages(false); bar.setVisible(false); bar.removeAllPlayers();
         List<ServerPlayer> alive = participants.entrySet().stream().filter(e -> e.getValue().lives > 0
@@ -640,6 +651,7 @@ public final class GameController {
     }
 
     private void restoreLobby() {
+        luckyModifiers.endMatch();
         // Общая точка завершения/отмены матча: снимает временные состояния, готовит арену и ждёт callback лобби.
         boolean preserveFinishedMap = playing() || stage == Stage.ENDING;
         attributeHud.stop();
@@ -802,6 +814,8 @@ public final class GameController {
     private void transition(Stage next) {
         SkyWars2.LOGGER.info("[game] {} -> {}", stage, next);
         if (stage == Stage.LOBBY || next == Stage.LOBBY) maps.resetLobbyEntityCleanup();
+        // Lobby entry clears weather left by the match and parks all native weather timers.
+        if (next == Stage.LOBBY) server.setWeatherParameters(Integer.MAX_VALUE, Integer.MAX_VALUE, false, false);
         stage = next;
     }
 
@@ -879,6 +893,7 @@ public final class GameController {
     }
 
     public void shutdown() {
+        luckyModifiers.endMatch();
         attributeHud.stop();
         items.stop();
         spectators.clear();

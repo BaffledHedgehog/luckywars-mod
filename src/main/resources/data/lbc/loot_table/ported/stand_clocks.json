@@ -1,0 +1,101 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "skywars2:stand_clocks",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_x",
+                "minecraft:item_model": "lbc:stand_clock"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "stand_clocks",
+                  "color": "aqua",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "stand_clocks.lore.1",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "stand_clocks.lore.2",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "stand_clocks.lore.3",
+                  "color": "green",
+                  "italic": false
+                },
+                {
+                  "translate": "stand_clocks.lore.4",
+                  "color": "green",
+                  "italic": false
+                },
+                {
+                  "translate": "stand_clocks.lore.5",
+                  "color": "green",
+                  "italic": false
+                },
+                {
+                  "translate": "stand_clocks.lore.6",
+                  "color": "green",
+                  "italic": false
+                },
+                {
+                  "translate": "stand_clocks.lore.7",
+                  "color": "green",
+                  "italic": false
+                },
+                {
+                  "translate": "stand_clocks.lore.8",
+                  "color": "gold",
+                  "italic": false
+                },
+                [
+                  {
+                    "text": "Neqrest",
+                    "color": "green",
+                    "italic": false,
+                    "type": "text"
+                  },
+                  {
+                    "text": " No Nut November 2023 Event",
+                    "color": "dark_gray",
+                    "italic": false,
+                    "type": "text"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{stand_clocks:1,magicwand:1,spellwithcooldown:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -110,10 +110,17 @@ public final class LbcDamage {
         return source.is(DamageTypes.PLAYER_ATTACK) && source.getDirectEntity() == owner
                 && source.getEntity() == owner;
     }
-    /** Проводимость и дуги медитации вредят союзникам; только прямые дуги дают knockback. */
+    /** Friendship never filters damage from a real vanilla lightning entity. */
+    public static boolean isNativeLightning(DamageSource source) {
+        return source.getDirectEntity() instanceof net.minecraft.world.entity.LightningBolt
+                || source.is(DamageTypes.LIGHTNING_BOLT);
+    }
+    /** KFC spirits retain native fireball damage while ignoring friendship. */
+    public static boolean allowsKfcFriendlyFire(DamageSource source) {
+        return LbcBlaze.isKfcSpirit(source.getDirectEntity());
+    }
     public static boolean allowsElectricFriendlyFire(DamageSource source) {
-        return source.is(ELECTRO_CONDUCTION) || source.is(ELECTRO_MEDITATION)
-                || LbcElectro.eggLightning(source.getDirectEntity());
+        return isNativeLightning(source) || source.is(ELECTRO_CONDUCTION) || source.is(ELECTRO_MEDITATION);
     }
     /** Отдельные типы с исходным arrow-уроном сохраняют исключение arrow_only для атакующих пассивов. */
     public static boolean isArrowDamage(DamageSource source) {
@@ -123,9 +130,9 @@ public final class LbcDamage {
     public static boolean allowDamage(LivingEntity victim, DamageSource source) {
         var game=me.skywars2.SkyWars2.game();
         if(game!=null && !game.items().indirectKills().allowEnvironmentDamage(victim,source)) return false;
-        if(game!=null && source.getDirectEntity()!=null) {
+        if(game!=null && source.getDirectEntity()!=null && !isNativeLightning(source) && !allowsKfcFriendlyFire(source)) {
             var reflected=game.items().electro().reflectedOwner(source.getDirectEntity());
-            if(reflected!=null && !game.items().wands().target(reflected,victim)) return false;
+            if(reflected!=null && !game.items().wands().projectileTarget(reflected,victim)) return false;
         }
         if (!isElectric(source)) return true;
         // Флаги — серверная идентичность сета; Techno и MK2 можно смешивать в четырёх слотах.

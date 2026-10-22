@@ -1,0 +1,160 @@
+"""Run Reroll Machine checks in the fixed isolated server, across two matches."""
+from pathlib import Path
+import argparse
+import hashlib
+import json
+import io
+import zipfile
+
+from smoke_infbolt import enable_empty_roll_probe
+import shutil
+import time
+
+import smoke_game_cycle as cycle
+
+
+def run(server_dir: Path) -> None:
+    allowed = (cycle.PROJECT / "build/verification/key-reuse-server").resolve()
+    if server_dir.resolve() != allowed:
+        raise ValueError("Reroll Machine only runs in build/verification/key-reuse-server")
+    cycle.SERVER = allowed
+    properties = dict(line.split("=", 1) for line in (allowed / "server.properties").read_text(
+        encoding="utf-8").splitlines() if line and not line.startswith("#") and "=" in line)
+    if properties.get("server-port") != "25576":
+        raise ValueError("Reroll Machine isolated server must use port 25576")
+    if not (allowed / "fabric-server-launch.jar").is_file():
+        raise FileNotFoundError("Isolated Fabric launcher is absent")
+    cycle.require_stopped(allowed)
+    settings_path = allowed / "config/luckywars/game.json"
+    profiles_path = allowed / "config/luckywars/players.json"
+    world = (allowed / properties.get("level-name", "world")).resolve()
+    world.relative_to(allowed)
+    empty_pack = world / "datapacks/codex_infbolt_empty_roll_probe.zip"
+    if empty_pack.exists():
+        raise FileExistsError(f"Reserved temporary smoke datapack already exists: {empty_pack}")
+    backups = {path: path.read_bytes() if path.exists() else None
+               for path in (settings_path, profiles_path, empty_pack)}
+    artifact = cycle.PROJECT / "build/libs/skywars2-0.1.0.jar"
+    source_sha256 = hashlib.sha256(artifact.read_bytes()).hexdigest()
+    installed = allowed / "mods/skywars2.jar"
+    installed.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(artifact, installed)
+    tested_sha256 = hashlib.sha256(installed.read_bytes()).hexdigest()
+    if source_sha256 != tested_sha256:
+        raise AssertionError("Installed artifact differs from source artifact")
+    active = None
+    started = time.monotonic()
+    completed = []
+    success = False
+    try:
+        metadata = json.loads((cycle.PROJECT / "src/main/resources/data/pack.mcmeta").read_text(encoding="utf-8"))
+        metadata["pack"]["description"] = "Temporary Reroll Machine empty loot integration probe"
+        ready_marker = f"CODEX_REROLL_MACHINE_PACK_READY_{time.time_ns()}"
+        pack_bytes = io.BytesIO()
+        with zipfile.ZipFile(pack_bytes, "w") as archive:
+            archive.writestr("pack.mcmeta", json.dumps(metadata))
+            archive.writestr("data/lbc/loot_table/transformables_pickaxe.json", json.dumps({"pools": []}))
+            archive.writestr("data/lbc/loot_table/transformables_pickaxe_all.json", json.dumps({"pools": []}))
+            # Two distinct native loot stacks detect accidental getFirst-only delivery.
+            bundle = {"pools": [{"rolls": 1, "entries": [{"type": "minecraft:item", "name": item,
+                       "modifier": [{"type": "minecraft:set_count", "count": count}]}]}
+                       for item, count in (("minecraft:diamond", 2), ("minecraft:wheat_seeds", 7))]}
+            archive.writestr("data/lbc/loot_table/transformables_accessory_all.json", json.dumps(bundle))
+            ordinary = json.loads(json.dumps(bundle))
+            # Both rewards require the actual source player and loot origin one block above it.
+            for pool in ordinary["pools"]:
+                pool["condition"] = {"type": "minecraft:entity_properties", "entity": "this",
+                                       "predicate": {"entity_type": "minecraft:player",
+                                                     "distance": {"y": {"min": 1, "max": 1}}}}
+            archive.writestr("data/lbc/loot_table/transformables_accessory.json", json.dumps(ordinary))
+            archive.writestr("data/codex_probe/function/infbolt_ready.mcfunction", f"say {ready_marker}\n")
+        empty_pack.parent.mkdir(parents=True, exist_ok=True)
+        empty_pack.write_bytes(pack_bytes.getvalue())
+        settings = json.loads(backups[settings_path] or b"{}")
+        settings.update(lives=2, health=20, day=1, gameMode=1, countdownSeconds=1,
+                        stageOneSeconds=600, stageTwoSeconds=1200, endingSeconds=1,
+                        stageOneEvent=0, stageTwoEvent=0, vanillaKits=False,
+                        vanillaSkills=False, lbcKits=True, lbcSkills=True,
+                        lbcLevelups=True, lbcLevelupLimit=4, mapId="1", broken=False, noBorders=True)
+        settings_path.parent.mkdir(parents=True, exist_ok=True)
+        settings_path.write_text(json.dumps(settings, indent=2) + "\n", encoding="utf-8")
+        active = cycle.Server("reroll-machine")
+        active.expect("LOADING -> LOBBY", timeout=180)
+        active.expect("Selected map ready: 1", timeout=180)
+        enable_empty_roll_probe(active, ready_marker)
+        active.check("bots")
+        active.check("loot-test-catalog")
+        active.check("shooter-pools-menu")
+        active.check("reroll-machine-menu")
+        for match in (1, 2):
+            if match == 2:
+                active.prepare_map(1)
+            cursor = active.send("sw start")
+            active.expect("-> PLAYING", cursor)
+            for suite in ("reroll-machine", "reroll-machine-empty", "tiny-reforge", "tiny-reforge-empty", "tiny-wand-crafting",
+                          "terra-crafting", "electro-crafting", "infbolt-crafting",
+                          "typed-items", "shooter-pools", "infbolt-empty"):
+                active.check(suite)
+                completed.append({"match": match, "suite": suite})
+            cursor = active.send("sw stop")
+            active.expect("LOADING -> LOBBY", cursor)
+
+        # Restore ordinary/Ultra accessory tables before testing native acquisition pools.
+        active.send('datapack disable "file/codex_infbolt_empty_roll_probe.zip"')
+        active.stop()
+        active = None
+        cycle.require_stopped(allowed)
+        ready_marker = f"CODEX_REROLL_REGRESSION_READY_{time.time_ns()}"
+        regression = io.BytesIO()
+        with zipfile.ZipFile(regression, "w") as archive:
+            archive.writestr("pack.mcmeta", json.dumps(metadata))
+            archive.writestr("data/lbc/loot_table/transformables_pickaxe.json", json.dumps({"pools": []}))
+            archive.writestr("data/codex_probe/function/infbolt_ready.mcfunction", f"say {ready_marker}\n")
+        empty_pack.write_bytes(regression.getvalue())
+        active = cycle.Server("reroll-machine-regression")
+        active.expect("LOADING -> LOBBY", timeout=180)
+        active.expect("Selected map ready: 1", timeout=180)
+        enable_empty_roll_probe(active, ready_marker)
+        active.check("bots")
+        for match in (1, 2):
+            if match == 2:
+                active.prepare_map(1)
+            cursor = active.send("sw start")
+            active.expect("-> PLAYING", cursor)
+            for suite in ("lightning-acquisition", "lightning-acquisition-empty", "typed-items",
+                          "lightning-rules", "shooter-pools", "infbolt", "infbolt-empty",
+                          "lightning-acquisition-stop-probe"):
+                active.check(suite)
+                completed.append({"match": match, "phase": "native-acquisition", "suite": suite})
+            cursor = active.send("sw stop")
+            active.expect("LOADING -> LOBBY", cursor)
+            active.check("lightning-acquisition-cleanup")
+        success = True
+        print("REROLL MACHINE CHECKS PASSED", flush=True)
+    finally:
+        try:
+            if active is not None:
+                try:
+                    if active.process.poll() is None:
+                        active.send('datapack disable "file/codex_infbolt_empty_roll_probe.zip"')
+                finally:
+                    active.stop()
+        finally:
+            for path, original in backups.items():
+                if original is None:
+                    path.unlink(missing_ok=True)
+                else:
+                    path.write_bytes(original)
+            (cycle.OUT / "reroll-machine-results.json").write_text(json.dumps({
+                "success": success, "scope": "native-menu-crafting-and-gameplay; no client/shader qualification",
+                "pendingAuthorDecisions": [],
+                "completed": completed, "artifactSha256": tested_sha256,
+                "sourceArtifactSha256": source_sha256, "serverDirectory": str(allowed),
+                "serverPort": 25576, "elapsedSeconds": round(time.monotonic() - started, 2)
+            }, indent=2) + "\n", encoding="utf-8")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--server-dir", type=Path, required=True)
+    run(parser.parse_args().server_dir)

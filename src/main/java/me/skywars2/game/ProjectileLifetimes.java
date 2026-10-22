@@ -26,6 +26,7 @@ public final class ProjectileLifetimes {
         return entity instanceof LbcAir.Charge || entity instanceof LbcBlind.Charge
                 || entity instanceof LbcExasperato.Charge || entity instanceof LbcExoperso.Charge
                 || entity instanceof LbcPsycho.Charge || entity instanceof LbcStone.Charge
+                || entity instanceof LbcLifestealer.Charge || entity instanceof LbcGovnomet.Charge
                 || entity instanceof LbcRuby.Charge || entity instanceof LbcTeleport.Charge
                 || entity instanceof LbcTerra.TerraProjectile
                 || entity.entityTags().contains("skywars2.wand.fire")
@@ -234,7 +235,7 @@ public final class ProjectileLifetimes {
     boolean target(ServerPlayer owner, Entity entity) {
         return entity instanceof LivingEntity && entity.level() == owner.level()
                 && entity.getType().builtInRegistryHolder().is(MOBS)
-                && game.items().wands().target(owner, entity);
+                && game.items().wands().projectileTarget(owner, entity);
     }
 
     /** Конечная высота поиска Nuke: учитываем и мобов за высотой строительства, без обхода всего мира. */

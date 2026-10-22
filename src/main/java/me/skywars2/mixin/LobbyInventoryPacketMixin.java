@@ -98,7 +98,7 @@ public abstract class LobbyInventoryPacketMixin {
     @Unique
     private boolean skywars2$rejectStunnedMutation(CallbackInfo ci) {
         var game = SkyWars2.game();
-        if (game == null || !game.items().shooters().stunned(player)) return false;
+        if (game == null || !game.items().shooters().stunned(player) && !game.items().timeStop().frozen(player)) return false;
         // Never apply lobby inventory replacement to an in-match stunned player.
         player.containerMenu.sendAllDataToRemote();
         if (player.containerMenu != player.inventoryMenu) player.inventoryMenu.sendAllDataToRemote();

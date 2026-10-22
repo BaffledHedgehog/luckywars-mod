@@ -101,6 +101,16 @@ public final class LbcFrost {
         save(state);
     }
 
+    /** Existing frost counters retain their native stored units (seconds for both timers). */
+    void addPlayerCounters(ServerPlayer player) {
+        var state=affected.get(player);
+        if(state==null || !eligible(player)) return;
+        if(state.cold>0) state.cold++;
+        if(state.cooldown>0) state.cooldown++;
+        if(state.frozen>0) state.frozen++;
+        save(state);
+    }
+
     private void check(State state, ServerPlayer source) {
         var entity = state.entity;
         level().sendParticles(ParticleTypes.SNOWFLAKE, entity.getX(), entity.getY()+.81, entity.getZ(), state.cold/2, .3, .4, .3, 0);

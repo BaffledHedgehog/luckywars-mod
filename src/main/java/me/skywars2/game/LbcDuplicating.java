@@ -36,11 +36,19 @@ public final class LbcDuplicating {
     private static final int FLAGS=Block.UPDATE_CLIENTS|Block.UPDATE_SUPPRESS_DROPS|Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS;
     private final GameController game;
     private final List<MarkerState> markers=new ArrayList<>();
-    private final List<Seed> seeds=new ArrayList<>();
-    private final List<Job> jobs=new ArrayList<>();
+    private final java.util.Set<Job> jobs=new java.util.LinkedHashSet<>();
+    private final java.util.Map<net.minecraft.world.level.block.state.BlockState,MapManager.BlockSnapshot> plainSnapshots=new IdentityHashMap<>();
     private final java.util.Map<ServerPlayer,Integer> dividerTimers=new IdentityHashMap<>();
-    private CompletableFuture<MapManager.BlockPattern> preparation;
-    private MapManager.BlockPattern holePattern;
+    private static final double HOLE_INFLUENCE=16,HOLE_STRONG=1.3,HOLE_DESTRUCTION=7;
+    private static final float HOLE_SHADER_RADIUS=.5f;
+    private static final List<BlockPos> HOLE_CELLS=holeCells();
+    private static List<BlockPos> holeCells() {
+        var cells=new ArrayList<BlockPos>();
+        for(int x=-7;x<=7;x++) for(int y=-7;y<=7;y++) for(int z=-7;z<=7;z++)
+            cells.add(new BlockPos(x,y,z));
+        cells.sort(java.util.Comparator.comparingInt(pos->pos.getX()*pos.getX()+pos.getY()*pos.getY()+pos.getZ()*pos.getZ()));
+        return List.copyOf(cells);
+    }
     private static class Owned {
         final ServerPlayer owner; final ServerLevel level; final String epoch;
         boolean cancelled;
@@ -48,31 +56,23 @@ public final class LbcDuplicating {
     }
     private static final class MarkerState extends Owned {
         Vec3 point; final Vec3 direction; final int mode,lifetime; int age;
-        Job terrain;
+        BlackHoleVisuals.Handle visual;
+        HoleTerrain terrain;
+        LiveShuffle shuffle;
         MarkerState(ServerPlayer owner,String epoch,Vec3 point,Vec3 direction,int mode,int lifetime) {
             super(owner,epoch); this.point=point; this.direction=direction; this.mode=mode; this.lifetime=lifetime;
         }
     }
     private static final class Seed extends Owned {
-        Vec3 point; final float pitch,yaw; final MarkerState parent; final boolean expand;
+        // One operation batch's parameters; never registered as a moving center or entity.
+        Vec3 point; final Vec3 center; final float pitch,yaw; final MarkerState parent; final boolean expand;
         Seed(MarkerState parent,Vec3 point,float pitch,float yaw) {
-            super(parent.owner,parent.epoch); this.parent=parent; this.point=point; this.pitch=pitch; this.yaw=yaw; expand=parent.mode==2;
+            super(parent.owner,parent.epoch); this.parent=parent; this.center=parent.point; this.point=point; this.pitch=pitch; this.yaw=yaw; expand=parent.mode==2;
         }
     }
     LbcDuplicating(GameController game) { this.game=game; }
-    public void prepare() {
-        holePattern=null;
-        preparation=game.maps().prepareBlockPattern(Identifier.parse("lbc:obsidian_sphere_air_r7"));
-    }
-    public boolean ready() {
-        if(holePattern==null && preparation!=null && preparation.isDone()) {
-            try { holePattern=preparation.join(); }
-            catch(java.util.concurrent.CompletionException error) {
-                me.skywars2.SkyWars2.LOGGER.error("Duplicating preparation failed",error); preparation=null;
-            }
-        }
-        return holePattern!=null;
-    }
+    public void prepare() { }
+    public boolean ready() { return true; }
     private boolean valid(ServerPlayer owner) {
         return owner!=null && owner.isAlive() && !owner.isRemoved() && owner.level()==game.maps().level()
                 && game.canUseGameplayItems(owner) && !game.isObserver(owner) && game.stage()!=GameController.Stage.ENDING;
@@ -104,8 +104,10 @@ public final class LbcDuplicating {
         } else if(mode==3) queue(new Divide(owner));
         else {
             Vec3 direction=owner.getLookAngle().normalize();
-            markers.add(new MarkerState(owner,game.items().epoch(),owner.getEyePosition().add(direction.scale(mode==2?14:mode==4?8:7)),
-                    direction,mode,mode==2?100:mode==4?300:200));
+            var marker=new MarkerState(owner,game.items().epoch(),owner.getEyePosition().add(direction.scale(mode==2?14:mode==4?8:7)),
+                    direction,mode,mode==2?100:mode==4?300:200);
+            if(mode==4) marker.visual=game.items().blackHoleVisuals().create(owner,marker.point,HOLE_SHADER_RADIUS);
+            markers.add(marker);
         }
         game.items().wands().wandCasted(owner); return true;
     }
@@ -137,6 +139,10 @@ public final class LbcDuplicating {
     }
     private static float pitch(Vec3 direction) { return (float)-Math.toDegrees(Math.asin(direction.y)); }
     private static float yaw(Vec3 direction) { return (float)Math.toDegrees(Math.atan2(-direction.x,direction.z)); }
+    /** A FULL ticket is not a loaded chunk: getBlockState after hasChunkAt can still block on generation. */
+    private static boolean resident(ServerLevel level,BlockPos pos) {
+        return level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)!=null;
+    }
     private void queue(Job job) { jobs.add(job); game.items().stonekivi().queuedWork(job); }
     private interface Operation { boolean step(Job job,long deadline,int[] budget); }
     private static final class SharedCapture { MapManager.BlockSnapshot[] blocks; }
@@ -150,7 +156,7 @@ public final class LbcDuplicating {
         public boolean step() {
             if(!valid(this)) { cancel(); return true; }
             if(paused(owner)) return false;
-            long deadline=System.nanoTime()+500_000; int[] budget={512};
+            long deadline=System.nanoTime()+500_000; int[] budget={4096};
             while(!operations.isEmpty() && budget[0]>0 && System.nanoTime()<deadline) {
                 if(!operations.peek().step(this,deadline,budget)) return false;
                 operations.remove();
@@ -160,7 +166,7 @@ public final class LbcDuplicating {
         public boolean ready() { return !held || !operations.isEmpty() || !valid(this); }
         public void cancel() { cancelled=true; operations.clear(); loading.clear(); jobs.remove(this); }
         int sourceReady(ServerLevel source,BlockPos pos) {
-            if(source.hasChunkAt(pos)) return 1;
+            if(resident(source,pos)) return 1;
             var pending=loading.computeIfAbsent(source,ignored->new java.util.HashMap<>())
                     .computeIfAbsent(new ChunkPos(pos.getX()>>4,pos.getZ()>>4),chunk->game.maps().prepareChunk(source,chunk));
             return pending.isCompletedExceptionally()?-1:0;
@@ -201,7 +207,7 @@ public final class LbcDuplicating {
         public boolean step(Job job,long deadline,int[] budget) {
             if(rejected) return true;
             while(read<volume && budget[0]>0 && System.nanoTime()<deadline) {
-                BlockPos pos=sourceCell(read); if(!job.level.hasChunkAt(pos)) return false;
+                BlockPos pos=sourceCell(read); if(!resident(job.level,pos)) return false;
                 if(selected(read)) captured[read]=game.maps().snapshot(job.level,pos);
                 read++; budget[0]--;
             }
@@ -209,7 +215,7 @@ public final class LbcDuplicating {
             // Перенос не удаляет оригиналы, пока вся выбранная область назначения не доступна.
             if(action!=Action.DELETE) {
                 while(destinationReady<volume && budget[0]>0 && System.nanoTime()<deadline) {
-                    if(captured[destinationReady]!=null && !job.level.hasChunkAt(destinationCell(destinationReady))) {
+                    if(captured[destinationReady]!=null && !resident(job.level,destinationCell(destinationReady))) {
                         destinationReady=0; return false;
                     }
                     destinationReady++; budget[0]--;
@@ -218,8 +224,8 @@ public final class LbcDuplicating {
             }
             game.items().indirectKills().trapChanges(job.level,job.owner,()-> {
                 if(action!=Action.COPY) while(clear<volume && budget[0]>0 && System.nanoTime()<deadline) {
-                    BlockPos pos=sourceCell(clear); if(!job.level.hasChunkAt(pos)) return;
-                    if(action!=Action.DELETE && captured[clear]!=null && !job.level.hasChunkAt(destinationCell(clear))) {
+                    BlockPos pos=sourceCell(clear); if(!resident(job.level,pos)) return;
+                    if(action!=Action.DELETE && captured[clear]!=null && !resident(job.level,destinationCell(clear))) {
                         destinationReady=0; return;
                     }
                     if(captured[clear]!=null) {
@@ -230,7 +236,7 @@ public final class LbcDuplicating {
                 }
                 if((action!=Action.COPY && clear<volume) || action==Action.DELETE) return;
                 while(write<volume && budget[0]>0 && System.nanoTime()<deadline) {
-                    BlockPos pos=destinationCell(write); if(!job.level.hasChunkAt(pos)) return;
+                    BlockPos pos=destinationCell(write); if(!resident(job.level,pos)) return;
                     var snapshot=captured[write];
                     if(snapshot!=null) {
                         var state=snapshot.state();
@@ -248,23 +254,37 @@ public final class LbcDuplicating {
     void applyPatch(ServerPlayer owner,Vec3 source,Vec3 target,int sx,int sy,int sz,Shape shape,Action action,Rotation rotation,Mirror mirror) {
         var job=new Job(owner); job.operations.add(new Patch(owner.level(),source,target,sx,sy,sz,shape,action,rotation,mirror)); queue(job);
     }
-    private void randomPatch(Seed seed) {
-        var random=seed.owner.getRandom(); int sx=random.nextInt(7)+1,sy=random.nextInt(7)+1,sz=random.nextInt(7)+1;
-        Shape shape=Shape.values()[random.nextInt(Shape.values().length)]; int axis=random.nextInt(3);
-        if(shape==Shape.SLAB) { if(axis==0) sx=1; else if(axis==1) sy=1; else sz=1; }
-        else if(shape==Shape.LINE) { if(axis!=0) sx=1; if(axis!=1) sy=1; if(axis!=2) sz=1; }
-        else if(shape==Shape.SPHERE) sy=sz=sx;
-        Action action=Action.values()[random.nextInt(Action.values().length)];
-        Vec3 source=seed.point.add(-(sx-1)*.5,-(sy-1)*.5,-(sz-1)*.5);
-        Vec3 target=action==Action.ROTATE || action==Action.MIRROR?source:source.add(random.nextInt(17)-8,random.nextInt(17)-8,random.nextInt(17)-8);
-        Rotation rotation=new Rotation[]{Rotation.CLOCKWISE_90,Rotation.CLOCKWISE_180,Rotation.COUNTERCLOCKWISE_90}[random.nextInt(3)];
-        Mirror mirror=random.nextBoolean()?Mirror.LEFT_RIGHT:Mirror.FRONT_BACK;
-        applyPatch(seed.owner,source,target,sx,sy,sz,shape,action,rotation,mirror);
+    private MapManager.BlockSnapshot capture(ServerLevel level,BlockPos pos) {
+        var state=level.getBlockState(pos);
+        return state.hasBlockEntity()?game.maps().snapshot(level,pos)
+                :plainSnapshots.computeIfAbsent(state,value->new MapManager.BlockSnapshot(value,null));
     }
-    /** Снимок делается заново перед каждой командой, полностью до её первой записи. */
+    private boolean unchanged(ServerLevel level,BlockPos pos,MapManager.BlockSnapshot snapshot) {
+        return snapshot.entity()==null && !snapshot.state().hasBlockEntity() && level.getBlockState(pos)==snapshot.state();
+    }
+    /** Moving centers keep one current batch and one replaceable latest request, never a queue of old positions. */
+    private final class LiveShuffle extends Job {
+        final MarkerState marker; Seed latest;
+        LiveShuffle(MarkerState marker) { super(marker.owner); this.marker=marker; held=true; }
+        void offer(Seed seed) { latest=seed; }
+        @Override public boolean ready() {
+            return !valid(this) || !valid(marker) || !operations.isEmpty() || latest!=null || marker.age>=marker.lifetime;
+        }
+        @Override public boolean step() {
+            if(!valid(marker)) { cancel(); return true; }
+            if(paused(owner)) return false;
+            if(operations.isEmpty() && latest!=null) {
+                var seed=latest; latest=null;
+                if(!game.items().magic().suppressedAt(level,seed.point)) populate(this,seed);
+            }
+            held=marker.age<marker.lifetime || latest!=null;
+            return super.step();
+        }
+        @Override public void cancel() { latest=null; super.cancel(); }
+    }
     private final class Clone implements Operation {
         final ServerLevel source,destination; final BlockPos min,target; final int sx,sy,sz,volume;
-        MapManager.BlockSnapshot[] captured; int read,write; final boolean rejected;
+        MapManager.BlockSnapshot[] captured; int read,write; final boolean rejected; boolean aborted;
         final SharedCapture shared;
         Clone(ServerLevel source,Vec3 first,Vec3 last,ServerLevel destination,Vec3 target) {
             this(source,first,last,destination,target,null);
@@ -289,11 +309,12 @@ public final class LbcDuplicating {
             if(captured==null) captured=new MapManager.BlockSnapshot[volume];
             while(read<volume && budget[0]>0 && System.nanoTime()<deadline) {
                 BlockPos pos=cell(min,read);
-                if(!source.hasChunkAt(pos)) {
-                    if(source!=job.level && job.sourceReady(source,pos)<0) return true;
+                if(!resident(source,pos)) {
+                    if(source==job.level) return job instanceof LiveShuffle;
+                    if(job.sourceReady(source,pos)<0) return true;
                     return false;
                 }
-                captured[read++]=game.maps().snapshot(source,pos); budget[0]--;
+                captured[read++]=capture(source,pos); budget[0]--;
             }
             if(read<volume) return false;
             if(shared!=null) shared.blocks=captured;
@@ -301,12 +322,17 @@ public final class LbcDuplicating {
             game.items().indirectKills().trapChanges(destination,job.owner,()-> {
                 while(write<volume && budget[0]>0 && System.nanoTime()<deadline) {
                     BlockPos pos=cell(target,write);
-                    if(!destination.hasChunkAt(pos)) break;
-                    game.items().indirectKills().supportRemoved(destination,job.owner,pos);
-                    game.maps().restoreSnapshot(destination,pos,captured[write]);
+                    if(!resident(destination,pos)) { if(job instanceof LiveShuffle) { aborted=true; write=volume; } break; }
+                    var snapshot=captured[write];
+                    // Skip unchanged blocks before the support/ownership spatial queries, not afterwards.
+                    if(!unchanged(destination,pos,snapshot)) {
+                        game.items().indirectKills().supportRemoved(destination,job.owner,pos);
+                        game.maps().restoreSnapshot(destination,pos,snapshot);
+                    }
                     write++; budget[0]--;
                 }
             });
+            if(aborted) return true;
             if(write<volume) return false;
             // Один native перенос scheduled ticks на clone: не обходим индекс очереди по каждой строке.
             destination.getBlockTicks().copyAreaFrom(source.getBlockTicks(),
@@ -320,23 +346,47 @@ public final class LbcDuplicating {
         clone(job,local(seed.point,seed.pitch,seed.yaw,ax,ay,az),local(seed.point,seed.pitch,seed.yaw,bx,by,bz),
                 local(seed.point,seed.pitch,seed.yaw,tx,ty,tz));
     }
+    void applyShuffle(ServerPlayer owner,Vec3 point,float pitch,float yaw,Vec3 center,boolean expand) {
+        var parent=new MarkerState(owner,game.items().epoch(),center,Vec3.ZERO,expand?2:1,1);
+        seed(new Seed(parent,point,pitch,yaw));
+    }
+    /** Sequential legacy shuffle using the shared snapshot queue. */
     private void seed(Seed seed) {
-        if(!seed.expand) { randomPatch(seed); return; }
-        var job=new Job(seed.owner);
-        localClone(job,seed,0,0,0,15,0,0,-16,0,0);
-        localClone(job,seed,8,8,8,5,5,5,-5,-5,-5);
-        expandSources(job,seed.point,seed.pitch,seed.yaw);
-        Vec3 towards=seed.parent.point.subtract(seed.point).normalize();
+        if(game.items().magic().suppressedAt(seed.level,seed.point)) return;
+        var job=new Job(seed.owner); populate(job,seed); queue(job);
+    }
+    private void populate(Job job,Seed seed) {
+        if(seed.expand) {
+            localClone(job,seed,0,0,0,0,0,15,0,0,-16);
+            localClone(job,seed,0,0,0,0,15,0,0,-16,0);
+            localClone(job,seed,0,0,0,15,0,0,-16,0,0);
+            expandSources(job,seed.point,seed.pitch,seed.yaw);
+        } else {
+            localClone(job,seed,0,0,0,0,0,7,0,0,-8);
+            localClone(job,seed,0,0,0,0,7,0,0,-8,0);
+            localClone(job,seed,0,0,0,7,0,0,-8,0,0);
+        }
+        Vec3 towards=seed.center.subtract(seed.point).normalize();
         float pitch=pitch(towards),yaw=yaw(towards); int half=seed.expand?7:1,offset=seed.expand?14:4;
+        // Successful clones reject source/destination overlap, so none of these five writes
+        // can change their common source. Freeze the fan once, as in one legacy function,
+        // even when budgeted native work spans world ticks; retain its ordered writes.
+        var shared=new SharedCapture();
         for(int[] delta:new int[][]{{0,0},{1,0},{-1,0},{0,1},{0,-1}})
-            clone(job,seed.point.add(-half,-half,-half),seed.point.add(half,half,half),
-                    local(seed.point,pitch,yaw,delta[0]*offset,delta[1]*offset,offset));
-        queue(job);
+            job.operations.add(new Clone(job.level,seed.point.add(-half,-half,-half),seed.point.add(half,half,half),
+                    job.level,local(seed.point,pitch,yaw,delta[0]*offset,delta[1]*offset,offset),shared));
+        fill(job,seed.point,half);
     }
     private void crossClone(Job job,ServerLevel source,Vec3 point,float pitch,float yaw,
                             double ax,double ay,double az,double bx,double by,double bz,double tx,double ty,double tz) {
-        if(source!=null) job.operations.add(new Clone(source,local(point,pitch,yaw,ax,ay,az),local(point,pitch,yaw,bx,by,bz),
-                job.level,local(point,pitch,yaw,tx,ty,tz)));
+        if(source==null) return;
+        var operation=new Clone(source,local(point,pitch,yaw,ax,ay,az),local(point,pitch,yaw,bx,by,bz),
+                job.level,local(point,pitch,yaw,tx,ty,tz));
+        if(!operation.rejected && source!=job.level)
+            for(int cx=operation.min.getX()>>4;cx<=(operation.min.getX()+operation.sx-1)>>4;cx++)
+                for(int cz=operation.min.getZ()>>4;cz<=(operation.min.getZ()+operation.sz-1)>>4;cz++)
+                    job.sourceReady(source,new BlockPos(cx<<4,operation.min.getY(),cz<<4));
+        job.operations.add(operation);
     }
     private void expandSources(Job job,Vec3 point,float pitch,float yaw) {
         var nether=game.server().getLevel(Level.NETHER); var end=game.server().getLevel(Level.END);
@@ -360,9 +410,11 @@ public final class LbcDuplicating {
                 game.items().indirectKills().trapChanges(parent.owner,()-> {
                     while(cursor<volume && budget[0]>0 && System.nanoTime()<deadline) {
                         BlockPos pos=min.offset(cursor%sx,cursor/(sx*sz),(cursor/sx)%sz);
-                        if(!parent.level.hasChunkAt(pos)) break;
-                        game.items().indirectKills().supportRemoved(parent.level,parent.owner,pos);
-                        parent.level.setBlock(pos,Blocks.AIR.defaultBlockState(),FLAGS);
+                        if(!resident(parent.level,pos)) { if(parent instanceof LiveShuffle) cursor=volume; break; }
+                        if(!parent.level.getBlockState(pos).isAir()) {
+                            game.items().indirectKills().supportRemoved(parent.level,parent.owner,pos);
+                            parent.level.setBlock(pos,Blocks.AIR.defaultBlockState(),FLAGS);
+                        }
                         cursor++; budget[0]--;
                     }
                 }); return cursor==volume;
@@ -387,7 +439,7 @@ public final class LbcDuplicating {
             operations.add((job,deadline,budget)-> {
                 while(sample<=250 && budget[0]>0 && System.nanoTime()<deadline) {
                     Vec3 point=start.add(direction.scale(sample*.4));
-                    if(!level.hasChunkAt(BlockPos.containing(point))) return false;
+                    if(!resident(level,BlockPos.containing(point))) return false;
                     if(game.items().magic().suppressedAt(level,point)) return true;
                     sample++; budget[0]--;
                     LbcOverload.sound(owner,point,"minecraft:block.anvil.place",.05f,1,0);
@@ -405,52 +457,103 @@ public final class LbcDuplicating {
         }
     }
     private boolean protectedEntity(ServerPlayer owner,Entity target) {
-        return target instanceof Marker || target.entityTags().contains("strict_map_object")
+        return target.entityTags().contains("strict_map_object")
                 || target.entityTags().contains("core_marker") || target.entityTags().contains("map_object")
-                || ((target instanceof net.minecraft.world.entity.Display || target instanceof net.minecraft.world.entity.Interaction
+                || ((target instanceof Marker || target instanceof net.minecraft.world.entity.Display || target instanceof net.minecraft.world.entity.Interaction
                     || target instanceof net.minecraft.world.entity.AreaEffectCloud)
                     && target.entityTags().stream().anyMatch(tag->tag.startsWith("swrg.")))
                 || !game.items().wands().target(owner,target,true);
     }
-    private void hole(MarkerState marker) {
-        if(marker.terrain==null) { marker.terrain=new Job(marker.owner); marker.terrain.held=true; queue(marker.terrain); }
-        var job=marker.terrain; var origin=BlockPos.containing(marker.point.add(-7,-7,-7));
-        job.operations.add(new Operation() {
-            int cursor; final int sx=holePattern.size.getX(),sz=holePattern.size.getZ();
-            final int volume=sx*sz*holePattern.size.getY();
-            public boolean step(Job parent,long deadline,int[] budget) {
-                game.items().indirectKills().trapChanges(parent.owner,()-> {
-                    while(cursor<volume && budget[0]>0 && System.nanoTime()<deadline) {
-                        int x=cursor%sx,y=cursor/(sx*sz),z=(cursor/sx)%sz; var pos=origin.offset(x,y,z);
-                        if(!parent.level.hasChunkAt(pos)) break;
-                        var state=holePattern.state(x,y,z);
-                        if(state!=null && parent.owner.getRandom().nextFloat()<=.65f) {
-                            game.items().indirectKills().supportRemoved(parent.level,parent.owner,pos);
-                            parent.level.setBlock(pos,state,FLAGS);
-                        }
-                        cursor++; budget[0]--;
-                    }
-                }); return cursor==volume;
-            }
-        });
+    private static final class PullSample {
+        final MarkerState[] holes=new MarkerState[2]; final Vec3[] points=new Vec3[2]; int seen;
+        void consider(MarkerState hole) {
+            int index=seen<2?seen:hole.owner.getRandom().nextInt(seen+1);
+            if(index<2) { holes[index]=hole; points[index]=hole.point; }
+            seen++;
+        }
+    }
+    /** One replaceable center-outward pass per hole, scheduled by the existing shared queue. */
+    private final class HoleTerrain extends Job {
+        final MarkerState marker; BlockPos origin; int cursor,refreshAt;
+        HoleTerrain(MarkerState marker) { super(marker.owner); this.marker=marker; }
+        @Override public boolean ready() {
+            return !valid(this) || !valid(marker) || !BlockPos.containing(marker.point).equals(origin)
+                    || cursor<HOLE_CELLS.size() || marker.age>=refreshAt;
+        }
+        @Override public boolean step() {
+            if(!valid(this) || !valid(marker) || game.items().magic().suppressedAt(level,marker.point)) { cancel(); return true; }
+            if(paused(owner)) return false;
+            BlockPos latest=BlockPos.containing(marker.point);
+            if(!latest.equals(origin) || cursor>=HOLE_CELLS.size() && marker.age>=refreshAt) { origin=latest; cursor=0; }
+            long deadline=System.nanoTime()+500_000; int[] budget={512};
+            game.items().indirectKills().trapChanges(level,owner,()-> {
+                while(cursor<HOLE_CELLS.size() && budget[0]>0 && System.nanoTime()<deadline) {
+                    BlockPos pos=origin.offset(HOLE_CELLS.get(cursor++)); budget[0]--;
+                    if(pos.getY()<level.getMinY() || pos.getY()>level.getMaxY() || !resident(level,pos)
+                            || Vec3.atCenterOf(pos).distanceToSqr(marker.point)>HOLE_DESTRUCTION*HOLE_DESTRUCTION || level.getBlockState(pos).isAir()
+                            || game.items().magic().suppressedAt(level,Vec3.atCenterOf(pos))) continue;
+                    game.items().indirectKills().supportRemoved(level,owner,pos);
+                    level.setBlock(pos,Blocks.AIR.defaultBlockState(),FLAGS);
+                }
+            });
+            if(cursor>=HOLE_CELLS.size()) refreshAt=marker.age+20;
+            return false;
+        }
+    }
+    private void removeVisual(MarkerState marker) {
+        if(marker.visual!=null) { game.items().blackHoleVisuals().remove(marker.visual); marker.visual=null; }
+        if(marker.terrain!=null) { marker.terrain.cancel(); marker.terrain=null; }
+    }
+    private void hole(MarkerState marker,java.util.Map<Entity,PullSample> pulls) {
+        if(marker.terrain==null) { marker.terrain=new HoleTerrain(marker); queue(marker.terrain); }
+        if(marker.visual==null) marker.visual=game.items().blackHoleVisuals().create(marker.owner,marker.point,HOLE_SHADER_RADIUS);
+        else game.items().blackHoleVisuals().move(marker.visual,marker.point);
         var source=new DamageSource(marker.owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.DUPLICATING_HOLE),marker.owner);
         int damaged=0;
-        for(var target:marker.level.getEntities((Entity)null,new AABB(marker.point,marker.point).inflate(7),entity->
-                !protectedEntity(marker.owner,entity) && entity.position().distanceToSqr(marker.point)<=49)) {
-            if(game.items().magic().suppressedAt(marker.level,target.position())) continue;
-            boolean enemy=game.items().wands().target(marker.owner,target);
-            if(target instanceof ServerPlayer && !enemy) continue;
-            Vec3 point=target.position().add(marker.point.subtract(target.position()).normalize().scale(.35));
-            if(marker.level.hasChunkAt(BlockPos.containing(point))) {
-                target.teleportTo(point.x,point.y,point.z);
-                if(target instanceof LivingEntity living) game.items().indirectKills().displaced(living,marker.owner);
-            }
-            if(target instanceof LivingEntity living && enemy && damaged<5 && target.position().distanceToSqr(marker.point)<=16
+        for(var target:marker.level.getEntities((Entity)null,new AABB(marker.point,marker.point).inflate(HOLE_INFLUENCE),entity->
+                !protectedEntity(marker.owner,entity) && game.items().wands().target(marker.owner,entity)
+                        && entity.position().distanceToSqr(marker.point)<=HOLE_INFLUENCE*HOLE_INFLUENCE)) {
+            if(game.items().magic().suppressedAt(marker.level,target.position()) || target.entityTags().contains("time_stopped")) continue;
+            double distance=target.position().distanceToSqr(marker.point);
+            // Input includes walking, jumping, crouching and sprinting.
+            if(distance<=HOLE_STRONG*HOLE_STRONG || !(target instanceof ServerPlayer player)
+                    || player.getLastClientInput().equals(net.minecraft.world.entity.player.Input.EMPTY))
+                pulls.computeIfAbsent(target,ignored->new PullSample()).consider(marker);
+            if(target instanceof LivingEntity living && damaged<5 && distance<=HOLE_STRONG*HOLE_STRONG
                     && game.items().mana().score(target,"void_resistance").get()<=0) {
                 living.hurtServer(marker.level,source,.01f); damaged++;
             }
         }
     }
+    private void applyPulls(java.util.Map<Entity,PullSample> pulls) {
+        for(var entry:pulls.entrySet()) {
+            Entity target=entry.getKey(); PullSample sample=entry.getValue(); Vec3 combined=Vec3.ZERO;
+            if(!target.isAlive() || target.isRemoved()) continue;
+            double strongest=0; MarkerState author=null;
+            for(int index=0;index<sample.holes.length;index++) {
+                var hole=sample.holes[index];
+                if(hole==null || !valid(hole)) continue;
+                Vec3 direction=sample.points[index].subtract(target.position()); double distance=direction.length();
+                if(distance<1.0e-6) continue;
+                double strength=distance<=HOLE_STRONG?.18:.012*Math.max(0,(HOLE_INFLUENCE-distance)/(HOLE_INFLUENCE-HOLE_STRONG));
+                combined=combined.add(direction.scale(strength/distance));
+                if(strength>strongest) { strongest=strength; author=hole; }
+            }
+            double length=combined.length();
+            if(length<1.0e-6) continue;
+            // Two sampled holes stack, with a bound on their combined acceleration.
+            Vec3 force=combined.scale(Math.min(length,.35)/length);
+            target.setDeltaMovement(target.getDeltaMovement().add(force)); target.needsSync=true;
+            if(target instanceof ServerPlayer player)
+                player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket(player));
+            if(target instanceof LivingEntity living && author!=null) game.items().indirectKills().displaced(living,author.owner);
+        }
+    }
+    /** Source divider_cd is scoreboard-owned; food must enroll newly positive entries for ticking. */
+    void addPlayerCounters(ServerPlayer owner) {
+        if(game.items().mana().hudValue(owner,"divider_cd")>0) dividerTimers.putIfAbsent(owner,0);
+    }
+
     public void tick() {
         for(var entry:List.copyOf(dividerTimers.entrySet())) {
             var owner=entry.getKey();
@@ -463,59 +566,57 @@ public final class LbcDuplicating {
             }
             dividerTimers.put(owner,phase);
         }
-        for(var seed:List.copyOf(seeds)) {
-            if(!valid(seed) || game.items().magic().suppressedAt(seed.level,seed.point)) { seeds.remove(seed); continue; }
-            if(paused(seed.owner)) continue;
-            if(!seed.level.hasChunkAt(BlockPos.containing(seed.point))) continue;
-            seed(seed); seeds.remove(seed);
-        }
+        var pulls=new IdentityHashMap<Entity,PullSample>();
         for(var marker:List.copyOf(markers)) {
             if(!valid(marker) || game.items().magic().suppressedAt(marker.level,marker.point)) {
-                if(marker.terrain!=null) marker.terrain.held=false;
+                marker.cancelled=true; removeVisual(marker);
                 markers.remove(marker); continue;
             }
-            if(paused(marker.owner) || !marker.level.hasChunkAt(BlockPos.containing(marker.point))) continue;
+            if(paused(marker.owner) || !resident(marker.level,BlockPos.containing(marker.point))) continue;
             Vec3 before=marker.point;
-            if(marker.mode==4) hole(marker);
+            if(marker.mode==4) hole(marker,pulls);
             else {
                 Vec3 point=new Vec3(Math.floor(before.x)+marker.owner.getRandom().nextInt(9)-4,
                         Math.floor(before.y)+marker.owner.getRandom().nextInt(9)-4,Math.floor(before.z)+marker.owner.getRandom().nextInt(9)-4);
-                seeds.add(new Seed(marker,point,randomPitch(marker.owner),randomYaw(marker.owner)));
+                if(marker.shuffle==null) { marker.shuffle=new LiveShuffle(marker); queue(marker.shuffle); }
+                marker.shuffle.offer(new Seed(marker,point,randomPitch(marker.owner),randomYaw(marker.owner)));
             }
             if(marker.mode!=4) {
                 marker.level.sendParticles(ParticleTypes.REVERSE_PORTAL,before.x,before.y,before.z,10,0,0,0,1);
                 LbcOverload.sound(marker.owner,before,"minecraft:entity.bee.loop_aggressive",.1f,0,30);
             }
             marker.point=before.add(marker.direction.scale(marker.mode==2?2:marker.mode==4?.3:1));
+            if(marker.visual!=null) game.items().blackHoleVisuals().move(marker.visual,marker.point);
             if(++marker.age>=marker.lifetime) {
-                if(marker.mode==4) { fill(marker.terrain,before,4); marker.terrain.held=false; }
+                removeVisual(marker);
                 markers.remove(marker);
             }
         }
+        applyPulls(pulls);
     }
-    public int count() { return markers.size()+seeds.size()+jobs.size(); }
+    public int count() { return markers.size()+jobs.size(); }
     public void forget(ServerPlayer owner) {
         if(dividerTimers.remove(owner)!=null) game.items().mana().score(owner,"divider_cd").set(0);
-        markers.removeIf(state->state.owner==owner); seeds.removeIf(state->state.owner==owner);
+        markers.removeIf(state->{ if(state.owner!=owner) return false; removeVisual(state); return true; });
         for(var job:List.copyOf(jobs)) if(job.owner==owner) job.cancel();
     }
     public void stop() {
-        markers.clear(); seeds.clear(); for(var job:List.copyOf(jobs)) job.cancel();
+        for(var marker:markers) removeVisual(marker);
+        markers.clear(); for(var job:List.copyOf(jobs)) job.cancel();
         for(var owner:dividerTimers.keySet()) game.items().mana().score(owner,"divider_cd").set(0);
         dividerTimers.clear();
     }
     public void transformOrigins(ServerLevel level,UnaryOperator<Vec3> transform) {
         for(var marker:markers) if(marker.level==level) {
             Vec3 point=transform.apply(marker.point);
-            if(point==null) { marker.cancelled=true; if(marker.terrain!=null) marker.terrain.cancel(); }
-            else marker.point=point;
+            if(point==null) { marker.cancelled=true; removeVisual(marker); }
+            else { marker.point=point; if(marker.visual!=null) game.items().blackHoleVisuals().move(marker.visual,point); }
         }
-        for(var seed:seeds) if(seed.level==level) { Vec3 point=transform.apply(seed.point); if(point==null) seed.cancelled=true; else seed.point=point; }
-        markers.removeIf(state->state.cancelled); seeds.removeIf(state->state.cancelled);
+        markers.removeIf(state->state.cancelled);
     }
     record MarkerView(ServerPlayer owner,String epoch,ServerLevel level,Vec3 point,int age,int lifetime,int mode) { }
     record SeedView(ServerPlayer owner,Vec3 point,boolean expand) { }
     List<MarkerView> markerSnapshot() { return markers.stream().map(state->new MarkerView(state.owner,state.epoch,state.level,state.point,state.age,state.lifetime,state.mode)).toList(); }
-    List<SeedView> seedSnapshot() { return seeds.stream().map(state->new SeedView(state.owner,state.point,state.expand)).toList(); }
-    int pendingWorkCount() { return (int)jobs.stream().filter(job->!job.held || !job.operations.isEmpty()).count(); }
+    List<SeedView> seedSnapshot() { return List.of(); }
+    int pendingWorkCount() { return (int)jobs.stream().filter(job->job instanceof HoleTerrain terrain?terrain.ready():job instanceof LiveShuffle live?live.ready():!job.held || !job.operations.isEmpty()).count(); }
 }

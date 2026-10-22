@@ -11,6 +11,7 @@ from collections import deque
 from import_game_resources import migrate_loot_schema
 from import_lbc_loadouts import ROOT, SOURCE
 from import_lbc_weapons import migrate_legacy_score_value_checks
+from import_lbc_shooter_pools import TABLES as SHOOTER_TABLES, normalize as normalize_shooter_pool
 
 DEST = ROOT / "src/main/resources/data/lbc"
 CATEGORIES = "accessory axe bow hoe pickaxe potion shield shooter shovel staff sword totem spells summons trident arcanum helmet chestplate leggings boots".split()
@@ -93,18 +94,20 @@ def main():
         migrate_loot_schema(data)
         migrate_legacy_score_value_checks(data)
         migrate_score_attribute_amounts(data)
-        # SLR now has a native behavior owner; preserve its complete source payload.
-        if kind == "loot_table" and name == "slr":
-            for pool in data.get("pools", []):
-                for entry in pool.get("entries", []):
-                    if entry.get("name") == "minecraft:carrot_on_a_stick":
-                        entry["name"] = "skywars2:slr"
+        # A broader resource reimport must not restore vanilla carriers in qualified shooters.
+        if kind == "loot_table" and name in SHOOTER_TABLES:
+            data = normalize_shooter_pool(data, [])
         target = DEST / relative
         text = json.dumps(data, ensure_ascii=False, indent=2) + "\n"
         if not target.exists() or target.read_text(encoding="utf-8-sig") != text:
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text(text, encoding="utf-8", newline="\n")
         assert json.loads(target.read_text(encoding="utf-8")) == data
+        published = DEST / "loot_table/ported" / f"{name}.json"
+        if kind == "loot_table" and name in SHOOTER_TABLES[:2] and published.is_file():
+            # Refresh an already qualified public alias; never publish an unverified new pool here.
+            if published.read_text(encoding="utf-8-sig") != text:
+                published.write_text(text, encoding="utf-8", newline="\n")
         resource_path = "data/lbc/" + relative
         if resource_path not in previous_paths:
             paths.append(resource_path)

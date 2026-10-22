@@ -1,8 +1,317 @@
 # Следующие этапы переноса
 
+## LuckyWars modifier owner - QUALIFIED (user)
+
+[Current contract](LUCKY_MODIFIERS_PORT.md). Author clarified: ordinary SkyWars has no Lucky Blocks
+or their drops; do not treat a retained modifier score as an ordinary-mode bonus.
+The permanent GUI selector always persists. Only committed LuckyWars mode2 start
+resolves it once before chest/kit rolls. Ordinary starts and all ends retain the
+last result; ending only releases the next-match commit guard. No tick scan.
+
+Build, isolated native settings/permissions/JSON/loot-condition checks, explicit
+LuckyWars service branches and two actual ordinary retention cycles passed on
+69de8601 (51.13s). Ready, not installed:
+build/verification/skywars2-lucky-modifiers-69de8601.jar. Evidence:
+build/verification/lucky-modifiers-final/. Main server and original RP unchanged.
+Modes2..4 remain blocked; a full LuckyWars gameplay start is not yet qualified.
+Direct ported-item fixtures in the normal-mode regression are test setup only.
+Next acquisition candidate: hostile Helicopter Boss encounter, documented in
+NEXT_LUCKY_ACQUISITION_SOURCE.md; its handheld weapon is already qualified.
+
+
+## LuckyWars modifier settings - CONFIGURATION QUALIFIED (user)
+
+[Current contract](LUCKY_MODIFIERS_PORT.md). luckyModifier0..12 persists across matches/restarts;
+settings slot11 cycles13 original labels/styles, and OP /settings exposes aliases.
+Author scope is ONLY LuckyWars. Configuration publication never rerolls a match.
+Explicit owner commit/reset API and source89%/1% random resolver are checked, but
+controller match-transition hooks remain pending the resolved-state clarification.
+Do not reset the permanent GUI selection or enable unfinished game modes2..4.
+
+Build and isolated native settings/permissions/JSON/loot-condition checks passed
+on5283a768. Ready archive: build/verification/skywars2-lucky-settings-5283a768.jar;
+evidence: build/verification/lucky-modifiers-settings-final/. Lifecycle is NOT
+qualified. Main server and original RP untouched; no new RP resources needed.
+Next: finish that clarification/hooks; then the hostile Helicopter Boss encounter
+source audit in NEXT_LUCKY_ACQUISITION_SOURCE.md, not the already ported weapon.
+
+
+## Reroll Machine - QUALIFIED (user)
+
+[Current contract](REROLL_MACHINE_PORT.md). Kit25 is restored on page9100 slot0 with the original
+Academy Lightning gate, locked design and ranked access. Native Polymer machine
+preserves the source model/name/two lore rows, with identical give/loot payloads.
+Both crafting grids share Tiny Teleport's forced random transaction: one retained
+machine, one unit per donor slot (up to3/8), complete reward/overflow delivery.
+Debit5000 per successful donor even below zero; empty rolls preserve inputs/mana.
+Ordinary categories use the source player loot context at +1Y. Matching rejects
+missing catalysts before category allocations; no inventory tick scan is added.
+
+Build and four native matches passed on b60d4969 (102.93s). Ready, not installed:
+build/verification/skywars2-reroll-machine-b60d4969.jar. Evidence:
+build/verification/reroll-machine-final/. Main and original RP untouched; one new
+preview lore translation per locale is in the template. Native prototype model
+is applied after vanilla property finalization via Fabric's component event.
+Next: LuckyWars modifier ownership/settings, with separate decisions about normal
+matches and resets; see LUCKYWARS_LUCK_SOURCE.md. Do not enable unfinished modes.
+
+
+## Tiny Teleport forced random crafting - QUALIFIED (user)
+
+[Current contract](TINY_REFORGE_CRAFT_PORT.md). Inventory/workbench show an opaque stable preview; actual
+Ultra Reforge rewards are rolled only on committed take, with one donor consumed
+and 30% chance to consume one Tiny. Full reward bundles are retained, including
+inventory overflow. Click/shift/swap/drop paths cannot leak the preview; blocked
+or unsupported actions do not roll. Existing Tiny pair recipes retain precedence.
+Reuses the same category mapper and loot roller as existing Reforge routes.
+
+Build and four native matches passed on 310f2fc9: two crafting (41.56s), two shared
+lightning/Infbolt regression (47.29s). Ready, not installed:
+build/verification/skywars2-tiny-reforge-310f2fc9.jar. Evidence:
+build/verification/tiny-reforge-final/. Main and original RP unchanged; merge two
+new template translation keys per locale when convenient (English fallback exists).
+Next: separately define Reroll Machine/LuckyWars acquisition and hostile encounter
+contracts; do not infer them from the qualified Boss Helicopter weapon.
+
+
+## Ambient lightning acquisition - QUALIFIED
+
+[Current contract](LIGHTNING_ACQUISITION_PORT.md). Live native bolts reforge one unit per dropped item per
+unstopped tick within radius 4, with exact independent source categories and
+nearest active recipient delivery. Shared Reforge input transactions retain
+existing normal/Ultra behavior; an ownerless queue uses eight units/1 ms per tick.
+Empty/unsupported/no-recipient inputs remain; lightning-specific source protection
+prevents native item damage from racing conversion. Build and two native matches
+passed on 6e5f45f7 (43.37s, 18 suite results). Ready archive:
+build/verification/skywars2-lightning-acquisition-6e5f45f7.jar, not installed.
+Evidence: build/verification/lightning-acquisition-final/. Main/RP unchanged.
+Next: forced random Tiny Teleport crafting, then other acquisition/encounter work.
+
+
+## KFC corrections - QUALIFIED (user)
+
+[Current contract](KFC_CORRECTIONS_PORT.md). Chicken Blaze spirits are WILD, including nearest
+allied/self targets, native direct hits, burning and owner transfer; role/service
+guards remain. Win button consumes through ordinary item use without a snowball,
+with the same RP model. Missing live player counters/effects are connected;
+retain each counter's existing +1 step and unit, without duration normalization.
+
+Exact 112-entry source ledger verified, reverse_mana twice; no attribute/resource/
+clock/ID grant. Effect extension preserves killer attribution. Build and two native
+matches passed on 9b2ac45e (42.3s); archive skywars2-kfc-fixes-9b2ac45e.jar
+ready, not installed. Evidence build/verification/kfc-fixes-final/. Main/RP untouched.
+
+
+## Lobby weather and arena fluid cleanup - QUALIFIED (user)
+
+[Current contract](MAP_FLUID_CLEANUP_PORT.md). Lobby entry resets clear/rain/thunder to native maximum
+timers and clears weather flags. Every-stage arena edits extend the actual next-map
+cleanup bounds and persistent journal. Native fluid ticks wait during replacement
+without being discarded; resident section palettes recover older untracked fluid.
+Finished-map viewing, lobby overlay and tick-budgeted loading remain.
+Build and two native matches passed on f0e11a5f (56.77s, map 1 ->35 ->1).
+Archive skywars2-map-fluids-f0e11a5f.jar is ready, not installed. Evidence:
+build/verification/map-fluids-final/. RP/template and main server untouched.
+
+
+## Lightning friendship and typed items - QUALIFIED (user)
+
+[Current contract](LIGHTNING_AND_TYPED_ITEMS_PORT.md). Chain ray/radius acquisition and repeated propagation
+include allies and caster; antimagic and role/service guards remain. All actual native
+LightningBolt entities ignore friendship, retain owner/ignition attribution and native
+hurt cooldown; managed electric type/Techno immunity remain. ElectroNativeMixins now
+centralizes lightning handling, replacing KfcLightningMixin. Typed dropped items with
+a top-level custom_data `type` key resist all damage except out_of_world, evaluated
+per hit; pickup, despawn and explicit removal remain. New suites: lightning-rules,
+lightning-rules-chain and typed-items, with existing regression suites in
+`tools/smoke_lightning_rules.py`. Build and two native matches passed on 39220c8c (26 suite results, 45.88s).
+Ready archive: skywars2-lightning-rules-39220c8c.jar; not installed. Evidence:
+build/verification/lightning-rules-final/. Historical notes below are preserved.
+
+## Duplicating performance and hole calibration - QUALIFIED (user)
+
+User: fix meditation/normal/Expand CPU and stale-position lag; final hole choice
+is existing shader R=.5, shadow about 1.3, outer lens 7 and terrain destruction 7,
+with no RP patch. This supersedes previous shadow 4/destruction 4 notes. Strong
+core radius 1.3; weak influence 16 and input/team/service protection remain.
+
+[Current contract](DUPLICATING_PERFORMANCE_PORT.md). Each of the 91 meditation centers now owns one worker
+with current operations and one replaceable latest request. Intermediate stale
+requests are coalesced; accepted casts/centers remain. Fan copies share one coherent
+source capture, with ordered writes and full containers. FULL chunk residency is
+checked via getChunkNow before block access, with native async source preparation;
+no world reads/writes are moved to another thread. Identical non-BE writes skip
+support queries, plain snapshots are reused, and existing air clear is skipped.
+
+Build and two native matches passed on 02952e5f; archive
+skywars2-duplicating-fix-02952e5f.jar is ready, not installed. Benchmark meditation
+peak pending 2622 ->91, post-expiry 2748 ->1; see bounded-measurement limitations in
+the contract. RP/template/main server untouched by this batch.
+
+
+## Boltbolt regression fixes: QUALIFIED, ready without installation
+
+[Current contract](BOLTBOLT_PORT.md). User: five charges / 200 ticks, strike every 40 ticks.
+Wind Racer now synchronizes native arrow motion/position every tick. North Pole
+restores complete scale 3 transformation and nonadditive legacy fall phases,
+with ground-contact collision and 2-tick impact visual retention. Two native matches
+passed on fe456346, including 45-tick real tracker packet capture,25 actual strikes,
+meteor terrain and cleanup. JAR skywars2-boltbolt-fix-fe456346.jar is ready,
+not installed. Remaining migration order follows the shooter-pool contract below.
+
+
+## Shooter pools: QUALIFIED; archive ready without installation
+
+[Current contract](SHOOTER_POOLS_PORT.md). Seven source tables use thirteen qualified native
+Polymer weapon payloads; original nested weights/quality, conditional Mobgun
+at fixed luck7 and Razor seeds are preserved. Both public pool aliases are now
+available under lbc:ported/transformables_shooter and _all. Four final native
+matches passed on 61a1b083 (two pool/acquisition plus two shared Infbolt regression).
+Archive skywars2-shooter-pools-61a1b083.jar is ready, not installed. Original pools
+were already reachable from native Reforge; autocomplete was never an acquisition
+gate. RP/template and main server unchanged. Next: separately audit remaining
+legacy acquisition routes, then the hostile Helicopter Boss encounter.
+
+## Govnomet / Boss Helicopter: QUALIFIED; archive ready without installation
+
+[Current implementation and open questions](NEXT_SHOOTER_PORT.md). Native item/input/lifecycle
+and confirmed user decisions are qualified: four final native matches passed
+on 332415d6. Tables are ported; ready archive skywars2-next-shooters-332415d6.jar
+is not installed. RP/template unchanged. Next: acquisition and shooter-pool closure,
+then the separately audited hostile Helicopter Boss encounter. See the contract.
+
+
+## AK47 / Magnum: QUALIFIED; archive ready without installation
+
+[Current contract](FIREARMS_PORT.md). Author rules (user): five Magnum shots per round;
+cancel queued shots immediately when unheld; finite AK pays for its own used-hand
+shot and infinite AK stays free. All six Magnum modes and native Polymer rounds
+are implemented. Big acid aims down. TECH gates and shared per-player SLR cooldown
+with ready sound at zero reuse existing helpers. Four tables are promoted to ported;
+the original magnum_ammo alias is byte-identical for existing UltraReforge.
+Final build, catalog check and two final native matches passed on `062c19b3`
+(7 suites per match, including both cleanups; 50.75 seconds). Resource/CRC audit passed.
+Archive `build/verification/skywars2-firearms-062c19b3.jar` is ready, not installed;
+main JAR remains ba2e46e6. Source pools/RP/template unchanged. Two additional shared
+regression matches passed on the same final JAR (48.9 seconds). Next bounded audit: Govnomet and Helicopter Boss.
+
+## Attack Helicopter / Laser Minigun / mechanism beacon: implemented, QUALIFIED; archive ready without installation
+
+[Current contract](SHOOTER_PAIR_PORT.md): Attack Helicopter extends LbcShooters
+native Arrow/onHit and destroyRubyCell ownership. It is TECH: magic suppression
+does not stop it; mechanism suppression does. LbcLaserMinigun implements spool,
+both hands at 100 mana per shot, native first-hit 2.5 damage, all eight frames
+and Polymer beam visuals. Removing the last held copy stops firing immediately;
+the motor coasts down. LbcMinigunMovement owns native hand attributes:
+movement_speed -0.5 and jump_strength -1 ADD_MULTIPLIED_TOTAL per copy;
+dual holding adds transient movement -1 to reach zero (native alone gives 0.25).
+LbcItems owns tick/forget/stop, LbcWands/SkyWars2 input and LbcKfcFood counters.
+LbcMagic shares its existing engine with native Polymer mechanism_beacon:
+sphere R20 suppression/entity pulse, cube +/-15 mechanical blocks,
+#minecraft:mecha block/entity tags and placer ownership. Shared chunk/dirty/load
+and lifecycle helpers remain the single beacon engine.
+Author decisions (user) are implemented; final artifact gameplay and shared regression passed.
+Tables are promoted to ported. AK47/Magnum is now qualified; see the current firearm contract above.
+Final build and six native matches passed on dee146b1: two shooter-pair, two
+Woodificator/magic and two Phantom Knives/Stand. Archive
+`build/verification/skywars2-shooter-pair-dee146b1.jar` is ready without installation.
+Next bounded audit: Govnomet/Helicopter Boss.
+
+## Woodificator проверен — 21 октября 2026
+
+[Контракт](WOODIFICATOR_PORT.md): 1287 блоков реестра, 1281 цветовое
+соответствие + 6 невидимых исключений, 66 цельных деревянных результатов.
+242 деревянных ID образуют отдельный список сохранения: любая форма и
+исходные свойства сохраняются, если у состояния нет block entity (user).
+Хранилища превращаются с выбросом содержимого без дублирования.
+Цвета считаются только офлайн; runtime использует готовые lookup и общую очередь.
+
+Build и четыре изолированных матча на `1f5e4b42…` прошли: два Woodificator,
+два Phantom Knives/Stand. Таблица `lbc:ported/woodificator` готова для ручной
+выдачи; архив `skywars2-woodificator-1f5e4b42.jar` сохранён без установки.
+Текущая ограниченная пачка shooter-пула: Attack Helicopter, Laser Minigun и mechanism beacon;
+AK47/Magnum — следующий аудит, их реализация не начата.
+AK47/Stalin, Magnum, Govnomet и Helicopter Boss остаются будущими этапами.
+Готовность общих пулов/перековки проверять отдельно: Reforge уже достигает
+неперенесённых исходов, фильтрация /loot их не блокирует.
+
+## Уточнения Duplicating и Silence закрыты — 21 октября 2026
+
+[Текущий контракт Duplicating](DUPLICATING_REWORK_PORT.md) заменяет прежнее
+случайное перемешивание: legacy-копии, Expand без дочерних центров и shader-дыры
+с видимой тенью R4, поглощением блоков от центра и velocity-притяжением.
+[Silence](SILENCE_ERASE_PORT.md) удаляет сущности без смерти/дропа и очищает
+падающие блоки; игрокам остаются 20 урона, god_hedgehog сохраняет иммунитет
+и ответную атаку. Build и шесть изолированных матчей прошли на a1d43d2e.
+Архив skywars2-silence-duplicating-a1d43d2e.jar готов без установки.
+
+Следующая общая работа остаётся прежней: аудит полной Lucky-выдачи/перековки
+и условий открытия пулов, затем статистика выбора/побед для перков и GUI.
+Командные режимы и полный аудит защиты команд остаются отдельным этапом ниже.
+Закрытые random-пулы не открывать только на основании этих локальных проверок.
+Результаты новой пачки — [SERVER_TESTS](../SERVER_TESTS.md); прежние записи ниже
+сохранены как история этапов.
+
 План отражает текущий код и следующие этапы переноса. Результаты живых проверок — [SERVER_TESTS.md](../SERVER_TESTS.md). См. [порт loadout](LBC_LOADOUT_PORT.md), [новую пачку предметов](ITEMS_BATCH_PORT.md) и [межсистемный аудит](INTEGRATION_REVIEW.md).
 
 ## Текущее состояние
+
+Текущая общая правка — [удары по дружественным мобам](FRIENDLY_PROJECTILES_PORT.md):
+союзные игроки защищены, AI и самонаведение выбирают только врагов (user).
+Все три варианта Lifestealer используют эту политику и считают принятые
+попадания. Build и два изолированных матча на `a40e0041…` прошли за 46,31 с,
+включая native potions и настоящий LargeFireball вне траектории. Итоги — SERVER_TESTS.
+
+Текущая предметная пачка — [Mobgun](MOBGUN_PORT.md): регистрация, ввод/lifecycle,
+native потомки и запрет сохранения ACTOR подключены. Build и два изолированных
+матча прошли на `a40e0041…` за 40,46 с (шесть suites). Одно правильное splash/lingering зелье и cooldown/lore
+50 тиков/2,5 секунды согласованы (user). Проверены 113 прямых/89 зельевых исходов, native потомки,
+взрывы с настоящим автором, защита игроков/NPC и cleanup. Общая проверка
+снарядов также прошла два матча на том же SHA; архивирование готовится без установки.
+Общие Lucky/shooter-пулы закрыты до покрытия всех результатов. Затем, по
+[аудиту обработчиков](REMAINING_HANDLERS_AUDIT.md) и
+[получения](ACQUISITION_AUDIT.md), остаются общая статистика выбора/побед для
+перков/наград и GUI, полная Lucky-выдача/перековка. Это не заявление о полной
+семантической готовности всех связанных coverage-источников. RP/template прежние.
+Ниже сохранены результаты прежних пачек; текущие доказательства Mobgun — SERVER_TESTS.
+
+Ядерный гриб Exoperso и Nuke Academy Exasperato заменён на пользовательский
+[shader-визуал](NUCLEAR_SHADER_PORT.md). Общий NuclearVisuals используется
+также при будущем переносе ядерной бомбы и любых slowparticlesexplode/_2
+маркеров. До 16 ближайших эффектов отдельно каждому клиенту (user),
+урон/разрушения прежние. Build и два матча на `c41ff103…` прошли;
+архив `skywars2-nuclear-16-c41ff103.jar` готов без установки.
+
+Предыдущая пачка — [Overheaven и Field](OVERHEAVEN_PORT.md): пассив часов,
+получение на Y>=200, профильные пять будущих матчей и ORAORA без дубликатов.
+Все пять матчей усилены целиком, включая пятый при остатке 0; смерть сохраняет
+усиление, респаун не расходует ещё один матч (user). Field использует 20 общих
+LbcBolts на 150 активных тиков/7,5 секунды (user), cooldown 600, без маны/Stand.
+Build и два матча на `c2f6d096…` прошли. [Часы](TIME_STOP_PORT.md) и
+[Stand/ORAORA](STAND_PORT.md) реализованы ранее. Текущая пачка — обычный/Academy
+[Lifestealer](LIFESTEALER_PORT.md): код и точные ресурсы добавлены, build и два
+настоящих матча на `ba2e46e6…` прошли; архив без установки.
+Лечение и испытание считают принятые попадания;
+первое столкновение завершает заряд и рядом с владельцем (user).
+[Аудит](LIFESTEALER_SOURCE.md) сохраняет отличия от legacy. Mobgun прошёл build и два матча на `a40e0041…`;
+неперенесённые random-пулы закрыты.
+Уточнение пользователя: ORAORA двигает кулаки и копит попадания во время
+паузы; Phantom Knives выпускает ножи, но они ждут возобновления в воздухе
+с сохранённым velocity. Конкретные прогоны/SHA — SERVER_TESTS.
+Предыдущая пачка time stop: build и четыре матча на SHA `e6043642…` прошли. Архив
+`build/verification/skywars2-time-stop-e6043642.jar` готов без установки;
+proof — `build/verification/time-stop-verification.json`.
+
+Перенесены [Phantom Knives](PHANTOM_KNIVES_PORT.md): пять волн, обе руки,
+обычный/Stand/Overheaven веер, исходный Polymer-дизайн и нативные Arrow с автором.
+Подтверждено в двух матчах; продолжение очереди внутри антимагии пропускает
+волны без повтора (user). Стрела/ORAORA и остановка уже реализованы;
+пассивы часов и межматчевый Overheaven реализованы текущей пачкой через
+существующих владельцев времени, эффектов и профилей; build и два матча на `c2f6d096…` прошли.
+Уточнения приобретения/повторных дропов уже записаны в STAND_PORT.
+Mobgun прошёл build и два матча на `a40e0041…`; завершение случайного shooter-пула остаётся отдельным этапом.
+Build и три серверных прогона (пять матчей Phantom/Pine/KFC) на SHA
+`67757482…` прошли; архив без установки. RP/template не менялись.
 
 Пары Tiny → обычный жезл добавлены для всех девяти семейств, семь ранее
 отсутствовавших рецептов дополняют Terra/Electro. Обычный Acid теперь
@@ -61,7 +370,7 @@ Shift+ПКМ работает с нулевым и отрицательным р
 не заменён. [Аудит](TNT_PROTECTION_AUDIT.md), [конфиг](TNT_CONFIG_PORT.md).
 Следующие предметы используют эти общие helpers; ручной summon короткого TNT
 и выдача Resistance ради конфига больше не нужны. Следующая пачка предметов
-по-прежнему Phantom Knives / Stand, затем Mobgun.
+Mobgun также прошёл два матча на `a40e0041…`; целевая общая проверка снарядов также прошла два матча на том же SHA.
 
 Новая пачка — [KFC, еда и награды](KFC_PORT.md): пушка/курицы, общая огненная
 турель, 20 исходов еды и вложенная съедобная разновидность, ложная победа,
@@ -90,8 +399,8 @@ reset24/reset25 различаются. Получение награды зак
 Сверка оставшихся предметов выполнена: [обработчики](REMAINING_HANDLERS_AUDIT.md),
 [получение предметов](ACQUISITION_AUDIT.md). Ближайшие отдельные пачки:
 
-1. Оставшееся стрелковое оружие: Phantom knives с вариантами Stand, затем
-   более широкий Mobgun. KFC закрыт отдельной пачкой выше, вместе с едой и
+1. Stand/часы/ORAORA реализованы; текущий Overheaven/Field прошёл build и два матча на `c2f6d096…`.
+   Обычный/Academy Lifestealer прошёл build и два матча на `ba2e46e6…`; Mobgun прошёл build и два матча на `a40e0041…`. KFC закрыт отдельной пачкой выше, вместе с едой и
    обеими наградами. При новых переносах подключать персональные игровые
    счётчики к исходу KFC; не оставлять действующие Java-состояния только в scores.
    Общий стрелковый random-пул остаётся закрыт до покрытия оставшихся предметов.

@@ -1,0 +1,1022 @@
+{
+  "originalDataVersion": 4440,
+  "outcomes": [
+    {
+      "outcome": 1,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:fox\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 2,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:ghast\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 3,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:axolotl\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 4,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:bat\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 5,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:bee\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 6,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:blaze\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 7,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:giant\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 8,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:cat\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 9,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:cave_spider\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 10,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:glow_squid\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 11,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:chicken\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 12,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:cod\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 13,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:goat\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 14,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:cow\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 15,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:creeper\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 16,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:dolphin\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 17,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:donkey\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 18,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:guardian\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 19,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:drowned\",Tags:[\"raycastmob\",\"prestartf\"],equipment:{mainhand:{id:\"minecraft:trident\",count:1}}}"
+    },
+    {
+      "outcome": 20,
+      "offset": 2.0,
+      "nbt": "{id:\"minecraft:hoglin\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 21,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:elder_guardian\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 22,
+      "offset": 10.0,
+      "nbt": "{id:\"minecraft:ender_dragon\",Health:15.0f,DragonPhase:4,Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 23,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:enderman\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 24,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:endermite\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 25,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:evoker\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 26,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:horse\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 27,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:husk\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 28,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:illusioner\",Tags:[\"raycastmob\",\"prestartf\"],equipment:{mainhand:{id:\"minecraft:bow\",count:1}}}"
+    },
+    {
+      "outcome": 29,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:iron_golem\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 30,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:llama\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 31,
+      "offset": 2.0,
+      "nbt": "{id:\"minecraft:magma_cube\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 32,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:mooshroom\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 33,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:mule\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 34,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:ocelot\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 35,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:panda\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 36,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:parrot\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 37,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:phantom\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 38,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:pig\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 39,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:piglin\",Tags:[\"raycastmob\",\"prestartf\"],equipment:{mainhand:{id:\"minecraft:golden_sword\",count:1}}}"
+    },
+    {
+      "outcome": 40,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:piglin_brute\",Tags:[\"raycastmob\",\"prestartf\"],equipment:{mainhand:{id:\"minecraft:golden_axe\",count:1}}}"
+    },
+    {
+      "outcome": 41,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:pillager\",Tags:[\"raycastmob\",\"prestartf\"],equipment:{mainhand:{id:\"minecraft:crossbow\",count:1}}}"
+    },
+    {
+      "outcome": 42,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:polar_bear\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 43,
+      "offset": 1.5,
+      "nbt": "{id:\"minecraft:pufferfish\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 44,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:rabbit\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 45,
+      "offset": 3.0,
+      "nbt": "{id:\"minecraft:ravager\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 46,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:salmon\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 47,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:sheep\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 48,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:armor_stand\",Small:1b,Invisible:1b,Tags:[\"killwhenonground\",\"raycastmob\",\"prestartf\"],Passengers:[{id:\"minecraft:shulker\",AttachFace:0b,DeathLootTable:\"empty\"}]}"
+    },
+    {
+      "outcome": 49,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:silverfish\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 50,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:skeleton\",Tags:[\"raycastmob\",\"prestartf\"],equipment:{mainhand:{id:\"minecraft:bow\",count:1}}}"
+    },
+    {
+      "outcome": 51,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:skeleton_horse\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 52,
+      "offset": 1.5,
+      "nbt": "{id:\"minecraft:slime\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 53,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:snow_golem\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 54,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:spider\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 55,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:squid\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 56,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:stray\",Tags:[\"raycastmob\",\"prestartf\"],equipment:{mainhand:{id:\"minecraft:bow\",count:1}}}"
+    },
+    {
+      "outcome": 57,
+      "offset": 1.5,
+      "nbt": "{id:\"minecraft:strider\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 58,
+      "offset": 1.5,
+      "nbt": "{id:\"minecraft:trader_llama\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 59,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:tropical_fish\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 60,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:turtle\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 61,
+      "offset": 1.5,
+      "nbt": "{id:\"minecraft:vex\",Tags:[\"raycastmob\",\"prestartf\"],equipment:{mainhand:{id:\"minecraft:iron_sword\",count:1}}}"
+    },
+    {
+      "outcome": 62,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:villager\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 63,
+      "offset": 1.5,
+      "nbt": "{id:\"minecraft:vindicator\",Tags:[\"raycastmob\",\"prestartf\"],equipment:{mainhand:{id:\"minecraft:iron_axe\",count:1}}}"
+    },
+    {
+      "outcome": 64,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:wandering_trader\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 65,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:witch\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 66,
+      "offset": 3.0,
+      "nbt": "{id:\"minecraft:wither\",Health:15.0f,Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 67,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:wither_skeleton\",Tags:[\"raycastmob\",\"prestartf\"],equipment:{mainhand:{id:\"minecraft:stone_sword\",count:1}}}"
+    },
+    {
+      "outcome": 68,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:wolf\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 69,
+      "offset": 4.0,
+      "nbt": "{id:\"minecraft:zoglin\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 70,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:zombie\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 71,
+      "offset": 2.0,
+      "nbt": "{id:\"minecraft:zombie_horse\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 72,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:zombie_villager\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 73,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:zombified_piglin\",Tags:[\"raycastmob\",\"prestartf\"],equipment:{mainhand:{id:\"minecraft:golden_sword\",count:1}}}"
+    },
+    {
+      "outcome": 74,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:allay\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 76,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:armor_stand\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 77,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:oak_chest_boat\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 78,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:chest_minecart\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 79,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:command_block_minecart\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 80,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:dragon_fireball\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 81,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:creeper\",Tags:[\"raycastmob\",\"prestartf\"],powered:1b}"
+    },
+    {
+      "outcome": 82,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:armor_stand\",Small:1b,Invisible:1b,Tags:[\"killwhenonground\",\"raycastmob\",\"prestartf\"],Passengers:[{id:\"minecraft:end_crystal\",Invulnerable:0b,ShowBottom:0b}]}"
+    },
+    {
+      "outcome": 83,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:ender_pearl\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 84,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:armor_stand\",Small:1b,Invisible:1b,Tags:[\"killwhenonground\",\"raycastmob\",\"prestartf\"],Passengers:[{id:\"minecraft:marker\",data:{lifetime:600},Tags:[\"evoker_fang_spawner\",\"rc_5t\",\"magic\"]}]}"
+    },
+    {
+      "outcome": 85,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:experience_bottle\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 86,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:falling_block\",Tags:[\"raycastmob\",\"prestartf\"],BlockState:{Name:\"minecraft:anvil\"},Time:0,FallHurtAmount:10.0f,FallHurtMax:20}"
+    },
+    {
+      "outcome": 87,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:fireball\",Tags:[\"raycastmob\",\"prestartf\"],ExplosionPower:1}"
+    },
+    {
+      "outcome": 88,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:firework_rocket\",Tags:[\"raycastmob\",\"prestartf\"],LifeTime:40,ShotAtAngle:1b,FireworksItem:{id:\"minecraft:firework_rocket\",components:{\"minecraft:fireworks\":{explosions:[{shape:\"large_ball\",colors:[16753152],fade_colors:[16733194],has_trail:1b,has_twinkle:1b}]}},count:1}}"
+    },
+    {
+      "outcome": 89,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:frog\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 90,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:furnace_minecart\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 91,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:hopper_minecart\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 92,
+      "offset": 0.5,
+      "nbt": "{id:\"minecraft:armor_stand\",Small:1b,Invisible:1b,Tags:[\"killwhenonground\",\"raycastmob\",\"prestartf\"],Passengers:[{id:\"minecraft:lightning_bolt\"}]}"
+    },
+    {
+      "outcome": 93,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:wither_skull\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 94,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:minecart\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 95,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:shulker_bullet\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 96,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:spawner_minecart\",Tags:[\"raycastmob\",\"prestartf\"],SpawnData:{entity:{\"id\":\"minecraft:ender_dragon\"}},SpawnCount:20,SpawnRange:50,MinSpawnDelay:1000,MaxSpawnDelay:2000,Delay:100,RequiredPlayerRange:50}"
+    },
+    {
+      "outcome": 97,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:tadpole\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 98,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:tnt\",Tags:[\"raycastmob\",\"prestartf\"],fuse:40s}"
+    },
+    {
+      "outcome": 99,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:tnt_minecart\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 100,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:trident\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 101,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:warden\",Tags:[\"raycastmob\",\"prestartf\"],Brain:{memories:{\"minecraft:dig_cooldown\":{value:{},ttl:1200L}}}}"
+    },
+    {
+      "outcome": 102,
+      "offset": 2.0,
+      "nbt": "{id:\"minecraft:sniffer\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 103,
+      "offset": 2.0,
+      "nbt": "{id:\"minecraft:camel\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 104,
+      "offset": 2.0,
+      "nbt": "{id:\"minecraft:breeze\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 105,
+      "offset": 2.0,
+      "nbt": "{id:\"minecraft:wind_charge\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 106,
+      "offset": 2.0,
+      "nbt": "{id:\"minecraft:armadillo\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 107,
+      "offset": 2.0,
+      "nbt": "{id:\"minecraft:bogged\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 108,
+      "offset": 2.0,
+      "nbt": "{id:\"minecraft:creaking\",Tags:[\"raycastmob\",\"prestartf\"],Invulnerable:true}"
+    },
+    {
+      "outcome": 109,
+      "offset": 4.0,
+      "nbt": "{id:\"minecraft:happy_ghast\",Tags:[\"raycastmob\",\"prestartf\"]}"
+    },
+    {
+      "outcome": 110,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:nautilus\",Tags:[\"raycastmob\",\"prestartf\"]}",
+      "nativeFormat": true
+    },
+    {
+      "outcome": 111,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:zombie_nautilus\",Tags:[\"raycastmob\",\"prestartf\"]}",
+      "nativeFormat": true
+    },
+    {
+      "outcome": 112,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:copper_golem\",Tags:[\"raycastmob\",\"prestartf\"]}",
+      "nativeFormat": true
+    },
+    {
+      "outcome": 113,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:camel_husk\",Tags:[\"raycastmob\",\"prestartf\"]}",
+      "nativeFormat": true
+    },
+    {
+      "outcome": 114,
+      "offset": 1.0,
+      "nbt": "{id:\"minecraft:parched\",Tags:[\"raycastmob\",\"prestartf\"]}",
+      "nativeFormat": true
+    }
+  ],
+  "potions": [
+    {
+      "outcome": 1,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:water\"}},count:1}}",
+      "sourceOutcome": 1
+    },
+    {
+      "outcome": 2,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:awkward\"}},count:1}}",
+      "sourceOutcome": 2
+    },
+    {
+      "outcome": 3,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:infested\"}},count:1}}",
+      "sourceOutcome": 3
+    },
+    {
+      "outcome": 4,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:fire_resistance\"}},count:1}}",
+      "sourceOutcome": 4
+    },
+    {
+      "outcome": 5,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:harming\"}},count:1}}",
+      "sourceOutcome": 5
+    },
+    {
+      "outcome": 6,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:healing\"}},count:1}}",
+      "sourceOutcome": 6
+    },
+    {
+      "outcome": 7,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:invisibility\"}},count:1}}",
+      "sourceOutcome": 7
+    },
+    {
+      "outcome": 8,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:leaping\"}},count:1}}",
+      "sourceOutcome": 8
+    },
+    {
+      "outcome": 9,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_fire_resistance\"}},count:1}}",
+      "sourceOutcome": 9
+    },
+    {
+      "outcome": 10,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_invisibility\"}},count:1}}",
+      "sourceOutcome": 10
+    },
+    {
+      "outcome": 11,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_leaping\"}},count:1}}",
+      "sourceOutcome": 11
+    },
+    {
+      "outcome": 12,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_night_vision\"}},count:1}}",
+      "sourceOutcome": 12
+    },
+    {
+      "outcome": 13,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_poison\"}},count:1}}",
+      "sourceOutcome": 13
+    },
+    {
+      "outcome": 14,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_regeneration\"}},count:1}}",
+      "sourceOutcome": 14
+    },
+    {
+      "outcome": 15,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_slow_falling\"}},count:1}}",
+      "sourceOutcome": 15
+    },
+    {
+      "outcome": 16,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_slowness\"}},count:1}}",
+      "sourceOutcome": 16
+    },
+    {
+      "outcome": 17,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_strength\"}},count:1}}",
+      "sourceOutcome": 17
+    },
+    {
+      "outcome": 18,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_swiftness\"}},count:1}}",
+      "sourceOutcome": 18
+    },
+    {
+      "outcome": 19,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_turtle_master\"}},count:1}}",
+      "sourceOutcome": 19
+    },
+    {
+      "outcome": 20,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_water_breathing\"}},count:1}}",
+      "sourceOutcome": 20
+    },
+    {
+      "outcome": 21,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_weakness\"}},count:1}}",
+      "sourceOutcome": 21
+    },
+    {
+      "outcome": 22,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:luck\"}},count:1}}",
+      "sourceOutcome": 22
+    },
+    {
+      "outcome": 23,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:mundane\"}},count:1}}",
+      "sourceOutcome": 23
+    },
+    {
+      "outcome": 24,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:night_vision\"}},count:1}}",
+      "sourceOutcome": 24
+    },
+    {
+      "outcome": 25,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:poison\"}},count:1}}",
+      "sourceOutcome": 25
+    },
+    {
+      "outcome": 26,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:regeneration\"}},count:1}}",
+      "sourceOutcome": 26
+    },
+    {
+      "outcome": 27,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:slow_falling\"}},count:1}}",
+      "sourceOutcome": 27
+    },
+    {
+      "outcome": 28,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:slowness\"}},count:1}}",
+      "sourceOutcome": 28
+    },
+    {
+      "outcome": 29,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:strength\"}},count:1}}",
+      "sourceOutcome": 29
+    },
+    {
+      "outcome": 30,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:strong_harming\"}},count:1}}",
+      "sourceOutcome": 30
+    },
+    {
+      "outcome": 31,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:strong_healing\"}},count:1}}",
+      "sourceOutcome": 31
+    },
+    {
+      "outcome": 32,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:strong_leaping\"}},count:1}}",
+      "sourceOutcome": 32
+    },
+    {
+      "outcome": 33,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:strong_poison\"}},count:1}}",
+      "sourceOutcome": 33
+    },
+    {
+      "outcome": 34,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:strong_regeneration\"}},count:1}}",
+      "sourceOutcome": 34
+    },
+    {
+      "outcome": 35,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:strong_slowness\"}},count:1}}",
+      "sourceOutcome": 35
+    },
+    {
+      "outcome": 36,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:strong_strength\"}},count:1}}",
+      "sourceOutcome": 36
+    },
+    {
+      "outcome": 37,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:strong_swiftness\"}},count:1}}",
+      "sourceOutcome": 37
+    },
+    {
+      "outcome": 38,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:strong_turtle_master\"}},count:1}}",
+      "sourceOutcome": 38
+    },
+    {
+      "outcome": 39,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:swiftness\"}},count:1}}",
+      "sourceOutcome": 39
+    },
+    {
+      "outcome": 40,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:thick\"}},count:1}}",
+      "sourceOutcome": 40
+    },
+    {
+      "outcome": 41,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:turtle_master\"}},count:1}}",
+      "sourceOutcome": 41
+    },
+    {
+      "outcome": 42,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:water_breathing\"}},count:1}}",
+      "sourceOutcome": 42
+    },
+    {
+      "outcome": 43,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:weakness\"}},count:1}}",
+      "sourceOutcome": 43
+    },
+    {
+      "outcome": 44,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:weaving\"}},count:1}}",
+      "sourceOutcome": 43
+    },
+    {
+      "outcome": 45,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:wind_charged\"}},count:1}}",
+      "sourceOutcome": 43
+    },
+    {
+      "outcome": 46,
+      "nbt": "{id:\"minecraft:lingering_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:lingering_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:oozing\"}},count:1}}",
+      "sourceOutcome": 43
+    },
+    {
+      "outcome": 47,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:water\"}},count:1}}",
+      "sourceOutcome": 44
+    },
+    {
+      "outcome": 48,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:awkward\"}},count:1}}",
+      "sourceOutcome": 45
+    },
+    {
+      "outcome": 49,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:infested\"}},count:1}}",
+      "sourceOutcome": 46
+    },
+    {
+      "outcome": 50,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:fire_resistance\"}},count:1}}",
+      "sourceOutcome": 47
+    },
+    {
+      "outcome": 51,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:harming\"}},count:1}}",
+      "sourceOutcome": 48
+    },
+    {
+      "outcome": 52,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:healing\"}},count:1}}",
+      "sourceOutcome": 49
+    },
+    {
+      "outcome": 53,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:invisibility\"}},count:1}}",
+      "sourceOutcome": 50
+    },
+    {
+      "outcome": 54,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:leaping\"}},count:1}}",
+      "sourceOutcome": 51
+    },
+    {
+      "outcome": 55,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_fire_resistance\"}},count:1}}",
+      "sourceOutcome": 52
+    },
+    {
+      "outcome": 56,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_invisibility\"}},count:1}}",
+      "sourceOutcome": 53
+    },
+    {
+      "outcome": 57,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_leaping\"}},count:1}}",
+      "sourceOutcome": 54
+    },
+    {
+      "outcome": 58,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_night_vision\"}},count:1}}",
+      "sourceOutcome": 55
+    },
+    {
+      "outcome": 59,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_poison\"}},count:1}}",
+      "sourceOutcome": 56
+    },
+    {
+      "outcome": 60,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_regeneration\"}},count:1}}",
+      "sourceOutcome": 57
+    },
+    {
+      "outcome": 61,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_slow_falling\"}},count:1}}",
+      "sourceOutcome": 58
+    },
+    {
+      "outcome": 62,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_slowness\"}},count:1}}",
+      "sourceOutcome": 59
+    },
+    {
+      "outcome": 63,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_strength\"}},count:1}}",
+      "sourceOutcome": 60
+    },
+    {
+      "outcome": 64,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_swiftness\"}},count:1}}",
+      "sourceOutcome": 61
+    },
+    {
+      "outcome": 65,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_turtle_master\"}},count:1}}",
+      "sourceOutcome": 62
+    },
+    {
+      "outcome": 66,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_water_breathing\"}},count:1}}",
+      "sourceOutcome": 63
+    },
+    {
+      "outcome": 67,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:long_weakness\"}},count:1}}",
+      "sourceOutcome": 64
+    },
+    {
+      "outcome": 68,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:luck\"}},count:1}}",
+      "sourceOutcome": 65
+    },
+    {
+      "outcome": 69,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:mundane\"}},count:1}}",
+      "sourceOutcome": 66
+    },
+    {
+      "outcome": 70,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:night_vision\"}},count:1}}",
+      "sourceOutcome": 67
+    },
+    {
+      "outcome": 71,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:poison\"}},count:1}}",
+      "sourceOutcome": 68
+    },
+    {
+      "outcome": 72,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:regeneration\"}},count:1}}",
+      "sourceOutcome": 69
+    },
+    {
+      "outcome": 73,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:slow_falling\"}},count:1}}",
+      "sourceOutcome": 70
+    },
+    {
+      "outcome": 74,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:slowness\"}},count:1}}",
+      "sourceOutcome": 71
+    },
+    {
+      "outcome": 75,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:strength\"}},count:1}}",
+      "sourceOutcome": 72
+    },
+    {
+      "outcome": 76,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:strong_harming\"}},count:1}}",
+      "sourceOutcome": 73
+    },
+    {
+      "outcome": 77,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:strong_healing\"}},count:1}}",
+      "sourceOutcome": 74
+    },
+    {
+      "outcome": 78,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:strong_leaping\"}},count:1}}",
+      "sourceOutcome": 75
+    },
+    {
+      "outcome": 79,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:strong_poison\"}},count:1}}",
+      "sourceOutcome": 76
+    },
+    {
+      "outcome": 80,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:strong_regeneration\"}},count:1}}",
+      "sourceOutcome": 77
+    },
+    {
+      "outcome": 81,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:strong_slowness\"}},count:1}}",
+      "sourceOutcome": 78
+    },
+    {
+      "outcome": 82,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:strong_strength\"}},count:1}}",
+      "sourceOutcome": 79
+    },
+    {
+      "outcome": 83,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:strong_swiftness\"}},count:1}}",
+      "sourceOutcome": 80
+    },
+    {
+      "outcome": 84,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:strong_turtle_master\"}},count:1}}",
+      "sourceOutcome": 81
+    },
+    {
+      "outcome": 85,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:swiftness\"}},count:1}}",
+      "sourceOutcome": 82
+    },
+    {
+      "outcome": 86,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:thick\"}},count:1}}",
+      "sourceOutcome": 83
+    },
+    {
+      "outcome": 87,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:turtle_master\"}},count:1}}",
+      "sourceOutcome": 84
+    },
+    {
+      "outcome": 88,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:water_breathing\"}},count:1}}",
+      "sourceOutcome": 85
+    },
+    {
+      "outcome": 89,
+      "nbt": "{id:\"minecraft:splash_potion\",Tags:[\"raycastmob\",\"prestartf\"],Item:{id:\"minecraft:splash_potion\",components:{\"minecraft:potion_contents\":{potion:\"minecraft:weakness\"}},count:1}}",
+      "sourceOutcome": 86
+    }
+  ]
+}

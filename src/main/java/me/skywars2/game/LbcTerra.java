@@ -482,7 +482,7 @@ public final class LbcTerra {
 
     private boolean target(ServerPlayer owner, Entity entity) {
         return entity instanceof LivingEntity && entity.level() == owner.level()
-                && entity.getType().builtInRegistryHolder().is(MOBS) && game.items().wands().target(owner, entity);
+                && entity.getType().builtInRegistryHolder().is(MOBS) && game.items().wands().projectileTarget(owner, entity);
     }
 
     /** Один запрос целей на тик дуги. Девять линий её видимой ширины делят четыре шага урона. */

@@ -119,6 +119,12 @@ public final class LbcBlind {
         var queue=gatlings.get(owner);
         return queue==null ? 0 : (int)Math.min(Integer.MAX_VALUE,queue.remaining);
     }
+    /** One source gatling_fovos point is one queued volley, including an idle player. */
+    void addPlayerCounters(ServerPlayer owner) {
+        var queue=gatlings.get(owner);
+        if(queue==null) { queue=new GatlingQueue(game.items().epoch()); queue.remaining=0; gatlings.put(owner,queue); }
+        queue.remaining++;
+    }
     int cloudCount(ServerPlayer owner) { return (int)clouds.stream().filter(cloud->cloud.owner==owner).count(); }
     void loaded(Entity entity) {
         if(entity instanceof Charge charge) {
