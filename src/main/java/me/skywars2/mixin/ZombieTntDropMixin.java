@@ -22,7 +22,8 @@ public abstract class ZombieTntDropMixin {
         if(game!=null && (!game.items().zombieTntDrops().canTarget((Entity)(Object)this,target)
                 || !game.items().luckyPigs().canTarget((Entity)(Object)this,target)
                 || !game.items().beeDrops().canTarget((Entity)(Object)this,target)
-                || !game.items().slabDrops().canTarget((Entity)(Object)this,target))) ci.setReturnValue(false);
+                || !game.items().slabDrops().canTarget((Entity)(Object)this,target)
+                || !game.items().creatureDrops().canTarget((Entity)(Object)this,target))) ci.setReturnValue(false);
     }
 
     @Inject(method="setTarget", at=@At("HEAD"), cancellable=true)
@@ -31,7 +32,8 @@ public abstract class ZombieTntDropMixin {
         if(game!=null && (!game.items().zombieTntDrops().canTarget((Entity)(Object)this,target)
                 || !game.items().luckyPigs().canTarget((Entity)(Object)this,target)
                 || !game.items().beeDrops().canTarget((Entity)(Object)this,target)
-                || !game.items().slabDrops().canTarget((Entity)(Object)this,target))) ci.cancel();
+                || !game.items().slabDrops().canTarget((Entity)(Object)this,target)
+                || !game.items().creatureDrops().canTarget((Entity)(Object)this,target))) ci.cancel();
     }
 
     @Inject(method="doHurtTarget", at=@At("HEAD"), cancellable=true)
@@ -39,7 +41,8 @@ public abstract class ZombieTntDropMixin {
         var game=SkyWars2.game();
         if(game!=null && (!game.items().zombieTntDrops().canMelee((Entity)(Object)this,target)
                 || !game.items().luckyPigs().canAffect((Entity)(Object)this,target)
-                || !game.items().slabDrops().canAffect((Entity)(Object)this,target))) ci.setReturnValue(false);
+                || !game.items().slabDrops().canAffect((Entity)(Object)this,target)
+                || !game.items().creatureDrops().canAffect((Entity)(Object)this,target))) ci.setReturnValue(false);
     }
 
     // Stamp native drowning/lightning conversions before ENTITY_LOAD without replacing conversion.

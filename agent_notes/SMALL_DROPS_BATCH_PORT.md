@@ -1,5 +1,7 @@
 # Small drops batch and unrestricted enchantment combinations
 
+Later user requirements supersede this build's anvil price/maximum-level policy: [current anvil contract](ANVIL_CREATURE_BATCH_PORT.md). This document retains the qualification evidence for its original build.
+
 22 October 2026. Four complete mechanics / six public leaves share one build
 and two-match qualification. [Source audit](SMALL_DROPS_BATCH_SOURCE.md),
 [OP Anvil source](NEXT_DROPS_AFTER_BEES_SOURCE.md).

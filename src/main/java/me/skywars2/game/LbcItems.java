@@ -147,7 +147,7 @@ public final class LbcItems {
     }
 
     /** Загружаем регистрацию до freeze реестров и чтения loot tables, а не при первом обращении к предмету. */
-    public static void register() { LbcSkills.register(); LbcClouds.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcTntDropItem.register(); LbcCreeperDropItem.register(); LbcCageDropItem.register(); LbcHoleDropItem.register(); LbcCorrosionDropItem.register(); LbcZombieTntDropItem.register(); LbcFallingNetheriteDropItem.register(); LbcHomeItems.register(); LbcScareDropItem.register(); LbcLuckyPigDropItem.register(); LbcLevitationDropItem.register(); LbcLibraryDropItem.register(); LbcBeeDropItem.register(); LbcOpAnvilDropItem.register(); LbcSlabDropItem.register(); LbcFeedbackDropItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
+    public static void register() { EnchantmentRules.register(); LbcSkills.register(); LbcClouds.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcTntDropItem.register(); LbcCreeperDropItem.register(); LbcCageDropItem.register(); LbcHoleDropItem.register(); LbcCorrosionDropItem.register(); LbcZombieTntDropItem.register(); LbcFallingNetheriteDropItem.register(); LbcHomeItems.register(); LbcScareDropItem.register(); LbcLuckyPigDropItem.register(); LbcLevitationDropItem.register(); LbcLibraryDropItem.register(); LbcBeeDropItem.register(); LbcOpAnvilDropItem.register(); LbcSlabDropItem.register(); LbcFeedbackDropItem.register(); LbcCreatureDropItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
 
     private static final CompoundTag BROKEN_TOTEM = new CompoundTag();
     private static final CompoundTag DYNAMITE = new CompoundTag();
@@ -206,6 +206,7 @@ public final class LbcItems {
     private final LbcOpAnvilDrop opAnvilDrops;
     private final LbcSlabDrops slabDrops;
     private final LbcFeedbackDrops feedbackDrops;
+    private final LbcCreatureDrops creatureDrops;
     private final LbcTntDrops tntDrops;
     private final LbcCreeperDrops creeperDrops;
     private final LbcCageDrops cageDrops;
@@ -634,6 +635,7 @@ public final class LbcItems {
         this.opAnvilDrops = new LbcOpAnvilDrop(game);
         this.slabDrops = new LbcSlabDrops(game);
         this.feedbackDrops = new LbcFeedbackDrops(game);
+        this.creatureDrops = new LbcCreatureDrops(game);
         this.tntDrops = new LbcTntDrops(game);
         this.creeperDrops = new LbcCreeperDrops(game);
         this.cageDrops = new LbcCageDrops(game);
@@ -721,7 +723,8 @@ public final class LbcItems {
                 && helicopterEncounter.allowDamage(victim,source) && tntDrops.allowDamage(victim,source) && creeperDrops.allowDamage(victim,source) && zombieTntDrops.canAffect(source.getDirectEntity(),victim)
                 && luckyPigs.canAffect(source.getDirectEntity(),victim)
                 && beeDrops.canAffect(source.getDirectEntity(),victim)
-                && slabDrops.canAffect(source.getDirectEntity(),victim);
+                && slabDrops.canAffect(source.getDirectEntity(),victim)
+                && creatureDrops.canAffect(source.getDirectEntity(),victim);
     }
     public LbcKfcFood kfcFood() { return kfcFood; }
     public LbcKfcRewards kfcRewards() { return kfcRewards; }
@@ -735,6 +738,7 @@ public final class LbcItems {
     public LbcOpAnvilDrop opAnvilDrops() { return opAnvilDrops; }
     public LbcSlabDrops slabDrops() { return slabDrops; }
     public LbcFeedbackDrops feedbackDrops() { return feedbackDrops; }
+    public LbcCreatureDrops creatureDrops() { return creatureDrops; }
     public LbcTntDrops tntDrops() { return tntDrops; }
     public LbcCreeperDrops creeperDrops() { return creeperDrops; }
     public LbcCageDrops cageDrops() { return cageDrops; }
@@ -796,6 +800,7 @@ public final class LbcItems {
         beeDrops.loaded(entity);
         opAnvilDrops.loaded(entity);
         slabDrops.loaded(entity);
+        creatureDrops.loaded(entity);
         tntDrops.loaded(entity);
         creeperDrops.loaded(entity);
         cageDrops.loaded(entity);
@@ -868,6 +873,7 @@ public final class LbcItems {
         beeDrops.unloaded(entity);
         opAnvilDrops.unloaded(entity);
         slabDrops.unloaded(entity);
+        creatureDrops.unloaded(entity);
         tntDrops.unloaded(entity);
         creeperDrops.unloaded(entity);
         cageDrops.unloaded(entity);
@@ -1287,6 +1293,7 @@ public final class LbcItems {
         beeDrops.tick();
         opAnvilDrops.tick();
         slabDrops.tick();
+        creatureDrops.tick();
         tntDrops.tick();
         creeperDrops.tick();
         cageDrops.tick();
@@ -1429,6 +1436,7 @@ public final class LbcItems {
         beeDrops.stop();
         opAnvilDrops.stop();
         slabDrops.stop();
+        creatureDrops.stop();
         corrosionDrops.stop();
         tntDrops.stop();
         creeperDrops.stop();

@@ -26,6 +26,8 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/old_vex_drop.json', 'data/lbc/loot_table/ported/old_skeleton_drop.json',
+            'data/lbc/loot_table/ported/shulker_bullets_drop.json', 'data/lbc/loot_table/ported/shulker_bullets_drop_old.json'
     include 'data/lbc/loot_table/ported/op_anvil_drop.json', 'data/lbc/loot_table/ported/op_anvil_drop_old.json',
             'data/lbc/loot_table/opbook.json', 'data/lbc/loot_table/opbook_old.json',
             'data/lbc/loot_table/ported/slab_drop.json', 'data/lbc/loot_table/ported/slab_drop_old.json',

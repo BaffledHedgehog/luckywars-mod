@@ -78,6 +78,7 @@ public final class LbcIndirectKills {
 
     /** Нативное зелье передаёт source как игрока, снаряд или облако — разворачиваем владельца. */
     public static ServerPlayer playerSource(Entity source) {
+        var original=source;
         var game=me.skywars2.SkyWars2.game();
         if(game!=null && game.items().cageDrops().owner(source) instanceof ServerPlayer player) return player;
         if(source instanceof Projectile projectile) source=projectile.getOwner();
@@ -85,7 +86,9 @@ public final class LbcIndirectKills {
         if(source instanceof PrimedTnt tnt) source=tnt.getOwner();
         if(source instanceof net.minecraft.world.entity.LightningBolt bolt) source=bolt.getCause();
         if(source instanceof ServerPlayer player) return player;
-        return summonedOwner(source);
+        var owner=summonedOwner(source);
+        // Native traps may intentionally have no projectile owner so they can hit their thrower.
+        return owner!=null ? owner : source==null ? summonedOwner(original) : null;
     }
 
     /** Общая атрибуция призванных мобов; используется также до нативного смертельного удара. */
@@ -96,6 +99,7 @@ public final class LbcIndirectKills {
         if(game.items().luckyPigs().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().beeDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().slabDrops().owner(source) instanceof ServerPlayer player) return player;
+        if(game.items().creatureDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().opAnvilDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().zombieTntDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().fallingNetheriteDrops().owner(source) instanceof ServerPlayer player) return player;
@@ -414,6 +418,7 @@ public final class LbcIndirectKills {
 
     public void damaged(LivingEntity target, DamageSource source) {
         var player=playerSource(source.getEntity());
+        if(player==null && source.getEntity()==null)player=playerSource(source.getDirectEntity());
         if(player!=null && player!=target) {
             displaced(target,player);
         }
@@ -450,6 +455,7 @@ public final class LbcIndirectKills {
     /** Вызывается до нативного die: mob loot/XP, vanilla kill score и статистика мода видят автора. */
     public void dying(LivingEntity target, DamageSource damage) {
         var summoner=summonedOwner(damage.getEntity());
+        if(summoner==null && damage.getEntity()==null)summoner=summonedOwner(damage.getDirectEntity());
         if(summoner!=null && target.level() instanceof ServerLevel level) {
             credit(target,level,owner(summoner)); return;
         }

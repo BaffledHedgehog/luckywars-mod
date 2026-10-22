@@ -45,7 +45,7 @@ public final class EnchantmentRulesChecks {
         var menu=new AnvilMenu(42,player.getInventory(),ContainerLevelAccess.create(player.level(),pos));
         menu.getSlot(0).set(input.copy());menu.getSlot(1).set(addition.copy());menu.createResult();
         var output=menu.getSlot(2).getItem().copy();int cost=menu.getCost(),before=player.experienceLevel;
-        require(!output.isEmpty() && cost>0 && cost<40 && menu.getSlot(2).mayPickup(player),
+        require(!output.isEmpty() && cost>0 && cost<=10 && menu.getSlot(2).mayPickup(player),
                 "Survival native anvil result/pickup; input="+input+" addition="+addition+" output="+output+" cost="+cost);
         menu.getSlot(2).onTake(player,output);
         require(player.experienceLevel==before-cost && menu.getSlot(0).getItem().isEmpty() && menu.getSlot(1).getItem().isEmpty(),
@@ -89,14 +89,14 @@ public final class EnchantmentRulesChecks {
             var upgraded=combine(player,center,book(player,List.of(Enchantments.SHARPNESS),4),book(player,List.of(Enchantments.SHARPNESS),4));
             require(level(player,upgraded,Enchantments.SHARPNESS)==5,"same enchantment still uses native level upgrade");
             var capped=combine(player,center,book(player,List.of(Enchantments.SHARPNESS),5),book(player,List.of(Enchantments.SHARPNESS),5));
-            require(level(player,capped,Enchantments.SHARPNESS)==5,"native maximum level remains");
+            require(level(player,capped,Enchantments.SHARPNESS)==6,"anvil quarter-weaker merge exceeds native maximum");
             var ordinaryAddition=new ItemStack(Items.DIAMOND_AXE);ordinaryAddition.enchant(sharp,1);
             var denied=new AnvilMenu(43,player.getInventory(),ContainerLevelAccess.create(level,center));
             denied.getSlot(0).set(new ItemStack(Items.DIRT));denied.getSlot(1).set(ordinaryAddition);denied.createResult();
             require(denied.getSlot(2).getItem().isEmpty(),"ordinary non-book addition preserves native material restrictions");
             var costly=new ItemStack(Items.DIRT);costly.set(DataComponents.REPAIR_COST,40);
             denied.getSlot(0).set(costly);denied.getSlot(1).set(book(player,List.of(Enchantments.SHARPNESS),1));denied.createResult();
-            require(denied.getCost()>=40 && denied.getSlot(2).getItem().isEmpty(),"Survival anvil too-expensive limit remains");
+            require(denied.getCost()==10 && !denied.getSlot(2).getItem().isEmpty() && denied.getSlot(2).mayPickup(player),"Survival prior work taxes cap at ten without too-expensive rejection");
 
             // This is the actual table menu path, including bookshelf calculation, selection, lapis and XP debit.
             for(var p:saved.keySet())level.setBlock(p,Blocks.AIR.defaultBlockState(),818);

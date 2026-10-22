@@ -1,5 +1,32 @@
 # Следующие этапы переноса
 
+## Advanced anvil and creature drops - QUALIFIED (22 October 2026)
+
+[Contract](ANVIL_CREATURE_BATCH_PORT.md). Anvil cost is at most10 XP levels, with no Too Expensive
+rejection. Its merge is stronger+floor(weaker/4), minimum+1 for equal/adjacent
+positive levels; missing enchantments transfer unchanged. Only anvil merge and
+maximum checks change. Registry maxima and table/loot level generation remain.
+Positive-int persistence and Polymer's safe vanilla projection retain high levels,
+truthful decimal tooltips and authoritative roundtrips, including hidden-knowledge views.
+
+Three closed mechanics/four leaves: old_vex_drop, old_skeleton_drop,
+shulker_bullets_drop and shulker_bullets_drop_old. Exact native payloads, per-new-
+bullet targeting (user approved), WILD bullet/self/ally behavior, role safety,
+source/debit/epoch/freeze/quiet stop are migrated. Ownerless direct/levitation/
+void credit, newer-attacker priority and native owner changes are checked.
+Native Skeleton-to-Stray conversion preserves copied author/epoch tags and
+cleanup tracking; native equipment/AI/attribute conversion remains unchanged.
+
+Build/two isolated mode1 matches passed on 8945afbe: 112 recorded suite results,
+88.39s, all previous special-drop regressions included. 204sources/579classes/
+2688resources match tested artifacts. Ready build/verification/skywars2-anvil-creature-batch-8945afbe.jar; evidence
+build/verification/anvil-creature-batch-final/. Main96ee50a7/user Reroll unchanged;
+not installed. Only the known fake-bot Polymer packet-context ERROR pair remains.
+Actual client rendering, disk restart/unload/disconnect, natural AI/conversion
+waiting and peak capacity remain limits; see contract. RP/template unchanged.
+Earlier anvil cap/max claims below describe previous builds. Next: batch other
+complete closures; Potion Spawner remains a separate deferred producer.
+
 ## Small drops batch and enchantment rules - QUALIFIED (22 October 2026)
 
 [Contract](SMALL_DROPS_BATCH_PORT.md). Four mechanics / six public leaves: normal/old OP Anvil,
