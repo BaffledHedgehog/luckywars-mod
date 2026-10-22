@@ -10,18 +10,22 @@ races. Native Spectator/input guards, permanent beacon20/artifact25 deletion,
 time-stop pause and epoch cleanup apply. Own nonpersistent chunk tickets are
 refcounted; no home code changes global forceloads or synchronously loads chunks.
 
-Build/two actual mode-1 matches passed on93ca702a:54 suite results,84.93s with
+Build/two actual mode-1 matches passed on3ca952a0:54 suite results,84.41s with
 all preceding drops. 168 source files and2666 processed resources match JARs.
-Ready build/verification/skywars2-home-drop-93ca702a.jar; evidence
-build/verification/home-drop-final/. Main69de8601 not installed; RP/template
+Ready build/verification/skywars2-home-clearance-3ca952a0.jar; evidence
+build/verification/home-clearance-final/. Main69de8601 not installed; RP/template
 unchanged. Client graphics, actual persistence/cross-dimension fixtures and
 capacity remain limits. Public leaves: lbc:ported/home_drop and the intentionally
 unbound lbc:ported/magic_mirror; activate the drop to obtain a usable bound mirror.
 
-Author clarification about whole-hitbox clearance at arrival is pending; keep
-source two-cell/fractional geometry until answered. MapManager's separate arena
-forceload reset is outside this home ticket contract. Next: remaining special-drop
-acquisition audit; keep whole Lucky Block pools/unfinished modes gated.
+Full-hitbox arrival clearance is approved (user,22 October2026). Before teleport,
+clear the actual and standing arrival volumes, including scale, with strict
+writes attributed to the arriving player. Preserve touching outside cells;
+preflight loaded chunks/build bounds/native modification limit before any write
+or teleport. Low-ceiling, crouch, scale5 and limit89/90 atomicity fixtures passed.
+Periodic two-cell renewal and fractional destination coordinates remain.
+MapManager's separate arena forceload reset is outside this home ticket contract.
+Next: remaining special-drop acquisition audit; keep whole pools/modes gated.
 
 ## Falling netherite drops - QUALIFIED (22 October 2026)
 

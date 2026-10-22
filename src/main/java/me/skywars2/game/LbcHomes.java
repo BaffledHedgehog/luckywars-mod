@@ -20,9 +20,13 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.Marker;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 /** Match-scoped, transferable mirror destinations, with independently owned chunk tickets. */
 public final class LbcHomes {
@@ -105,7 +109,33 @@ public final class LbcHomes {
             forget(home); home.marker.discard(); return true;
         }
         var target=home.marker.position().add(0,1,0);
+        if (!clearArrival(player,target)) return true;
         player.teleportTo(target.x,target.y,target.z);
+        return true;
+    }
+
+    /** Clear the actual arrival volume, including room to stand after crouching/swimming. */
+    private boolean clearArrival(ServerPlayer player, Vec3 target) {
+        var level=player.level();
+        var current=player.getBoundingBox().move(target.subtract(player.position()));
+        var standing=player.getDimensions(Pose.STANDING).makeBoundingBox(target);
+        var bounds=new AABB(Math.min(current.minX,standing.minX),Math.min(current.minY,standing.minY),Math.min(current.minZ,standing.minZ),
+                Math.max(current.maxX,standing.maxX),Math.max(current.maxY,standing.maxY),Math.max(current.maxZ,standing.maxZ));
+        if (!Double.isFinite(bounds.minX) || !Double.isFinite(bounds.minY) || !Double.isFinite(bounds.minZ)
+                || !Double.isFinite(bounds.maxX) || !Double.isFinite(bounds.maxY) || !Double.isFinite(bounds.maxZ)) return false;
+        var from=BlockPos.containing(bounds.minX,Math.max(bounds.minY,level.getMinY()),bounds.minZ);
+        // A block merely touching the outer face does not intersect the hitbox.
+        var to=BlockPos.containing(Math.nextDown(bounds.maxX),Math.min(Math.nextDown(bounds.maxY),level.getMaxY()),Math.nextDown(bounds.maxZ));
+        if (to.getY()<from.getY()) return true; // There are no world blocks outside build height.
+        long width=(long)to.getX()-from.getX()+1,height=(long)to.getY()-from.getY()+1,depth=(long)to.getZ()-from.getZ()+1;
+        int limit=level.getGameRules().get(GameRules.MAX_BLOCK_MODIFICATIONS);
+        // Preflight the whole volume: never move into a partially cleared or unresident destination.
+        if (width<=0 || height<=0 || depth<=0 || width>limit || height>limit/width || depth>limit/(width*height) || level.isDebug()) return false;
+        for (int x=(int)(((long)from.getX()-1)>>4);x<=(int)(((long)to.getX()+1)>>4);x++)
+            for (int z=(int)(((long)from.getZ()-1)>>4);z<=(int)(((long)to.getZ()+1)>>4);z++)
+                if (level.getChunkSource().getChunkNow(x,z)==null) return false;
+        game.items().indirectKills().trapChanges(level,player,true,
+                ()->LbcDropBlocks.fill(level,from,to,Blocks.AIR,true));
         return true;
     }
 

@@ -10,6 +10,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.Marker;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -17,6 +19,8 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.Vec3;
 import java.util.*;
 
@@ -41,6 +45,7 @@ public final class HomeDropChecks {
         final Set<Long> originalForced;final List<ItemEntity> tokens=new ArrayList<>();
         final Set<Entity> existing=Collections.newSetFromMap(new IdentityHashMap<>());
         final boolean offhand;final Vec3 origin;final BlockPos center;
+        final double betaScale;final Pose betaPose;final int maxBlocks;
         ItemEntity stack,paused,unloaded;Marker first,second,suppressor;ItemStack firstMirror,secondMirror;
         int phase,lastTick,wait;
         State(GameController game){
@@ -49,6 +54,8 @@ public final class HomeDropChecks {
             require(game.playing() && alpha!=null && beta!=null && game.allowDamage(beta),"two actual match participants");
             alphaState=new GameChecks.WandThirdPlayerState(alpha,game.items().mana());betaState=new GameChecks.WandThirdPlayerState(beta,game.items().mana());
             originalForced=forced(level);offhand=game.config().offhandWands;
+            betaScale=beta.getAttribute(Attributes.SCALE).getBaseValue();betaPose=beta.getPose();
+            maxBlocks=level.getGameRules().get(GameRules.MAX_BLOCK_MODIFICATIONS);
             origin=new Vec3(Math.floor(alpha.getX()/16)*16+8.37,270.7,Math.floor(alpha.getZ()/16)*16+8.81);center=BlockPos.containing(origin);
             level.getAllEntities().forEach(existing::add);
         }
@@ -95,6 +102,56 @@ public final class HomeDropChecks {
             else require(p.position().equals(before),"blocked or missing marker cannot teleport");
             require(game.items().mana().get(p)==0 && ItemStack.isSameItemSameComponents(held,p.getItemInHand(hand)) && held.getCount()==p.getItemInHand(hand).getCount(),"use preserves zero mana, count and every item component/durability");
         }
+        void fixtureBlock(Map<BlockPos,MapManager.BlockSnapshot> fixture,BlockPos pos,BlockState state){
+            pos=pos.immutable();
+            if(!blocks.containsKey(pos))blocks.put(pos,game.maps().snapshot(pos));
+            if(!fixture.containsKey(pos))fixture.put(pos,game.maps().snapshot(pos));
+            level.setBlock(pos,state,818);
+        }
+        void arrivalClearance(){
+            var fixture=new LinkedHashMap<BlockPos,MapManager.BlockSnapshot>();
+            var scale=beta.getAttribute(Attributes.SCALE);double previousScale=scale.getBaseValue();var previousPose=beta.getPose();
+            int previousLimit=level.getGameRules().get(GameRules.MAX_BLOCK_MODIFICATIONS);
+            try{
+                beta.setPose(Pose.STANDING);scale.setBaseValue(1);beta.refreshDimensions();
+                fixtureBlock(fixture,center.above(),Blocks.STONE.defaultBlockState());
+                fixtureBlock(fixture,center.above(2),Blocks.STONE.defaultBlockState());
+                fixtureBlock(fixture,center.above(3),Blocks.CHEST.defaultBlockState());
+                ((net.minecraft.world.Container)level.getBlockEntity(center.above(3))).setItem(0,new ItemStack(Items.DIAMOND,11));
+                fixtureBlock(fixture,center,Blocks.GOLD_BLOCK.defaultBlockState());
+                fixtureBlock(fixture,center.offset(1,2,0),Blocks.GOLD_BLOCK.defaultBlockState());
+                use(beta,InteractionHand.MAIN_HAND,firstMirror,true);
+                require(level.getBlockState(center.above()).isAir() && level.getBlockState(center.above(2)).isAir()
+                        && level.getBlockState(center.above(3)).isAir(),"arrival clears fractional standing head cell Y+3 immediately");
+                require(level.getBlockState(center).is(Blocks.GOLD_BLOCK) && level.getBlockState(center.offset(1,2,0)).is(Blocks.GOLD_BLOCK),"default arrival preserves floor and adjacent cells outside hitbox");
+                for(var e:level.getAllEntities())require(!(e instanceof ItemEntity i && i.getItem().is(Items.DIAMOND) && i.position().distanceTo(origin)<4),"arrival strict clearance suppresses container ejection");
+                fixtureBlock(fixture,center.above(3),Blocks.STONE.defaultBlockState());
+                beta.setPose(Pose.CROUCHING);beta.refreshDimensions();
+                require(beta.getPose()==Pose.CROUCHING && beta.getBbHeight()<1.8f,"native crouched arrival fixture");
+                use(beta,InteractionHand.MAIN_HAND,firstMirror,true);
+                require(level.getBlockState(center.above(3)).isAir(),"crouched arrival also clears standing headroom");
+                beta.setPose(Pose.STANDING);scale.setBaseValue(5);beta.refreshDimensions();
+                require(beta.getBbWidth()==3f && beta.getBbHeight()==9f,"native scale5 produces exact integer width boundary");
+                var inside=new ArrayList<BlockPos>();
+                for(var p:BlockPos.betweenClosed(center.offset(-1,1,-1),center.offset(1,10,1))){
+                    var pos=p.immutable();inside.add(pos);fixtureBlock(fixture,pos,Blocks.STONE.defaultBlockState());
+                }
+                var outside=List.of(center.offset(-2,2,0),center.offset(2,2,0),center.offset(0,2,-2),center.offset(0,2,2),center,center.above(11));
+                for(var pos:outside)fixtureBlock(fixture,pos,Blocks.GOLD_BLOCK.defaultBlockState());
+                level.getGameRules().set(GameRules.MAX_BLOCK_MODIFICATIONS,inside.size()-1,game.server());
+                use(beta,InteractionHand.MAIN_HAND,firstMirror,false);
+                require(inside.stream().allMatch(pos->level.getBlockState(pos).is(Blocks.STONE))
+                        && outside.stream().allMatch(pos->level.getBlockState(pos).is(Blocks.GOLD_BLOCK)),"over-limit arrival rejects atomically without partial clearing");
+                level.getGameRules().set(GameRules.MAX_BLOCK_MODIFICATIONS,inside.size(),game.server());
+                use(beta,InteractionHand.MAIN_HAND,firstMirror,true);
+                require(inside.stream().allMatch(pos->level.getBlockState(pos).isAir()),"scaled arrival clears every width and height cell at exact volume limit");
+                require(outside.stream().allMatch(pos->level.getBlockState(pos).is(Blocks.GOLD_BLOCK)),"half-open scaled arrival preserves cells touching outer boundary and cells above/below");
+            }finally{
+                scale.setBaseValue(previousScale);beta.setPose(previousPose);beta.refreshDimensions();
+                level.getGameRules().set(GameRules.MAX_BLOCK_MODIFICATIONS,previousLimit,game.server());
+                away();for(var entry:fixture.entrySet())game.maps().restoreSnapshot(entry.getKey(),entry.getValue());
+            }
+        }
         void guards(){
             var fake=token(level,origin,new ItemStack(Items.PAPER),alpha);tokens.add(fake);require(!game.items().specialDrops().spawn(fake),"visual fake rejected");fake.discard();
             var stale=drop(origin,2);stale.entityTags().add("skywars2.items.stale-fixture");require(!game.items().homes().ready(stale),"stale epoch rejected");stale.discard();
@@ -115,6 +172,7 @@ public final class HomeDropChecks {
                     require(stack.isRemoved() && game.items().homes().count()==2,"second tick final unit removed");second=game.items().homes().snapshot().stream().filter(m->m!=first).findFirst().orElseThrow();secondMirror=mirror(second);
                     require(!first.getUUID().equals(second.getUUID()) && game.items().homes().ticketCount()==1 && game.items().homes().ticketReferences(level,new ChunkPos(center.getX() >> 4,center.getZ() >> 4))==2,"close marks bind distinctly and share refcounted own ticket");
                     game.config().offhandWands=true;use(beta,InteractionHand.MAIN_HAND,firstMirror,true);use(beta,InteractionHand.OFF_HAND,secondMirror,true);use(beta,InteractionHand.MAIN_HAND,firstMirror,true);
+                    arrivalClearance();
                     game.config().offhandWands=false;use(beta,InteractionHand.OFF_HAND,secondMirror,false);game.config().offhandWands=true;
                     var guard=new Marker(EntityTypes.MARKER,level);guard.setPos(origin.add(32,0,0));guard.entityTags().add("stopper_magic");require(level.addFreshEntity(guard) && game.items().magic().suppressed(beta),"real use-location antimagic admission");try{use(beta,InteractionHand.MAIN_HAND,firstMirror,false);}finally{guard.discard();}
                     beta.setGameMode(GameType.SPECTATOR);try{use(beta,InteractionHand.MAIN_HAND,firstMirror,false);}finally{beta.setGameMode(GameType.SURVIVAL);}
@@ -155,6 +213,8 @@ public final class HomeDropChecks {
         }
         public void close(){
             game.items().timeStop().end(level);if(suppressor!=null)suppressor.discard();tokens.forEach(Entity::discard);game.items().homes().stop();game.items().specialDrops().stop();
+            beta.getAttribute(Attributes.SCALE).setBaseValue(betaScale);beta.setPose(betaPose);beta.refreshDimensions();
+            level.getGameRules().set(GameRules.MAX_BLOCK_MODIFICATIONS,maxBlocks,game.server());
             for(var entry:blocks.entrySet())game.maps().restoreSnapshot(entry.getKey(),entry.getValue());game.config().offhandWands=offhand;alphaState.restore(game);betaState.restore(game);game.items().magic().inventoryChanged(alpha);game.items().magic().inventoryChanged(beta);game.items().magic().flushCleansing();
         }
     }

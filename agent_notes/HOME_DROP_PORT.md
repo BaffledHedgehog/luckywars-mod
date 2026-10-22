@@ -25,15 +25,22 @@ pools remain gated. The original resource pack is read-only and unchanged.
   consumption, durability use or Academy upgrade is introduced.
 - Right-click uses the shared two-hand dispatcher and `offhandWands` setting.
   A valid mirror teleports to its marker +1Y in the same dimension, preserving
-  the source's destination geometry. Missing/deleted/invalid bindings only emit
+  the source's destination position. Before teleport it now clears every block
+  intersecting the arriving player's full hitbox, including standing headroom
+  when crouching or swimming and the current attribute scale (user correction).
+  A block merely touching the outer face is preserved. The complete volume is
+  checked against resident chunks and the native block-modification gamerule
+  before any write or teleport; rejected attempts do not partially clear it.
+  Missing/deleted/invalid bindings only emit
   the original portal particles and teleport sound, without teleportation.
   Legacy stacks with the mirror flag reach the same dispatcher; old numeric
   `tpid` values alone do not bind newly created native destinations.
 - Every 20 active ticks the marker emits five force end rods, strict-sets
   light-blue stained glass at its floor Y-1, and strict-clears Y+1..+2. The source
-  does not clear its own floor cell or add a safe-landing search; these details
-  are preserved. Strict replacement suppresses container ejection. Terrain
-  writes retain the original drop thrower for indirect consequences.
+  periodic geometry remains; the full arrival clearance is additional and
+  immediate on use. Strict replacement suppresses container ejection. Periodic
+  terrain writes retain the original thrower; arrival clearance belongs to the
+  player using the mirror for indirect consequences.
 - Antimagic beacon radius 20 and artifact deletion radius 25 permanently remove
   the destination. Removing suppression does not restore it. Existing glass/air
   changes remain until normal map cleanup. Use inside suppression is blocked.
@@ -57,7 +64,7 @@ restart persistence is not claimed. Unknown or stale managed markers are
 discarded without creating tickets. The home registry is indexed by UUID and
 contains only admitted destinations; no whole-world marker search is added.
 
-## Qualification
+## Initial batch qualification
 
 Build and two actual isolated mode-1 matches passed: 54 suite results in 84.93s,
 including falling-netherite/zombie-TNT/corrosion/hole/cage/Creeper/TNT/chest
@@ -70,7 +77,7 @@ artifact 24/26-block boundaries, and actual match-stop cleanup passed.
 Ready artifact: `build/verification/skywars2-home-drop-93ca702a.jar`, SHA-256
 `93ca702aafbc3fed43f9dc2d8577d6386a77143414646c8d7d31cf3dc39fa742`.
 Evidence: `build/verification/home-drop-final/` (`build.log`, `native.log`,
-`server.log`, `results.json`, `qualification.json`). All 168 current Java files
+`server.log`, `results.json`, `qualification.json`). All 168 then-current Java files
 match the source JAR exactly; 2666 processed resources match the release JAR.
 ZIP CRC, mod metadata and nested JAR entries passed. Main server JAR remains
 `69de8601`, not installed. Isolated files were restored, server stopped and both
@@ -84,10 +91,29 @@ particles/sound/rendering, actual chunk unload/restart/disconnect persistence,
 cross-dimension use and peak capacity are not qualified. Thrower death/disconnect
 does not have an expiry branch but was not exercised as a runtime fixture.
 
-An optional question was sent to the author about clearing the whole player
-hitbox at teleport: the source's two-cell clearance may leave a ceiling at head
-height because destination Y is fractional. No answer has arrived in this batch;
-source geometry remains implemented, with no inferred approval of a correction.
+## Full arrival clearance (user, 22 October 2026)
+
+> Да, освобождать место под весь хитбокс
+
+This supersedes the initial source-only two-cell arrival behavior: the source
+may leave a ceiling at head height because destination Y is fractional.
+Build and expanded fixtures passed in two actual isolated matches: 54 suite
+results in 84.41s, including every previous drop regression. Immediate Y+3
+head/chest clearance, suppressed inventory ejection, crouched standing headroom,
+native scale 5 (exact 3x10x3 volume), six preserved outer boundary cells and
+atomic rejection at native limit 89/acceptance at 90 passed. Periodic renewal
+and the original destination coordinates remain unchanged.
+
+Current ready artifact: `build/verification/skywars2-home-clearance-3ca952a0.jar`,
+SHA-256 `3ca952a09b33a28f57815190bdc3f5b4aefa2325b0208d7bf88794b034a4d19b`.
+Evidence: `build/verification/home-clearance-final/`. All 168 Java source files,
+508 compiled classes and 2666 processed resources match their JARs exactly;
+CRC/mod metadata/nested dependencies passed. Main69de8601 remains unchanged,
+not installed. Isolated backups restored, server stopped, fixture locks released.
+Only the same two baseline Polymer fake-bot packet-context ERROR lines remain.
+Extreme-scale/build-height and unresident-arrival paths are source reviewed,
+not runtime fixtures; previous client/persistence/capacity limits still apply.
+
 The public unbound mirror is not a replacement for obtaining the bound drop.
 
 Next bounded work: audit remaining special-drop acquisition branches and their
