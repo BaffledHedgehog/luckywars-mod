@@ -1,5 +1,25 @@
 # Проект SkyWars
 
+## Island Raise / old Island Lower - QUALIFIED (22 October 2026)
+
+[Contract](agent_notes/ISLAND_DROPS_PORT.md). Two ready leaves: lbc:ported/island_raise_drop and
+lbc:ported/island_lower_drop_old. Native clone/strict clear/teleport preserve
+containers, scheduling and fractional origins. Failed full copy preserves terrain,
+teleports only and consumes one token (user); old Resistance requires copy success.
+Full-height prevalidation prevents partial native clone at build limits.
+Bounded support-candidate reuse, target-local arrival hazard credit, later-attacker
+priority and persisted special-drop admission epochs are included.
+
+Offline build/two actual isolated mode1 matches passed on97debb18: 124 recorded
+suite results,93.46s;211sources/598classes/2692resources match tested artifacts.
+Ready build/verification/skywars2-island-batch-97debb18.jar, not installed; evidence
+build/verification/island-batch-final/. Main96ee50a7/user Reroll unchanged.
+Actual client/disk persistence/natural movement/offline rewards/peak capacity
+remain limits; see contract and retained failed-run evidence. RP/template unchanged.
+Historical pending-Island recommendations below are superseded. Next source-only
+candidates are old Bob / old TNT Drone; neither is implemented.
+
+
 ## Potion Spawner producers - QUALIFIED (22 October 2026)
 
 [Contract](agent_notes/POTION_SPAWNER_PORT.md). Normal/old potion_spawner_drop leaves use real native
@@ -2267,3 +2287,13 @@ Protection, absorption и нативная блокировка продолжа
 магазина. Не распознавай магазин по отображаемому имени и не исключай всех
 обычных жителей. Первое заданное исключение из защиты союзников —
 проводящий разряд Electro, описанный выше; прямое попадание к нему не относится.
+
+## Failed-copy fallback (user, 22 October 2026)
+
+> при таком раскладе пусть только телепортация существ исполнится, а остров не поднимется (ну и не удалится естественно), предмет удалится
+
+This supersedes legacy continuation after a rejected copy: both variants preserve
+source/destination terrain, execute only their native entity-teleport sequence,
+and debit one token. Old Resistance is granted only after a successful copy.
+Qualification is recorded in ISLAND_DROPS_PORT.md; source descriptions of the
+original unconditional clear remain historical facts.

@@ -90,3 +90,7 @@ separate audit/author judgment. Not promoted to fill batch size.
 No source/RP/build/server writes or extra migrations were performed. Completed
 creature/Slab/feedback/cage/drop leaves were not reselected. User source ordering,
 one shared debit, attribution, roles and quiet cleanup still govern future work.
+
+## Subsequent qualification - 22 October 2026
+
+Both normal Island Raise and old Island Lower are now qualified, including the user-approved failed-copy fallback. See [island contract](ISLAND_DROPS_PORT.md); historical next-Island recommendations above are superseded. [Next source-only candidates](NEXT_DROPS_AFTER_ISLAND_SOURCE.md) remain unimplemented.

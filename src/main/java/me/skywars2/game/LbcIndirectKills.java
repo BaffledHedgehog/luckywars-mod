@@ -53,6 +53,7 @@ public final class LbcIndirectKills {
     private record Status(Owner owner, MobEffectInstance effect) { }
     private record Support(Owner owner, ServerLevel level) { }
     private record Hazard(Owner owner, BlockState state) { }
+    private record Arrival(Owner owner,ServerLevel level,Map<BlockPos,BlockState> cells) { }
     private final GameController game;
     // Ссылки на выгруженных мобов не удерживают сущности/чанки в памяти.
     private final Map<LivingEntity,Fall> falls = new WeakHashMap<>();
@@ -65,12 +66,15 @@ public final class LbcIndirectKills {
     private final Map<ServerLevel,Map<BlockPos,Owner>> stone = new HashMap<>();
     private final Map<ServerLevel,Map<BlockPos,Hazard>> hazards = new HashMap<>();
     private final Map<LivingEntity,Owner> burning = new WeakHashMap<>();
+    private final Map<LivingEntity,Arrival> arrivals = new WeakHashMap<>();
     private long order;
     private LivingEntity effectTarget, manaTarget;
     private Holder<MobEffect> tickingEffect;
     private Owner hazardWriter;
     private ServerLevel hazardLevel;
     private TrapFrame trapFrame;
+    private record SupportCandidates(ServerLevel level,AABB blocks,java.util.List<LivingEntity> entities,SupportCandidates previous) { }
+    private SupportCandidates supportCandidates;
 
     LbcIndirectKills(GameController game) { this.game=game; }
     private Owner owner(ServerPlayer player) { return owner(player,false); }
@@ -212,12 +216,32 @@ public final class LbcIndirectKills {
         var state=level.getBlockState(pos);
         if(state.getCollisionShape(level,pos).isEmpty()) return;
         var area=new AABB(pos).inflate(.001, .0625, .001).expandTowards(0,4,0);
-        for(var target:level.getEntitiesOfClass(LivingEntity.class,area,e->e.isAlive() && e.onGround())) {
+        var batch=supportCandidates;
+        var targets=batch!=null && batch.level==level && batch.blocks.intersects(new AABB(pos))
+                ? batch.entities : level.getEntitiesOfClass(LivingEntity.class,area,e->e.isAlive() && e.onGround());
+        for(int index=0;index<targets.size();index++) {
+            var target=targets.get(index);
+            if(target.level()!=level || !target.isAlive() || !target.onGround()
+                    || !target.getBoundingBox().intersects(area)) continue;
             var feet=feet(target);
             var shape=state.getCollisionShape(level,pos,CollisionContext.of(target)).move(pos.getX(),pos.getY(),pos.getZ());
             if(shape.toAabbs().stream().anyMatch(feet::intersects))
                 removedSupports.put(target,new Support(owner,level));
         }
+    }
+
+    /** A bounded synchronous terrain operation reuses candidates, retaining live shape checks. */
+    public void withSupportCandidates(ServerLevel level,AABB blocks,Runnable writes) {
+        var previous=supportCandidates;
+        supportCandidates=new SupportCandidates(level,blocks,new java.util.ArrayList<>(level.getEntitiesOfClass(
+                LivingEntity.class,blocks.inflate(.001,.0625,.001).expandTowards(0,4,0),Entity::isAlive)),previous);
+        try { writes.run(); } finally { supportCandidates=previous; }
+    }
+    /** Native block callbacks can admit a new living actor while the operation is executing. */
+    public void supportEntityLoaded(Entity actor) {
+        if(!(actor instanceof LivingEntity living)) return;
+        for(var batch=supportCandidates;batch!=null;batch=batch.previous)
+            if(actor.level()==batch.level && !batch.entities.contains(living)) batch.entities.add(living);
     }
 
     /** После всего луча проверяем реальную потерю опоры; неудачный destroy не даёт авторства. */
@@ -341,7 +365,8 @@ public final class LbcIndirectKills {
                 : cause.projectile ? game.items().wands().projectileTarget(owner,target) : game.items().wands().target(owner,target));
     }
     private Owner environmentOwner(LivingEntity target, DamageSource source) {
-        if(source.is(DamageTypes.IN_WALL)) return suffocationOwner(target);
+        var arrival=arrivalOwner(target,source);
+        if(source.is(DamageTypes.IN_WALL)) return newer(suffocationOwner(target),arrival);
         boolean fire=source.is(DamageTypes.LAVA) || source.is(DamageTypes.IN_FIRE);
         boolean floor=source.is(DamageTypes.HOT_FLOOR);
         if(!fire && !floor && !source.is(DamageTypes.DROWN) && !source.is(DamageTypes.ON_FIRE)) return null;
@@ -363,17 +388,66 @@ public final class LbcIndirectKills {
                             && (cause==null || hazard.owner.order>cause.order)) cause=hazard.owner;
                 }
             }
+            cause=newer(cause,arrival);
             if(fire) { if(cause!=null) burning.put(target,cause); else burning.remove(target); }
         }
         return cause;
+    }
+    private static Owner newer(Owner first,Owner second) {
+        return first==null || second!=null && second.order>first.order ? second : first;
+    }
+    private static AABB eyes(LivingEntity target) {
+        double width=target.getBbWidth()*.8;
+        return AABB.ofSize(target.getEyePosition(),width,1e-6,width);
+    }
+    /** Record only hazards actually touching the arrival; never claim unchanged terrain globally. */
+    public void teleported(LivingEntity target,ServerPlayer player,boolean friendlyFire) {
+        displaced(target,player,friendlyFire);
+        arrivals.remove(target);
+        if(target==player || !(target.level() instanceof ServerLevel level)) return;
+        var cells=new HashMap<BlockPos,BlockState>();
+        var body=target.getBoundingBox().inflate(.001);
+        var eye=eyes(target);
+        var area=body.minmax(eye).expandTowards(0,-.2,0);
+        for(var pos:BlockPos.betweenClosed(area)) {
+            var state=arrivalState(level,pos);
+            if(state==null) continue;
+            if(hazardous(state) && new AABB(pos).intersects(area)
+                    || state.isSuffocating(level,pos) && state.getCollisionShape(level,pos,CollisionContext.of(target))
+                        .move(pos.getX(),pos.getY(),pos.getZ()).toAabbs().stream().anyMatch(eye::intersects))
+                cells.put(pos.immutable(),state);
+        }
+        if(!cells.isEmpty())arrivals.put(target,new Arrival(laterAttacks.get(target),level,cells));
+    }
+    private Owner arrivalOwner(LivingEntity target,DamageSource source) {
+        var arrival=arrivals.get(target);
+        if(arrival==null || target.level()!=arrival.level) return null;
+        boolean wall=source.is(DamageTypes.IN_WALL);
+        if(!wall && !source.is(DamageTypes.LAVA) && !source.is(DamageTypes.IN_FIRE)
+                && !source.is(DamageTypes.DROWN) && !source.is(DamageTypes.HOT_FLOOR)) return null;
+        var area=wall ? eyes(target) : source.is(DamageTypes.HOT_FLOOR)
+                ? target.getBoundingBox().move(0,-.2,0) : target.getBoundingBox().inflate(.001);
+        for(var entry:arrival.cells.entrySet()) {
+            var pos=entry.getKey();
+            if(!area.intersects(new AABB(pos))) continue;
+            var state=arrivalState(arrival.level,pos);
+            if(!entry.getValue().equals(state)) continue;
+            if(wall ? state.isSuffocating(arrival.level,pos) && state.getCollisionShape(arrival.level,pos,CollisionContext.of(target))
+                        .move(pos.getX(),pos.getY(),pos.getZ()).toAabbs().stream().anyMatch(area::intersects)
+                    : matchingHazard(state,source)) return arrival.owner;
+        }
+        return null;
+    }
+    private static BlockState arrivalState(ServerLevel level,BlockPos pos) {
+        var chunk=level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4);
+        return chunk==null ? null : chunk.getBlockState(pos);
     }
     private Owner suffocationOwner(LivingEntity target) {
         if(!(target.level() instanceof ServerLevel level)) return null;
         var blocks=stone.get(level);
         if(blocks==null) return null;
         // Тонкая область глаз совпадает с vanilla-проверкой удушения; тип созданного блока произволен.
-        double width=target.getBbWidth()*.8;
-        var eyes=AABB.ofSize(target.getEyePosition(),width,1e-6,width);
+        var eyes=eyes(target);
         Owner cause=null;
         for(var pos:BlockPos.betweenClosed(eyes)) {
             var owner=blocks.get(pos);
@@ -427,13 +501,24 @@ public final class LbcIndirectKills {
     }
     /** Перемещение жезлом без прямого урона также может окончиться падением; более поздний удар перебьёт автора. */
     public void displaced(LivingEntity target,ServerPlayer player) {
+        displaced(target,player,false);
+    }
+    /** WILD displacement preserves the same policy as its terrain hazards. */
+    public void displaced(LivingEntity target,ServerPlayer player,boolean friendlyFire) {
         if(target==player) return;
-        var cause=owner(player);
+        var cause=owner(player,friendlyFire);
         laterAttacks.put(target,cause);
         falls.put(target,new Fall(cause,false));
     }
 
     public void tick() {
+        arrivals.entrySet().removeIf(entry-> {
+            var target=entry.getKey();var arrival=entry.getValue();
+            if(!target.isAlive() || target.isRemoved() || target.level()!=arrival.level) return true;
+            var area=target.getBoundingBox().inflate(.001).minmax(eyes(target)).expandTowards(0,-.2,0);
+            return arrival.cells.entrySet().stream().noneMatch(cell->area.intersects(new AABB(cell.getKey()))
+                    && cell.getValue().equals(arrivalState(arrival.level,cell.getKey())));
+        });
         burning.keySet().removeIf(target->!target.isAlive() || target.isRemoved() || !target.isOnFire());
         var iterator=falls.entrySet().iterator();
         while(iterator.hasNext()) {
@@ -480,13 +565,15 @@ public final class LbcIndirectKills {
             var status=effects==null ? null : effects.get(tickingEffect);
             if(status!=null && target.getEffect(tickingEffect)==status.effect) cause=status.owner;
         }
+        if(damage.is(DamageTypes.IN_WALL)) cause=newer(cause,arrivalOwner(target,damage));
         credit(target,level,cause);
     }
 
     private void credit(LivingEntity target, ServerLevel level, Owner cause) {
         if(cause==null) return;
         var later=laterAttacks.get(target);
-        if(later!=null && later.order>cause.order && !later.player.equals(cause.player)) return;
+        // A newer accepted player action remains authoritative beyond vanilla's short hurt cache.
+        if(later!=null && later.order>cause.order) cause=later;
         var player=game.server().getPlayerList().getPlayer(cause.player);
         if(player==null || player==target) return;
         target.setLastHurtByPlayer(player,100);
@@ -512,13 +599,14 @@ public final class LbcIndirectKills {
 
     public void clear(LivingEntity target) {
         falls.remove(target); statuses.remove(target); removedSupports.remove(target); laterAttacks.remove(target);
+        arrivals.remove(target);
         pendingMana.remove(target); manaDrains.remove(target); manaDebts.remove(target);
         burning.remove(target);
     }
     public void stop() {
         falls.clear(); statuses.clear(); removedSupports.clear(); laterAttacks.clear(); stone.clear();
         pendingMana.clear(); manaDrains.clear(); manaDebts.clear();
-        hazards.clear(); burning.clear();
+        hazards.clear(); burning.clear(); arrivals.clear();
     }
 }
 
