@@ -1,5 +1,26 @@
 # Следующие этапы переноса
 
+## Five loot-chest drops - QUALIFIED (user, 22 October 2026)
+
+[Current contract](CHEST_DROPS_PORT.md). Five Polymer tokens now create lazy native loot chests for bastion,
+end-city, buried treasure, village weaponsmith and bonus chest. Author requires
+old container contents to drop; old lazy loot resolves exactly once, adjacent
+inventories stay intact and all source components/presentation are retained.
+Event-indexed dropped inputs reuse native placement/container APIs with deferred
+load handling, one unit per tick, time-stop/residency/epoch/unload/stop guards.
+
+Build and two native mode1 fixture matches passed on1b6710c5:12 suite results,
+52.43s, including previous Helicopter encounter regression. Ready, not installed:
+build/verification/skywars2-chest-drops-1b6710c5.jar. Evidence:
+build/verification/chest-drops-final/. Main remains69de8601; RP/template unchanged.
+
+Next bounded batch:13-TNT special drop using shared protection/attribution, then
+creeper/cage outcomes with explicit harmful-target and terrain policies. See
+[source audit](NEXT_SPECIALDROPS_SOURCE.md). [Crocodildo audit](CROCODILDO_ENCOUNTER_SOURCE.md) records HP, destruction,
+time-stop/suppression and unported native nuke-egg reward questions before coding.
+Muravei needs NPC acid/reinforcement audit. Do not enable unfinished modes2..4 or
+publish whole Lucky Block pools based on these five qualified outcomes.
+
 ## Hostile Helicopter Boss encounter - QUALIFIED (user)
 
 [Current contract](HELICOPTER_ENCOUNTER_PORT.md). The dropped Polymer token now creates the hostile

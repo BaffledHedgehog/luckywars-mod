@@ -1,5 +1,22 @@
 # Проект SkyWars
 
+## Five loot-chest drops - QUALIFIED (user, 22 October 2026)
+
+[Current contract](agent_notes/CHEST_DROPS_PORT.md). Native Polymer tokens for bastion, end_city, treasure, village
+and bonus_chest preserve ordinary source presentation and lazy vanilla loot.
+Actual dropped items activate once per tick/unit at their own floored position;
+fake /give visuals, held items, stopped time, unload and old epochs are guarded.
+Author requires ejection of replaced contents. Old lazy loot resolves once,
+complete components survive, chest payload resets and adjacent inventories remain.
+
+Build and two isolated matches passed on1b6710c5 (12 suite results,52.43s),
+including prior Helicopter encounter regression. Ready archive:
+build/verification/skywars2-chest-drops-1b6710c5.jar; evidence:
+build/verification/chest-drops-final/. Main remains69de8601, not installed;
+original RP/template unchanged. Public test loot is lbc:ported/chest_drop_*.
+Next:13-TNT drop, then creepers/cages; Crocodildo source questions and native
+nuke-egg reward must be resolved before that encounter. Modes2..4 stay blocked.
+
 ## Lightning reforge overflow - QUALIFIED (user, 22 October 2026)
 
 [Current contract](agent_notes/LIGHTNING_ACQUISITION_PORT.md). Author requires full-inventory lightning rewards to

@@ -147,7 +147,7 @@ public final class LbcItems {
     }
 
     /** Загружаем регистрацию до freeze реестров и чтения loot tables, а не при первом обращении к предмету. */
-    public static void register() { LbcSkills.register(); LbcClouds.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
+    public static void register() { LbcSkills.register(); LbcClouds.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
 
     private static final CompoundTag BROKEN_TOTEM = new CompoundTag();
     private static final CompoundTag DYNAMITE = new CompoundTag();
@@ -197,6 +197,7 @@ public final class LbcItems {
     private final LbcKfcFood kfcFood;
     private final LbcKfcRewards kfcRewards;
     private final LbcHelicopterEncounter helicopterEncounter;
+    private final LbcChestDrops chestDrops;
     private final LbcElectro electro;
     private final ProjectileLifetimes lifetimes;
     private final LbcExasperato exasperato;
@@ -608,6 +609,7 @@ public final class LbcItems {
         this.kfcFood = new LbcKfcFood(game);
         this.kfcRewards = new LbcKfcRewards(game);
         this.helicopterEncounter = new LbcHelicopterEncounter(game);
+        this.chestDrops = new LbcChestDrops(game);
         this.electro = new LbcElectro(game);
         this.lifetimes = new ProjectileLifetimes(game);
         this.exasperato = new LbcExasperato(game);
@@ -685,6 +687,7 @@ public final class LbcItems {
     public LbcKfcFood kfcFood() { return kfcFood; }
     public LbcKfcRewards kfcRewards() { return kfcRewards; }
     public LbcHelicopterEncounter helicopterEncounter() { return helicopterEncounter; }
+    public LbcChestDrops chestDrops() { return chestDrops; }
     /** Запрет действий общий, но физика льда и электрического оглушения различается. */
     public boolean actionsBlocked(net.minecraft.world.entity.LivingEntity entity) {
         return frost.isFrozen(entity) || shooters.stunned(entity) || timeStop.frozen(entity);
@@ -732,6 +735,7 @@ public final class LbcItems {
             return;
         }
         helicopterEncounter.loaded(entity);
+        chestDrops.loaded(entity);
         lightningAcquisition.loaded(entity);
         terra.loaded(entity);
         lifetimes.loaded(entity);
@@ -792,6 +796,7 @@ public final class LbcItems {
         stand.transformOrigins(level,transform);
     }
     public void entityUnloaded(Entity entity) {
+        chestDrops.unloaded(entity);
         lightningAcquisition.unloaded(entity);
         govnomet.unloaded(entity);
         academy.unloaded(entity);
@@ -1187,6 +1192,7 @@ public final class LbcItems {
         stand.tick();
         kfcFood.tick();
         helicopterEncounter.tick();
+        chestDrops.tick();
         kfcRewards.tick();
         tickDynamites();
         tickNanoTraps();
@@ -1315,6 +1321,7 @@ public final class LbcItems {
         stand.stop();
         kfcFood.stop();
         helicopterEncounter.stop();
+        chestDrops.stop();
         kfcRewards.stop();
         electro.stop();
         trinkets.stop();

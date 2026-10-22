@@ -26,6 +26,11 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/chest_drop_bastion.json',
+            'data/lbc/loot_table/ported/chest_drop_end_city.json',
+            'data/lbc/loot_table/ported/chest_drop_treasure.json',
+            'data/lbc/loot_table/ported/chest_drop_village.json',
+            'data/lbc/loot_table/ported/chest_drop_bonus.json'
     include 'data/lbc/loot_table/ported/helicopter_encounter.json'
     include 'data/lbc/loot_table/kit/reroll_machine.json', 'data/lbc/loot_table/ported/reroll_machine.json'
     include 'data/lbc/loot_table/ported/magnum.json', 'data/lbc/loot_table/ported/magnum_ammo.json',
