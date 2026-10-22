@@ -1,0 +1,15 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:normal_fat_skeleton_drop",
+          "weight": 20,
+          "quality": -10
+        }
+      ]
+    }
+  ]
+}

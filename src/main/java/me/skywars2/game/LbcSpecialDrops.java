@@ -106,6 +106,7 @@ public final class LbcSpecialDrops {
         boolean slab = LbcSlabDropItem.kind(token.getItem()) != null;
         boolean feedback = LbcFeedbackDropItem.matches(token.getItem());
         boolean vex = LbcCreatureDropItem.matches(token.getItem(),LbcCreatureDropItem.Kind.OLD_VEX);
+        boolean fatSkeleton = LbcCreatureDropItem.matches(token.getItem(),LbcCreatureDropItem.Kind.FAT_SKELETON);
         boolean skeleton = LbcCreatureDropItem.matches(token.getItem(),LbcCreatureDropItem.Kind.OLD_SKELETON);
         boolean bullets = LbcCreatureDropItem.matches(token.getItem(),LbcCreatureDropItem.Kind.BULLETS);
         boolean potionSpawner = LbcPotionSpawnerDropItem.matches(token.getItem());
@@ -116,7 +117,7 @@ public final class LbcSpecialDrops {
         boolean bees = LbcBeeDropItem.matches(token.getItem());
         boolean pigs = LbcLuckyPigDropItem.matches(token.getItem());
         boolean enzan = LbcLevitationDropItem.matches(token.getItem());
-        if (!chest && !tnt && !creeper && !cage && !hole && !corrosion && !zombieTnt && !falling && !home && !scare && !pigs && !enzan && !library && !bees && !opAnvil && !slab && !feedback && !vex && !skeleton && !bullets && !potionSpawner && !island && !drone && !bob && !ants) return false;
+        if (!chest && !tnt && !creeper && !cage && !hole && !corrosion && !zombieTnt && !falling && !home && !scare && !pigs && !enzan && !library && !bees && !opAnvil && !slab && !feedback && !vex && !fatSkeleton && !skeleton && !bullets && !potionSpawner && !island && !drone && !bob && !ants) return false;
         int now = game.server().getTickCount();
         if (lastAttempt.getOrDefault(token, Integer.MIN_VALUE) == now) return false;
         var pos = BlockPos.containing(token.position());
@@ -130,6 +131,7 @@ public final class LbcSpecialDrops {
         for(var kind:LbcPotionSpawnerDropItem.Kind.values())
             if(LbcPotionSpawnerDropItem.matches(token.getItem(),kind) && !game.items().potionSpawnerDrops().ready(token,kind)) return false;
         if(vex && !game.items().creatureDrops().ready(token,LbcCreatureDrops.Kind.VEX_OLD)) return false;
+        if(fatSkeleton && !game.items().creatureDrops().ready(token,LbcCreatureDrops.Kind.FAT_SKELETON)) return false;
         if(skeleton && !game.items().creatureDrops().ready(token,LbcCreatureDrops.Kind.SKELETON_OLD)) return false;
         if(bullets && !game.items().creatureDrops().ready(token,LbcCreatureDrops.Kind.BULLETS)) return false;
         if (bees && !game.items().beeDrops().ready(token)) return false;
@@ -208,6 +210,7 @@ public final class LbcSpecialDrops {
             if (LbcOpAnvilDropItem.matches(token.getItem(), kind)) game.items().opAnvilDrops().spawn(token, kind);
         for (var kind : LbcSlabDropItem.Kind.values())
             if (LbcSlabDropItem.matches(token.getItem(), kind)) game.items().slabDrops().spawn(token, kind);
+        if(fatSkeleton) game.items().creatureDrops().spawn(token,LbcCreatureDrops.Kind.FAT_SKELETON);
         if(skeleton) game.items().creatureDrops().spawn(token,LbcCreatureDrops.Kind.SKELETON_OLD);
         if(bob) game.items().creatureDrops().spawn(token,LbcCreatureDrops.Kind.BOB_OLD);
         if (enzan) game.items().enzanDrop().spawn(token);

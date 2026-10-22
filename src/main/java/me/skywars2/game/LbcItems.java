@@ -233,10 +233,7 @@ public final class LbcItems {
     private final LbcDuplicating duplicating;
     private final LbcAcademy academy;
     private final LbcIndirectKills indirectKills;
-    private record HudState(UUID source,int mana,int max,int regeneration,int jumps,int cooldown,
-                            int cold,int coldCooldown,int frozen,int swordCharges,int noMagic,int reverse,int curse,
-                            int addMana,int addMax,int addRegen,int removeMana,int boost,int teleport,
-                            int katanaCharges,int katanaCharging,int yellowCharges,int yellowCharging,int shock,int blindQueue,int blazeHead,int lookback,int piss,int scared,int screamray,int twitching,int targetCurse,int divider,int helicopter,int bossHelicopter,int akAmmo,int sentAt) { }
+    private record HudState(UUID source,Component content,int sentAt) { }
     private final Map<UUID,HudState> hudStates=new HashMap<>();
     private String entityEpochTag = newEntityEpochTag();
     private final Map<UUID, TurnCurse> turnCurses = new HashMap<>();
@@ -357,72 +354,90 @@ public final class LbcItems {
                 .append(" - ").append(Component.literal(Integer.toString((rocketCooldownTicks(state.owner) + 19) / 20))
                         .withStyle(ChatFormatting.WHITE));
     }
-    /** Complete native counterpart of the supported portion of source ui/get_data. */
+    /** Ported entries follow ui/get_data, charging and cooldown order; read native counters only. */
     MutableComponent hud(ServerPlayer source) {
         var component=Component.empty().append(mana.hud(source));
-        int shock=electro.shocks(source);
-        if(shock>0) component.append(Component.literal("  \uE121 "))
-                .append(Component.literal(Integer.toString(shock)).withStyle(ChatFormatting.RED));
+        if(magic.beaconSuppressed(source.position()))
+            component.append(Component.literal(" \uE175").withColor(0x4e5c24));
+        if(magic.mechanismSuppressed(source))
+            component.append(Component.literal(" \uE176").withColor(0x4e5c24));
         int cold=frost.cold(source), coldCooldown=frost.cooldown(source), frozen=frost.frozenSeconds(source);
-        if(cold>0) component.append(Component.literal("  \uE137 §fx")).append(Component.literal(Integer.toString(cold)).withStyle(ChatFormatting.RED));
-        if(coldCooldown>0) component.append(Component.literal(" §f(").withStyle(ChatFormatting.RED))
+        if(cold>0) component.append(Component.literal("  \uE137 \u00a7fx")).append(Component.literal(Integer.toString(cold)).withStyle(ChatFormatting.RED));
+        if(coldCooldown>0) component.append(Component.literal(" \u00a7f(").withStyle(ChatFormatting.RED))
                 .append(Component.literal(Integer.toString(coldCooldown)).withStyle(ChatFormatting.WHITE))
-                .append(Component.literal("§fs)").withStyle(ChatFormatting.RED));
-        if(frozen>0) component.append(Component.literal("  \uE138 ")).append(Component.literal(Integer.toString(frozen)).withStyle(ChatFormatting.RED));
+                .append(Component.literal("\u00a7fs)").withStyle(ChatFormatting.RED));
+        hudPositive(component,"  \uE138 ",frozen,ChatFormatting.RED);
+        if(heldVanillaBow(source)) {
+            // The source uses /clear ... 0: native counting-only includes crafting slots and cursor, without mutation.
+            int arrows=source.getInventory().clearOrCountMatchingItems(stack->stack.is(net.minecraft.tags.ItemTags.ARROWS),true,0,source.inventoryMenu.getCraftSlots());
+            component.append(Component.literal("    \uE108 "))
+                    .append(Component.literal(Integer.toString(arrows)).withStyle(ChatFormatting.WHITE));
+        }
         int katanaCharges=electro.hudCharges(source);
-        if(katanaCharges>=0) component.append(Component.literal("    \uE103 §fx"))
+        if(katanaCharges>=0) component.append(Component.literal("    \uE103 \u00a7fx"))
                 .append(Component.literal(Integer.toString(katanaCharges)).withStyle(ChatFormatting.WHITE))
                 .append(Component.literal(" [")).append(Component.literal(Integer.toString(electro.charging(source))).withStyle(ChatFormatting.AQUA))
-                .append(Component.literal("/§b10§f]"));
+                .append(Component.literal("/\u00a7b10\u00a7f]"));
         int swordCharges=terra.hudCharges(source);
-        if(swordCharges>=0) component.append(Component.literal("    \uE103 §fx"))
+        if(swordCharges>=0) component.append(Component.literal("    \uE103 \u00a7fx"))
                 .append(Component.literal(Integer.toString(swordCharges)).withStyle(ChatFormatting.WHITE))
                 .append(Component.literal(" [")).append(Component.literal("0").withStyle(ChatFormatting.GREEN))
-                .append(Component.literal("/§a1§f]"));
+                .append(Component.literal("/\u00a7a1\u00a7f]"));
         int yellowCharges=electro.yellowHudCharges(source);
-        if(yellowCharges>=0) component.append(Component.literal("    \uE103 §fx"))
+        if(yellowCharges>=0) component.append(Component.literal("    \uE103 \u00a7fx"))
                 .append(Component.literal(Integer.toString(yellowCharges)).withStyle(ChatFormatting.WHITE))
                 .append(Component.literal(" ["))
                 .append(Component.literal(Integer.toString(electro.yellowCharging(source))).withColor(0xA55E50))
                 .append(Component.literal("/"))
-                .append(Component.literal("7§f]").withColor(0xA55E50));
-        int blindQueue=blind.queued(source);
-        int helicopter=helicopterHudValue(source);
-        if(helicopter>=0) component.append(Component.literal(helicopter>0?"    \uE105 ":"    \uE104 "))
-                .append(helicopter>0?Component.literal(Integer.toString(helicopter)).withStyle(ChatFormatting.WHITE)
-                        :Component.translatable("ready").withStyle(ChatFormatting.GREEN));
-        int bossHelicopter=bossHelicopterHudValue(source);
-        if(bossHelicopter>=0) component.append(Component.literal(bossHelicopter>0?"    \uE105 ":"    \uE104 "))
-                .append(bossHelicopter>0?Component.literal(Integer.toString(bossHelicopter)).withStyle(ChatFormatting.WHITE)
-                        :Component.translatable("ready").withStyle(ChatFormatting.GREEN));
-        int divider=dividerHudValue(source);
-        if(divider>=0) component.append(Component.literal(divider>0?"    \uE105 ":"    \uE104 "))
-                .append(divider>0?Component.literal(Integer.toString(divider)).withStyle(ChatFormatting.WHITE)
-                        :Component.translatable("ready").withStyle(ChatFormatting.GREEN));
-        if(blindQueue>0) component.append(Component.literal("  \uE112 ")).append(Component.literal(Integer.toString(blindQueue)).withStyle(ChatFormatting.GREEN));
-        mana.appendHudEarlyStatuses(source,component);
-        int blazeHead=blaze.headCharges(source);
-        if(blazeHead>0) component.append(Component.literal("  \uE110 "))
-                .append(Component.literal(Integer.toString(blazeHead)).withStyle(ChatFormatting.GREEN));
-        int lookback=psycho.hudValue(source,"lookback"),piss=psycho.hudValue(source,"piss");
-        int scared=psycho.hudValue(source,"scared"),screamray=psycho.hudValue(source,"screamray"),twitching=psycho.hudValue(source,"twitching");
-        if(lookback>0) component.append(Component.literal("  \uE113 ")).append(Component.literal(Integer.toString(lookback)).withStyle(ChatFormatting.RED));
-        if(piss>0) component.append(Component.literal("  \uE116 ")).append(Component.literal(Integer.toString(piss)).withStyle(ChatFormatting.RED));
-        if(scared>0) component.append(Component.literal("  \uE119 ")).append(Component.literal(Integer.toString(scared)).withStyle(ChatFormatting.RED));
-        if(screamray>0) component.append(Component.literal("  \uE120 ")).append(Component.literal(Integer.toString(screamray)).withStyle(ChatFormatting.GREEN));
-        if(twitching>0) component.append(Component.literal(" \uE123 ")).append(Component.literal(Integer.toString(twitching)).withStyle(ChatFormatting.RED));
-        int targetCurse=homing.curseSeconds(source);
-        if(targetCurse>0) component.append(Component.literal("  \uE122 ")).append(Component.literal(Integer.toString(targetCurse)).withStyle(ChatFormatting.RED));
-        int akAmmo=akAmmoHudValue(source);
-        if(akAmmo>=0) component.append(Component.literal("  \uE206 ")).append(Component.literal(Integer.toString(akAmmo)).withStyle(ChatFormatting.WHITE));
-        int curse=curseTicks(source);
-        if(curse>0) component.append(Component.literal("  \uE129 ")).append(Component.literal(Integer.toString(curse)).withStyle(ChatFormatting.RED));
+                .append(Component.literal("7\u00a7f]").withColor(0xA55E50));
+        // Mobgun is a source tick counter; Stand ability counters are source seconds.
+        if(LbcMobgun.isMobgun(source.getMainHandItem()) || LbcMobgun.isMobgun(source.getOffhandItem()))
+            hudCooldown(component,mobgun.cooldown(source));
+        hudCooldown(component,helicopterHudValue(source));
+        hudCooldown(component,dividerHudValue(source));
+        if(LbcStand.isOraora(source.getMainHandItem()) || LbcStand.isOraora(source.getOffhandItem()))
+            hudCooldown(component,hudSeconds(stand.cooldownTicks(source)));
+        if(LbcStand.isHomingLightning(source.getMainHandItem()) || LbcStand.isHomingLightning(source.getOffhandItem()))
+            hudCooldown(component,hudSeconds(stand.lightningCooldownTicks(source)));
+        hudCooldown(component,bossHelicopterHudValue(source));
+        if(LbcStand.isClocks(source.getMainHandItem()) || LbcStand.isClocks(source.getOffhandItem()))
+            hudCooldown(component,hudSeconds(timeStop.cooldownTicks(source)));
+        hudPositive(component,"  \uE110 ",blaze.headCharges(source),ChatFormatting.GREEN);
+        hudPositive(component,"  \uE112 ",blind.queued(source),ChatFormatting.GREEN);
+        hudPositive(component,"  \uE113 ",psycho.hudValue(source,"lookback"),ChatFormatting.RED);
+        hudPositive(component,"  \uE115 ",mana.hudValue(source,"nomagic"),ChatFormatting.RED);
+        hudPositive(component,"  \uE116 ",psycho.hudValue(source,"piss"),ChatFormatting.RED);
+        hudPositive(component,"  \uE118 ",mana.hudValue(source,"reverse_mana"),ChatFormatting.RED);
+        hudPositive(component,"  \uE119 ",psycho.hudValue(source,"scared"),ChatFormatting.RED);
+        hudPositive(component,"  \uE120 ",psycho.hudValue(source,"screamray"),ChatFormatting.GREEN);
+        hudPositive(component,"  \uE121 ",electro.shocks(source),ChatFormatting.RED);
+        hudPositive(component,"  \uE122 ",homing.curseSeconds(source),ChatFormatting.RED);
+        hudPositive(component," \uE123 ",psycho.hudValue(source,"twitching"),ChatFormatting.RED);
+        hudPositive(component,"  \uE129 ",curseTicks(source),ChatFormatting.RED);
+        // Overheaven is authored as matches remaining, not an elapsed-time estimate.
+        hudPositive(component,"  \uE131 ",mana.hudValue(source,"overheaven"),ChatFormatting.GREEN);
+        hudPositive(component,"  \uE135 ",kfcFood.gigaponosRemaining(source),ChatFormatting.WHITE);
         mana.appendHudManaStatuses(source,component);
-        int teleport=mana.hudValue(source,"effect_rtp_1");
-        if(teleport>0) component.append(Component.literal("  \uE142 ")).append(Component.literal(Integer.toString(teleport)).withStyle(ChatFormatting.WHITE));
+        hudPositive(component,"  \uE142 ",mana.hudValue(source,"effect_rtp_1"),ChatFormatting.WHITE);
         var rocket=rockets.get(source.getUUID());
         if(rocket!=null) component.append(rocketHudComponent(rocket));
+        int akAmmo=akAmmoHudValue(source);
+        if(akAmmo>=0) component.append(Component.literal("  \uE206 ")).append(Component.literal(Integer.toString(akAmmo)).withStyle(ChatFormatting.WHITE));
         return component;
+    }
+    private static boolean heldVanillaBow(ServerPlayer source) {
+        return source.getMainHandItem().is(Items.BOW) || source.getMainHandItem().is(Items.CROSSBOW)
+                || source.getOffhandItem().is(Items.BOW) || source.getOffhandItem().is(Items.CROSSBOW);
+    }
+    private static int hudSeconds(int ticks) { return ticks<=0 ? 0 : (int)(((long)ticks+19)/20); }
+    private static void hudPositive(MutableComponent hud,String prefix,int value,ChatFormatting color) {
+        if(value>0) hud.append(Component.literal(prefix)).append(Component.literal(Integer.toString(value)).withStyle(color));
+    }
+    private static void hudCooldown(MutableComponent hud,int remaining) {
+        if(remaining<0) return;
+        hud.append(Component.literal(remaining>0 ? "    \uE105 " : "    \uE104 "))
+                .append(remaining>0 ? Component.literal(Integer.toString(remaining)).withStyle(ChatFormatting.WHITE)
+                        : Component.translatable("ready").withStyle(ChatFormatting.GREEN));
     }
     /** One shared actionbar; observers with a player camera see that target's live HUD. */
     void invalidateHud(ServerPlayer viewer) { hudStates.remove(viewer.getUUID()); }
@@ -436,37 +451,12 @@ public final class LbcItems {
         }
         if(!mana.visible(source)) { clearHud(viewer); return; }
         UUID viewerId=viewer.getUUID();
-        var rocket=rockets.get(source.getUUID()); int jumps=rocket==null ? -1 : rocket.jumps;
-        int cooldown=rocket==null ? 0 : (rocketCooldownTicks(source)+19)/20;
-        int current=mana.hudValue(source,"mana"), max=mana.hudValue(source,"manamax"), regeneration=mana.hudValue(source,"manaregen_visual");
-        int cold=frost.cold(source), coldCooldown=frost.cooldown(source), frozen=frost.frozenSeconds(source);
-        int swordCharges=terra.hudCharges(source);
-        int katanaCharges=electro.hudCharges(source),katanaCharging=electro.charging(source),shock=electro.shocks(source);
-        int yellowCharges=electro.yellowHudCharges(source),yellowCharging=electro.yellowCharging(source);
-        int blindQueue=blind.queued(source),blazeHead=blaze.headCharges(source);
-        int noMagic=mana.hudValue(source,"nomagic"), reverse=mana.hudValue(source,"reverse_mana"), curse=curseTicks(source);
-        int addMana=mana.hudValue(source,"effect_add_mana"), addMax=mana.hudValue(source,"effect_add_manamax");
-        int addRegen=mana.hudValue(source,"effect_add_manaregen"), removeMana=mana.hudValue(source,"effect_remove_mana");
-        int boost=mana.hudValue(source,"effect_boost_mana"), teleport=mana.hudValue(source,"effect_rtp_1");
-        int lookback=psycho.hudValue(source,"lookback"),piss=psycho.hudValue(source,"piss");
-        int scared=psycho.hudValue(source,"scared"),screamray=psycho.hudValue(source,"screamray"),twitching=psycho.hudValue(source,"twitching");
-        int targetCurse=homing.curseSeconds(source),divider=dividerHudValue(source),helicopter=helicopterHudValue(source);
-        int bossHelicopter=bossHelicopterHudValue(source);
-        int akAmmo=akAmmoHudValue(source);
+        // Compare the actual row so a newly added status cannot be omitted from cache invalidation.
+        var content=hud(source);
         var old=hudStates.get(viewerId); int now=game.server().getTickCount(); UUID sourceId=source.getUUID();
-        if(old!=null && old.source().equals(sourceId) && old.mana()==current && old.max()==max && old.regeneration()==regeneration
-                && old.jumps()==jumps && old.cooldown()==cooldown && old.cold()==cold && old.coldCooldown()==coldCooldown
-                && old.frozen()==frozen && old.noMagic()==noMagic && old.reverse()==reverse && old.curse()==curse
-                && old.swordCharges()==swordCharges
-                && old.katanaCharges()==katanaCharges && old.katanaCharging()==katanaCharging && old.shock()==shock
-                && old.yellowCharges()==yellowCharges && old.yellowCharging()==yellowCharging && old.blindQueue()==blindQueue && old.blazeHead()==blazeHead
-                && old.lookback()==lookback && old.piss()==piss && old.scared()==scared && old.screamray()==screamray && old.twitching()==twitching && old.targetCurse()==targetCurse
-                && old.addMana()==addMana && old.addMax()==addMax && old.addRegen()==addRegen && old.removeMana()==removeMana
-                && old.boost()==boost && old.teleport()==teleport && old.divider()==divider && old.helicopter()==helicopter && old.bossHelicopter()==bossHelicopter && old.akAmmo()==akAmmo && now-old.sentAt()<20) return;
-        viewer.connection.send(new ClientboundSetActionBarTextPacket(hud(source)));
-        hudStates.put(viewerId,new HudState(sourceId,current,max,regeneration,jumps,cooldown,cold,coldCooldown,frozen,
-                swordCharges,noMagic,reverse,curse,addMana,addMax,addRegen,removeMana,boost,teleport,
-                katanaCharges,katanaCharging,yellowCharges,yellowCharging,shock,blindQueue,blazeHead,lookback,piss,scared,screamray,twitching,targetCurse,divider,helicopter,bossHelicopter,akAmmo,now));
+        if(old!=null && old.source().equals(sourceId) && old.content().equals(content) && now-old.sentAt()<20) return;
+        viewer.connection.send(new ClientboundSetActionBarTextPacket(content));
+        hudStates.put(viewerId,new HudState(sourceId,content,now));
     }
     private int akAmmoHudValue(ServerPlayer player) {
         return LbcAk47.isFinite(player.getMainHandItem()) || LbcAk47.isFinite(player.getOffhandItem())

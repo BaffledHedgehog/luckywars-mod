@@ -719,6 +719,9 @@ public final class GameChecks {
                                 case "scare-drops" -> { ScareDropChecks.run(game); return; }
                                 case "lucky-pigs" -> { LuckyPigDropChecks.run(game); return; }
                                 case "advanced-anvil" -> { AdvancedAnvilChecks.run(game); return; }
+                                case "ui-weapon-batch" -> { UiWeaponBatchChecks.run(game); return; }
+                                case "ui-weapon-batch-stop-probe" -> { UiWeaponBatchChecks.stopProbe(game); return; }
+                                case "ui-weapon-batch-cleanup" -> { UiWeaponBatchChecks.cleanup(game); return; }
                                 case "acid-ant-drops" -> { AcidAntDropChecks.run(game); return; }
                                 case "acid-ant-drops-stop-probe" -> { AcidAntDropChecks.stopProbe(game); return; }
                                 case "acid-ant-drops-cleanup" -> { AcidAntDropChecks.cleanup(game); return; }
@@ -1055,6 +1058,7 @@ public final class GameChecks {
                 FeedbackDropChecks.tick(game);
                 CreatureDropChecks.tick(game);
                 PotionSpawnerDropChecks.tick(game);
+                UiWeaponBatchChecks.tick(game);
                 AcidAntDropChecks.tick(game);
                 BobDroneDropChecks.tick(game);
                 IslandDropChecks.tick(game);

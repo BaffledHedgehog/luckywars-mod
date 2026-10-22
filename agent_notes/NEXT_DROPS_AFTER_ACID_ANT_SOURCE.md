@@ -91,3 +91,11 @@ No requested marker/gateway resource-pack changes.
 No code, build, server, raw source, RP or template writes in this next-audit task.
 The current Acid/Ant source contract separately records user WILD/shared-piercing
 goals; no unfinished implementation is claimed as qualified here.
+
+## Current batch status
+
+[Combined contract](UI_WEAPON_BATCH_PORT.md): artifact68387e1d is qualified and
+installed,142 recorded native suite results/two actual matches. Normal Fat
+Skeleton and the listed missing native HUD rows are complete; earlier pending
+qualification/source-only statements record their initial audit stage.
+Normal/old portal remain unimplemented.

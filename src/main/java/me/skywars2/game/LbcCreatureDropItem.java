@@ -25,6 +25,7 @@ public final class LbcCreatureDropItem {
     public enum Kind {
         OLD_VEX("skywars2:old_vex_drop", "vex_old"),
         OLD_SKELETON("skywars2:old_skeleton_drop", "skeleton_old"),
+        FAT_SKELETON("skywars2:normal_fat_skeleton_drop", "skeleton"),
         BULLETS("skywars2:shulker_bullets_drop", "bullets"),
         BULLETS_OLD("skywars2:shulker_bullets_drop_old", "bullets"),
         OLD_BOB("skywars2:old_bob_drop", "bob_old");
@@ -37,19 +38,21 @@ public final class LbcCreatureDropItem {
             this.flag = flag;
             trigger.putInt(flag, 1);
             trigger.putInt("drop", 1);
+            boolean fat=id.equals("skywars2:normal_fat_skeleton_drop");
+            boolean framed=fat || id.equals("skywars2:shulker_bullets_drop");
             var key = ResourceKey.create(Registries.ITEM, Identifier.parse(id));
             var properties = new Item.Properties().setId(key)
-                    .overrideDescription(id.equals("skywars2:shulker_bullets_drop") ? "trap_shulker" : "block.minecraft.barrier")
+                    .overrideDescription(fat?"trap_fat":framed?"trap_shulker":"block.minecraft.barrier")
                     .component(DataComponents.CUSTOM_DATA, CustomData.of(trigger));
-            if (id.equals("skywars2:shulker_bullets_drop")) {
+            if (framed) {
                 properties.component(DataComponents.TOOLTIP_STYLE, Identifier.parse("lbc:tier_ff"))
-                        .component(DataComponents.CUSTOM_NAME, Component.translatable("trap_shulker")
+                        .component(DataComponents.CUSTOM_NAME, Component.translatable(fat?"trap_fat":"trap_shulker")
                                 .withStyle(style -> style.withColor(ChatFormatting.YELLOW).withItalic(false)))
                         .component(DataComponents.LORE, new ItemLore(List.of(Component.translatable("trap_desc")
                                 .withStyle(style -> style.withColor(ChatFormatting.WHITE).withItalic(false)))));
             }
             item = Registry.register(BuiltInRegistries.ITEM, key,
-                    new SimplePolymerItem(properties, id.equals("skywars2:shulker_bullets_drop") ? Items.REPEATING_COMMAND_BLOCK : Items.BARRIER, true));
+                    new SimplePolymerItem(properties, framed ? Items.REPEATING_COMMAND_BLOCK : Items.BARRIER, true));
         }
 
         public Item item() { return item; }
@@ -60,7 +63,7 @@ public final class LbcCreatureDropItem {
         var kinds = Kind.values();
         DefaultItemComponentEvents.MODIFY.register(context -> {
             for (var kind : kinds) context.modify(kind.item(), builder -> builder.set(DataComponents.ITEM_MODEL,
-                    Identifier.parse(kind == Kind.BULLETS ? "lbc:drop_trap" : "minecraft:barrier")));
+                    Identifier.parse(kind==Kind.FAT_SKELETON?"lbc:drop_boss":kind == Kind.BULLETS ? "lbc:drop_trap" : "minecraft:barrier")));
         });
     }
 

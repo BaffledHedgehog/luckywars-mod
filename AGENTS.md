@@ -1,5 +1,53 @@
 # Проект SkyWars
 
+## Actionbar / minigun transfers / normal Fat Skeleton - QUALIFIED
+
+[Contract](agent_notes/UI_WEAPON_BATCH_PORT.md). Missing native source HUD rows now include Mobgun, ORAORA,
+Homing Lightning, Stand Clocks, Overheaven and KFC Gigaponos, plus beacon icons
+and arrows. Source order/styles/mixed units are retained. The cache compares the
+actual completed Component and observer camera source, preserving ignorance.
+Native menu transfers interrupt minigun spin/input/animation, reject same-tick
+restart and send authoritative resulting slots/cursor. This guard is qualified;
+the reported old-build duplication itself was not reproduced, and the user
+explicitly deferred further investigation to their own repeat test.
+
+Normal Fat Skeleton is a new native closed acquisition, with exact actor/token,
+three real reward pools, all nine working wand rewards and eleven-modifier relic.
+No full acquisition pool, new arbitrary TTL/cap or RP/template change.
+
+Offline build/two actual isolated mode1 matches passed on68387e1d:
+142 recorded suite results,116.1s;
+222sources/621classes/2700resources exactly match tested artifacts.
+Evidence: `build/verification/ui-weapon-batch-final/`. Installed to main
+`mods/skywars2.jar` while fully stopped; previous08f09e8f preserved for rollback.
+The agent did not start the main server. User Reroll source remains unchanged.
+Client pixels, actual disk restart/disconnect/unload, natural AI and peak capacity
+remain limits; see contract for native fixture/packet scope and retained attempts.
+Earlier pending normal-Fat recommendations are superseded; normal/old portal
+remain source-only candidates requiring a marker-scope decision.
+
+
+## Actionbar, minigun transfer and update installation (user, 22 October 2026)
+
+User requests missing cooldown/effect-duration rows for already ported items in
+the shared actionbar, and a fix for a reported old-build minigun duplication
+when Shift-clicking it into another inventory slot during firing. Investigate
+authoritative inventory and outbound slot state; do not claim a visual ghost
+is a proven server-side duplicate. Current tested scope is linked in the latest qualification header.
+
+The user subsequently deferred further old-build minigun reproduction to their
+own repeat test; do not keep asking for an old build or claim it was reproduced.
+Current animation must only mutate the currently held minigun. The implemented
+inventory interruption/resync guard is qualified with this batch; old-build reproduction remains deferred.
+
+> а и не забывай билдить обновы на сервак
+
+After qualification, install the built update in the main Fabric server, keeping
+a rollback JAR. A stopped server can be updated directly. Never kill a running
+server or overwrite its JAR mid-run; if necessary request a normal stop only
+after the concrete tested build is ready. The previous ready-only preference is
+superseded by this update instruction. Preserve the user's Reroll source changes.
+
 ## Acid Burst / Ant Swarm - QUALIFIED (22 October 2026)
 
 [Contract](agent_notes/ACID_ANT_DROPS_PORT.md). Ready leaves: `lbc:ported/acid_burst_drop` and

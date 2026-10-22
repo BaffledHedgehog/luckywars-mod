@@ -50,6 +50,7 @@ public final class LbcLaserMinigun {
         final ServerPlayer owner;
         final String epoch;
         int spin,grace,sound,spread=12000,shots;
+        int inventoryTick=Integer.MIN_VALUE;
         boolean revved;
         Spool(ServerPlayer owner,String epoch) { this.owner=owner; this.epoch=epoch; }
     }
@@ -96,11 +97,24 @@ public final class LbcLaserMinigun {
                 || game.items().wands().timeStopped() || owner.entityTags().contains("time_stopped")
                 || suppressed(owner)) return false;
         var spool=state(owner);
+        // Inventory input ends this trigger press; queued use packets from the same tick cannot restart it.
+        if(spool.inventoryTick==game.server().getTickCount()) return false;
         if(spool.grace<=0) sound(owner,"rev_up",1,1);
         spool.grace=6;
         if(!spool.revved) spool.sound=1;
         spool.revved=true;
         active.add(owner.getUUID());
+        return true;
+    }
+    /** Stop animation before a menu moves its stack; never restore a saved hand after the transfer. */
+    public boolean interruptInventory(ServerPlayer owner) {
+        var spool=states.get(owner.getUUID());
+        if(spool==null || !active.contains(owner.getUUID()) || spool.spin<=0 && spool.grace<=0) return false;
+        spool.inventoryTick=game.server().getTickCount();
+        spool.spin=0; spool.grace=0; spool.sound=0; spool.spread=12000;
+        active.remove(owner.getUUID());
+        if(spool.revved) { sound(owner,"rev_down",1,1); stopRevUp(owner); }
+        spool.revved=false;
         return true;
     }
     public void tick() {

@@ -1,0 +1,54 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "weight": 1,
+          "value": "lbc:ported/ruby_wand"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "weight": 1,
+          "value": "lbc:ported/terra_wand"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "weight": 1,
+          "value": "lbc:ported/electro_wand"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "weight": 1,
+          "value": "lbc:ported/air_wand"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "weight": 1,
+          "value": "lbc:ported/acid_wand"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "weight": 1,
+          "value": "lbc:ported/teleport_wand"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "weight": 1,
+          "value": "lbc:ported/stone_wand"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "weight": 1,
+          "value": "lbc:ported/fire_wand"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "weight": 1,
+          "value": "lbc:ported/blind_wand"
+        }
+      ]
+    }
+  ]
+}

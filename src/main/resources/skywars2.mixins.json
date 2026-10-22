@@ -11,6 +11,7 @@
     "EntityVelocityMixin",
     "MovementLimitsMixin",
     "LobbyInventoryPacketMixin",
+    "MinigunInventoryMixin",
     "LobbyItemPickupMixin",
     "TypedItemDamageMixin",
     "DropTrapMergeMixin",
