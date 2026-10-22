@@ -173,3 +173,10 @@ variants are plain barriers. Native IDs/ported leaf basenames: old_vex_drop,
 old_skeleton_drop, shulker_bullets_drop, shulker_bullets_drop_old. JSON parsing
 passed; build/registration/runtime qualification remain root work. No RP/template
 or shared integration files were changed by this item/resource task.
+
+## Potion Spawner qualification update
+
+The deferred producer audited above is now migrated and qualified on884de7db.
+See [POTION_SPAWNER_PORT.md](POTION_SPAWNER_PORT.md) for118 recorded results in
+two actual matches, native lifecycle coverage and limits. Historical pending
+statements above describe the audit stage. No full reward pool is opened.

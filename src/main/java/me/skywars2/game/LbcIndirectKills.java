@@ -100,6 +100,7 @@ public final class LbcIndirectKills {
         if(game.items().beeDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().slabDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().creatureDrops().owner(source) instanceof ServerPlayer player) return player;
+        if(game.items().potionSpawnerDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().opAnvilDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().zombieTntDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().fallingNetheriteDrops().owner(source) instanceof ServerPlayer player) return player;
@@ -118,6 +119,7 @@ public final class LbcIndirectKills {
         return allowProjectileEffect(target,effect.getEffect(),source);
     }
     public boolean allowProjectileEffect(LivingEntity target,Holder<MobEffect> effect,Entity source) {
+        if(LbcPotionSpawnerDrops.managed(source)) return game.items().potionSpawnerDrops().canAffect(source,target);
         if(effect.value().getCategory()!=net.minecraft.world.effect.MobEffectCategory.HARMFUL
                 || !(source instanceof net.minecraft.world.entity.projectile.throwableitemprojectile.AbstractThrownPotion)
                     && !(source instanceof AreaEffectCloud)) return true;

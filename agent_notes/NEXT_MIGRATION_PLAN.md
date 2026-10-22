@@ -1,5 +1,23 @@
 # Следующие этапы переноса
 
+## Potion Spawner producers - QUALIFIED (22 October 2026)
+
+[Contract](POTION_SPAWNER_PORT.md). Normal/old potion_spawner_drop leaves use real native
+spawners with all18 source potentials/configurations. Persistent BE/entity
+cause+epoch, WILD splash effects, service roles, indirect kills, replacement,
+reload/freeze and quiet actual-stop closure are migrated. Stop leaves spawner
+blocks/configuration intact and closes their metadata. No new TTL, world scan,
+chunk ticket, full loot pool or RP/template edit.
+
+Build/two actual isolated mode1 matches passed on 884de7db: 118 recorded suite
+results, 85.51s; 208sources/591classes/2690resources match tested artifacts.
+Ready build/verification/skywars2-potion-spawner-batch-884de7db.jar, not installed; evidence
+build/verification/potion-spawner-batch-final/. Main96ee50a7/user Reroll unchanged.
+Real client/disk restart/unload/disconnect, full source-cap population and peak
+capacity remain limits. See contract for retained failed attempts and fixtures.
+Historical Potion-remaining/deferred claims below describe earlier builds.
+Next source candidate: old Island Lowering; that audit remains unimplemented.
+
 ## Advanced anvil and creature drops - QUALIFIED (22 October 2026)
 
 [Contract](ANVIL_CREATURE_BATCH_PORT.md). Anvil cost is at most10 XP levels, with no Too Expensive

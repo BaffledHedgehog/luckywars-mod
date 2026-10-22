@@ -147,7 +147,7 @@ public final class LbcItems {
     }
 
     /** Загружаем регистрацию до freeze реестров и чтения loot tables, а не при первом обращении к предмету. */
-    public static void register() { EnchantmentRules.register(); LbcSkills.register(); LbcClouds.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcTntDropItem.register(); LbcCreeperDropItem.register(); LbcCageDropItem.register(); LbcHoleDropItem.register(); LbcCorrosionDropItem.register(); LbcZombieTntDropItem.register(); LbcFallingNetheriteDropItem.register(); LbcHomeItems.register(); LbcScareDropItem.register(); LbcLuckyPigDropItem.register(); LbcLevitationDropItem.register(); LbcLibraryDropItem.register(); LbcBeeDropItem.register(); LbcOpAnvilDropItem.register(); LbcSlabDropItem.register(); LbcFeedbackDropItem.register(); LbcCreatureDropItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
+    public static void register() { EnchantmentRules.register(); LbcSkills.register(); LbcClouds.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcTntDropItem.register(); LbcCreeperDropItem.register(); LbcCageDropItem.register(); LbcHoleDropItem.register(); LbcCorrosionDropItem.register(); LbcZombieTntDropItem.register(); LbcFallingNetheriteDropItem.register(); LbcHomeItems.register(); LbcScareDropItem.register(); LbcLuckyPigDropItem.register(); LbcLevitationDropItem.register(); LbcLibraryDropItem.register(); LbcBeeDropItem.register(); LbcOpAnvilDropItem.register(); LbcSlabDropItem.register(); LbcFeedbackDropItem.register(); LbcCreatureDropItem.register(); LbcPotionSpawnerDropItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
 
     private static final CompoundTag BROKEN_TOTEM = new CompoundTag();
     private static final CompoundTag DYNAMITE = new CompoundTag();
@@ -207,6 +207,7 @@ public final class LbcItems {
     private final LbcSlabDrops slabDrops;
     private final LbcFeedbackDrops feedbackDrops;
     private final LbcCreatureDrops creatureDrops;
+    private final LbcPotionSpawnerDrops potionSpawnerDrops;
     private final LbcTntDrops tntDrops;
     private final LbcCreeperDrops creeperDrops;
     private final LbcCageDrops cageDrops;
@@ -636,6 +637,7 @@ public final class LbcItems {
         this.slabDrops = new LbcSlabDrops(game);
         this.feedbackDrops = new LbcFeedbackDrops(game);
         this.creatureDrops = new LbcCreatureDrops(game);
+        this.potionSpawnerDrops = new LbcPotionSpawnerDrops(game);
         this.tntDrops = new LbcTntDrops(game);
         this.creeperDrops = new LbcCreeperDrops(game);
         this.cageDrops = new LbcCageDrops(game);
@@ -716,7 +718,7 @@ public final class LbcItems {
         return LbcDamage.allowDamage(victim,source)
                 && (!(source.getEntity() instanceof ServerPlayer attacker) || !game.isObserver(attacker) || timeStop.replaying(source)
                     || (LbcTntDrops.managed(source.getDirectEntity()) || LbcCreeperDrops.managed(source.getDirectEntity())
-                        || LbcCageDrops.managed(source.getDirectEntity()))
+                        || LbcCageDrops.managed(source.getDirectEntity()) || LbcPotionSpawnerDrops.managed(source.getDirectEntity()))
                         && currentEpoch(source.getDirectEntity()))
                 && (!(victim instanceof ServerPlayer player) || game.allowDamage(player))
                 && wands.allowDamage(victim,source) && kfcRewards.allowDamage(victim,source)
@@ -724,7 +726,8 @@ public final class LbcItems {
                 && luckyPigs.canAffect(source.getDirectEntity(),victim)
                 && beeDrops.canAffect(source.getDirectEntity(),victim)
                 && slabDrops.canAffect(source.getDirectEntity(),victim)
-                && creatureDrops.canAffect(source.getDirectEntity(),victim);
+                && creatureDrops.canAffect(source.getDirectEntity(),victim)
+                && potionSpawnerDrops.canAffect(source.getDirectEntity(),victim);
     }
     public LbcKfcFood kfcFood() { return kfcFood; }
     public LbcKfcRewards kfcRewards() { return kfcRewards; }
@@ -739,6 +742,7 @@ public final class LbcItems {
     public LbcSlabDrops slabDrops() { return slabDrops; }
     public LbcFeedbackDrops feedbackDrops() { return feedbackDrops; }
     public LbcCreatureDrops creatureDrops() { return creatureDrops; }
+    public LbcPotionSpawnerDrops potionSpawnerDrops() { return potionSpawnerDrops; }
     public LbcTntDrops tntDrops() { return tntDrops; }
     public LbcCreeperDrops creeperDrops() { return creeperDrops; }
     public LbcCageDrops cageDrops() { return cageDrops; }
@@ -801,6 +805,7 @@ public final class LbcItems {
         opAnvilDrops.loaded(entity);
         slabDrops.loaded(entity);
         creatureDrops.loaded(entity);
+        potionSpawnerDrops.loaded(entity);
         tntDrops.loaded(entity);
         creeperDrops.loaded(entity);
         cageDrops.loaded(entity);
@@ -874,6 +879,7 @@ public final class LbcItems {
         opAnvilDrops.unloaded(entity);
         slabDrops.unloaded(entity);
         creatureDrops.unloaded(entity);
+        potionSpawnerDrops.unloaded(entity);
         tntDrops.unloaded(entity);
         creeperDrops.unloaded(entity);
         cageDrops.unloaded(entity);
@@ -1294,6 +1300,7 @@ public final class LbcItems {
         opAnvilDrops.tick();
         slabDrops.tick();
         creatureDrops.tick();
+        potionSpawnerDrops.tick();
         tntDrops.tick();
         creeperDrops.tick();
         cageDrops.tick();
@@ -1437,6 +1444,7 @@ public final class LbcItems {
         opAnvilDrops.stop();
         slabDrops.stop();
         creatureDrops.stop();
+        potionSpawnerDrops.stop();
         corrosionDrops.stop();
         tntDrops.stop();
         creeperDrops.stop();

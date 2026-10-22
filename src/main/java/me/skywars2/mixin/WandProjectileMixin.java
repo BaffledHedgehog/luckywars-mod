@@ -31,7 +31,8 @@ public abstract class WandProjectileMixin {
                 com.llamalad7.mixinextras.injector.wrapoperation.Operation<Boolean> original) {
             var game=SkyWars2.game();
             return (game==null || game.items().indirectKills().allowProjectileEffect(target,effect,(Entity)(Object)this))
-                    && original.call(target,effect,source);
+                    && original.call(target,effect,me.skywars2.game.LbcPotionSpawnerDrops.managed((Entity)(Object)this)
+                            ? (Entity)(Object)this : source);
         }
     }
 
