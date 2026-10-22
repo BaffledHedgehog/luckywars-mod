@@ -148,4 +148,3 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--server-dir", type=Path, required=True)
     run(parser.parse_args().server_dir)
-
