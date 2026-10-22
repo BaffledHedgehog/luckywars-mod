@@ -1170,6 +1170,7 @@ public final class LbcWands {
                 && game.items().electro().canHit(projectile,target);
     }
     public boolean canHit(Projectile projectile,Entity target) {
+        if(LbcCageDrops.managed(projectile)) return game.items().cageDrops().canAffect(projectile,target);
         if(LbcBlaze.isKfcSpirit(projectile)) return projectile.getOwner() instanceof ServerPlayer owner
                 && !game.isObserver(owner) && validTarget(target);
         if(game.items().stand().isStandProjectile(projectile)) return game.items().stand().canHit(projectile,target);
@@ -1190,6 +1191,7 @@ public final class LbcWands {
     }
     /** Радиус взрыва native firework обходит canHitEntity; союзников защищаем и в финальном уроне. */
     public boolean allowDamage(Entity victim,DamageSource source) {
+        if(LbcCageDrops.managed(source.getDirectEntity())) return game.items().cageDrops().canAffect(source.getDirectEntity(),victim);
         if(LbcDamage.isNativeLightning(source)) return validTarget(victim);
         if(LbcBlaze.isKfcSpirit(source.getDirectEntity())) return canHit((Projectile)source.getDirectEntity(),victim);
         if(source.getDirectEntity() instanceof Projectile shot && game.items().stand().isStandProjectile(shot))

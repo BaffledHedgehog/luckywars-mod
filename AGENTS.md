@@ -1,5 +1,28 @@
 # Проект SkyWars
 
+## Five cage drops - QUALIFIED (user, 22 October 2026)
+
+[Current contract](agent_notes/CAGE_DROPS_PORT.md). Author requires nearest ANY
+nonspectator, including self/allies, and WILD hazards. Shaft correction is approved:
+clear only from feet upward through max build Y; never erase the floor below.
+Five Polymer tokens reuse the shared dispatcher and one debit. Native2-anvil,
+1-fireball/40-potion payloads, lava and strict obsidian/water/glass geometry retain
+source presentation. Native strict fill removes containers without ejecting items.
+Use26.3 BlockState codec (string or id/properties), not legacy Name fallback sand.
+
+Causal damage includes falling blocks, potion harm, fireball blasts and native
+chain TNT. Trap context retains WILD policy for lava/fire, water drowning and
+suffocation. Native geometry has no new restoration timer. General water hazard
+attribution now supports DROWN alongside existing fire/lava. No owner-lifetime,
+spawn cap, custom TTL or projectile physics is added.
+
+Build/two isolated matches passed on09a1cf09:24 suite results,50.07s, with prior
+creeper/TNT/chest regressions. Ready build/verification/skywars2-cage-drops-09a1cf09.jar;
+evidence build/verification/cage-drops-final/. Native WILD damage and DROWN kill
+credit passed; full persistence, high-altitude arrival and new cage chain/role
+fixtures remain unqualified. Main69de8601, not installed; RP/template unchanged.
+Next remaining terrain traps (hole/hole_old audit); unfinished mode guards remain.
+
 ## Creeper special drops - QUALIFIED (user, 22 October 2026)
 
 [Current contract](agent_notes/CREEPER_DROPS_PORT.md). Author selected kill credit

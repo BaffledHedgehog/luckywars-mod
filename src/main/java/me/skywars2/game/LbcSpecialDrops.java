@@ -28,7 +28,7 @@ public final class LbcSpecialDrops {
     public LbcSpecialDrops(GameController game) { this.game = game; }
 
     private static boolean recognized(net.minecraft.world.item.ItemStack stack) {
-        return LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack) || LbcCreeperDropItem.kind(stack) != null;
+        return LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack) || LbcCreeperDropItem.kind(stack) != null || LbcCageDropItem.kind(stack) != null;
     }
 
     public void loaded(Entity entity) {
@@ -85,13 +85,18 @@ public final class LbcSpecialDrops {
         boolean chest = LbcChestDropItem.kind(token.getItem()) != null;
         boolean tnt = LbcTntDropItem.matches(token.getItem());
         boolean creeper = LbcCreeperDropItem.kind(token.getItem()) != null;
-        if (!chest && !tnt && !creeper) return false;
+        boolean cage = LbcCageDropItem.kind(token.getItem()) != null;
+        if (!chest && !tnt && !creeper && !cage) return false;
         int now = game.server().getTickCount();
         if (lastAttempt.getOrDefault(token, Integer.MIN_VALUE) == now) return false;
         var pos = BlockPos.containing(token.position());
         if (!resident(level, pos, chest ? 1 : 0)) return false;
         for (var kind : LbcCreeperDropItem.Kind.values()) {
             if (LbcCreeperDropItem.matches(token.getItem(), kind) && !game.items().creeperDrops().ready(token, kind)) return false;
+        }
+        var target = cage ? game.items().cageDrops().target(token) : null;
+        if (target != null) for (var kind : LbcCageDropItem.Kind.values()) {
+            if (LbcCageDropItem.matches(token.getItem(), kind) && !game.items().cageDrops().ready(token, kind, target)) return false;
         }
         lastAttempt.put(token, now);
         // The source dispatcher executes every matching flag in order, then debits once.
@@ -104,6 +109,9 @@ public final class LbcSpecialDrops {
             }
         }
         if (tnt) game.items().tntDrops().spawn(token);
+        if (target != null) for (var kind : LbcCageDropItem.Kind.values()) {
+            if (LbcCageDropItem.matches(token.getItem(), kind)) game.items().cageDrops().spawn(token, kind, target);
+        }
         var remaining = token.getItem().copy();
         remaining.shrink(1);
         if (remaining.isEmpty()) token.discard(); else token.setItem(remaining);

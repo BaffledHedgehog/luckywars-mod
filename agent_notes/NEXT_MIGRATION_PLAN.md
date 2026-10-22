@@ -1,5 +1,24 @@
 # Следующие этапы переноса
 
+## Five cage drops - QUALIFIED (user, 22 October 2026)
+
+[Current contract](CAGE_DROPS_PORT.md). User approved nearest ANY nonspectator
+(self/allies included), WILD hazards and upward-only shaft clearing. Five native
+Polymer tokens now preserve source cage geometry and2 anvils/1 fireball/40 potions,
+native lava and strict obsidian/water/glass. Shared dispatcher source ordering,
+one debit, residency and time-stop/epoch guards are reused. Causal hooks retain
+falling-block/potion/fireball/chain ownership and environmental WILD policy;
+placed water now supports drowning attribution. Native strict container semantics
+are retained; no duplicate inventory delivery or new restoration timer is added.
+
+Build and two mode1 fixture matches passed on09a1cf09:24 suite results,50.07s,
+including WILD native damage, DROWN credit and Creeper/TNT/chest regressions.
+Ready build/verification/skywars2-cage-drops-09a1cf09.jar, not installed;
+evidence build/verification/cage-drops-final/. Main69de8601 and RP unchanged.
+Full persistence, real-client visuals, high-altitude potion arrival and new cage
+chain/role fixtures remain explicit limits. Next audit: hole/hole_old terrain
+traps. Public loot stays limited to qualified leaves; modes2..4 remain gated.
+
 ## Creeper special drops - QUALIFIED (user, 22 October 2026)
 
 [Current contract](CREEPER_DROPS_PORT.md). Both ordinary and old tokens are native

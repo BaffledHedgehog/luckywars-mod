@@ -43,7 +43,7 @@ public final class LbcIndirectKills {
         }
     }
     private record Owner(UUID player, long order, boolean friendlyFire, boolean projectile) { }
-    private record TrapFrame(ServerPlayer owner, ServerLevel level, Map<BlockPos,BlockState> candidates) { }
+    private record TrapFrame(Owner owner, ServerLevel level, Map<BlockPos,BlockState> candidates) { }
     private static final class Fall {
         final Owner owner;
         final boolean levitation;
@@ -78,6 +78,8 @@ public final class LbcIndirectKills {
 
     /** Нативное зелье передаёт source как игрока, снаряд или облако — разворачиваем владельца. */
     public static ServerPlayer playerSource(Entity source) {
+        var game=me.skywars2.SkyWars2.game();
+        if(game!=null && game.items().cageDrops().owner(source) instanceof ServerPlayer player) return player;
         if(source instanceof Projectile projectile) source=projectile.getOwner();
         if(source instanceof AreaEffectCloud cloud) source=cloud.getOwner();
         if(source instanceof PrimedTnt tnt) source=tnt.getOwner();
@@ -109,6 +111,7 @@ public final class LbcIndirectKills {
         if(effect.value().getCategory()!=net.minecraft.world.effect.MobEffectCategory.HARMFUL
                 || !(source instanceof net.minecraft.world.entity.projectile.throwableitemprojectile.AbstractThrownPotion)
                     && !(source instanceof AreaEffectCloud)) return true;
+        if(LbcCageDrops.managed(source)) return game.items().cageDrops().canAffect(source,target);
         var player=playerSource(source);
         return player==null || player==target && game.items().wands().validTarget(target)
                 && (source instanceof Projectile projectile && projectile.getOwner()==player
@@ -229,17 +232,22 @@ public final class LbcIndirectKills {
         trapChanges(owner.level(),owner,writes);
     }
     public void trapChanges(ServerLevel level,ServerPlayer owner,Runnable writes) {
+        trapChanges(level,owner,false,writes);
+    }
+    /** A WILD trap retains its friendly-fire policy in suffocation and placed hazards. */
+    public void trapChanges(ServerLevel level,ServerPlayer owner,boolean friendlyFire,Runnable writes) {
+        var cause=owner(owner,friendlyFire);
         var previous=trapFrame;
-        var frame=new TrapFrame(owner,level,new HashMap<>());
+        var frame=new TrapFrame(cause,level,new HashMap<>());
         trapFrame=frame;
         try {
-            worldChanges(level,owner,writes);
+            blockWrites(level,cause,writes);
         } finally {
             try {
                 frame.candidates.forEach((pos,expected)-> {
                     var current=level.getBlockState(pos);
                     if(current.equals(expected) && current.isSuffocating(level,pos)) {
-                        stonePlaced(level,pos,frame.owner);
+                        stone.computeIfAbsent(level,ignored->new HashMap<>()).put(pos.immutable(),frame.owner);
                         if(previous!=null && previous.level==level) previous.candidates.remove(pos);
                     }
                 });
@@ -260,7 +268,8 @@ public final class LbcIndirectKills {
             hazards.computeIfAbsent(level,ignored->new HashMap<>()).put(pos.immutable(),new Hazard(hazardWriter,state));
     }
     private static boolean hazardous(BlockState state) {
-        return state.is(Blocks.FIRE) || state.is(Blocks.SOUL_FIRE) || state.is(Blocks.LAVA) || state.is(Blocks.MAGMA_BLOCK);
+        return state.is(Blocks.FIRE) || state.is(Blocks.SOUL_FIRE) || state.is(Blocks.LAVA) || state.is(Blocks.MAGMA_BLOCK)
+                || state.is(Blocks.WATER);
     }
     public void hazardPlaced(ServerLevel level, BlockPos pos, ServerPlayer player) {
         var state=level.getBlockState(pos);
@@ -274,7 +283,7 @@ public final class LbcIndirectKills {
     }
     public void worldChanges(ServerLevel level, Entity source, Runnable writes) {
         var player=playerSource(source);
-        blockWrites(level,player==null ? null : new Owner(player.getUUID(),++order,source instanceof net.minecraft.world.entity.LightningBolt,
+        blockWrites(level,player==null ? null : new Owner(player.getUUID(),++order,source instanceof net.minecraft.world.entity.LightningBolt || game.items().cageDrops().wild(source),
                 source instanceof Projectile || source instanceof net.minecraft.world.entity.LightningBolt),writes);
     }
     private void blockWrites(ServerLevel level, Owner source, Runnable writes) {
@@ -316,7 +325,7 @@ public final class LbcIndirectKills {
         if(source.is(DamageTypes.IN_WALL)) return suffocationOwner(target);
         boolean fire=source.is(DamageTypes.LAVA) || source.is(DamageTypes.IN_FIRE);
         boolean floor=source.is(DamageTypes.HOT_FLOOR);
-        if(!fire && !floor && !source.is(DamageTypes.ON_FIRE)) return null;
+        if(!fire && !floor && !source.is(DamageTypes.DROWN) && !source.is(DamageTypes.ON_FIRE)) return null;
         Owner cause=null;
         if(source.is(DamageTypes.ON_FIRE)) cause=burning.get(target);
         else if(target.level() instanceof ServerLevel level) {
@@ -358,7 +367,8 @@ public final class LbcIndirectKills {
         return cause;
     }
     private static boolean matchingHazard(BlockState state, DamageSource source) {
-        return source.is(DamageTypes.LAVA) ? state.is(Blocks.LAVA)
+        return source.is(DamageTypes.DROWN) ? state.is(Blocks.WATER)
+                : source.is(DamageTypes.LAVA) ? state.is(Blocks.LAVA)
                 : source.is(DamageTypes.HOT_FLOOR) ? state.is(Blocks.MAGMA_BLOCK)
                 : state.is(Blocks.FIRE) || state.is(Blocks.SOUL_FIRE);
     }

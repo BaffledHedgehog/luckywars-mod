@@ -84,7 +84,7 @@ public final class ElectroNativeMixins {
         @Inject(method="addAdditionalSaveData",at=@At("TAIL"))
         private void skywars2$saveDropOwner(net.minecraft.world.level.storage.ValueOutput output,CallbackInfo ci) {
             var tnt=(PrimedTnt)(Object)this;
-            if(me.skywars2.game.LbcTntDrops.managed(tnt) || me.skywars2.game.LbcCreeperDrops.managed(tnt))
+            if(me.skywars2.game.LbcTntDrops.managed(tnt) || me.skywars2.game.LbcCreeperDrops.managed(tnt) || me.skywars2.game.LbcCageDrops.managed(tnt))
                 net.minecraft.world.entity.EntityReference.store(
                         net.minecraft.world.entity.EntityReference.of(tnt.getOwner()),output,"owner");
         }
@@ -95,6 +95,7 @@ public final class ElectroNativeMixins {
                 LivingEntity owner=game.items().electro().reflectedOwner((Entity)(Object)this);
                 if(owner==null) owner=game.items().tntDrops().retainedOwner((Entity)(Object)this);
                 if(owner==null) owner=game.items().creeperDrops().owner((Entity)(Object)this);
+                if(owner==null) owner=game.items().cageDrops().retainedOwner((Entity)(Object)this);
                 if(owner!=null) ci.setReturnValue(owner);
             }
         }
@@ -105,7 +106,8 @@ public final class ElectroNativeMixins {
         private DamageSource skywars2$reflectedDamageSource(DamageSource source) {
             var game=SkyWars2.game();
             if(game==null || source.getDirectEntity()==null) return source;
-            var owner=game.items().electro().reflectedOwner(source.getDirectEntity());
+            LivingEntity owner=game.items().electro().reflectedOwner(source.getDirectEntity());
+            if(owner==null) owner=game.items().cageDrops().owner(source.getDirectEntity());
             return owner==null || source.getEntity()==owner ? source : new DamageSource(source.typeHolder(),source.getDirectEntity(),owner);
         }
     }

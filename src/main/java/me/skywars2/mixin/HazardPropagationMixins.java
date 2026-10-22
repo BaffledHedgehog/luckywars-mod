@@ -38,6 +38,7 @@ public final class HazardPropagationMixins {
             var game=SkyWars2.game();
             if(game!=null) {
                 var authority=game.items().creeperDrops().owner(source);
+                if(authority==null) authority=game.items().cageDrops().owner(source);
                 if(authority==null && damageSource.getEntity()==null) authority=game.items().mobgun().owner(source);
                 if(authority!=null) damageSource=new net.minecraft.world.damagesource.DamageSource(
                         damageSource.typeHolder(),source,authority);
@@ -76,6 +77,7 @@ public final class HazardPropagationMixins {
                 entities.removeIf(entity->!game.items().helicopterEncounter().explosionTarget(source,entity));
                 entities.removeIf(entity->!game.items().tntDrops().explosionTarget(source,entity));
                 entities.removeIf(entity->!game.items().creeperDrops().explosionTarget(source,entity));
+                entities.removeIf(entity->!game.items().cageDrops().canAffect(source,entity));
                 if(source!=null && source.entityTags().contains(me.skywars2.game.LbcExasperato.EXPLOSIVE))
                     entities.removeIf(entity->!game.items().exasperato().explosionTarget(source,entity));
                 else if(source instanceof net.minecraft.world.entity.projectile.Projectile projectile
@@ -103,6 +105,8 @@ public final class HazardPropagationMixins {
             var blast=(ServerExplosion)(Object)this;
             var creeperOwner=game.items().creeperDrops().owner(blast.getDirectSourceEntity());
             if(creeperOwner!=null) return creeperOwner;
+            var cageOwner=game.items().cageDrops().owner(blast.getDirectSourceEntity());
+            if(cageOwner!=null) return cageOwner;
             var authority=game.items().mobgun().owner(blast.getDirectSourceEntity());
             if(authority==null) return nativeSource;
             // The constructor calls this while its DamageSource field is still null.
@@ -133,6 +137,7 @@ public final class HazardPropagationMixins {
             if(game!=null) {
                 game.items().tntDrops().inheritChain(source,spawned);
                 game.items().creeperDrops().inheritChild(source,spawned);
+                game.items().cageDrops().inheritChild(source,spawned);
             }
             if(game!=null && source!=null && source.entityTags().contains(me.skywars2.game.LbcExasperato.EXPLOSIVE)) {
                 spawned.entityTags().add(me.skywars2.game.LbcExasperato.EXPLOSIVE);

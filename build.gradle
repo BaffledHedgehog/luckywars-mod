@@ -26,6 +26,9 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/cage_drop_anvil.json', 'data/lbc/loot_table/ported/cage_drop_fireball.json',
+            'data/lbc/loot_table/ported/cage_drop_potions.json', 'data/lbc/loot_table/ported/cage_drop_lava.json',
+            'data/lbc/loot_table/ported/cage_drop_obsidian.json'
     include 'data/lbc/loot_table/ported/creeper_drop.json',
             'data/lbc/loot_table/ported/creeper_drop_old.json', 'data/lbc/loot_table/creeper_wand.json'
     include 'data/lbc/loot_table/ported/tnt_drop.json'
