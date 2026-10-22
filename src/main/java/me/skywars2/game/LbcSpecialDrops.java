@@ -16,19 +16,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/** Deferred, ownerless native chest placement for the five source drop flags. */
-public final class LbcChestDrops {
+/** Shared dropped-token dispatcher: source order, one activation/debit per tick and epoch. */
+public final class LbcSpecialDrops {
     private final GameController game;
     private final Map<ItemEntity, String> pending = new IdentityHashMap<>();
     private final Map<ItemEntity, Integer> lastAttempt = new IdentityHashMap<>();
     private int lastTick = Integer.MIN_VALUE;
 
-    public LbcChestDrops(GameController game) { this.game = game; }
+    public LbcSpecialDrops(GameController game) { this.game = game; }
+
+    private static boolean recognized(net.minecraft.world.item.ItemStack stack) {
+        return LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack);
+    }
 
     public void loaded(Entity entity) {
         // /give creates a temporary visual item and marks it fake after ENTITY_LOAD.
         // Do not place blocks from inside the entity insertion callback.
-        if (entity instanceof ItemEntity token && LbcChestDropItem.kind(token.getItem()) != null
+        if (entity instanceof ItemEntity token && recognized(token.getItem())
                 && active(token)) pending.putIfAbsent(token, game.items().epoch());
     }
 
@@ -47,7 +51,7 @@ public final class LbcChestDrops {
         lastTick = now;
         for (var token : List.copyOf(pending.keySet())) {
             if (token.isRemoved() || token.getAge() >= 5999 || !active(token)
-                    || !game.items().currentEpoch(pending.get(token)) || LbcChestDropItem.kind(token.getItem()) == null) {
+                    || !game.items().currentEpoch(pending.get(token)) || !recognized(token.getItem())) {
                 unloaded(token);
                 continue;
             }
@@ -61,12 +65,13 @@ public final class LbcChestDrops {
         if (token.isRemoved() || token.getAge() >= 5999 || !active(token)
                 || !(token.level() instanceof ServerLevel level) || game.items().timeStop().stopped(level)) return false;
         if (pending.containsKey(token) && !game.items().currentEpoch(pending.get(token))) return false;
-        var first = LbcChestDropItem.kind(token.getItem());
-        if (first == null) return false;
+        boolean chest = LbcChestDropItem.kind(token.getItem()) != null;
+        boolean tnt = LbcTntDropItem.matches(token.getItem());
+        if (!chest && !tnt) return false;
         int now = game.server().getTickCount();
         if (lastAttempt.getOrDefault(token, Integer.MIN_VALUE) == now) return false;
         var pos = BlockPos.containing(token.position());
-        if (!resident(level, pos)) return false;
+        if (!resident(level, pos, chest ? 1 : 0)) return false;
         lastAttempt.put(token, now);
         // The source dispatcher executes every matching flag in order, then debits once.
         if (!level.isOutsideBuildHeight(pos) && !level.isDebug()) {
@@ -74,16 +79,17 @@ public final class LbcChestDrops {
                 place(level, pos, kind);
             }
         }
+        if (tnt) game.items().tntDrops().spawn(token);
         var remaining = token.getItem().copy();
         remaining.shrink(1);
         if (remaining.isEmpty()) token.discard(); else token.setItem(remaining);
         return true;
     }
 
-    private static boolean resident(ServerLevel level, BlockPos pos) {
+    private static boolean resident(ServerLevel level, BlockPos pos, int border) {
         // Shape and neighbour updates may inspect blocks on the other side of a chunk border.
-        int minX = (pos.getX() - 1) >> 4, maxX = (pos.getX() + 1) >> 4;
-        int minZ = (pos.getZ() - 1) >> 4, maxZ = (pos.getZ() + 1) >> 4;
+        int minX = (pos.getX() - border) >> 4, maxX = (pos.getX() + border) >> 4;
+        int minZ = (pos.getZ() - border) >> 4, maxZ = (pos.getZ() + border) >> 4;
         for (int chunkX = minX; chunkX <= maxX; chunkX++) for (int chunkZ = minZ; chunkZ <= maxZ; chunkZ++) {
             if (level.getChunkSource().getChunkNow(chunkX, chunkZ) == null) return false;
         }

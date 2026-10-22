@@ -33,7 +33,8 @@ public final class HazardPropagationMixins {
         private void skywars2$identifyWandBlast(org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
             var source=((ServerExplosion)(Object)this).getDirectSourceEntity();
             skywars2$skipEmptyBlastBlocks=source instanceof net.minecraft.world.entity.item.PrimedTnt
-                    && source.entityTags().contains(me.skywars2.game.LbcExasperato.EXPLOSIVE);
+                    && (source.entityTags().contains(me.skywars2.game.LbcExasperato.EXPLOSIVE)
+                        || me.skywars2.game.LbcTntDrops.managed(source));
             var game=SkyWars2.game();
             if(game!=null && damageSource.getEntity()==null) {
                 var authority=game.items().mobgun().owner(source);
@@ -72,6 +73,7 @@ public final class HazardPropagationMixins {
             if(game!=null) {
                 var source=((ServerExplosion)(Object)this).getDirectSourceEntity();
                 entities.removeIf(entity->!game.items().helicopterEncounter().explosionTarget(source,entity));
+                entities.removeIf(entity->!game.items().tntDrops().explosionTarget(source,entity));
                 if(source!=null && source.entityTags().contains(me.skywars2.game.LbcExasperato.EXPLOSIVE))
                     entities.removeIf(entity->!game.items().exasperato().explosionTarget(source,entity));
                 else if(source instanceof net.minecraft.world.entity.projectile.Projectile projectile
@@ -124,6 +126,7 @@ public final class HazardPropagationMixins {
         private boolean skywars2$wandChain(ServerLevel level,Entity spawned,Operation<Boolean> original,
                 @Local(argsOnly=true) net.minecraft.world.level.Explosion explosion) {
             var source=explosion.getDirectSourceEntity(); var game=SkyWars2.game();
+            if(game!=null) game.items().tntDrops().inheritChain(source,spawned);
             if(game!=null && source!=null && source.entityTags().contains(me.skywars2.game.LbcExasperato.EXPLOSIVE)) {
                 spawned.entityTags().add(me.skywars2.game.LbcExasperato.EXPLOSIVE);
                 spawned.entityTags().add(game.items().epoch());

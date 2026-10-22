@@ -20,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /** Нативные молнии и отражённые опасности сохраняют автора; обычная погода остаётся ванильной. */
 public final class ElectroNativeMixins {
@@ -80,11 +81,19 @@ public final class ElectroNativeMixins {
     }
     @Mixin(PrimedTnt.class)
     public abstract static class Tnt {
+        @Inject(method="addAdditionalSaveData",at=@At("TAIL"))
+        private void skywars2$saveDropOwner(net.minecraft.world.level.storage.ValueOutput output,CallbackInfo ci) {
+            var tnt=(PrimedTnt)(Object)this;
+            if(me.skywars2.game.LbcTntDrops.managed(tnt))
+                net.minecraft.world.entity.EntityReference.store(
+                        net.minecraft.world.entity.EntityReference.of(tnt.getOwner()),output,"owner");
+        }
         @Inject(method="getOwner",at=@At("HEAD"),cancellable=true)
         private void skywars2$reflectedTntOwner(CallbackInfoReturnable<LivingEntity> ci) {
             var game=SkyWars2.game();
             if(game!=null) {
-                var owner=game.items().electro().reflectedOwner((Entity)(Object)this);
+                LivingEntity owner=game.items().electro().reflectedOwner((Entity)(Object)this);
+                if(owner==null) owner=game.items().tntDrops().retainedOwner((Entity)(Object)this);
                 if(owner!=null) ci.setReturnValue(owner);
             }
         }

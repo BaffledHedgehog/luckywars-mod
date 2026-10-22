@@ -45,7 +45,7 @@ name, lock, components and seed before installing the new table.
 ## Scheduling and reuse
 
 `LbcChestDropItem` follows the existing Helicopter Polymer prototype/component
-event pattern. `LbcChestDrops` indexes dropped inputs through entity load/unload
+event pattern. `LbcSpecialDrops` (formerly `LbcChestDrops`) indexes dropped inputs through entity load/unload
 events, defers effects outside ENTITY_LOAD, ignores native /give fake pickup
 visuals, and captures the match epoch. It performs one attempt and one unit debit
 per token per server tick. Matching source flags dispatch in source order, with
@@ -91,7 +91,8 @@ Exact legacy dispatch, payloads and active resource-pack references are in
 variants are ported; the different undecorated imba pool is not published as a
 new ready pool. This does not qualify the entire Lucky Block outcome dispatcher.
 
-Next bounded unit: the 13-TNT drop, then harmful creeper/cage outcomes with source
+The [13-TNT drop](TNT_DROP_PORT.md) is now qualified and shares this dispatcher.
+Next bounded unit: harmful creeper/cage outcomes with source
 attribution and shared explosion/target policies. Crocodildo is separately audited
 in [CROCODILDO_ENCOUNTER_SOURCE.md](CROCODILDO_ENCOUNTER_SOURCE.md): initial HP,
 destructive payload, time-stop/suppression and missing native nuke-egg reward

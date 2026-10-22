@@ -711,6 +711,9 @@ public final class GameChecks {
                                 case "infbolt-cleanup" -> checkInfboltCleanup(game);
                                 case "helicopter-encounter" -> { HelicopterEncounterChecks.run(game); return; }
                                 case "chest-drops" -> { ChestDropChecks.run(game); return; }
+                                case "tnt-drops" -> { TntDropChecks.run(game); return; }
+                                case "tnt-drops-stop-probe" -> TntDropChecks.stopProbe(game);
+                                case "tnt-drops-cleanup" -> TntDropChecks.cleanup(game);
                                 case "chest-drops-stop-probe" -> ChestDropChecks.stopProbe(game);
                                 case "chest-drops-cleanup" -> ChestDropChecks.cleanup(game);
                                 case "helicopter-encounter-stop-probe" -> HelicopterEncounterChecks.stopProbe(game);
@@ -969,6 +972,7 @@ public final class GameChecks {
                 if (game == null)
                         return;
                 ChestDropChecks.tick(game);
+                TntDropChecks.tick(game);
                 MapFluidChecks.tick(game);
                 LightningAcquisitionChecks.tick(game);
                 // These native ServerPlayers have no socket registered with the network

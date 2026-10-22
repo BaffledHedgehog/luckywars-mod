@@ -1,5 +1,24 @@
 # Проект SkyWars
 
+## Thirteen-TNT special drop - QUALIFIED (user, 22 October 2026)
+
+[Current contract](agent_notes/TNT_DROP_PORT.md). Polymer tnt_drop preserves source trap_tnt/trap_desc/model/tier.
+Dropped tokens emit13 real native TNT at exact +0.1Y, fuse70 and source vectors.
+LbcSpecialDrops replaces the chest-only dispatcher; both families share source
+ordering and one debit per tick. Native/global TNT protection applies once.
+Actual thrower capture, reflection-first owner hooks, native save/chain ownership,
+role/allied-player guards and quiet epoch/stop cleanup are checked. Source TNT
+continues after its author dies/disconnects; attribution adds no owner lifetime.
+
+User approved separate TNT-token authors, then allowed omission if costly: the
+guard runs only on native TNT-token merge attempts, with no world/tick scan.
+Ordinary blast loot and same-author merges remain native. Exact native TNT class
+reuses existing scoped explosion caching; no new explosion algorithm or cap.
+Build/two isolated matches passed on103e3bd2 (12 suite results,55.41s), with chest
+regression. Ready archive build/verification/skywars2-tnt-drops-103e3bd2.jar;
+evidence build/verification/tnt-drops-final/. Main remains69de8601, not installed;
+RP/template unchanged. Next creepers/cages; unfinished mode guards remain.
+
 ## Five loot-chest drops - QUALIFIED (user, 22 October 2026)
 
 [Current contract](agent_notes/CHEST_DROPS_PORT.md). Native Polymer tokens for bastion, end_city, treasure, village

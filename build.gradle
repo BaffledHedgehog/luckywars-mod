@@ -26,6 +26,7 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/tnt_drop.json'
     include 'data/lbc/loot_table/ported/chest_drop_bastion.json',
             'data/lbc/loot_table/ported/chest_drop_end_city.json',
             'data/lbc/loot_table/ported/chest_drop_treasure.json',

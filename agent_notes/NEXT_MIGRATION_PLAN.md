@@ -1,5 +1,25 @@
 # Следующие этапы переноса
 
+## Thirteen-TNT special drop - QUALIFIED (user, 22 October 2026)
+
+[Current contract](TNT_DROP_PORT.md). Native Polymer tnt_drop emits13 source TNT with fuse70, exact velocities
+and fractional +0.1Y origin. Chest/TNT inputs now share LbcSpecialDrops admission,
+source-order dispatch and one unit debit per tick. Existing global protection,
+native explosion caching, real thrower/reflected/chain ownership, native merge
+guards and time-stop/epoch/stop cleanup are reused and qualified.
+
+Build and two actual mode1 fixture matches passed on103e3bd2:12 suite results,
+55.41s, including chest regression. Archive skywars2-tnt-drops-103e3bd2.jar is
+ready in build/verification, not installed; main remains69de8601, RP unchanged.
+See build/verification/tnt-drops-final/ for logs/results and precise limitations.
+
+Next: creeper drops, qualifying any creeper_wand reward dependency; then cage
+traps with source shaft/placement geometry and native falling-entity ownership.
+Reuse the shared dispatcher rather than adding another token scan. Public loot
+leaves stay limited to ready behaviors. Crocodildo still requires its separate
+HP/destruction/time-stop/suppression/nuke-egg reward decisions; modes2..4 stay
+blocked until their game-flow contracts are implemented and qualified.
+
 ## Five loot-chest drops - QUALIFIED (user, 22 October 2026)
 
 [Current contract](CHEST_DROPS_PORT.md). Five Polymer tokens now create lazy native loot chests for bastion,

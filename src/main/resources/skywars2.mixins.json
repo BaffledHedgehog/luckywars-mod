@@ -13,6 +13,7 @@
     "LobbyInventoryPacketMixin",
     "LobbyItemPickupMixin",
     "TypedItemDamageMixin",
+    "TntDropMergeMixin",
     "PlayerMechanicsMixin",
     "ConsumableSkillMixin",
     "LbcEffectTriggerMixin",

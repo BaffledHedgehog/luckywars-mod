@@ -35,7 +35,7 @@ public final class ChestDropChecks {
         require(level.addFreshEntity(item),"native token added");return item;
     }
     private static final class State implements AutoCloseable {
-        final GameController game;final ServerLevel level;final LbcChestDrops service;
+        final GameController game;final ServerLevel level;final LbcSpecialDrops service;
         final ServerPlayer alpha;final GameChecks.WandThirdPlayerState savedPlayer;
         final BlockPos playerPos;final MapManager.BlockSnapshot playerBlock;
         final Map<BlockPos,MapManager.BlockSnapshot> blocks=new LinkedHashMap<>();
