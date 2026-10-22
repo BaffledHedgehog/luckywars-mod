@@ -1,5 +1,32 @@
 # Проверка игрового цикла на Fabric
 
+## Small drops batch and enchantment rules - QUALIFIED (22 October 2026)
+
+[Contract](agent_notes/SMALL_DROPS_BATCH_PORT.md). Four mechanics / six public leaves: normal/old OP Anvil,
+normal/old Aggressive Slab, Yamete and Death from Lust. Native books, falling
+physics/XP, slab equipment/combat/conversion, source authors and outbound
+feedback are migrated. The two book tables use the current 26.3 schema;
+source enchantments, order and chances remain. Existing RP/template untouched.
+
+User addition: book enchantments apply to any nonempty anvil input; distinct
+enchantments have no conflicts in anvil or enchanting-table selection. Identical
+enchantments retain native upgrades. Actual Survival anvil take/XP/book consumption,
+Sharpness dirt damage, all four protections, book merges and native table
+clicks with lapis passed. Native XP costs/max levels/expense cap remain.
+
+Build and two isolated mode1 matches passed on c9a33498: 104 recorded suite results,
+87.69s, all previous special-drop regressions/probes/cleanup included.
+197 sources / 563 classes / 2684 processed resources match tested artifacts.
+Ready build/verification/skywars2-small-drops-batch-c9a33498.jar; evidence build/verification/small-drops-batch-final/.
+Main96ee50a7 and user Reroll unchanged; not installed. Only known fake-bot
+Polymer packet-context ERROR pair remains. Native packet capture is qualified,
+not actual client pixels/audio. Disk persistence/disconnect, natural AI timing,
+offline coin framework and peak capacity remain limits; see contract.
+
+Historical next-OP/Bees recommendations below are superseded. Next migration
+should again batch several small complete closures from remaining specialdrops;
+do not reopen completed leaves or advertise unfinished full reward pools.
+
 ## Bees drops - QUALIFIED (22 October 2026)
 
 [Contract](agent_notes/BEES_DROP_PORT.md). Build/two actual isolated mode1 matches

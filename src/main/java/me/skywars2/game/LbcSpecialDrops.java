@@ -28,7 +28,7 @@ public final class LbcSpecialDrops {
     public LbcSpecialDrops(GameController game) { this.game = game; }
 
     private static boolean recognized(net.minecraft.world.item.ItemStack stack) {
-        return LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack) || LbcCreeperDropItem.kind(stack) != null || LbcCageDropItem.kind(stack) != null || LbcHoleDropItem.kind(stack) != null || LbcCorrosionDropItem.kind(stack) != null || LbcZombieTntDropItem.matches(stack) || LbcFallingNetheriteDropItem.kind(stack) != null || LbcHomeItems.matchesDrop(stack) || LbcScareDropItem.kind(stack) != null || LbcLuckyPigDropItem.matches(stack) || LbcLevitationDropItem.matches(stack) || LbcLibraryDropItem.matches(stack) || LbcBeeDropItem.matches(stack);
+        return LbcChestDropItem.kind(stack) != null || LbcTntDropItem.matches(stack) || LbcCreeperDropItem.kind(stack) != null || LbcCageDropItem.kind(stack) != null || LbcHoleDropItem.kind(stack) != null || LbcCorrosionDropItem.kind(stack) != null || LbcZombieTntDropItem.matches(stack) || LbcFallingNetheriteDropItem.kind(stack) != null || LbcHomeItems.matchesDrop(stack) || LbcScareDropItem.kind(stack) != null || LbcLuckyPigDropItem.matches(stack) || LbcLevitationDropItem.matches(stack) || LbcLibraryDropItem.matches(stack) || LbcBeeDropItem.matches(stack) || LbcOpAnvilDropItem.kind(stack) != null || LbcSlabDropItem.kind(stack) != null || LbcFeedbackDropItem.matches(stack);
     }
 
     public void loaded(Entity entity) {
@@ -99,14 +99,23 @@ public final class LbcSpecialDrops {
         boolean home = LbcHomeItems.matchesDrop(token.getItem());
         boolean scare = LbcScareDropItem.kind(token.getItem()) != null;
         boolean library = LbcLibraryDropItem.matches(token.getItem());
+        boolean opAnvil = LbcOpAnvilDropItem.kind(token.getItem()) != null;
+        boolean slab = LbcSlabDropItem.kind(token.getItem()) != null;
+        boolean feedback = LbcFeedbackDropItem.matches(token.getItem());
         boolean bees = LbcBeeDropItem.matches(token.getItem());
         boolean pigs = LbcLuckyPigDropItem.matches(token.getItem());
         boolean enzan = LbcLevitationDropItem.matches(token.getItem());
-        if (!chest && !tnt && !creeper && !cage && !hole && !corrosion && !zombieTnt && !falling && !home && !scare && !pigs && !enzan && !library && !bees) return false;
+        if (!chest && !tnt && !creeper && !cage && !hole && !corrosion && !zombieTnt && !falling && !home && !scare && !pigs && !enzan && !library && !bees && !opAnvil && !slab && !feedback) return false;
         int now = game.server().getTickCount();
         if (lastAttempt.getOrDefault(token, Integer.MIN_VALUE) == now) return false;
         var pos = BlockPos.containing(token.position());
         if (!resident(level, pos, chest ? 1 : 0)) return false;
+        for (var kind : LbcOpAnvilDropItem.Kind.values())
+            if (LbcOpAnvilDropItem.matches(token.getItem(), kind) && !game.items().opAnvilDrops().ready(token, kind)) return false;
+        for (var kind : LbcSlabDropItem.Kind.values())
+            if (LbcSlabDropItem.matches(token.getItem(), kind) && !game.items().slabDrops().ready(token, kind)) return false;
+        for (var kind : LbcFeedbackDropItem.Kind.values())
+            if (LbcFeedbackDropItem.matches(token.getItem(), kind) && !game.items().feedbackDrops().ready(token, kind)) return false;
         if (bees && !game.items().beeDrops().ready(token)) return false;
         if (library && !game.items().libraryDrop().ready(token)) return false;
         if (pigs && !game.items().luckyPigs().ready(token)) return false;
@@ -165,7 +174,15 @@ public final class LbcSpecialDrops {
         if (library) game.items().libraryDrop().spawn(token);
         if (pigs) game.items().luckyPigs().spawn(token);
         if (bees) game.items().beeDrops().spawn(token);
+        if (LbcFeedbackDropItem.matches(token.getItem(), LbcFeedbackDropItem.Kind.YAMETE))
+            game.items().feedbackDrops().spawn(token, LbcFeedbackDropItem.Kind.YAMETE);
+        for (var kind : LbcOpAnvilDropItem.Kind.values())
+            if (LbcOpAnvilDropItem.matches(token.getItem(), kind)) game.items().opAnvilDrops().spawn(token, kind);
+        for (var kind : LbcSlabDropItem.Kind.values())
+            if (LbcSlabDropItem.matches(token.getItem(), kind)) game.items().slabDrops().spawn(token, kind);
         if (enzan) game.items().enzanDrop().spawn(token);
+        if (LbcFeedbackDropItem.matches(token.getItem(), LbcFeedbackDropItem.Kind.DEATH_LUST))
+            game.items().feedbackDrops().spawn(token, LbcFeedbackDropItem.Kind.DEATH_LUST);
         var remaining = token.getItem().copy();
         remaining.shrink(1);
         if (remaining.isEmpty()) token.discard(); else token.setItem(remaining);

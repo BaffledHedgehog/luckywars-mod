@@ -26,6 +26,10 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/op_anvil_drop.json', 'data/lbc/loot_table/ported/op_anvil_drop_old.json',
+            'data/lbc/loot_table/opbook.json', 'data/lbc/loot_table/opbook_old.json',
+            'data/lbc/loot_table/ported/slab_drop.json', 'data/lbc/loot_table/ported/slab_drop_old.json',
+            'data/lbc/loot_table/ported/yamete_drop.json', 'data/lbc/loot_table/ported/death_lust_drop.json'
     include 'data/lbc/loot_table/ported/bees_drop.json', 'data/lbc/loot_table/ported/bees_drop_old.json',
             'data/lbc/loot_table/honey.json'
     include 'data/lbc/loot_table/ported/library_drop.json', 'data/lbc/loot_table/ported/library_drop_old.json'

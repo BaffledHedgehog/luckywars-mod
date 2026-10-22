@@ -13,6 +13,10 @@ public abstract class FallingNetheriteDropMixin {
     private void skywars2$netheriteLanding(Operation<Void> original) {
         var game=SkyWars2.game();
         var actor=(FallingBlockEntity)(Object)this;
+        if(game!=null && me.skywars2.game.LbcOpAnvilDrop.managed(actor)) {
+            game.items().opAnvilDrops().withTick(actor,()->original.call());
+            return;
+        }
         if(game==null || !me.skywars2.game.LbcFallingNetheriteDrops.managed(actor)) {
             original.call();
             return;

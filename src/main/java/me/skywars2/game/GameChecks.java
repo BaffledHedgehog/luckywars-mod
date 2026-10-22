@@ -718,6 +718,16 @@ public final class GameChecks {
                                 case "home-drop" -> { HomeDropChecks.run(game); return; }
                                 case "scare-drops" -> { ScareDropChecks.run(game); return; }
                                 case "lucky-pigs" -> { LuckyPigDropChecks.run(game); return; }
+                                case "enchantment-rules" -> { EnchantmentRulesChecks.run(game); return; }
+                                case "op-anvil-drops" -> { OpAnvilDropChecks.run(game); return; }
+                                case "op-anvil-drops-stop-probe" -> OpAnvilDropChecks.stopProbe(game);
+                                case "op-anvil-drops-cleanup" -> OpAnvilDropChecks.cleanup(game);
+                                case "slab-drops" -> { SlabDropChecks.run(game); return; }
+                                case "slab-drops-stop-probe" -> { SlabDropChecks.stopProbe(game); return; }
+                                case "slab-drops-cleanup" -> SlabDropChecks.cleanup(game);
+                                case "feedback-drops" -> { FeedbackDropChecks.run(game); return; }
+                                case "feedback-drops-stop-probe" -> { FeedbackDropChecks.stopProbe(game); return; }
+                                case "feedback-drops-cleanup" -> FeedbackDropChecks.cleanup(game);
                                 case "bees-drop" -> { BeeDropChecks.run(game); return; }
                                 case "bees-drop-stop-probe" -> { BeeDropChecks.stopProbe(game); return; }
                                 case "bees-drop-cleanup" -> BeeDropChecks.cleanup(game);
@@ -1024,6 +1034,9 @@ public final class GameChecks {
                 EnzanDropChecks.tick(game);
                 LibraryDropChecks.tick(game);
                 BeeDropChecks.tick(game);
+                OpAnvilDropChecks.tick(game);
+                SlabDropChecks.tick(game);
+                FeedbackDropChecks.tick(game);
                 MapFluidChecks.tick(game);
                 LightningAcquisitionChecks.tick(game);
                 // These native ServerPlayers have no socket registered with the network

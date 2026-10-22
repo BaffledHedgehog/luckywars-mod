@@ -1,5 +1,9 @@
 # Next complete acquisition after Bees — OP Anvil source audit
 
+Current implementation and qualification: [combined small-drop contract](SMALL_DROPS_BATCH_PORT.md).
+The source evidence below predates implementation; the two book tables now use
+26.3 modifier/type/condition fields with original enchantment data preserved.
+
 22 October 2026. Recommendation only; no implementation/runtime qualification.
 Only this note was written. Source root S:
 `E:/servers_mew/cringe1_21_4_skywars/world/datapacksdisabled/LBC/data/lbc/`.
