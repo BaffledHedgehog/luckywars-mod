@@ -1,9 +1,0 @@
-{
-  "installedAtUtc": "2026-10-15T20:39:03.675608+00:00",
-  "artifactSha256": "1ce3fa37a598543bd5a49ecc004a3cf6076e1b42a2f78a4fd8ad5e82bce0a271",
-  "previousSha256": "341c62937bdb6a042e44cf08074859af8c70084e46a021855a25faac7df68626",
-  "installed": "E:\\servers_mew\\skywars2_last\\mods\\skywars2.jar",
-  "ready": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-terra-swords-1ce3fa37.jar",
-  "backup": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-before-terra-swords-341c6293.jar",
-  "mainServerStarted": false
-}

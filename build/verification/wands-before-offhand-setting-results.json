@@ -1,9 +1,0 @@
-{
-  "completed": [
-    "four source Tiny Wand and trinket tables, native IDs, item components and Polymer restoration",
-    "native Tiny Fire/Blind callbacks, both hands, mana cost/overdraft, team and observer targeting, Mage set and cast trinket hooks",
-    "wand projectile and dynamite cleanup after match stop"
-  ],
-  "artifactSha256": "a5b8f86348ca0e21adfb78c58e3993f0369c346ee72d4107f35b81396e943365",
-  "elapsedSeconds": 51.06
-}

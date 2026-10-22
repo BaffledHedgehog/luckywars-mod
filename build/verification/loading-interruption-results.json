@@ -1,7 +1,0 @@
-{
-  "completed": [
-    "Clean shutdown while asynchronous map preparation is pending",
-    "Restart after interrupted loading returns to a clean lobby"
-  ],
-  "elapsedSeconds": 29.4
-}

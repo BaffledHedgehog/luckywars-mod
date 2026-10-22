@@ -1,8 +1,0 @@
-{
-  "preparedAtUtc": "2026-10-15T20:55:05.508041+00:00",
-  "artifactSha256": "e0ffd2cdf87f89c2f7441a12b4e5ccec587ffccd58c81afc5d7a87d8a60c56ae",
-  "ready": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-attribute-column-e0ffd2cd.jar",
-  "mainServerStarted": false,
-  "installed": false,
-  "reason": "The isolated server still holds its world lock; wait for shutdown"
-}

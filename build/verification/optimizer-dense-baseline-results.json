@@ -1,7 +1,0 @@
-{
-  "optimizer": "baseline",
-  "rounds": 3,
-  "metric": "synchronous instantBlast milliseconds; not MSPT",
-  "artifactSha256": "698bff87412089a824362df04ff310aa181178cc4cfbfa312b93b1c43cc400d3",
-  "elapsedSeconds": 46.28
-}

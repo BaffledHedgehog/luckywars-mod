@@ -1,9 +1,0 @@
-{
-  "regressionArtifactSha256": "9e06df5230c22c5ed7dda7b7808d73ad41ca5e0ac3735c23c4cb7b2b4283dc72",
-  "finalArtifactSha256": "fdefb2d7ba403a2ce431824702d54d0e2322a6a0af3adfd26b45d05f273a901d",
-  "changedEntries": [
-    "assets/skywars2/lang/en_us.json",
-    "assets/skywars2/lang/ru_ru.json"
-  ],
-  "classFilesIdentical": true
-}

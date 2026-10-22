@@ -1,9 +1,0 @@
-{
-  "completed": [
-    "regular Terra loot payload, mana cost and Polymer item restoration",
-    "regular Terra swept projectile, targets, walls, pause, suppression and lifecycle",
-    "Terra projectiles and virtual displays clear after match stop"
-  ],
-  "artifactSha256": "341c62937bdb6a042e44cf08074859af8c70084e46a021855a25faac7df68626",
-  "elapsedSeconds": 87.93
-}

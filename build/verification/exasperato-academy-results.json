@@ -1,9 +1,0 @@
-{
-  "completed": [
-    "Base Exasperato native payload, collision, ownership and lifecycle regression",
-    "Academy Exasperato upgraded loot, hand/mana restrictions, charge lifetimes and electro-ray payload",
-    "Exasperato charges and native payload clear after match stop"
-  ],
-  "artifactSha256": "ede0d1e17f4c6e19d2a5c22deb1d859bca0ffd74a366876e5d4b0f1f558e74bf",
-  "elapsedSeconds": 46.93
-}

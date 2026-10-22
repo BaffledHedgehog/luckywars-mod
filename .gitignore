@@ -1,1 +1,24 @@
 agent_notesagent_notes
+
+# Local Gradle state, generated artifacts and isolated verification servers.
+/.gradle/
+/build/
+
+# Personal IDE configuration.
+/.vscode/settings.json
+/.idea/
+
+# Extracted dependency sources and Python bytecode.
+/net/
+__pycache__/
+*.py[cod]
+
+# JVM diagnostics and disposable editor/process files.
+/replay_pid*.log
+/hs_err_pid*.log
+/javac.*.args
+*.tmp
+*.swp
+*~
+.DS_Store
+Thumbs.db

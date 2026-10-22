@@ -1,8 +1,0 @@
-{
-  "completed": [
-    "Real Exoperso collision drains all 32 shared TNT callbacks, verifies owner damage attribution, and clears series sources",
-    "Exoperso charges, shared blast queue and burst visual state clear after match stop"
-  ],
-  "artifactSha256": "97a143d179f9a134c6499bb2731686b4ed59766246155f4edaf63cd0acc8cf3d",
-  "elapsedSeconds": 40.74
-}

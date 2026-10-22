@@ -1,9 +1,0 @@
-{
-  "completed": [
-    "Iron Axe retains 29 anchors and 20 filled chests, excludes editor overlays, and refills without drops",
-    "Replacing a filled map with block/entity drops enabled does not spill container contents",
-    "Iron Axe reload and actual match start keep native loot inside containers"
-  ],
-  "artifactSha256": "4b59596fdac55044321f6ee1ba1a8a14d0c1b2fdf7d10ce040eb8e03fb0f1ff9",
-  "elapsedSeconds": 35.56
-}

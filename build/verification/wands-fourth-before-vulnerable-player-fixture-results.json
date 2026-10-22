@@ -1,9 +1,0 @@
-{
-  "completed": [
-    "Tiny Acid source payload, native item ID, Polymer restoration and cost",
-    "six native Acid projectiles, wall endpoint, motion, status and mana gates",
-    "tracked Acid projectile cleanup after match stop"
-  ],
-  "artifactSha256": "1be42b04597ed5d0dc700b30297dcb449e2e7ef979ead7c59059feacbb1be5f0",
-  "elapsedSeconds": 61.78
-}

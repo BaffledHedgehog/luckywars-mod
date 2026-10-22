@@ -1,8 +1,0 @@
-{
-  "regressionArtifactSha256": "f5c95e215c26f62d916cb8eb7c761c717d955aa28f1237e3525ac4706e6f410e",
-  "finalArtifactSha256": "6b2f55bf2ee5bc403f11fd28d5c19b1a479f6fd9a47f3a8319b9d5995f6c955c",
-  "changedEntries": [
-    "me/skywars2/game/LbcTeleport.class"
-  ],
-  "allOtherEntriesIdentical": true
-}

@@ -1,9 +1,0 @@
-{
-  "installed": false,
-  "ready": "E:\\servers_mew\\skywars2_last\\luckywars-mod\\build\\verification\\skywars2-indirect-kills-f47c5aac.jar",
-  "artifactSha256": "f47c5aaca4d7ea9f1f60c46ee3af80766ab977589284cee6d4217e94c1bf7fb9",
-  "previousInstalledSha256": "1ce3fa37a598543bd5a49ecc004a3cf6076e1b42a2f78a4fd8ad5e82bce0a271",
-  "report": "indirect-kills-results.json",
-  "reason": "Main server holds its world lock",
-  "installedSha256": "1ce3fa37a598543bd5a49ecc004a3cf6076e1b42a2f78a4fd8ad5e82bce0a271"
-}
