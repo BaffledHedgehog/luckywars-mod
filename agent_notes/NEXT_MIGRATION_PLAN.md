@@ -1,5 +1,24 @@
 # Следующие этапы переноса
 
+## Two corrosion drops - QUALIFIED (22 October 2026)
+
+[Current contract](CORROSION_DROPS_PORT.md). Normal/old Polymer leaves preserve
+distinct decoration, exact48-cell random50% erasure and native flags2 container
+ejection. Old strict two-cell cleanup retains its own bounds/volume checks.
+The existing3ms terrain scheduler handles sparse section work and native shape
+updates; accepted jobs remain until completion, time/halo pause or match cancel.
+Actual thrower/WILD support-removal cause and newer attacker precedence remain.
+Manually combined corrosion+pit/cage flags do not have atomic source write order.
+
+Build and two actual mode1 fixture matches passed onfb8ccf00:36 suite results,
+62.31s with earlier drop regressions. Natural4096-block jobs completed in3ticks
+with intermediate progress in both matches; full dense/concurrent capacity,
+real-client graphics, natural falling trajectories and persistence remain limits.
+Ready build/verification/skywars2-corrosion-drops-fb8ccf00.jar; not installed;
+evidence build/verification/corrosion-drops-final/. Main69de8601, original RP and
+template unchanged. Next bounded work: remaining special drops, starting with
+zombie-TNT source audit. Whole Lucky Block pools and modes2..4 remain gated.
+
 ## Two hole drops - QUALIFIED (22 October 2026)
 
 [Current contract](HOLE_DROPS_PORT.md). Two native Polymer leaves preserve normal

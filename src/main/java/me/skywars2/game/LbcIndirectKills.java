@@ -285,8 +285,12 @@ public final class LbcIndirectKills {
         blockWrites(level,source==null ? null : source.owner,tick);
     }
     public void worldChanges(ServerLevel level, Entity source, Runnable writes) {
+        worldChanges(level,source,source instanceof net.minecraft.world.entity.LightningBolt || game.items().cageDrops().wild(source),writes);
+    }
+    /** Terrain traps retain WILD consequences after their source item has been consumed. */
+    public void worldChanges(ServerLevel level, Entity source, boolean friendlyFire, Runnable writes) {
         var player=playerSource(source);
-        blockWrites(level,player==null ? null : new Owner(player.getUUID(),++order,source instanceof net.minecraft.world.entity.LightningBolt || game.items().cageDrops().wild(source),
+        blockWrites(level,player==null ? null : new Owner(player.getUUID(),++order,friendlyFire,
                 source instanceof Projectile || source instanceof net.minecraft.world.entity.LightningBolt),writes);
     }
     private void blockWrites(ServerLevel level, Owner source, Runnable writes) {

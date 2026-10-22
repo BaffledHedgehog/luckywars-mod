@@ -1,5 +1,27 @@
 # Проект SkyWars
 
+## Two corrosion drops - QUALIFIED (22 October 2026)
+
+[Current contract](agent_notes/CORROSION_DROPS_PORT.md). Two native Polymer tokens
+retain normal trap_corrosion styling and old plain barrier. Their random50% air
+cube is exactly48 cells per axis, floor(token)-24..+23, with native flags2 and
+container ejection. Old additionally runs strict two-cell center cleanup. No
+random-template fill-volume gate, direct damage or block-drop loot is invented.
+
+Corrosion shares the existing3ms Stonekivi terrain scheduler, sparse section
+traversal, native shape/neighbor updates and retained WILD support-removal cause.
+No accepted-job cap; time stop/unresident halo pause, epoch/match stop cancel.
+Dispatch order is admission order; manually combined corrosion+pit/cage tokens
+do not retain atomic source world-write ordering. Preserve this explicit limit.
+
+Build/two actual fixture matches passed onfb8ccf00:36 suite results,62.31s.
+Native containers, fill gates, bounds/residency, causal fall/void/latest attacker,
+allied fall damage and earlier drops passed. A4096-block natural scheduler
+fixture finished in3ticks with intermediate progress in both matches; no full
+dense/saturation capacity claim. Ready build/verification/skywars2-corrosion-drops-fb8ccf00.jar;
+evidence build/verification/corrosion-drops-final/. Main69de8601 not installed;
+RP/template unchanged. Next remaining special drops/zombie-TNT source audit.
+
 ## Two hole drops - QUALIFIED (22 October 2026)
 
 [Current contract](agent_notes/HOLE_DROPS_PORT.md). Normal and old Polymer tokens
