@@ -26,6 +26,8 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/bees_drop.json', 'data/lbc/loot_table/ported/bees_drop_old.json',
+            'data/lbc/loot_table/honey.json'
     include 'data/lbc/loot_table/ported/library_drop.json', 'data/lbc/loot_table/ported/library_drop_old.json'
     include 'data/lbc/loot_table/ported/lucky_pigs_drop.json', 'data/lbc/loot_table/applepig.json',
             'data/lbc/loot_table/ported/levitation_drop.json'

@@ -1,5 +1,20 @@
 # Следующие этапы переноса
 
+## Bees drops - QUALIFIED (22 October 2026)
+
+[Contract](BEES_DROP_PORT.md). Both complete leaves are ready:
+`lbc:ported/bees_drop`, `lbc:ported/bees_drop_old`. Seven native nectar bees,
+full hive, honey reward closure, author retention through hive storage, role
+safety and quiet lifecycle are migrated. Build and two isolated mode1 matches
+passed on8a972305:84results,85.58s. Ready
+build/verification/skywars2-bees-drop-8a972305.jar; evidence
+build/verification/bees-drop-final/. Main96ee50a7/user Reroll/RP/template
+unchanged; not installed. Full pools and unfinished modes remain gated.
+Next recommendation:[normal/old OP Anvil](NEXT_DROPS_AFTER_BEES_SOURCE.md).
+Native book table/enchantment decoding and full anvil lifecycle remain to be
+implemented/qualified. Do not reselect completed Bees/Library/Enzan/Pig leaves.
+Historical next-Bees recommendations below are superseded here.
+
 ## Library drops - QUALIFIED (22 October 2026)
 
 [Contract](LIBRARY_DROP_PORT.md). Normal and old complete Library leaves are ready:

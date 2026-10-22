@@ -1,5 +1,25 @@
 # Проект SkyWars
 
+## Bees drops - QUALIFIED (22 October 2026)
+
+[Contract](agent_notes/BEES_DROP_PORT.md). Normal/old tokens preserve the exact
+seven native nectar bees, honey5 hive, fence, announcement and luck-based honey
+reward table. Persistent author/epoch tags survive native hive storage and BEES
+components; native UUID replacement remains. Sting/accepted poison/fall/void
+use the common author resolver with later-attacker priority. Mob/native sting
+hooks protect roles/allies and retain thrower retaliation. Quiet stop removes
+managed live/stored bees only; ordinary hive occupants remain. No new AI/lifetime,
+world scans, chunk tickets, full loot pools or game modes. RP/template unchanged.
+
+Build/two actual isolated mode1 matches passed on8a972305:84 suite results,
+85.58s, all previous special drops included.185sources/540classes/2676resources
+match tested artifacts. Ready build/verification/skywars2-bees-drop-8a972305.jar,
+not installed; evidence build/verification/bees-drop-final/. Main96ee50a7/user
+Reroll unchanged. Physical hive-item placement, actual disk restart/disconnect,
+natural AI timing, delayed post-sting death, client pixels and capacity remain
+limits; transfer is native BEES component/API. Next:[OP Anvil source audit](agent_notes/NEXT_DROPS_AFTER_BEES_SOURCE.md).
+Historical next-Bees recommendations below are superseded by this section.
+
 ## Library drops - QUALIFIED (22 October 2026)
 
 [Current contract](agent_notes/LIBRARY_DROP_PORT.md). Normal/old Library tokens

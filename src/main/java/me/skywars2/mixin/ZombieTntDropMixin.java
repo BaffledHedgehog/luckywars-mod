@@ -20,14 +20,16 @@ public abstract class ZombieTntDropMixin {
     private void skywars2$trapTarget(LivingEntity target, CallbackInfoReturnable<Boolean> ci) {
         var game=SkyWars2.game();
         if(game!=null && (!game.items().zombieTntDrops().canTarget((Entity)(Object)this,target)
-                || !game.items().luckyPigs().canTarget((Entity)(Object)this,target))) ci.setReturnValue(false);
+                || !game.items().luckyPigs().canTarget((Entity)(Object)this,target)
+                || !game.items().beeDrops().canTarget((Entity)(Object)this,target))) ci.setReturnValue(false);
     }
 
     @Inject(method="setTarget", at=@At("HEAD"), cancellable=true)
     private void skywars2$trapSetTarget(LivingEntity target, CallbackInfo ci) {
         var game=SkyWars2.game();
         if(game!=null && (!game.items().zombieTntDrops().canTarget((Entity)(Object)this,target)
-                || !game.items().luckyPigs().canTarget((Entity)(Object)this,target))) ci.cancel();
+                || !game.items().luckyPigs().canTarget((Entity)(Object)this,target)
+                || !game.items().beeDrops().canTarget((Entity)(Object)this,target))) ci.cancel();
     }
 
     @Inject(method="doHurtTarget", at=@At("HEAD"), cancellable=true)

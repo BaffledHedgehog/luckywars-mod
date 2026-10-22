@@ -1,5 +1,28 @@
 # Проверка игрового цикла на Fabric
 
+## Bees drops - QUALIFIED (22 October 2026)
+
+[Contract](agent_notes/BEES_DROP_PORT.md). Build/two actual isolated mode1 matches
+passed on8a972305:84 recorded results,85.58s. Both public leaves/prototypes and
+Polymer, seven exact native bees/defaults/deaths/honey and luck, fence replace
+versus hive destroy, native hive storage/emergency exit/new UUID, loot/author/
+nectar retention and BEES component/API transfer passed. Actual hive destruction
+retaliates; native sting deaths, sourced poison, fall/void and newer-attacker
+priority plus self/ally/role guards pass. No natural lethal-poison claim.
+Source order/unit debit, native ticks/freeze/unload/epoch and actual quiet stop
+with mixed ordinary/managed hive occupants pass. All preceding special drops
+and their retained stop probes/cleanups run twice.
+
+185sources/540classes/2676resources match tested source/release JARs; leaves and
+honey reward explicitly whitelisted. Ready
+build/verification/skywars2-bees-drop-8a972305.jar; evidence
+build/verification/bees-drop-final/qualification.json, results and server log.
+Isolated files restored/server stopped/locks released. Main96ee50a7/user Reroll/
+RP/template unchanged; not installed. Existing fake-bot Polymer ERROR pair only.
+Limits: actual hive-item placement/disk restart/disconnect, natural AI timing,
+delayed sting self-death, real client rendering/chat and peak capacity. Transfer
+uses real BEES component/native hive APIs; disconnect cache is source-reviewed.
+
 ## Library drops - QUALIFIED (22 October 2026)
 
 [Contract](agent_notes/LIBRARY_DROP_PORT.md). Build and two actual isolated mode1
