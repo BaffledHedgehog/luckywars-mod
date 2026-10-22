@@ -1,5 +1,16 @@
 # Следующие этапы переноса
 
+## Nuclear fade guide update - QUALIFIED (22 October 2026)
+
+[Current contract](NUCLEAR_SHADER_PORT.md). Explicit independent fade carriers
+replace automatic shader tails, retaining10-second visual/Y-3/16nearest.
+Build and two actual mode1 matches passed on6a2048e8:12 suite results,57.71s.
+Ready build/verification/skywars2-nuclear-fade-6a2048e8.jar; evidence
+build/verification/nuclear-fade-final/. Main96ee50a7/user Reroll edits and
+RP/template unchanged; no installation. Native metadata/lifecycle and both wand
+paths checked; actual client/GPU curve and camera remain manual checks.
+Next remains the acquisition audit below; no unfinished loot pools exposed.
+
 ## Screamer drops - QUALIFIED (22 October 2026)
 
 [Current contract](SCARE_DROPS_PORT.md). Normal/old Polymer leaves preserve distinct

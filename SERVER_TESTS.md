@@ -1,5 +1,26 @@
 # Проверка игрового цикла на Fabric
 
+## Nuclear explicit fade carrier - QUALIFIED (22 October 2026)
+
+[Current contract](agent_notes/NUCLEAR_SHADER_PORT.md). Updated author shader guide
+requires a second independently tracked model/color channel. Native fixtures
+cover sixteen nearest per client, main/fade entity and holder independence,
+exact metadata/position/terminal transform, one tick overlap,119/120 active
+handoff,89/90 tail deadline, no reuse during tails, repeated stop, live antimagic,
+native global freeze, Stand pause and dimension holder cleanup. No physical
+world entities are added. Ordinary ten-second visual/Y-3 remain.
+
+Build and two actual isolated mode1 matches passed on6a2048e8:12 suite results,
+57.71s including Exoperso, Exoperso blast, Academy Exasperato and both post-stop
+cleanup suites.170 Java sources/513 compiled classes/2668 processed resources
+match source/release JARs. Ready build/verification/skywars2-nuclear-fade-6a2048e8.jar;
+evidence build/verification/nuclear-fade-final/qualification.json and server log.
+Main96ee50a7 and user LbcRerollCrafting edits preserved, RP/template unchanged;
+not installed. Runner restores isolated JAR/config/profiles/scoreboard, stops
+the server and releases locks. Existing fake-bot Polymer packet-context ERROR
+pair remains; no new errors. Actual client packets/GPU fade/inverse VP/camera,
+disconnect/restart persistence and peak capacity are not qualified.
+
 ## Hostile Helicopter Boss encounter - QUALIFIED (user)
 
 [Current contract](agent_notes/HELICOPTER_ENCOUNTER_PORT.md). The dropped Polymer token now creates the hostile

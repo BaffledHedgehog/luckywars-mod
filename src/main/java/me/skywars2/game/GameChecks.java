@@ -13114,7 +13114,7 @@ public final class GameChecks {
                 SkyWars2.LOGGER.info("[check] PASS exoperso-menu");
         }
 
-        /** Native Exoperso mana, wand-owned Academy trial, slow flight and collision queue checks. */
+        /** Native shader metadata and lifecycle checks; GPU rendering remains a client check. */
         private static void checkNuclearVisual(GameController game) {
                 require(game.playing() && game.server().tickRateManager().runsNormally(),
                                 "Nuclear visual fixture requires an active match with normal server ticks");
@@ -13126,22 +13126,22 @@ public final class GameChecks {
                 var alphaLevel=alpha.level(); var betaLevel=beta.level();
                 var level=game.maps().level(); var elsewhere=game.server().overworld();
                 var visuals=game.items().nuclearVisuals(); var timeStop=game.items().timeStop();
+                var tickManager=game.server().tickRateManager();
                 require(level!=elsewhere && !timeStop.stopped(level) && !timeStop.stopped(elsewhere),
                                 "Nuclear fixture starts with independent running arena and overworld");
                 var nativeEntities=new java.util.HashSet<UUID>();
                 for(var world:java.util.List.of(level,elsewhere))
                         for(var entity:world.getAllEntities()) nativeEntities.add(entity.getUUID());
-                var retained=new java.util.ArrayList<eu.pb4.polymer.virtualentity.api.ElementHolder>();
                 try {
                         visuals.stop();
-                        for(int i=0;i<80;i++) visuals.tick();
+                        for(int i=0;i<100;i++) visuals.tick();
+                        while(visuals.clock()%10!=0) visuals.tick();
                         double x=Math.floor(alpha.getX()/16)*16+8;
                         double z=Math.floor(alpha.getZ()/16)*16+8;
                         var origins=java.util.stream.IntStream.range(0,17)
                                         .mapToObj(i->new Vec3(x+i*20,260,z)).toList();
                         alpha.setNoGravity(true); beta.setNoGravity(true);
-                        // Create the whole batch before either viewer enters: sequential show() calls
-                        // otherwise evict beta's first slot and leave it quarantined for 80 ticks.
+                        // Batch admission in another dimension avoids sequential nearest-slot eviction.
                         alpha.teleportTo(elsewhere,x,260,z,java.util.Set.of(),0,0,true);
                         beta.teleportTo(elsewhere,x+320,260,z,java.util.Set.of(),0,0,true);
                         for(var origin:origins) visuals.show(level,origin,24,false);
@@ -13156,90 +13156,176 @@ public final class GameChecks {
                                         && new java.util.HashSet<>(visuals.origins(beta)).equals(
                                         new java.util.HashSet<>(origins.subList(1,17))),
                                         "Each client independently receives its sixteen nearest of seventeen effects");
-                        checkNuclearDisplays(visuals.displays(alpha),visuals.origins(alpha),alpha,24,9,10);
-                        checkNuclearDisplays(visuals.displays(beta),visuals.origins(beta),beta,24,9,10);
-                        visuals.displays(alpha).forEach(display->retained.add(display.getHolder()));
-                        visuals.displays(beta).forEach(display->retained.add(display.getHolder()));
+                        checkNuclearDisplays(visuals.displays(alpha),visuals.origins(alpha),alpha,24,9,10,16,false);
+                        checkNuclearDisplays(visuals.displays(beta),visuals.origins(beta),beta,24,9,10,16,false);
 
                         alpha.teleportTo(level,x+320,260,z,java.util.Set.of(),0,0,true);
                         for(int i=0;i<10;i++) visuals.tick();
-                        require(visuals.displays(alpha).size()==15 && !visuals.origins(alpha).contains(origins.getFirst()),
-                                        "Moving a viewer removes the now-distant effect and quarantines its shader slot");
-                        // Refresh runs every ten ticks; 69 more ticks cannot reach the earliest release + 80.
-                        for(int i=0;i<69;i++) visuals.tick();
-                        require(visuals.displays(alpha).size()==15,
-                                        "Replacement cannot overwrite a fading shader slot before 80 ticks");
-                        for(int i=0;i<11;i++) visuals.tick();
+                        require(visuals.displays(alpha).size()==15 && visuals.fadeDisplays(alpha).size()==1
+                                        && !visuals.origins(alpha).contains(origins.getFirst()),
+                                        "Nearest eviction stages one independent fade and reserves its shader slot");
+                        var evicted=visuals.frames(alpha).stream().filter(frame->frame.retiring()).findFirst().orElseThrow();
+                        require(evicted.mainPresent() && evicted.fadePresent() && evicted.mainRemovedAt()==-1,
+                                        "Nearest eviction retains main and fade together for one delivery tick");
+                        visuals.tick();
+                        evicted=visuals.frames(alpha).stream().filter(frame->frame.retiring()).findFirst().orElseThrow();
+                        require(!evicted.mainPresent() && evicted.mainRemovedAt()==visuals.clock()
+                                        && evicted.availableAt()==visuals.clock()+90,
+                                        "Fade retention starts at main removal and includes the ten-tick delivery margin");
+                        var evictedFade=visuals.fadeDisplays(alpha).getFirst();
+                        var evictedScale=new org.joml.Vector3f(evictedFade.getScale());
+                        int evictionDeadline=evicted.availableAt();
+                        while(visuals.clock()<evictionDeadline-1) visuals.tick();
+                        require(visuals.displays(alpha).size()==15 && visuals.fadeDisplays(alpha).contains(evictedFade)
+                                        && evictedFade.getScale().equals(evictedScale),
+                                        "Tick 89 retains the live fade at fixed age and cannot reuse its slot");
+                        var evictedHolder=evictedFade.getHolder();
+                        visuals.tick();
+                        require(!visuals.fadeDisplays(alpha).contains(evictedFade)
+                                        && evictedHolder.getAttachment()==null && evictedHolder.getWatchingPlayers().isEmpty(),
+                                        "Tick 90 destroys the fade holder and releases its slot");
+                        // Trigger refresh before the original effects reach age 120.
+                        visuals.show(level,new Vec3(x+10000,260,z),24,false);
                         require(new java.util.HashSet<>(visuals.origins(alpha)).equals(
-                                        new java.util.HashSet<>(origins.subList(1,17))),
-                                        "After quarantine the moved viewer receives the new nearest sixteen");
-                        checkNuclearDisplays(visuals.displays(alpha),visuals.origins(alpha),alpha,24,99,100);
-                        visuals.displays(alpha).forEach(display->retained.add(display.getHolder()));
+                                        new java.util.HashSet<>(origins.subList(1,17))) && visuals.count()==18,
+                                        "Released slot receives the new nearest effect without imposing a logical-effect cap");
+
+                        var stoppedMains=visuals.displays(alpha);
+                        var stoppedHolders=stoppedMains.stream().map(display->display.getHolder()).toList();
                         visuals.stop();
-                        require(visuals.count()==0 && visuals.displays(alpha).isEmpty() && visuals.displays(beta).isEmpty()
-                                        && retained.stream().allMatch(holder->holder.getWatchingPlayers().isEmpty()
-                                                        && holder.getAttachment()==null),
-                                        "Stop clears every effect and releases all retained viewer holders");
+                        require(visuals.count()==0 && visuals.displays(alpha).isEmpty() && visuals.fadeDisplays(alpha).size()==16
+                                        && visuals.frames(alpha).stream().allMatch(frame->frame.mainPresent() && frame.fadePresent()),
+                                        "Stop removes logical effects but stages sixteen live fades with main overlap");
+                        checkNuclearDisplays(visuals.fadeDisplays(alpha),visuals.fadingOrigins(alpha),alpha,24,111,111,16,true);
+                        var stoppedFades=visuals.fadeDisplays(alpha);
+                        for(var main:stoppedMains) {
+                                var fade=stoppedFades.stream().filter(display->display.getGlowColorOverride()-15181056
+                                                ==main.getGlowColorOverride()-15180800).findFirst().orElseThrow();
+                                require(main!=fade && main.getHolder()!=fade.getHolder()
+                                                && java.util.Collections.disjoint(main.getEntityIds(),fade.getEntityIds())
+                                                && main.getHolder().getAttachment().getPos().equals(fade.getHolder().getAttachment().getPos())
+                                                && main.getTranslation().equals(fade.getTranslation())
+                                                && main.getLeftRotation().equals(fade.getLeftRotation())
+                                                && main.getRightRotation().equals(fade.getRightRotation()),
+                                                "Main and fade have independent entity IDs and holders with identical origin and rotations");
+                        }
+                        visuals.tick();
+                        require(stoppedHolders.stream().allMatch(holder->holder.getAttachment()==null
+                                        && holder.getWatchingPlayers().isEmpty())
+                                        && visuals.frames(alpha).stream().allMatch(frame->!frame.mainPresent() && frame.fadePresent()),
+                                        "The next normal tick removes every main while retaining each independent fade");
+                        for(var main:stoppedMains) {
+                                var fade=stoppedFades.stream().filter(display->display.getGlowColorOverride()-15181056
+                                                ==main.getGlowColorOverride()-15180800).findFirst().orElseThrow();
+                                require(main.getScale().equals(fade.getScale()),"Fade exactly preserves the main removal age and radius");
+                        }
+                        var stopFrames=visuals.frames(alpha);
+                        visuals.stop(); visuals.stop();
+                        require(visuals.frames(alpha).equals(stopFrames),"Repeated stop cannot reset or extend fade deadlines");
+                        int stoppedAt=visuals.clock();
+                        tickManager.setFrozen(true); tickManager.setFrozenTicksToRun(0); tickManager.tick();
+                        for(int i=0;i<5;i++) visuals.tick();
+                        require(visuals.clock()==stoppedAt && visuals.frames(alpha).equals(stopFrames),
+                                        "Native global tick freeze pauses fade retention and handoff clocks");
+                        tickManager.setFrozen(false); tickManager.tick();
+                        timeStop.begin(level,200);
+                        for(int i=0;i<89;i++) visuals.tick();
+                        require(visuals.fadeDisplays(alpha).equals(stoppedFades),
+                                        "Stand dimension pause does not stop the normal shader GameTime tail clock");
+                        checkNuclearDisplays(stoppedFades,visuals.fadingOrigins(alpha),alpha,24,111,111,16,true);
+                        visuals.stop(); visuals.tick();
+                        require(visuals.fadeDisplays(alpha).isEmpty() && visuals.fadeDisplays(beta).isEmpty(),
+                                        "All stopped fades expire exactly 90 normal ticks after main removal despite repeated stop");
+                        timeStop.end(level);
 
                         visuals.show(level,origins.getFirst(),12,false);
-                        require(visuals.count()==1 && visuals.displays(alpha).isEmpty() && visuals.displays(beta).isEmpty(),
-                                        "Immediate new effect cannot reuse shader slots released by stop");
-                        for(int i=0;i<79;i++) visuals.tick();
-                        require(visuals.displays(alpha).isEmpty() && visuals.displays(beta).isEmpty(),
-                                        "Stop preserves per-client shader cooldown through tick 79");
-                        for(int i=0;i<11;i++) visuals.tick();
-                        require(visuals.displays(alpha).size()==1 && visuals.displays(beta).size()==1,
-                                        "Released shader slots become available after the 80-tick tail");
-                        var terminalHolders=java.util.List.of(visuals.displays(alpha).getFirst().getHolder(),
-                                        visuals.displays(beta).getFirst().getHolder());
-                        for(int i=90;i<119;i++) visuals.tick();
-                        require(visuals.count()==1 && visuals.displays(alpha).size()==1 && visuals.displays(beta).size()==1,
-                                        "Mushroom carrier remains present through active tick 119");
+                        var naturalMain=visuals.displays(alpha).getFirst();
+                        var naturalHolder=naturalMain.getHolder();
+                        for(int i=0;i<118;i++) visuals.tick();
+                        require(visuals.count()==1 && visuals.fadeDisplays(alpha).isEmpty(),
+                                        "The six-second active lifetime does not stage a fade before tick 119");
                         visuals.tick();
-                        require(visuals.count()==0 && visuals.displays(alpha).isEmpty() && visuals.displays(beta).isEmpty()
-                                        && terminalHolders.stream().allMatch(holder->holder.getWatchingPlayers().isEmpty()
-                                                        && holder.getAttachment()==null),
-                                        "Active tick 120 expires the effect and detaches both viewer holders");
-
-                        // Dimension/late-watcher/pause coverage needs fresh effects with the shorter lifetime.
-                        for(int i=0;i<80;i++) visuals.tick();
-                        for(var origin:origins) visuals.show(level,origin,24,false);
-                        visuals.displays(alpha).forEach(display->retained.add(display.getHolder()));
-                        var betaHolders=visuals.displays(beta).stream().map(display->display.getHolder()).toList();
-                        retained.addAll(betaHolders);
-                        beta.teleportTo(elsewhere,x+320,260,z,java.util.Set.of(),0,0,true);
+                        var naturalFrame=visuals.frames(alpha).getFirst();
+                        require(visuals.count()==1 && naturalFrame.natural() && naturalFrame.mainPresent()
+                                        && naturalFrame.fadePresent() && naturalFrame.fixedAge()==120,
+                                        "Active tick 119 stages terminal-age fade with main still present");
+                        visuals.tick();
+                        require(visuals.count()==0 && naturalHolder.getAttachment()==null
+                                        && visuals.displays(alpha).isEmpty() && visuals.fadeDisplays(alpha).size()==1,
+                                        "Active tick 120 removes main and leaves the four-second shader fade");
+                        checkNuclearDisplays(visuals.fadeDisplays(alpha),visuals.fadingOrigins(alpha),alpha,12,120,120,1,true);
+                        require(naturalMain.getScale().equals(visuals.fadeDisplays(alpha).getFirst().getScale()),
+                                        "Natural handoff copies the exact terminal main scale");
                         for(int i=0;i<89;i++) visuals.tick();
-                        require(visuals.displays(beta).isEmpty() && visuals.origins(beta).isEmpty()
-                                        && betaHolders.stream().allMatch(holder->holder.getWatchingPlayers().isEmpty()
-                                                        && holder.getAttachment()==null),
-                                        "Dimension change destroys old attachments and never shows arena effects in the overworld");
+                        require(visuals.fadeDisplays(alpha).size()==1,"Natural fade is still tracked at retention tick 89");
+                        visuals.tick();
+                        require(visuals.fadeDisplays(alpha).isEmpty(),"Natural fade is destroyed at retention tick 90");
+
+                        // Fresh batch exercises late watcher and dimension cleanup, including an existing fade.
+                        alpha.teleportTo(elsewhere,x,260,z,java.util.Set.of(),0,0,true);
+                        beta.teleportTo(elsewhere,x+320,260,z,java.util.Set.of(),0,0,true);
+                        for(var origin:origins) visuals.show(level,origin,24,false);
+                        alpha.teleportTo(level,x,260,z,java.util.Set.of(),0,0,true);
+                        alpha.hasChangedDimension();
+                        for(int i=0;i<89;i++) visuals.tick();
                         beta.teleportTo(level,x+320,260,z,java.util.Set.of(),0,0,true);
                         beta.hasChangedDimension();
                         for(int i=0;i<10;i++) visuals.tick();
-                        checkNuclearDisplays(visuals.displays(beta),visuals.origins(beta),beta,24,98,99);
-                        require(visuals.displays(beta).stream().allMatch(display->display.getScale().y()>5),
-                                        "Late watcher receives current effect age instead of restarting the mushroom");
+                        checkNuclearDisplays(visuals.displays(beta),visuals.origins(beta),beta,24,98,99,16,false);
                         var frozenScale=new org.joml.Vector3f(visuals.displays(alpha).getFirst().getScale());
                         timeStop.begin(level,40);
                         for(int i=0;i<20;i++) visuals.tick();
-                        require(visuals.count()==17 && visuals.displays(alpha).getFirst().getScale().equals(frozenScale),
-                                        "Dimension time stop pauses nuclear age and metadata interpolation");
+                        require(visuals.count()==17 && visuals.displays(alpha).getFirst().getScale().equals(frozenScale)
+                                        && visuals.fadeDisplays(alpha).isEmpty(),
+                                        "Stand dimension time stop pauses active nuclear age and interpolation");
                         timeStop.end(level);
-                        for(int i=0;i<10;i++) visuals.tick();
-                        checkNuclearDisplays(visuals.displays(alpha),visuals.origins(alpha),alpha,24,108,109);
-                        visuals.displays(beta).forEach(display->retained.add(display.getHolder()));
+                        var dimensionMains=visuals.displays(beta).stream().map(display->display.getHolder()).toList();
                         visuals.stop();
-                        require(visuals.count()==0 && visuals.displays(alpha).isEmpty() && visuals.displays(beta).isEmpty()
-                                        && retained.stream().allMatch(holder->holder.getWatchingPlayers().isEmpty()
-                                                        && holder.getAttachment()==null),
-                                        "Stop also releases dimension-return and paused-effect holders");
+                        var dimensionFades=visuals.fadeDisplays(beta).stream().map(display->display.getHolder()).toList();
+                        beta.teleportTo(elsewhere,x+320,260,z,java.util.Set.of(),0,0,true);
+                        visuals.tick();
+                        require(visuals.displays(beta).isEmpty() && visuals.fadeDisplays(beta).isEmpty()
+                                        && visuals.frames(beta).isEmpty()
+                                        && java.util.stream.Stream.concat(dimensionMains.stream(),dimensionFades.stream())
+                                                .allMatch(holder->holder.getAttachment()==null && holder.getWatchingPlayers().isEmpty()),
+                                        "Dimension change destroys both old-world holders without showing a cross-dimension fade");
+                        for(int i=0;i<90;i++) visuals.tick();
+                        var beacon=net.minecraft.core.BlockPos.containing(origins.getFirst().add(0,-2,0));
+                        var oldBeacon=game.maps().snapshot(level,beacon);
+                        try {
+                                visuals.show(level,origins.getFirst(),12,true);
+                                for(int i=0;i<4;i++) visuals.tick();
+                                var magicMain=visuals.displays(alpha).getFirst();
+                                var magicHolder=magicMain.getHolder();
+                                level.setBlock(beacon,LbcMagic.MAGIC_BEACON_BLOCK.defaultBlockState(),3);
+                                game.items().magic().blockChanged(beacon,level.getBlockState(beacon));
+                                require(game.items().magic().suppressedAt(level,origins.getFirst()),
+                                                "Nuclear cancellation fixture has a live antimagic field");
+                                visuals.tick();
+                                require(visuals.count()==0 && visuals.frames(alpha).getFirst().mainPresent()
+                                                && visuals.frames(alpha).getFirst().fadePresent(),
+                                                "Antimagic cancellation stages an independent fade with one delivery tick of overlap");
+                                visuals.tick();
+                                require(magicHolder.getAttachment()==null && visuals.fadeDisplays(alpha).size()==1
+                                                && magicMain.getScale().equals(visuals.fadeDisplays(alpha).getFirst().getScale()),
+                                                "Antimagic removes the main on the next tick with exact frozen-age handoff");
+                                for(int i=0;i<89;i++) visuals.tick();
+                                require(visuals.fadeDisplays(alpha).size()==1,"Antimagic fade retains the full delivery margin");
+                                visuals.tick();
+                                require(visuals.fadeDisplays(alpha).isEmpty(),"Antimagic fade expires at the same 90-tick deadline");
+                        } finally {
+                                game.maps().restoreSnapshot(level,beacon,oldBeacon);
+                                game.items().magic().blockChanged(beacon,level.getBlockState(beacon));
+                        }
                         var after=new java.util.HashSet<UUID>();
                         for(var world:java.util.List.of(level,elsewhere))
                                 for(var entity:world.getAllEntities()) after.add(entity.getUUID());
-                        require(after.equals(nativeEntities),"Nuclear visuals never create physical world entities");
+                        require(after.equals(nativeEntities),"Nuclear main/fade carriers never create physical world entities");
                         SkyWars2.LOGGER.info("[check] PASS nuclear-visual");
                 } finally {
+                        tickManager.setFrozenTicksToRun(0); tickManager.setFrozen(false); tickManager.tick();
                         timeStop.end(level); visuals.stop();
+                        for(int i=0;i<91;i++) visuals.tick();
                         alpha.teleportTo(alphaLevel,alphaState.position.x,alphaState.position.y,alphaState.position.z,
                                         java.util.Set.of(),alphaState.yaw,alphaState.pitch,true);
                         beta.teleportTo(betaLevel,betaState.position.x,betaState.position.y,betaState.position.z,
@@ -13250,8 +13336,9 @@ public final class GameChecks {
 
         private static void checkNuclearDisplays(
                         java.util.List<eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement> displays,
-                        java.util.List<Vec3> origins,ServerPlayer viewer,float radius,int minAge,int maxAge) {
-                require(displays.size()==16 && origins.size()==16,"Viewer has exactly sixteen active nuclear shader slots");
+                        java.util.List<Vec3> origins,ServerPlayer viewer,float radius,int minAge,int maxAge,
+                        int count,boolean fading) {
+                require(displays.size()==count && origins.size()==count,"Viewer has the expected number of nuclear shader carriers");
                 var colors=new java.util.HashSet<Integer>();
                 for(int i=0;i<displays.size();i++) {
                         var display=displays.get(i);
@@ -13259,15 +13346,19 @@ public final class GameChecks {
                         var scale=display.getScale();
                         require(display.getItem().is(Items.PAPER) && java.util.Objects.equals(
                                         display.getItem().get(DataComponents.ITEM_MODEL),
-                                        net.minecraft.resources.Identifier.parse("lbc:nuclear_mushroom"))
-                                        && display.isGlowing() && (color&0xFFFFF0)==0xE7A400
+                                        net.minecraft.resources.Identifier.parse(fading?"lbc:nuclear_mushroom_fade":"lbc:nuclear_mushroom"))
+                                        && display.isGlowing() && color>=(fading?15181056:15180800)
+                                        && color<(fading?15181072:15180816)
                                         && display.getItemDisplayContext()==net.minecraft.world.item.ItemDisplayContext.NONE
                                         && display.getBillboardMode()==net.minecraft.world.entity.Display.BillboardConstraints.FIXED
                                         && display.getDisplayWidth()==0 && display.getDisplayHeight()==0
-                                        && display.getViewRange()==64 && display.getInterpolationDuration()==2
+                                        && display.getViewRange()==64 && display.getInterpolationDuration()==(fading?0:2)
+                                        && display.getTranslation().equals(new org.joml.Vector3f())
+                                        && display.getLeftRotation().equals(new org.joml.Quaternionf())
+                                        && display.getRightRotation().equals(new org.joml.Quaternionf())
                                         && scale!=null && scale.x()==radius && scale.z()==radius
                                         && scale.y()>=1+minAge/20f-0.0001f && scale.y()<=1+maxAge/20f+0.0001f,
-                                        "Actual carrier metadata encodes paper model, shader slot, radius and current age");
+                                        "Carrier metadata encodes the exact model, color channel, fixed transform, radius and age");
                         require(display.getHolder()!=null && display.getHolder().getAttachment()!=null
                                         && display.getHolder().getWatchingPlayers().size()==1
                                         && display.getHolder().getWatchingPlayers().contains(viewer.connection),
@@ -13276,7 +13367,10 @@ public final class GameChecks {
                                         && display.getHolder().getAttachment().getPos().equals(origins.get(i).add(0,-3,0)),
                                         "Shader attachment is exactly three blocks below the unchanged logical epicenter");
                 }
-                require(colors.size()==16,"All sixteen glow-color shader slots are unique for this client");
+                require(colors.size()==count,"Every carrier uses a unique shader slot for this client");
+                if(count==16) require(colors.containsAll(java.util.stream.IntStream.range(0,16)
+                                .map(slot->(fading?15181056:15180800)+slot).boxed().toList()),
+                                "A full viewer set exercises all sixteen literal shader slots");
         }
 
         private static void checkExoperso(GameController game) {

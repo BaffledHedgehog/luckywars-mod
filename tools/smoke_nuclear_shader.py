@@ -1,65 +1,136 @@
-"""Verify nuclear shader carriers and both real wand integration paths on the isolated server."""
+"""Verify nuclear main/fade carriers and both wand paths in two isolated mode1 matches."""
 from pathlib import Path
+import argparse
 import hashlib
 import json
+import os
 import shutil
+import socket
+import sys
 import time
+
 import smoke_game_cycle as cycle
 
 
-def run() -> None:
-    cycle.SERVER = (cycle.PROJECT / "build/verification/key-reuse-server").resolve()
-    cycle.require_stopped(cycle.SERVER)
-    paths = [cycle.SERVER / "config/luckywars/game.json", cycle.SERVER / "config/luckywars/players.json"]
-    backups = {path: path.read_bytes() if path.exists() else None for path in paths}
-    artifact = cycle.PROJECT / "build/libs/skywars2-0.1.0.jar"
-    shutil.copyfile(artifact, cycle.SERVER / "mods/skywars2.jar")
-    sha = hashlib.sha256(artifact.read_bytes()).hexdigest()
+def run(server_dir: Path) -> None:
+    allowed = (cycle.PROJECT / "build/verification/key-reuse-server").resolve()
+    if server_dir.resolve() != allowed:
+        raise ValueError("Nuclear shader checks require build/verification/key-reuse-server")
+    cycle.SERVER = allowed
+    props = dict(line.split("=", 1) for line in (allowed / "server.properties").read_text(
+        encoding="utf-8").splitlines() if line and not line.startswith("#") and "=" in line)
+    if props.get("server-port") != "25576":
+        raise ValueError("Isolated server must use port 25576")
+    world = (allowed / props.get("level-name", "world")).resolve()
+    world.relative_to(allowed)
+    if not (allowed / "fabric-server-launch.jar").is_file():
+        raise FileNotFoundError("Isolated Fabric launcher is absent")
+    lock = allowed / "codex-nuclear-shader.lock"
+    shared_lock = allowed / "codex-native-fixture.lock"
+    shared_descriptor = os.open(shared_lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+    try:
+        descriptor = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+    except BaseException:
+        os.close(shared_descriptor)
+        shared_lock.unlink()
+        raise
     active = None
-    passed = False
+    backups = {}
     completed = []
+    success = False
+    source_sha256 = tested_sha256 = None
     started = time.monotonic()
     try:
-        settings = json.loads(backups[paths[0]] or b"{}")
+        os.write(descriptor, str(os.getpid()).encode("ascii"))
+        cycle.require_stopped(allowed)
+        with socket.socket() as probe:
+            if probe.connect_ex(("127.0.0.1", 25576)) == 0:
+                raise RuntimeError("Port 25576 is already accepting connections")
+        settings_path = allowed / "config/luckywars/game.json"
+        profiles_path = allowed / "config/luckywars/players.json"
+        # scoreboard contains permanent modifier settings and match-owned counters.
+        for path in (settings_path, profiles_path, world / "data/scoreboard.dat", world / "data/scoreboard.dat_old", allowed / "mods/skywars2.jar"):
+            backups[path] = path.read_bytes() if path.exists() else None
+        artifact = cycle.PROJECT / "build/libs/skywars2-0.1.0.jar"
+        source_sha256 = hashlib.sha256(artifact.read_bytes()).hexdigest()
+        installed = allowed / "mods/skywars2.jar"
+        installed.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(artifact, installed)
+        tested_sha256 = hashlib.sha256(installed.read_bytes()).hexdigest()
+        if source_sha256 != tested_sha256:
+            raise AssertionError("Installed artifact differs from source artifact")
+        settings = json.loads(backups[settings_path] or b"{}")
         settings.update(lives=10, health=20, gameMode=1, countdownSeconds=1,
                         stageOneSeconds=600, stageTwoSeconds=1200, endingSeconds=1,
                         stageOneEvent=0, stageTwoEvent=0, vanillaKits=False, vanillaSkills=False,
                         lbcKits=True, lbcSkills=True, lbcLevelups=True, lbcLevelupLimit=4,
                         offhandWands=True, mapId="1", broken=False)
-        paths[0].write_text(json.dumps(settings, indent=2) + "\n", encoding="utf-8")
+        settings_path.parent.mkdir(parents=True, exist_ok=True)
+        settings_path.write_text(json.dumps(settings, indent=2) + "\n", encoding="utf-8")
         active = cycle.Server("nuclear-shader")
         active.expect("LOADING -> LOBBY", timeout=180)
         active.expect("Selected map ready: 1", timeout=180)
         active.check("bots")
         for match in (1, 2):
+            if match == 2:
+                active.prepare_map(1)
             cursor = active.send("sw start")
             active.expect("-> PLAYING", cursor)
             for suite in ("nuclear-visual", "exasperato-academy", "exoperso", "exoperso-blast"):
                 active.check(suite)
-                completed.append(f"Match {match}: {suite}")
+                completed.append({"match": match, "suite": suite})
             cursor = active.send("sw stop")
             active.expect("LOADING -> LOBBY", cursor)
-            active.check("exasperato-cleanup")
-            active.check("exoperso-cleanup")
-            completed.append(f"Match {match}: native queue, display and lifecycle cleanup")
-            if match == 1:
-                active.prepare_map(1)
-        passed = True
+            for suite in ("exasperato-cleanup", "exoperso-cleanup"):
+                active.check(suite)
+                completed.append({"match": match, "suite": suite})
+        success = True
         print("NUCLEAR SHADER CHECKS PASSED", flush=True)
     finally:
-        try:
-            if active is not None:
-                active.stop()
-        finally:
+        original_error = sys.exc_info()[1]
+        cleanup_errors = []
+
+        def attempt(action):
+            try:
+                action()
+                return True
+            except BaseException as error:
+                cleanup_errors.append(error)
+                return False
+
+        if active is not None:
+            attempt(active.stop)
+        # Never restore files while a server might still be using them.
+        if attempt(lambda: cycle.require_stopped(allowed)):
             for path, original in backups.items():
-                if original is None:
-                    path.unlink(missing_ok=True)
-                else:
-                    path.write_bytes(original)
-            (cycle.OUT / "nuclear-shader-results.json").write_text(json.dumps(
-                dict(passed=passed, completed=completed, artifactSha256=sha,
-                     elapsedSeconds=round(time.monotonic()-started, 2)), indent=2) + "\n", encoding="utf-8")
+                def restore(path=path, original=original):
+                    if original is None:
+                        path.unlink(missing_ok=True)
+                    else:
+                        path.parent.mkdir(parents=True, exist_ok=True)
+                        path.write_bytes(original)
+                attempt(restore)
+        # Each release is independent: one failed restore/close cannot strand another lock.
+        attempt(lambda: os.close(descriptor))
+        attempt(lambda: lock.unlink(missing_ok=True))
+        attempt(lambda: os.close(shared_descriptor))
+        attempt(lambda: shared_lock.unlink(missing_ok=True))
+        attempt(lambda: (cycle.OUT / "nuclear-shader-results.json").write_text(json.dumps({
+            "success": success and not cleanup_errors,
+            "scope": "native-mode1-nuclear-main-fade-carriers",
+            "completed": completed, "artifactSha256": tested_sha256,
+            "sourceArtifactSha256": source_sha256, "serverDirectory": str(allowed),
+            "serverPort": 25576,
+            "cleanupErrors": [str(error) for error in cleanup_errors],
+            "measurementLimit": "Native fixtures inspect virtual holder metadata, lifetime, overlap and slot ownership. Real client packets, GPU pixels, per-frame inverse VP delivery, camera motion, visual fade curve and saturation are not qualified. Elapsed wall time includes boot and regressions, not per-tick CPU.",
+            "elapsedSeconds": round(time.monotonic() - started, 2)
+        }, indent=2) + "\n", encoding="utf-8"))
+        if original_error is None and cleanup_errors:
+            raise cleanup_errors[0]
+
 
 
 if __name__ == "__main__":
-    run()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--server-dir", type=Path, required=True)
+    run(parser.parse_args().server_dir)

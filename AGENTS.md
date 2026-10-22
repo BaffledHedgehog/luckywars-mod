@@ -1,5 +1,26 @@
 # Проект SkyWars
 
+## Nuclear fade carrier - QUALIFIED (22 October 2026)
+
+[Current contract](agent_notes/NUCLEAR_SHADER_PORT.md). Updated author guide replaces
+the removed shader history tail with an independent live fade display:
+`lbc:nuclear_mushroom_fade`, glow15181056+slot. Main/fade overlap one normal tick;
+natural handoff stages at active119 and removes main at120. Fixed-age fade remains
+90 normal ticks AFTER main removal (80 fade+10 delivery margin); no slot reuse or
+duplicate attachment during its tail. Repeated stop cannot extend the deadline.
+Dimension/disconnect destroy both old-world carriers immediately. Stand pauses
+active age; normal global time advances tails; global tick freeze pauses both.
+Prior user10-second visual/Y-3/16 nearest per client remain. The old70-second and
+carrier-free80-tick notes below are historical and superseded by this contract.
+
+Build/two isolated mode1 matches passed on6a2048e8:12 suite results,57.71s,
+including Exoperso and Academy Exasperato integration plus actual match cleanup.
+170sources/513classes/2668resources match the tested JAR. Ready, not installed:
+build/verification/skywars2-nuclear-fade-6a2048e8.jar. Evidence:
+build/verification/nuclear-fade-final/. Main96ee50a7 and user Reroll edits unchanged;
+RP/template unchanged. Real client/GPU fade curve/camera and capacity are not
+qualified by headless metadata fixtures. Resume the acquisition audit below.
+
 ## Screamer drops - QUALIFIED (22 October 2026)
 
 [Current contract](agent_notes/SCARE_DROPS_PORT.md). Normal/old Polymer leaves preserve distinct
