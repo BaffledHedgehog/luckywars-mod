@@ -26,6 +26,7 @@ import java.util.UUID;
 
 /** Dispatch/debit belong to LbcSpecialDrops; these actors keep native mob AI and physics. */
 public final class LbcCreeperDrops {
+    public static final String ULTRAPONOS = "skywars2.ultraponos_creeper";
     private static final String CREEPER = "skywars2.creeper_drop";
     private static final String CHILD = "skywars2.creeper_drop_child";
     private static final double[][] NORMAL = {
@@ -41,6 +42,16 @@ public final class LbcCreeperDrops {
     private final Map<UUID, LivingEntity> unloadedCauses = new HashMap<>();
 
     public LbcCreeperDrops(GameController game) { this.game = game; }
+
+    /** Reuse native creeper lineage, chained TNT/cloud and save/unload handling for this WILD trap. */
+    void adoptUltraponos(Creeper creeper, LivingEntity owner) {
+        creeper.entityTags().add(CREEPER);
+        creeper.entityTags().add(ULTRAPONOS);
+        game.items().markCurrentItemEpoch(creeper);
+        causes.put(creeper,owner); tracked.add(creeper);
+        game.items().timeStop().prepareFrozen(creeper);
+    }
+    public boolean wild(Entity entity) { return managed(entity) && entity.entityTags().contains(ULTRAPONOS); }
 
     public boolean ready(ItemEntity token, LbcCreeperDropItem.Kind kind) {
         if (token.isRemoved() || token.getAge() >= 5999 || !LbcCreeperDropItem.matches(token.getItem(), kind)
@@ -115,6 +126,7 @@ public final class LbcCreeperDrops {
     public void inheritChild(Entity parent, Entity child) {
         if (!managed(parent) || !active(parent) || !(child instanceof AreaEffectCloud || child instanceof PrimedTnt)) return;
         child.entityTags().add(CHILD);
+        if(wild(parent)) child.entityTags().add(ULTRAPONOS);
         game.items().markCurrentItemEpoch(child);
         var cause = owner(parent);
         causes.put(child, cause);
@@ -162,6 +174,7 @@ public final class LbcCreeperDrops {
     public boolean explosionTarget(Entity source, Entity target) {
         if (!managed(source)) return true;
         if (!active(source) || !game.items().wands().validTarget(target)) return false;
+        if(wild(source)) return true;
         return !(owner(source) instanceof ServerPlayer owner)
                 || target == owner || game.items().wands().projectileTarget(owner, target);
     }

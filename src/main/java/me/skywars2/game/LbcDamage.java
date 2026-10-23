@@ -122,6 +122,7 @@ public final class LbcDamage {
     public static boolean allowsTrapFriendlyFire(DamageSource source) {
         var game=me.skywars2.SkyWars2.game();
         return game!=null && (game.items().cageDrops().wild(source.getDirectEntity())
+                || game.items().creeperDrops().wild(source.getDirectEntity())
                 || game.items().zombieTntDrops().wild(source.getDirectEntity())
                 || game.items().potionSpawnerDrops().wild(source.getDirectEntity())
                 || game.items().droneDrops().wild(source.getDirectEntity())

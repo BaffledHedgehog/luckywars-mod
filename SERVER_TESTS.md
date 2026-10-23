@@ -5899,3 +5899,26 @@ No real-client rendering, actual disk restart/unload/disconnect, full natural
 trajectories, offline coin framework or peak-capacity qualification is claimed.
 Installed main while stopped; rollback38da8388 retained; main not started.
 Three user-owned sources preserved. Contract:agent_notes/SKY_HAZARDS_PORT.md.
+
+
+## 23 October2026: Ultraponos native drop and author refinements
+
+Final build91d85205 passed two actual isolated mode1 matches,12 recorded suite
+results in68.14s. Tests cover native source template/hopper inventory, all280
+single-item emissions (rimY+1.05, Yvelocity.8, independentXZ[-.2,.2]),200/201
+entity threshold and sphere geometry, actual directed brown-wool particle
+packet/batching, source normal4/skill9eight creepers and native290-fuse
+explosion/thrower credit. WILD entity-write terrain allied permission/credit,
+food consumption/reusable edible, actual native crafting, freeze/role/no-load/
+fake/epoch and real match-stop cleanup passed. Normal creeper/KFC/UI regressions
+ran on the same final artifact.242sources/665classes/2710resources exactly match
+archives, and original ponos.nbt source bytes match. RP/template unchanged.
+Evidence:build/verification/ultraponos-final/; guarded runner:
+tools/smoke_ultraponos.py. Earlier12-result run predates author item/particle
+refinements and is retained as attempt1; it is not the installed qualification.
+API compile fixes and independent-review terrain-WILD correction are recorded
+in agent_notes/ULTRAPONOS_PORT.md. Known fake-player Polymer packet-context
+warning recurred; no final suite failed. No actual client pixels, disk restart/
+unload/disconnect, full natural trajectory or peak-capacity benchmark claim.
+Installed main while stopped; rollback20210f2b retained; main not started.
+Three user-owned source files preserved and excluded from commit.

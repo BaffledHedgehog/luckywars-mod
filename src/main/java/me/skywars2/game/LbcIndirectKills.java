@@ -328,7 +328,8 @@ public final class LbcIndirectKills {
     }
     public void worldChanges(ServerLevel level, Entity source, Runnable writes) {
         worldChanges(level,source,source instanceof net.minecraft.world.entity.LightningBolt || game.items().cageDrops().wild(source)
-                || game.items().zombieTntDrops().wild(source) || game.items().droneDrops().wild(source),writes);
+                || game.items().zombieTntDrops().wild(source) || game.items().droneDrops().wild(source)
+                || game.items().creeperDrops().wild(source),writes);
     }
     /** Terrain traps retain WILD consequences after their source item has been consumed. */
     public void worldChanges(ServerLevel level, Entity source, boolean friendlyFire, Runnable writes) {

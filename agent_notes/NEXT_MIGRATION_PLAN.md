@@ -1,5 +1,29 @@
 # Следующие этапы переноса
 
+## Ultraponos - QUALIFIED (23 October2026)
+
+[Contract](ULTRAPONOS_PORT.md). New ready leaf:lbc:ported/ultraponos_drop.
+Original six-block native template/hopper inventory and real existing govno
+food/crafting rewards. User retained eight skill9 blasts (four boosted plus
+four base) and refined output to one item each active tick at hopper-rimY+1.05,
+velocityY.8 and independentXZ[-.2,.2]. Same brown-wool particles form an upward
+point stream through one native ALTERNATIVE packet/viewer/tick (60 particles,
+original mean rate). Source200-entity/sphere15 condition remains. One compact
+280-tick emitter, native delayed290-fuse creepers, shared WILD lineage/terrain,
+role safety, resident chunks, Time Stop/mechanism cancellation and quiet stop.
+No raw broad pools or RP/template edits; no new particle type/client mod.
+
+Build91d85205 passed two actual isolated mode1 matches:12 recorded results,
+68.14s;242sources/665classes/2710resources exactly match artifacts. Actual
+item emission/particle packets, native explosion/credit, reward use/crafting,
+normal creeper/KFC/UI regressions and actual stop cleanup passed. Evidence:
+build/verification/ultraponos-final/. Installed main while stopped; rollback
+20210f2b retained; agent did not start main. Three user sources preserved.
+Known fake-player Polymer context warning retained; no final suite failed.
+Client GPU visuals, actual disk restart/unload/disconnect and peak capacity
+remain unqualified. Forest/Infinity/Bean/Greed/TMT chains remain gated.
+<!-- ultraponos-status-end -->
+
 ## Global altitude hazards - QUALIFIED (23 October2026)
 
 [Contract](SKY_HAZARDS_PORT.md). User clarified that altitude damage is independent

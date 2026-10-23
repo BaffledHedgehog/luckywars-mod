@@ -213,6 +213,7 @@ public final class LbcItems {
     private final LbcLuckyRoomDrops luckyRoomDrops;
     private final LbcPisaDrops pisaDrops;
     private final LbcAntigravity antigravity;
+    private final LbcUltraponos ultraponos;
     private final LbcSkyHazards skyHazards;
     private final LbcDroneDrops droneDrops;
     private final LbcAntDrops antDrops;
@@ -643,6 +644,7 @@ public final class LbcItems {
         this.luckyRoomDrops = new LbcLuckyRoomDrops(game);
         this.pisaDrops = new LbcPisaDrops(game);
         this.antigravity = new LbcAntigravity(game);
+        this.ultraponos = new LbcUltraponos(game);
         this.skyHazards = new LbcSkyHazards(game);
         this.droneDrops = new LbcDroneDrops(game);
         this.antDrops = new LbcAntDrops(game);
@@ -759,6 +761,7 @@ public final class LbcItems {
     public LbcLuckyRoomDrops luckyRoomDrops() { return luckyRoomDrops; }
     public LbcPisaDrops pisaDrops() { return pisaDrops; }
     public LbcAntigravity antigravity() { return antigravity; }
+    public LbcUltraponos ultraponos() { return ultraponos; }
     public LbcSkyHazards skyHazards() { return skyHazards; }
     public LbcDroneDrops droneDrops() { return droneDrops; }
     public LbcAntDrops antDrops() { return antDrops; }
@@ -1326,6 +1329,7 @@ public final class LbcItems {
         kfcFood.tick();
         helicopterEncounter.tick();
         antigravity.tick();
+        ultraponos.tick();
         specialDrops.tick();
         portalDrops.tick();
         luckyPigs.tick();
@@ -1476,6 +1480,7 @@ public final class LbcItems {
         specialDrops.stop();
         pisaDrops.stop();
         antigravity.stop();
+        ultraponos.stop();
         skyHazards.stop();
         portalDrops.stop();
         luckyPigs.stop();

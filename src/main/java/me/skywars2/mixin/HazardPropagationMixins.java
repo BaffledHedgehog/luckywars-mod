@@ -133,7 +133,8 @@ public final class HazardPropagationMixins {
             int[] result={0};
             var direct=blast.getDirectSourceEntity();
             // Keep the indirect player as author, and the actual trap as the source of WILD permission.
-            boolean wild=game.items().cageDrops().wild(direct) || game.items().zombieTntDrops().wild(direct) || game.items().droneDrops().wild(direct);
+            boolean wild=game.items().cageDrops().wild(direct) || game.items().zombieTntDrops().wild(direct)
+                    || game.items().droneDrops().wild(direct) || game.items().creeperDrops().wild(direct);
             if(wild) game.items().indirectKills().worldChanges(blast.level(),blast.getIndirectSourceEntity(),true,()->result[0]=original.call());
             else game.items().indirectKills().worldChanges(blast.level(),blast.getIndirectSourceEntity(),()->result[0]=original.call());
             return result[0];
