@@ -5836,3 +5836,16 @@ Carpet нужен только для тестового соединения. �
   для проверки журнала была штатной; внезапное завершение процесса не проверялось.
 - LBC, BedWars, кейсы, разблокировки и косметика остаются следующими этапами.
 
+
+## 23 October 2026: Destiny movement soul trail
+
+Restored the source `minecraft:soul` emission after the moving Exahoming Destiny
+center advances0.3 blocks. One particle, zero spread/speed, forced delivery.
+No other mode behavior or RP resources changed.
+Offline build f5061b34 passed; two isolated mode1 matches ran Exahoming menu,
+crafting, runtime, actual stop probe and cleanup (10 results,55.9s).
+231 source files,644 class files and2704 processed resources exactly match the
+qualified artifacts. Evidence and guarded runner: `build/verification/destiny-trail-final/`.
+Known fake-player Polymer packet-context warning retained; no failed suite.
+No actual client particle rendering qualification is claimed.
+Installed main JAR while stopped, rollbackca582dcc retained; no main startup.

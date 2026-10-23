@@ -330,7 +330,10 @@ public final class LbcHoming {
         if(distance>400) {
             Vec3 to=effect.position.add(direction.scale(.3));
             if(effect.level.hasChunkAt(BlockPos.containing(to))
-                    && !Double.isFinite(game.items().magic().suppressionFraction(effect.level,effect.position,to))) effect.position=to;
+                    && !Double.isFinite(game.items().magic().suppressionFraction(effect.level,effect.position,to))) {
+                effect.position=to;
+                effect.level.sendParticles(ParticleTypes.SOUL,true,false,to.x,to.y,to.z,1,0,0,0,0);
+            }
         }
     }
 

@@ -15,3 +15,24 @@
 HUD показывает исходный значок E122 и оставшиеся секунды. Общая очистка custom-эффектов немедленно снимает Curse. Исходные name/lore/models и модификаторы Academy сверены структурным равенством; визуальный тест живым клиентом и массовая нагрузка пока не проводились.
 
 Следующая ограниченная семья: Teleport + lightning_bolts → boltbolt_wand. Сначала аудит самостоятельного донора и результата, затем механика и общий рецепт.
+
+## Destiny movement particles restored - 23 October 2026
+
+User reported the missing visual around the slowly moving Destiny center.
+Legacy `workingitems/awaken_tuntija_wands/exahoming_click_upgraded_mode_destiny_tick_vpered.mcfunction`
+teleports the center by 0.3 blocks and emits `minecraft:soul`, count1,
+zero spread/speed, `force`, at its new position. The native movement branch
+omitted this emission. Restored it immediately after a successful move, using
+`ServerLevel.sendParticles(SOUL,true,false,...)`; targeting, attack rays,
+movement, lifetime, freeze and suppression behavior retain their existing rules.
+Like legacy, this trail emits when the center moves, rather than while it stays
+within 20 blocks of its target. No resource-pack changes are needed.
+
+Build f5061b34 and existing Exahoming menu/crafting/runtime/stop/cleanup suites
+passed across two isolated mode1 matches (10 recorded results,55.9s).
+Evidence: `build/verification/destiny-trail-final/`. Actual client particle pixels
+were not observed; this is source restoration plus existing runtime regression,
+not a new rendered-particle fixture. Known fake-player Polymer packet-context
+warning recurred; no check failed. Installed while main was stopped;
+ca582dcc rollback retained and main was not started by the agent.
+User Reroll/AcidAntDropChecks/HelicopterEncounterChecks changes preserved.
