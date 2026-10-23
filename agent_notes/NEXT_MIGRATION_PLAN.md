@@ -1,5 +1,11 @@
 # Следующие этапы переноса
 
+Latest matching-mob correction:build74a3cd83,16 suites/two actual mode1 matches
+(50.43s), installed while main was stopped; rollback77ae0b9a retained. The author
+approved preserving special egg parameters on offspring. Native child creation
+now reuses the same payload/adoption processor before insertion; source contract:
+[SPECIAL_EGGS_PORT.md](SPECIAL_EGGS_PORT.md).
+
 ## Four special spawn eggs - 23 October 2026
 
 [Contract](SPECIAL_EGGS_PORT.md), [source audit](NEXT_SMALL_DROPS_SOURCE.md).
@@ -9,8 +15,9 @@ source single centered baby/TNT pair; the four-zombie trap remains separate.
 Egg-specific payloads remain distinct from ordinary dropped traps. Build77ae0b9a
 passed16 suite results in two actual mode1 matches (60.4s), installed while main
 was stopped; previous43634ed9 retained. Evidence:build/verification/special-eggs-final/.
-Native offspring and spawner tuning remain unchanged pending an optional author
-decision on the former. Forest/Infinity/Mom/normal-drone reward chains stay gated.
+User approved preserving special egg parameters on matching-mob use; the follow-up
+applies the same native processor before child insertion. Ordinary eggs/spawner
+tuning stay unchanged. Forest/Infinity/Mom/normal-drone reward chains stay gated.
 
 ## Remaining implementation estimate - 23 October 2026
 

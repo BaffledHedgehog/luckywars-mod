@@ -1,5 +1,26 @@
 # Проект SkyWars
 
+## Special-egg offspring correction - QUALIFIED (23 October 2026, user)
+
+User confirmed: "Да, сохранять особые параметры яйца". Matching-mob use of
+a special egg must retain its payload, not produce an ordinary baby. Native
+SpawnEggItem still selects/positions/checks/inserts the child and spends one egg;
+SpecialEggMixin.Offspring applies the existing default-stack processor before
+insertion, including ENTITY_DATA and existing causal/lifecycle adoption.
+The parent and ordinary vanilla eggs are unchanged. Matching types/baby support
+remain native; this does not create offspring for unsupported entity types.
+Evidence:build/verification/special-eggs-offspring-final/; initial egg batch below
+is historical qualification. Source contract:agent_notes/SPECIAL_EGGS_PORT.md.
+Build74a3cd83 passed16 suite results in two actual mode1 matches (50.43s),
+exact258sources/706classes/2723resources verified. Both-hand native Mob.interact,
+full child payload/author, unchanged parent, actual player-kill equipment reward,
+vanilla/mismatched eggs, observer/time guards and actual stop were checked.
+Installed main while stopped; rollback77ae0b9a retained; main not started by agent.
+Three user sources preserved. Known fake-player Polymer context error pair
+retained; no final suite failed. No actual disk restart/unload/disconnect,
+dispenser/spawner execution, real-client pixels or peak-capacity claim.
+<!-- special-eggs-offspring-status-end -->
+
 ## Four special spawn eggs - QUALIFIED (23 October 2026)
 
 [Contract](agent_notes/SPECIAL_EGGS_PORT.md). Four scoped imba egg leaves:
@@ -13,8 +34,9 @@ Shahid emits source unpickable token then one centered baby/TNT fuse200 pair;
 old four-carrier trap remains unchanged. No melee and WILD TNT policy reused.
 Hand/entity input guards roles/actions/time, remote block clicks never load chunks.
 No RP edit, new mob framework, extra lifetime or broad imba pool enablement.
-Native offspring/spawner behavior remains unchanged; author question about special
-offspring data is pending. No custom spawner-cause system is claimed.
+User subsequently confirmed preserving special parameters on matching-mob use.
+Offspring now uses the same native payload/adoption processor before insertion;
+ordinary eggs and native spawner behavior stay unchanged. No spawner-cause system.
 
 Build77ae0b9a passed16 recorded suite results in two actual isolated mode1
 matches (60.4s);258sources/705classes/2723resources exactly match tested artifacts.

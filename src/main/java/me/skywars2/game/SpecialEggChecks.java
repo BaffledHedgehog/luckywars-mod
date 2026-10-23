@@ -128,6 +128,10 @@ public final class SpecialEggChecks {
         }
         void slab() {
             var zombie=(Zombie)spawn(LbcSpecialEggs.Kind.SLAB,InteractionHand.MAIN_HAND,false);
+            slabPayload(zombie);
+            zombie.discard();
+        }
+        void slabPayload(Zombie zombie) {
             require(zombie.isBaby()&&zombie.isSilent()&&zombie.isPersistenceRequired()&&zombie.hasEffect(net.minecraft.world.effect.MobEffects.INVISIBILITY),"native slab baby/silent/persistence/invisibility");
             var effect=zombie.getEffect(net.minecraft.world.effect.MobEffects.INVISIBILITY);
             require(effect.getAmplifier()==1&&effect.getDuration()==2000000&&!effect.isVisible(),"exact slab invisibility payload");
@@ -136,7 +140,38 @@ public final class SpecialEggChecks {
             var modifiers=head.get(DataComponents.ATTRIBUTE_MODIFIERS).modifiers();
             require(modifiers.size()==1&&modifiers.getFirst().modifier().amount()==7&&modifiers.getFirst().modifier().id().equals(Identifier.parse("minecraft:base_attack_damage")),"source egg slab +7 distinct from existing +6 drop");
             require(game.items().slabDrops().owner(zombie)==owner,"slab adopted by existing native creature lifecycle");
-            zombie.discard();
+        }
+        void offspring() {
+            var parent=new Zombie(EntityTypes.ZOMBIE,level);parent.setNoAi(true);parent.setPos(origin.add(2,0,0));
+            require(level.addFreshEntity(parent),"existing adult zombie for actual mob interaction");owned.add(parent);
+            for(var hand:InteractionHand.values()) {
+                var stack=egg(LbcSpecialEggs.Kind.SLAB,2);owner.setItemInHand(hand,stack);var before=current();
+                require(parent.interact(owner,hand,Vec3.ZERO).consumesAction()&&stack.getCount()==1,"actual matching-mob use consumes one special egg "+hand);
+                var children=fresh(before).stream().filter(e->e instanceof Zombie).map(e->(Zombie)e).toList();
+                require(children.size()==1,"matching-mob use creates exactly one child "+hand);var child=children.getFirst();
+                slabPayload(child);
+                require(!child.getUUID().equals(parent.getUUID())&&child.position().distanceTo(parent.position())<1e-8&&game.items().currentEpoch(child),"configured child keeps native identity, position and epoch");
+                require(!parent.isBaby()&&!parent.isSilent()&&parent.getItemBySlot(EquipmentSlot.HEAD).isEmpty()&&!parent.hasEffect(net.minecraft.world.effect.MobEffects.INVISIBILITY),"special egg leaves the existing parent unchanged");
+                var helmet=child.getItemBySlot(EquipmentSlot.HEAD).copy();before=current();
+                // Native equipment chance1 still requires a player kill; environmental deaths are not preserved drops.
+                require(child.hurtServer(level,child.damageSources().playerAttack(owner),1000)&&!child.isAlive(),"configured offspring actual native player kill");
+                var drops=fresh(before).stream().filter(e->e instanceof ItemEntity item&&ItemStack.isSameItemSameComponents(item.getItem(),helmet)).toList();
+                require(drops.size()==1,"offspring drops its complete guaranteed +7 slab once");fresh(before).forEach(Entity::discard);
+            }
+            var plain=new ItemStack(Items.ZOMBIE_SPAWN_EGG,2);owner.setItemInHand(InteractionHand.MAIN_HAND,plain);var before=current();
+            require(parent.interact(owner,InteractionHand.MAIN_HAND,Vec3.ZERO).consumesAction()&&plain.getCount()==1,"ordinary vanilla egg still creates a baby and consumes one");
+            var babies=fresh(before).stream().filter(e->e instanceof Zombie).map(e->(Zombie)e).toList();
+            require(babies.size()==1&&babies.getFirst().isBaby()&&!babies.getFirst().isSilent()&&babies.getFirst().getItemBySlot(EquipmentSlot.HEAD).isEmpty()
+                    &&!babies.getFirst().hasEffect(net.minecraft.world.effect.MobEffects.INVISIBILITY)&&!LbcSlabDrops.managed(babies.getFirst()),"vanilla offspring stays ordinary and outside special lifecycle");babies.forEach(Entity::discard);
+            for(var kind:List.of(LbcSpecialEggs.Kind.LOW_VEX,LbcSpecialEggs.Kind.SARVATRA_CREEPER,LbcSpecialEggs.Kind.SHAHID)) {
+                var stack=egg(kind,2);owner.setItemInHand(InteractionHand.MAIN_HAND,stack);before=current();
+                require(!parent.interact(owner,InteractionHand.MAIN_HAND,Vec3.ZERO).consumesAction()&&stack.getCount()==2&&fresh(before).isEmpty(),"native mismatched egg remains a free miss "+kind);
+            }
+            var stack=egg(LbcSpecialEggs.Kind.SLAB,2);owner.setItemInHand(InteractionHand.MAIN_HAND,stack);before=current();game.items().timeStop().begin(level,200);
+            try{require(!parent.interact(owner,InteractionHand.MAIN_HAND,Vec3.ZERO).consumesAction()&&stack.getCount()==2&&fresh(before).isEmpty(),"matching-mob path cannot bypass paused-time admission");}finally{game.items().timeStop().end(level);}
+            var observerState=new GameChecks.WandThirdPlayerState(owner,game.items().mana());game.spectators().enter(owner);before=current();
+            try{require(!parent.interact(owner,InteractionHand.MAIN_HAND,Vec3.ZERO).consumesAction()&&stack.getCount()==2&&fresh(before).isEmpty(),"matching-mob path cannot bypass observer admission");}finally{game.spectators().remove(owner);observerState.restore(game);}
+            parent.discard();
         }
         void seededReward(Mob actor,String tableId,String rewardLeaf) {
             try(var input=SpecialEggChecks.class.getResourceAsStream("/data/lbc/loot_table/"+tableId.substring(4)+".json")) {
@@ -199,7 +234,7 @@ public final class SpecialEggChecks {
         boolean step() {
             int now=game.server().getTickCount();if(now==lastTick)return false;lastTick=now;require(game.playing(),"actual match retained");
             switch(phase){
-                case 0->{presentation();admission();slab();rewards();fluid();shahid();phase++;}
+                case 0->{presentation();admission();slab();offspring();rewards();fluid();shahid();phase++;}
                 case 1->{require(frozen.stream().allMatch(e->!e.isRemoved()&&e.position().distanceTo(positions.get(e))<1e-8)&&fuses.entrySet().stream().allMatch(e->e.getKey().getFuse()==e.getValue()),"actual world Time Stop retains native carrier, passenger and fuse");if(++wait>=3){game.items().timeStop().end(level);for(var e:frozen)e.discard();var actor=spawn(LbcSpecialEggs.Kind.LOW_VEX,InteractionHand.MAIN_HAND,false);actor.entityTags().removeIf(t->t.startsWith("skywars2.items."));actor.entityTags().add("skywars2.items.stale-fixture");game.items().creatureDrops().unloaded(actor);game.items().creatureDrops().loaded(actor);require(actor.isRemoved(),"old-epoch native egg actor quietly rejected");return true;}}
                 default->throw new IllegalStateException("Unknown special egg phase "+phase);
             }return false;

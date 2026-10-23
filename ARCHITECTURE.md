@@ -1,5 +1,18 @@
 # Структура переноса игрового цикла
 
+## Special-egg offspring correction - QUALIFIED
+
+SpecialEggMixin.Offspring appends EntityType.createDefaultStackConfig before
+native child insertion. The existing EntityType mixin performs payload adoption;
+there is no second entity factory, callback map or actor owner. Special-only
+admission checks guard direct native helper calls. Vanilla eggs bypass the
+processor; native matching/baby restrictions, parent and consumption remain.
+User-approved behavior and evidence:agent_notes/SPECIAL_EGGS_PORT.md and
+build/verification/special-eggs-offspring-final/.
+Build74a3cd83 passed16 results in two actual mode1 matches (50.43s), including
+both-hand Mob.interact and actual native equipment death reward. Exact artifact
+files verified; installed while main was stopped, rollback77ae0b9a retained.
+
 ## Four special spawn eggs - QUALIFIED
 
 [Contract](agent_notes/SPECIAL_EGGS_PORT.md). LbcSpecialEggs is a native
@@ -9,8 +22,10 @@ Existing slab/creature/creeper/zombie-TNT services remain sole actor owners.
 The shared dispatcher recognizes Shahid flags and reuses one centered carrier
 instead of the separate four-zombie ring. Models use effectiveModel to survive
 native Item finalization. No additional world tick scan, mob AI or scheduler.
-Scope:four individual leaves, not the whole imba pool. Native matching-mob
-offspring/spawner semantics remain unchanged; no new spawner ownership system.
+Scope:four individual leaves, not the whole imba pool. User subsequently approved
+special offspring retaining egg parameters; the native offspring helper now
+reuses the same payload/adoption processor before insertion. Vanilla eggs and
+spawner tuning stay unchanged; no new spawner ownership system.
 Evidence:build/verification/special-eggs-final/.
 Build77ae0b9a passed16 results in two actual mode1 matches (60.4s), exact
 258sources/705classes/2723resources verified. Installed while main was stopped;

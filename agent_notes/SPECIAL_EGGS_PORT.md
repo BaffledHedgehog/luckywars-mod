@@ -48,10 +48,15 @@ No additional entity lifetime, cap or new movement physics was introduced.
 
 ## Native interaction boundaries
 
-The native offspring helper can create an ordinary baby when the egg is used on
-an existing matching zombie, without applying ENTITY_DATA. This is inherited
-native/source behavior; a question about changing it was sent to the author.
-Until answered, no special offspring payload override is introduced.
+Author confirmed the correction (23 October2026, user):
+"Да, сохранять особые параметры яйца". Matching-mob interaction must retain
+the egg's special parameters, instead of producing an ordinary unconfigured baby.
+SpecialEggMixin.Offspring now appends the same native default-stack processor
+used for block/fluid placement before child insertion. This applies ENTITY_DATA
+and the existing causal/lifecycle adoption. Vanilla still selects the child,
+checks matching type and baby support, places it, inserts it and consumes one egg.
+The original parent is untouched. Ordinary vanilla eggs bypass this correction.
+The helper also validates special-egg role/time admission, including direct calls.
 
 Dispenser placement and spawner editing remain native. Direct stack-based
 dispenser spawning executes the same adoption processor with no player cause.
@@ -59,10 +64,11 @@ Vanilla spawner editing by nonoperators stores only the entity type; operators
 may store ENTITY_DATA. Subsequent spawner-generated actors do not run the egg's
 stack processor and are not claimed to inherit the configuring player's cause.
 No custom spawner ownership system or change to these vanilla permissions is
-part of this patch. Runtime qualification below covers hand/block/fluid use,
-not dispenser/spawner/offspring end-to-end operation.
+part of this patch. Initial qualification below covers hand/block/fluid use;
+the matching-mob follow-up separately covers offspring. Dispenser/spawner
+end-to-end execution remains unqualified.
 
-## Qualification
+## Initial qualification
 
 Final build77ae0b9a34a34970029f684d68307f4ab24b2ff807f48bff1e183f0a3dfe5797
 passed16 suite results in two actual isolated mode1 matches (60.4s). All258 Java
@@ -82,3 +88,30 @@ The full LuckyWars mode2 loop is not qualified by source fixtures inside mode1.
 The known fake-player Polymer packet-context error pair is retained separately.
 No real-client pixels, actual disk restart/unload/disconnect, full natural AI
 trajectories, dispenser/spawner/offspring execution or peak-capacity claim.
+
+## Matching-mob follow-up (23 October2026, user)
+
+The author approved retaining special parameters on matching-mob use. The actual
+native Mob.interact path is now tested in both hands: one egg is consumed, one
+configured slab child appears at the original parent, its native UUID remains
+distinct, and its source silence/invisibility/persistence/item_name/+7 helmet,
+drop chance and causal author match block use. The parent remains unchanged.
+Actual player kills produce exactly one complete native slab reward. The initial
+retained fixture used generic environmental damage, which does not satisfy the
+native equipment-drop player-kill requirement at chance1.0; the fixture now uses
+actual player-attributed damage. Production drop chance/loot rules were unchanged.
+
+Ordinary vanilla zombie eggs still create plain babies, mismatched eggs remain
+free misses, and matching-mob use cannot bypass Time Stop or observer admission.
+The same existing16-suite runner repeats block/fluid/offhand/native reward,
+single Shahid, creature/zombie/Vex/KFC and actual-stop regressions in two matches.
+Final evidence is under build/verification/special-eggs-offspring-final/.
+Build74a3cd835f02ce0be1b0bd5873820cafab946d9fa06e6a145e45b0dcae17697e
+passed16 suite results in two actual mode1 matches (50.43s). All258 Java sources,
+706 classes and2723 resources match the tested artifacts exactly. Evidence files:
+qualification.json, installation.json, special-eggs-results.json and special-eggs.log.
+Installed to stopped main; rollback77ae0b9a retained, agent did not start main.
+Three preexisting user sources remained byte-identical and outside the commit.
+The known fake-player Polymer context error pair remains; no final suite failed.
+Dispenser/spawner operation, actual disk restart/unload/disconnect, real-client
+pixels, full natural trajectories and peak capacity remain outside qualification.

@@ -17,6 +17,7 @@
     "DropTrapMergeMixin",
     "ZombieTntDropMixin",
     "SpecialEggMixin",
+    "SpecialEggMixin$Offspring",
     "DroneDropMixin$Cart",
     "DroneDropMixin$Candidates",
     "DroneDropMixin$Ground",
