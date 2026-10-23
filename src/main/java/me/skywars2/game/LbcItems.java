@@ -369,9 +369,11 @@ public final class LbcItems {
                 .append(Component.literal(Integer.toString(coldCooldown)).withStyle(ChatFormatting.WHITE))
                 .append(Component.literal("\u00a7fs)").withStyle(ChatFormatting.RED));
         hudPositive(component,"  \uE138 ",frozen,ChatFormatting.RED);
-        if(heldVanillaBow(source)) {
+        boolean bow=heldVanillaBow(source);
+        if(bow || LbcShooters.isSlr(source.getMainHandItem()) || LbcShooters.isSlr(source.getOffhandItem())) {
             // The source uses /clear ... 0: native counting-only includes crafting slots and cursor, without mutation.
-            int arrows=source.getInventory().clearOrCountMatchingItems(stack->stack.is(net.minecraft.tags.ItemTags.ARROWS),true,0,source.inventoryMenu.getCraftSlots());
+            // SLR consumes normal arrows, including custom/infinite variants, rather than the whole bow arrow tag.
+            int arrows=source.getInventory().clearOrCountMatchingItems(stack->bow ? stack.is(net.minecraft.tags.ItemTags.ARROWS) : stack.is(Items.ARROW),true,0,source.inventoryMenu.getCraftSlots());
             component.append(Component.literal("    \uE108 "))
                     .append(Component.literal(Integer.toString(arrows)).withStyle(ChatFormatting.WHITE));
         }

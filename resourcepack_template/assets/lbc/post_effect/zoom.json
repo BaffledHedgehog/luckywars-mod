@@ -1,0 +1,112 @@
+{
+    "targets": {
+        "swap": {},
+        "next_state": {
+            "width": 3,
+            "height": 1
+        },
+        "animation": {
+            "width": 3,
+            "height": 1,
+            "persistent": true,
+            "clear_color": 0
+        }
+    },
+    "passes": [
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "lbc:post/zoom_state",
+            "inputs": [
+                {
+                    "sampler_name": "History",
+                    "target": "animation"
+                }
+            ],
+            "output": "next_state"
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/blit",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "next_state"
+                }
+            ],
+            "output": "animation",
+            "uniforms": {
+                "BlitConfig": [
+                    {
+                        "name": "ColorModulate",
+                        "type": "vec4",
+                        "value": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "lbc:post/zoom",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "minecraft:main"
+                },
+                {
+                    "sampler_name": "Animation",
+                    "target": "animation"
+                }
+            ],
+            "output": "swap",
+            "uniforms": {
+                "ZoomConfig": [
+                    {
+                        "name": "ZoomFactor",
+                        "type": "float",
+                        "value": 1.0
+                    },
+                    {
+                        "name": "Direction",
+                        "type": "float",
+                        "value": 1.0
+                    },
+                    {
+                        "name": "Duration",
+                        "type": "float",
+                        "value": 0.3
+                    }
+                ]
+            }
+        },
+        {
+            "vertex_shader": "minecraft:core/screenquad",
+            "fragment_shader": "minecraft:post/blit",
+            "inputs": [
+                {
+                    "sampler_name": "In",
+                    "target": "swap"
+                }
+            ],
+            "output": "minecraft:main",
+            "uniforms": {
+                "BlitConfig": [
+                    {
+                        "name": "ColorModulate",
+                        "type": "vec4",
+                        "value": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}

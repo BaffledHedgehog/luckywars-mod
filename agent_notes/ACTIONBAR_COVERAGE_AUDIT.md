@@ -171,3 +171,12 @@ installed,142 recorded native suite results/two actual matches. Normal Fat
 Skeleton and the listed missing native HUD rows are complete; earlier pending
 qualification/source-only statements record their initial audit stage.
 Normal/old portal remain unimplemented.
+
+## SLR arrow row - 23 October2026
+
+The [scope/visual fix](SCOPE_VISUAL_FIX.md) adds held SLR in either hand to E108.
+SLR-only counts minecraft:arrow, including custom/infinite variants; vanilla
+bow/crossbow ARROWS-tag counting remains unchanged and takes precedence for
+mixed hands. Native counting-only inventory/craft/cursor, source/camera cache
+and ignorance fixtures passed with the final combined artifact.
+<!-- scope-visual-hud-end -->

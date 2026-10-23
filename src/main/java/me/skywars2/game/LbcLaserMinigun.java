@@ -19,6 +19,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.item.Item;
@@ -240,6 +241,7 @@ public final class LbcLaserMinigun {
         var holder=new ElementHolder(); holder.addElement(display);
         // Rotation, zero initial width and final length exist before the first spawn packet.
         new ManualAttachment(holder,owner.level(),()->origin);
+        refreshViewers(holder,owner,origin);
         holder.tick();
         beams.add(new Beam(owner,game.items().epoch(),holder,display,scale,origin,yaw,pitch));
     }
@@ -258,6 +260,7 @@ public final class LbcLaserMinigun {
             if(!valid(beam.owner) || !game.items().currentEpoch(beam.epoch)) {
                 beam.holder.destroy(); beams.remove(i); continue;
             }
+            refreshViewers(beam.holder,beam.owner,beam.origin);
             // All beams pause with the dimension, including the free time-stop owner's beams.
             if(stopped || beam.owner.entityTags().contains("time_stopped")) continue;
             if(--beam.life<=0) { beam.holder.destroy(); beams.remove(i); continue; }
@@ -265,6 +268,20 @@ public final class LbcLaserMinigun {
             beam.display.setScale(new Vector3f(width,width,beam.lengthScale));
             beam.holder.tick();
         }
+    }
+    /** ManualAttachment never enrolls viewers itself. Keep native tracking range and all viewer roles. */
+    private void refreshViewers(ElementHolder holder,ServerPlayer owner,Vec3 origin) {
+        var connected=game.server().getPlayerList().getPlayers();
+        int range=EntityTypes.ITEM_DISPLAY.clientTrackingRange()*16;
+        double rangeSquared=(double)range*range;
+        for(var connection:List.copyOf(holder.getWatchingPlayers())) {
+            var viewer=connection.player;
+            if(viewer.connection!=connection || !connected.contains(viewer) || viewer.level()!=owner.level()
+                    || viewer.position().distanceToSqr(origin)>=rangeSquared) holder.stopWatching(connection);
+        }
+        for(var viewer:connected)
+            if(viewer.level()==owner.level() && viewer.position().distanceToSqr(origin)<rangeSquared)
+                holder.startWatching(viewer);
     }
     public void purify(ServerPlayer owner) { state(owner).spread=0; }
     /** KFC increments source counters even when there is no currently scheduled spool tick. */

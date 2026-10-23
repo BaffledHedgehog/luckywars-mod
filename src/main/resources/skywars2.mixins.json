@@ -58,6 +58,7 @@
     "LbcRepairRecipeMixin",
     "ObserverPlayerMixin",
     "ObserverPacketMixin",
+    "RifleZoomPacketMixin",
     "KnowledgePacketMixin",
     "ObserverInventoryMixin",
     "ObserverAdvancementMixin",

@@ -1,5 +1,29 @@
 # Зум SLR и Magnum — 22 октября 2026
 
+## Rifle scope / SLR ammo / minigun laser - QUALIFIED
+
+[Contract](SCOPE_VISUAL_FIX.md). SLR/Magnum use client-only native FOV projection while retaining
+lbc:zoom scope overlay and a6-tick lbc:zoom_out exit animation. The server's
+abilities, movement attributes, position and velocity remain authoritative and
+unchanged. Native ability resends/attribute updates and lifecycle cleanup are
+covered. Client FOV Effects must be enabled; zero disables this native zoom.
+Actual RP remains untouched. Apply the two supplied scope JSON template values
+(ZoomFactor1, Duration0.3) to avoid multiplying the old shader crop with FOV.
+SLR shows the native arrow count in the existing HUD row, including both hands,
+observer camera/cache and ignorance behavior. Minigun ManualAttachment now
+explicitly enrolls viewers; actual spawn/model/scale/removal packets, forward
+native model geometry, lifetime and frozen late-viewer behavior are checked.
+
+Offline build/two actual isolated mode1 matches passed on ca582dcc:
+166 recorded suite results, 132.78s;
+231 sources / 644 classes /
+2704 resources exactly match tested artifacts.
+Evidence: build/verification/scope-visual-final/. Installed to main mods/skywars2.jar while stopped; rollback 3cb2c7d1 retained. The agent did not start the main server.
+User Reroll and concurrent user formatting of AcidAntDropChecks and
+HelicopterEncounterChecks were preserved and excluded from the commit.
+No real client GPU/mouse behavior or peak-capacity benchmark is claimed.
+<!-- scope-visual-status-end -->
+
 Пользователь сначала запросил удержание ЛКМ, затем выбрал переключение (user):
 
 > без клиентского мода, пусть тогда переключение
