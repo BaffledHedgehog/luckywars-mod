@@ -26,6 +26,8 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/neutral_wand.json', 'data/lbc/loot_table/ported/academy_neutral_wand.json'
+    include 'data/lbc/loot_table/ported/feather_greed.json', 'skywars2/neutral_wand_presets.json'
     include 'data/lbc/loot_table/ported/blood_wand.json', 'data/lbc/loot_table/ported/academy_blood_wand.json'
     include 'data/lbc/loot_table/ported/confuse_wand.json', 'data/lbc/loot_table/ported/academy_confuse_wand.json'
     include 'data/lbc/loot_table/ported/evoker_wand.json', 'data/lbc/loot_table/ported/academy_evoker_wand.json'

@@ -56,6 +56,9 @@ import net.minecraft.world.scores.ScoreHolder;
 
 /** Жезлы используют общий расход маны и каст-хуки; временные снаряды хранит существующий трекер. */
 public final class LbcWands {
+    public static final Item NEUTRAL=register("skywars2:neutral_wand","neutral_wand","lbc:neutralwand");
+    public static final Item ACADEMY_NEUTRAL=register("skywars2:academy_neutral_wand","neutral_wand","lbc:neutralwand");
+    public static final Item FEATHER_GREED=register("skywars2:feather_greed","feather_greed","minecraft:feather");
     public static final Item BLOOD=register("skywars2:blood_wand","blood_wand","lbc:killingwand");
     public static final Item ACADEMY_BLOOD=register("skywars2:academy_blood_wand","blood_wand","lbc:killingwand");
     public static final Item CONFUSE=register("skywars2:confuse_wand","confuse_wand","lbc:foxuswand");
@@ -130,6 +133,8 @@ public final class LbcWands {
     public static final Item ACADEMY_EXOPERSO=register("skywars2:academy_exoperso_wand","megumin_wand","lbc:exoperso");
     public static final Item ACADEMY_EXASPERATO=register("skywars2:academy_exasperato_wand","exasperato_wand","lbc:exasperato");
     private enum Spell {
+        ACADEMY_NEUTRAL(LbcWands.ACADEMY_NEUTRAL,"neutralmage","neutral_wand_mana_use",1200),
+        REGULAR_NEUTRAL(LbcWands.NEUTRAL,"neutralmage","neutral_wand_mana_use",1200),
         ACADEMY_BLOOD(LbcWands.ACADEMY_BLOOD,"bloodmagic","blood_wand_mana_use",5000),
         REGULAR_BLOOD(LbcWands.BLOOD,"bloodmagic","blood_wand_mana_use",5000),
         ACADEMY_CONFUSE(LbcWands.ACADEMY_CONFUSE,"foxusing","confuse_wand_mana_use",900),
@@ -207,6 +212,7 @@ public final class LbcWands {
         final int defaultCost;
         Spell(Item item,String flag,String cost,int defaultCost) {
             this.item=item; this.flag=flag(flag); this.cost=ScoreHolder.forNameOnly(cost); this.defaultCost=defaultCost;
+            if(item==LbcWands.ACADEMY_NEUTRAL) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_BLOOD || item==LbcWands.ACADEMY_CONFUSE) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_EVOKER || item==LbcWands.ACADEMY_BASS) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_LIFESTEALER) this.flag.putInt("upgraded",1);
@@ -359,6 +365,7 @@ public final class LbcWands {
     private boolean cast(ServerPlayer player,InteractionHand hand) {
         if(game.items().actionsBlocked(player)) return false;
         var stack=player.getItemInHand(hand);
+        if(stack.is(FEATHER_GREED)||stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("feather_greed",0)==1) return game.items().neutral().feather(player);
         if (LbcHomeItems.isMirror(stack)) return game.items().homes().use(player, hand);
         // Общий dispatch двух рук: хвоемёт платит боеприпасами и не проходит проверку маны жезлов.
         if (LbcShooters.isPine(stack) || LbcShooters.isSlr(stack) || LbcShooters.isKfcGun(stack)
@@ -385,6 +392,7 @@ public final class LbcWands {
         Spell spell=null;
         for(var candidate:SPELLS) if(matches(stack,candidate.item,candidate.flag)) { spell=candidate; break; }
         if(spell==null) return false;
+        if(spell==Spell.REGULAR_NEUTRAL || spell==Spell.ACADEMY_NEUTRAL) return game.items().neutral().use(player,hand,stack,spell==Spell.ACADEMY_NEUTRAL);
         if(spell==Spell.REGULAR_BLOOD || spell==Spell.ACADEMY_BLOOD || spell==Spell.REGULAR_CONFUSE || spell==Spell.ACADEMY_CONFUSE)
             return game.items().bloodConfuse().use(player,hand,stack,spell==Spell.REGULAR_BLOOD || spell==Spell.ACADEMY_BLOOD,
                     spell==Spell.ACADEMY_BLOOD || spell==Spell.ACADEMY_CONFUSE);
@@ -1250,6 +1258,7 @@ public final class LbcWands {
                 && game.items().electro().canHit(projectile,target);
     }
     public boolean canHit(Projectile projectile,Entity target) {
+        if(LbcNeutral.managed(projectile)) return game.items().neutral().canAffect(projectile,target);
         if(LbcTransformator.managed(projectile)) return game.items().transformator().canAffect(projectile,target);
         if(LbcPotionSpawnerDrops.managed(projectile)) return game.items().potionSpawnerDrops().canAffect(projectile,target);
         if(LbcCreatureDrops.managed(projectile)) return game.items().creatureDrops().canAffect(projectile,target);
@@ -1276,6 +1285,7 @@ public final class LbcWands {
     }
     /** Радиус взрыва native firework обходит canHitEntity; союзников защищаем и в финальном уроне. */
     public boolean allowDamage(Entity victim,DamageSource source) {
+        if(LbcNeutral.managed(source.getDirectEntity())) return game.items().neutral().canAffect((Projectile)source.getDirectEntity(),victim);
         if(LbcTransformator.managed(source.getDirectEntity())) return game.items().transformator().canAffect(source.getDirectEntity(),victim);
         if(LbcStalin.managed(source.getDirectEntity())) return game.items().stalin().canAffect(source.getDirectEntity(),victim);
         if(LbcPotionSpawnerDrops.managed(source.getDirectEntity())) return game.items().potionSpawnerDrops().canAffect(source.getDirectEntity(),victim);

@@ -174,6 +174,7 @@ public final class LbcItems {
     private final LbcMana mana;
     private final LbcTerra terra;
     private final LbcWands wands;
+    private final LbcNeutral neutral;
     private final LbcBloodConfuse bloodConfuse;
     private final LbcEvokerBass evokerBass;
     private final LbcLifestealer lifestealer;
@@ -688,6 +689,7 @@ public final class LbcItems {
         this.teleport = new LbcTeleport(game);
         this.ruby = new LbcRuby(game);
         this.consuming = new LbcConsuming(game);
+        this.neutral = new LbcNeutral(game);
         this.bloodConfuse = new LbcBloodConfuse(game);
         this.evokerBass = new LbcEvokerBass(game);
         this.lifestealer = new LbcLifestealer(game);
@@ -820,6 +822,7 @@ public final class LbcItems {
     public LbcTeleport teleport() { return teleport; }
     public LbcRuby ruby() { return ruby; }
     public LbcConsuming consuming() { return consuming; }
+    public LbcNeutral neutral() { return neutral; }
     public LbcBloodConfuse bloodConfuse() { return bloodConfuse; }
     public LbcEvokerBass evokerBass() { return evokerBass; }
     public LbcLifestealer lifestealer() { return lifestealer; }
@@ -887,6 +890,7 @@ public final class LbcItems {
         teleport.loaded(entity);
         ruby.loaded(entity);
         consuming.loaded(entity);
+        neutral.loaded(entity);
         evokerBass.loaded(entity);
         lifestealer.loaded(entity);
         govnomet.loaded(entity);
@@ -969,6 +973,7 @@ public final class LbcItems {
         teleport.unloaded(entity);
         ruby.unloaded(entity);
         consuming.unloaded(entity);
+        neutral.unloaded(entity);
         evokerBass.unloaded(entity);
         lifestealer.unloaded(entity);
         mobgun.unloaded(entity);
@@ -1358,6 +1363,7 @@ public final class LbcItems {
         teleport.tick();
         ruby.tick();
         consuming.tick();
+        neutral.tick();
         evokerBass.tick();
         lifestealer.tick();
         mobgun.tick();
@@ -1458,6 +1464,7 @@ public final class LbcItems {
         homing.forget(player);
         bolts.forget(player);
         consuming.forget(player);
+        neutral.forget(player);
         evokerBass.forget(player);
         lifestealer.forget(player);
         mobgun.forget(player);
@@ -1513,6 +1520,7 @@ public final class LbcItems {
         teleport.stop();
         ruby.stop();
         consuming.stop();
+        neutral.stop();
         evokerBass.stop();
         lifestealer.stop();
         mobgun.stop();

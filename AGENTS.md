@@ -1,5 +1,29 @@
 # Проект SkyWars
 
+## Neutral wand / Feather of Greed - QUALIFIED (23 October 2026)
+
+[Contract](agent_notes/NEUTRAL_WAND_PORT.md). Three scoped leaves:neutral_wand,
+academy_neutral_wand, feather_greed. Five source native projectile families
+retain counts/Motion/positions/physics/payloads and original rocket lifetime100.
+Real native owner follows deliberate reflection and all direct/deferred kills.
+One tagged-only skull mixin prevents the ownership change from raising source
+magic damage5 to8 or introducing owner healing/enchantment callbacks. Friendly
+mobs remain physical targets; caster/allied players and technical roles are
+protected by existing policy. Existing protected-wand, Time Stop and item epoch/
+unload/death/quiet-stop owners are reused. Neutral trial belongs to the used
+stack; mode changes are free (user). Feather is native visible Slow Falling I60s
+with no mana debit/admission, consumption or mage/trinket cast hook. Source
+presentation and existing RP keys preserved; broad reward/craft pools stay gated.
+
+Builda6e485fd passed18 recorded suite results in two actual mode1 matches
+(51.53s), exact269sources/726classes/2746resources verified. Installed stopped
+main; rollback46db086d retained and main not started. Three user sources are
+unchanged/excluded. Evidence:build/verification/neutral-wand-final/. Known fake-
+player Polymer packet-context error pair only; all final suites passed. Native
+collision/effect boundaries include manual ticks. No client pixels, actual disk
+restart/unload/disconnect, full natural trajectories or peak-load claim.
+
+
 ## Blood / Confuse wand families - QUALIFIED (23 October 2026)
 
 [Contract](agent_notes/BLOOD_CONFUSE_PORT.md). Four scoped leaves: blood_wand,

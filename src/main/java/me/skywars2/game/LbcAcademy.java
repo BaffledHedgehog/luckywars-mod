@@ -51,6 +51,7 @@ public final class LbcAcademy {
     private static final CompoundTag TOKEN_DATA = flag("academy_token"), BUILDING_DATA = flag("magic_academy");
     public static final Item TOKEN = registerToken();
     private enum Wand {
+        NEUTRAL("neutralmage", LbcWands.NEUTRAL, LbcWands.ACADEMY_NEUTRAL, "a", "upgrade_condition_neutralmage", "upgrade_succesful_neutralmage"),
         BLOOD("bloodmagic", LbcWands.BLOOD, LbcWands.ACADEMY_BLOOD, "a", "upgrade_condition_bloodmagic", "upgrade_succesful_bloodmagic"),
         CONFUSE("foxusing", LbcWands.CONFUSE, LbcWands.ACADEMY_CONFUSE, "a", "upgrade_condition_foxusing", "upgrade_succesful_foxusing"),
         EVOKER("evocator", LbcWands.EVOKER, LbcWands.ACADEMY_EVOKER, "b", "upgrade_condition_evocator", "upgrade_succesful_evocator"),

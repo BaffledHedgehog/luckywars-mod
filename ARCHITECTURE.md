@@ -1,5 +1,27 @@
 # Структура переноса игрового цикла
 
+## Neutral native ordnance / Feather - QUALIFIED
+
+[Contract](agent_notes/NEUTRAL_WAND_PORT.md). LbcNeutral adds instant casts and a
+small lifecycle set of vanilla WitherSkull/SmallFireball/LargeFireball/firework/
+splash entities. Their native engine owns motion, gravity, effects, collisions,
+explosions, visuals and expiry. Source firework/potion NBT is extracted once and
+decoded once. LbcWands handles identity/PKM/hands/cost; LbcAcademy handles stack
+trial promotion. Existing ignition, indirect kill, item epoch/deferred unload,
+Time Stop and quiet stop paths remain authoritative. No actor/motion framework.
+NeutralSkullMixin changes only tagged skulls:source magic5 damage/no owner heal
+or added enchantment callback, with real causal/current native ownership.
+Generic protected-wand behavior rejects incidental physics but permits deliberate
+reflection. Source Feather function uses native60s Slow Falling without a cast
+hook or resource gate, even at negative mana. No new counter/TTL/custom renderer.
+
+Builda6e485fd passed18 suites/two actual mode1 matches (51.53s), exact269sources/
+726classes/2746resources verified. Installed stopped main; rollback46db086d
+retained, main not started. Evidence:build/verification/neutral-wand-final/.
+Known fake-player Polymer packet-context error pair only; manual native boundary
+ticks do not qualify client pixels, restart/unload/disconnect or peak load.
+
+
 ## Blood / Confuse instant wand integration - QUALIFIED
 
 [Contract](agent_notes/BLOOD_CONFUSE_PORT.md). Stateless LbcBloodConfuse plugs into

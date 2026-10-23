@@ -1,5 +1,25 @@
 # Следующие этапы переноса
 
+## Neutral wand / Feather of Greed - 23 October 2026
+
+[Contract](NEUTRAL_WAND_PORT.md). Three new scoped item entrances close ordinary/
+Academy Neutral's five native attack modes and the small independent Feather
+ability. Original skull damage/healing semantics are preserved while supplying
+real player ownership; native direct, reflected and delayed potion kills passed.
+Source per-stack trial, source presentation, independent hands/free mode changes,
+actual native freeze and quiet stop were verified with previous wand regressions.
+Broad Elemental/Greed encounters remain unqualified; their source lore is retained
+without exposing the missing reward chains. Corruption/Dust and other basic wands,
+Forest/Infinity/Mom and broader game-mode integration remain future work.
+
+Builda6e485fd passed18 suite results/two actual mode1 matches (51.53s), exact
+269sources/726classes/2746resources. Installed stopped main; rollback46db086d
+retained; main not started. Three user source hashes preserved/excluded. Evidence:
+build/verification/neutral-wand-final/. Known fake-player Polymer context pair
+only. Native boundaries use manual ticks; no client pixels, disk restart/unload/
+disconnect, complete natural trajectories or peak-load claim.
+
+
 ## Blood / Confuse wand families - 23 October 2026
 
 [Contract](BLOOD_CONFUSE_PORT.md). Ordinary and Academy Blood/Confuse are now
