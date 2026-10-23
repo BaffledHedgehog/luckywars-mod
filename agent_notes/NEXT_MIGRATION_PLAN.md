@@ -1,5 +1,29 @@
 # Следующие этапы переноса
 
+## Antigravity finite Paper storm - QUALIFIED (23 October2026)
+
+[Contract](ANTIGRAVITY_PORT.md). User chose15-second Paper mechanics.
+New ready leaf:lbc:ported/antigravity_drop. One initial cube plus30 ten-tick
+pulses, native moving BlockDisplays, source velocity/stale cleanup, fixed-origin
+living lift/slowfall/high-altitude generic hazard and WILD self/ally targeting.
+Original item presentation and translated titles retained; actual RP/template
+unchanged. Owner/indirect kills, observer/service safety, resident chunks,
+Time Stop and quiet actual-stop cleanup are integrated. No legacy escalation,
+global sky hazard, added display lifetime/cap or new damage type. One shared
+update replaces per-display scheduled jobs; no CPU benchmark is claimed.
+
+Offline build/two actual isolated mode1 matches passed on38da8388:12 recorded
+suite results,67.63s;237sources/656classes/2708resources exactly match artifacts.
+Evidence:build/verification/antigravity-batch-final/. Installed while main
+stopped; rollback5a623666 retained. Agent did not start main. User Reroll/
+AcidAntDropChecks/HelicopterEncounterChecks preserved and excluded from commit.
+Known fake-player Polymer context warning recurred; no final suite failed.
+Real client pixels, actual disk restart/unload/disconnect, full natural physics
+and peak capacity remain outside fixture scope. Bedwars mode stays gated;
+its protected-region snapshot semantics must be integrated before enabling it.
+<!-- antigravity-batch-status-end -->
+
+
 ## Pisa boats - QUALIFIED (23 October2026)
 
 [Contract](PISA_BOATS_PORT.md). New ready acquisition:

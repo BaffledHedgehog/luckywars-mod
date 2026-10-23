@@ -212,6 +212,7 @@ public final class LbcItems {
     private final LbcPortalDrops portalDrops;
     private final LbcLuckyRoomDrops luckyRoomDrops;
     private final LbcPisaDrops pisaDrops;
+    private final LbcAntigravity antigravity;
     private final LbcDroneDrops droneDrops;
     private final LbcAntDrops antDrops;
     private final LbcTntDrops tntDrops;
@@ -640,6 +641,7 @@ public final class LbcItems {
         this.portalDrops = new LbcPortalDrops(game);
         this.luckyRoomDrops = new LbcLuckyRoomDrops(game);
         this.pisaDrops = new LbcPisaDrops(game);
+        this.antigravity = new LbcAntigravity(game);
         this.droneDrops = new LbcDroneDrops(game);
         this.antDrops = new LbcAntDrops(game);
         this.tntDrops = new LbcTntDrops(game);
@@ -754,6 +756,7 @@ public final class LbcItems {
     public LbcPortalDrops portalDrops() { return portalDrops; }
     public LbcLuckyRoomDrops luckyRoomDrops() { return luckyRoomDrops; }
     public LbcPisaDrops pisaDrops() { return pisaDrops; }
+    public LbcAntigravity antigravity() { return antigravity; }
     public LbcDroneDrops droneDrops() { return droneDrops; }
     public LbcAntDrops antDrops() { return antDrops; }
     public LbcTntDrops tntDrops() { return tntDrops; }
@@ -807,6 +810,7 @@ public final class LbcItems {
         mobgun.claimChild(entity);
         frost.loaded(entity);
         pisaDrops.loaded(entity);
+        antigravity.loaded(entity);
         if (entity.isRemoved()) return;
         if (hasStaleItemEpoch(entity)) {
             entity.discard();
@@ -892,6 +896,7 @@ public final class LbcItems {
     public void entityUnloaded(Entity entity) {
         specialDrops.unloaded(entity);
         pisaDrops.unloaded(entity);
+        antigravity.unloaded(entity);
         portalDrops.unloaded(entity);
         luckyPigs.unloaded(entity);
         libraryDrop.unloaded(entity);
@@ -1315,6 +1320,7 @@ public final class LbcItems {
         stand.tick();
         kfcFood.tick();
         helicopterEncounter.tick();
+        antigravity.tick();
         specialDrops.tick();
         portalDrops.tick();
         luckyPigs.tick();
@@ -1464,6 +1470,7 @@ public final class LbcItems {
         helicopterEncounter.stop();
         specialDrops.stop();
         pisaDrops.stop();
+        antigravity.stop();
         portalDrops.stop();
         luckyPigs.stop();
         libraryDrop.stop();

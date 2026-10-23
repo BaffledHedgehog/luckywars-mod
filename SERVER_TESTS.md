@@ -5864,3 +5864,17 @@ Polymer context warning recurred; no final suite failed. Initial compile/API
 and omitted resource-filter attempts retained with fixes in the contract.
 Evidence:build/verification/pisa-batch-final/. Installed main while stopped,
 rollbackf5061b34 retained; main not started. User-owned files preserved.
+
+## 23 October2026: finite Paper Antigravity
+
+User-selected15-second storm,31 source cube launches and native BlockDisplay
+acceleration/max lift/stale20 cleanup, fixed-origin slowfall and GENERIC hazard,
+self/ally targeting with role protection and causal native void credit.
+Offline build38da8388; two actual isolated mode1 matches passed12 recorded
+results in67.63s, including Pisa/Room/HUD regressions and actual stop/cleanup.
+237sources/656classes/2708resources exactly match artifacts. Evidence:
+build/verification/antigravity-batch-final/. Known fake-player Polymer context
+warning recurred; no final suite failed. No real client pixels, actual disk
+restart/unload/disconnect, full natural physics or peak-capacity benchmark claim.
+Installed main while stopped; rollback5a623666 retained; no main startup.
+Three user-owned sources preserved. Contract:agent_notes/ANTIGRAVITY_PORT.md.

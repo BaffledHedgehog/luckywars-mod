@@ -723,6 +723,9 @@ public final class GameChecks {
                                 case "portal-drops" -> { PortalDropChecks.run(game); return; }
                                 case "portal-drops-stop-probe" -> { PortalDropChecks.stopProbe(game); return; }
                                 case "portal-drops-cleanup" -> { PortalDropChecks.cleanup(game); return; }
+                                case "antigravity-drops" -> { AntigravityDropChecks.run(game); return; }
+                                case "antigravity-drops-stop-probe" -> { AntigravityDropChecks.stopProbe(game); return; }
+                                case "antigravity-drops-cleanup" -> { AntigravityDropChecks.cleanup(game); return; }
                                 case "pisa-drops" -> { PisaDropChecks.run(game); return; }
                                 case "pisa-drops-stop-probe" -> { PisaDropChecks.stopProbe(game); return; }
                                 case "pisa-drops-cleanup" -> { PisaDropChecks.cleanup(game); return; }
@@ -1070,6 +1073,7 @@ public final class GameChecks {
                 PotionSpawnerDropChecks.tick(game);
                 UiWeaponBatchChecks.tick(game);
                 PortalDropChecks.tick(game);
+                AntigravityDropChecks.tick(game);
                 AcidAntDropChecks.tick(game);
                 BobDroneDropChecks.tick(game);
                 IslandDropChecks.tick(game);

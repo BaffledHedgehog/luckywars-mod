@@ -26,6 +26,7 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/antigravity_drop.json'
     include 'data/lbc/loot_table/ported/pisa_boats_drop.json', 'data/lbc/loot_table/pisa_relic.json', 'data/lbc/loot_table/pisa_relic_upgraded.json'
     include 'data/lbc/loot_table/ported/lucky_room_drop.json', 'data/lbc/loot_table/ported/old_lucky_room_drop.json'
     include 'data/lbc/loot_table/ported/random_portal_drop.json', 'data/lbc/loot_table/ported/old_random_portal_drop.json'
