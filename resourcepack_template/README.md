@@ -174,3 +174,14 @@ your current language files. Existing lbckit.24 item name and both original lore
 lines are reused unchanged; no duplicate source translations are provided.
 Only the neutral crafting preview uses this new line. An English fallback is
 available until it is merged. The original resource pack remains read-only.
+
+
+## One-use Academy token
+
+`academy_token` now uses the separate label key `welcome_to_single_use_academy`.
+Add that key to your resource-pack language files with your own text. The server
+keeps the original aqua, nonitalic display style and supplies an English fallback.
+The original `welcome_to_academy` remains the label of the reusable base Academy.
+After one successful promotion the token Academy removes its own text/interaction
+and changes its eight blue background cells to white; trial assignment and
+readiness do not spend it. No original RP files or textures were modified.

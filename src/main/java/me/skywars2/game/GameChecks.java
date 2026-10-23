@@ -728,6 +728,12 @@ public final class GameChecks {
                                 case "transformator-drops-stop-probe" -> { TransformatorChecks.stopProbe(game); return; }
                                 case "transformator-drops-cleanup" -> { TransformatorChecks.cleanup(game); return; }
                                 case "academy-acquisition" -> { AcademyAcquisitionChecks.run(game); return; }
+                                case "academy-single-use" -> { AcademySingleUseChecks.run(game); return; }
+                                case "academy-single-use-stop-probe" -> { AcademySingleUseChecks.stopProbe(game); return; }
+                                case "academy-single-use-cleanup" -> { AcademySingleUseChecks.cleanup(game); return; }
+                                case "stalin-encounter" -> { StalinEncounterChecks.run(game); return; }
+                                case "stalin-encounter-stop-probe" -> { StalinEncounterChecks.stopProbe(game); return; }
+                                case "stalin-encounter-cleanup" -> { StalinEncounterChecks.cleanup(game); return; }
                                 case "reactive-family-stop-probe" -> { ReactiveFamilyChecks.stopProbe(game); return; }
                                 case "reactive-family-cleanup" -> { ReactiveFamilyChecks.cleanup(game); return; }
                                 case "ultraponos-drops" -> { UltraponosDropChecks.run(game); return; }
@@ -1089,6 +1095,8 @@ public final class GameChecks {
                 AntigravityDropChecks.tick(game);
                 AcidAntDropChecks.tick(game);
                 TransformatorChecks.tick(game);
+                StalinEncounterChecks.tick(game);
+                AcademySingleUseChecks.tick(game);
                 BobDroneDropChecks.tick(game);
                 IslandDropChecks.tick(game);
                 MapFluidChecks.tick(game);

@@ -677,6 +677,24 @@ public final class LbcWands {
                         : game.items().lifetimes().target(owner,target)) && extraFilter.test(target),0);
         return entity==null ? wall : entity;
     }
+    /** Source NPC guns share resident block geometry and native entity hitboxes. */
+    net.minecraft.world.phys.HitResult firstHit(LivingEntity owner,Vec3 from,Vec3 to,
+            java.util.function.Predicate<Entity> collision) {
+        if(from.equals(to)) {
+            var targets=owner.level().getEntities(owner,new AABB(from,to).inflate(1),
+                    target->target!=owner && collision.test(target) && target.getBoundingBox().contains(from));
+            if(!targets.isEmpty()) return new net.minecraft.world.phys.EntityHitResult(targets.getFirst(),from);
+            var level=(ServerLevel)owner.level();var pos=BlockPos.containing(from);
+            if(level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)==null) return null;
+            if(!level.getBlockState(pos).is(AIRS))
+                return new net.minecraft.world.phys.BlockHitResult(from,net.minecraft.core.Direction.UP,pos,true);
+        }
+        var wall=LbcTerra.wallHit((ServerLevel)owner.level(),from,to);
+        var end=wall==null?to:wall.getLocation();
+        var entity=ProjectileUtil.getEntityHitResult(owner.level(),owner,from,end,new AABB(from,end).inflate(1),
+                target->target!=owner && collision.test(target),0);
+        return entity==null?wall:entity;
+    }
     /** Вместо рекурсивных 200 запросов: один native clip и один локальный поиск ближайшей цели. */
     private void concentratedFire(ServerPlayer player) {
         Vec3 from=player.getEyePosition(),to=from.add(player.getLookAngle().scale(100));
@@ -724,6 +742,17 @@ public final class LbcWands {
         if(old.isAir()) return false;
         game.items().indirectKills().supportRemoved(player,pos);
         level.destroyBlock(pos,true,player,Block.UPDATE_LIMIT);
+        if(level.setBlock(pos,Blocks.AIR.defaultBlockState(),Block.UPDATE_CLIENTS | Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS))
+            level.updateNeighboursOnBlockSet(pos,old);
+        return true;
+    }
+    boolean destroyRubyCell(LivingEntity source,BlockPos pos) {
+        if(source instanceof ServerPlayer player) return destroyRubyCell(player,pos);
+        var level=(ServerLevel)source.level();
+        if(level.isOutsideBuildHeight(pos) || level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)==null) return false;
+        var old=level.getBlockState(pos);
+        if(old.isAir()) return false;
+        level.destroyBlock(pos,true,source,Block.UPDATE_LIMIT);
         if(level.setBlock(pos,Blocks.AIR.defaultBlockState(),Block.UPDATE_CLIENTS | Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS))
             level.updateNeighboursOnBlockSet(pos,old);
         return true;
@@ -1219,6 +1248,7 @@ public final class LbcWands {
     /** Радиус взрыва native firework обходит canHitEntity; союзников защищаем и в финальном уроне. */
     public boolean allowDamage(Entity victim,DamageSource source) {
         if(LbcTransformator.managed(source.getDirectEntity())) return game.items().transformator().canAffect(source.getDirectEntity(),victim);
+        if(LbcStalin.managed(source.getDirectEntity())) return game.items().stalin().canAffect(source.getDirectEntity(),victim);
         if(LbcPotionSpawnerDrops.managed(source.getDirectEntity())) return game.items().potionSpawnerDrops().canAffect(source.getDirectEntity(),victim);
         if(LbcCreatureDrops.managed(source.getDirectEntity())) return game.items().creatureDrops().canAffect(source.getDirectEntity(),victim);
         if(LbcDroneDrops.managed(source.getDirectEntity())) return game.items().droneDrops().canAffect(source.getDirectEntity(),victim);

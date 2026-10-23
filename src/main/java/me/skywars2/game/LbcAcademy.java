@@ -3,6 +3,7 @@ package me.skywars2.game;
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
@@ -31,6 +32,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayDeque;
+import java.util.List;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
@@ -44,6 +46,8 @@ public final class LbcAcademy {
     private static final Identifier TEMPLATE = Identifier.parse("lbc:magic_academy");
     private static final String ENTITY_TAG = "skywars2.academy";
     private static final String BUILDING_TAG = "skywars2.academy.building";
+    public static final String SINGLE_USE_WELCOME = "welcome_to_single_use_academy";
+    private static final String SINGLE_PANEL = "skywars2.academy.single_panel";
     private static final CompoundTag TOKEN_DATA = flag("academy_token"), BUILDING_DATA = flag("magic_academy");
     public static final Item TOKEN = registerToken();
     private enum Wand {
@@ -107,6 +111,10 @@ public final class LbcAcademy {
     private final Set<Entity> entities = new HashSet<>();
     private final Map<UUID, Long> lastInteractions = new HashMap<>();
     private final ArrayDeque<Placement> placements = new ArrayDeque<>();
+    private final Map<UUID,Placement> singleUse = new HashMap<>();
+    private final Map<GlobalPos,Placement> panelOwners = new HashMap<>();
+    private final Set<GlobalPos> pendingWhite = new HashSet<>();
+    private boolean wasStopped;
     // Источники одной серии ссылаются на один счётчик: 85 TNT не дают 85 очков за одну цель.
     private final Map<Entity, BlastTrial> blastSources = new IdentityHashMap<>();
     private Placement placing;
@@ -118,12 +126,17 @@ public final class LbcAcademy {
         final String epoch;
         final boolean token;
         final Set<Entity> spawned = new HashSet<>();
+        final Set<GlobalPos> panels = new HashSet<>();
+        final List<BlockPos> background;
+        boolean spent;
         final long seed;
         int row;
         Placement(StructureTemplate template, ServerLevel level, BlockPos origin, Vec3 source,
                   String epoch, boolean token, long seed) {
             this.template = template; this.level = level; this.origin = origin; this.source = source;
             this.epoch = epoch; this.token = token; this.seed = seed;
+            this.background = template.filterBlocks(origin,new StructurePlaceSettings(),
+                    Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.BLUE)).stream().map(block -> block.pos().immutable()).toList();
         }
     }
     static final class BlastTrial {
@@ -145,6 +158,8 @@ public final class LbcAcademy {
     /** Съедаем также offhand callback: нажатие по NPC не должно одновременно кастовать жезл. */
     public boolean interact(ServerPlayer player, InteractionHand hand, Entity target) {
         if (!target.entityTags().contains("magic_academy")) return false;
+        var academy = singleUse.get(target.getUUID());
+        if (target.isRemoved() || !target.isAlive() || academy != null && academy.spent) return true;
         if (target.entityTags().contains(BUILDING_TAG)) return true;
         if (hand != InteractionHand.MAIN_HAND || !active(player) || target.level() != player.level()
                 || game.items().frost().isFrozen(player) || player.entityTags().contains("time_stopped")
@@ -171,6 +186,7 @@ public final class LbcAcademy {
                     .withLineAdded(Component.translatable("upgraded_item").withStyle(style ->
                             style.withColor(ChatFormatting.GREEN).withItalic(false))));
             player.setItemInHand(hand, upgraded);
+            if (academy != null) consume(academy);
             game.lbc().academyPromoted(player);
             player.getInventory().setChanged();
             player.containerMenu.broadcastChanges();
@@ -355,8 +371,23 @@ public final class LbcAcademy {
 
     public boolean loaded(Entity entity) {
         if (stale(entity)) { entity.discard(); return true; }
+        var academy = singleUse.get(entity.getUUID());
+        if (academy != null) {
+            if (academy.spent) { entity.discard(); return true; }
+            academy.spawned.removeIf(previous -> previous.getUUID().equals(entity.getUUID()));
+            academy.spawned.add(entity);
+        }
         if (placing != null) {
             entity.entityTags().add(ENTITY_TAG); entity.entityTags().add(BUILDING_TAG);
+            if (placing.token) {
+                singleUse.put(entity.getUUID(),placing);
+                if (entity.entityTags().contains("magic_academy")) entity.entityTags().add(SINGLE_PANEL);
+                if (entity instanceof net.minecraft.world.entity.Display.TextDisplay label) {
+                    label.setText(Component.translatableWithFallback(SINGLE_USE_WELCOME,"Single-use Academy of Magic")
+                            .withStyle(label.getText().getStyle()));
+                    entity.entityTags().add(SINGLE_PANEL);
+                }
+            }
             game.items().markCurrentItemEpoch(entity); entities.add(entity); placing.spawned.add(entity); return true;
         }
         if (entity.entityTags().contains(ENTITY_TAG)) {
@@ -389,6 +420,9 @@ public final class LbcAcademy {
         return player.isAlive() && !player.isRemoved() && player.level() == game.maps().level() && game.canUseGameplayItems(player);
     }
     public void tick() {
+        boolean stopped = game.items().timeStop().stopped(game.maps().level());
+        if (wasStopped && !stopped) for (var cell : Set.copyOf(pendingWhite)) repaint(cell);
+        wasStopped = stopped;
         // Удалённый TNT взрывается до следующего END_SERVER_TICK: очищаем только после damage callbacks.
         blastSources.keySet().removeIf(Entity::isRemoved);
         for (var it = drops.iterator(); it.hasNext();) {
@@ -443,6 +477,14 @@ public final class LbcAcademy {
                             Math.min(bounds.maxZ(), z*16+15)));
                 }
         } finally { placing = null; }
+        // Claim a background row when it is written, including during overlapping construction.
+        for (var pos : part.background) if (pos.getY() == origin.getY()+part.row
+                && part.level.getBlockState(pos).is(Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.BLUE))) {
+            var cell = GlobalPos.of(part.level.dimension(),pos);
+            if (part.token) { part.panels.add(cell); panelOwners.put(cell,part); }
+            else panelOwners.remove(cell);
+            pendingWhite.remove(cell);
+        }
         if (++part.row < size.getY()) placements.addLast(part);
         else {
             part.spawned.forEach(entity -> entity.entityTags().remove(BUILDING_TAG));
@@ -457,6 +499,29 @@ public final class LbcAcademy {
                             Set.of(), player.getYRot(), player.getXRot(), false);
             }
         }
+    }
+    /** Commit before removing entities: another player's click must see the same spent state. */
+    private void consume(Placement academy) {
+        academy.spent = true;
+        for (var entity : Set.copyOf(academy.spawned)) if (entity.entityTags().contains(SINGLE_PANEL)
+                && !entity.isRemoved()) entity.discard();
+        for (var cell : academy.panels) if (panelOwners.get(cell) == academy) repaint(cell);
+    }
+    private void repaint(GlobalPos cell) {
+        var academy = panelOwners.get(cell);
+        if (academy == null || !academy.spent || !game.items().currentEpoch(academy.epoch)) { pendingWhite.remove(cell); return; }
+        var level = academy.level; var pos = cell.pos();
+        if (game.items().timeStop().stopped(level) || level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)==null) {
+            pendingWhite.add(cell); return;
+        }
+        if (level.getBlockState(pos).is(Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.BLUE))) level.setBlock(pos,Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.WHITE).defaultBlockState(),
+                net.minecraft.world.level.block.Block.UPDATE_CLIENTS|net.minecraft.world.level.block.Block.UPDATE_KNOWN_SHAPE);
+        pendingWhite.remove(cell); panelOwners.remove(cell);
+    }
+    public void chunkLoaded(net.minecraft.world.level.chunk.LevelChunk chunk) {
+        if (pendingWhite.isEmpty()) return;
+        for (var cell : Set.copyOf(pendingWhite)) if (cell.dimension().equals(chunk.getLevel().dimension())
+                && chunk.getPos().equals(new net.minecraft.world.level.ChunkPos(cell.pos().getX()>>4,cell.pos().getZ()>>4))) repaint(cell);
     }
     private boolean stale(Entity entity) {
         for (var tag : entity.entityTags())
@@ -478,6 +543,7 @@ public final class LbcAcademy {
     int pendingRow() { return placements.isEmpty() ? -1 : placements.peekFirst().row; }
     public void stop() {
         drops.clear(); placements.clear(); lastInteractions.clear(); blastSources.clear();
+        singleUse.clear(); panelOwners.clear(); pendingWhite.clear(); wasStopped = false;
         var old = Set.copyOf(entities); entities.clear(); old.forEach(Entity::discard);
     }
 }

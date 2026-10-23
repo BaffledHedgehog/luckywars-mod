@@ -28,6 +28,7 @@ dependencies {
 processResources {
     include 'data/lbc/loot_table/ported/reactive_shish.json', 'data/lbc/loot_table/ported/shish_wall_wand.json'
     include 'data/lbc/loot_table/ported/transformator_drop.json', 'data/lbc/loot_table/ported/magic_academy_drop.json'
+    include 'data/lbc/loot_table/ported/stalin_drop.json'
     include 'data/lbc/loot_table/ported/ultraponos_drop.json', 'data/lbc/structure/ponos.nbt'
     include 'data/lbc/loot_table/ported/antigravity_drop.json'
     include 'data/lbc/loot_table/ported/pisa_boats_drop.json', 'data/lbc/loot_table/pisa_relic.json', 'data/lbc/loot_table/pisa_relic_upgraded.json'

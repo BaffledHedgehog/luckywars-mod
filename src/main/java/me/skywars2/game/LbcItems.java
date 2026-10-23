@@ -216,6 +216,7 @@ public final class LbcItems {
     private final LbcUltraponos ultraponos;
     private final LbcReactive reactive;
     private final LbcTransformator transformator;
+    private final LbcStalin stalin;
     private final LbcSkyHazards skyHazards;
     private final LbcDroneDrops droneDrops;
     private final LbcAntDrops antDrops;
@@ -651,6 +652,7 @@ public final class LbcItems {
         this.ultraponos = new LbcUltraponos(game);
         this.reactive = new LbcReactive(game,mana);
         this.transformator = new LbcTransformator(game);
+        this.stalin = new LbcStalin(game);
         this.skyHazards = new LbcSkyHazards(game);
         this.droneDrops = new LbcDroneDrops(game);
         this.antDrops = new LbcAntDrops(game);
@@ -741,6 +743,7 @@ public final class LbcItems {
                 && wands.allowDamage(victim,source) && kfcRewards.allowDamage(victim,source)
                 && helicopterEncounter.allowDamage(victim,source) && tntDrops.allowDamage(victim,source) && creeperDrops.allowDamage(victim,source) && zombieTntDrops.canAffect(source.getDirectEntity(),victim)
                 && transformator.canAffect(source.getDirectEntity(),victim)
+                && stalin.canAffect(source.getDirectEntity(),victim)
                 && luckyPigs.canAffect(source.getDirectEntity(),victim)
                 && beeDrops.canAffect(source.getDirectEntity(),victim)
                 && slabDrops.canAffect(source.getDirectEntity(),victim)
@@ -772,6 +775,7 @@ public final class LbcItems {
     public LbcUltraponos ultraponos() { return ultraponos; }
     public LbcReactive reactive() { return reactive; }
     public LbcTransformator transformator() { return transformator; }
+    public LbcStalin stalin() { return stalin; }
     public LbcSkyHazards skyHazards() { return skyHazards; }
     public LbcDroneDrops droneDrops() { return droneDrops; }
     public LbcAntDrops antDrops() { return antDrops; }
@@ -834,6 +838,7 @@ public final class LbcItems {
         }
         helicopterEncounter.loaded(entity);
         transformator.loaded(entity);
+        stalin.loaded(entity);
         indirectKills.supportEntityLoaded(entity);
         specialDrops.loaded(entity);
         luckyPigs.loaded(entity);
@@ -949,6 +954,7 @@ public final class LbcItems {
         stand.unloaded(entity);
         helicopterEncounter.entityUnloaded(entity);
         transformator.unloaded(entity);
+        stalin.unloaded(entity);
         kfcRewards.entityUnloaded(entity);
         magic.unloaded(entity);
         frost.unloaded(entity);
@@ -1344,6 +1350,7 @@ public final class LbcItems {
         ultraponos.tick();
         reactive.tick();
         transformator.tick();
+        stalin.tick();
         specialDrops.tick();
         portalDrops.tick();
         luckyPigs.tick();
@@ -1497,6 +1504,7 @@ public final class LbcItems {
         ultraponos.stop();
         reactive.stop();
         transformator.stop();
+        stalin.stop();
         skyHazards.stop();
         portalDrops.stop();
         luckyPigs.stop();

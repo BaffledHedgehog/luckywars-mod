@@ -53,6 +53,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         me.skywars2.game.LbcUltraponosDropItem.register();
         me.skywars2.game.LbcReactiveItems.register();
         me.skywars2.game.LbcNpcDropItems.register();
+        me.skywars2.game.LbcStalinDropItem.register();
         me.skywars2.game.LbcAntigravityDropItem.register();
         LbcCraftingRecipe.register();
         FullInvisibility.register();
@@ -110,6 +111,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         ServerChunkEvents.CHUNK_LOAD.register((level, chunk, generated) -> {
             if (game != null && level == game.maps().level()) game.items().magic().chunkLoaded(chunk);
             if (game != null && level == game.maps().level()) game.items().bedrock().chunkLoaded(chunk);
+            if (game != null && level == game.maps().level()) game.items().academy().chunkLoaded(chunk);
             if (game != null && level == game.maps().level()) game.items().tanner().chunkLoaded(chunk);
             if (game != null && level == game.maps().level()) game.items().kiuas().chunkLoaded(chunk);
         });

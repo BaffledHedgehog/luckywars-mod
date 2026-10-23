@@ -5,7 +5,11 @@ now supersedes the pending Transformator/Academy recommendations below. Both
 scoped acquisitions passed native runtime checks and are installed. User chose
 direct6/12 undead damage with no Instant Health effect; global electric rules
 apply to the source rays. This audit's source facts remain historical evidence.
-Stalin and the Mom/Otchim/Absurd Child chain remain source-only candidates.
+Stalin is now qualified in [STALIN_SOURCE.md](STALIN_SOURCE.md), build42ad616b;
+two actual matches and16 suite results passed. The notes below are historical source
+research, superseded by the implementation contracts where present. The Mom/Otchim/Absurd Child chain remains source-only.
+User subsequently nerfed only Academy-token instances to one promotion: see
+[ACADEMY_SINGLE_USE_PORT.md](ACADEMY_SINGLE_USE_PORT.md).
 
 Read-only audit; no code/build/server/RP changes. Three user sources untouched.
 Roots: OLD=E:/servers_mew/cringe1_21_4_skywars; NEW=E:/servers_mew/skywars2_last/luckywars-mod.

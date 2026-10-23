@@ -1,5 +1,24 @@
 # Структура переноса игрового цикла
 
+## One-use Academy token and Stalin encounter - QUALIFIED
+
+[Token contract](agent_notes/ACADEMY_SINGLE_USE_PORT.md),
+[Stalin contract](agent_notes/STALIN_SOURCE.md). LbcAcademy remains the sole
+building/trial owner. Token placements own their separate label and single
+promotion commit; unlimited base acquisition is preserved. Scoped panel ownership
+prevents another Academy's background being repainted. LbcStalin owns only the
+native piglin encounter and source five-tick dispatcher; gun geometry/terrain
+reuse LbcAk47/LbcWands. Native actor death owns the existing usable AK reward;
+LbcIndirectKills retains the throwing player's causal credit. Stop/unload is quiet.
+
+Build42ad616b passed16 suite results in two actual mode1 matches (42.05s),
+including the real seeded five-tick aim/spread dispatcher and usable death reward.
+Installed while main was stopped; rollback112316bc retained. Evidence:
+`build/verification/stalin-academy-final/`. Three user sources preserved.
+No real-client pixels, actual disk restart/unload/disconnect or peak-capacity claim.
+Next source-only encounter chain: Mom/Otchim/Absurd Child in NEXT_NPC_DROPS_SOURCE.
+
+
 ## Hostile Helicopter Boss encounter - QUALIFIED (user)
 
 [Current contract](agent_notes/HELICOPTER_ENCOUNTER_PORT.md). The dropped Polymer token now creates the hostile

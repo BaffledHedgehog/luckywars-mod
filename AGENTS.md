@@ -1,5 +1,35 @@
 # Проект SkyWars
 
+## One-use Academy token / Stalin encounter - QUALIFIED (23 October 2026)
+
+[Token contract](agent_notes/ACADEMY_SINGLE_USE_PORT.md) and
+[encounter contract](agent_notes/STALIN_SOURCE.md). User nerfed only academy_token:
+its label uses welcome_to_single_use_academy, one actual promotion quietly removes
+its own text/interaction and repaints only its eight owned blue panel cells white.
+Trial admission/readiness never spend it; base magic_academy_drop stays unlimited.
+Panel claims follow actual row placement, including overlap with unlimited bases;
+Time Stop/unloaded chunks defer repaint without forced loads. No original RP edit.
+
+Stalin is a native500HP zombified piglin using source retaliation/melee, source
+nullable initial gun timer and shared AK physical ray/terrain engine. Shooting
+never resets the old timer. Source sorted-facing forks share one distance counter:
+nearest full ray plus origin samples for remaining targets. Communism affects aim,
+not collision. Native actor death emits the existing working infinite AK reward;
+thrower causal credit and WILD role guards apply. Quiet unload/stop never rewards.
+New ready leaf:lbc:ported/stalin_drop. Broad loli pools remain gated.
+
+Build42ad616b passed two actual isolated mode1 matches:16 recorded suite results
+in42.05s;253sources/690classes/2716resources match tested artifacts exactly.
+Evidence:build/verification/stalin-academy-final/. Installed main while stopped;
+rollback112316bc retained; agent did not start main. Three user sources preserved.
+Known fake-player Polymer context warning remains; no final suite failed. Native
+placement/promotions/races/overlap, production aim/shot/death/reward, shared AK and
+actual stop were checked. No real-client pixels, full natural trajectories, actual
+disk restart/unload/disconnect or peak capacity claim. Early fixture attempts
+remain with explanations in the source contracts.
+<!-- stalin-academy-status-end -->
+
+
 ## Transformator / base Academy acquisition - QUALIFIED (23 October 2026)
 
 [Contract](agent_notes/TRANSFORMATOR_ACADEMY_PORT.md). Two new ready leaves: lbc:ported/transformator_drop and
