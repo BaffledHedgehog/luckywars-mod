@@ -1,5 +1,27 @@
 # Проект SkyWars
 
+## Ender wand / Bad Wiki - QUALIFIED (23 October 2026)
+
+[Contract](agent_notes/ENDER_WIKI_PORT.md). Four scoped leaves close ordinary/Academy Ender and Bad Wiki.
+Source84 random outcomes and28 selectable effects x3 tiers retain exact native
+levels/durations/presentation. Ender retains radius100, source noBorders center,
+Nether ceiling125, half-block landing and airborne100 trial. Used-hand Academy
+trials/promotions and free negative-mana mode/tier switches use existing owners.
+Three source RTP strengths reuse LbcColors, all3 HUD/KFC/purify/load/stop routes
+and causal displacement with later-player-hit precedence. The shared resident
+surface search replaces repeated void probes for these spells and purple color.
+Ordinary/Academy legacy dispatch explicitly differs by upgraded:1. No RP writes,
+new framework or broad reward-pool enablement; missing heavy chains stay gated.
+
+Build3f17da51 passed24 recorded suite results in two actual mode1 matches
+(50.02s), exact272sources/731classes/2751resources verified. Installed stopped
+main; rollbacka6e485fd retained and main not started. Three preexisting user
+sources remain unchanged/excluded. Evidence:build/verification/ender-wiki-final/.
+Known fake-player Polymer packet-context pair only. Native effect/fall boundaries
+include manual calls; no client pixels, actual disk restart/unload/disconnect,
+complete natural trajectories or peak-capacity claim.
+
+
 ## Neutral wand / Feather of Greed - QUALIFIED (23 October 2026)
 
 [Contract](agent_notes/NEUTRAL_WAND_PORT.md). Three scoped leaves:neutral_wand,

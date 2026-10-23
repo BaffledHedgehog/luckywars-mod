@@ -173,7 +173,7 @@ public final class LbcMana {
     }
     public void resetResources(ServerPlayer p) {
         maximum(p,5000); set(p,5000); baseRegen(p,10); write(p,"manaregen_visual",10);
-        clearEffects(p); overload.reset(p); write(p,"food_count",0); inventoryChanged(p);
+        clearEffects(p); overload.reset(p); write(p,"falltimer",0); write(p,"food_count",0); inventoryChanged(p);
     }
     public void clearEffects(LivingEntity p) {
         game.items().indirectKills().manaEffectCleared(p);
@@ -361,10 +361,10 @@ public final class LbcMana {
         int value=hudValue(p,objective); if(value<=0) return;
         hud.append(Component.literal("  "+glyph+" ")).append(Component.literal(Integer.toString(value)).withStyle(color));
     }
-    void forget(ServerPlayer p) { gear.remove(p.getUUID()); dirty.remove(p.getUUID()); clearEffects(p); overload.reset(p); }
+    void forget(ServerPlayer p) { write(p,"falltimer",0); gear.remove(p.getUUID()); dirty.remove(p.getUUID()); clearEffects(p); overload.reset(p); }
     void stop() {
         gear.clear(); dirty.clear(); pendingPotions.clear();
         for(var p:List.copyOf(statEffects)) for(String timer:POTION_TIMERS) write(p,timer,0);
-        statEffects.clear(); for(var p:game.server().getPlayerList().getPlayers()) { clearEffects(p); overload.reset(p); }
+        statEffects.clear(); for(var p:game.server().getPlayerList().getPlayers()) { write(p,"falltimer",0); clearEffects(p); overload.reset(p); }
     }
 }

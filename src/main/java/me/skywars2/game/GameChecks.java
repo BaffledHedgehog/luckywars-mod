@@ -736,6 +736,9 @@ public final class GameChecks {
                                 case "normal-drone-stop-probe" -> { NormalDroneChecks.stopProbe(game); return; }
                                 case "normal-drone-cleanup" -> { NormalDroneChecks.cleanup(game); return; }
                                 case "special-eggs" -> { SpecialEggChecks.run(game); return; }
+                                case "ender-wiki" -> { EnderWikiChecks.run(game); return; }
+                                case "ender-wiki-stop-probe" -> { EnderWikiChecks.stopProbe(game); return; }
+                                case "ender-wiki-cleanup" -> { EnderWikiChecks.cleanup(game); return; }
                                 case "neutral-wand" -> { NeutralWandChecks.run(game); return; }
                                 case "neutral-wand-stop-probe" -> { NeutralWandChecks.stopProbe(game); return; }
                                 case "neutral-wand-cleanup" -> { NeutralWandChecks.cleanup(game); return; }
@@ -1119,6 +1122,7 @@ public final class GameChecks {
                 StalinEncounterChecks.tick(game);
                 NormalDroneChecks.tick(game);
                 SpecialEggChecks.tick(game);
+        EnderWikiChecks.tick(game);
         NeutralWandChecks.tick(game);
         BloodConfuseChecks.tick(game);
         EvokerBassChecks.tick(game);

@@ -56,6 +56,10 @@ import net.minecraft.world.scores.ScoreHolder;
 
 /** Жезлы используют общий расход маны и каст-хуки; временные снаряды хранит существующий трекер. */
 public final class LbcWands {
+    public static final Item ENDER=register("skywars2:ender_wand","ender_wand","lbc:enderwand");
+    public static final Item ACADEMY_ENDER=register("skywars2:academy_ender_wand","ender_wand","lbc:enderwand");
+    public static final Item BAD_WIKI=register("skywars2:bad_wiki","bad_wiki","lbc:badwiki");
+    public static final Item ACADEMY_BAD_WIKI=register("skywars2:academy_bad_wiki","bad_wiki","lbc:badwiki");
     public static final Item NEUTRAL=register("skywars2:neutral_wand","neutral_wand","lbc:neutralwand");
     public static final Item ACADEMY_NEUTRAL=register("skywars2:academy_neutral_wand","neutral_wand","lbc:neutralwand");
     public static final Item FEATHER_GREED=register("skywars2:feather_greed","feather_greed","minecraft:feather");
@@ -133,6 +137,10 @@ public final class LbcWands {
     public static final Item ACADEMY_EXOPERSO=register("skywars2:academy_exoperso_wand","megumin_wand","lbc:exoperso");
     public static final Item ACADEMY_EXASPERATO=register("skywars2:academy_exasperato_wand","exasperato_wand","lbc:exasperato");
     private enum Spell {
+        ACADEMY_ENDER(LbcWands.ACADEMY_ENDER,"enderwand","ender_wand_mana_use",2500),
+        REGULAR_ENDER(LbcWands.ENDER,"enderwand","ender_wand_mana_use",2500),
+        ACADEMY_BAD_WIKI(LbcWands.ACADEMY_BAD_WIKI,"badwiki","bad_wiki_mana_use",500),
+        REGULAR_BAD_WIKI(LbcWands.BAD_WIKI,"badwiki","bad_wiki_mana_use",500),
         ACADEMY_NEUTRAL(LbcWands.ACADEMY_NEUTRAL,"neutralmage","neutral_wand_mana_use",1200),
         REGULAR_NEUTRAL(LbcWands.NEUTRAL,"neutralmage","neutral_wand_mana_use",1200),
         ACADEMY_BLOOD(LbcWands.ACADEMY_BLOOD,"bloodmagic","blood_wand_mana_use",5000),
@@ -212,6 +220,7 @@ public final class LbcWands {
         final int defaultCost;
         Spell(Item item,String flag,String cost,int defaultCost) {
             this.item=item; this.flag=flag(flag); this.cost=ScoreHolder.forNameOnly(cost); this.defaultCost=defaultCost;
+            if(item==LbcWands.ACADEMY_ENDER || item==LbcWands.ACADEMY_BAD_WIKI) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_NEUTRAL) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_BLOOD || item==LbcWands.ACADEMY_CONFUSE) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_EVOKER || item==LbcWands.ACADEMY_BASS) this.flag.putInt("upgraded",1);
@@ -392,6 +401,9 @@ public final class LbcWands {
         Spell spell=null;
         for(var candidate:SPELLS) if(matches(stack,candidate.item,candidate.flag)) { spell=candidate; break; }
         if(spell==null) return false;
+        if(spell==Spell.REGULAR_ENDER || spell==Spell.ACADEMY_ENDER || spell==Spell.REGULAR_BAD_WIKI || spell==Spell.ACADEMY_BAD_WIKI)
+            return game.items().enderWiki().use(player,hand,stack,spell==Spell.REGULAR_BAD_WIKI || spell==Spell.ACADEMY_BAD_WIKI,
+                    spell==Spell.ACADEMY_BAD_WIKI || spell==Spell.ACADEMY_ENDER);
         if(spell==Spell.REGULAR_NEUTRAL || spell==Spell.ACADEMY_NEUTRAL) return game.items().neutral().use(player,hand,stack,spell==Spell.ACADEMY_NEUTRAL);
         if(spell==Spell.REGULAR_BLOOD || spell==Spell.ACADEMY_BLOOD || spell==Spell.REGULAR_CONFUSE || spell==Spell.ACADEMY_CONFUSE)
             return game.items().bloodConfuse().use(player,hand,stack,spell==Spell.REGULAR_BLOOD || spell==Spell.ACADEMY_BLOOD,

@@ -105,7 +105,7 @@ public final class LbcColors {
                 particle(p,ParticleTypes.CLOUD,3,.5,1,.5,.04);
             }
             case 6 -> {
-                enemies(p,20,false,e->{ if(e instanceof LivingEntity living && e.getType().builtInRegistryHolder().is(MOBS)) curse(living,600); });
+                enemies(p,20,false,e->{ if(e instanceof LivingEntity living && e.getType().builtInRegistryHolder().is(MOBS)) curse(living,600,p); });
                 portals(p); spread(p,game.config().noBorders ? p.position() : Vec3.ZERO,game.config().noBorders ? 200 : 190);
                 portals(p);
             }
@@ -213,15 +213,15 @@ public final class LbcColors {
     private static void portals(ServerPlayer p) {
         particle(p,ParticleTypes.REVERSE_PORTAL,100,.1,.6,.1,1); sound(p,SoundEvents.ENDERMAN_TELEPORT);
     }
-    /** Нативный spreadplayers сохраняет поиск безопасной поверхности, включая Nether `under 120`. */
+    /** Finite resident search, preserving native ground/two-air/ceiling rules. */
     private void spread(LivingEntity target, Vec3 center, int radius) {
-        var source=game.server().createCommandSourceStack().withLevel(game.maps().level())
-                .withEntity(target).withPosition(target.position()).withSuppressedOutput();
-        String under=target.level().dimension().equals(Level.NETHER) ? " under 120" : "";
-        game.server().getCommands().performPrefixedCommand(source,"spreadplayers "+center.x+" "+center.z+" 0 "+radius+under+" false @s");
+        if(!(target.level() instanceof net.minecraft.server.level.ServerLevel level))return;
+        var destination=LbcSurfaceTeleport.destination(level,center,radius,level.dimension()==Level.NETHER?120:level.getMaxY()+1,target.getRandom());
+        if(destination==null)return;
+        if(target instanceof ServerPlayer p)p.teleportTo(level,destination.x,destination.y,destination.z,Set.of(),p.getYRot(),p.getXRot(),true);
+        else target.teleportTo(destination.x,destination.y,destination.z);
     }
 
-    // Цветовые ветки и RTP переиспользуют общие ресурсы; здесь больше нет отдельной системы маны.
     private ScoreAccess score(Entity entity, String name) {
         return game.items().mana().score(entity,name);
     }
@@ -231,23 +231,32 @@ public final class LbcColors {
     public void foodCount(ServerPlayer p,int value) { score(p,"food_count").set(value); }
     void resetResources(ServerPlayer p) { game.items().mana().resetResources(p); }
 
-    /** Raid Omen 40 в старом datapack превращался в накопительный RTP-таймер, не в обычное зелье. */
-    private void curse(LivingEntity target,int ticks) {
-        if(!target.canBeAffected(new MobEffectInstance(MobEffects.RAID_OMEN,ticks,40,false,false,false))) return;
-        var timer=score(target,"effect_rtp_1"); timer.add(ticks); teleporting.add(target);
+    private static final String[] RTP={"effect_rtp_1","effect_rtp_2","effect_rtp_3"};
+    public boolean isTeleportMarker(MobEffectInstance effect){return effect.is(MobEffects.RAID_OMEN)&&effect.getAmplifier()>=40&&effect.getAmplifier()<=42;}
+    /** Transport only: do not start vanilla raids or replace other Raid Omen variants. */
+    public boolean acceptTeleport(LivingEntity target,MobEffectInstance effect,Entity source){
+        if(!isTeleportMarker(effect)||!game.playing()||target.level()!=game.maps().level()||!eligible(target)||!target.canBeAffected(effect))return false;
+        if(target instanceof ServerPlayer p&&game.items().magic().rejectCustomEffect(p))return false;
+        int tier=effect.getAmplifier()-40;
+        score(target,RTP[tier]).add(Math.max(0,effect.getDuration()));teleporting.add(target);
+        var owner=LbcIndirectKills.playerSource(source);if(owner!=null)game.items().indirectKills().displaced(target,owner);
+        return true;
     }
-    public int teleportTicks(LivingEntity target) { return score(target,"effect_rtp_1").get(); }
+    private void curse(LivingEntity target,int ticks,ServerPlayer owner) { acceptTeleport(target,new MobEffectInstance(MobEffects.RAID_OMEN,ticks,40,false,false,false),owner); }
+    public int teleportTicks(LivingEntity target) { return score(target,RTP[0]).get(); }
     void addPlayerCounters(ServerPlayer player) {
-        int remaining=teleportTicks(player);
-        if(remaining>0 && !game.items().magic().rejectCustomEffect(player)) score(player,"effect_rtp_1").set(remaining+1);
+        for(var key:RTP){int remaining=score(player,key).get();
+            if(remaining>0&&!game.items().magic().rejectCustomEffect(player))score(player,key).set(remaining+1);
+        }
     }
-    void clearEffects(LivingEntity target) { score(target,"effect_rtp_1").set(0); teleporting.remove(target); }
+    void clearEffects(LivingEntity target) { for(var key:RTP)score(target,key).set(0);teleporting.remove(target); }
     void loaded(Entity e) {
         if(e instanceof LivingEntity living) {
             effectsChanged(living);
-            var board=game.server().getScoreboard(); var objective=board.getObjective("effect_rtp_1");
-            var value=objective==null ? null : board.getPlayerScoreInfo(living,objective);
-            if(value!=null && value.value()>0) teleporting.add(living);
+            var board=game.server().getScoreboard();
+            for(var key:RTP){var objective=board.getObjective(key);var value=objective==null?null:board.getPlayerScoreInfo(living,objective);
+                if(value!=null&&value.value()>0)teleporting.add(living);
+            }
         }
     }
     void unloaded(Entity e) { teleporting.remove(e); waterEffects.remove(e); }
@@ -286,10 +295,14 @@ public final class LbcColors {
             if(target instanceof ServerPlayer player && game.items().magic().rejectCustomEffect(player)) {
                 clearEffects(target); continue;
             }
-            int ticks=teleportTicks(target);
-            if(ticks<=0) { teleporting.remove(target); continue; }
-            if(target.entityTags().contains("sin_greed_active")) continue;
-            spread(target,target.position(),10); score(target,"effect_rtp_1").set(Math.max(0,ticks-5));
+            if(target.entityTags().contains("sin_greed_active")||target.entityTags().contains("time_stopped"))continue;
+            boolean remaining=false;
+            for(int tier=0;tier<3;tier++){
+                int ticks=score(target,RTP[tier]).get();if(ticks<=0)continue;
+                spread(target,target.position(),10*(tier+1));score(target,RTP[tier]).set(Math.max(0,ticks-5));
+                if(ticks>5)remaining=true;
+            }
+            if(!remaining)teleporting.remove(target);
         }
     }
     void stop() { waterEffects.clear(); for(var target:List.copyOf(teleporting)) clearEffects(target); }

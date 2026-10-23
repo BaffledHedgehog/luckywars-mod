@@ -41,8 +41,12 @@ public abstract class LbcColorEffectsMixin {
             at=@At("HEAD"),cancellable=true)
     private void skywars2$projectileEffect(MobEffectInstance effect,Entity source,CallbackInfoReturnable<Boolean> ci) {
         var game=SkyWars2.game();
-        if(game!=null && !game.items().indirectKills().allowProjectileEffect((LivingEntity)(Object)this,effect,source))
-            ci.setReturnValue(false);
+        if(game!=null) {
+            var target=(LivingEntity)(Object)this;
+            if(!game.items().indirectKills().allowProjectileEffect(target,effect,source)) { ci.setReturnValue(false); return; }
+            if(game.items().magic().colors().isTeleportMarker(effect))
+                ci.setReturnValue(game.items().magic().colors().acceptTeleport(target,effect,source));
+        }
     }
     @Inject(method="canBeAffected",at=@At("HEAD"),cancellable=true)
     private void skywars2$artifactEffectGuard(MobEffectInstance effect, CallbackInfoReturnable<Boolean> ci) {

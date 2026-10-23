@@ -174,6 +174,7 @@ public final class LbcItems {
     private final LbcMana mana;
     private final LbcTerra terra;
     private final LbcWands wands;
+    private final LbcEnderWiki enderWiki;
     private final LbcNeutral neutral;
     private final LbcBloodConfuse bloodConfuse;
     private final LbcEvokerBass evokerBass;
@@ -444,6 +445,8 @@ public final class LbcItems {
         hudPositive(component,"  \uE135 ",kfcFood.gigaponosRemaining(source),ChatFormatting.WHITE);
         mana.appendHudManaStatuses(source,component);
         hudPositive(component,"  \uE142 ",mana.hudValue(source,"effect_rtp_1"),ChatFormatting.WHITE);
+        hudPositive(component,"  \uE142 ",mana.hudValue(source,"effect_rtp_2"),ChatFormatting.WHITE);
+        hudPositive(component,"  \uE142 ",mana.hudValue(source,"effect_rtp_3"),ChatFormatting.WHITE);
         var rocket=rockets.get(source.getUUID());
         if(rocket!=null) component.append(rocketHudComponent(rocket));
         int akAmmo=akAmmoHudValue(source);
@@ -689,6 +692,7 @@ public final class LbcItems {
         this.teleport = new LbcTeleport(game);
         this.ruby = new LbcRuby(game);
         this.consuming = new LbcConsuming(game);
+        this.enderWiki = new LbcEnderWiki(game);
         this.neutral = new LbcNeutral(game);
         this.bloodConfuse = new LbcBloodConfuse(game);
         this.evokerBass = new LbcEvokerBass(game);
@@ -822,6 +826,7 @@ public final class LbcItems {
     public LbcTeleport teleport() { return teleport; }
     public LbcRuby ruby() { return ruby; }
     public LbcConsuming consuming() { return consuming; }
+    public LbcEnderWiki enderWiki() { return enderWiki; }
     public LbcNeutral neutral() { return neutral; }
     public LbcBloodConfuse bloodConfuse() { return bloodConfuse; }
     public LbcEvokerBass evokerBass() { return evokerBass; }
@@ -1363,6 +1368,7 @@ public final class LbcItems {
         teleport.tick();
         ruby.tick();
         consuming.tick();
+        enderWiki.tick();
         neutral.tick();
         evokerBass.tick();
         lifestealer.tick();

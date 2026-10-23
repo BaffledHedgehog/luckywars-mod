@@ -26,6 +26,8 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/ender_wand.json', 'data/lbc/loot_table/ported/academy_ender_wand.json'
+    include 'data/lbc/loot_table/ported/bad_wiki.json', 'data/lbc/loot_table/ported/academy_bad_wiki.json', 'skywars2/bad_wiki_effects.json'
     include 'data/lbc/loot_table/ported/neutral_wand.json', 'data/lbc/loot_table/ported/academy_neutral_wand.json'
     include 'data/lbc/loot_table/ported/feather_greed.json', 'skywars2/neutral_wand_presets.json'
     include 'data/lbc/loot_table/ported/blood_wand.json', 'data/lbc/loot_table/ported/academy_blood_wand.json'

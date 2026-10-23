@@ -1,0 +1,762 @@
+{
+  "random": [
+    {
+      "index": 1,
+      "effect": "absorption",
+      "ticks": 2400,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 2,
+      "effect": "blindness",
+      "ticks": 400,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 3,
+      "effect": "conduit_power",
+      "ticks": 400,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 4,
+      "effect": "fire_resistance",
+      "ticks": 1200,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 5,
+      "effect": "glowing",
+      "ticks": 1200,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 6,
+      "effect": "haste",
+      "ticks": 2400,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 7,
+      "effect": "health_boost",
+      "ticks": 4000,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 8,
+      "effect": "hunger",
+      "ticks": 1200,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 9,
+      "effect": "instant_damage",
+      "ticks": 1,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 10,
+      "effect": "instant_health",
+      "ticks": 1,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 11,
+      "effect": "invisibility",
+      "ticks": 1200,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 12,
+      "effect": "jump_boost",
+      "ticks": 1200,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 13,
+      "effect": "levitation",
+      "ticks": 600,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 14,
+      "effect": "mining_fatigue",
+      "ticks": 1200,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 15,
+      "effect": "nausea",
+      "ticks": 600,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 16,
+      "effect": "night_vision",
+      "ticks": 1200,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 17,
+      "effect": "poison",
+      "ticks": 600,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 18,
+      "effect": "regeneration",
+      "ticks": 600,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 19,
+      "effect": "resistance",
+      "ticks": 1200,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 20,
+      "effect": "saturation",
+      "ticks": 1,
+      "amplifier": 3,
+      "hidden": false
+    },
+    {
+      "index": 21,
+      "effect": "slow_falling",
+      "ticks": 600,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 22,
+      "effect": "slowness",
+      "ticks": 1200,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 23,
+      "effect": "speed",
+      "ticks": 1200,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 24,
+      "effect": "strength",
+      "ticks": 800,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 25,
+      "effect": "water_breathing",
+      "ticks": 1200,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 26,
+      "effect": "weakness",
+      "ticks": 800,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 27,
+      "effect": "wither",
+      "ticks": 600,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 28,
+      "effect": "absorption",
+      "ticks": 2400,
+      "amplifier": 1,
+      "hidden": false
+    },
+    {
+      "index": 29,
+      "effect": "blindness",
+      "ticks": 800,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 30,
+      "effect": "conduit_power",
+      "ticks": 400,
+      "amplifier": 1,
+      "hidden": false
+    },
+    {
+      "index": 31,
+      "effect": "fire_resistance",
+      "ticks": 1200,
+      "amplifier": 1,
+      "hidden": false
+    },
+    {
+      "index": 32,
+      "effect": "glowing",
+      "ticks": 2400,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 33,
+      "effect": "haste",
+      "ticks": 2400,
+      "amplifier": 1,
+      "hidden": false
+    },
+    {
+      "index": 34,
+      "effect": "health_boost",
+      "ticks": 4000,
+      "amplifier": 1,
+      "hidden": false
+    },
+    {
+      "index": 35,
+      "effect": "hunger",
+      "ticks": 1200,
+      "amplifier": 1,
+      "hidden": false
+    },
+    {
+      "index": 36,
+      "effect": "instant_damage",
+      "ticks": 1,
+      "amplifier": 1,
+      "hidden": false
+    },
+    {
+      "index": 37,
+      "effect": "instant_health",
+      "ticks": 1,
+      "amplifier": 1,
+      "hidden": false
+    },
+    {
+      "index": 38,
+      "effect": "invisibility",
+      "ticks": 1200,
+      "amplifier": 1,
+      "hidden": true
+    },
+    {
+      "index": 39,
+      "effect": "jump_boost",
+      "ticks": 1200,
+      "amplifier": 1,
+      "hidden": false
+    },
+    {
+      "index": 40,
+      "effect": "levitation",
+      "ticks": 600,
+      "amplifier": 1,
+      "hidden": false
+    },
+    {
+      "index": 41,
+      "effect": "mining_fatigue",
+      "ticks": 1200,
+      "amplifier": 1,
+      "hidden": false
+    },
+    {
+      "index": 42,
+      "effect": "nausea",
+      "ticks": 1200,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 43,
+      "effect": "night_vision",
+      "ticks": 2400,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 44,
+      "effect": "poison",
+      "ticks": 600,
+      "amplifier": 1,
+      "hidden": false
+    },
+    {
+      "index": 45,
+      "effect": "regeneration",
+      "ticks": 600,
+      "amplifier": 1,
+      "hidden": false
+    },
+    {
+      "index": 46,
+      "effect": "resistance",
+      "ticks": 1200,
+      "amplifier": 1,
+      "hidden": false
+    },
+    {
+      "index": 47,
+      "effect": "saturation",
+      "ticks": 1,
+      "amplifier": 1,
+      "hidden": false
+    },
+    {
+      "index": 48,
+      "effect": "slow_falling",
+      "ticks": 1200,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 49,
+      "effect": "slowness",
+      "ticks": 1200,
+      "amplifier": 1,
+      "hidden": false
+    },
+    {
+      "index": 50,
+      "effect": "speed",
+      "ticks": 1200,
+      "amplifier": 1,
+      "hidden": false
+    },
+    {
+      "index": 51,
+      "effect": "strength",
+      "ticks": 800,
+      "amplifier": 1,
+      "hidden": false
+    },
+    {
+      "index": 52,
+      "effect": "water_breathing",
+      "ticks": 1200,
+      "amplifier": 1,
+      "hidden": false
+    },
+    {
+      "index": 53,
+      "effect": "weakness",
+      "ticks": 800,
+      "amplifier": 1,
+      "hidden": false
+    },
+    {
+      "index": 54,
+      "effect": "wither",
+      "ticks": 600,
+      "amplifier": 1,
+      "hidden": false
+    },
+    {
+      "index": 55,
+      "effect": "absorption",
+      "ticks": 2400,
+      "amplifier": 2,
+      "hidden": false
+    },
+    {
+      "index": 56,
+      "effect": "blindness",
+      "ticks": 2000,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 57,
+      "effect": "conduit_power",
+      "ticks": 400,
+      "amplifier": 2,
+      "hidden": false
+    },
+    {
+      "index": 58,
+      "effect": "fire_resistance",
+      "ticks": 1200,
+      "amplifier": 2,
+      "hidden": false
+    },
+    {
+      "index": 59,
+      "effect": "glowing",
+      "ticks": 6000,
+      "amplifier": 0,
+      "hidden": false
+    },
+    {
+      "index": 60,
+      "effect": "haste",
+      "ticks": 2400,
+      "amplifier": 2,
+      "hidden": false
+    },
+    {
+      "index": 61,
+      "effect": "health_boost",
+      "ticks": 4000,
+      "amplifier": 2,
+      "hidden": false
+    },
+    {
+      "index": 62,
+      "effect": "hunger",
+      "ticks": 1200,
+      "amplifier": 2,
+      "hidden": false
+    },
+    {
+      "index": 63,
+      "effect": "instant_damage",
+      "ticks": 1,
+      "amplifier": 2,
+      "hidden": false
+    },
+    {
+      "index": 64,
+      "effect": "instant_health",
+      "ticks": 1,
+      "amplifier": 2,
+      "hidden": false
+    },
+    {
+      "index": 65,
+      "effect": "invisibility",
+      "ticks": 2400,
+      "amplifier": 1,
+      "hidden": true
+    },
+    {
+      "index": 66,
+      "effect": "jump_boost",
+      "ticks": 1200,
+      "amplifier": 2,
+      "hidden": false
+    },
+    {
+      "index": 67,
+      "effect": "levitation",
+      "ticks": 600,
+      "amplifier": 2,
+      "hidden": false
+    },
+    {
+      "index": 68,
+      "effect": "mining_fatigue",
+      "ticks": 1200,
+      "amplifier": 2,
+      "hidden": false
+    },
+    {
+      "index": 69,
+      "effect": "nausea",
+      "ticks": 2400,
+      "amplifier": 2,
+      "hidden": false
+    },
+    {
+      "index": 70,
+      "effect": "night_vision",
+      "ticks": 4800,
+      "amplifier": 2,
+      "hidden": false
+    },
+    {
+      "index": 71,
+      "effect": "poison",
+      "ticks": 600,
+      "amplifier": 2,
+      "hidden": false
+    },
+    {
+      "index": 72,
+      "effect": "regeneration",
+      "ticks": 600,
+      "amplifier": 2,
+      "hidden": false
+    },
+    {
+      "index": 73,
+      "effect": "resistance",
+      "ticks": 1200,
+      "amplifier": 2,
+      "hidden": false
+    },
+    {
+      "index": 74,
+      "effect": "saturation",
+      "ticks": 1,
+      "amplifier": 2,
+      "hidden": false
+    },
+    {
+      "index": 75,
+      "effect": "slow_falling",
+      "ticks": 3600,
+      "amplifier": 2,
+      "hidden": false
+    },
+    {
+      "index": 76,
+      "effect": "slowness",
+      "ticks": 1200,
+      "amplifier": 2,
+      "hidden": false
+    },
+    {
+      "index": 77,
+      "effect": "speed",
+      "ticks": 1200,
+      "amplifier": 2,
+      "hidden": false
+    },
+    {
+      "index": 78,
+      "effect": "strength",
+      "ticks": 800,
+      "amplifier": 2,
+      "hidden": false
+    },
+    {
+      "index": 79,
+      "effect": "water_breathing",
+      "ticks": 1200,
+      "amplifier": 2,
+      "hidden": false
+    },
+    {
+      "index": 80,
+      "effect": "weakness",
+      "ticks": 800,
+      "amplifier": 2,
+      "hidden": false
+    },
+    {
+      "index": 81,
+      "effect": "wither",
+      "ticks": 600,
+      "amplifier": 2,
+      "hidden": false
+    },
+    {
+      "index": 82,
+      "effect": "raid_omen",
+      "ticks": 400,
+      "amplifier": 40,
+      "hidden": true
+    },
+    {
+      "index": 83,
+      "effect": "raid_omen",
+      "ticks": 400,
+      "amplifier": 41,
+      "hidden": true
+    },
+    {
+      "index": 84,
+      "effect": "raid_omen",
+      "ticks": 400,
+      "amplifier": 42,
+      "hidden": true
+    }
+  ],
+  "academy": [
+    {
+      "mode": 1,
+      "effect": "absorption",
+      "ticks": 2400,
+      "hidden": false
+    },
+    {
+      "mode": 2,
+      "effect": "blindness",
+      "ticks": 400,
+      "hidden": false
+    },
+    {
+      "mode": 3,
+      "effect": "conduit_power",
+      "ticks": 400,
+      "hidden": false
+    },
+    {
+      "mode": 4,
+      "effect": "fire_resistance",
+      "ticks": 1200,
+      "hidden": false
+    },
+    {
+      "mode": 5,
+      "effect": "glowing",
+      "ticks": 1200,
+      "hidden": false
+    },
+    {
+      "mode": 6,
+      "effect": "haste",
+      "ticks": 2400,
+      "hidden": false
+    },
+    {
+      "mode": 7,
+      "effect": "health_boost",
+      "ticks": 4000,
+      "hidden": false
+    },
+    {
+      "mode": 8,
+      "effect": "hunger",
+      "ticks": 1200,
+      "hidden": false
+    },
+    {
+      "mode": 9,
+      "effect": "instant_damage",
+      "ticks": 1,
+      "hidden": false
+    },
+    {
+      "mode": 10,
+      "effect": "instant_health",
+      "ticks": 1,
+      "hidden": false
+    },
+    {
+      "mode": 11,
+      "effect": "invisibility",
+      "ticks": 1200,
+      "hidden": false
+    },
+    {
+      "mode": 12,
+      "effect": "jump_boost",
+      "ticks": 1200,
+      "hidden": false
+    },
+    {
+      "mode": 13,
+      "effect": "levitation",
+      "ticks": 600,
+      "hidden": false
+    },
+    {
+      "mode": 14,
+      "effect": "mining_fatigue",
+      "ticks": 1200,
+      "hidden": false
+    },
+    {
+      "mode": 15,
+      "effect": "nausea",
+      "ticks": 600,
+      "hidden": false
+    },
+    {
+      "mode": 16,
+      "effect": "night_vision",
+      "ticks": 1200,
+      "hidden": false
+    },
+    {
+      "mode": 17,
+      "effect": "poison",
+      "ticks": 600,
+      "hidden": false
+    },
+    {
+      "mode": 18,
+      "effect": "regeneration",
+      "ticks": 600,
+      "hidden": false
+    },
+    {
+      "mode": 19,
+      "effect": "resistance",
+      "ticks": 1200,
+      "hidden": false
+    },
+    {
+      "mode": 20,
+      "effect": "saturation",
+      "ticks": 1,
+      "hidden": false
+    },
+    {
+      "mode": 21,
+      "effect": "slow_falling",
+      "ticks": 600,
+      "hidden": false
+    },
+    {
+      "mode": 22,
+      "effect": "slowness",
+      "ticks": 1200,
+      "hidden": false
+    },
+    {
+      "mode": 23,
+      "effect": "speed",
+      "ticks": 1200,
+      "hidden": false
+    },
+    {
+      "mode": 24,
+      "effect": "strength",
+      "ticks": 800,
+      "hidden": false
+    },
+    {
+      "mode": 25,
+      "effect": "water_breathing",
+      "ticks": 1200,
+      "hidden": false
+    },
+    {
+      "mode": 26,
+      "effect": "weakness",
+      "ticks": 800,
+      "hidden": false
+    },
+    {
+      "mode": 27,
+      "effect": "wither",
+      "ticks": 600,
+      "hidden": false
+    },
+    {
+      "mode": 28,
+      "effect": "raid_omen",
+      "ticks": 400,
+      "hidden": true
+    }
+  ]
+}
