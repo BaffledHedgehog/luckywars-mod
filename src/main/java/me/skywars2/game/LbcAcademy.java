@@ -51,6 +51,8 @@ public final class LbcAcademy {
     private static final CompoundTag TOKEN_DATA = flag("academy_token"), BUILDING_DATA = flag("magic_academy");
     public static final Item TOKEN = registerToken();
     private enum Wand {
+        EVOKER("evocator", LbcWands.EVOKER, LbcWands.ACADEMY_EVOKER, "b", "upgrade_condition_evocator", "upgrade_succesful_evocator"),
+        BASS("bassboost", LbcWands.BASS, LbcWands.ACADEMY_BASS, "b", "upgrade_condition_bassboost", "upgrade_succesful_bassboost"),
         LIFESTEALER("lifestealer", LbcWands.LIFESTEALER, LbcWands.ACADEMY_LIFESTEALER, "a", "upgrade_condition_lifestealer", "upgrade_succesful_lifestealer"),
         FIRE("stfire", LbcWands.FIRE_WAND, LbcWands.ACADEMY_FIRE, "a", "upgrade_condition_stfire", "upgrade_succesful_stfire"),
         BLAZE("fallingstars", LbcWands.BLAZE_WAND, LbcWands.ACADEMY_BLAZE, "a", "upgrade_condition_fallingstars", "upgrade_succesful_fallingstars"),

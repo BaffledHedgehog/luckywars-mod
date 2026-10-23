@@ -26,6 +26,8 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/evoker_wand.json', 'data/lbc/loot_table/ported/academy_evoker_wand.json'
+    include 'data/lbc/loot_table/ported/bass_wand.json', 'data/lbc/loot_table/ported/academy_bass_wand.json'
     include 'data/lbc/loot_table/ported/fat_skeleton_spawn_egg.json'
     include 'data/lbc/loot_table/ported/lucky_pig_spawn_egg.json'
     include 'data/lbc/loot_table/ported/honey_bee_spawn_egg.json'

@@ -1,5 +1,26 @@
 # Структура переноса игрового цикла
 
+## Evoker / Bass wand integration - QUALIFIED (23 October 2026)
+
+[Contract](agent_notes/EVOKER_BASS_PORT.md). LbcEvokerBass plugs into existing
+LbcWands, LbcAcademy and LbcItems lifecycle. Four scoped item leaves preserve
+original loot presentation; the importer reuses original tier/lore modifiers.
+Vanilla EvokerFangs owns geometry instances, animation, attack clock and expiry.
+EvokerWandMixin changes only tagged wand fangs' native damage callback to enforce
+shared physical target policy, antimagic and true owner attribution. Other
+vanilla/cultist fangs remain unchanged. The service indexes live fangs for epoch,
+unload, death and quiet stop; TimeStopNativeMixin pauses their real world tick.
+Bass uses three original player scores and one active service clock, with no
+per-entity scoreboard tick, extra cooldown or invented KFC +1 additions.
+All costs/hooks and Academy admission/promotion reuse existing owners.
+
+Build63c4f9a3 passed16 suite results/two actual mode1 matches (53.72s), exact
+264sources/718classes/2738resources. Installed main while stopped; rollback6b5b6fde
+retained and main not started. Evidence:build/verification/evoker-bass-final/.
+Known fake-player Polymer context error pair only. Boundary fixtures use manual
+native ticks; no real-client rendering, restart/unload/disconnect or peak-load claim.
+
+
 ## Encounter eggs / native unload boundary - QUALIFIED
 
 [Contract](agent_notes/ENCOUNTER_EGGS_PORT.md). Seven additional LbcSpecialEggs

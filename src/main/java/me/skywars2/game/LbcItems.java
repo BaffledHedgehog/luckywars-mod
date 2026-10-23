@@ -174,6 +174,7 @@ public final class LbcItems {
     private final LbcMana mana;
     private final LbcTerra terra;
     private final LbcWands wands;
+    private final LbcEvokerBass evokerBass;
     private final LbcLifestealer lifestealer;
     private final LbcMobgun mobgun;
     private final LbcStonekivi stonekivi;
@@ -686,6 +687,7 @@ public final class LbcItems {
         this.teleport = new LbcTeleport(game);
         this.ruby = new LbcRuby(game);
         this.consuming = new LbcConsuming(game);
+        this.evokerBass = new LbcEvokerBass(game);
         this.lifestealer = new LbcLifestealer(game);
         this.mobgun = new LbcMobgun(game);
         this.duplicating = new LbcDuplicating(game);
@@ -816,6 +818,7 @@ public final class LbcItems {
     public LbcTeleport teleport() { return teleport; }
     public LbcRuby ruby() { return ruby; }
     public LbcConsuming consuming() { return consuming; }
+    public LbcEvokerBass evokerBass() { return evokerBass; }
     public LbcLifestealer lifestealer() { return lifestealer; }
     public LbcMobgun mobgun() { return mobgun; }
     public LbcDuplicating duplicating() { return duplicating; }
@@ -881,6 +884,7 @@ public final class LbcItems {
         teleport.loaded(entity);
         ruby.loaded(entity);
         consuming.loaded(entity);
+        evokerBass.loaded(entity);
         lifestealer.loaded(entity);
         govnomet.loaded(entity);
         mobgun.loaded(entity);
@@ -962,6 +966,7 @@ public final class LbcItems {
         teleport.unloaded(entity);
         ruby.unloaded(entity);
         consuming.unloaded(entity);
+        evokerBass.unloaded(entity);
         lifestealer.unloaded(entity);
         mobgun.unloaded(entity);
         terra.unloaded(entity);
@@ -1350,6 +1355,7 @@ public final class LbcItems {
         teleport.tick();
         ruby.tick();
         consuming.tick();
+        evokerBass.tick();
         lifestealer.tick();
         mobgun.tick();
         duplicating.tick();
@@ -1449,6 +1455,7 @@ public final class LbcItems {
         homing.forget(player);
         bolts.forget(player);
         consuming.forget(player);
+        evokerBass.forget(player);
         lifestealer.forget(player);
         mobgun.forget(player);
         duplicating.forget(player);
@@ -1503,6 +1510,7 @@ public final class LbcItems {
         teleport.stop();
         ruby.stop();
         consuming.stop();
+        evokerBass.stop();
         lifestealer.stop();
         mobgun.stop();
         duplicating.stop();

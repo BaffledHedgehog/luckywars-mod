@@ -1,5 +1,27 @@
 # Проект SkyWars
 
+## Evoker / Bass wand families - QUALIFIED (23 October 2026)
+
+[Contract](agent_notes/EVOKER_BASS_PORT.md). Four ready scoped leaves:
+evoker_wand, bass_wand, academy_evoker_wand, academy_bass_wand.
+Existing wand dispatch/mana/Academy services own casts and upgrades. Native
+EvokerFangs retains animation, eighth-tick6 damage and expiry; one tagged-only
+mixin applies shared projectile policy and actual caster attribution, including
+friendly-mob hits. Bass retains four source effects, exact rhythm/refund/sonic
+burst, player-only upgraded blindness and source combo scores. Source geometry,
+trial thresholds, item design, native expiry and both-hand costs retained.
+Mode switches work without mana (user). No new cap/physics/actor framework or
+RP edits. Broad source loot pools remain gated.
+
+Build63c4f9a3 passed16 recorded suite results in two actual mode1 matches (53.72s),
+exact264sources/718classes/2738resources verified. Installed main while stopped;
+rollback6b5b6fde retained. Main was not started by agent. Three user source hashes
+are unchanged and excluded from the commit. Evidence:build/verification/evoker-bass-final/.
+Known fake-player Polymer context error pair only; no final suite failed.
+Native damage/rhythm boundary fixtures include manual ticks; no real-client
+pixels, actual disk restart/unload/disconnect or peak-capacity claim.
+
+
 ## Seven encounter eggs / safe native unload cleanup - QUALIFIED (23 October 2026)
 
 [Contract](agent_notes/ENCOUNTER_EGGS_PORT.md). Seven scoped ported leaves:

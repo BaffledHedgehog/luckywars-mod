@@ -1,5 +1,24 @@
 # Следующие этапы переноса
 
+## Evoker / Bass wand families - 23 October 2026
+
+[Contract](EVOKER_BASS_PORT.md). Both ordinary wands and both complete Academy
+variants now have qualified scoped ported entrances. Evoker's native formations,
+actual fang hit/credit and source trial are retained. Bass includes all four
+effects, rhythm combo/refund/burst, source trial and selectable upgraded modes.
+Negative-mana mode changes and both-hand costs follow the accepted global rules.
+No broad source pool was newly enabled; Forest/Infinity/Mom and other unclosed
+reward chains still need their complete dependencies. Remaining basic wand
+families should likewise close their source/Academy behavior in related batches.
+
+Build63c4f9a3 passed16 suite results in two actual mode1 matches (53.72s), exact
+264sources/718classes/2738resources verified. Installed main while stopped;
+rollback6b5b6fde retained; main not started. Three user sources preserved.
+Evidence:build/verification/evoker-bass-final/. Native damage/rhythm boundaries
+include manual ticks; known fake-player Polymer context error pair only.
+No real-client pixels, actual disk restart/unload/disconnect or peak-load claim.
+
+
 ## Seven encounter eggs - 23 October 2026
 
 [Contract](ENCOUNTER_EGGS_PORT.md). Seven source-specific acquisition leaves now

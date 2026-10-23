@@ -56,6 +56,10 @@ import net.minecraft.world.scores.ScoreHolder;
 
 /** Жезлы используют общий расход маны и каст-хуки; временные снаряды хранит существующий трекер. */
 public final class LbcWands {
+    public static final Item EVOKER=register("skywars2:evoker_wand","evoker_wand","lbc:evokerwand");
+    public static final Item ACADEMY_EVOKER=register("skywars2:academy_evoker_wand","evoker_wand","lbc:evokerwand");
+    public static final Item BASS=register("skywars2:bass_wand","bass_wand","lbc:basswand");
+    public static final Item ACADEMY_BASS=register("skywars2:academy_bass_wand","bass_wand","lbc:basswand");
     public static final Item LIFESTEALER=register("skywars2:lifestealer_wand","vampire_wand","lbc:vampirewand");
     public static final Item ACADEMY_LIFESTEALER=register("skywars2:academy_lifestealer_wand","vampire_wand","lbc:vampirewand");
     public static final Item TINY_FIRE=register("skywars2:tiny_fire_wand","wand_fire_tiny","lbc:st/fire_tiny");
@@ -122,6 +126,10 @@ public final class LbcWands {
     public static final Item ACADEMY_EXOPERSO=register("skywars2:academy_exoperso_wand","megumin_wand","lbc:exoperso");
     public static final Item ACADEMY_EXASPERATO=register("skywars2:academy_exasperato_wand","exasperato_wand","lbc:exasperato");
     private enum Spell {
+        ACADEMY_EVOKER(LbcWands.ACADEMY_EVOKER,"evocator","evoker_wand_mana_use",700),
+        REGULAR_EVOKER(LbcWands.EVOKER,"evocator","evoker_wand_mana_use",700),
+        ACADEMY_BASS(LbcWands.ACADEMY_BASS,"bassboost","bass_wand_mana_use",800),
+        REGULAR_BASS(LbcWands.BASS,"bassboost","bass_wand_mana_use",800),
         ACADEMY_LIFESTEALER(LbcWands.ACADEMY_LIFESTEALER,"lifestealer","vampire_wand_mana_use",250),
         REGULAR_LIFESTEALER(LbcWands.LIFESTEALER,"lifestealer","vampire_wand_mana_use",250),
         FIRE(TINY_FIRE,"stfire_tiny","tiny_fire_wand_mana_use",25),
@@ -191,6 +199,7 @@ public final class LbcWands {
         final int defaultCost;
         Spell(Item item,String flag,String cost,int defaultCost) {
             this.item=item; this.flag=flag(flag); this.cost=ScoreHolder.forNameOnly(cost); this.defaultCost=defaultCost;
+            if(item==LbcWands.ACADEMY_EVOKER || item==LbcWands.ACADEMY_BASS) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_LIFESTEALER) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_CONSUMING) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_DUPLICATING) this.flag.putInt("upgraded",1);
@@ -367,6 +376,9 @@ public final class LbcWands {
         Spell spell=null;
         for(var candidate:SPELLS) if(matches(stack,candidate.item,candidate.flag)) { spell=candidate; break; }
         if(spell==null) return false;
+        if(spell==Spell.REGULAR_EVOKER || spell==Spell.ACADEMY_EVOKER || spell==Spell.REGULAR_BASS || spell==Spell.ACADEMY_BASS)
+            return game.items().evokerBass().use(player,hand,stack,spell==Spell.REGULAR_EVOKER || spell==Spell.ACADEMY_EVOKER,
+                    spell==Spell.ACADEMY_EVOKER || spell==Spell.ACADEMY_BASS);
         if(spell==Spell.REGULAR_LIFESTEALER || spell==Spell.ACADEMY_LIFESTEALER)
             return game.items().lifestealer().use(player,hand,stack,spell==Spell.ACADEMY_LIFESTEALER);
         if(spell==Spell.SUMMONER_VEXES || spell==Spell.PSYCHOVEX)
