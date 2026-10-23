@@ -27,6 +27,8 @@ dependencies {
 
 processResources {
     include 'data/lbc/loot_table/ported/advanced_ender_wand.json', 'data/lbc/loot_table/ported/academy_advanced_ender_wand.json'
+    include 'data/lbc/loot_table/ported/caustic_wand.json', 'data/lbc/loot_table/ported/academy_caustic_wand.json'
+    include 'data/lbc/loot_table/ported/omega_flag.json', 'data/lbc/loot_table/ported/academy_omega_flag.json'
     include 'data/lbc/loot_table/ported/snow_wand.json', 'data/lbc/loot_table/ported/academy_snow_wand.json'
     include 'data/lbc/loot_table/ported/ender_wand.json', 'data/lbc/loot_table/ported/academy_ender_wand.json'
     include 'data/lbc/loot_table/ported/bad_wiki.json', 'data/lbc/loot_table/ported/academy_bad_wiki.json', 'skywars2/bad_wiki_effects.json'

@@ -1,5 +1,26 @@
 # Следующие этапы переноса
 
+## Caustic staff / Singularity of Absurdity - QUALIFIED (24 October 2026)
+
+[Contract](CAUSTIC_OMEGA_PORT.md). Four scoped leaves close ordinary/Academy acidwand and
+omegaflag. Shared native acid owns6/8 charges, sticky300 lifetime, poison/fire,
+shield and causal ownership; Academy ignition affects only the new volley.
+Used-hand fire/HP trials, promotions and free negative-mana mode switching use
+existing services. Ordinary Omega is WILD including caster/allies; Academy
+protects caster and ALL allies per explicit user clarification. Source global
+native6 damage, particles, sound, prices and presentation are retained. Two
+existing RP keys have template text updates; actual pack remains untouched.
+No new actor/cause system, artificial cap, permanent counter or broad pool.
+
+Buildb62a6093 passed22 suite results/two actual mode1 matches (62.43s), exact
+276sources/740classes/2759resources verified. Installed stopped main;
+rollback1196e521 retained; main not started. Three user sources unchanged/excluded.
+Evidence:build/verification/caustic-omega-final/. Known fake-player Polymer context
+pair only; all suites passed. Native boundaries include manual ticks; no client
+pixels, actual disk restart/unload/disconnect or peak-capacity claim. Remaining
+basic staff families and heavy Forest/Infinity/Mom/Corruption chains stay gated.
+
+
 ## Advanced Ender / Snow wand families - QUALIFIED (24 October 2026)
 
 [Contract](ADVANCED_SNOW_PORT.md). Four scoped leaves close ordinary/Academy Advanced Ender

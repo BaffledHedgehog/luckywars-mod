@@ -369,15 +369,20 @@ public final class LbcClouds {
 
     /** Reuse acid physics/effects; source acid_get_id spreads each normal charge around the supplied aim. */
     void magnumAcid(ServerPlayer owner,Vec3 origin,Vec3 direction,boolean big) {
+        volleyAcid(owner,origin,direction,big?1:6,big,false);
+    }
+    /** Ordinary acid staff and its Academy variant share the already ported native acid owner. */
+    void volleyAcid(ServerPlayer owner,Vec3 origin,Vec3 direction,int count,boolean big,boolean ignited) {
         var level=owner.level();
         Vec3 forward=direction.lengthSqr()<1e-12 ? owner.getLookAngle() : direction.normalize();
         float yaw=forward.horizontalDistanceSqr()<1e-12 ? 0
                 : (float)Math.toDegrees(Math.atan2(-forward.x,forward.z));
         float pitch=(float)-Math.toDegrees(Math.atan2(forward.y,forward.horizontalDistance()));
-        for(int i=0;i<(big?1:6);i++) {
+        for(int i=0;i<count;i++) {
             float shotYaw=big ? yaw : (Mth.floor(yaw*100)+level.getRandom().nextInt(6001)-3000)*.01f;
             float shotPitch=big ? pitch : (Mth.floor(pitch*100)+level.getRandom().nextInt(4001)-2000)*.01f;
-            aimedWandAcid(owner,origin.add(forward.scale(i*.01)),shotYaw,shotPitch,big);
+            var shot=aimedWandAcid(owner,origin.add(forward.scale(i*.01)),shotYaw,shotPitch,big);
+            if(ignited)shot.entityTags().add("on_fire");
         }
         sound(level,origin,SoundEvents.ZOMBIE_VILLAGER_CURE,1,2,Double.POSITIVE_INFINITY,0);
     }

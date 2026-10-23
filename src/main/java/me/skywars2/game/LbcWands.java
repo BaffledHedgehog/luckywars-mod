@@ -56,6 +56,10 @@ import net.minecraft.world.scores.ScoreHolder;
 
 /** Жезлы используют общий расход маны и каст-хуки; временные снаряды хранит существующий трекер. */
 public final class LbcWands {
+    public static final Item CAUSTIC=register("skywars2:caustic_wand","acid_wand","lbc:acidwand");
+    public static final Item ACADEMY_CAUSTIC=register("skywars2:academy_caustic_wand","acid_wand","lbc:acidwand");
+    public static final Item OMEGA=register("skywars2:omega_flag","omega_flag","lbc:omegaflag");
+    public static final Item ACADEMY_OMEGA=register("skywars2:academy_omega_flag","omega_flag","lbc:omegaflag");
     public static final Item ADVANCED_ENDER=register("skywars2:advanced_ender_wand","advanced_ender_wand","lbc:advancedenderwand");
     public static final Item ACADEMY_ADVANCED_ENDER=register("skywars2:academy_advanced_ender_wand","advanced_ender_wand","lbc:advancedenderwand");
     public static final Item SNOW=register("skywars2:snow_wand","snow_wand","lbc:snow_wand");
@@ -141,6 +145,10 @@ public final class LbcWands {
     public static final Item ACADEMY_EXOPERSO=register("skywars2:academy_exoperso_wand","megumin_wand","lbc:exoperso");
     public static final Item ACADEMY_EXASPERATO=register("skywars2:academy_exasperato_wand","exasperato_wand","lbc:exasperato");
     private enum Spell {
+        ACADEMY_CAUSTIC(LbcWands.ACADEMY_CAUSTIC,"acidwand","acid_wand_mana_use",1200),
+        REGULAR_CAUSTIC(LbcWands.CAUSTIC,"acidwand","acid_wand_mana_use",1200),
+        ACADEMY_OMEGA(LbcWands.ACADEMY_OMEGA,"omegaflag","absurd_singularity_mana_use",3000),
+        REGULAR_OMEGA(LbcWands.OMEGA,"omegaflag","absurd_singularity_mana_use",3000),
         ACADEMY_ADVANCED_ENDER(LbcWands.ACADEMY_ADVANCED_ENDER,"advancedteleport","advanced_ender_wand_mana_use",3000),
         REGULAR_ADVANCED_ENDER(LbcWands.ADVANCED_ENDER,"advancedteleport","advanced_ender_wand_mana_use",3000),
         ACADEMY_SNOW(LbcWands.ACADEMY_SNOW,"snow_wand","snow_wand_mana_use",1500),
@@ -228,6 +236,7 @@ public final class LbcWands {
         final int defaultCost;
         Spell(Item item,String flag,String cost,int defaultCost) {
             this.item=item; this.flag=flag(flag); this.cost=ScoreHolder.forNameOnly(cost); this.defaultCost=defaultCost;
+            if(item==LbcWands.ACADEMY_CAUSTIC || item==LbcWands.ACADEMY_OMEGA) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_ADVANCED_ENDER || item==LbcWands.ACADEMY_SNOW) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_ENDER || item==LbcWands.ACADEMY_BAD_WIKI) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_NEUTRAL) this.flag.putInt("upgraded",1);
@@ -410,6 +419,9 @@ public final class LbcWands {
         Spell spell=null;
         for(var candidate:SPELLS) if(matches(stack,candidate.item,candidate.flag)) { spell=candidate; break; }
         if(spell==null) return false;
+        if(spell==Spell.REGULAR_CAUSTIC || spell==Spell.ACADEMY_CAUSTIC || spell==Spell.REGULAR_OMEGA || spell==Spell.ACADEMY_OMEGA)
+            return LbcCausticOmega.use(game,player,hand,stack,spell==Spell.REGULAR_CAUSTIC || spell==Spell.ACADEMY_CAUSTIC,
+                    spell==Spell.ACADEMY_CAUSTIC || spell==Spell.ACADEMY_OMEGA);
         if(spell==Spell.REGULAR_ADVANCED_ENDER || spell==Spell.ACADEMY_ADVANCED_ENDER || spell==Spell.REGULAR_SNOW || spell==Spell.ACADEMY_SNOW)
             return game.items().advancedSnow().use(player,hand,stack,spell==Spell.REGULAR_SNOW || spell==Spell.ACADEMY_SNOW,
                     spell==Spell.ACADEMY_ADVANCED_ENDER || spell==Spell.ACADEMY_SNOW);

@@ -736,6 +736,9 @@ public final class GameChecks {
                                 case "normal-drone-stop-probe" -> { NormalDroneChecks.stopProbe(game); return; }
                                 case "normal-drone-cleanup" -> { NormalDroneChecks.cleanup(game); return; }
                                 case "special-eggs" -> { SpecialEggChecks.run(game); return; }
+                                case "caustic-omega" -> { CausticOmegaChecks.run(game); return; }
+                                case "caustic-omega-stop-probe" -> { CausticOmegaChecks.stopProbe(game); return; }
+                                case "caustic-omega-cleanup" -> { CausticOmegaChecks.cleanup(game); return; }
                                 case "advanced-snow" -> { AdvancedSnowChecks.run(game); return; }
                                 case "advanced-snow-stop-probe" -> { AdvancedSnowChecks.stopProbe(game); return; }
                                 case "advanced-snow-cleanup" -> { AdvancedSnowChecks.cleanup(game); return; }
@@ -1125,6 +1128,7 @@ public final class GameChecks {
                 StalinEncounterChecks.tick(game);
                 NormalDroneChecks.tick(game);
                 SpecialEggChecks.tick(game);
+        CausticOmegaChecks.tick(game);
         AdvancedSnowChecks.tick(game);
         EnderWikiChecks.tick(game);
         NeutralWandChecks.tick(game);
