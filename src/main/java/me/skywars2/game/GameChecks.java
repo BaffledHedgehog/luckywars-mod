@@ -719,6 +719,12 @@ public final class GameChecks {
                                 case "scare-drops" -> { ScareDropChecks.run(game); return; }
                                 case "lucky-pigs" -> { LuckyPigDropChecks.run(game); return; }
                                 case "advanced-anvil" -> { AdvancedAnvilChecks.run(game); return; }
+                                case "portal-drops" -> { PortalDropChecks.run(game); return; }
+                                case "portal-drops-stop-probe" -> { PortalDropChecks.stopProbe(game); return; }
+                                case "portal-drops-cleanup" -> { PortalDropChecks.cleanup(game); return; }
+                                case "lucky-room-drops" -> { LuckyRoomDropChecks.run(game); return; }
+                                case "lucky-room-drops-stop-probe" -> { LuckyRoomDropChecks.stopProbe(game); return; }
+                                case "lucky-room-drops-cleanup" -> { LuckyRoomDropChecks.cleanup(game); return; }
                                 case "ui-weapon-batch" -> { UiWeaponBatchChecks.run(game); return; }
                                 case "ui-weapon-batch-stop-probe" -> { UiWeaponBatchChecks.stopProbe(game); return; }
                                 case "ui-weapon-batch-cleanup" -> { UiWeaponBatchChecks.cleanup(game); return; }
@@ -1059,6 +1065,7 @@ public final class GameChecks {
                 CreatureDropChecks.tick(game);
                 PotionSpawnerDropChecks.tick(game);
                 UiWeaponBatchChecks.tick(game);
+                PortalDropChecks.tick(game);
                 AcidAntDropChecks.tick(game);
                 BobDroneDropChecks.tick(game);
                 IslandDropChecks.tick(game);

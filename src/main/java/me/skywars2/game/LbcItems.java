@@ -209,6 +209,8 @@ public final class LbcItems {
     private final LbcCreatureDrops creatureDrops;
     private final LbcPotionSpawnerDrops potionSpawnerDrops;
     private final LbcIslandDrops islandDrops;
+    private final LbcPortalDrops portalDrops;
+    private final LbcLuckyRoomDrops luckyRoomDrops;
     private final LbcDroneDrops droneDrops;
     private final LbcAntDrops antDrops;
     private final LbcTntDrops tntDrops;
@@ -632,6 +634,8 @@ public final class LbcItems {
         this.creatureDrops = new LbcCreatureDrops(game);
         this.potionSpawnerDrops = new LbcPotionSpawnerDrops(game);
         this.islandDrops = new LbcIslandDrops(game);
+        this.portalDrops = new LbcPortalDrops(game);
+        this.luckyRoomDrops = new LbcLuckyRoomDrops(game);
         this.droneDrops = new LbcDroneDrops(game);
         this.antDrops = new LbcAntDrops(game);
         this.tntDrops = new LbcTntDrops(game);
@@ -743,6 +747,8 @@ public final class LbcItems {
     public LbcCreatureDrops creatureDrops() { return creatureDrops; }
     public LbcPotionSpawnerDrops potionSpawnerDrops() { return potionSpawnerDrops; }
     public LbcIslandDrops islandDrops() { return islandDrops; }
+    public LbcPortalDrops portalDrops() { return portalDrops; }
+    public LbcLuckyRoomDrops luckyRoomDrops() { return luckyRoomDrops; }
     public LbcDroneDrops droneDrops() { return droneDrops; }
     public LbcAntDrops antDrops() { return antDrops; }
     public LbcTntDrops tntDrops() { return tntDrops; }
@@ -878,6 +884,7 @@ public final class LbcItems {
     }
     public void entityUnloaded(Entity entity) {
         specialDrops.unloaded(entity);
+        portalDrops.unloaded(entity);
         luckyPigs.unloaded(entity);
         libraryDrop.unloaded(entity);
         beeDrops.unloaded(entity);
@@ -1301,6 +1308,7 @@ public final class LbcItems {
         kfcFood.tick();
         helicopterEncounter.tick();
         specialDrops.tick();
+        portalDrops.tick();
         luckyPigs.tick();
         libraryDrop.tick();
         beeDrops.tick();
@@ -1447,6 +1455,7 @@ public final class LbcItems {
         kfcFood.stop();
         helicopterEncounter.stop();
         specialDrops.stop();
+        portalDrops.stop();
         luckyPigs.stop();
         libraryDrop.stop();
         beeDrops.stop();

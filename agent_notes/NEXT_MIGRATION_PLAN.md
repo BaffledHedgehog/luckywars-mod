@@ -1,5 +1,29 @@
 # Следующие этапы переноса
 
+## Random Portal / Lucky Room - QUALIFIED
+
+[Portal contract](RANDOM_PORTAL_PORT.md). [Room contract](LUCKY_ROOM_PORT.md).
+Four ready leaves: normal/old Random Portal and normal/old Lucky Room. Each
+portal activation owns a native reciprocal gateway pair, with source floor XYZ,
+supports and spread rules preserved. Search/chunk readiness is incremental,
+loading tickets are reference-counted and no synchronous spread is run. Source
+position is captured before deferred preparation; full pair coordinate/height
+preflight avoids partial placement. Native travel records causal arrival credit
+and protects service roles, spectators and all indirect passengers. Vanilla
+unowned gateways remain vanilla. Lucky Room retains exact strict geometry,
+nearest WILD target and real overwritten-container drops. No RP/template edits.
+
+Offline build/two actual isolated mode1 matches passed on 3cb2c7d1:
+154 recorded suite results, 130.25s;
+229 sources / 638 classes /
+2704 resources exactly match tested artifacts.
+Evidence: build/verification/portal-batch-final/. Installed to main mods/skywars2.jar while stopped; rollback 68387e1d retained.
+The agent did not start the main server.
+User Reroll source unchanged. No peak-capacity, natural-AI, real-client pixels or
+actual disk restart/unload/disconnect qualification is claimed. Earlier pending
+portal/room recommendations are superseded; see contracts for retained attempts.
+<!-- portal-batch-status-end -->
+
 ## Actionbar / minigun transfers / normal Fat Skeleton - QUALIFIED
 
 [Contract](UI_WEAPON_BATCH_PORT.md). Missing native source HUD rows now include Mobgun, ORAORA,

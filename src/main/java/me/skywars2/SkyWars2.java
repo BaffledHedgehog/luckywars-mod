@@ -45,7 +45,10 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         // Здесь связываются жизненный цикл сервера, игровые события и команды; состояние матча хранит контроллер.
         MapManager.registerLoadingTicket();
         LbcHomes.registerTicket();
+        LbcPortalDrops.registerTicket();
         LbcItems.register();
+        LbcPortalDropItem.register();
+        LbcLuckyRoomDropItem.register();
         LbcCraftingRecipe.register();
         FullInvisibility.register();
         PolymerResourcePackUtils.addModAssets(MOD_ID);

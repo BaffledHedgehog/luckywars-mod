@@ -37,6 +37,8 @@
     "PotionSpawnerDropMixin$Lifecycle",
     "PotionSpawnerDropMixin$ChunkLifecycle",
     "PotionSpawnerDropMixin$SpawnCandidates",
+    "PortalGatewayMixin$State",
+    "PortalGatewayMixin$Travel",
     "PlayerMechanicsMixin",
     "ConsumableSkillMixin",
     "LbcEffectTriggerMixin",

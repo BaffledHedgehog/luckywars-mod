@@ -99,3 +99,12 @@ installed,142 recorded native suite results/two actual matches. Normal Fat
 Skeleton and the listed missing native HUD rows are complete; earlier pending
 qualification/source-only statements record their initial audit stage.
 Normal/old portal remain unimplemented.
+
+## Portal/Room batch status (23 October2026)
+
+Normal/old Random Portal and normal/old Lucky Room are now implemented and
+qualified in the combined [portal](RANDOM_PORTAL_PORT.md) /
+[room](LUCKY_ROOM_PORT.md) batch. Earlier pending/source-only recommendations
+for these four leaves are historical and superseded. Pisa boats remain a
+source-only candidate; do not expose its reward until full native closure.
+<!-- portal-batch-next-end -->
