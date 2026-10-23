@@ -21,6 +21,7 @@ import java.util.List;
 /** Native token for the source four zombie/TNT dropped trap. */
 public final class LbcZombieTntDropItem {
     private static final CompoundTag TRIGGER = trigger();
+    private static final CompoundTag SHAHID = shahid();
     public static final Item TOKEN = create();
 
     private LbcZombieTntDropItem() { }
@@ -37,6 +38,17 @@ public final class LbcZombieTntDropItem {
         return flags;
     }
 
+    private static CompoundTag shahid() {
+        var flags = new CompoundTag();
+        flags.putInt("shahid",1);
+        flags.putInt("drop",1);
+        return flags;
+    }
+
+    public static boolean isShahid(ItemStack stack) {
+        return !stack.isEmpty() && stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).matchedBy(SHAHID);
+    }
+
     private static Item create() {
         var key = ResourceKey.create(Registries.ITEM, Identifier.parse("skywars2:zombie_tnt_drop"));
         var properties = new Item.Properties().setId(key).overrideDescription("trap_tnt_zombies")
@@ -50,6 +62,6 @@ public final class LbcZombieTntDropItem {
     }
 
     public static boolean matches(ItemStack stack) {
-        return !stack.isEmpty() && stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).matchedBy(TRIGGER);
+        return isShahid(stack) || !stack.isEmpty() && stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).matchedBy(TRIGGER);
     }
 }

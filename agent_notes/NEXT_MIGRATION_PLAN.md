@@ -1,5 +1,17 @@
 # Следующие этапы переноса
 
+## Four special spawn eggs - 23 October 2026
+
+[Contract](SPECIAL_EGGS_PORT.md), [source audit](NEXT_SMALL_DROPS_SOURCE.md).
+Scoped slab/low-Vex/Sarvatra-creeper/Shahid eggs close their existing native
+rewards/lifecycle without enabling the complete imba pool. Shahid adds the
+source single centered baby/TNT pair; the four-zombie trap remains separate.
+Egg-specific payloads remain distinct from ordinary dropped traps. Build77ae0b9a
+passed16 suite results in two actual mode1 matches (60.4s), installed while main
+was stopped; previous43634ed9 retained. Evidence:build/verification/special-eggs-final/.
+Native offspring and spawner tuning remain unchanged pending an optional author
+decision on the former. Forest/Infinity/Mom/normal-drone reward chains stay gated.
+
 ## Remaining implementation estimate - 23 October 2026
 
 User asked for an approximate remaining percentage. Rough weighted estimate:

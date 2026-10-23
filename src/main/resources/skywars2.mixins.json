@@ -16,6 +16,7 @@
     "TypedItemDamageMixin",
     "DropTrapMergeMixin",
     "ZombieTntDropMixin",
+    "SpecialEggMixin",
     "DroneDropMixin$Cart",
     "DroneDropMixin$Candidates",
     "DroneDropMixin$Ground",

@@ -119,9 +119,17 @@ public final class LbcCreatureDrops {
     }
     private void admit(ServerLevel level,Entity actor,Vec3 position,ServerPlayer author){
         actor.snapTo(position.x,position.y,position.z,actor.getYRot(),actor.getXRot());
+        prepare(actor,author);
+        if(!level.addFreshEntity(actor)){tracked.remove(actor);actor.discard();}
+    }
+    /** Native eggs keep their own finalizeSpawn/data; only lifecycle and causal author are attached. */
+    void adoptEggVex(Vex actor,ServerPlayer author){
+        actor.entityTags().add(NORMAL_VEX);
+        prepare(actor,author);
+    }
+    private void prepare(Entity actor,ServerPlayer author){
         actor.entityTags().add(ACTOR);if(author!=null){authors.put(author.getUUID(),author);actor.entityTags().add(OWNER+author.getUUID());}
         game.items().markCurrentItemEpoch(actor);tracked.add(actor);game.items().timeStop().prepareFrozen(actor);
-        if(!level.addFreshEntity(actor)){tracked.remove(actor);actor.discard();}
     }
     public static boolean managed(Entity actor){return actor!=null && (actor instanceof Vex || actor instanceof AbstractSkeleton || actor instanceof Zombie || actor instanceof ShulkerBullet) && actor.entityTags().contains(ACTOR);}
     public LivingEntity owner(Entity actor){

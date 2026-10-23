@@ -24,6 +24,7 @@ public final class LbcZombieTntDrops {
     private static final String ZOMBIE = "skywars2.zombie_tnt_drop";
     private static final String TNT = "skywars2.zombie_tnt_drop_tnt";
     private static final double[][] OFFSETS = {{1,0}, {0,1}, {-1,0}, {0,-1}};
+    private static final double[][] SHAHID_OFFSETS = {{0,0}};
     // Author: TNT is WILD, while carriers must not perform any melee hit or its side effects.
     public static final boolean WILD = true;
     public static final boolean MELEE_ENABLED = false;
@@ -45,7 +46,7 @@ public final class LbcZombieTntDrops {
             if (tag.startsWith("skywars2.items.") && !game.items().currentEpoch(tag)) return false;
         }
         // Check the entire payload before emitting anything; never force-load a neighbouring chunk.
-        for (var offset : OFFSETS) {
+        for (var offset : offsets(token)) {
             var pos = BlockPos.containing(token.position().add(offset[0], 0, offset[1]));
             if (level.getChunkSource().getChunkNow(pos.getX() >> 4, pos.getZ() >> 4) == null) return false;
         }
@@ -56,8 +57,9 @@ public final class LbcZombieTntDrops {
         if (!ready(token)) return false;
         var level = (ServerLevel) token.level();
         var cause = game.items().specialDrops().owner(token);
-        var payload = new ArrayList<Zombie>(OFFSETS.length);
-        for (var offset : OFFSETS) {
+        var offsets = offsets(token);
+        var payload = new ArrayList<Zombie>(offsets.length);
+        for (var offset : offsets) {
             // /summon does not finalizeSpawn: retain ordinary AI/loot without randomized equipment.
             var zombie = new Zombie(EntityTypes.ZOMBIE, level);
             zombie.setBaby(true);
@@ -91,6 +93,11 @@ public final class LbcZombieTntDrops {
             if (!level.tryAddFreshEntityWithPassengers(zombie)) discardPair(zombie);
         }
         return true;
+    }
+
+    /** The egg's intermediary token summons one carrier at its position, unlike the four-zombie trap. */
+    private static double[][] offsets(ItemEntity token) {
+        return LbcZombieTntDropItem.isShahid(token.getItem()) ? SHAHID_OFFSETS : OFFSETS;
     }
 
     private void prepare(Entity actor, String tag, LivingEntity cause) {

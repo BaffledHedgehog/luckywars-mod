@@ -1,5 +1,23 @@
 # Структура переноса игрового цикла
 
+## Four special spawn eggs - QUALIFIED
+
+[Contract](agent_notes/SPECIAL_EGGS_PORT.md). LbcSpecialEggs is a native
+SpawnEggItem/PolymerItem; EntityType's original post-spawn processor applies
+source ENTITY_DATA, then SpecialEggMixin attaches lifecycle/cause before insertion.
+Existing slab/creature/creeper/zombie-TNT services remain sole actor owners.
+The shared dispatcher recognizes Shahid flags and reuses one centered carrier
+instead of the separate four-zombie ring. Models use effectiveModel to survive
+native Item finalization. No additional world tick scan, mob AI or scheduler.
+Scope:four individual leaves, not the whole imba pool. Native matching-mob
+offspring/spawner semantics remain unchanged; no new spawner ownership system.
+Evidence:build/verification/special-eggs-final/.
+Build77ae0b9a passed16 results in two actual mode1 matches (60.4s), exact
+258sources/705classes/2723resources verified. Installed while main was stopped;
+43634ed9 and intermediate8338279b rollbacks retained; main not started by agent.
+No real-client pixels, actual disk restart/unload/disconnect, dispenser/spawner/
+offspring execution or peak-capacity claim.
+
 ## Normal Vex / Vex Sword - QUALIFIED
 
 [Contract](agent_notes/VEX_FAMILY_SOURCE.md). Normal10-Vex acquisition reuses

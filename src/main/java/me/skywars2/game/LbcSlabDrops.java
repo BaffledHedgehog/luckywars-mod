@@ -40,6 +40,8 @@ public final class LbcSlabDrops {
         var author=LbcIndirectKills.playerSource(game.items().specialDrops().owner(token));prepare(zombie,author);
         if(!level.addFreshEntity(zombie)){tracked.remove(zombie);zombie.discard();}return true;
     }
+    /** Egg equipment intentionally differs from the ordinary dropped slab; do not replace its payload. */
+    void adoptEgg(Zombie actor,ServerPlayer author){prepare(actor,author);}
     private void prepare(Zombie actor,ServerPlayer author){actor.entityTags().add(ACTOR);if(author!=null){authors.put(author.getUUID(),author);actor.entityTags().removeIf(t->t.startsWith(OWNER));actor.entityTags().add(OWNER+author.getUUID());}game.items().markCurrentItemEpoch(actor);tracked.add(actor);game.items().timeStop().prepareFrozen(actor);}
     public static boolean managed(Entity actor){return actor instanceof Zombie && actor.entityTags().contains(ACTOR);}
     public LivingEntity owner(Entity actor){

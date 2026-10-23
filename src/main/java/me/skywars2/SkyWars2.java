@@ -270,6 +270,9 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         });
         UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
             if (game != null && game.items().actionsBlocked(player)) return InteractionResult.FAIL;
+            // Matching-mob spawn eggs reach vanilla offspring interaction before Item.useOn.
+            if (me.skywars2.game.LbcSpecialEggs.matches(player.getItemInHand(hand))
+                    && !me.skywars2.game.LbcSpecialEggs.allowed(game,player)) return InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer serverPlayer && game.isObserver(serverPlayer)) {
                 game.spectators().watch(serverPlayer, entity); return InteractionResult.SUCCESS;
             }

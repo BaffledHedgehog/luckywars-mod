@@ -43,6 +43,14 @@ public final class LbcCreeperDrops {
 
     public LbcCreeperDrops(GameController game) { this.game = game; }
 
+    /** Single native egg actor: retain radius, reward and native AI instead of spawning the trap's ring. */
+    void adoptEgg(Creeper creeper, LivingEntity owner) {
+        creeper.entityTags().add(CREEPER);
+        game.items().markCurrentItemEpoch(creeper);
+        causes.put(creeper,owner); tracked.add(creeper);
+        game.items().timeStop().prepareFrozen(creeper);
+    }
+
     /** Reuse native creeper lineage, chained TNT/cloud and save/unload handling for this WILD trap. */
     void adoptUltraponos(Creeper creeper, LivingEntity owner) {
         creeper.entityTags().add(CREEPER);

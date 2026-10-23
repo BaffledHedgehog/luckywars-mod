@@ -1,5 +1,31 @@
 # Проект SkyWars
 
+## Four special spawn eggs - QUALIFIED (23 October 2026)
+
+[Contract](agent_notes/SPECIAL_EGGS_PORT.md). Four scoped imba egg leaves:
+lbc:ported/slab_spawn_egg, low_vex_spawn_egg, sarvatra_creeper_spawn_egg and
+shahid_spawn_egg. Exact source presentation/vanilla models and distinct egg
+payloads retained. Native SpawnEggItem/ENTITY_DATA owns placement/finalization;
+pre-insertion adoption reuses the existing actor/causal/lifecycle services.
+One1HP Vex retains10% complete sword reward; radius1 creeper retains5% Air wand.
+Slab egg keeps silent actor and item_name/+7 helmet, distinct from normal drop.
+Shahid emits source unpickable token then one centered baby/TNT fuse200 pair;
+old four-carrier trap remains unchanged. No melee and WILD TNT policy reused.
+Hand/entity input guards roles/actions/time, remote block clicks never load chunks.
+No RP edit, new mob framework, extra lifetime or broad imba pool enablement.
+Native offspring/spawner behavior remains unchanged; author question about special
+offspring data is pending. No custom spawner-cause system is claimed.
+
+Build77ae0b9a passed16 recorded suite results in two actual isolated mode1
+matches (60.4s);258sources/705classes/2723resources exactly match tested artifacts.
+Installed main while stopped; previous43634ed9 and intermediate8338279b rollbacks
+retained; agent did not start main. Evidence:build/verification/special-eggs-final/.
+Three preexisting user sources were preserved and excluded from commit. Known
+fake-player Polymer context error pair retained; no final suite failed. No client
+pixels, actual disk restart/unload/disconnect, dispenser/spawner/offspring runtime
+or peak-capacity claim.
+<!-- special-eggs-status-end -->
+
 ## Normal Vex / complete Vex Sword - QUALIFIED (23 October 2026)
 
 [Source contract](agent_notes/VEX_FAMILY_SOURCE.md). New scoped leaves:
