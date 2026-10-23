@@ -1,0 +1,63 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:reactive_shish",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_c",
+                "minecraft:item_model": "minecraft:spruce_sapling"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "reactive_shish",
+                  "color": "dark_green",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                {
+                  "translate": "reactive_shish.lore",
+                  "color": "green",
+                  "italic": false
+                },
+                {
+                  "translate": "reactive_shish.lore.1",
+                  "color": "green",
+                  "italic": false
+                },
+                {
+                  "translate": "craft_with_upgraded_wall_wand.1",
+                  "color": "gold",
+                  "italic": false
+                },
+                {
+                  "translate": "craft_with_upgraded_wall_wand.2",
+                  "color": "gold",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{craftusable:1,magicwand:1,reactive_shish:1,spellwithcooldown:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

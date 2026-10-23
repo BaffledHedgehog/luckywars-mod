@@ -344,6 +344,7 @@ public final class LbcWands {
         if (LbcStand.isOraora(stack) || LbcStand.isClocks(stack) || LbcStand.isHomingLightning(stack))
             return game.items().stand().use(player,hand);
         if (LbcMobgun.isMobgun(stack)) return game.items().mobgun().use(player,hand);
+        if(LbcReactiveItems.isReactive(stack) || LbcReactiveItems.isWall(stack)) return game.items().reactive().use(player,hand);
         if (LbcKfcRewards.isCultus(stack)) return game.items().kfcRewards().useCultus(player);
         if (LbcElectro.isAnyKatana(stack)) return game.items().electro().use(player,hand);
         var scrollData=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();

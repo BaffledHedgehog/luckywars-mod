@@ -51,6 +51,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         LbcLuckyRoomDropItem.register();
         me.skywars2.game.LbcPisaDropItem.register();
         me.skywars2.game.LbcUltraponosDropItem.register();
+        me.skywars2.game.LbcReactiveItems.register();
         me.skywars2.game.LbcAntigravityDropItem.register();
         LbcCraftingRecipe.register();
         FullInvisibility.register();

@@ -180,6 +180,7 @@ public final class LbcKfcFood {
                 case "reverse_mana" -> mana.reverse(p,mana.reverse(p)+1);
                 case "nomagic" -> mana.noMagic(p,mana.noMagic(p)+1);
                 case "blaze" -> game.items().blaze().addHeadCharges(p,1);
+                case "coldownshish" -> game.items().reactive().addPlayerCounter(p);
                 default -> mana.score(p,name).add(1);
             }
         }

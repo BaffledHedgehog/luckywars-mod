@@ -44,6 +44,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         CONSUMING("consuming_combine","consuming_wand"),
         DUPLICATING("duplicating_combine","duplicating_wand"),
         STAND_CLOCKS("stand_clocks","stand_clocks"),
+        SHISH_WALL("shish_wall","shish_wall_wand"),
         SWORD("terra_sword_awakening","true_terra_sword"),
         RAZOR("terra_razorpine_awakening","terra_razorpine");
         final String id,loot;
@@ -104,6 +105,13 @@ public final class LbcCraftingRecipe extends CustomRecipe {
     /** Общее распознавание семейств: ровно два занятых слота, без расхода и случайности в preview. */
     public static Kind craftingKind(CraftingInput input) {
         if(input.ingredientCount()!=2) return LbcRerollCrafting.matches(input) ? Kind.REROLL_MACHINE : null;
+        int reactiveShish=0,upgradedWall=0;
+        for(var stack:input.items()) if(!stack.isEmpty()) {
+            if(LbcReactiveItems.isReactive(stack)) reactiveShish++;
+            else if(stack.is(LbcWands.ACADEMY_WALL) || stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,
+                    net.minecraft.world.item.component.CustomData.EMPTY).matchedBy(UPGRADED_WALL_DONOR)) upgradedWall++;
+        }
+        if(reactiveShish==1 && upgradedWall==1) return Kind.SHISH_WALL;
         int standArrow=0,timeStopper=0;
         for(var stack:input.items()) if(!stack.isEmpty()) {
             if(LbcStand.isArrow(stack)) standArrow++;
@@ -229,6 +237,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
     }
 
     private static final net.minecraft.nbt.CompoundTag AIR_DONOR=donorFlag("stair"),
+            UPGRADED_WALL_DONOR=upgradedWallDonor(),
             TIME_STOPPER_DONOR=donorFlag("time_stopper"),
             RUBY_DONOR=donorFlag("struby"),
             EXOPERSO_DONOR=donorFlag("exoperso"), STONE_DONOR=donorFlag("ststone"), WALL_DONOR=donorFlag("wall"), FIRE_DONOR=donorFlag("stfire"), BLAZE_DONOR=donorFlag("fallingstars"), BLIND_DONOR=donorFlag("stblind"), PSYCHO_DONOR=donorFlag("psychowand"), VEX_DONOR=donorFlag("summonervexes"), STARS_DONOR=donorFlag("truefallingstars"), TELEPORT_DONOR=donorFlag("stteleport"), BOLTS_DONOR=donorFlag("lightning_bolts");
@@ -239,6 +248,10 @@ public final class LbcCraftingRecipe extends CustomRecipe {
             TINY_ACID_DONOR=donorFlag("stacid_tiny"), TINY_ELECTRO_DONOR=donorFlag("stelectro_tiny");
     private static net.minecraft.nbt.CompoundTag donorFlag(String name) {
         var tag=new net.minecraft.nbt.CompoundTag(); tag.putInt(name,1); return tag;
+    }
+
+    private static net.minecraft.nbt.CompoundTag upgradedWallDonor() {
+        var tag=donorFlag("wall"); tag.putInt("upgraded",1); return tag;
     }
 
     /** (user) 60% сохранения донора: случайность только при настоящем расходе, не при preview. */
@@ -262,6 +275,13 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         game.items().rocketCraftTaken(player,input);
         var kind=craftingKind(input);
         if(kind==null) return;
+        if(kind==Kind.SHISH_WALL) {
+            player.level().sendParticles(new net.minecraft.core.particles.ItemParticleOption(
+                            net.minecraft.core.particles.ParticleTypes.ITEM,net.minecraft.world.item.Items.SPRUCE_SAPLING),
+                    true,false,player.getX(),player.getY()+1,player.getZ(),100,1,1,1,.15);
+            LbcOverload.sound(player,player.position(),"minecraft:block.grass.break",1,1,0);
+            return;
+        }
         if(kind==Kind.STAND_CLOCKS) {
             player.level().sendParticles(new net.minecraft.core.particles.DustParticleOptions(
                             net.minecraft.util.ARGB.colorFromFloat(1,.38f,.133f,.388f)&0xffffff,2),

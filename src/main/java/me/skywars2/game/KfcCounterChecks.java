@@ -61,6 +61,7 @@ public final class KfcCounterChecks {
             int cold=items.frost().cold(player),coldCd=items.frost().cooldown(player);
             int shotCount=items.laserMinigun().shots(player),magnumCount=items.magnum().shots(player);
             items.kfcFood().applyOutcome(player,7);
+            require(items.reactive().cooldownTicks(player)==5,"reactive counter adds one original five-tick unit");
             require(items.timeStop().cooldownTicks(player)==1 && items.stand().cooldownTicks(player)==1
                     && items.stand().lightningCooldownTicks(player)==1,"cooldowns keep their native stored increment of one");
             require(items.homing().curseSeconds(player)==1 && items.curseTicks(player)==1,"target and skill_issue update actual owner effects from zero");
@@ -74,6 +75,7 @@ public final class KfcCounterChecks {
             require(mana.get(player)==resource && mana.maximum(player)==max && mana.baseRegen(player)==regen,"counter outcome leaves mana resources for outcome nine");
             require(player.level().getGameTime()==time && game.server().getTickCount()==tick && player.getId()==id,"clock and identity stay unchanged");
             items.kfcFood().applyOutcome(player,7);
+            require(items.reactive().cooldownTicks(player)==10,"repeated reactive counter grants extend the live timer");
             require(items.timeStop().cooldownTicks(player)==2 && items.stand().cooldownTicks(player)==2
                     && items.homing().curseTicks(player)==2 && items.curseTicks(player)==2 && items.blind().queued(player)==2,"repeated grants extend the same live states");
         } finally {

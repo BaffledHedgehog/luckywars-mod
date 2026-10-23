@@ -1,5 +1,29 @@
 # Следующие этапы переноса
 
+## Reactive Shish / Shish Wall - QUALIFIED (23 October 2026)
+
+[Contract](REACTIVE_FAMILY_PORT.md). Two new ready leaves: lbc:ported/reactive_shish and
+lbc:ported/shish_wall_wand. Source presentation, zero-mana native Levitation,
+125-active-tick cooldown (raw25 HUD), 30-tick current-position spruce platform,
+four automatic wall modes and actual native 2x2/3x3 one-pair crafting retained.
+User chose smart terrain-only ray with no fixed range: reuses CPU-budgeted DDA,
+resident chunks and suppression; no entity terminal or new chunk loading.
+A miss is free; actual wall hit spends configured default500 once. Native Wall
+refund remains capped500 per prior user instruction. KFC adds one original
+five-tick unit; normal right-click/offhand, roles, causal terrain credit,
+Time Stop, purifier/death and actual-stop cleanup are integrated.
+Railgun/Shishgun and broad unready pools remain gated; no RP/template edit.
+
+Build6e98549e passed two actual isolated mode1 matches:14 recorded suite results
+in49.08s;245sources/670classes/2713resources exactly match tested artifacts.
+Evidence:build/verification/reactive-final/. Installed main while stopped;
+rollback91d85205 retained; agent did not start main. Three user sources preserved.
+Known fake-player Polymer packet-context warning remains; no final suite failed.
+No real-client pixels, full natural physics, actual disk restart/unload/disconnect
+or peak-capacity benchmark is claimed. Retained early fixture/runner failures
+are explained in the contract.
+<!-- reactive-family-status-end -->
+
 ## Ultraponos - QUALIFIED (23 October2026)
 
 [Contract](ULTRAPONOS_PORT.md). New ready leaf:lbc:ported/ultraponos_drop.

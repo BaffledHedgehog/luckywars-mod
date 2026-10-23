@@ -55,12 +55,14 @@ public final class LbcExasperato {
         Vec3 position;
         double remaining;
         final boolean walls;
+        final boolean blocksOnly;
         final java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult> result=new java.util.concurrent.CompletableFuture<>();
         final java.util.function.BiConsumer<Vec3,Vec3> trail;
         Search(ServerPlayer owner,String epoch,Vec3 from,Vec3 direction,double remaining,boolean walls,
-                java.util.function.BiConsumer<Vec3,Vec3> trail) {
+                java.util.function.BiConsumer<Vec3,Vec3> trail,boolean blocksOnly) {
             this.owner=owner; this.level=owner.level(); this.epoch=epoch;
             this.direction=direction; this.position=from; this.remaining=remaining; this.walls=walls; this.trail=trail;
+            this.blocksOnly=blocksOnly;
         }
     }
     private final ArrayDeque<Search> searches=new ArrayDeque<>();
@@ -205,15 +207,24 @@ public final class LbcExasperato {
     /** Общая порционная очередь прицеливания: дальность ограничена геометрией и загруженными чанками. */
     java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult> searchLoadedRay(ServerPlayer owner,
             Vec3 from,Vec3 direction,boolean walls,java.util.function.BiConsumer<Vec3,Vec3> trail) {
+        return searchLoadedRay(owner,from,direction,walls,trail,false);
+    }
+    /** Terrain-only spells share the budgeted DDA, without treating entities or shields as terrain. */
+    java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult> searchLoadedBlocks(ServerPlayer owner,
+            Vec3 from,Vec3 direction,java.util.function.BiConsumer<Vec3,Vec3> trail) {
+        return searchLoadedRay(owner,from,direction,true,trail,true);
+    }
+    private java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult> searchLoadedRay(ServerPlayer owner,
+            Vec3 from,Vec3 direction,boolean walls,java.util.function.BiConsumer<Vec3,Vec3> trail,boolean blocksOnly) {
         direction=direction.normalize();
         // Высота строительства ограничивает лишь наличие блоков. Мобы выше/ниже неё тоже остаются целями.
-        double reach=game.items().lifetimes().livingRayExtent(owner,from,direction);
+        double reach=blocksOnly?0:game.items().lifetimes().livingRayExtent(owner,from,direction);
         if(walls && Math.abs(direction.y)>1e-12) {
             double buildExit=Math.max((owner.level().getMinY()-from.y)/direction.y,
                     (owner.level().getMaxY()+1.0-from.y)/direction.y);
             reach=Math.max(reach,buildExit);
         } else if(walls && !owner.level().isOutsideBuildHeight(BlockPos.containing(from))) reach=Double.POSITIVE_INFINITY;
-        var search=new Search(owner,game.items().epoch(),from,direction,reach,walls,trail);
+        var search=new Search(owner,game.items().epoch(),from,direction,reach,walls,trail,blocksOnly);
         if(reach>0) searches.addLast(search); else search.result.complete(null);
         return search.result;
     }
@@ -235,11 +246,11 @@ public final class LbcExasperato {
             if(Math.abs(end.x)>30_000_000 || Math.abs(end.z)>30_000_000) { search.result.complete(null); continue; }
             var wall=search.walls?LbcTerra.wallHit(level,from,end):LbcTerra.wallHit(level,from,end,state->false);
             if(wall!=null) end=wall.getLocation();
-            var shield=game.items().wands().shieldHit(owner,from,end);
+            var shield=search.blocksOnly?null:game.items().wands().shieldHit(owner,from,end);
             if(shield!=null) end=shield.getLocation();
             double suppression=game.items().magic().suppressionFraction(level,from,end);
             if(Double.isFinite(suppression)) end=from.lerp(end,suppression);
-            var hit=ProjectileUtil.getEntityHitResult(level,owner,from,end,new AABB(from,end).inflate(1),
+            var hit=search.blocksOnly?null:ProjectileUtil.getEntityHitResult(level,owner,from,end,new AABB(from,end).inflate(1),
                     entity->game.items().lifetimes().target(owner,entity),0);
             if(search.trail!=null) search.trail.accept(from,hit==null?end:hit.getLocation());
             if(hit!=null) search.result.complete(hit);

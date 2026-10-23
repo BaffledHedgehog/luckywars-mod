@@ -82,7 +82,10 @@ final class LbcWall {
     }
 
     private static void vertical(GameController game,ServerPlayer owner,Vec3 point) {
-        Vec3 left=Vec3.directionFromRotation(0,owner.getYRot()-90);
+        vertical(game,owner,point,owner.getYRot());
+    }
+    private static void vertical(GameController game,ServerPlayer owner,Vec3 point,float yaw) {
+        Vec3 left=Vec3.directionFromRotation(0,yaw-90);
         var cells=new LinkedHashSet<BlockPos>();
         for(int x=-3;x<=3;x++) {
             BlockPos base=BlockPos.containing(point.add(left.scale(x)));
@@ -127,7 +130,10 @@ final class LbcWall {
     }
 
     private static void stairs(GameController game,ServerPlayer owner,BlockPos center) {
-        Direction facing=Direction.fromYRot(owner.getYRot());
+        stairs(game,owner,center,owner.getYRot());
+    }
+    private static void stairs(GameController game,ServerPlayer owner,BlockPos center,float yaw) {
+        Direction facing=Direction.fromYRot(yaw);
         Rotation rotation;
         BlockPos origin;
         switch(facing) {
@@ -139,5 +145,15 @@ final class LbcWall {
         game.items().indirectKills().trapChanges(owner,
                 ()->game.maps().placeLoadedTemplate(owner,STAIR,origin,1,rotation));
         LbcOverload.sound(owner,"minecraft:block.stone.place",1,1,0);
+    }
+    /** Shish Wall captures pose and facing at cast time, even if its long ray finishes later. */
+    static void shishTerminal(GameController game,ServerPlayer owner,BlockHitResult hit,Vec3 direction,int mode,float yaw) {
+        Vec3 point=hit.getLocation().add(direction.scale(1e-4));
+        switch(mode) {
+            case 2 -> horizontal(game,owner,point.add(direction.scale(.5)));
+            case 3 -> dismantle(game,owner,hit.getBlockPos());
+            case 4 -> stairs(game,owner,hit.getBlockPos(),yaw);
+            default -> vertical(game,owner,point,yaw);
+        }
     }
 }

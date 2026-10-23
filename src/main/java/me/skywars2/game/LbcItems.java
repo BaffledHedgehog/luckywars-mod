@@ -214,6 +214,7 @@ public final class LbcItems {
     private final LbcPisaDrops pisaDrops;
     private final LbcAntigravity antigravity;
     private final LbcUltraponos ultraponos;
+    private final LbcReactive reactive;
     private final LbcSkyHazards skyHazards;
     private final LbcDroneDrops droneDrops;
     private final LbcAntDrops antDrops;
@@ -402,6 +403,8 @@ public final class LbcItems {
         if(LbcMobgun.isMobgun(source.getMainHandItem()) || LbcMobgun.isMobgun(source.getOffhandItem()))
             hudCooldown(component,mobgun.cooldown(source));
         hudCooldown(component,helicopterHudValue(source));
+        if(LbcReactiveItems.isReactive(source.getMainHandItem()) || LbcReactiveItems.isReactive(source.getOffhandItem()))
+            hudCooldown(component,reactive.hudValue(source));
         hudCooldown(component,dividerHudValue(source));
         if(LbcStand.isOraora(source.getMainHandItem()) || LbcStand.isOraora(source.getOffhandItem()))
             hudCooldown(component,hudSeconds(stand.cooldownTicks(source)));
@@ -645,6 +648,7 @@ public final class LbcItems {
         this.pisaDrops = new LbcPisaDrops(game);
         this.antigravity = new LbcAntigravity(game);
         this.ultraponos = new LbcUltraponos(game);
+        this.reactive = new LbcReactive(game,mana);
         this.skyHazards = new LbcSkyHazards(game);
         this.droneDrops = new LbcDroneDrops(game);
         this.antDrops = new LbcAntDrops(game);
@@ -762,6 +766,7 @@ public final class LbcItems {
     public LbcPisaDrops pisaDrops() { return pisaDrops; }
     public LbcAntigravity antigravity() { return antigravity; }
     public LbcUltraponos ultraponos() { return ultraponos; }
+    public LbcReactive reactive() { return reactive; }
     public LbcSkyHazards skyHazards() { return skyHazards; }
     public LbcDroneDrops droneDrops() { return droneDrops; }
     public LbcAntDrops antDrops() { return antDrops; }
@@ -1330,6 +1335,7 @@ public final class LbcItems {
         helicopterEncounter.tick();
         antigravity.tick();
         ultraponos.tick();
+        reactive.tick();
         specialDrops.tick();
         portalDrops.tick();
         luckyPigs.tick();
@@ -1401,7 +1407,7 @@ public final class LbcItems {
         return curse == null ? 0 : curse.remaining;
     }
 
-    public void clear(ServerPlayer player) { shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
+    public void clear(ServerPlayer player) { reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
     public void forget(ServerPlayer player) {
         blind.forget(player);
         psycho.forget(player);
@@ -1481,6 +1487,7 @@ public final class LbcItems {
         pisaDrops.stop();
         antigravity.stop();
         ultraponos.stop();
+        reactive.stop();
         skyHazards.stop();
         portalDrops.stop();
         luckyPigs.stop();
