@@ -1,6 +1,24 @@
 # Следующие этапы переноса
 
-Latest matching-mob correction:build74a3cd83,16 suites/two actual mode1 matches
+## Normal TNT drone / Hohlopitek - 23 October 2026
+
+[Contract](NORMAL_DRONE_PORT.md), [source audit](NORMAL_DRONE_SOURCE.md).
+Closed normal drop -> own native host death reward -> complete technological
+weapon -> real bomber/TNT/pig lifecycle, plus hohol_spawn_egg. All three scoped
+ported leaves are ready. User chose no fixed ray range while chunks are loaded
+and only mechanism suppression; zero mana cost and raw50-second cooldown retain
+source behavior. Full imba/traps acquisition remains gated. Forest/Infinity/Mom
+reward closure and the remaining normal drops are still future work.
+
+Builde7ee5492 passed18 recorded suite results in two actual mode1 matches (81.21s),
+with exact260sources/711classes/2727resources verified. Installed main while stopped;
+rollback74a3cd83 retained. Main was not started by agent. Three user sources
+retain their starting hashes and are excluded from the commit. Evidence:
+build/verification/normal-drone-final/. Known fake-player Polymer context error
+pair retained; no final suite failed. No real-client pixels, actual disk restart/
+unload/disconnect or peak-capacity claim.
+
+Historical matching-mob correction:build74a3cd83,16 suites/two actual mode1 matches
 (50.43s), installed while main was stopped; rollback77ae0b9a retained. The author
 approved preserving special egg parameters on offspring. Native child creation
 now reuses the same payload/adoption processor before insertion; source contract:
@@ -17,7 +35,7 @@ passed16 suite results in two actual mode1 matches (60.4s), installed while main
 was stopped; previous43634ed9 retained. Evidence:build/verification/special-eggs-final/.
 User approved preserving special egg parameters on matching-mob use; the follow-up
 applies the same native processor before child insertion. Ordinary eggs/spawner
-tuning stay unchanged. Forest/Infinity/Mom/normal-drone reward chains stay gated.
+tuning stay unchanged. Forest/Infinity/Mom reward chains stay gated; normal drone is closed above.
 
 ## Remaining implementation estimate - 23 October 2026
 

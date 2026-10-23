@@ -732,6 +732,9 @@ public final class GameChecks {
                                 case "academy-single-use-stop-probe" -> { AcademySingleUseChecks.stopProbe(game); return; }
                                 case "academy-single-use-cleanup" -> { AcademySingleUseChecks.cleanup(game); return; }
                                 case "stalin-encounter" -> { StalinEncounterChecks.run(game); return; }
+                                case "normal-drone" -> { NormalDroneChecks.run(game); return; }
+                                case "normal-drone-stop-probe" -> { NormalDroneChecks.stopProbe(game); return; }
+                                case "normal-drone-cleanup" -> { NormalDroneChecks.cleanup(game); return; }
                                 case "special-eggs" -> { SpecialEggChecks.run(game); return; }
                                 case "special-eggs-stop-probe" -> { SpecialEggChecks.stopProbe(game); return; }
                                 case "special-eggs-cleanup" -> { SpecialEggChecks.cleanup(game); return; }
@@ -1102,6 +1105,7 @@ public final class GameChecks {
                 AcidAntDropChecks.tick(game);
                 TransformatorChecks.tick(game);
                 StalinEncounterChecks.tick(game);
+                NormalDroneChecks.tick(game);
                 SpecialEggChecks.tick(game);
                 VexFamilyChecks.tick(game);
                 AcademySingleUseChecks.tick(game);

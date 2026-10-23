@@ -56,6 +56,10 @@ public final class LbcSpecialEggs {
         SHAHID("skywars2:shahid_spawn_egg", "shahid_spawn_egg", Items.ZOMBIE_SPAWN_EGG, EntityTypes.ITEM, "lbc:tier_ff", """
                 {PickupDelay:32767s,Item:{count:1,id:"minecraft:repeating_command_block",components:{
                  "minecraft:custom_data":{shahid:1,drop:1},"minecraft:item_model":"lbc:drop_trap"}}}
+                """),
+        HOHOL("skywars2:hohol_spawn_egg", "hohol_spawn_egg", Items.BAT_SPAWN_EGG, EntityTypes.ITEM, "lbc:tier_f", """
+                {PickupDelay:32767s,Item:{count:1,id:"minecraft:repeating_command_block",components:{
+                 "minecraft:custom_data":{droppertnt:1,drop:1},"minecraft:item_model":"lbc:drop_boss"}}}
                 """);
 
         private final Item item;
@@ -126,7 +130,7 @@ public final class LbcSpecialEggs {
             case SLAB -> { if(entity instanceof Zombie zombie) game.items().slabDrops().adoptEgg(zombie,author); }
             case LOW_VEX -> { if(entity instanceof Vex vex) game.items().creatureDrops().adoptEggVex(vex,author); }
             case SARVATRA_CREEPER -> { if(entity instanceof Creeper creeper) game.items().creeperDrops().adoptEgg(creeper,user); }
-            case SHAHID -> {
+            case SHAHID,HOHOL -> {
                 if(entity instanceof ItemEntity token) {
                     if(user!=null) token.setThrower(user);
                     game.items().specialDrops().loaded(token);

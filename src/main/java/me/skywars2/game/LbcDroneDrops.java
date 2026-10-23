@@ -24,14 +24,21 @@ import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import java.util.*;
 
-/** Native old drone producer and its explicitly tagged lineage; no replacement AI or actor lifetime. */
+/** Native drone variants and their explicitly tagged lineage; no replacement AI or actor lifetime. */
 public final class LbcDroneDrops {
     private static final String ACTOR="skywars2.drone_drop",OWNER="skywars2.drone_owner.";
     private static final String HOST="skywars2.drone_host.",CLOSED="skywars2.drone_closed";
     private static final CompoundTag PAYLOAD=parse("""
             {Silent:1b,CustomNameVisible:0b,PersistenceRequired:1b,Health:40.0f,Passengers:[{id:"minecraft:spawner_minecart",Tags:["hohlospawner"],CustomNameVisible:0b,SpawnCount:1,SpawnRange:0,Delay:20,MinSpawnDelay:20,MaxSpawnDelay:20,MaxNearbyEntities:1000,RequiredPlayerRange:50,Passengers:[{id:"minecraft:hoglin",CustomNameVisible:1b,PersistenceRequired:1b,Health:30.0f,IsImmuneToZombification:1b,CustomName:{"italic":false,"text":"український безпілотник"},active_effects:[{id:"minecraft:weakness",amplifier:99b,duration:2000000,show_particles:0b}],attributes:[{id:"minecraft:max_health",base:30}]}],CustomName:{"italic":false,"text":"український безпілотник"},SpawnData:{entity:{id:"minecraft:tnt",CustomNameVisible:0b,fuse:100,Tags:["groundbam"],Passengers:[{id:"minecraft:pig",CustomNameVisible:1b,DeathLootTable:"empty",Health:35.0f,CustomName:{"text":"Українська бiмба","italic":false},attributes:[{id:"max_health",base:35}]}],CustomName:{"text":"Українська бiмба","italic":false}}}}],CustomName:{"italic":false,"text":"український безпілотник"},active_effects:[{id:"minecraft:invisibility",amplifier:10b,duration:2000000,show_particles:0b}],attributes:[{id:"minecraft:max_health",base:40}]}
+            """);
+    private static final CompoundTag BOMBER=parse("""
+            {id:"minecraft:hoglin",Tags:["hohlopitek","lucky_mob","actived"],NoGravity:1b,IsImmuneToZombification:1b,active_effects:[{id:"minecraft:instant_damage",duration:2000000,show_particles:0b}],NoAI:1b,Invulnerable:0b,Health:150.0f,attributes:[{id:"minecraft:max_health",base:150}]}
+            """);
+    private static final CompoundTag BOMB=parse("""
+            {id:"minecraft:tnt",CustomNameVisible:0b,fuse:100,Tags:["groundbam"],Passengers:[{id:"minecraft:pig",CustomNameVisible:1b,DeathLootTable:"empty",Health:35.0f,CustomName:{"italic":false,"text":"Українська бiмба"},attributes:[{id:"minecraft:max_health",base:35}]}],CustomName:{"italic":false,"text":"Українська бiмба"}}
             """);
     private final GameController game;
     private final Set<Entity> tracked=Collections.newSetFromMap(new IdentityHashMap<>());
@@ -40,7 +47,57 @@ public final class LbcDroneDrops {
     private final Set<String> deadHosts=new HashSet<>();
     public LbcDroneDrops(GameController game){this.game=game;}
     private static CompoundTag parse(String text){try{return TagParser.parseCompoundFully(text);}catch(com.mojang.brigadier.exceptions.CommandSyntaxException e){throw new ExceptionInInitializerError(e);}}
-    public static CompoundTag payload(){var tag=PAYLOAD.copy();tag.putString("id","minecraft:bat");return tag;}
+    public static CompoundTag payload(){return payload(false);}
+    public static CompoundTag payload(boolean normal){
+        var tag=PAYLOAD.copy();tag.putString("id","minecraft:bat");
+        if(normal){
+            var cart=(CompoundTag)tag.getListOrEmpty("Passengers").get(0);
+            var host=(CompoundTag)cart.getListOrEmpty("Passengers").get(0);
+            host.putString("DeathLootTable","lbc:hohlopitek");
+        }
+        return tag;
+    }
+
+    /** Source attack hoglin: its own target sets yaw, and native Instant Damage owns its lifespan. */
+    public Hoglin spawnBomber(ServerPlayer owner,Vec3 target,float castYaw){
+        var level=owner.level();
+        if(!game.playing() || game.stage()==GameController.Stage.ENDING || level!=game.maps().level())return null;
+        double angle=Math.toRadians(castYaw+90);
+        var at=target.add(-Math.sin(angle)*28,20,Math.cos(angle)*28);
+        if(!Level.isInSpawnableBounds(BlockPos.containing(at)) || !resident(level,new AABB(BlockPos.containing(at)).inflate(1)))return null;
+        var data=BOMBER.copy();enrich(data,owner);authors.put(owner.getUUID(),owner);
+        float yaw=(float)Math.toDegrees(Math.atan2(-(target.x-at.x),target.z-at.z));
+        var actor=EntityType.loadEntityRecursive(TagValueInput.create(ProblemReporter.DISCARDING,level.registryAccess(),data),
+                level,EntitySpawnReason.COMMAND,e->{e.snapTo(at.x,at.y,at.z,yaw,0);return e;});
+        if(!(actor instanceof Hoglin hoglin))return null;
+        if(!level.tryAddFreshEntityWithPassengers(hoglin)){
+            hoglin.getSelfAndPassengers().toList().forEach(e->{unloaded(e);e.discard();});return null;
+        }
+        return hoglin;
+    }
+
+    private void bomberTick(Hoglin actor){
+        if(!actor.isAlive() || !actor.entityTags().contains("hohlopitek"))return;
+        var level=(ServerLevel)actor.level();
+        if(game.items().timeStop().stopped(level) || game.items().magic().mechanismSuppressedAt(level,actor.position()))return;
+        double angle=Math.toRadians(actor.getYRot());
+        var forward=new Vec3(-Math.sin(angle),0,Math.cos(angle));
+        var left=new Vec3(Math.cos(angle),0,Math.sin(angle));
+        var next=actor.position().add(forward);
+        var positions=List.of(actor.position().add(left.scale(2)),actor.position().add(left.scale(-2)),actor.position());
+        if(!Level.isInSpawnableBounds(BlockPos.containing(next)) || !resident(level,actor.getBoundingBox().move(forward)))return;
+        for(var at:positions)if(!Level.isInSpawnableBounds(BlockPos.containing(at))
+                || !resident(level,new AABB(BlockPos.containing(at)).inflate(1)))return;
+        var author=LbcIndirectKills.playerSource(owner(actor));
+        for(var at:positions){
+            var data=BOMB.copy();enrich(data,author);
+            var bomb=EntityType.loadEntityRecursive(TagValueInput.create(ProblemReporter.DISCARDING,level.registryAccess(),data),
+                    level,EntitySpawnReason.COMMAND,e->{e.snapTo(at.x,at.y,at.z,e.getYRot(),e.getXRot());return e;});
+            if(bomb!=null && !level.tryAddFreshEntityWithPassengers(bomb))
+                bomb.getSelfAndPassengers().toList().forEach(e->{unloaded(e);e.discard();});
+        }
+        actor.snapTo(next.x,next.y,next.z,actor.getYRot(),actor.getXRot());
+    }
 
     public boolean ready(ItemEntity token){
         if(token.isRemoved() || token.getAge()>=5999 || !LbcDroneDropItem.matches(token.getItem())
@@ -58,7 +115,7 @@ public final class LbcDroneDrops {
         if(!Level.isInSpawnableBounds(BlockPos.containing(at)))return true;
         var author=LbcIndirectKills.playerSource(game.items().specialDrops().owner(token));
         if(author!=null)authors.put(author.getUUID(),author);
-        var data=payload();enrich(data,author);
+        var data=payload(LbcDroneDropItem.isNormal(token.getItem()));enrich(data,author);
         var actor=EntityType.loadEntityRecursive(TagValueInput.create(ProblemReporter.DISCARDING,level.registryAccess(),data),
                 level,EntitySpawnReason.COMMAND,e->{e.snapTo(at.x,at.y,at.z,e.getYRot(),e.getXRot());return e;});
         if(actor!=null){
@@ -174,6 +231,7 @@ public final class LbcDroneDrops {
         for(var actor:List.copyOf(tracked)){
             if(actor.isRemoved()){unloaded(actor);continue;}
             if(!active(actor)){unloaded(actor);actor.discard();continue;}
+            if(actor instanceof Hoglin hoglin && game.server().getTickCount()%5==0)bomberTick(hoglin);
             if(actor instanceof MinecartSpawner cart && game.server().getTickCount()%20==0
                     && !game.items().timeStop().stopped((ServerLevel)cart.level()) && !keepAlive(cart))cart.kill((ServerLevel)cart.level());
         }

@@ -219,6 +219,9 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null && player instanceof ServerPlayer owner && me.skywars2.game.LbcAk47.isAk47(player.getItemInHand(hand))
                     && !player.getItemInHand(hand).is(me.skywars2.game.LbcAk47.ITEM))
                 return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+            if(game!=null && player instanceof ServerPlayer owner && me.skywars2.game.LbcHohlopitek.isItem(player.getItemInHand(hand))
+                    && !player.getItemInHand(hand).is(me.skywars2.game.LbcHohlopitek.ITEM))
+                return game.items().wands().use(owner,hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer owner && me.skywars2.game.LbcLaserMinigun.isMinigun(player.getItemInHand(hand))
                     && !player.getItemInHand(hand).is(me.skywars2.game.LbcLaserMinigun.ITEM))
                 return game.items().wands().use(owner, hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;

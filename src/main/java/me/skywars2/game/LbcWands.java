@@ -350,6 +350,7 @@ public final class LbcWands {
         if (LbcMagnum.isMagnum(stack)) return game.items().magnum().use(player,hand);
         if (LbcAk47.isAk47(stack)) return game.items().ak47().use(player,hand);
         if (LbcLaserMinigun.isMinigun(stack)) return game.items().laserMinigun().use(player,hand);
+        if (LbcHohlopitek.isItem(stack)) return game.items().hohlopitek().use(player,hand);
         if (LbcStand.isOraora(stack) || LbcStand.isClocks(stack) || LbcStand.isHomingLightning(stack))
             return game.items().stand().use(player,hand);
         if (LbcMobgun.isMobgun(stack)) return game.items().mobgun().use(player,hand);

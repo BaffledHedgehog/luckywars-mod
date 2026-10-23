@@ -147,7 +147,7 @@ public final class LbcItems {
     }
 
     /** Загружаем регистрацию до freeze реестров и чтения loot tables, а не при первом обращении к предмету. */
-    public static void register() { EnchantmentRules.register(); LbcSkills.register(); LbcClouds.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcVexSword.register(); LbcSpecialEggs.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcTntDropItem.register(); LbcCreeperDropItem.register(); LbcCageDropItem.register(); LbcHoleDropItem.register(); LbcCorrosionDropItem.register(); LbcZombieTntDropItem.register(); LbcFallingNetheriteDropItem.register(); LbcHomeItems.register(); LbcScareDropItem.register(); LbcLuckyPigDropItem.register(); LbcLevitationDropItem.register(); LbcLibraryDropItem.register(); LbcBeeDropItem.register(); LbcOpAnvilDropItem.register(); LbcSlabDropItem.register(); LbcFeedbackDropItem.register(); LbcCreatureDropItem.register(); LbcPotionSpawnerDropItem.register(); LbcIslandDropItem.register(); LbcDroneDropItem.register(); LbcAntDropItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
+    public static void register() { EnchantmentRules.register(); LbcSkills.register(); LbcClouds.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcVexSword.register(); LbcSpecialEggs.register(); LbcHohlopitek.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcTntDropItem.register(); LbcCreeperDropItem.register(); LbcCageDropItem.register(); LbcHoleDropItem.register(); LbcCorrosionDropItem.register(); LbcZombieTntDropItem.register(); LbcFallingNetheriteDropItem.register(); LbcHomeItems.register(); LbcScareDropItem.register(); LbcLuckyPigDropItem.register(); LbcLevitationDropItem.register(); LbcLibraryDropItem.register(); LbcBeeDropItem.register(); LbcOpAnvilDropItem.register(); LbcSlabDropItem.register(); LbcFeedbackDropItem.register(); LbcCreatureDropItem.register(); LbcPotionSpawnerDropItem.register(); LbcIslandDropItem.register(); LbcDroneDropItem.register(); LbcAntDropItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
 
     private static final CompoundTag BROKEN_TOTEM = new CompoundTag();
     private static final CompoundTag DYNAMITE = new CompoundTag();
@@ -220,6 +220,7 @@ public final class LbcItems {
     private final LbcStalin stalin;
     private final LbcSkyHazards skyHazards;
     private final LbcDroneDrops droneDrops;
+    private final LbcHohlopitek hohlopitek;
     private final LbcAntDrops antDrops;
     private final LbcTntDrops tntDrops;
     private final LbcCreeperDrops creeperDrops;
@@ -419,6 +420,8 @@ public final class LbcItems {
         if(LbcStand.isHomingLightning(source.getMainHandItem()) || LbcStand.isHomingLightning(source.getOffhandItem()))
             hudCooldown(component,hudSeconds(stand.lightningCooldownTicks(source)));
         hudCooldown(component,bossHelicopterHudValue(source));
+        if(LbcHohlopitek.isItem(source.getMainHandItem()) || LbcHohlopitek.isItem(source.getOffhandItem()))
+            hudCooldown(component,hohlopitek.hudValue(source));
         if(LbcStand.isClocks(source.getMainHandItem()) || LbcStand.isClocks(source.getOffhandItem()))
             hudCooldown(component,hudSeconds(timeStop.cooldownTicks(source)));
         hudPositive(component,"  \uE110 ",blaze.headCharges(source),ChatFormatting.GREEN);
@@ -662,6 +665,7 @@ public final class LbcItems {
         this.stalin = new LbcStalin(game);
         this.skyHazards = new LbcSkyHazards(game);
         this.droneDrops = new LbcDroneDrops(game);
+        this.hohlopitek = new LbcHohlopitek(game,mana);
         this.antDrops = new LbcAntDrops(game);
         this.tntDrops = new LbcTntDrops(game);
         this.creeperDrops = new LbcCreeperDrops(game);
@@ -745,7 +749,8 @@ public final class LbcItems {
                 && (!(source.getEntity() instanceof ServerPlayer attacker) || !game.isObserver(attacker) || timeStop.replaying(source)
                     || (LbcTntDrops.managed(source.getDirectEntity()) || LbcCreeperDrops.managed(source.getDirectEntity())
                         || LbcCageDrops.managed(source.getDirectEntity()) || LbcPotionSpawnerDrops.managed(source.getDirectEntity())
-                        || LbcTransformator.managed(source.getDirectEntity()) || LbcVexSword.managed(source.getDirectEntity()))
+                        || LbcTransformator.managed(source.getDirectEntity()) || LbcVexSword.managed(source.getDirectEntity())
+                        || LbcDroneDrops.managed(source.getDirectEntity()))
                         && currentEpoch(source.getDirectEntity()))
                 && (!(victim instanceof ServerPlayer player) || game.allowDamage(player))
                 && wands.allowDamage(victim,source) && kfcRewards.allowDamage(victim,source)
@@ -786,6 +791,7 @@ public final class LbcItems {
     public LbcStalin stalin() { return stalin; }
     public LbcSkyHazards skyHazards() { return skyHazards; }
     public LbcDroneDrops droneDrops() { return droneDrops; }
+    public LbcHohlopitek hohlopitek() { return hohlopitek; }
     public LbcAntDrops antDrops() { return antDrops; }
     public LbcTntDrops tntDrops() { return tntDrops; }
     public LbcCreeperDrops creeperDrops() { return creeperDrops; }
@@ -1360,6 +1366,7 @@ public final class LbcItems {
         antigravity.tick();
         ultraponos.tick();
         reactive.tick();
+        hohlopitek.tick();
         transformator.tick();
         stalin.tick();
         specialDrops.tick();
@@ -1433,8 +1440,9 @@ public final class LbcItems {
         return curse == null ? 0 : curse.remaining;
     }
 
-    public void clear(ServerPlayer player) { vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
+    public void clear(ServerPlayer player) { hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
     public void forget(ServerPlayer player) {
+        hohlopitek.forget(player);
         blind.forget(player);
         psycho.forget(player);
         summons.forget(player);
@@ -1516,6 +1524,7 @@ public final class LbcItems {
         antigravity.stop();
         ultraponos.stop();
         reactive.stop();
+        hohlopitek.stop();
         transformator.stop();
         stalin.stop();
         skyHazards.stop();

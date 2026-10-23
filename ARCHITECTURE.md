@@ -1,5 +1,25 @@
 # Структура переноса игрового цикла
 
+## Normal TNT drone / Hohlopitek airstrike - QUALIFIED
+
+[Contract](agent_notes/NORMAL_DRONE_PORT.md). LbcDroneDrops owns both producer
+variants and the native attack hoglin/TNT/pig lineage. Normal payload only adds
+its host death table. Hohlopitek uses the existing LbcExasperato budgeted loaded
+ray queue with a mechanism-only technology policy; original magical searches
+retain their policy. One terminal directly creates one source150HP bomber;
+native Instant Damage governs life and every5t emits three real100-fuse bombs.
+No parallel actor/ray framework, invented TTL, forced chunk or second cooldown.
+The original raw coldownhohol bridges HUD/KFC/reset; LbcSpecialEggs reuses native
+ENTITY_DATA and the existing drop dispatcher. No new resource-pack assets.
+
+Builde7ee5492 passed18 recorded suite results in two actual mode1 matches (81.21s),
+with exact260sources/711classes/2727resources verified. Installed main while stopped;
+rollback74a3cd83 retained. Main was not started by agent. Three user sources
+retain their starting hashes and are excluded from the commit. Evidence:
+build/verification/normal-drone-final/. Known fake-player Polymer context error
+pair retained; no final suite failed. No real-client pixels, actual disk restart/
+unload/disconnect or peak-capacity claim.
+
 ## Special-egg offspring correction - QUALIFIED
 
 SpecialEggMixin.Offspring appends EntityType.createDefaultStackConfig before

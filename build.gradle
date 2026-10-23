@@ -32,6 +32,8 @@ processResources {
     include 'data/lbc/loot_table/ported/vex_drop.json', 'data/lbc/loot_table/ported/vex_sword.json', 'data/lbc/loot_table/vex_sword.json'
     include 'data/lbc/loot_table/ported/slab_spawn_egg.json', 'data/lbc/loot_table/ported/low_vex_spawn_egg.json'
     include 'data/lbc/loot_table/ported/sarvatra_creeper_spawn_egg.json', 'data/lbc/loot_table/ported/shahid_spawn_egg.json'
+    include 'data/lbc/loot_table/ported/tnt_drone_drop.json', 'data/lbc/loot_table/ported/hohlopitek.json'
+    include 'data/lbc/loot_table/ported/hohol_spawn_egg.json', 'data/lbc/loot_table/hohlopitek.json'
     include 'data/lbc/loot_table/ported/ultraponos_drop.json', 'data/lbc/structure/ponos.nbt'
     include 'data/lbc/loot_table/ported/antigravity_drop.json'
     include 'data/lbc/loot_table/ported/pisa_boats_drop.json', 'data/lbc/loot_table/pisa_relic.json', 'data/lbc/loot_table/pisa_relic_upgraded.json'

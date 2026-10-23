@@ -1,5 +1,30 @@
 # Проект SkyWars
 
+## Normal TNT drone / Hohlopitek airstrike - QUALIFIED (23 October 2026)
+
+[Contract](agent_notes/NORMAL_DRONE_PORT.md), [source audit](agent_notes/NORMAL_DRONE_SOURCE.md).
+Three scoped ready leaves: lbc:ported/tnt_drone_drop, hohlopitek and
+hohol_spawn_egg. Normal host has guaranteed complete native staff reward; old
+variant remains separate. Source native hierarchy, own-host producer shutdown,
+three-TNT/pig bomber pulses, harmful-effect lifespan and landing fuse retained.
+Author chose unlimited loaded-chunk ray and mechanism-only suppression; no mana
+cost, antimagic aura, magic beacon or magic-shield block. One nearest terminal
+binds its own bomber directly. Original coldownhohol200 five-tick units, HUD and
+KFC/reset bridges remain authoritative. No new actor framework, TTL/cap or RP edit.
+Native WILD ordnance remains dangerous after caster becomes observer and retains
+causal kill credit. Protected roles, resident chunks, Time Stop and quiet stop
+use existing services. Tests include real240-block ray, deterministic legacy
+marker-to-beacon migration/cleanup, magic-vs-mechanism controls and existing
+old-drone/egg/Vex/reactive/KFC regressions. Broad imba/traps pools stay gated.
+
+Builde7ee5492 passed18 recorded suite results in two actual mode1 matches (81.21s),
+with exact260sources/711classes/2727resources verified. Installed main while stopped;
+rollback74a3cd83 retained. Main was not started by agent. Three user sources
+retain their starting hashes and are excluded from the commit. Evidence:
+build/verification/normal-drone-final/. Known fake-player Polymer context error
+pair retained; no final suite failed. No real-client pixels, actual disk restart/
+unload/disconnect or peak-capacity claim.
+
 ## Special-egg offspring correction - QUALIFIED (23 October 2026, user)
 
 User confirmed: "Да, сохранять особые параметры яйца". Matching-mob use of

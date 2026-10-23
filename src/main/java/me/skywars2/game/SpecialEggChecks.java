@@ -31,6 +31,9 @@ import java.util.*;
 /** Real item interactions, native configured actors/death loot and actual match-stop fixtures. */
 public final class SpecialEggChecks {
     private SpecialEggChecks() { }
+    // This regression owns the original four leaves; later egg families have their own fixtures.
+    private static final List<LbcSpecialEggs.Kind> KINDS=List.of(LbcSpecialEggs.Kind.SLAB,LbcSpecialEggs.Kind.LOW_VEX,
+            LbcSpecialEggs.Kind.SARVATRA_CREEPER,LbcSpecialEggs.Kind.SHAHID);
     private static Fixture running, stopping;
     private static String stopEpoch;
     private static List<Entity> stopActors=List.of();
@@ -90,7 +93,7 @@ public final class SpecialEggChecks {
         List<Entity> fresh(Set<Entity> before) {var out=new ArrayList<Entity>();for(var e:level.getAllEntities())if(!before.contains(e)){owned.add(e);out.add(e);}return out;}
         void capture(){for(var e:level.getAllEntities())if(!initial.contains(e)&&e.position().distanceToSqr(origin)<400)owned.add(e);}
         ItemStack egg(LbcSpecialEggs.Kind kind,int count){var s=game.lbc().rollTable(level,origin,owner,"lbc:ported/"+leaf(kind)).getFirst();s.setCount(count);return s;}
-        String leaf(LbcSpecialEggs.Kind kind){return switch(kind){case SLAB->"slab_spawn_egg";case LOW_VEX->"low_vex_spawn_egg";case SARVATRA_CREEPER->"sarvatra_creeper_spawn_egg";case SHAHID->"shahid_spawn_egg";};}
+        String leaf(LbcSpecialEggs.Kind kind){return switch(kind){case SLAB->"slab_spawn_egg";case LOW_VEX->"low_vex_spawn_egg";case SARVATRA_CREEPER->"sarvatra_creeper_spawn_egg";case SHAHID->"shahid_spawn_egg";case HOHOL->"hohol_spawn_egg";};}
         BlockHitResult hit(){return new BlockHitResult(Vec3.atCenterOf(pad).add(0,.5,0),Direction.UP,pad,false);}
         boolean use(ItemStack stack,InteractionHand hand,boolean gameMode){owner.setItemInHand(hand,stack);return (gameMode?owner.gameMode.useItemOn(owner,level,stack,hand,hit()):stack.useOn(new UseOnContext(owner,hand,hit()))).consumesAction();}
         Entity spawn(LbcSpecialEggs.Kind kind,InteractionHand hand,boolean gameMode) {
@@ -102,12 +105,12 @@ public final class SpecialEggChecks {
             return actor;
         }
         void presentation() {
-            for(var kind:LbcSpecialEggs.Kind.values()){
+            for(var kind:KINDS){
                 var stack=egg(kind,2);var flags=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
                 require(stack.is(kind.item())&&stack.getItem() instanceof SpawnEggItem&&stack.getItem() instanceof eu.pb4.polymer.core.api.item.PolymerItem,"native Polymer spawn egg "+kind);
                 require(BuiltInRegistries.ITEM.getKey(stack.getItem()).equals(Identifier.parse("skywars2:"+leaf(kind))),"public native item ID "+kind);
                 require(flags.size()==1&&flags.getIntOr("imba",0)==1,"original imba flag only "+kind);
-                var model=switch(kind){case SLAB,SHAHID->"minecraft:zombie_spawn_egg";case LOW_VEX->"minecraft:vex_spawn_egg";case SARVATRA_CREEPER->"minecraft:creeper_spawn_egg";};
+                var model=switch(kind){case SLAB,SHAHID->"minecraft:zombie_spawn_egg";case LOW_VEX->"minecraft:vex_spawn_egg";case SARVATRA_CREEPER->"minecraft:creeper_spawn_egg";case HOHOL->"minecraft:bat_spawn_egg";};
                 require(Identifier.parse(model).equals(stack.get(DataComponents.ITEM_MODEL)),"source vanilla proxy model "+kind);
                 var name=stack.get(DataComponents.CUSTOM_NAME);var lore=stack.get(DataComponents.LORE);
                 require(name!=null&&!name.getStyle().isItalic()&&name.getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents tr&&tr.getKey().equals(leaf(kind))&&name.getStyle().getColor().getValue()==0xff5555&&lore!=null&&lore.lines().size()==1&&!lore.lines().getFirst().getStyle().isItalic(),"source name/lore formatting "+kind);
@@ -115,7 +118,7 @@ public final class SpecialEggChecks {
             }
         }
         void admission() {
-            for(var kind:LbcSpecialEggs.Kind.values()){
+            for(var kind:KINDS){
                 var stack=egg(kind,2);var before=current();game.items().timeStop().begin(level,200);
                 try{require(!use(stack,InteractionHand.MAIN_HAND,false)&&stack.getCount()==2&&fresh(before).isEmpty(),"frozen native egg declines freely "+kind);}finally{game.items().timeStop().end(level);}
                 var observerState=new GameChecks.WandThirdPlayerState(owner,game.items().mana());game.spectators().enter(owner);
@@ -260,7 +263,7 @@ public final class SpecialEggChecks {
     public static void stopProbe(GameController game) {
         require(running==null&&stopping==null,"exclusive actual stop fixture");var f=new Fixture(game);stopping=f;
         try{
-            f.initialize();for(var kind:LbcSpecialEggs.Kind.values())f.spawn(kind,InteractionHand.MAIN_HAND,false);
+            f.initialize();for(var kind:KINDS)f.spawn(kind,InteractionHand.MAIN_HAND,false);
             var token=f.owned.stream().filter(e->e instanceof ItemEntity).map(e->(ItemEntity)e).findFirst().orElseThrow();
             require(game.items().specialDrops().spawn(token),"actual pre-stop center payload");f.capture();
             stopActors=f.owned.stream().filter(e->!e.isRemoved()&&(e instanceof Mob||e instanceof PrimedTnt)).toList();

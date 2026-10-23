@@ -56,13 +56,21 @@ public final class LbcExasperato {
         double remaining;
         final boolean walls;
         final boolean blocksOnly;
+        final boolean technology;
+        final java.util.function.Predicate<Entity> target;
         final java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult> result=new java.util.concurrent.CompletableFuture<>();
         final java.util.function.BiConsumer<Vec3,Vec3> trail;
         Search(ServerPlayer owner,String epoch,Vec3 from,Vec3 direction,double remaining,boolean walls,
                 java.util.function.BiConsumer<Vec3,Vec3> trail,boolean blocksOnly) {
+            this(owner,epoch,from,direction,remaining,walls,trail,blocksOnly,false,null);
+        }
+        Search(ServerPlayer owner,String epoch,Vec3 from,Vec3 direction,double remaining,boolean walls,
+                java.util.function.BiConsumer<Vec3,Vec3> trail,boolean blocksOnly,boolean technology,
+                java.util.function.Predicate<Entity> target) {
             this.owner=owner; this.level=owner.level(); this.epoch=epoch;
             this.direction=direction; this.position=from; this.remaining=remaining; this.walls=walls; this.trail=trail;
             this.blocksOnly=blocksOnly;
+            this.technology=technology; this.target=target;
         }
     }
     private final ArrayDeque<Search> searches=new ArrayDeque<>();
@@ -217,6 +225,12 @@ public final class LbcExasperato {
     private java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult> searchLoadedRay(ServerPlayer owner,
             Vec3 from,Vec3 direction,boolean walls,java.util.function.BiConsumer<Vec3,Vec3> trail,boolean blocksOnly) {
         direction=direction.normalize();
+        double reach=loadedRayExtent(owner,from,direction,walls,blocksOnly);
+        var search=new Search(owner,game.items().epoch(),from,direction,reach,walls,trail,blocksOnly);
+        if(reach>0) searches.addLast(search); else search.result.complete(null);
+        return search.result;
+    }
+    private double loadedRayExtent(ServerPlayer owner,Vec3 from,Vec3 direction,boolean walls,boolean blocksOnly) {
         // Высота строительства ограничивает лишь наличие блоков. Мобы выше/ниже неё тоже остаются целями.
         double reach=blocksOnly?0:game.items().lifetimes().livingRayExtent(owner,from,direction);
         if(walls && Math.abs(direction.y)>1e-12) {
@@ -224,9 +238,32 @@ public final class LbcExasperato {
                     (owner.level().getMaxY()+1.0-from.y)/direction.y);
             reach=Math.max(reach,buildExit);
         } else if(walls && !owner.level().isOutsideBuildHeight(BlockPos.containing(from))) reach=Double.POSITIVE_INFINITY;
-        var search=new Search(owner,game.items().epoch(),from,direction,reach,walls,trail,blocksOnly);
-        if(reach>0) searches.addLast(search); else search.result.complete(null);
+        return reach;
+    }
+
+    /** Physical targeting shares the queue/DDA and natural extent, with mechanism suppression only.
+     * Infinite maxRange leaves the loaded terrain/target extent in control, including empty vertical misses. */
+    java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult> useTechnologyRay(ServerPlayer owner,
+            Vec3 from,Vec3 direction,double maxRange,java.util.function.Predicate<Entity> target,
+            java.util.function.BiConsumer<Vec3,Vec3> trail) {
+        direction=direction.normalize();
+        double reach=Math.min(maxRange,loadedRayExtent(owner,from,direction,true,false));
+        var search=new Search(owner,game.items().epoch(),from,direction,reach,true,trail,false,true,target);
+        if(reach>0 && direction.lengthSqr()>1e-12) searches.addLast(search); else search.result.complete(null);
         return search.result;
+    }
+
+    private boolean searchOwnerSuppressed(Search search) {
+        if(!search.technology) return game.items().magic().suppressed(search.owner);
+        return game.items().magic().mechanismSuppressed(search.owner);
+    }
+    private boolean searchPointSuppressed(Search search,Vec3 point) {
+        return search.technology ? game.items().magic().mechanismSuppressedAt(search.level,point)
+                : game.items().magic().suppressedAt(search.level,point);
+    }
+    private double searchSuppressionFraction(Search search,Vec3 from,Vec3 to) {
+        if(!search.technology) return game.items().magic().suppressionFraction(search.level,from,to);
+        return game.items().magic().mechanismSuppressionFraction(search.level,from,to);
     }
 
     /** Ограничиваем работу, а не дальность: каждый незавершённый луч продолжится в следующих тиках. */
@@ -236,22 +273,22 @@ public final class LbcExasperato {
         for(int work=0;work<SEARCH_BUDGET && !searches.isEmpty() && System.nanoTime()<deadline;work++) {
             var search=searches.removeFirst(); var owner=search.owner; var level=search.level;
             if(search.result.isDone()) continue;
-            if(!valid(owner,search.epoch) || owner.level()!=level || game.items().magic().suppressed(owner)) { search.result.complete(null); continue; }
+            if(!valid(owner,search.epoch) || owner.level()!=level || searchOwnerSuppressed(search)) { search.result.complete(null); continue; }
             if(owner.entityTags().contains("time_stopped")) { searches.addLast(search); continue; }
             Vec3 from=search.position;
             if(search.remaining<=1e-7 || !level.hasChunkAt(BlockPos.containing(from))
-                    || game.items().magic().suppressedAt(level,from)) { search.result.complete(null); continue; }
+                    || searchPointSuppressed(search,from)) { search.result.complete(null); continue; }
             double length=Math.min(SEARCH_SEGMENT,search.remaining);
             Vec3 end=from.add(search.direction.scale(length));
             if(Math.abs(end.x)>30_000_000 || Math.abs(end.z)>30_000_000) { search.result.complete(null); continue; }
             var wall=search.walls?LbcTerra.wallHit(level,from,end):LbcTerra.wallHit(level,from,end,state->false);
             if(wall!=null) end=wall.getLocation();
-            var shield=search.blocksOnly?null:game.items().wands().shieldHit(owner,from,end);
+            var shield=search.blocksOnly || search.technology?null:game.items().wands().shieldHit(owner,from,end);
             if(shield!=null) end=shield.getLocation();
-            double suppression=game.items().magic().suppressionFraction(level,from,end);
+            double suppression=searchSuppressionFraction(search,from,end);
             if(Double.isFinite(suppression)) end=from.lerp(end,suppression);
             var hit=search.blocksOnly?null:ProjectileUtil.getEntityHitResult(level,owner,from,end,new AABB(from,end).inflate(1),
-                    entity->game.items().lifetimes().target(owner,entity),0);
+                    entity->search.target==null?game.items().lifetimes().target(owner,entity):search.target.test(entity),0);
             if(search.trail!=null) search.trail.accept(from,hit==null?end:hit.getLocation());
             if(hit!=null) search.result.complete(hit);
             else if(shield!=null || Double.isFinite(suppression)) search.result.complete(null);

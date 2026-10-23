@@ -7,7 +7,7 @@
                     "type": "minecraft:item",
                     "weight": 10,
                     "quality": 8,
-                    "name": "minecraft:carrot_on_a_stick",
+                    "name": "skywars2:hohlopitek",
                     "functions": [
                         {
                             "function": "minecraft:set_count",
