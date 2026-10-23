@@ -1,5 +1,30 @@
 # Следующие этапы переноса
 
+## Pisa boats - QUALIFIED (23 October2026)
+
+[Contract](PISA_BOATS_PORT.md). New ready acquisition:
+`lbc:ported/pisa_boats_drop`. Native61 oak boats plus one chest boat preserve
+source origin-facing lean, elevated origin, visible names and vanilla physics.
+Slot14 contains the actual base/skill9 dirt relic with exact source enchants,
+modifier IDs/amounts, style and real crafting flags. Chest interaction, native
+held attributes and existing govnoq craft consumption are qualified. No new
+TTL/cap or per-tick actor scan. Resident-chunk admission, shared debit/freeze,
+load/unload callbacks and quiet stop/old-epoch chest cleanup are covered.
+RP/template unchanged; source contains no old Pisa acquisition.
+
+Offline build/two actual isolated mode1 matches passed on5a623666:
+12 recorded results,69.77s;234sources/648classes/2707resources exactly match
+qualified artifacts. Evidence:build/verification/pisa-batch-final/.
+Installed while main stopped; rollbackf5061b34 retained. Agent did not start main.
+User Reroll/AcidAntDropChecks/HelicopterEncounterChecks preserved and excluded
+from commit. Native fixtures/one boat falling tick are not real-client pixels,
+full natural trajectories, actual disk restart/unload/disconnect or peak capacity.
+Known fake-player Polymer context warning recurred; no final suite failed.
+Pisa source-only recommendations below are superseded. Forest/Infinity/Magic
+Bean/Ultraponos and broad pools remain gated pending full mechanics/reward closure.
+<!-- pisa-batch-status-end -->
+
+
 ## Random Portal / Lucky Room - QUALIFIED
 
 [Portal contract](RANDOM_PORTAL_PORT.md). [Room contract](LUCKY_ROOM_PORT.md).

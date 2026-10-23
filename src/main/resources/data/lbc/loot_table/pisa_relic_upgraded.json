@@ -1,0 +1,65 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:dirt",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:custom_data": {
+                  "craftusable": 1,
+                  "govnoq": 1
+                },
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:enchantments": {
+                  "minecraft:smite": 20,
+                  "minecraft:bane_of_arthropods": 20,
+                  "minecraft:knockback": 2,
+                  "minecraft:looting": 20
+                },
+                "minecraft:custom_name": {
+                  "translate": "bullshit",
+                  "italic": false
+                },
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:knockback_resistance",
+                    "slot": "mainhand",
+                    "id": "1239251353566",
+                    "amount": 2,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:attack_damage",
+                    "slot": "mainhand",
+                    "id": "minecraft:base_attack_damage",
+                    "amount": 10,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:armor",
+                    "slot": "mainhand",
+                    "id": "6834242597",
+                    "amount": 20,
+                    "operation": "add_value"
+                  },
+                  {
+                    "type": "minecraft:armor_toughness",
+                    "slot": "mainhand",
+                    "id": "3871081226",
+                    "amount": 20,
+                    "operation": "add_value"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

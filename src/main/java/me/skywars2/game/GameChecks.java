@@ -723,6 +723,9 @@ public final class GameChecks {
                                 case "portal-drops" -> { PortalDropChecks.run(game); return; }
                                 case "portal-drops-stop-probe" -> { PortalDropChecks.stopProbe(game); return; }
                                 case "portal-drops-cleanup" -> { PortalDropChecks.cleanup(game); return; }
+                                case "pisa-drops" -> { PisaDropChecks.run(game); return; }
+                                case "pisa-drops-stop-probe" -> { PisaDropChecks.stopProbe(game); return; }
+                                case "pisa-drops-cleanup" -> { PisaDropChecks.cleanup(game); return; }
                                 case "lucky-room-drops" -> { LuckyRoomDropChecks.run(game); return; }
                                 case "lucky-room-drops-stop-probe" -> { LuckyRoomDropChecks.stopProbe(game); return; }
                                 case "lucky-room-drops-cleanup" -> { LuckyRoomDropChecks.cleanup(game); return; }

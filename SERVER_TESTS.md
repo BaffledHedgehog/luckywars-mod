@@ -5849,3 +5849,18 @@ qualified artifacts. Evidence and guarded runner: `build/verification/destiny-tr
 Known fake-player Polymer packet-context warning retained; no failed suite.
 No actual client particle rendering qualification is claimed.
 Installed main JAR while stopped, rollbackca582dcc retained; no main startup.
+
+## 23 October2026: Pisa boats native acquisition/relic closure
+
+Build5a623666; two actual isolated mode1 matches,12 recorded suite results,
+69.77s. Source actor count/lean/reward variants, native chest interaction,
+equipment attributes, existing relic craft consumption, no-load admission,
+shared debit/freeze, callback lifecycle and quiet actual-stop cleanup passed.
+Room/Portal/HUD regressions passed on the same artifact. One native boat falling
+tick is covered; real client pixels, full natural trajectories, actual disk
+restart/unload/disconnect and peak capacity remain outside scope.
+234sources/648classes/2707resources exactly match artifacts. Known fake-player
+Polymer context warning recurred; no final suite failed. Initial compile/API
+and omitted resource-filter attempts retained with fixes in the contract.
+Evidence:build/verification/pisa-batch-final/. Installed main while stopped,
+rollbackf5061b34 retained; main not started. User-owned files preserved.

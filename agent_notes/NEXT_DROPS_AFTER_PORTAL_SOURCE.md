@@ -66,3 +66,10 @@ qualified in the combined [portal](RANDOM_PORTAL_PORT.md) /
 for these four leaves are historical and superseded. Pisa boats remain a
 source-only candidate; do not expose its reward until full native closure.
 <!-- portal-batch-next-end -->
+
+## Pisa status - 23 October2026
+
+Pisa boats and both real relic variants are now implemented, qualified and
+installed. Earlier source-only Pisa recommendations above are superseded.
+See [native contract](PISA_BOATS_PORT.md) and [exact source audit](PISA_BOATS_SOURCE.md).
+The explicitly excluded incomplete chains remain unavailable.
