@@ -42,6 +42,14 @@ No unavoidable author question for a faithful native-drop port. If choosing to r
 User explicitly selected the15-second Paper storm instead of perpetual legacy
 gravity escalation. The finite native-drop specification above is the target.
 
+Additional clarification (user,23 October2026):
+«урон на высоте независимо от работающей антигравитации должен быть».
+This explicitly restores the separate global legacy altitude hazard, not
+perpetual storms or gravity escalation. The follow-up score trace is
+`player_speed.mcfunction:36`: floor(PosY*100), hence Y1500 DROWN and Y15000
+Cosmos (upper inclusive score14499000 retained). Current implementation and
+qualification: [SKY_HAZARDS_PORT.md](SKY_HAZARDS_PORT.md).
+
 ## Container removal: concrete old Paper bytecode proof
 
 Read-only javap of `E:/servers_mew/cringe1_21_4_skywars/versions/1.21.11/paper-1.21.11.jar` with JDK25, no server execution:

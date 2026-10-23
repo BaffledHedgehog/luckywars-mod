@@ -73,9 +73,13 @@ public final class LbcExasperato {
         Vec3[] offsets=NUKE_OFFSETS;
         float radius=20;
         boolean protectedDamage;
+        boolean cosmos;
         int next;
         BlastBatch(ServerPlayer owner,Vec3 origin,String epoch) {
-            this.owner=owner; this.level=owner.level(); this.origin=origin; this.epoch=epoch;
+            this(owner,owner.level(),origin,epoch);
+        }
+        BlastBatch(ServerPlayer owner,ServerLevel level,Vec3 origin,String epoch) {
+            this.owner=owner; this.level=level; this.origin=origin; this.epoch=epoch;
         }
     }
     // (user) Сохраняем все серии без отказов в касте; одна запись хранит всю серию, а не 32 задачи.
@@ -291,26 +295,52 @@ public final class LbcExasperato {
     }
 
     /** Один нативный взрыв неделим; бюджет проверяется между взрывами, до следующего. */
-    private void blastTick() {
-        if(blasts.isEmpty() || game.items().wands().timeStopped()) return;
+    void blastTick() {
+        if(blasts.isEmpty()) return;
         long started=System.nanoTime();
         for(int work=0;work<BLASTS_PER_TICK && !blasts.isEmpty();work++) {
             var burst=blasts.removeFirst();
             if(!game.items().currentEpoch(burst.epoch) || game.stage()==GameController.Stage.ENDING
-                    || burst.level!=game.maps().level()) continue;
+                    || !burst.cosmos && burst.level!=game.maps().level()) continue;
+            if(game.items().timeStop().stopped(burst.level)) { blasts.addLast(burst); continue; }
             Vec3 offset=burst.offsets[burst.next];
-            if(!burst.level.hasChunkAt(BlockPos.containing(burst.origin.add(offset)))) {
+            var cell=BlockPos.containing(burst.origin.add(offset));
+            if(burst.cosmos ? burst.level.getChunkSource().getChunkNow(cell.getX()>>4,cell.getZ()>>4)==null
+                    : !burst.level.hasChunkAt(cell)) {
                 // Временно недоступная точка остаётся в очереди: не теряем взрыв и не загружаем чанк ради него.
                 blasts.addLast(burst); continue;
             }
             burst.next++;
-            nativeBlast(burst.owner,burst.level,burst.origin.add(offset),burst.radius,burst.epoch,
-                    burst.protectedDamage,burst.sourceInit);
+            if(burst.cosmos) cosmosBlast(burst);
+            else nativeBlast(burst.owner,burst.level,burst.origin.add(offset),burst.radius,burst.epoch,
+                        burst.protectedDamage,burst.sourceInit);
             if(burst.next<burst.offsets.length && game.items().currentEpoch(burst.epoch)
                     && game.stage()!=GameController.Stage.ENDING) blasts.addLast(burst);
             // Round-robin даёт прогресс каждой серии, даже при непрерывных новых попаданиях.
             if(System.nanoTime()-started>=BLAST_BUDGET_NANOS) break;
         }
+    }
+
+    /** The source's instant radius100 creeper, using the existing round-robin CPU budget. */
+    void queueCosmos(ServerLevel level,Vec3 position,ServerPlayer author,String epoch) {
+        var burst=new BlastBatch(author,level,position,epoch);
+        burst.cosmos=true; burst.radius=100; burst.offsets=new Vec3[]{Vec3.ZERO};
+        blasts.addLast(burst);
+    }
+    int pendingCosmos() {
+        int count=0; for(var batch:blasts) if(batch.cosmos) count+=batch.offsets.length-batch.next;
+        return count;
+    }
+    private void cosmosBlast(BlastBatch batch) {
+        var source=EntityTypes.CREEPER.create(batch.level,net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+        if(source==null) return;
+        source.setPos(batch.origin);
+        source.setCustomName(net.minecraft.network.chat.Component.translatable("cosmos"));
+        source.entityTags().add(LbcSkyHazards.COSMOS); game.items().markCurrentItemEpoch(source);
+        var damage=batch.level.damageSources().explosion(source,batch.owner==null?source:batch.owner);
+        // The source is a mob explosion: retain mobGriefing and do not apply the TNT protection setting.
+        batch.level.explode(source,damage,null,batch.origin.x,batch.origin.y,batch.origin.z,
+                batch.radius,false,Level.ExplosionInteraction.MOB);
     }
 
     private void nukeStep(Charge charge,ServerPlayer owner) {

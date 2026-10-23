@@ -69,7 +69,6 @@ public final class AntigravityDropChecks {
         final List<Cow> cows = new ArrayList<>();
         final Set<Entity> debris = Collections.newSetFromMap(new IdentityHashMap<>());
         final int alphaKills, betaKills;
-        final boolean alphaDrowning, betaDrowning;
         ItemEntity stack, paused, unloaded;
         Map<Display.BlockDisplay, Vec3> frozen;
         int phase, lastTick, wait;
@@ -86,8 +85,6 @@ public final class AntigravityDropChecks {
                     Math.min(270.7, level.getMaxY()-40.3), Math.floor(alpha.getZ()/16)*16+8.81);
             center = BlockPos.containing(origin);
             alphaKills = kills(alpha); betaKills = kills(beta);
-            alphaDrowning = alpha.entityTags().contains("drowning");
-            betaDrowning = beta.entityTags().contains("drowning");
             level.getAllEntities().forEach(existing::add);
         }
         int kills(ServerPlayer player) {
@@ -114,7 +111,6 @@ public final class AntigravityDropChecks {
                 p.setGameMode(GameType.SURVIVAL); p.setNoGravity(true);
                 p.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000); p.setHealth(1000);
                 p.setAbsorptionAmount(0); p.setInvulnerableTime(0); p.damageCooldownTime=0;
-                p.entityTags().remove("drowning");
             }
             place(alpha,10,0); place(beta,12,0);
             lastTick=game.server().getTickCount();
@@ -135,7 +131,7 @@ public final class AntigravityDropChecks {
             for (var p:blocks.keySet()) set(p,Blocks.AIR.defaultBlockState());
             for (var p:List.of(alpha,beta)) {
                 p.removeAllEffects(); p.setHealth(1000); p.setInvulnerableTime(0); p.damageCooldownTime=0;
-                p.entityTags().remove("drowning"); game.items().indirectKills().clear(p);
+                game.items().indirectKills().clear(p);
             }
             place(alpha,10,0); place(beta,12,0);
         }
@@ -270,25 +266,19 @@ public final class AntigravityDropChecks {
                 ticks(9);
                 require(alpha.getHealth()==1000 && beta.getHealth()==1000 && !normal.hasEffect(MobEffects.SLOW_FALLING),"no pulse before tick10");
                 ticks(1);
-                require(alpha.getHealth()==996 && beta.getHealth()==996 && alpha.getDeltaMovement().equals(new Vec3(.1,.55,.2))
-                        && beta.getDeltaMovement().equals(new Vec3(-.2,2,.1)),"fixed-origin pulse hits author and ally, max .55 retains horizontal motion");
-                require(beta.getLastDamageSource()!=null && beta.getLastDamageSource().is(DamageTypes.GENERIC)
-                        && beta.getLastDamageSource().getEntity()==alpha,"source generic high-altitude damage retains actual author");
+                require(alpha.getHealth()==1000 && beta.getHealth()==1000 && alpha.getDeltaMovement().equals(new Vec3(.1,.55,.2))
+                        && beta.getDeltaMovement().equals(new Vec3(-.2,2,.1)),"fixed-origin pulse lifts author and ally without local altitude damage");
                 var effect=normal.getEffect(MobEffects.SLOW_FALLING);
                 require(effect!=null && effect.getDuration()==30 && effect.getAmplifier()==0 && effect.isAmbient()
                         && !effect.isVisible() && !effect.showIcon() && normal.getDeltaMovement().y==.55
                         && !outside.hasEffect(MobEffects.SLOW_FALLING) && !role.hasEffect(MobEffects.SLOW_FALLING)
                         && role.getDeltaMovement().equals(Vec3.ZERO),"native pulse30 slowfall, fixed area and service exclusions");
-                require(alpha.entityTags().contains("drowning") && beta.entityTags().contains("drowning"),"source altitude entry tag");
-                ticks(9); require(beta.getHealth()==996,"high-altitude damage only once per ten ticks");
-                alpha.setInvulnerableTime(0); alpha.damageCooldownTime=0;
-                beta.setInvulnerableTime(0); beta.damageCooldownTime=0;
-                ticks(1); require(alpha.getHealth()==992 && beta.getHealth()==992,"next pulse damages both again");
+                ticks(9); require(alpha.getHealth()==1000 && beta.getHealth()==1000,"local storm never applies altitude damage");
+                ticks(1); require(alpha.getHealth()==1000 && beta.getHealth()==1000,"later pulse only lifts and grants slowfall");
                 place(alpha,10,29.99); place(beta,12,29.99); ticks(10);
-                require(alpha.getHealth()==992 && beta.getHealth()==992 && !alpha.entityTags().contains("drowning")
-                        && !beta.entityTags().contains("drowning"),"relative threshold30 and lower pulse resets entry tag");
+                require(alpha.getHealth()==1000 && beta.getHealth()==1000,"relative height does not control global altitude hazard");
                 ticks(269); require(game.items().antigravity().stormCount()==1,"finite storm retained through active tick299");
-                ticks(1); require(game.items().antigravity().stormCount()==0,"exact30 pulses end at active tick300");
+                ticks(1); require(game.items().antigravity().stormCount()==0 && alpha.getHealth()==1000 && beta.getHealth()==1000,"exact30 pulses end at active tick300 without local damage");
                 normal.removeAllEffects(); normal.setDeltaMovement(Vec3.ZERO); ticks(20);
                 require(!normal.hasEffect(MobEffects.SLOW_FALLING) && normal.getDeltaMovement().equals(Vec3.ZERO),"no legacy perpetual marker or extra pulses");
             } finally {
@@ -385,8 +375,6 @@ public final class AntigravityDropChecks {
             }
             game.items().indirectKills().clear(alpha); game.items().indirectKills().clear(beta);
             alphaState.restore(game); betaState.restore(game);
-            if(alphaDrowning)alpha.entityTags().add("drowning");else alpha.entityTags().remove("drowning");
-            if(betaDrowning)beta.entityTags().add("drowning");else beta.entityTags().remove("drowning");
             alpha.getStats().setValue(alpha,net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.MOB_KILLS),alphaKills);
             beta.getStats().setValue(beta,net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.MOB_KILLS),betaKills);
             for(long key:forced)level.setChunkForced(net.minecraft.world.level.ChunkPos.getX(key),net.minecraft.world.level.ChunkPos.getZ(key),false);

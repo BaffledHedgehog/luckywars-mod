@@ -1,5 +1,27 @@
 # Проект SkyWars
 
+## Global altitude hazards - QUALIFIED (23 October2026)
+
+[Contract](agent_notes/SKY_HAZARDS_PORT.md). User clarified that altitude damage is independent
+of Antigravity. Restored the global legacy10-tick pass: Y1500 native DROWN4,
+Y15000 named power100 Cosmos, retaining the original upper score bound and
+Nexus/Imprinted dimension exclusions. The finite15-second Paper storm retains
+lift/Slow Falling; its local relativeY+30 GENERIC damage is removed. Scoped
+causal DROWN credit preserves ordinary underwater behavior. Cosmos reuses the
+CPU-budgeted native blast queue without dropped jobs/caps, preserving WILD
+admission, per-dimension Time Stop, resident columns, epoch and stop cleanup.
+No new damage type or RP/template edit.
+
+Build20210f2b passed two actual isolated mode1 matches:16 recorded suite
+results in64.36s;239sources/658classes/2708resources exactly match artifacts.
+Evidence:build/verification/sky-hazard-final/. Installed main while stopped;
+rollback38da8388 retained; agent did not start main. User Reroll/AcidAnt/
+HelicopterEncounterChecks sources preserved and excluded from commit.
+Known fake-player Polymer context warning retained; no final suite failed.
+No real-client, disk-restart/unload/disconnect or peak-capacity claim.
+The initial Antigravity status below is historical for local altitude damage.
+<!-- sky-hazard-status-end -->
+
 ## Antigravity finite Paper storm - QUALIFIED (23 October2026)
 
 [Contract](agent_notes/ANTIGRAVITY_PORT.md). User chose15-second Paper mechanics.

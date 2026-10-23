@@ -723,6 +723,9 @@ public final class GameChecks {
                                 case "portal-drops" -> { PortalDropChecks.run(game); return; }
                                 case "portal-drops-stop-probe" -> { PortalDropChecks.stopProbe(game); return; }
                                 case "portal-drops-cleanup" -> { PortalDropChecks.cleanup(game); return; }
+                                case "sky-hazards" -> { SkyHazardChecks.run(game); return; }
+                                case "sky-hazards-stop-probe" -> { SkyHazardChecks.stopProbe(game); return; }
+                                case "sky-hazards-cleanup" -> { SkyHazardChecks.cleanup(game); return; }
                                 case "antigravity-drops" -> { AntigravityDropChecks.run(game); return; }
                                 case "antigravity-drops-stop-probe" -> { AntigravityDropChecks.stopProbe(game); return; }
                                 case "antigravity-drops-cleanup" -> { AntigravityDropChecks.cleanup(game); return; }

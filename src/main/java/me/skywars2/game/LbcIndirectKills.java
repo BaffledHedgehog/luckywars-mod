@@ -69,6 +69,8 @@ public final class LbcIndirectKills {
     private final Map<LivingEntity,Arrival> arrivals = new WeakHashMap<>();
     private long order;
     private LivingEntity effectTarget, manaTarget;
+    private LivingEntity altitudeTarget;
+    private Owner altitudeCause;
     private Holder<MobEffect> tickingEffect;
     private Owner hazardWriter;
     private ServerLevel hazardLevel;
@@ -362,6 +364,7 @@ public final class LbcIndirectKills {
     }
     /** Огонь/лава игрока не вредят союзникам и защищённым NPC; природные блоки остаются ванильными. */
     public boolean allowEnvironmentDamage(LivingEntity target, DamageSource source) {
+        if(target==altitudeTarget && source.is(DamageTypes.DROWN)) return true;
         var cause=environmentOwner(target,source);
         if(cause==null) return true;
         var owner=game.server().getPlayerList().getPlayer(cause.player);
@@ -369,6 +372,7 @@ public final class LbcIndirectKills {
                 : cause.projectile ? game.items().wands().projectileTarget(owner,target) : game.items().wands().target(owner,target));
     }
     private Owner environmentOwner(LivingEntity target, DamageSource source) {
+        if(target==altitudeTarget && source.is(DamageTypes.DROWN)) return altitudeCause;
         var arrival=arrivalOwner(target,source);
         if(source.is(DamageTypes.IN_WALL)) return newer(suffocationOwner(target),arrival);
         boolean fire=source.is(DamageTypes.LAVA) || source.is(DamageTypes.IN_FIRE);
@@ -513,6 +517,25 @@ public final class LbcIndirectKills {
         var cause=owner(player,friendlyFire);
         laterAttacks.put(target,cause);
         falls.put(target,new Fall(cause,false));
+    }
+
+    private Owner altitudeOwner(LivingEntity target) {
+        var fall=falls.get(target);
+        return fall==null?null:newer(fall.owner,laterAttacks.get(target));
+    }
+    public ServerPlayer altitudeAuthor(LivingEntity target) {
+        var cause=altitudeOwner(target);
+        return cause==null?null:game.server().getPlayerList().getPlayer(cause.player);
+    }
+    /** Only this scoped DROWN is lack of air at height; normal water drowning keeps its own cause. */
+    public boolean altitudeDamage(LivingEntity target,BooleanSupplier damage) {
+        var previousTarget=altitudeTarget; var previousCause=altitudeCause;
+        altitudeTarget=target; altitudeCause=altitudeOwner(target);
+        try {
+            boolean applied=damage.getAsBoolean();
+            if(applied && target.level() instanceof ServerLevel level) credit(target,level,altitudeCause);
+            return applied;
+        } finally { altitudeTarget=previousTarget; altitudeCause=previousCause; }
     }
 
     public void tick() {

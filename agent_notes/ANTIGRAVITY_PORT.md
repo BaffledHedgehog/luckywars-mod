@@ -1,5 +1,10 @@
 # Antigravity native storm port
 
+Current correction20210f2b: [Global sky hazards](SKY_HAZARDS_PORT.md) removes
+the initial Paper-local relativeY+30 GENERIC damage. Altitude DROWN/Cosmos are
+independent global legacy mechanics; the finite storm retains lift/Slow Falling.
+The initial38da8388 qualification below is historical where it names that damage.
+
 User chose the finite15-second Paper storm over legacy perpetual gravity
 escalation (23 October2026). Exact native/datapack/command distinctions and
 container bytecode proof: [ANTIGRAVITY_SOURCE.md](ANTIGRAVITY_SOURCE.md).
@@ -17,16 +22,15 @@ Display velocity grows by.04 while below3, retaining the source floating-point
 loop. The nearby1x1x1 query raises each eligible living entity's Y velocity to
 max(current,displaySpeed+.2) without changing X/Z. Each10-tick pulse also raises
 living entities in the fixed origin AABB17/60/17 to at least.55 and grants the
-source30-tick ambient hidden Slow Falling. Players at relativeY>=30 take4 native
-GENERIC damage per pulse; the original no-air message/tag has entry/reset
-behavior. Wild targeting includes caster/allies, with shared observer/service
+source30-tick ambient hidden Slow Falling. High-altitude damage and the no-air
+notification now belong to the independent global service linked above.
+Wild targeting includes caster/allies, with shared observer/service
 role exclusions. Freeze retains its normal movement lock; stun still permits
 external movement. The existing translated legacy titles are reused with native
 0/40/10 timing; the finite Paper mechanics do not replace authored RP text with
 hardcoded English. No RP/template changes are needed.
 
-The damage retains the actual thrower and a positionless generic source;
-WILD admission uses its causal token tag. Lift and terrain hazards register with
+Lift and terrain hazards retain the actual thrower and register with
 the shared indirect-kill service, so later accepted impacts follow the existing
 last-source rule and native fall/void deaths retain credit. Source damage
 protections/cooldown remain native; no new damage type or gravity modifier.
@@ -47,7 +51,8 @@ player inside its source80/110/80 AABB; accompanying players may keep it alive
 past the15-second producer and past build height, as in source. Removed/unloaded
 displays detach from motion tracking. A reloaded visual without live motion
 state is quietly discarded; callbacks do not reconstruct a stale storm.
-Stop removes all displays/storms and owned notification tags without block loot.
+Stop removes all displays/storms without block loot; global notification cleanup
+belongs to the independent sky-hazard service.
 
 ## Qualification
 

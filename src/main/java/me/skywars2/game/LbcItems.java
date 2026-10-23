@@ -213,6 +213,7 @@ public final class LbcItems {
     private final LbcLuckyRoomDrops luckyRoomDrops;
     private final LbcPisaDrops pisaDrops;
     private final LbcAntigravity antigravity;
+    private final LbcSkyHazards skyHazards;
     private final LbcDroneDrops droneDrops;
     private final LbcAntDrops antDrops;
     private final LbcTntDrops tntDrops;
@@ -642,6 +643,7 @@ public final class LbcItems {
         this.luckyRoomDrops = new LbcLuckyRoomDrops(game);
         this.pisaDrops = new LbcPisaDrops(game);
         this.antigravity = new LbcAntigravity(game);
+        this.skyHazards = new LbcSkyHazards(game);
         this.droneDrops = new LbcDroneDrops(game);
         this.antDrops = new LbcAntDrops(game);
         this.tntDrops = new LbcTntDrops(game);
@@ -757,6 +759,7 @@ public final class LbcItems {
     public LbcLuckyRoomDrops luckyRoomDrops() { return luckyRoomDrops; }
     public LbcPisaDrops pisaDrops() { return pisaDrops; }
     public LbcAntigravity antigravity() { return antigravity; }
+    public LbcSkyHazards skyHazards() { return skyHazards; }
     public LbcDroneDrops droneDrops() { return droneDrops; }
     public LbcAntDrops antDrops() { return antDrops; }
     public LbcTntDrops tntDrops() { return tntDrops; }
@@ -1272,10 +1275,12 @@ public final class LbcItems {
     /** Only cursed owners are visited. Local stopper queries run only while a curse is active. */
     public void tick() {
         timeStop.tick();
+        skyHazards.tick();
         lightningAcquisition.tick();
         nuclearVisuals.tick();
         rifleZoom.tick();
         if(game.maps().level()!=null && timeStop.stopped(game.maps().level())) {
+            exasperato.blastTick();
             // Исключения Stand: кулаки двигаются, ножи лишь выпускаются и ждут native thaw.
             blackHoleVisuals.tick();
             stand.tick(); shooters.tickPhantomBursts();
@@ -1471,6 +1476,7 @@ public final class LbcItems {
         specialDrops.stop();
         pisaDrops.stop();
         antigravity.stop();
+        skyHazards.stop();
         portalDrops.stop();
         luckyPigs.stop();
         libraryDrop.stop();

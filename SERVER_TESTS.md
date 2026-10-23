@@ -5878,3 +5878,24 @@ warning recurred; no final suite failed. No real client pixels, actual disk
 restart/unload/disconnect, full natural physics or peak-capacity benchmark claim.
 Installed main while stopped; rollback5a623666 retained; no main startup.
 Three user-owned sources preserved. Contract:agent_notes/ANTIGRAVITY_PORT.md.
+
+
+## 23 October2026: independent global altitude hazards
+
+Build20210f2b; two actual isolated mode1 matches passed16 recorded suite results
+in64.36s. Native threshold/cadence/role/Creative checks, no-storm and stopped-storm
+independence, other-dimension Time Stop, native scoped DROWN kill credit and
+ordinary aquatic comparison passed. One actual native power100 Cosmos hit a
+visible10000HP cow atY15050, with the named transient Creeper source and causal
+author. Players remained500 blocks away in3D. The finite storm no-local-damage,
+Exasperato/HUD regressions and actual match-stop cleanup passed.
+239sources/658classes/2708resources match artifacts exactly. Evidence and retained
+fixture attempts:build/verification/sky-hazard-final/; runner:
+tools/smoke_sky_hazard.py. Fixture-only corrections covered dimension IDs rather
+than tags, native load acknowledgement after dimension transfer, and ticking
+entity-section visibility before the high-altitude explosion probe.
+Known fake-player Polymer packet-context warning recurred; no final suite failed.
+No real-client rendering, actual disk restart/unload/disconnect, full natural
+trajectories, offline coin framework or peak-capacity qualification is claimed.
+Installed main while stopped; rollback38da8388 retained; main not started.
+Three user-owned sources preserved. Contract:agent_notes/SKY_HAZARDS_PORT.md.

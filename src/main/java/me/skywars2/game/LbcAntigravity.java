@@ -3,7 +3,6 @@ package me.skywars2.game;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
@@ -14,8 +13,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Display;
@@ -29,22 +26,17 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
-import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /** The finite Paper storm, driven by one shared update rather than one scheduled task per block. */
 public final class LbcAntigravity {
     public static final String ACTOR="skywars2.antigravity_block";
-    private static final String SOURCE="skywars2.antigravity_source";
-    private static final String DROWNING="drowning";
     private final GameController game;
     private final List<Storm> storms=new ArrayList<>();
     private final Map<Display.BlockDisplay,Lifted> displays=new LinkedHashMap<>();
-    private final Set<ServerPlayer> notified=java.util.Collections.newSetFromMap(new IdentityHashMap<>());
-    private record Storm(ServerLevel level,Vec3 origin,ItemEntity cause,ServerPlayer author,String epoch,int[] age) { }
+    private record Storm(ServerLevel level,Vec3 origin,ServerPlayer author,String epoch,int[] age) { }
     private static final class Lifted {
         final Storm storm;
         double speed;
@@ -73,10 +65,10 @@ public final class LbcAntigravity {
     public boolean spawn(ItemEntity token) {
         if(!ready(token)) return false;
         var level=(ServerLevel)token.level();
-        token.entityTags().add(SOURCE); game.items().markCurrentItemEpoch(token);
+        game.items().markCurrentItemEpoch(token);
         var origin=Vec3.atLowerCornerOf(token.blockPosition());
         var author=LbcIndirectKills.playerSource(game.items().specialDrops().owner(token));
-        var storm=new Storm(level,origin,token,author,game.items().epoch(),new int[1]);
+        var storm=new Storm(level,origin,author,game.items().epoch(),new int[1]);
         storms.add(storm);
         launch(storm,token.blockPosition());
         for(var player:level.players()) if(eligible(player) && player.position().distanceToSqr(origin)<=17*17) {
@@ -150,21 +142,7 @@ public final class LbcAntigravity {
         for(var living:storm.level.getEntitiesOfClass(LivingEntity.class,box(storm.origin,17,60,17),this::eligible)) {
             lift(living,.55,storm.author);
             living.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,30,0,true,false,false),storm.author);
-            if(living instanceof ServerPlayer player) {
-                if(player.getY()-storm.origin.y>=30) {
-                    if(!player.entityTags().contains(DROWNING)) {
-                        player.sendSystemMessage(Component.translatable("damage_from_no_air"));
-                        notified.add(player);
-                    }
-                    player.entityTags().add(DROWNING);
-                    var type=storm.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.GENERIC);
-                    // Keep the positionless generic hazard while retaining the causal author for kills.
-                    var damage=new DamageSource(type,storm.cause,storm.author) {
-                        @Override public Vec3 getSourcePosition() { return null; }
-                    };
-                    player.hurtServer(storm.level,damage,4);
-                } else if(notified.remove(player)) player.entityTags().remove(DROWNING);
-            }
+
         }
     }
     private void lift(LivingEntity living,double speed,ServerPlayer author) {
@@ -182,7 +160,6 @@ public final class LbcAntigravity {
         for(var player:level.players()) if(player.position().distanceToSqr(at)<=range*range)
             player.connection.send(new ClientboundSoundPacket(holder,SoundSource.BLOCKS,at.x,at.y,at.z,1.5f,1,seed));
     }
-    public boolean wild(Entity entity) { return entity!=null && entity.entityTags().contains(SOURCE); }
     public void loaded(Entity entity) {
         if(entity instanceof Display.BlockDisplay display && entity.entityTags().contains(ACTOR) && !displays.containsKey(display))
             display.discard(); // A reloaded visual without its live motion state cannot linger indefinitely.
@@ -190,8 +167,6 @@ public final class LbcAntigravity {
     public void unloaded(Entity entity) { displays.remove(entity); }
     public void stop() {
         storms.clear(); var old=List.copyOf(displays.keySet()); displays.clear(); old.forEach(Entity::discard);
-        for(var player:notified) player.entityTags().remove(DROWNING);
-        notified.clear();
     }
     public int stormCount() { return storms.size(); }
     public int displayCount() { return displays.size(); }
