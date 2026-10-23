@@ -127,6 +127,9 @@ public final class LbcCreatureDrops {
         actor.entityTags().add(NORMAL_VEX);
         prepare(actor,author);
     }
+    void adoptEggSkeleton(net.minecraft.world.entity.monster.skeleton.Skeleton actor,ServerPlayer author){
+        prepare(actor,author);
+    }
     private void prepare(Entity actor,ServerPlayer author){
         actor.entityTags().add(ACTOR);if(author!=null){authors.put(author.getUUID(),author);actor.entityTags().add(OWNER+author.getUUID());}
         game.items().markCurrentItemEpoch(actor);tracked.add(actor);game.items().timeStop().prepareFrozen(actor);

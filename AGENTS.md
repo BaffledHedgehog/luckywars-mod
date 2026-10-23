@@ -1,5 +1,38 @@
 # Проект SkyWars
 
+## Seven encounter eggs / safe native unload cleanup - QUALIFIED (23 October 2026)
+
+[Contract](agent_notes/ENCOUNTER_EGGS_PORT.md). Seven scoped ported leaves:
+fat_skeleton_spawn_egg, lucky_pig_spawn_egg, honey_bee_spawn_egg,
+stalin_spawn_egg, transformator_spawn_egg, helicopter_spawn_egg,
+muravei_spawn_egg. Native SpawnEggItem/ENTITY_DATA retains source-specific
+health/equipment/effects/names and actual matching-mob offspring. Adoption only
+attaches to existing lifecycle/cause services; helicopter reuses its item-token
+route. Transformer egg has no source text display, so its pair label is nullable.
+Original drop variants retain their own distinct source payloads. No broad imba
+pool, parallel actor framework, new TTL/cap or RP/template edit.
+Player-thrown helicopter tokens now inherit causal player kill credit (user's
+global rule); actual native projectile owner stays its boss, reflection wins,
+and genuinely ownerless encounters remain so. This supersedes the older agent
+text about dropped-trigger encounters being entirely ownerless.
+
+Actual native visibility demotion exposed ConcurrentModificationException:
+ENTITY_UNLOAD could remove a paired sibling during a vanilla section iterator.
+Fabric unload notification now queues in GameController and drains before its
+normal tick work, including while time is frozen. Re-entry cancels that entity's
+queued event; shutdown clears pending references. Direct service cleanup calls
+remain synchronous. No async entity/world access or native tick replacement.
+Real native egg/death/melee/acid/arc/arrow/credit, Time Stop, visibility demotion,
+quiet match stop and all related original-family regressions passed together.
+
+Build6b5b6fde passed24 suite results in two actual mode1 matches (63.87s),
+exact261sources/714classes/2734resources verified. Installed main while stopped;
+rollbacke7ee5492 retained. Main was not started by agent. Three user sources
+retain their starting hashes and are excluded from the commit. Evidence:
+build/verification/encounter-eggs-final/. Known fake-player Polymer context error
+pair retained; no final suite failed. No real-client pixels, actual disk restart/
+reload/disconnect, dispenser/spawner execution or peak-capacity claim.
+
 ## Normal TNT drone / Hohlopitek airstrike - QUALIFIED (23 October 2026)
 
 [Contract](agent_notes/NORMAL_DRONE_PORT.md), [source audit](agent_notes/NORMAL_DRONE_SOURCE.md).

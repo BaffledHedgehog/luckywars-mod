@@ -1,5 +1,24 @@
 # Следующие этапы переноса
 
+## Seven encounter eggs - 23 October 2026
+
+[Contract](ENCOUNTER_EGGS_PORT.md). Seven source-specific acquisition leaves now
+close through existing qualified families: fat skeleton, lucky pig, nectar bee,
+Stalin, baby Transformer, helicopter and ant. Full imba pool remains gated.
+Player-caused helicopter attacks now inherit their actual summoner's kills;
+ordinary NPC projectile ownership and reflection remain intact.
+A real native section-demotion crash discovered during actual stop testing was
+fixed by deferring Fabric unload cleanup to a safe controller tick boundary.
+Forest/Infinity/Mom and other unclosed reward chains remain future work.
+
+Build6b5b6fde passed24 suite results in two actual mode1 matches (63.87s),
+exact261sources/714classes/2734resources verified. Installed main while stopped;
+rollbacke7ee5492 retained. Main was not started by agent. Three user sources
+retain their starting hashes and are excluded from the commit. Evidence:
+build/verification/encounter-eggs-final/. Known fake-player Polymer context error
+pair retained; no final suite failed. No real-client pixels, actual disk restart/
+reload/disconnect, dispenser/spawner execution or peak-capacity claim.
+
 ## Normal TNT drone / Hohlopitek - 23 October 2026
 
 [Contract](NORMAL_DRONE_PORT.md), [source audit](NORMAL_DRONE_SOURCE.md).

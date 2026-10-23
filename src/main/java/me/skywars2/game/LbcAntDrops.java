@@ -63,6 +63,9 @@ public final class LbcAntDrops {
         }
         return true;
     }
+    void adoptEgg(Zombie actor,ServerPlayer author){
+        tag(actor,author);game.items().timeStop().prepareFrozen(actor);
+    }
     private void tag(Entity actor,ServerPlayer author){
         actor.entityTags().add(ACTOR);game.items().markCurrentItemEpoch(actor);
         if(author!=null){authors.put(author.getUUID(),author);actor.entityTags().add(OWNER+author.getUUID());}

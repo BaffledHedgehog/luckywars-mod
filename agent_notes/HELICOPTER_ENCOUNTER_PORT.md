@@ -96,3 +96,12 @@ settings and scratch sources/diagnostics; useful local builds and evidence remai
 `12beb0a` checkpoints the previously qualified migration through modifier ownership.
 The user requested periodic local commits and removal of obsolete temporary files;
 no history rewrite, push or main-server installation is implied.
+
+## Encounter-egg causal follow-up - 23 October 2026
+
+The older ownerless-trigger description above is superseded by the global user
+kill-inheritance rule: player-thrown tokens and player-used eggs retain that
+actual player as causal author. Native boss projectile ownership stays distinct;
+ownerless natural encounters remain ownerless. Contract and final evidence:
+[ENCOUNTER_EGGS_PORT.md](ENCOUNTER_EGGS_PORT.md). Native unload notifications now
+use the controller safe tick boundary to avoid sibling-removal section CME.

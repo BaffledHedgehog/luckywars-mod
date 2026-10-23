@@ -98,6 +98,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null) { game.tick(); GameChecks.tick(game); }
         });
         ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
+            if(game!=null) game.cancelQueuedEntityUnload(entity);
             // Вход с сохранённым эффектом: active_effects загружается без onEffectAdded.
             if (entity instanceof ServerPlayer player) FullInvisibility.effectsChanged(player);
             if (game != null) game.items().entityLoaded(entity);
@@ -106,7 +107,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         ServerEntityEvents.ENTITY_UNLOAD.register((entity, level) -> {
             if (game != null && entity instanceof net.minecraft.world.entity.LivingEntity living)
                 game.items().indirectKills().clear(living);
-            if (game != null) game.entityUnloaded(entity);
+            if (game != null) game.queueEntityUnload(entity);
         });
         ServerChunkEvents.CHUNK_LOAD.register((level, chunk, generated) -> {
             if (game != null && level == game.maps().level()) game.items().magic().chunkLoaded(chunk);

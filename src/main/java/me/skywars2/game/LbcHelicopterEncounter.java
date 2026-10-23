@@ -29,7 +29,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import java.util.*;
 
-/** Ownerless world encounter. Pair identity and terminal state never use global selectors. */
+/** Hostile world encounter. Native boss ownership stays distinct from a dropped token's causal author. */
 public final class LbcHelicopterEncounter {
     public static final String DISPLAY="skywars2.helicopter.encounter.display", HITBOX="helicopter_boss_hitbox";
     public static final String ATTACK="skywars2.helicopter.encounter.attack";
@@ -37,6 +37,7 @@ public final class LbcHelicopterEncounter {
     private final Set<Pair> pairs=new LinkedHashSet<>();
     private final Set<Entity> attacks=Collections.newSetFromMap(new IdentityHashMap<>());
     private final Set<ItemEntity> pending=Collections.newSetFromMap(new IdentityHashMap<>());
+    private final Map<Entity,LivingEntity> authors=new WeakHashMap<>();
     private final Map<ServerLevel,Long> clocks=new IdentityHashMap<>();
     private final Map<ServerLevel,Integer> lastDispatch=new IdentityHashMap<>();
     private int lastPendingTick=Integer.MIN_VALUE;
@@ -95,6 +96,9 @@ public final class LbcHelicopterEncounter {
         var hitbox=new Ravager(EntityTypes.RAVAGER,level);
         load(hitbox,tag("{NoGravity:1b,Silent:1b,CustomNameVisible:1b,DeathLootTable:'minecraft:empty',PersistenceRequired:1b,NoAI:1b,Health:150f,CustomName:{italic:false,translate:'helicopter_boss'},active_effects:[{id:'minecraft:invisibility',amplifier:1b,duration:-1,show_particles:0b}],attributes:[{id:'minecraft:max_health',base:150d},{id:'minecraft:armor',base:10d},{id:'minecraft:armor_toughness',base:10d}]}"));
         hitbox.setPos(at);hitbox.setInvisible(true);hitbox.entityTags().add(HITBOX);
+        // (user) Player-thrown drops inherit kills; natural/ownerless encounters remain ownerless.
+        var author=LbcIndirectKills.playerSource(token.getOwner());
+        if(author!=null){authors.put(hitbox,author);authors.put(display,author);}
         game.items().markCurrentItemEpoch(display);game.items().markCurrentItemEpoch(hitbox);
         var pair=new Pair(display,hitbox,game.items().epoch());pairs.add(pair);
         if(!level.addFreshEntity(hitbox) || !level.addFreshEntity(display)) { terminal(pair,false);return false; }
@@ -276,7 +280,7 @@ public final class LbcHelicopterEncounter {
     void stop() {
         pending.clear();
         for(var pair:List.copyOf(pairs)) terminal(pair,false);
-        var detached=List.copyOf(attacks);attacks.clear();for(var entity:detached) entity.discard();clocks.clear();lastDispatch.clear();lastPendingTick=Integer.MIN_VALUE;
+        var detached=List.copyOf(attacks);attacks.clear();for(var entity:detached) entity.discard();authors.clear();clocks.clear();lastDispatch.clear();lastPendingTick=Integer.MIN_VALUE;
     }
     private boolean damageTarget(Entity target) {return !target.entityTags().contains(HITBOX) && game.items().wands().validTarget(target);}
     public boolean canHit(Projectile projectile,Entity target) {return !projectile.entityTags().contains(ATTACK) || damageTarget(target);}
@@ -291,6 +295,7 @@ public final class LbcHelicopterEncounter {
         var direct=source.getDirectEntity();var owner=source.getEntity();
         return !(direct!=null && direct.entityTags().contains(ATTACK) || owner!=null && owner.entityTags().contains(HITBOX)) || damageTarget(victim);
     }
+    public LivingEntity owner(Entity entity) { return authors.get(entity); }
     boolean managed(Entity entity) {return pairs.stream().anyMatch(pair->pair.display==entity || pair.hitbox==entity);}
     int activeCount() {return pairs.size();}
     List<View> snapshot() {return pairs.stream().map(p->new View(p.display,p.hitbox,p.phase,p.frame,p.dispatches)).toList();}

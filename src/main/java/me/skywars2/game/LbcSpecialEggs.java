@@ -60,6 +60,27 @@ public final class LbcSpecialEggs {
         HOHOL("skywars2:hohol_spawn_egg", "hohol_spawn_egg", Items.BAT_SPAWN_EGG, EntityTypes.ITEM, "lbc:tier_f", """
                 {PickupDelay:32767s,Item:{count:1,id:"minecraft:repeating_command_block",components:{
                  "minecraft:custom_data":{droppertnt:1,drop:1},"minecraft:item_model":"lbc:drop_boss"}}}
+                """),
+        FAT_SKELETON("skywars2:fat_skeleton_spawn_egg", "fat_skeleton_spawn_egg", Items.SKELETON_SPAWN_EGG, EntityTypes.SKELETON, "lbc:tier_b", """
+                {"Tags":["fat_skeleton"],"DeathLootTable":"lbc:fat_skeleton_rewards","PersistenceRequired":true,"CustomNameVisible":true,"CustomName":{"translate":"fat_skeleton","italic":false},"equipment":{"mainhand":{"id":"minecraft:bone","count":1,"components":{"custom_name":{"translate":"omega_bone","italic":false},"minecraft:enchantments":{"minecraft:knockback":1,"vanishing_curse":1}}},"chest":{"id":"minecraft:iron_chestplate","count":1,"components":{"minecraft:enchantments":{"vanishing_curse":1},"minecraft:enchantment_glint_override":false}},"head":{"id":"minecraft:skeleton_skull","count":1,"components":{"minecraft:enchantments":{"vanishing_curse":1},"minecraft:enchantment_glint_override":false}}},"drop_chances":{"mainhand":0.0,"offhand":0.0,"head":0.0,"chest":0.0,"legs":0.0,"feet":0.0},"attributes":[{"id":"minecraft:movement_speed","base":0.6},{"id":"minecraft:armor","base":20},{"id":"minecraft:attack_knockback","base":100},{"id":"minecraft:armor_toughness","base":5}]}
+                """),
+        LUCKY_PIG("skywars2:lucky_pig_spawn_egg", "lucky_pig_spawn_egg", Items.PIG_SPAWN_EGG, EntityTypes.PIG, "lbc:tier_d", """
+                {"CustomNameVisible":true,"DeathLootTable":"lbc:applepig","CustomName":{"text":"Lucky Pig","color":"gold","italic":false}}
+                """),
+        HONEY_BEE("skywars2:honey_bee_spawn_egg", "honey_bee_spawn_egg", Items.BEE_SPAWN_EGG, EntityTypes.BEE, "lbc:tier_ff", """
+                {"DeathLootTable":"lbc:honey","HasNectar":true}
+                """),
+        STALIN("skywars2:stalin_spawn_egg", "stalin_spawn_egg", Items.ZOMBIFIED_PIGLIN_SPAWN_EGG, EntityTypes.ZOMBIFIED_PIGLIN, "lbc:tier_f", """
+                {"Silent":true,"CustomNameVisible":true,"PersistenceRequired":true,"Health":500,"Tags":["stalin","lucky_mob"],"CustomName":{"translate":"stalin","color":"red","italic":false},"equipment":{"mainhand":{"id":"minecraft:carrot_on_a_stick","count":1,"components":{"minecraft:item_model":"lbc:ak47"}},"feet":{"id":"minecraft:leather_boots","count":1,"components":{"minecraft:equippable":{"slot":"feet","asset_id":"lbc:stalin"},"minecraft:enchantments":{"vanishing_curse":1},"minecraft:enchantment_glint_override":false}},"legs":{"id":"minecraft:leather_leggings","count":1,"components":{"minecraft:enchantments":{"vanishing_curse":1},"minecraft:enchantment_glint_override":false}},"chest":{"id":"minecraft:leather_chestplate","count":1,"components":{"minecraft:equippable":{"slot":"chest","asset_id":"lbc:stalin"},"minecraft:enchantments":{"vanishing_curse":1},"minecraft:enchantment_glint_override":false}},"head":{"id":"minecraft:leather_helmet","count":1,"components":{"minecraft:equippable":{"slot":"head","asset_id":"lbc:stalin"},"minecraft:enchantments":{"vanishing_curse":1},"minecraft:enchantment_glint_override":false,"minecraft:unbreakable":{}}}},"drop_chances":{"mainhand":0.0,"offhand":0.0,"head":0.0,"chest":0.0,"legs":0.0,"feet":0.0},"active_effects":[{"id":"minecraft:fire_resistance","amplifier":0,"duration":2000000},{"id":"minecraft:invisibility","amplifier":0,"duration":2000000}],"attributes":[{"id":"minecraft:max_health","base":500},{"id":"minecraft:follow_range","base":100}],"DeathLootTable":"lbc:stalin"}
+                """),
+        TRANSFORMATOR("skywars2:transformator_spawn_egg", "transformator_spawn_egg", Items.ZOMBIE_SPAWN_EGG, EntityTypes.ZOMBIE, "lbc:tier_ff", """
+                {"NoGravity":false,"Silent":true,"Invulnerable":false,"CustomNameVisible":true,"PersistenceRequired":true,"NoAI":true,"Health":500,"IsBaby":true,"Tags":["transformator","lucky_mob"],"CustomName":[{"translate":"transformator","color":"gold","italic":false},{"text":" Nightmare23 Birthday (05.06.2024)","color":"gray"}],"equipment":{"head":{"id":"minecraft:repeating_command_block","count":1,"components":{"minecraft:item_model":"lbc:transformator","minecraft:enchantments":{"vanishing_curse":1},"minecraft:enchantment_glint_override":false}}},"drop_chances":{"head":0.0},"active_effects":[{"id":"minecraft:invisibility","amplifier":1,"duration":2000000,"show_particles":false}],"attributes":[{"id":"minecraft:max_health","base":500},{"id":"minecraft:knockback_resistance","base":100}]}
+                """),
+        HELICOPTER("skywars2:helicopter_spawn_egg", "helicopter_spawn_egg", Items.SNOW_GOLEM_SPAWN_EGG, EntityTypes.ITEM, "lbc:tier_ff", """
+                {"PickupDelay":32767,"Item":{"count":1,"id":"minecraft:repeating_command_block","components":{"minecraft:custom_data":"{helicopter_boss: 1,drop: 1}","minecraft:item_model":"lbc:drop_boss"}}}
+                """),
+        ANT("skywars2:muravei_spawn_egg", "muravei_spawn_egg", Items.ZOMBIE_SPAWN_EGG, EntityTypes.ZOMBIE, "lbc:tier_f", """
+                {"Silent":true,"DeathLootTable":"lbc:ant_rewards","PersistenceRequired":true,"Health":10,"IsBaby":true,"Tags":["muravei","lucky_mob"],"CustomName":{"translate":"muravei"},"equipment":{"head":{"id":"minecraft:repeating_command_block","count":1,"components":{"minecraft:item_model":"lbc:muravei","minecraft:enchantments":{"vanishing_curse":1},"minecraft:enchantment_glint_override":false}}},"active_effects":[{"id":"minecraft:invisibility","amplifier":1,"duration":-1,"show_particles":false}],"attributes":[{"id":"minecraft:max_health","base":10},{"id":"minecraft:follow_range","base":50},{"id":"minecraft:movement_speed","base":0.25},{"id":"minecraft:attack_damage","base":3},{"id":"minecraft:armor","base":5},{"id":"minecraft:armor_toughness","base":5},{"id":"minecraft:spawn_reinforcements","base":100}]}
                 """);
 
         private final Item item;
@@ -130,6 +151,18 @@ public final class LbcSpecialEggs {
             case SLAB -> { if(entity instanceof Zombie zombie) game.items().slabDrops().adoptEgg(zombie,author); }
             case LOW_VEX -> { if(entity instanceof Vex vex) game.items().creatureDrops().adoptEggVex(vex,author); }
             case SARVATRA_CREEPER -> { if(entity instanceof Creeper creeper) game.items().creeperDrops().adoptEgg(creeper,user); }
+            case FAT_SKELETON -> { if(entity instanceof net.minecraft.world.entity.monster.skeleton.Skeleton actor) game.items().creatureDrops().adoptEggSkeleton(actor,author); }
+            case LUCKY_PIG -> { if(entity instanceof net.minecraft.world.entity.animal.pig.Pig actor) game.items().luckyPigs().adoptEgg(actor,user); }
+            case HONEY_BEE -> { if(entity instanceof net.minecraft.world.entity.animal.bee.Bee actor) game.items().beeDrops().adoptEgg(actor,author); }
+            case STALIN -> { if(entity instanceof net.minecraft.world.entity.monster.zombie.ZombifiedPiglin actor) game.items().stalin().adoptEgg(actor,user); }
+            case TRANSFORMATOR -> { if(entity instanceof Zombie actor) game.items().transformator().adoptEgg(actor,user); }
+            case ANT -> { if(entity instanceof Zombie actor) game.items().antDrops().adoptEgg(actor,author); }
+            case HELICOPTER -> {
+                if(entity instanceof ItemEntity token) {
+                    if(user!=null) token.setThrower(user);
+                    game.items().markCurrentItemEpoch(token);game.items().helicopterEncounter().loaded(token);
+                }
+            }
             case SHAHID,HOHOL -> {
                 if(entity instanceof ItemEntity token) {
                     if(user!=null) token.setThrower(user);

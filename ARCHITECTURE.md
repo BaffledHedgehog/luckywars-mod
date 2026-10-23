@@ -1,5 +1,32 @@
 # Структура переноса игрового цикла
 
+## Encounter eggs / native unload boundary - QUALIFIED
+
+[Contract](agent_notes/ENCOUNTER_EGGS_PORT.md). Seven additional LbcSpecialEggs
+variants preserve their own ENTITY_DATA, then attach before insertion to existing
+creature, pig, bee, Stalin, Transformer and ant owners. The helicopter remains an
+unpickable item consumed by its existing dispatcher. No second spawn, actor
+registry or recurring inventory scan. Transformer Pair.text may be null only for
+the source egg; the ordinary encounter retains its separate native label.
+Helicopter weak causal authors attach to the existing boss identity; its arrows/
+TNT keep the native boss owner and explicit reflection takes precedence.
+
+SkyWars2 queues Fabric ENTITY_UNLOAD notifications through GameController,
+instead of running sibling-removing service callbacks inside native section
+iteration. Controller drains a detached snapshot before game tick work even if
+Minecraft time is frozen; ENTITY_LOAD cancels pending teardown of the same
+re-entering object. Shutdown clears the queue. Existing direct cleanup APIs stay
+synchronous. This corrects the reproduced native chunk-demotion CME without
+changing entity ticking, world threading or native chunk persistence.
+
+Build6b5b6fde passed24 suite results in two actual mode1 matches (63.87s),
+exact261sources/714classes/2734resources verified. Installed main while stopped;
+rollbacke7ee5492 retained. Main was not started by agent. Three user sources
+retain their starting hashes and are excluded from the commit. Evidence:
+build/verification/encounter-eggs-final/. Known fake-player Polymer context error
+pair retained; no final suite failed. No real-client pixels, actual disk restart/
+reload/disconnect, dispenser/spawner execution or peak-capacity claim.
+
 ## Normal TNT drone / Hohlopitek airstrike - QUALIFIED
 
 [Contract](agent_notes/NORMAL_DRONE_PORT.md). LbcDroneDrops owns both producer

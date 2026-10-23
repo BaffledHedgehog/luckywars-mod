@@ -72,11 +72,16 @@ public final class LbcStalin {
                     "{Silent:1b,CustomNameVisible:1b,PersistenceRequired:1b,Health:500f,CustomName:{color:'red',italic:false,translate:'stalin'},equipment:{mainhand:{id:'minecraft:carrot_on_a_stick',components:{'minecraft:item_model':'lbc:ak47'},count:1},feet:{id:'minecraft:leather_boots',components:{'minecraft:equippable':{slot:'feet',asset_id:'lbc:stalin'}},count:1},legs:{id:'minecraft:leather_leggings',count:1},chest:{id:'minecraft:leather_chestplate',components:{'minecraft:equippable':{slot:'chest',asset_id:'lbc:stalin'}},count:1},head:{id:'minecraft:leather_helmet',components:{'minecraft:unbreakable':{},'minecraft:equippable':{slot:'head',asset_id:'lbc:stalin'}},count:1}},active_effects:[{id:'minecraft:fire_resistance',duration:2000000},{id:'minecraft:invisibility',duration:2000000}],attributes:[{id:'minecraft:max_health',base:500d},{id:'minecraft:follow_range',base:100d}],drop_chances:{chest:0f,feet:0f,legs:0f,head:0f,mainhand:0f},DeathLootTable:'lbc:stalin'}")));
         } catch(com.mojang.brigadier.exceptions.CommandSyntaxException error) {throw new IllegalStateException(error);}
         actor.setInvisible(true);actor.setPos(token.position().add(0,.5,0));
+        adoptEgg(actor,game.items().specialDrops().owner(token));
+        if(!level.addFreshEntity(actor)) {terminal(actor);return;}
+        game.items().timeStop().prepareFrozen(actor);
+    }
+    /** Attach only encounter state; native egg placement and its distinct equipment remain intact. */
+    void adoptEgg(ZombifiedPiglin actor,LivingEntity author) {
         actor.entityTags().addAll(List.of(ACTOR,"stalin","lucky_mob"));
         game.items().markCurrentItemEpoch(actor);
-        var author=game.items().specialDrops().owner(token);if(author!=null) authors.put(actor,author);
+        if(author!=null) authors.put(actor,author);
         actors.put(actor,new State(actor,game.items().epoch()));
-        if(!level.addFreshEntity(actor)) {terminal(actor);return;}
         game.items().timeStop().prepareFrozen(actor);
     }
     void tick() {

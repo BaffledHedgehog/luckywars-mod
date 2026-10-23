@@ -60,6 +60,7 @@ public final class GameController {
     private final ItemStack lobbyCompass = menuCompass();
     private final Map<UUID, Participant> participants = new LinkedHashMap<>();
     private final Set<UUID> pendingLobby = new java.util.HashSet<>();
+    private final Set<Entity> nativeEntityUnloads = Collections.newSetFromMap(new java.util.IdentityHashMap<>());
     private final ServerBossEvent bar = new ServerBossEvent(UUID.randomUUID(), text("game.title"),
             BossEvent.BossBarColor.GREEN, BossEvent.BossBarOverlay.PROGRESS);
     private GameMenus menus;
@@ -432,6 +433,10 @@ public final class GameController {
     }
 
     public void tick() {
+        // Tracking callbacks run inside native section iterators. Pair teardown may remove siblings.
+        // Drain outside those iterators, including while game time is frozen.
+        var unloaded=List.copyOf(nativeEntityUnloads);nativeEntityUnloads.clear();
+        for(var entity:unloaded) entityUnloaded(entity);
         if (stopped || !server.tickRateManager().runsNormally()) return;
         lifetimeTicks++;
         if (inventoryLocked()) for (ServerPlayer player : online()) enforceLobbyInventory(player);
@@ -611,6 +616,8 @@ public final class GameController {
     }
     public void hurtForSkill(ServerPlayer player) { events.onPlayerHurt(player); }
     public void entityUnloaded(Entity entity) { events.entityUnloaded(entity); items.entityUnloaded(entity); }
+    public void queueEntityUnload(Entity entity) { if(!stopped) nativeEntityUnloads.add(entity); }
+    public void cancelQueuedEntityUnload(Entity entity) { nativeEntityUnloads.remove(entity); }
 
     private void finish() {
         luckyModifiers.endMatch();
@@ -898,6 +905,6 @@ public final class GameController {
         items.stop();
         spectators.clear();
         for (ServerPlayer player : online()) lbc.clear(player);
-        stopped = true; events.stop(); maps.shutdown(); bar.removeAllPlayers(); players.save(); config.save();
+        stopped = true; nativeEntityUnloads.clear(); events.stop(); maps.shutdown(); bar.removeAllPlayers(); players.save(); config.save();
     }
 }

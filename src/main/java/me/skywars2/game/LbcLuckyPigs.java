@@ -78,6 +78,8 @@ public final class LbcLuckyPigs {
         return true;
     }
 
+    void adoptEgg(Pig actor, LivingEntity cause) { prepare(actor,cause); }
+
     private void prepare(Entity actor, LivingEntity cause) {
         actor.entityTags().add(PIG);
         game.items().markCurrentItemEpoch(actor);

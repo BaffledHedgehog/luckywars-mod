@@ -119,6 +119,13 @@ public final class LbcTransformator {
         if(!level.addFreshEntity(actor) || !level.addFreshEntity(text)) {terminal(pair);return;}
         game.items().timeStop().prepareFrozen(actor);game.items().timeStop().prepareFrozen(text);
     }
+    /** The source egg has a visible custom name and no separate text-display label. */
+    void adoptEgg(Zombie actor,LivingEntity author) {
+        actor.entityTags().addAll(List.of(ACTOR,"transformator","lucky_mob"));
+        actor.setInvisible(true);game.items().markCurrentItemEpoch(actor);
+        if(author!=null) authors.put(actor,author);
+        pairs.add(new Pair(actor,null,game.items().epoch()));game.items().timeStop().prepareFrozen(actor);
+    }
     void tick() {
         attacks.removeIf(Entity::isRemoved);
         for(var attack:List.copyOf(attacks)) if(!game.items().currentEpoch(attack) || !game.playing()
@@ -126,7 +133,7 @@ public final class LbcTransformator {
         for(var pair:List.copyOf(pairs)) {
             var actor=pair.actor;var level=(ServerLevel)actor.level();
             if(!game.items().currentEpoch(pair.epoch) || !game.playing() || game.stage()==GameController.Stage.ENDING
-                    || actor.isRemoved() || !actor.isAlive() || pair.text.isRemoved()
+                    || actor.isRemoved() || !actor.isAlive() || pair.text!=null && pair.text.isRemoved()
                     || !resident(level,actor.blockPosition())) {terminal(pair);continue;}
             if(game.items().timeStop().stopped(level)) continue;
             if(++pair.ticks%5==0) pulse(actor);
@@ -202,7 +209,7 @@ public final class LbcTransformator {
     private Pair find(Zombie actor) {for(var pair:pairs) if(pair.actor==actor)return pair;return null;}
     private void terminal(Pair pair) {
         pairs.remove(pair);
-        if(!pair.text.isRemoved()) pair.text.discard();
+        if(pair.text!=null && !pair.text.isRemoved()) pair.text.discard();
         if(!pair.actor.isRemoved()) pair.actor.discard();
     }
     private static void sound(Zombie actor,String id,float volume,float pitch) {

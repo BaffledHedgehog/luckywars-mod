@@ -107,6 +107,11 @@ public final class LbcBeeDrop {
         if (new BlockInput(state,Set.of(),null).place(level,pos,258)) level.updateNeighboursOnBlockSet(pos,old);
     }
 
+    void adoptEgg(Bee actor,ServerPlayer author) {
+        actor.entityTags().add(ACTOR);
+        if(author!=null){authors.put(author.getUUID(),author);actor.entityTags().add(OWNER+author.getUUID());}
+        game.items().markCurrentItemEpoch(actor);tracked.add(actor);game.items().timeStop().prepareFrozen(actor);
+    }
     public static boolean managed(Entity actor) { return actor instanceof Bee && actor.entityTags().contains(ACTOR); }
 
     public LivingEntity owner(Entity actor) {
