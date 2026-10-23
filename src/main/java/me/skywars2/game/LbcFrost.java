@@ -46,6 +46,7 @@ public final class LbcFrost {
     private static final class State {
         final LivingEntity entity;
         int cold, cooldown, frozen;
+        LbcIndirectKills.Owner source;
         BlockPos anchor;
         List<BlockPos> cells = List.of();
         // Неизменяемый снимок оболочки переиспользуется при сохранении секундных таймеров.
@@ -93,12 +94,24 @@ public final class LbcFrost {
         State state = affected.computeIfAbsent(entity, State::new);
         var slow = entity.getEffect(MobEffects.SLOWNESS);
         int multiplier = state.cold > 0 || slow == null ? 1 : slow.getAmplifier() + 1;
+        state.source=source==null?null:game.items().indirectKills().coldCause(source,false);
         state.cold += 10 * multiplier;
         state.cooldown = 5;
         check(state, source);
         var pos = entity.blockPosition();
         level().sendParticles(ParticleTypes.SNOWFLAKE, pos.getX()+.5, pos.getY()+1.31, pos.getZ()+.5, 20, .5, .5, .5, .01);
         save(state);
+    }
+
+    /** Snow-cloud source: +2 cold (initial Slowness multiplier), cooldown2, no frozen refresh. */
+    boolean snow(LivingEntity entity,ServerPlayer source){
+        if(!eligible(entity)||source==null||!game.canUseGameplayItems(source))return false;
+        var state=affected.computeIfAbsent(entity,State::new);
+        if(state.frozen>0)return true;
+        var slow=entity.getEffect(MobEffects.SLOWNESS);
+        int multiplier=state.cold>0||slow==null?1:slow.getAmplifier()+1;
+        state.source=game.items().indirectKills().coldCause(source,true);state.cold+=2*multiplier;state.cooldown=2;
+        save(state);return true;
     }
 
     /** Existing frost counters retain their native stored units (seconds for both timers). */
@@ -127,19 +140,22 @@ public final class LbcFrost {
                 var advancement = game.server().getAdvancements().get(Identifier.parse("lbc:true_advancements/swords/ice"));
                 if (advancement != null) for (String criterion : advancement.value().criteria().keySet()) source.getAdvancements().award(advancement, criterion);
             }
-            hold(state);
+            if(state.source!=null)game.items().indirectKills().trapChanges(level(),state.source,()->hold(state));else hold(state);
         } else if (state.cold > 0) {
             int tier = (state.cold-1)/10;
-            effect(entity, MobEffects.SLOWNESS, 40, tier);
-            if (tier >= 1) effect(entity, MobEffects.MINING_FATIGUE, 40, tier-1);
-            if (tier >= 2) effect(entity, MobEffects.WEAKNESS, 40, tier-2);
-            if (tier >= 3) effect(entity, MobEffects.UNLUCK, 40, tier >= 8 ? 2 : tier >= 6 ? 1 : 0);
-            if (tier >= 5) effect(entity, MobEffects.BLINDNESS, 40, 0);
+            effect(entity, MobEffects.SLOWNESS, 40, tier,state.source);
+            if (tier >= 1) effect(entity, MobEffects.MINING_FATIGUE, 40, tier-1,state.source);
+            if (tier >= 2) effect(entity, MobEffects.WEAKNESS, 40, tier-2,state.source);
+            if (tier >= 3) effect(entity, MobEffects.UNLUCK, 40, tier >= 8 ? 2 : tier >= 6 ? 1 : 0,state.source);
+            if (tier >= 5) effect(entity, MobEffects.BLINDNESS, 40, 0,state.source);
         }
     }
 
-    private static void effect(LivingEntity entity, Holder<MobEffect> effect, int ticks, int amplifier) {
-        entity.addEffect(new MobEffectInstance(effect, ticks, amplifier, false, false, false));
+    private void effect(LivingEntity entity, Holder<MobEffect> effect, int ticks, int amplifier) {
+        effect(entity,effect,ticks,amplifier,null);
+    }
+    private void effect(LivingEntity entity,Holder<MobEffect> effect,int ticks,int amplifier,LbcIndirectKills.Owner source){
+        game.items().indirectKills().coldEffect(entity,new MobEffectInstance(effect,ticks,amplifier,false,false,false),source);
     }
 
     void tick() {
@@ -165,7 +181,7 @@ public final class LbcFrost {
         for (State state : batch) {
             if (!eligible(state.entity)) { clear(state.entity); continue; }
             if (state.cold > 0) {
-                if (state.frozen == 0) check(state, null);
+                if (state.frozen == 0) check(state,null);
                 if (state.cooldown > 0) state.cooldown--;
                 if (state.cooldown == 0) state.cold = Math.max(0, state.cold-1);
             }
@@ -258,6 +274,7 @@ public final class LbcFrost {
     private void save(State state) {
         var tag = new CompoundTag();
         tag.putString("epoch", epoch); tag.putInt("cold", state.cold); tag.putInt("cooldown", state.cooldown); tag.putInt("frozen", state.frozen);
+        if(state.source!=null){tag.putString("source",state.source.player().toString());tag.putLong("source_order",state.source.order());tag.putBoolean("source_projectile",state.source.projectile());}
         if (state.anchor != null) {
             tag.putLong("anchor", state.anchor.asLong()); tag.put("ice", state.savedIce);
         }
@@ -271,6 +288,7 @@ public final class LbcFrost {
         if (!epoch.equals(tag.getStringOr("epoch", ""))) { living.removeAttached(DATA); return; }
         if (!eligible(living)) { clear(living); return; }
         var state = new State(living);
+        try{state.source=game.items().indirectKills().restoreColdCause(UUID.fromString(tag.getStringOr("source","")),tag.getLongOr("source_order",0),tag.getBooleanOr("source_projectile",false));}catch(IllegalArgumentException ignored){}
         state.cold = tag.getIntOr("cold", 0); state.cooldown = tag.getIntOr("cooldown", 0); state.frozen = tag.getIntOr("frozen", 0);
         if (state.frozen > 0) {
             state.anchor = BlockPos.of(tag.getLongOr("anchor", 0));

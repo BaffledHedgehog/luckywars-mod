@@ -616,7 +616,7 @@ public final class GameChecks {
                                 case "exasperato" -> checkExasperato(game);
                                 case "wand-physics" -> checkWandPhysics(game);
                                 case "damage-cooldown" -> checkDamageCooldown(game);
-                                case "exasperato-academy" -> checkExasperatoAcademy(game);
+                                case "exasperato-academy" -> { warmExasperatoAcademy(game); return; }
                                 case "exoperso-menu" -> checkExopersoMenu(game);
                                 case "exoperso" -> checkExoperso(game);
                                 case "nuclear-visual" -> checkNuclearVisual(game);
@@ -736,6 +736,9 @@ public final class GameChecks {
                                 case "normal-drone-stop-probe" -> { NormalDroneChecks.stopProbe(game); return; }
                                 case "normal-drone-cleanup" -> { NormalDroneChecks.cleanup(game); return; }
                                 case "special-eggs" -> { SpecialEggChecks.run(game); return; }
+                                case "advanced-snow" -> { AdvancedSnowChecks.run(game); return; }
+                                case "advanced-snow-stop-probe" -> { AdvancedSnowChecks.stopProbe(game); return; }
+                                case "advanced-snow-cleanup" -> { AdvancedSnowChecks.cleanup(game); return; }
                                 case "ender-wiki" -> { EnderWikiChecks.run(game); return; }
                                 case "ender-wiki-stop-probe" -> { EnderWikiChecks.stopProbe(game); return; }
                                 case "ender-wiki-cleanup" -> { EnderWikiChecks.cleanup(game); return; }
@@ -1122,6 +1125,7 @@ public final class GameChecks {
                 StalinEncounterChecks.tick(game);
                 NormalDroneChecks.tick(game);
                 SpecialEggChecks.tick(game);
+        AdvancedSnowChecks.tick(game);
         EnderWikiChecks.tick(game);
         NeutralWandChecks.tick(game);
         BloodConfuseChecks.tick(game);
@@ -15031,6 +15035,27 @@ public final class GameChecks {
         }
 
         /** Native Academy dispatch and bounded payload checks for the four Exasperato modes. */
+        private static void warmExasperatoAcademy(GameController game){
+                require(game.playing()&&deferredCheck==null,"Exclusive native Academy fixture");
+                var owner=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
+                require(owner!=null,"Native Academy owner");var level=owner.level();
+                int cx=owner.blockPosition().getX()>>4,cz=owner.blockPosition().getZ()>>4;
+                var wanted=new java.util.HashSet<Long>();var owned=new java.util.HashSet<Long>();
+                for(int x=cx-3;x<=cx+3;x++)for(int z=cz-3;z<=cz+3;z++)wanted.add(net.minecraft.world.level.ChunkPos.pack(x,z));
+                for(int x=cx+4;x<=cx+25;x++)for(int z=cz-2;z<=cz+2;z++)wanted.add(net.minecraft.world.level.ChunkPos.pack(x,z));
+                Runnable release=()->{for(long key:owned)level.setChunkForced(net.minecraft.world.level.ChunkPos.getX(key),net.minecraft.world.level.ChunkPos.getZ(key),false);};
+                try{for(long key:wanted){int x=net.minecraft.world.level.ChunkPos.getX(key),z=net.minecraft.world.level.ChunkPos.getZ(key);
+                        if(!level.getForceLoadedChunks().contains(key)){owned.add(key);level.setChunkForced(x,z,true);}level.getChunk(x,z);
+                }}catch(RuntimeException|Error error){release.run();throw error;}
+                deferredTicks=1;deferredCheck=new Runnable(){int ticks;
+                        public void run(){
+                                boolean ready=wanted.stream().allMatch(level::areEntitiesLoaded);
+                                if(!ready&&++ticks<200){deferredTicks=1;deferredCheck=this;return;}
+                                try{require(ready,"Academy fixture chunks become entity-visible before payload queries");checkExasperatoAcademy(game);}finally{release.run();}
+                        }
+                };
+        }
+
         private static void checkExasperatoAcademy(GameController game) {
                 require(game.playing(), "Academy Exasperato checks require an actual match");
                 var owner = game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
@@ -15146,7 +15171,7 @@ public final class GameChecks {
                         require(chaosBolts.size()==40 && chaosBolts.stream().allMatch(b->b.getCause()==owner)
                                         && exasperatoPayload(level,net.minecraft.world.entity.item.PrimedTnt.class).equals(oldTnt)
                                         && game.items().mana().get(owner)==8500,
-                                        "Chaos completes its native blast batch, emits 40 attributed lightning, pays once and spawns no zero-fuse TNT entities");
+                                        "Chaos completes its native blast batch, emits 40 attributed lightning, pays once and spawns no zero-fuse TNT entities; bolts="+chaosBolts.size()+", correctOwners="+chaosBolts.stream().filter(b->b.getCause()==owner).count()+", mana="+game.items().mana().get(owner)+", tnt="+exasperatoPayload(level,net.minecraft.world.entity.item.PrimedTnt.class).size()+", oldTnt="+oldTnt.size());
                         spawned.addAll(chaosBolts); for(var bolt:chaosBolts) bolt.discard();
                         owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,ItemStack.EMPTY);
                         checkExasperatoNuke(game,owner,spawned);
@@ -15243,10 +15268,11 @@ public final class GameChecks {
                         rocket.setPos(block.getX()+.5,block.getY()+1.5,block.getZ()+.5);
                         int tntBefore=exasperatoPayload(level,net.minecraft.world.entity.item.PrimedTnt.class).size();
                         long blastStarted=System.nanoTime(); wand.tick();
-                        require(rocket.isRemoved() && wand.count()==0 && wand.mushroomCount()==1
+                        // Native ENTITY_UNLOAD now drains through GameController after the current iterator.
+                        require(rocket.isRemoved() && wand.snapshot().stream().noneMatch(e->!e.isRemoved()) && wand.mushroomCount()==1
                                         && wand.pendingBlasts()>0 && wand.pendingBlasts()<32
                                         && exasperatoPayload(level,net.minecraft.world.entity.item.PrimedTnt.class).size()==tntBefore,
-                                        "Impact immediately removes the rocket and starts its mushroom while preserving pending native blasts without TNT entities");
+                                        "Impact immediately removes the rocket and starts its mushroom while preserving pending native blasts without TNT entities; removed="+rocket.isRemoved()+", rockets="+wand.count()+", mushrooms="+wand.mushroomCount()+", pending="+wand.pendingBlasts()+", tntBefore="+tntBefore+", tntNow="+exasperatoPayload(level,net.minecraft.world.entity.item.PrimedTnt.class).size());
                         double maxSlice=(System.nanoTime()-blastStarted)/1_000_000.0;
                         int blastSlices=1;
                         while(wand.pendingBlasts()>0 && blastSlices<128) {

@@ -58,6 +58,8 @@ public final class LbcExasperato {
         final boolean blocksOnly;
         final boolean technology;
         final java.util.function.Predicate<Entity> target;
+        java.util.function.BiPredicate<BlockPos,net.minecraft.world.level.block.state.BlockState> blockRule;
+        boolean shieldBlockable=true;
         final java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult> result=new java.util.concurrent.CompletableFuture<>();
         final java.util.function.BiConsumer<Vec3,Vec3> trail;
         Search(ServerPlayer owner,String epoch,Vec3 from,Vec3 direction,double remaining,boolean walls,
@@ -257,6 +259,20 @@ public final class LbcExasperato {
         if(!search.technology) return game.items().magic().suppressed(search.owner);
         return game.items().magic().mechanismSuppressed(search.owner);
     }
+
+    /** Instant source spells reuse this CPU-budgeted, epoch-owned resident DDA. */
+    java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult> searchSpell(ServerPlayer owner,
+            Vec3 from,Vec3 direction,boolean blocksOnly,
+            java.util.function.BiPredicate<BlockPos,net.minecraft.world.level.block.state.BlockState> blocks,
+            java.util.function.Predicate<Entity> targets,java.util.function.BiConsumer<Vec3,Vec3> trail){
+        direction=direction.normalize();
+        double reach=loadedRayExtent(owner,from,direction,true,blocksOnly);
+        if(!blocksOnly&&targets!=null)reach=Math.max(reach,game.items().lifetimes().livingRayExtent(owner,from,direction,targets));
+        var search=new Search(owner,game.items().epoch(),from,direction,reach,true,trail,blocksOnly,false,targets);
+        search.blockRule=blocks;search.shieldBlockable=false;
+        if(reach>0&&direction.lengthSqr()>1e-12)searches.addLast(search);else search.result.complete(null);
+        return search.result;
+    }
     private boolean searchPointSuppressed(Search search,Vec3 point) {
         return search.technology ? game.items().magic().mechanismSuppressedAt(search.level,point)
                 : game.items().magic().suppressedAt(search.level,point);
@@ -281,9 +297,10 @@ public final class LbcExasperato {
             double length=Math.min(SEARCH_SEGMENT,search.remaining);
             Vec3 end=from.add(search.direction.scale(length));
             if(Math.abs(end.x)>30_000_000 || Math.abs(end.z)>30_000_000) { search.result.complete(null); continue; }
-            var wall=search.walls?LbcTerra.wallHit(level,from,end):LbcTerra.wallHit(level,from,end,state->false);
+            var wall=search.blockRule!=null?LbcTerra.wallHit(level,from,end,search.blockRule)
+                    :search.walls?LbcTerra.wallHit(level,from,end):LbcTerra.wallHit(level,from,end,state->false);
             if(wall!=null) end=wall.getLocation();
-            var shield=search.blocksOnly || search.technology?null:game.items().wands().shieldHit(owner,from,end);
+            var shield=search.blocksOnly || search.technology || !search.shieldBlockable?null:game.items().wands().shieldHit(owner,from,end);
             if(shield!=null) end=shield.getLocation();
             double suppression=searchSuppressionFraction(search,from,end);
             if(Double.isFinite(suppression)) end=from.lerp(end,suppression);

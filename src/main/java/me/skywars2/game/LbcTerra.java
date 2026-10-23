@@ -452,8 +452,13 @@ public final class LbcTerra {
     /** Та же DDA/граница чанка для лучей, которые ищут только выбранный тип блока. */
     static BlockHitResult wallHit(ServerLevel level, Vec3 from, Vec3 to,
             java.util.function.Predicate<net.minecraft.world.level.block.state.BlockState> blocks) {
+        return wallHit(level,from,to,(pos,state)->blocks.test(state));
+    }
+    /** Position-aware rule shares the same resident DDA, e.g. two-air wall exits. */
+    static BlockHitResult wallHit(ServerLevel level,Vec3 from,Vec3 to,
+            java.util.function.BiPredicate<BlockPos,net.minecraft.world.level.block.state.BlockState> blocks) {
         return BlockGetter.traverseBlocks(from, to, level,
-                (world, pos) -> world.hasChunkAt(pos) && !blocks.test(world.getBlockState(pos))
+                (world, pos) -> world.hasChunkAt(pos) && !blocks.test(pos,world.getBlockState(pos))
                         ? null : Shapes.block().clip(from, to, pos), world -> null);
     }
 

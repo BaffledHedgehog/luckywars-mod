@@ -42,7 +42,7 @@ public final class LbcIndirectKills {
                     && !old.isSuffocating(level,pos)) stonePlaced(level,pos,owner);
         }
     }
-    private record Owner(UUID player, long order, boolean friendlyFire, boolean projectile) { }
+    record Owner(UUID player, long order, boolean friendlyFire, boolean projectile) { }
     private record TrapFrame(Owner owner, ServerLevel level, Map<BlockPos,BlockState> candidates) { }
     private static final class Fall {
         final Owner owner;
@@ -81,6 +81,20 @@ public final class LbcIndirectKills {
     LbcIndirectKills(GameController game) { this.game=game; }
     private Owner owner(ServerPlayer player) { return owner(player,false); }
     private Owner owner(ServerPlayer player,boolean friendlyFire) { return new Owner(player.getUUID(),++order,friendlyFire,false); }
+
+    /** Deferred Frost processing retains the original impact's order, rather than becoming a new hit. */
+    Owner coldCause(ServerPlayer player,boolean projectile){return new Owner(player.getUUID(),++order,false,projectile);}
+    Owner restoreColdCause(UUID player,long stamp,boolean projectile){
+        if(stamp<=0)stamp=++order;else order=Math.max(order,stamp);
+        return new Owner(player,stamp,false,projectile);
+    }
+    void coldEffect(LivingEntity target,MobEffectInstance effect,Owner cause){
+        var player=cause==null?null:game.server().getPlayerList().getPlayer(cause.player);
+        if(target.addEffect(effect,player)&&cause!=null&&target!=player&&effect.is(MobEffects.BLINDNESS)){
+            var active=target.getEffect(effect.getEffect());
+            if(active!=null)statuses.computeIfAbsent(target,ignored->new HashMap<>()).put(effect.getEffect(),new Status(cause,active));
+        }
+    }
 
     /** Нативное зелье передаёт source как игрока, снаряд или облако — разворачиваем владельца. */
     public static ServerPlayer playerSource(Entity source) {
@@ -284,7 +298,9 @@ public final class LbcIndirectKills {
     }
     /** A WILD trap retains its friendly-fire policy in suffocation and placed hazards. */
     public void trapChanges(ServerLevel level,ServerPlayer owner,boolean friendlyFire,Runnable writes) {
-        var cause=owner(owner,friendlyFire);
+        trapChanges(level,owner(owner,friendlyFire),writes);
+    }
+    void trapChanges(ServerLevel level,Owner cause,Runnable writes){
         var previous=trapFrame;
         var frame=new TrapFrame(cause,level,new HashMap<>());
         trapFrame=frame;

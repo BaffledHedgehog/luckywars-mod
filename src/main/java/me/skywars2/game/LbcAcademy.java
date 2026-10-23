@@ -51,6 +51,8 @@ public final class LbcAcademy {
     private static final CompoundTag TOKEN_DATA = flag("academy_token"), BUILDING_DATA = flag("magic_academy");
     public static final Item TOKEN = registerToken();
     private enum Wand {
+        ADVANCED_ENDER("advancedteleport", LbcWands.ADVANCED_ENDER, LbcWands.ACADEMY_ADVANCED_ENDER, "s", "upgrade_condition_advancedteleport", "upgrade_succesful_advancedteleport"),
+        SNOW("snow_wand", LbcWands.SNOW, LbcWands.ACADEMY_SNOW, "b", "upgrade_condition_snow", "upgrade_succesful_snow"),
         ENDER("enderwand", LbcWands.ENDER, LbcWands.ACADEMY_ENDER, "a", "upgrade_condition_enderwand", "upgrade_succesful_enderwand"),
         BAD_WIKI("badwiki", LbcWands.BAD_WIKI, LbcWands.ACADEMY_BAD_WIKI, "a", "upgrade_condition_badwiki", "upgrade_succesful_badwiki"),
         NEUTRAL("neutralmage", LbcWands.NEUTRAL, LbcWands.ACADEMY_NEUTRAL, "a", "upgrade_condition_neutralmage", "upgrade_succesful_neutralmage"),

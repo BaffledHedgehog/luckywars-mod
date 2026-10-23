@@ -240,8 +240,11 @@ public final class ProjectileLifetimes {
 
     /** Конечная высота поиска Nuke: учитываем и мобов за высотой строительства, без обхода всего мира. */
     double livingRayExtent(ServerPlayer owner,Vec3 from,Vec3 direction) {
+        return livingRayExtent(owner,from,direction,e->target(owner,e));
+    }
+    double livingRayExtent(ServerPlayer owner,Vec3 from,Vec3 direction,java.util.function.Predicate<Entity> selection){
         double extent=0;
-        for(var candidate:targets) if(target(owner,candidate)) {
+        for(var candidate:targets) if(candidate.level()==owner.level()&&selection.test(candidate)) {
             var box=candidate.getBoundingBox();
             double length=box.getCenter().subtract(from).dot(direction)+box.getSize()*2+1;
             if(length>extent && (box.contains(from) || box.clip(from,from.add(direction.scale(length))).isPresent()))

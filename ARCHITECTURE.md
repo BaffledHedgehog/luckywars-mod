@@ -1,5 +1,30 @@
 # Структура переноса игрового цикла
 
+## Advanced Ender / Snow wand families - QUALIFIED (24 October 2026)
+
+[Contract](agent_notes/ADVANCED_SNOW_PORT.md). Four scoped leaves close ordinary/Academy Advanced Ender
+and Snow. Teleport keeps source self harm/trial, all three Academy modes and
+free switching. Shared resident ray queue handles wall exits in either direction,
+actual impact columns, long rays and living targets above build height. Snow
+uses native radius4/Duration250/wait20 clouds, source +2 cold per5 ticks and the
+existing one-second Frost owner. Actual used-hand trials/promotions, friendly-mob
+hits, allied-player/role protection, native cloud expiry, antimagic, actual Time
+Stop and quiet stop are qualified. Existing indirect cause order is retained
+through cold refresh/index reload: later real hits win; a newer cold pulse can
+retake attribution. Source presentation and source hook differences preserved.
+No RP writes, new actor/cause framework, artificial flight cap or broad pool.
+
+Old Exasperato regression setup now waits for native entity visibility with
+scoped force-load leases, and checks live rockets rather than pending removed
+references after the earlier safe unload fix. Production unload timing unchanged.
+Build1196e521 passed26 recorded suite results/two actual mode1 matches (51.56s),
+exact274sources/736classes/2755resources verified. Installed stopped main;
+rollback3f17da51 retained; main not started. Three user sources unchanged/excluded.
+Evidence:build/verification/advanced-snow-final/. Known fake-player Polymer
+packet-context pair only. Native boundary fixtures include manual ticks; no real
+client pixels, actual disk restart/unload/disconnect or peak-capacity claim.
+
+
 ## Ender wand / Bad Wiki - QUALIFIED (23 October 2026)
 
 [Contract](agent_notes/ENDER_WIKI_PORT.md). Four scoped leaves close ordinary/Academy Ender and Bad Wiki.
