@@ -174,6 +174,7 @@ public final class LbcItems {
     private final LbcMana mana;
     private final LbcTerra terra;
     private final LbcWands wands;
+    private final LbcBloodConfuse bloodConfuse;
     private final LbcEvokerBass evokerBass;
     private final LbcLifestealer lifestealer;
     private final LbcMobgun mobgun;
@@ -687,6 +688,7 @@ public final class LbcItems {
         this.teleport = new LbcTeleport(game);
         this.ruby = new LbcRuby(game);
         this.consuming = new LbcConsuming(game);
+        this.bloodConfuse = new LbcBloodConfuse(game);
         this.evokerBass = new LbcEvokerBass(game);
         this.lifestealer = new LbcLifestealer(game);
         this.mobgun = new LbcMobgun(game);
@@ -818,6 +820,7 @@ public final class LbcItems {
     public LbcTeleport teleport() { return teleport; }
     public LbcRuby ruby() { return ruby; }
     public LbcConsuming consuming() { return consuming; }
+    public LbcBloodConfuse bloodConfuse() { return bloodConfuse; }
     public LbcEvokerBass evokerBass() { return evokerBass; }
     public LbcLifestealer lifestealer() { return lifestealer; }
     public LbcMobgun mobgun() { return mobgun; }

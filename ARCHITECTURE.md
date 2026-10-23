@@ -1,5 +1,27 @@
 # Структура переноса игрового цикла
 
+## Blood / Confuse instant wand integration - QUALIFIED
+
+[Contract](agent_notes/BLOOD_CONFUSE_PORT.md). Stateless LbcBloodConfuse plugs into
+LbcWands PKM/dual-hand dispatch and LbcAcademy. Native harmful/beneficial effects
+retain their durations, cleansing and inherited damage via LbcIndirectKills;
+no extra effect tick or lifecycle registry exists. Blood's Academy variant only
+removes self harm, Confuse has four selectable modes. Costs/hooks reuse mana.
+Safe spread visits at most441 resident columns, rejects empty columns using
+WORLD_SURFACE, reuses native two-air-block/safe-block semantics via
+LbcPortalDrops.spawnY, and samples safe cells with partial-edge weights. No
+synchronous chunk load, persistent teleport job or replacement world tick.
+Original function origin stays fixed for post-teleport Confuse trial checks.
+Test fixtures now wait for entity visibility rather than assuming a loaded
+chunk immediately participates in entity queries; production ticks are unchanged.
+
+Build46db086d passed18 suite results/two actual mode1 matches (53.36s), exact
+266sources/721classes/2742resources. Installed stopped main, rollback63c4f9a3
+retained, main not started. Evidence:build/verification/blood-confuse-final/.
+Known fake-player Polymer context error pair only; native boundary fixtures use
+manual ticks. No client pixels, restart/unload/disconnect or peak-load claim.
+
+
 ## Evoker / Bass wand integration - QUALIFIED (23 October 2026)
 
 [Contract](agent_notes/EVOKER_BASS_PORT.md). LbcEvokerBass plugs into existing

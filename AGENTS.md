@@ -1,5 +1,31 @@
 # Проект SkyWars
 
+## Blood / Confuse wand families - QUALIFIED (23 October 2026)
+
+[Contract](agent_notes/BLOOD_CONFUSE_PORT.md). Four scoped leaves: blood_wand,
+academy_blood_wand, confuse_wand, academy_confuse_wand. LbcBloodConfuse owns
+instant casts only; existing native effects/indirect kills/mana/Academy services
+own all state. Blood retains18 area cactus damage, harmful effects and normal
+self harm/infinite trial curse; Academy removes self harm. Confuse retains four
+source actions/trial and chooses safe surfaces in the source square using a
+bounded resident-column scan, native safety/Y and weighted edge columns. No
+10000 repeated void probes or forced chunk requests. Mode switches cost no mana
+(user). Source presentation, costs, offhand dispatch and causal/later-hit rules
+retained. No RP edits, invented counters/caps or broad pool enablement.
+
+Actual fixture composition exposed a residency race in test setup. Blood/Confuse
+and existing Evoker/Bass checks now wait for native entity visibility after
+forcing their fixture chunks, before creating/querying actors. Production world
+or entity ticking is unchanged by this test-only correction.
+
+Build46db086d passed18 suite results in two actual mode1 matches (53.36s), exact
+266sources/721classes/2742resources verified. Installed main while stopped;
+rollback63c4f9a3 retained; main not started. Three user sources unchanged/excluded.
+Evidence:build/verification/blood-confuse-final/. Known fake-player Polymer
+context error pair only. Native effect boundary fixtures include manual ticks;
+no client pixels, actual disk restart/unload/disconnect or peak-load claim.
+
+
 ## Evoker / Bass wand families - QUALIFIED (23 October 2026)
 
 [Contract](agent_notes/EVOKER_BASS_PORT.md). Four ready scoped leaves:

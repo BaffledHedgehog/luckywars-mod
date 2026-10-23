@@ -1,5 +1,24 @@
 # Следующие этапы переноса
 
+## Blood / Confuse wand families - 23 October 2026
+
+[Contract](BLOOD_CONFUSE_PORT.md). Ordinary and Academy Blood/Confuse are now
+closed through four scoped ready item entrances. Source effects/trials/promotion,
+self harm versus upgraded safety, actual Wither/later-attacker kill attribution,
+safe teleport and both-hand costs were verified with prior-family regressions.
+The surface picker avoids repeated void scans and chunk loads; existing effect,
+mana, action, epoch and Academy services remain authoritative. Full Corruption
+was investigated but its Corrupted Dust ->summoning chain remains unclosed and
+was not exposed. Other basic wands and Forest/Infinity/Mom reward chains remain.
+
+Build46db086d passed18 suite results in two actual mode1 matches (53.36s), exact
+266sources/721classes/2742resources verified. Installed main while stopped;
+rollback63c4f9a3 retained, main not started, three user sources preserved.
+Evidence:build/verification/blood-confuse-final/. The only final ERROR pair is
+known fake-player Polymer context output. Native effect boundaries include
+manual ticks; no client pixels, disk restart/unload/disconnect or peak-load claim.
+
+
 ## Evoker / Bass wand families - 23 October 2026
 
 [Contract](EVOKER_BASS_PORT.md). Both ordinary wands and both complete Academy

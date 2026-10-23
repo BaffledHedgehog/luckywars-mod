@@ -28,6 +28,8 @@ public final class EvokerBassChecks {
     private static List<EvokerFangs> stopped=List.of();
     private static String epoch;
     private static final class Fixture implements AutoCloseable {
+        boolean checked;int warmTicks;
+        boolean warm(){require(++warmTicks<=200,"resident fixture becomes entity ticking");for(int x=-18;x<=-12;x++)for(int z=-18;z<=-12;z++)if(!owner.level().areEntitiesLoaded(net.minecraft.world.level.ChunkPos.pack(x,z)))return false;return true;}
         final GameController game; final ServerPlayer owner,other;
         final GameChecks.WandThirdPlayerState saved,otherSaved;
         final Vec3 at=new Vec3(-240.5,240,-240.5);
@@ -146,8 +148,8 @@ public final class EvokerBassChecks {
             for(long key:forced)owner.level().setChunkForced(net.minecraft.world.level.ChunkPos.getX(key),net.minecraft.world.level.ChunkPos.getZ(key),false);
         }
     }
-    public static void run(GameController game){require(running==null,"exclusive fixture");var f=new Fixture(game);running=f;try{f.init();f.presentation();f.formations();f.bass();}catch(RuntimeException|Error error){running=null;f.close();throw error;}}
-    public static void tick(GameController game){if(running==null)return;var f=running;try{if(f.academyStep()){running=null;f.close();SkyWars2.LOGGER.info("[check] PASS evoker-bass");}}catch(Throwable e){running=null;try{f.close();}catch(Throwable cleanup){e.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL evoker-bass",e);}}
+    public static void run(GameController game){require(running==null,"exclusive fixture");var f=new Fixture(game);running=f;try{f.init();}catch(RuntimeException|Error error){running=null;f.close();throw error;}}
+    public static void tick(GameController game){if(running==null)return;var f=running;try{if(!f.checked){if(!f.warm())return;f.presentation();f.formations();f.bass();f.checked=true;}if(f.academyStep()){running=null;f.close();SkyWars2.LOGGER.info("[check] PASS evoker-bass");}}catch(Throwable e){running=null;try{f.close();}catch(Throwable cleanup){e.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL evoker-bass",e);}}
     public static void stopProbe(GameController game){
         var owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));var state=new GameChecks.WandThirdPlayerState(owner,game.items().mana());
         try{owner.setShiftKeyDown(false);owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);game.items().mana().noMagic(owner,0);game.items().mana().set(owner,10000);var s=game.lbc().rollTable(owner.level(),owner.position(),owner,"lbc:ported/academy_evoker_wand").getFirst();var d=s.get(DataComponents.CUSTOM_DATA).copyTag();d.putInt("mode",2);s.set(DataComponents.CUSTOM_DATA,CustomData.of(d));owner.setItemInHand(InteractionHand.MAIN_HAND,s);require(game.items().wands().use(owner,InteractionHand.MAIN_HAND),"stop probe cast");stopped=game.items().evokerBass().snapshot();require(stopped.size()==36,"live fangs before actual stop");epoch=game.items().epoch();}finally{state.restore(game);}SkyWars2.LOGGER.info("[check] PASS evoker-bass-stop-probe");

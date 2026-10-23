@@ -56,6 +56,10 @@ import net.minecraft.world.scores.ScoreHolder;
 
 /** Жезлы используют общий расход маны и каст-хуки; временные снаряды хранит существующий трекер. */
 public final class LbcWands {
+    public static final Item BLOOD=register("skywars2:blood_wand","blood_wand","lbc:killingwand");
+    public static final Item ACADEMY_BLOOD=register("skywars2:academy_blood_wand","blood_wand","lbc:killingwand");
+    public static final Item CONFUSE=register("skywars2:confuse_wand","confuse_wand","lbc:foxuswand");
+    public static final Item ACADEMY_CONFUSE=register("skywars2:academy_confuse_wand","confuse_wand","lbc:foxuswand");
     public static final Item EVOKER=register("skywars2:evoker_wand","evoker_wand","lbc:evokerwand");
     public static final Item ACADEMY_EVOKER=register("skywars2:academy_evoker_wand","evoker_wand","lbc:evokerwand");
     public static final Item BASS=register("skywars2:bass_wand","bass_wand","lbc:basswand");
@@ -126,6 +130,10 @@ public final class LbcWands {
     public static final Item ACADEMY_EXOPERSO=register("skywars2:academy_exoperso_wand","megumin_wand","lbc:exoperso");
     public static final Item ACADEMY_EXASPERATO=register("skywars2:academy_exasperato_wand","exasperato_wand","lbc:exasperato");
     private enum Spell {
+        ACADEMY_BLOOD(LbcWands.ACADEMY_BLOOD,"bloodmagic","blood_wand_mana_use",5000),
+        REGULAR_BLOOD(LbcWands.BLOOD,"bloodmagic","blood_wand_mana_use",5000),
+        ACADEMY_CONFUSE(LbcWands.ACADEMY_CONFUSE,"foxusing","confuse_wand_mana_use",900),
+        REGULAR_CONFUSE(LbcWands.CONFUSE,"foxusing","confuse_wand_mana_use",900),
         ACADEMY_EVOKER(LbcWands.ACADEMY_EVOKER,"evocator","evoker_wand_mana_use",700),
         REGULAR_EVOKER(LbcWands.EVOKER,"evocator","evoker_wand_mana_use",700),
         ACADEMY_BASS(LbcWands.ACADEMY_BASS,"bassboost","bass_wand_mana_use",800),
@@ -199,6 +207,7 @@ public final class LbcWands {
         final int defaultCost;
         Spell(Item item,String flag,String cost,int defaultCost) {
             this.item=item; this.flag=flag(flag); this.cost=ScoreHolder.forNameOnly(cost); this.defaultCost=defaultCost;
+            if(item==LbcWands.ACADEMY_BLOOD || item==LbcWands.ACADEMY_CONFUSE) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_EVOKER || item==LbcWands.ACADEMY_BASS) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_LIFESTEALER) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_CONSUMING) this.flag.putInt("upgraded",1);
@@ -376,6 +385,9 @@ public final class LbcWands {
         Spell spell=null;
         for(var candidate:SPELLS) if(matches(stack,candidate.item,candidate.flag)) { spell=candidate; break; }
         if(spell==null) return false;
+        if(spell==Spell.REGULAR_BLOOD || spell==Spell.ACADEMY_BLOOD || spell==Spell.REGULAR_CONFUSE || spell==Spell.ACADEMY_CONFUSE)
+            return game.items().bloodConfuse().use(player,hand,stack,spell==Spell.REGULAR_BLOOD || spell==Spell.ACADEMY_BLOOD,
+                    spell==Spell.ACADEMY_BLOOD || spell==Spell.ACADEMY_CONFUSE);
         if(spell==Spell.REGULAR_EVOKER || spell==Spell.ACADEMY_EVOKER || spell==Spell.REGULAR_BASS || spell==Spell.ACADEMY_BASS)
             return game.items().evokerBass().use(player,hand,stack,spell==Spell.REGULAR_EVOKER || spell==Spell.ACADEMY_EVOKER,
                     spell==Spell.ACADEMY_EVOKER || spell==Spell.ACADEMY_BASS);
