@@ -27,9 +27,11 @@ import java.util.*;
 
 /** Native closed creature drops; actual source attribution never changes native mob/projectile owners. */
 public final class LbcCreatureDrops {
-    public enum Kind { VEX_OLD, SKELETON_OLD, FAT_SKELETON, BOB_OLD, BULLETS }
+    public enum Kind { VEX_OLD, VEX, SKELETON_OLD, FAT_SKELETON, BOB_OLD, BULLETS }
     private static final String ACTOR="skywars2.creature_drop", OWNER="skywars2.creature_owner.";
     private static final CompoundTag VEX=preset("{Health:1.0f,attributes:[{id:\"minecraft:max_health\",base:1}]}");
+    private static final String NORMAL_VEX="skywars2.normal_vex_drop";
+    private static final CompoundTag NORMAL_VEX_DATA=preset("{Tags:[\"skywars2.normal_vex_drop\"],DeathLootTable:\"lbc:vex_sword\",Health:1.0f,attributes:[{id:\"minecraft:max_health\",base:1}]}");
     private static final CompoundTag SKELETON=preset("""
             {PersistenceRequired:1b,CustomNameVisible:1b,CustomName:{"italic":false,"translate":"fat_skeleton"},equipment:{mainhand:{id:"minecraft:bone",components:{"minecraft:enchantments":{"minecraft:knockback":1},"minecraft:custom_name":{"italic":false,"translate":"omega_bone"},"minecraft:attribute_modifiers":[{type:"minecraft:attack_damage",slot:"mainhand",amount:7,operation:"add_value",id:"minecraft:base_attack_damage"},{type:"minecraft:attack_speed",slot:"mainhand",id:"minecraft:base_attack_speed",amount:-3.5,operation:"add_value"},{type:"minecraft:knockback_resistance",slot:"mainhand",id:"d90ihe89fyw39tg",amount:1,operation:"add_value"},{type:"minecraft:movement_speed",slot:"mainhand",id:"ih89urgh8ghfdg",amount:-0.7,operation:"add_multiplied_base"}]},count:1},feet:{id:"minecraft:bone_meal",count:64},legs:{id:"minecraft:bone",count:32},chest:{id:"minecraft:iron_chestplate",count:1},head:{id:"minecraft:skeleton_skull",count:1}},drop_chances:{mainhand:1.0f,legs:1.0f,feet:1.0f},attributes:[{id:"minecraft:movement_speed",base:0.6d},{id:"minecraft:armor",base:20},{id:"minecraft:attack_knockback",base:100},{id:"minecraft:armor_toughness",base:5}]}
             """);
@@ -46,7 +48,7 @@ public final class LbcCreatureDrops {
     private final Map<UUID,ServerPlayer> authors=new HashMap<>();
     public LbcCreatureDrops(GameController game){this.game=game;}
     private static CompoundTag preset(String snbt){try{return TagParser.parseCompoundFully(snbt);}catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new ExceptionInInitializerError(error);}}
-    private static boolean matches(ItemEntity token,Kind kind){return LbcCreatureDropItem.matches(token.getItem(),switch(kind){case VEX_OLD->LbcCreatureDropItem.Kind.OLD_VEX;case SKELETON_OLD->LbcCreatureDropItem.Kind.OLD_SKELETON;case FAT_SKELETON->LbcCreatureDropItem.Kind.FAT_SKELETON;case BOB_OLD->LbcCreatureDropItem.Kind.OLD_BOB;case BULLETS->LbcCreatureDropItem.Kind.BULLETS;});}
+    private static boolean matches(ItemEntity token,Kind kind){return LbcCreatureDropItem.matches(token.getItem(),switch(kind){case VEX_OLD->LbcCreatureDropItem.Kind.OLD_VEX;case VEX->LbcCreatureDropItem.Kind.VEX;case SKELETON_OLD->LbcCreatureDropItem.Kind.OLD_SKELETON;case FAT_SKELETON->LbcCreatureDropItem.Kind.FAT_SKELETON;case BOB_OLD->LbcCreatureDropItem.Kind.OLD_BOB;case BULLETS->LbcCreatureDropItem.Kind.BULLETS;});}
     public boolean ready(ItemEntity token,Kind kind){
         if(token.isRemoved() || token.getAge()>=5999 || !matches(token,kind) || !game.playing()
                 || game.stage()==GameController.Stage.ENDING || token.level()!=game.maps().level()
@@ -62,6 +64,12 @@ public final class LbcCreatureDrops {
         if(!ready(token,kind))return false;
         var level=(ServerLevel)token.level();var author=LbcIndirectKills.playerSource(game.items().specialDrops().owner(token));
         switch(kind){
+            case VEX->{
+                if(Level.isInSpawnableBounds(token.blockPosition()))for(int i=0;i<10;i++){
+                    var vex=EntityTypes.VEX.create(level,EntitySpawnReason.COMMAND);
+                    if(vex!=null){vex.load(TagValueInput.create(ProblemReporter.DISCARDING,level.registryAccess(),NORMAL_VEX_DATA.copy()));admit(level,vex,token.position(),author);}
+                }
+            }
             case VEX_OLD->{
                 var local=new LocalCoordinates(0,0,3);
                 for(int i=0;i<5;i++){
@@ -128,7 +136,7 @@ public final class LbcCreatureDrops {
     public boolean canAffect(Entity actor,Entity target){
         if(!managed(actor))return true;
         if(target==null || !active(actor) || !game.items().wands().validTarget(target))return false;
-        if(actor instanceof ShulkerBullet)return true; // WILD trap: self, allies and enemies are all eligible.
+        if(actor instanceof ShulkerBullet || actor instanceof Vex && actor.entityTags().contains(NORMAL_VEX))return true; // WILD trap: self, allies and enemies are all eligible.
         return !(owner(actor) instanceof ServerPlayer author) || target==author || game.items().wands().target(author,target);
     }
     public boolean canTarget(Entity actor,LivingEntity target){return target==null || canAffect(actor,target);}

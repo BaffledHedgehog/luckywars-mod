@@ -1,5 +1,36 @@
 # Проект SkyWars
 
+## Normal Vex / complete Vex Sword - QUALIFIED (23 October 2026)
+
+[Source contract](agent_notes/VEX_FAMILY_SOURCE.md). New scoped leaves:
+lbc:ported/vex_drop and lbc:ported/vex_sword. Ten co-located native1HP Vex,
+each native death independently rolls10% for the complete working sword.
+Old five-Vex ring and old token remain separate. The wrapper uses the actual
+26.3 singular condition codec, preserving the chance instead of ignoring it.
+
+User clarified: only genuine melee with the held sword charges and emits the
+side arrow; bind that arrow to the actual damaged victim; all eight ultimate
+arrow directions get100 piercing. No unrelated effect/weapon damage or foreign
+arrow mutation. Accepted lethal hits count through the native death callback.
+Counters use source swordcharging4/swordcharged4 directly, with original HUD
+and KFC raw units. Native arrow physics/owner/reflection and first-frame angles
+are retained; no extra lifetime/cap or explosion is introduced. Ultimate keeps
+its70-active-tick anchored field, source asymmetric box/random5 selections,
+inventory-sword immunity, native buffs, eight shapes and groundbreaking death.
+Antimagic cancels the field; already-fired arrows keep their native flight.
+Purify resets counters; it does not cancel arrows/fields already emitted.
+Role safety, resident chunks, Time Stop, ownership and quiet stop are integrated.
+
+Build43634ed9 passed two actual isolated mode1 matches:14 recorded suite results
+in50.89s;255sources/697classes/2719resources exactly match tested artifacts.
+Evidence:build/verification/vex-family-final/. Installed main while stopped;
+rollback42ad616b retained; agent did not start main. Three preexisting user sources
+were preserved and excluded from commit. The known fake-player Polymer context
+error pair remains; no final suite failed. No real-client pixels, actual disk
+restart/unload/disconnect, full natural trajectories or peak-capacity claim.
+<!-- vex-family-status-end -->
+
+
 ## One-use Academy token / Stalin encounter - QUALIFIED (23 October 2026)
 
 [Token contract](agent_notes/ACADEMY_SINGLE_USE_PORT.md) and

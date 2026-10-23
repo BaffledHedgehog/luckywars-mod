@@ -24,6 +24,7 @@ public final class LbcCreatureDropItem {
 
     public enum Kind {
         OLD_VEX("skywars2:old_vex_drop", "vex_old"),
+        VEX("skywars2:vex_drop", "vex"),
         OLD_SKELETON("skywars2:old_skeleton_drop", "skeleton_old"),
         FAT_SKELETON("skywars2:normal_fat_skeleton_drop", "skeleton"),
         BULLETS("skywars2:shulker_bullets_drop", "bullets"),
@@ -39,14 +40,16 @@ public final class LbcCreatureDropItem {
             trigger.putInt(flag, 1);
             trigger.putInt("drop", 1);
             boolean fat=id.equals("skywars2:normal_fat_skeleton_drop");
-            boolean framed=fat || id.equals("skywars2:shulker_bullets_drop");
+            boolean vex=id.equals("skywars2:vex_drop");
+            boolean framed=fat || vex || id.equals("skywars2:shulker_bullets_drop");
+            String name=fat?"trap_fat":vex?"trap_vex":framed?"trap_shulker":"block.minecraft.barrier";
             var key = ResourceKey.create(Registries.ITEM, Identifier.parse(id));
             var properties = new Item.Properties().setId(key)
-                    .overrideDescription(fat?"trap_fat":framed?"trap_shulker":"block.minecraft.barrier")
+                    .overrideDescription(name)
                     .component(DataComponents.CUSTOM_DATA, CustomData.of(trigger));
             if (framed) {
                 properties.component(DataComponents.TOOLTIP_STYLE, Identifier.parse("lbc:tier_ff"))
-                        .component(DataComponents.CUSTOM_NAME, Component.translatable(fat?"trap_fat":"trap_shulker")
+                        .component(DataComponents.CUSTOM_NAME, Component.translatable(name)
                                 .withStyle(style -> style.withColor(ChatFormatting.YELLOW).withItalic(false)))
                         .component(DataComponents.LORE, new ItemLore(List.of(Component.translatable("trap_desc")
                                 .withStyle(style -> style.withColor(ChatFormatting.WHITE).withItalic(false)))));
@@ -63,7 +66,7 @@ public final class LbcCreatureDropItem {
         var kinds = Kind.values();
         DefaultItemComponentEvents.MODIFY.register(context -> {
             for (var kind : kinds) context.modify(kind.item(), builder -> builder.set(DataComponents.ITEM_MODEL,
-                    Identifier.parse(kind==Kind.FAT_SKELETON?"lbc:drop_boss":kind == Kind.BULLETS ? "lbc:drop_trap" : "minecraft:barrier")));
+                    Identifier.parse(kind==Kind.FAT_SKELETON || kind==Kind.VEX?"lbc:drop_boss":kind == Kind.BULLETS ? "lbc:drop_trap" : "minecraft:barrier")));
         });
     }
 

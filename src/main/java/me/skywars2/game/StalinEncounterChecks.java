@@ -231,7 +231,8 @@ public final class StalinEncounterChecks {
         @Override public void close() {
             game.items().timeStop().end(level);
             if(!retain){for(var e:owned){if(e instanceof LivingEntity living)game.items().indirectKills().clear(living);e.discard();}game.items().stalin().tick();}
-            for(var e:level.getAllEntities())if(!initial.contains(e) && !(e instanceof ServerPlayer) && e.position().distanceToSqr(origin)<400 && (e instanceof ItemEntity || e instanceof ExperienceOrb))e.discard();
+            var cleanupEntities=new ArrayList<Entity>();level.getAllEntities().forEach(cleanupEntities::add);
+            for(var e:cleanupEntities)if(!initial.contains(e) && !(e instanceof ServerPlayer) && e.position().distanceToSqr(origin)<400 && (e instanceof ItemEntity || e instanceof ExperienceOrb))e.discard();
             for(var entry:blocks.entrySet()){game.maps().restoreSnapshot(level,entry.getKey(),entry.getValue());game.items().magic().blockChanged(entry.getKey(),level.getBlockState(entry.getKey()));}
             ownerState.restore(game);otherState.restore(game);game.items().indirectKills().clear(owner);game.items().indirectKills().clear(other);
             stats.forEach((stat,value)->owner.getStats().setValue(owner,stat,value));owner.getStats().setValue(owner,net.minecraft.stats.Stats.ENTITY_KILLED.get(EntityTypes.COW),cowKills);

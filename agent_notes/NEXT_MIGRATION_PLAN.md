@@ -1,5 +1,29 @@
 # Следующие этапы переноса
 
+## Remaining implementation estimate - 23 October 2026
+
+User asked for an approximate remaining percentage. Rough weighted estimate:
+35-50% of the full project remains (ordinary SkyWars, all Lucky content/rewards,
+BedWars/team gameplay and final integration). This is an engineering estimate,
+not a measured completion ratio or a deadline. No complete weighted feature
+inventory currently exists. Source research coverage is not migration coverage.
+
+Mode1 is playable and many content families have native runtime qualification.
+GameController still allows only mode1; full LuckyWars/BedWars loops, team
+assignment/victory/respawn/shop protection, broad Lucky/Loli/Imba reward closure,
+linked encounters and remaining content are substantial work. Counts of loot
+files, copied assets or Java lines cannot establish readiness. Public loot
+suggestions provide scoped test entrances; they are not an exhaustive status.
+
+Latest qualified build43634ed9 adds normal Vex acquisition plus full Vex Sword,
+preserving actual native reward and the user's melee-only trigger, single
+actual-victim side shot and uniform100 piercing for all eight directions.
+[Contract](VEX_FAMILY_SOURCE.md):14 suite results in two actual mode1 matches,
+50.89s; installed while main was stopped, rollback42ad616b retained. The earlier
+169a950 baseline contains the Stalin encounter and token Academy one-use nerf.
+Broad linked encounters and rewards remain gated until their complete closure.
+
+
 ## Transformator / base Academy acquisition - QUALIFIED (23 October 2026)
 
 [Contract](TRANSFORMATOR_ACADEMY_PORT.md). Two new ready leaves: lbc:ported/transformator_drop and

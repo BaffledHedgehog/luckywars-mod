@@ -1,5 +1,27 @@
 # Структура переноса игрового цикла
 
+## Normal Vex / Vex Sword - QUALIFIED
+
+[Contract](agent_notes/VEX_FAMILY_SOURCE.md). Normal10-Vex acquisition reuses
+LbcCreatureDrops and the existing dropped-item dispatcher; old ring stays distinct.
+Native death owns the10% complete sword reward. LbcVexSword owns source counters,
+accepted-melee callback, native arrows and one anchored70-active-tick field.
+Source counters feed existing KFC/HUD, not a parallel counter map. Real native
+arrow owner/reflection and native collision/physics are retained. Shared target
+role filtering only adds an explicit allow-dying path for accepted lethal sword
+triggers; default callers retain existing behavior. No new generic projectile
+framework or external-client mod. Source ownership/current epoch protects genuine
+arrows after owner-role changes. Antimagic cancels the field, not fired arrows.
+Progress estimate35-50% remaining is rough full-project workload, not file coverage.
+
+Build43634ed9 passed14 suite results in two actual isolated mode1 matches (50.89s).
+Exact sources/classes/resources match the tested JAR. Installed while main was
+stopped; rollback42ad616b retained. Evidence:build/verification/vex-family-final/.
+Native seeded reward, accepted melee, flight/collision/terrain/reflection, owner
+role change, old-creature/Stalin/KFC regressions and actual stop were checked.
+No real-client pixels, actual disk restart/unload/disconnect or capacity claim.
+
+
 ## One-use Academy token and Stalin encounter - QUALIFIED
 
 [Token contract](agent_notes/ACADEMY_SINGLE_USE_PORT.md),

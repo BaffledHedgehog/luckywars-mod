@@ -356,6 +356,7 @@ public final class LbcWands {
         if(LbcReactiveItems.isReactive(stack) || LbcReactiveItems.isWall(stack)) return game.items().reactive().use(player,hand);
         if (LbcKfcRewards.isCultus(stack)) return game.items().kfcRewards().useCultus(player);
         if (LbcElectro.isAnyKatana(stack)) return game.items().electro().use(player,hand);
+        if (LbcVexSword.isSword(stack)) return game.items().vexSword().use(player,hand);
         var scrollData=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         if(isDivider(stack)) return game.items().duplicating().useDivider(player,hand,stack);
         if(stack.is(DESTROYER_SPELL) || scrollData.getIntOr("trap2",0)==1)
@@ -1192,8 +1193,10 @@ public final class LbcWands {
         LbcOverload.sound(player,point,"minecraft:entity.squid.squirt",1,2,0);
     }
     /** Projectile impacts protect allied players; friendly mobs remain physical damage targets. */
-    public boolean projectileTarget(ServerPlayer player,Entity entity) {
-        return target(player,entity,true)
+    public boolean projectileTarget(ServerPlayer player,Entity entity) { return projectileTarget(player,entity,false); }
+    /** Accepted lethal hits still trigger their sword; role/team exclusions remain authoritative. */
+    boolean projectileTarget(ServerPlayer player,Entity entity,boolean allowDying) {
+        return entity!=player && validTarget(entity,allowDying)
                 && (!(entity instanceof ServerPlayer) || !player.isAlliedTo(entity));
     }
     public boolean target(ServerPlayer player,Entity entity) {
@@ -1204,8 +1207,9 @@ public final class LbcWands {
         return entity!=player && validTarget(entity)
                 && (includeAllies || !player.isAlliedTo(entity) && !game.items().blaze().friendly(player,entity) && !game.items().summons().friendly(player,entity));
     }
-    boolean validTarget(Entity entity) {
-        return entity.isAlive() && !entity.isRemoved() && !entity.isSpectator() && !entity.entityTags().contains("spectator")
+    boolean validTarget(Entity entity) { return validTarget(entity,false); }
+    private boolean validTarget(Entity entity,boolean allowDying) {
+        return (allowDying || entity.isAlive()) && !entity.isRemoved() && !entity.isSpectator() && !entity.entityTags().contains("spectator")
                 && !entity.entityTags().contains("rcdenyalways") && !entity.entityTags().contains("sauvojen_tuntija")
                 && !entity.entityTags().contains("strict_map_object")
                 && !entity.entityTags().contains("magic_academy")

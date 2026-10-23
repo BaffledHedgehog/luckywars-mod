@@ -147,7 +147,7 @@ public final class LbcItems {
     }
 
     /** Загружаем регистрацию до freeze реестров и чтения loot tables, а не при первом обращении к предмету. */
-    public static void register() { EnchantmentRules.register(); LbcSkills.register(); LbcClouds.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcTntDropItem.register(); LbcCreeperDropItem.register(); LbcCageDropItem.register(); LbcHoleDropItem.register(); LbcCorrosionDropItem.register(); LbcZombieTntDropItem.register(); LbcFallingNetheriteDropItem.register(); LbcHomeItems.register(); LbcScareDropItem.register(); LbcLuckyPigDropItem.register(); LbcLevitationDropItem.register(); LbcLibraryDropItem.register(); LbcBeeDropItem.register(); LbcOpAnvilDropItem.register(); LbcSlabDropItem.register(); LbcFeedbackDropItem.register(); LbcCreatureDropItem.register(); LbcPotionSpawnerDropItem.register(); LbcIslandDropItem.register(); LbcDroneDropItem.register(); LbcAntDropItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
+    public static void register() { EnchantmentRules.register(); LbcSkills.register(); LbcClouds.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcVexSword.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcTntDropItem.register(); LbcCreeperDropItem.register(); LbcCageDropItem.register(); LbcHoleDropItem.register(); LbcCorrosionDropItem.register(); LbcZombieTntDropItem.register(); LbcFallingNetheriteDropItem.register(); LbcHomeItems.register(); LbcScareDropItem.register(); LbcLuckyPigDropItem.register(); LbcLevitationDropItem.register(); LbcLibraryDropItem.register(); LbcBeeDropItem.register(); LbcOpAnvilDropItem.register(); LbcSlabDropItem.register(); LbcFeedbackDropItem.register(); LbcCreatureDropItem.register(); LbcPotionSpawnerDropItem.register(); LbcIslandDropItem.register(); LbcDroneDropItem.register(); LbcAntDropItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
 
     private static final CompoundTag BROKEN_TOTEM = new CompoundTag();
     private static final CompoundTag DYNAMITE = new CompoundTag();
@@ -188,6 +188,7 @@ public final class LbcItems {
     private final LbcShooters shooters;
     private final LbcLaserMinigun laserMinigun;
     private final LbcAk47 ak47;
+    private final LbcVexSword vexSword;
     private final LbcMagnum magnum;
     private final LbcRifleZoom rifleZoom;
     private final LbcGovnomet govnomet;
@@ -389,6 +390,11 @@ public final class LbcItems {
                 .append(Component.literal(Integer.toString(katanaCharges)).withStyle(ChatFormatting.WHITE))
                 .append(Component.literal(" [")).append(Component.literal(Integer.toString(electro.charging(source))).withStyle(ChatFormatting.AQUA))
                 .append(Component.literal("/\u00a7b10\u00a7f]"));
+        if(LbcVexSword.isSword(source.getMainHandItem()) || LbcVexSword.isSword(source.getOffhandItem()))
+            component.append(Component.literal("    \uE103 \u00a7fx"))
+                    .append(Component.literal(Integer.toString(vexSword.charges(source))).withStyle(ChatFormatting.WHITE))
+                    .append(Component.literal(" [")).append(Component.literal(Integer.toString(vexSword.chargeProgress(source))).withStyle(ChatFormatting.GRAY))
+                    .append(Component.literal("/\u00a7710\u00a7f]"));
         int swordCharges=terra.hudCharges(source);
         if(swordCharges>=0) component.append(Component.literal("    \uE103 \u00a7fx"))
                 .append(Component.literal(Integer.toString(swordCharges)).withStyle(ChatFormatting.WHITE))
@@ -624,6 +630,7 @@ public final class LbcItems {
         this.shooters = new LbcShooters(game);
         this.laserMinigun = new LbcLaserMinigun(game);
         this.ak47 = new LbcAk47(game);
+        this.vexSword = new LbcVexSword(game,mana);
         this.magnum = new LbcMagnum(game);
         this.rifleZoom = new LbcRifleZoom(game);
         this.govnomet = new LbcGovnomet(game);
@@ -720,6 +727,7 @@ public final class LbcItems {
     public LbcShooters shooters() { return shooters; }
     public LbcLaserMinigun laserMinigun() { return laserMinigun; }
     public LbcAk47 ak47() { return ak47; }
+    public LbcVexSword vexSword() { return vexSword; }
     public LbcMagnum magnum() { return magnum; }
     public LbcRifleZoom rifleZoom() { return rifleZoom; }
     public LbcGovnomet govnomet() { return govnomet; }
@@ -737,7 +745,7 @@ public final class LbcItems {
                 && (!(source.getEntity() instanceof ServerPlayer attacker) || !game.isObserver(attacker) || timeStop.replaying(source)
                     || (LbcTntDrops.managed(source.getDirectEntity()) || LbcCreeperDrops.managed(source.getDirectEntity())
                         || LbcCageDrops.managed(source.getDirectEntity()) || LbcPotionSpawnerDrops.managed(source.getDirectEntity())
-                        || LbcTransformator.managed(source.getDirectEntity()))
+                        || LbcTransformator.managed(source.getDirectEntity()) || LbcVexSword.managed(source.getDirectEntity()))
                         && currentEpoch(source.getDirectEntity()))
                 && (!(victim instanceof ServerPlayer player) || game.allowDamage(player))
                 && wands.allowDamage(victim,source) && kfcRewards.allowDamage(victim,source)
@@ -871,6 +879,7 @@ public final class LbcItems {
         govnomet.loaded(entity);
         mobgun.loaded(entity);
         if (academy.loaded(entity)) return;
+        if (vexSword.loaded(entity)) return;
         if (shooters.loaded(entity)) { markCurrentItemEpoch(entity); return; }
         if (magic.loaded(entity)) { markCurrentItemEpoch(entity); return; }
         if (clouds.loaded(entity)) { markCurrentItemEpoch(entity); return; }
@@ -951,6 +960,7 @@ public final class LbcItems {
         mobgun.unloaded(entity);
         terra.unloaded(entity);
         shooters.unloaded(entity);
+        vexSword.unloaded(entity);
         stand.unloaded(entity);
         helicopterEncounter.entityUnloaded(entity);
         transformator.unloaded(entity);
@@ -1340,6 +1350,7 @@ public final class LbcItems {
         blackHoleVisuals.tick();
         lifetimes.tick();
         shooters.tick();
+        vexSword.tick();
         laserMinigun.tick();
         magnum.tick();
         govnomet.tick();
@@ -1422,7 +1433,7 @@ public final class LbcItems {
         return curse == null ? 0 : curse.remaining;
     }
 
-    public void clear(ServerPlayer player) { reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
+    public void clear(ServerPlayer player) { vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
     public void forget(ServerPlayer player) {
         blind.forget(player);
         psycho.forget(player);
@@ -1439,6 +1450,7 @@ public final class LbcItems {
         shooters.forget(player);
         laserMinigun.forget(player);
         ak47.forget(player);
+        vexSword.forget(player);
         magnum.forget(player);
         rifleZoom.forget(player);
         govnomet.forget(player);
@@ -1491,6 +1503,7 @@ public final class LbcItems {
         shooters.stop();
         laserMinigun.stop();
         ak47.stop();
+        vexSword.stop();
         magnum.stop();
         rifleZoom.stop();
         govnomet.stop();
