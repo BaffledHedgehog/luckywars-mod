@@ -220,6 +220,7 @@ public final class LbcWands {
     /** Отложенный извилистый луч: native geometry, без marker-сущности и scoreboard на каждый шаг. */
     static final class ElectroTrace {
         ServerPlayer owner;
+        final LivingEntity npcSource;
         final ServerLevel level;
         final String epoch;
         final int lifetime;
@@ -236,10 +237,18 @@ public final class LbcWands {
         }
         ElectroTrace(ServerPlayer owner,Vec3 position,String epoch,int lifetime,boolean meditation) {
             this.owner=owner; this.level=owner.level(); this.position=position; this.epoch=epoch;
+            this.npcSource=null;
             this.lifetime=lifetime;
             this.meditation=meditation;
             yaw=owner.getYRot(); pitch=owner.getXRot();
         }
+        ElectroTrace(LivingEntity source,Vec3 position,Vec3 direction,String epoch) {
+            this.npcSource=source; this.level=(ServerLevel)source.level(); this.position=position; this.epoch=epoch;
+            lifetime=30; meditation=false; mechanism=true;
+            yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
+            pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));
+        }
+        LivingEntity source() { return owner==null?npcSource:owner; }
     }
     private final GameController game;
     private final LbcMana mana;
@@ -809,6 +818,10 @@ public final class LbcWands {
         LbcOverload.sound(owner,from,"minecraft:entity.firework_rocket.twinkle",1,1,0);
     }
     public int electroCount() { return electroTraces.size(); }
+    /** NPC electricity shares collision, conductivity and reflection; its original cause survives launch. */
+    void mechanismElectro(LivingEntity source,Vec3 origin,Vec3 direction) {
+        electroTraces.add(new ElectroTrace(source,origin,direction,game.items().epoch()));
+    }
     /** Виртуальные разряды участвуют в том же отражении, что нативные снаряды. Возраст сохраняется. */
     void reflectElectro(ServerPlayer player) {
         for(var trace:electroTraces) if(trace.level==player.level() && trace.position.distanceToSqr(player.position())<=49) {
@@ -819,7 +832,7 @@ public final class LbcWands {
     /** Аксессуар присваивает только вражеские/нейтральные разряды; свои и союзные не разворачивает. */
     void reflectElectroblocker(ServerPlayer player) {
         for(var trace:electroTraces) if(trace.level==player.level() && trace.owner!=player
-                && !player.isAlliedTo(trace.owner) && trace.position.distanceToSqr(player.position())<=196) {
+                && !player.isAlliedTo(trace.source()) && trace.position.distanceToSqr(player.position())<=196) {
             trace.owner=player; trace.yaw+=180; trace.pitch=-trace.pitch;
             trace.level.sendParticles(ParticleTypes.ELECTRIC_SPARK,trace.position.x,trace.position.y,trace.position.z,10,0,0,0,.3);
         }
@@ -928,11 +941,12 @@ public final class LbcWands {
                 if(!electroTraces.contains(trace)) continue;
                 var owner=trace.owner;
                 if(!game.items().currentEpoch(trace.epoch) || trace.level!=game.maps().level()
-                        || owner.level()!=trace.level || !owner.isAlive() || owner.isRemoved()
-                        || !game.canUseGameplayItems(owner) || game.stage()==GameController.Stage.ENDING) {
+                        || trace.source()==null || trace.source().level()!=trace.level
+                        || owner!=null && (!owner.isAlive() || owner.isRemoved() || !game.canUseGameplayItems(owner))
+                        || game.stage()==GameController.Stage.ENDING) {
                     electroTraces.remove(trace); continue;
                 }
-                if(timeStopped || owner.entityTags().contains("time_stopped")) continue;
+                if(timeStopped || owner!=null && owner.entityTags().contains("time_stopped")) continue;
                 // (user) Мана/антимагия проверяются при использовании жезла; выпущенная дуга немагическая.
                 if(!trace.level.hasChunkAt(BlockPos.containing(trace.position))
                         || !electroStep(trace) || ++trace.age>=trace.lifetime) electroTraces.remove(trace);
@@ -942,8 +956,8 @@ public final class LbcWands {
     private boolean electroStep(ElectroTrace trace) {
         var level=trace.level;
         Vec3 from=trace.position,direction=Vec3.directionFromRotation(trace.pitch,trace.yaw);
-        int samples=trace.meditation ? 18 : 10;
-        var shield=shieldHit(trace.owner,from,from.add(direction.scale(samples*.2)),trace.meditation);
+        int samples=trace.meditation || trace.npcSource!=null ? 18 : 10;
+        var shield=shieldHit(trace.source(),from,from.add(direction.scale(samples*.2)),trace.meditation);
         double shieldDistance=shield==null ? Double.POSITIVE_INFINITY : from.distanceTo(shield.getLocation());
         double mechanismFraction=trace.mechanism ? game.items().magic().mechanismSuppressionFraction(
                 level,from,from.add(direction.scale(samples*.2))) : Double.POSITIVE_INFINITY;
@@ -958,7 +972,7 @@ public final class LbcWands {
             end=point;
             level.sendParticles(ELECTRO_PARTICLE,true,false,point.x,point.y,point.z,1,.1,.1,.1,0);
             level.sendParticles(ParticleTypes.ELECTRIC_SPARK,point.x,point.y,point.z,1,.1,.1,.1,1);
-            LbcOverload.sound(trace.owner,point,"minecraft:entity.firework_rocket.twinkle",.03f,2,0);
+            electroSound(trace,point,"minecraft:entity.firework_rocket.twinkle",.03f,2);
             var block=level.getBlockState(pos);
             if(block.is(CONDUCTIVE)) {
                 if(conductor==null) conductor=point;
@@ -973,7 +987,7 @@ public final class LbcWands {
             end=from.add(direction.scale(mechanismDistance)); clear=false;
         } else if(clear && shield!=null) {
             end=shield.getLocation(); clear=false;
-            LbcOverload.sound(trace.owner,shield.getEntity().position(),"minecraft:item.shield.block",1,1,0);
+            electroSound(trace,shield.getEntity().position(),"minecraft:item.shield.block",1,1);
         }
         if(from.distanceToSqr(end)>1e-12) electroHits(trace,from,end);
         if(conductor!=null) electroConduction(trace,conductor);
@@ -986,12 +1000,17 @@ public final class LbcWands {
     EntityHitResult shieldHit(ServerPlayer owner,Vec3 from,Vec3 to) {
         return shieldHit(owner,from,to,false);
     }
-    private EntityHitResult shieldHit(ServerPlayer owner,Vec3 from,Vec3 to,boolean meditation) {
+    private void electroSound(ElectroTrace trace,Vec3 at,String id,float volume,float pitch) {
+        if(trace.owner!=null) LbcOverload.sound(trace.owner,at,id,volume,pitch,0);
+        else trace.level.playSound(null,at.x,at.y,at.z,net.minecraft.sounds.SoundEvent.createVariableRangeEvent(
+                Identifier.parse(id)),net.minecraft.sounds.SoundSource.MASTER,volume,pitch);
+    }
+    private EntityHitResult shieldHit(LivingEntity owner,Vec3 from,Vec3 to,boolean meditation) {
         Vec3 delta=to.subtract(from);
         double lengthSquared=delta.lengthSqr();
         EntityHitResult nearest=null;
         double nearestT=1;
-        for(var player:owner.level().getEntitiesOfClass(ServerPlayer.class,new AABB(from,to).inflate(4),
+        for(var player:((ServerLevel)owner.level()).getEntitiesOfClass(ServerPlayer.class,new AABB(from,to).inflate(4),
                 player->electroTarget(owner,player,meditation) && player.isBlocking())) {
             Vec3 center=player.position().add(player.getLookAngle());
             Vec3 offset=from.subtract(center);
@@ -1010,17 +1029,18 @@ public final class LbcWands {
     }
     /** (user) Урон зависит от длины контакта: сохраняем отдельные 0.5 hits, не объединяя их против брони. */
     private void electroHits(ElectroTrace trace,Vec3 from,Vec3 to) {
-        electroHits(trace,from,to,.2,.5f,trace.meditation ? Integer.MAX_VALUE : 2);
+        electroHits(trace,from,to,.2,.5f,trace.meditation || trace.npcSource!=null ? Integer.MAX_VALUE : 2);
     }
     private void electroHits(ElectroTrace trace,Vec3 from,Vec3 to,double spacing,float amount,int targetLimit) {
         var damage=new DamageSource(trace.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
-                .getOrThrow(trace.meditation ? LbcDamage.ELECTRO_MEDITATION : LbcDamage.ELECTRO_BOLT),trace.owner);
+                .getOrThrow(trace.meditation ? LbcDamage.ELECTRO_MEDITATION : LbcDamage.ELECTRO_BOLT),trace.source());
         LbcDamage.hurtSegment(trace.level,damage,from,to,Vec3.ZERO,spacing,amount,targetLimit,
                 entity->entity.getType().builtInRegistryHolder().is(MOBS)
-                        && electroTarget(trace.owner,entity,trace.meditation),trace.meditation);
+                        && electroTarget(trace.source(),entity,trace.meditation),trace.meditation);
     }
-    private boolean electroTarget(ServerPlayer owner,Entity entity,boolean meditation) {
-        if(!meditation) return projectileTarget(owner,entity);
+    private boolean electroTarget(LivingEntity owner,Entity entity,boolean meditation) {
+        if(!meditation && owner instanceof ServerPlayer player) return projectileTarget(player,entity);
+        if(!meditation && !validTarget(entity)) return false;
         var tags=entity.entityTags();
         return entity.isAlive() && !entity.isRemoved() && !entity.isSpectator() && !tags.contains("spectator")
                 && !tags.contains("rcdenyalways") && !tags.contains("sauvojen_tuntija")
@@ -1030,7 +1050,7 @@ public final class LbcWands {
     /** Проводник: один импульс за тик луча; только Electro-типы обходят cooldown, остальные не меняем. */
     private void electroConduction(ElectroTrace trace,Vec3 point) {
         var damage=new DamageSource(trace.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
-                .getOrThrow(LbcDamage.ELECTRO_CONDUCTION),trace.owner);
+                .getOrThrow(LbcDamage.ELECTRO_CONDUCTION),trace.source());
         for(var entity:trace.level.getEntitiesOfClass(LivingEntity.class,new AABB(point,point).inflate(10),
                 entity->entity.isAlive() && entity.getType().builtInRegistryHolder().is(MOBS)
                         && !entity.isSpectator() && !entity.entityTags().contains("spectator")
@@ -1160,7 +1180,7 @@ public final class LbcWands {
                 && !entity.entityTags().contains("rcdenyalways") && !entity.entityTags().contains("sauvojen_tuntija")
                 && !entity.entityTags().contains("strict_map_object")
                 && !entity.entityTags().contains("magic_academy")
-                && !entity.entityTags().contains("transformator")
+                && (!entity.entityTags().contains("transformator") || LbcTransformator.managed(entity))
                 && (!(entity instanceof ServerPlayer p) || game.canUseGameplayItems(p));
     }
     /** Нативный canHitEntity пропускает союзников и наблюдателей до поджигания/урона small fireball. */
@@ -1172,6 +1192,7 @@ public final class LbcWands {
                 && game.items().electro().canHit(projectile,target);
     }
     public boolean canHit(Projectile projectile,Entity target) {
+        if(LbcTransformator.managed(projectile)) return game.items().transformator().canAffect(projectile,target);
         if(LbcPotionSpawnerDrops.managed(projectile)) return game.items().potionSpawnerDrops().canAffect(projectile,target);
         if(LbcCreatureDrops.managed(projectile)) return game.items().creatureDrops().canAffect(projectile,target);
         if(LbcDroneDrops.managed(projectile)) return game.items().droneDrops().canAffect(projectile,target);
@@ -1197,6 +1218,7 @@ public final class LbcWands {
     }
     /** Радиус взрыва native firework обходит canHitEntity; союзников защищаем и в финальном уроне. */
     public boolean allowDamage(Entity victim,DamageSource source) {
+        if(LbcTransformator.managed(source.getDirectEntity())) return game.items().transformator().canAffect(source.getDirectEntity(),victim);
         if(LbcPotionSpawnerDrops.managed(source.getDirectEntity())) return game.items().potionSpawnerDrops().canAffect(source.getDirectEntity(),victim);
         if(LbcCreatureDrops.managed(source.getDirectEntity())) return game.items().creatureDrops().canAffect(source.getDirectEntity(),victim);
         if(LbcDroneDrops.managed(source.getDirectEntity())) return game.items().droneDrops().canAffect(source.getDirectEntity(),victim);

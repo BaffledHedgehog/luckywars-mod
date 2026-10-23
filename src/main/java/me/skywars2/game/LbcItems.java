@@ -215,6 +215,7 @@ public final class LbcItems {
     private final LbcAntigravity antigravity;
     private final LbcUltraponos ultraponos;
     private final LbcReactive reactive;
+    private final LbcTransformator transformator;
     private final LbcSkyHazards skyHazards;
     private final LbcDroneDrops droneDrops;
     private final LbcAntDrops antDrops;
@@ -649,6 +650,7 @@ public final class LbcItems {
         this.antigravity = new LbcAntigravity(game);
         this.ultraponos = new LbcUltraponos(game);
         this.reactive = new LbcReactive(game,mana);
+        this.transformator = new LbcTransformator(game);
         this.skyHazards = new LbcSkyHazards(game);
         this.droneDrops = new LbcDroneDrops(game);
         this.antDrops = new LbcAntDrops(game);
@@ -732,11 +734,13 @@ public final class LbcItems {
         return LbcDamage.allowDamage(victim,source)
                 && (!(source.getEntity() instanceof ServerPlayer attacker) || !game.isObserver(attacker) || timeStop.replaying(source)
                     || (LbcTntDrops.managed(source.getDirectEntity()) || LbcCreeperDrops.managed(source.getDirectEntity())
-                        || LbcCageDrops.managed(source.getDirectEntity()) || LbcPotionSpawnerDrops.managed(source.getDirectEntity()))
+                        || LbcCageDrops.managed(source.getDirectEntity()) || LbcPotionSpawnerDrops.managed(source.getDirectEntity())
+                        || LbcTransformator.managed(source.getDirectEntity()))
                         && currentEpoch(source.getDirectEntity()))
                 && (!(victim instanceof ServerPlayer player) || game.allowDamage(player))
                 && wands.allowDamage(victim,source) && kfcRewards.allowDamage(victim,source)
                 && helicopterEncounter.allowDamage(victim,source) && tntDrops.allowDamage(victim,source) && creeperDrops.allowDamage(victim,source) && zombieTntDrops.canAffect(source.getDirectEntity(),victim)
+                && transformator.canAffect(source.getDirectEntity(),victim)
                 && luckyPigs.canAffect(source.getDirectEntity(),victim)
                 && beeDrops.canAffect(source.getDirectEntity(),victim)
                 && slabDrops.canAffect(source.getDirectEntity(),victim)
@@ -767,6 +771,7 @@ public final class LbcItems {
     public LbcAntigravity antigravity() { return antigravity; }
     public LbcUltraponos ultraponos() { return ultraponos; }
     public LbcReactive reactive() { return reactive; }
+    public LbcTransformator transformator() { return transformator; }
     public LbcSkyHazards skyHazards() { return skyHazards; }
     public LbcDroneDrops droneDrops() { return droneDrops; }
     public LbcAntDrops antDrops() { return antDrops; }
@@ -828,6 +833,7 @@ public final class LbcItems {
             return;
         }
         helicopterEncounter.loaded(entity);
+        transformator.loaded(entity);
         indirectKills.supportEntityLoaded(entity);
         specialDrops.loaded(entity);
         luckyPigs.loaded(entity);
@@ -942,6 +948,7 @@ public final class LbcItems {
         shooters.unloaded(entity);
         stand.unloaded(entity);
         helicopterEncounter.entityUnloaded(entity);
+        transformator.unloaded(entity);
         kfcRewards.entityUnloaded(entity);
         magic.unloaded(entity);
         frost.unloaded(entity);
@@ -1336,6 +1343,7 @@ public final class LbcItems {
         antigravity.tick();
         ultraponos.tick();
         reactive.tick();
+        transformator.tick();
         specialDrops.tick();
         portalDrops.tick();
         luckyPigs.tick();
@@ -1488,6 +1496,7 @@ public final class LbcItems {
         antigravity.stop();
         ultraponos.stop();
         reactive.stop();
+        transformator.stop();
         skyHazards.stop();
         portalDrops.stop();
         luckyPigs.stop();

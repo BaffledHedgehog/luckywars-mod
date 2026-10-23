@@ -1,5 +1,29 @@
 # Проект SkyWars
 
+## Transformator / base Academy acquisition - QUALIFIED (23 October 2026)
+
+[Contract](agent_notes/TRANSFORMATOR_ACADEMY_PORT.md). Two new ready leaves: lbc:ported/transformator_drop and
+lbc:ported/magic_academy_drop. Source actor500HP/helmet/label, seven physical
+shared Electro rays, source cadence/refraction and health thresholds retained.
+User chose direct undead6/12 magic damage instead of Instant Health effects.
+Global electric damage rules apply. Native power12 fireball survives removed
+actor ownership; actual native TNT children inherit author, WILD roles, epoch,
+Time Stop and quiet-stop cleanup. Explicit reflection author takes precedence.
+Academy reuses the existing service/trials; admission validates resident chunks
+and full height before debit, queued rows pause, teleport waits for completed
+building and an actual NPC. Existing token variant semantics remain unchanged.
+No RP/template edit or broad Lucky/Loli/Imba pool enablement.
+
+Build112316bc passed two actual isolated mode1 matches:24 recorded suite results
+in49.09s;249sources/680classes/2715resources exactly match tested artifacts.
+Evidence:build/verification/transformator-final/. Installed main while stopped;
+rollback6e98549e retained; agent did not start main. Three user sources preserved.
+Known fake-player Polymer context warning remains; no final suite failed.
+Native flight/death/reflection/child-TNT and actual stop were checked; real-client
+pixels, full natural trajectories, exact power12 crater, actual disk restart/
+unload/disconnect and peak capacity remain unqualified. See retained attempts.
+<!-- transformator-academy-status-end -->
+
 ## Reactive Shish / Shish Wall - QUALIFIED (23 October 2026)
 
 [Contract](agent_notes/REACTIVE_FAMILY_PORT.md). Two new ready leaves: lbc:ported/reactive_shish and

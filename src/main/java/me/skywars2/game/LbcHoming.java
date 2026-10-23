@@ -408,7 +408,8 @@ public final class LbcHoming {
             if(d<distance) { distance=d; nearest=victim; chosen=curse; }
         }
         if(nearest==null) return;
-        if(trace.owner==null || trace.owner==nearest) trace.owner=chosen.owner;
+        var original=LbcIndirectKills.playerSource(trace.source());
+        if(original==null || original==nearest) trace.owner=chosen.owner;
         Vec3 direction=nearest.getEyePosition().subtract(trace.position);
         trace.yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
         trace.pitch=(float)-Math.toDegrees(Math.atan2(direction.y,Math.sqrt(direction.x*direction.x+direction.z*direction.z)));

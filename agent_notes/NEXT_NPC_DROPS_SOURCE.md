@@ -1,5 +1,12 @@
 # Next NPC special-drop acquisitions: bounded source audit (2026-10-23)
 
+Implementation follow-up: [TRANSFORMATOR_ACADEMY_PORT.md](TRANSFORMATOR_ACADEMY_PORT.md)
+now supersedes the pending Transformator/Academy recommendations below. Both
+scoped acquisitions passed native runtime checks and are installed. User chose
+direct6/12 undead damage with no Instant Health effect; global electric rules
+apply to the source rays. This audit's source facts remain historical evidence.
+Stalin and the Mom/Otchim/Absurd Child chain remain source-only candidates.
+
 Read-only audit; no code/build/server/RP changes. Three user sources untouched.
 Roots: OLD=E:/servers_mew/cringe1_21_4_skywars; NEW=E:/servers_mew/skywars2_last/luckywars-mod.
 Legacy datapack base D=OLD/world/datapacksdisabled/LBC/data/lbc; Paper P=OLD/plugins/luckywars/src/main/java/me/luckywars/swrg/SwrgNativeService.java (actual class name, not PaperSwrgNativeService).

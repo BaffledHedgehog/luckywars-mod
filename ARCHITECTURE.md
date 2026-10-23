@@ -624,6 +624,24 @@ Default model Polymer-предмета задаётся через `Item.Propert
 
 ## Владельцы данных и поведения
 
+`LbcTransformator` owns the dropped-token encounter pair and native fireball/TNT
+lifecycle; `LbcSpecialDrops` owns admission/debit and `LbcNpcDropItems` owns exact
+base token presentation. It reuses `LbcWands.ElectroTrace` for mechanism electricity:
+nullable player owner plus retained NPC cause, with shared hitboxes/conduction/
+reflection and native electric damage rules. `LbcIndirectKills` resolves the token
+thrower; explicit current projectile/reflection ownership wins over that fallback.
+A native hurting projectile cannot expose a removed owner during flight; its
+causal author is retained separately. Native TNT block children are adopted through
+HazardPropagationMixins, and shared native owner/explosion hooks retain that author.
+[Current contract](agent_notes/TRANSFORMATOR_ACADEMY_PORT.md).
+
+`LbcAcademy` remains the only building/trial owner. Placement captures level/epoch
+and source position, validates full resident bounds before debit, pauses under
+Time Stop, and enables NPC interaction/teleport only after finished native rows.
+`LbcReactive` owns player cooldown/platform and Shish Wall's terrain-only consumer
+of the existing budgeted Exasperato ray search; LbcWall still owns its brick shapes.
+[Reactive contract](agent_notes/REACTIVE_FAMILY_PORT.md).
+
 Wall Wand — статический `LbcWall`: один мгновенный native hit и четыре
 кирпичные формы, без собственного состояния/тикера. Ввод, цена и бонусы
 остаются в `LbcWands`, испытание четырёх сторон и NPC — в `LbcAcademy`.

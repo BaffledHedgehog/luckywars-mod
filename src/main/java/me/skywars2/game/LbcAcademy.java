@@ -13,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -42,6 +43,7 @@ import java.util.UUID;
 public final class LbcAcademy {
     private static final Identifier TEMPLATE = Identifier.parse("lbc:magic_academy");
     private static final String ENTITY_TAG = "skywars2.academy";
+    private static final String BUILDING_TAG = "skywars2.academy.building";
     private static final CompoundTag TOKEN_DATA = flag("academy_token"), BUILDING_DATA = flag("magic_academy");
     public static final Item TOKEN = registerToken();
     private enum Wand {
@@ -107,14 +109,21 @@ public final class LbcAcademy {
     private final ArrayDeque<Placement> placements = new ArrayDeque<>();
     // Источники одной серии ссылаются на один счётчик: 85 TNT не дают 85 очков за одну цель.
     private final Map<Entity, BlastTrial> blastSources = new IdentityHashMap<>();
-    private boolean placing;
+    private Placement placing;
     private static final class Placement {
         final StructureTemplate template;
+        final ServerLevel level;
         final BlockPos origin;
+        final Vec3 source;
+        final String epoch;
+        final boolean token;
+        final Set<Entity> spawned = new HashSet<>();
         final long seed;
         int row;
-        Placement(StructureTemplate template, BlockPos origin, long seed) {
-            this.template = template; this.origin = origin; this.seed = seed;
+        Placement(StructureTemplate template, ServerLevel level, BlockPos origin, Vec3 source,
+                  String epoch, boolean token, long seed) {
+            this.template = template; this.level = level; this.origin = origin; this.source = source;
+            this.epoch = epoch; this.token = token; this.seed = seed;
         }
     }
     static final class BlastTrial {
@@ -136,8 +145,10 @@ public final class LbcAcademy {
     /** Съедаем также offhand callback: нажатие по NPC не должно одновременно кастовать жезл. */
     public boolean interact(ServerPlayer player, InteractionHand hand, Entity target) {
         if (!target.entityTags().contains("magic_academy")) return false;
+        if (target.entityTags().contains(BUILDING_TAG)) return true;
         if (hand != InteractionHand.MAIN_HAND || !active(player) || target.level() != player.level()
-                || game.items().frost().isFrozen(player) || player.entityTags().contains("time_stopped")) return true;
+                || game.items().frost().isFrozen(player) || player.entityTags().contains("time_stopped")
+                || game.items().timeStop().stopped(player.level())) return true;
         String dimension = player.level().dimension().identifier().toString();
         if (dimension.equals("minecraft:nexus") || dimension.equals("minecraft:imprinted")) return true;
         // interaction_at + interaction одного клиентского клика могут прийти в одном тике.
@@ -343,10 +354,22 @@ public final class LbcAcademy {
     }
 
     public boolean loaded(Entity entity) {
-        if (placing) {
-            entity.entityTags().add(ENTITY_TAG); game.items().markCurrentItemEpoch(entity); entities.add(entity); return true;
+        if (stale(entity)) { entity.discard(); return true; }
+        if (placing != null) {
+            entity.entityTags().add(ENTITY_TAG); entity.entityTags().add(BUILDING_TAG);
+            game.items().markCurrentItemEpoch(entity); entities.add(entity); placing.spawned.add(entity); return true;
         }
-        if (entity.entityTags().contains(ENTITY_TAG)) { entities.add(entity); return true; }
+        if (entity.entityTags().contains(ENTITY_TAG)) {
+            for (var previous : Set.copyOf(entities)) if (previous.getUUID().equals(entity.getUUID())) {
+                if (!previous.entityTags().contains(BUILDING_TAG)) entity.entityTags().remove(BUILDING_TAG);
+                entities.remove(previous);
+            }
+            for (var part : placements) {
+                boolean owned = part.spawned.removeIf(previous -> previous.getUUID().equals(entity.getUUID()));
+                if (owned) part.spawned.add(entity);
+            }
+            entities.add(entity); return true;
+        }
         if (entity instanceof ItemEntity item && isDrop(item.getItem()) && item.level() == game.maps().level()) {
             game.items().markCurrentItemEpoch(item);
             drops.add(item); return true;
@@ -357,7 +380,11 @@ public final class LbcAcademy {
         var tag = stack.get(DataComponents.CUSTOM_DATA);
         return stack.is(TOKEN) || tag != null && (tag.matchedBy(TOKEN_DATA) || tag.matchedBy(BUILDING_DATA));
     }
-    public void unloaded(Entity entity) { drops.remove(entity); entities.remove(entity); }
+    public void unloaded(Entity entity) {
+        drops.remove(entity);
+        // Keep the small ownership record through chunk unload: completion and stop must still close it.
+        if (entity.getRemovalReason() != null && entity.getRemovalReason().shouldDestroy()) entities.remove(entity);
+    }
     private boolean active(ServerPlayer player) {
         return player.isAlive() && !player.isRemoved() && player.level() == game.maps().level() && game.canUseGameplayItems(player);
     }
@@ -367,13 +394,19 @@ public final class LbcAcademy {
         for (var it = drops.iterator(); it.hasNext();) {
             var item = it.next();
             if (item.isRemoved() || !isDrop(item.getItem())) { it.remove(); continue; }
-            if (!item.onGround() || item.level() != game.maps().level() || game.maps().busy()) continue;
+            if (stale(item)) { item.discard(); it.remove(); continue; }
+            if (!item.onGround() || item.level() != game.maps().level() || game.maps().busy()
+                    || game.stage() == GameController.Stage.ENDING
+                    || game.items().timeStop().stopped(game.maps().level())) continue;
             if (!game.playing() && !(item.getOwner() instanceof ServerPlayer p && active(p))) continue;
             var template = game.server().getStructureTemplateManager().get(TEMPLATE).orElse(null);
             if (template == null || template.getSize().getY() == 0) continue;
             boolean token = item.getItem().is(TOKEN) || data(item.getItem()).getIntOr("academy_token", 0) == 1;
             var origin = item.blockPosition().offset(-6, token ? -1 : 0, -6);
-            placements.addLast(new Placement(template, origin, item.getRandom().nextLong()));
+            var part = new Placement(template, game.maps().level(), origin, item.position(),
+                    game.items().epoch(), token, item.getRandom().nextLong());
+            if (!resident(part)) continue; // Reject before debit; never request a chunk for acquisition.
+            placements.addLast(part);
             it.remove();
             if (token) {
                 game.maps().level().sendParticles(ParticleTypes.WITCH, item.getX(), item.getY(), item.getZ(), 350, 5, 5, 5, 1);
@@ -381,11 +414,6 @@ public final class LbcAcademy {
                         net.minecraft.sounds.SoundSource.MASTER, 1, 1);
                 item.discard();
             } else {
-                var nearest = item.level().getNearestPlayer(item.getX(), item.getY(), item.getZ(), 12, p ->
-                        p instanceof ServerPlayer sp && !game.isObserver(sp) && !p.isSpectator());
-                if (nearest instanceof ServerPlayer player)
-                    player.teleportTo(game.maps().level(), item.getX(), item.getY()+1, item.getZ()-2, Set.of(),
-                            player.getYRot(), player.getXRot(), false);
                 var remaining = item.getItem().copy(); remaining.shrink(1);
                 if (remaining.isEmpty()) item.discard();
                 else { item.setItem(remaining); drops.add(item); }
@@ -394,14 +422,16 @@ public final class LbcAcademy {
         }
         if (placements.isEmpty() || game.maps().busy()) return;
         var part = placements.removeFirst(); var size = part.template.getSize(); var origin = part.origin;
+        if (!game.items().currentEpoch(part.epoch) || part.level != game.maps().level()
+                || game.stage() == GameController.Stage.ENDING) {
+            part.spawned.forEach(Entity::discard); return;
+        }
+        if (game.items().timeStop().stopped(part.level) || !resident(part)) { placements.addLast(part); return; }
         var bounds = new BoundingBox(origin.getX(), origin.getY()+part.row, origin.getZ(),
                 origin.getX()+size.getX()-1, origin.getY()+part.row, origin.getZ()+size.getZ()-1);
-        for (int x = bounds.minX() >> 4; x <= bounds.maxX() >> 4; x++)
-            for (int z = bounds.minZ() >> 4; z <= bounds.maxZ() >> 4; z++)
-                if (!game.maps().level().hasChunk(x, z)) { placements.addLast(part); return; }
-        placing = true;
+        placing = part;
         try {
-            game.maps().placeMapSlice(game.maps().level(), part.template, origin,
+            game.maps().placeMapSlice(part.level, part.template, origin,
                     new StructurePlaceSettings().setBoundingBox(bounds), part.seed);
             // Включает developer-проверки в лобби, которые обычный arena block callback не журналирует.
             // Журнал группирует точки по чанкам: двух диагональных углов недостаточно для четырёх чанков.
@@ -412,9 +442,40 @@ public final class LbcAcademy {
                     game.maps().recordBlockChange(new BlockPos(Math.min(bounds.maxX(), x*16+15), bounds.maxY(),
                             Math.min(bounds.maxZ(), z*16+15)));
                 }
-        } finally { placing = false; }
+        } finally { placing = null; }
         if (++part.row < size.getY()) placements.addLast(part);
+        else {
+            part.spawned.forEach(entity -> entity.entityTags().remove(BUILDING_TAG));
+            // Native placement can fail to create an actor. Never send a player into that incomplete acquisition.
+            if (!part.token && part.spawned.stream().anyMatch(entity -> !entity.isRemoved()
+                    && entity.entityTags().contains("magic_academy"))) {
+                var nearest = part.level.getNearestPlayer(part.source.x, part.source.y, part.source.z, 12,
+                        p -> p instanceof ServerPlayer player && active(player) && !game.isObserver(player)
+                                && game.items().wands().validTarget(player));
+                if (nearest instanceof ServerPlayer player)
+                    player.teleportTo(part.level, part.source.x, part.source.y+1, part.source.z-2,
+                            Set.of(), player.getYRot(), player.getXRot(), false);
+            }
+        }
     }
+    private boolean stale(Entity entity) {
+        for (var tag : entity.entityTags())
+            if (tag.startsWith("skywars2.items.") && !game.items().currentEpoch(tag)) return true;
+        return false;
+    }
+    private boolean resident(Placement part) {
+        var size = part.template.getSize(); var origin = part.origin;
+        if (size.getX()<=0 || size.getY()<=0 || size.getZ()<=0 || origin.getY()<part.level.getMinY()
+                || (long)origin.getY()+size.getY()-1>part.level.getMaxY()) return false;
+        // Native block updates can inspect neighbours just beyond the template boundary.
+        for (int x=(origin.getX()-1)>>4; x<=(origin.getX()+size.getX())>>4; x++)
+            for (int z=(origin.getZ()-1)>>4; z<=(origin.getZ()+size.getZ())>>4; z++)
+                if (part.level.getChunkSource().getChunkNow(x,z)==null) return false;
+        return true;
+    }
+    int pendingCount() { return placements.size(); }
+    int ownedCount() { return entities.size(); }
+    int pendingRow() { return placements.isEmpty() ? -1 : placements.peekFirst().row; }
     public void stop() {
         drops.clear(); placements.clear(); lastInteractions.clear(); blastSources.clear();
         var old = Set.copyOf(entities); entities.clear(); old.forEach(Entity::discard);

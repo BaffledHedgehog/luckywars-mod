@@ -98,6 +98,7 @@ public final class ElectroNativeMixins {
                 if(owner==null) owner=game.items().cageDrops().retainedOwner((Entity)(Object)this);
                 if(owner==null) owner=game.items().zombieTntDrops().retainedOwner((Entity)(Object)this);
                 if(owner==null) owner=game.items().droneDrops().retainedOwner((Entity)(Object)this);
+                if(owner==null) owner=game.items().transformator().owner((Entity)(Object)this);
                 if(owner!=null) ci.setReturnValue(owner);
             }
         }
