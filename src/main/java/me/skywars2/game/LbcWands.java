@@ -56,6 +56,8 @@ import net.minecraft.world.scores.ScoreHolder;
 
 /** Жезлы используют общий расход маны и каст-хуки; временные снаряды хранит существующий трекер. */
 public final class LbcWands {
+    public static final Item TESLA=register("skywars2:tesla_wand","lightning_wand","lbc:lightningwand");
+    public static final Item ACADEMY_TESLA=register("skywars2:academy_tesla_wand","lightning_wand","lbc:lightningwand");
     public static final Item PRISM=register("skywars2:unstable_prism","unstable_prism","lbc:prism");
     public static final Item GAYCASTER=register("skywars2:gaycaster","gaycaster","lbc:gaycaster");
     public static final Item AWAKENED_ACID=register("skywars2:awakened_acid_wand","acidacid_wand","lbc:acidacidwand");
@@ -151,6 +153,8 @@ public final class LbcWands {
     public static final Item ACADEMY_EXOPERSO=register("skywars2:academy_exoperso_wand","megumin_wand","lbc:exoperso");
     public static final Item ACADEMY_EXASPERATO=register("skywars2:academy_exasperato_wand","exasperato_wand","lbc:exasperato");
     private enum Spell {
+        ACADEMY_TESLA(LbcWands.ACADEMY_TESLA,"lightningwand","lightning_wand_mana_use",1200),
+        TESLA(LbcWands.TESLA,"lightningwand","lightning_wand_mana_use",1200),
         ACADEMY_AWAKENED_ACID(LbcWands.ACADEMY_AWAKENED_ACID,"acidacid_wand","acidacid_wand_mana_use",1450),
         AWAKENED_ACID(LbcWands.AWAKENED_ACID,"acidacid_wand","acidacid_wand_mana_use",1450),
         ACADEMY_PRISM(LbcWands.ACADEMY_PRISM,"prisma","unstable_prism_mana_use",1200),
@@ -248,7 +252,7 @@ public final class LbcWands {
         final int defaultCost;
         Spell(Item item,String flag,String cost,int defaultCost) {
             this.item=item; this.flag=flag(flag); this.cost=ScoreHolder.forNameOnly(cost); this.defaultCost=defaultCost;
-            if(item==LbcWands.ACADEMY_PRISM||item==LbcWands.ACADEMY_GAYCASTER||item==LbcWands.ACADEMY_AWAKENED_ACID) this.flag.putInt("upgraded",1);
+            if(item==LbcWands.ACADEMY_TESLA||item==LbcWands.ACADEMY_PRISM||item==LbcWands.ACADEMY_GAYCASTER||item==LbcWands.ACADEMY_AWAKENED_ACID) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_CAUSTIC || item==LbcWands.ACADEMY_OMEGA) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_ADVANCED_ENDER || item==LbcWands.ACADEMY_SNOW) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_ENDER || item==LbcWands.ACADEMY_BAD_WIKI) this.flag.putInt("upgraded",1);
@@ -289,7 +293,10 @@ public final class LbcWands {
         final String epoch;
         final int lifetime;
         final boolean meditation;
-        boolean mechanism;
+        boolean mechanism,teslaChain;
+        ServerPlayer trialOwner;
+        InteractionHand trialHand;
+        ItemStack trialStack;
         Vec3 position;
         float yaw,pitch;
         int age;
@@ -432,6 +439,7 @@ public final class LbcWands {
         Spell spell=null;
         for(var candidate:SPELLS) if(matches(stack,candidate.item,candidate.flag)) { spell=candidate; break; }
         if(spell==null) return false;
+        if(spell==Spell.TESLA||spell==Spell.ACADEMY_TESLA)return LbcTesla.use(game,player,hand,stack,spell==Spell.ACADEMY_TESLA);
         if(spell==Spell.AWAKENED_ACID||spell==Spell.ACADEMY_AWAKENED_ACID)return game.items().awakenedAcid().use(player,hand,stack,spell==Spell.ACADEMY_AWAKENED_ACID);
         if(spell==Spell.GAYCASTER||spell==Spell.ACADEMY_GAYCASTER)return LbcGaycaster.use(game,player,hand,stack);
         if(spell==Spell.REGULAR_PRISM||spell==Spell.ACADEMY_PRISM)return game.items().prism().use(player,hand,stack,spell==Spell.ACADEMY_PRISM);
@@ -960,6 +968,36 @@ public final class LbcWands {
         LbcOverload.sound(owner,origin,"minecraft:entity.firework_rocket.twinkle",1,1,0);
     }
 
+    /** Tesla reuses Electro's native geometry, ownership, shield, conduction and lifecycle. */
+    void teslaVolley(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean chain) {
+        var direction=owner.getLookAngle();var origin=owner.getEyePosition();
+        boolean academy=stack.is(ACADEMY_TESLA)||stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("upgraded",0)==1;
+        if(hand==InteractionHand.OFF_HAND&&!academy)origin=origin.add(direction.scale(.5));
+        for(int i=0;i<(chain?1:4);i++){
+            var trace=new ElectroTrace(owner,origin.subtract(direction.scale(i*.01)),game.items().epoch(),chain?150:30+i*5);
+            trace.teslaChain=chain;
+            if(!chain&&LbcAcademy.trial(stack)){trace.trialOwner=owner;trace.trialHand=hand;trace.trialStack=stack;}
+            electroTraces.add(trace);
+        }
+        LbcOverload.sound(owner,origin,"minecraft:entity.firework_rocket.twinkle",1,1,0);
+    }
+    void teslaConduction(ElectroTrace trace,Vec3 point){electroConduction(trace,point);}
+    private void teslaChainTurn(ElectroTrace trace){
+        var point=trace.position;LivingEntity nearest=null;double nearestDistance=100;
+        trace.level.sendParticles(ParticleTypes.END_ROD,point.x,point.y,point.z,5,0,0,0,.05);
+        for(float volume:new float[]{1,1.5f,2})electroSound(trace,point,"minecraft:lbcsounds.laser_mg_shot",volume,1);
+        for(var entity:trace.level.getEntitiesOfClass(LivingEntity.class,new AABB(point,point).inflate(10),
+                entity->entity.getType().builtInRegistryHolder().is(MOBS)&&target(trace.owner,entity))){
+            double distance=entity.position().distanceToSqr(point);
+            if(distance<=25)return;
+            if(distance<=nearestDistance){nearest=entity;nearestDistance=distance;}
+        }
+        if(nearest!=null){
+            Vec3 direction=nearest.getEyePosition().subtract(point);
+            trace.yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
+            trace.pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));
+        }
+    }
     /** Культист использует те же разряды, срок и владельца, меняется только точка запуска. */
     void cultistElectro(ServerPlayer owner,Vec3 origin,float yaw,float pitch) {
         electroVolley(owner,origin,yaw,pitch,20,6);
@@ -1059,7 +1097,7 @@ public final class LbcWands {
             for(var trace:electroBatch) {
                 if(!electroTraces.contains(trace)) continue;
                 var owner=trace.owner;
-                if(!game.items().currentEpoch(trace.epoch) || trace.level!=game.maps().level()
+                if(trace.age>=trace.lifetime || !game.items().currentEpoch(trace.epoch) || trace.level!=game.maps().level()
                         || trace.source()==null || trace.source().level()!=trace.level
                         || owner!=null && (!owner.isAlive() || owner.isRemoved() || !game.canUseGameplayItems(owner))
                         || game.stage()==GameController.Stage.ENDING) {
@@ -1068,14 +1106,14 @@ public final class LbcWands {
                 if(timeStopped || owner!=null && owner.entityTags().contains("time_stopped")) continue;
                 // (user) Мана/антимагия проверяются при использовании жезла; выпущенная дуга немагическая.
                 if(!trace.level.hasChunkAt(BlockPos.containing(trace.position))
-                        || !electroStep(trace) || ++trace.age>=trace.lifetime) electroTraces.remove(trace);
+                        || (trace.teslaChain&&trace.age%5!=0 ? false : !electroStep(trace)) || ++trace.age>=trace.lifetime) electroTraces.remove(trace);
             }
         } finally { electroBatch.clear(); }
     }
     private boolean electroStep(ElectroTrace trace) {
         var level=trace.level;
         Vec3 from=trace.position,direction=Vec3.directionFromRotation(trace.pitch,trace.yaw);
-        int samples=trace.meditation || trace.npcSource!=null ? 18 : 10;
+        int samples=trace.teslaChain?20:trace.meditation || trace.npcSource!=null ? 18 : 10;
         var shield=shieldHit(trace.source(),from,from.add(direction.scale(samples*.2)),trace.meditation);
         double shieldDistance=shield==null ? Double.POSITIVE_INFINITY : from.distanceTo(shield.getLocation());
         double mechanismFraction=trace.mechanism ? game.items().magic().mechanismSuppressionFraction(
@@ -1112,6 +1150,7 @@ public final class LbcWands {
         if(conductor!=null) electroConduction(trace,conductor);
         trace.position=end;
         // В исходнике это случайное преломление каждые два блока, а не отражение от стены.
+        if(trace.teslaChain){teslaChainTurn(trace);return clear;}
         trace.yaw=net.minecraft.util.Mth.floor(trace.yaw*100)*.01f+(level.getRandom().nextInt(1601)-800)*.01f;
         trace.pitch=net.minecraft.util.Mth.floor(trace.pitch*100)*.01f+(level.getRandom().nextInt(1601)-800)*.01f;
         return clear;
@@ -1168,18 +1207,21 @@ public final class LbcWands {
     }
     /** Проводник: один импульс за тик луча; только Electro-типы обходят cooldown, остальные не меняем. */
     private void electroConduction(ElectroTrace trace,Vec3 point) {
+        int accepted=0;
         var damage=new DamageSource(trace.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
                 .getOrThrow(LbcDamage.ELECTRO_CONDUCTION),trace.source());
         for(var entity:trace.level.getEntitiesOfClass(LivingEntity.class,new AABB(point,point).inflate(10),
-                entity->entity.isAlive() && entity.getType().builtInRegistryHolder().is(MOBS)
+                entity->validTarget(entity) && entity.getType().builtInRegistryHolder().is(MOBS)
                         && !entity.isSpectator() && !entity.entityTags().contains("spectator")
                         && !entity.entityTags().contains("rcdenyalways") && entity.position().distanceToSqr(point)<=100
                         && (!(entity instanceof ServerPlayer player) || game.canUseGameplayItems(player)))) {
             // (user) Проводящий разряд поражает и стрелка/союзников; прямой луч фильтруется отдельно.
-            entity.hurtServer(trace.level,damage,1);
+            if(entity.hurtServer(trace.level,damage,1))accepted++;
             trace.level.sendParticles(ParticleTypes.FIREWORK,true,false,
                     entity.getX(),entity.getY()+1,entity.getZ(),4,.1,.1,.1,0);
         }
+        if(accepted>=10&&trace.owner==trace.trialOwner&&trace.trialStack!=null)
+            game.items().academy().ready(trace.trialOwner,trace.trialHand,trace.trialStack);
     }
     void stop() { electroTraces.clear(); }
     /** Малые жезлы делят мгновенный луч: кандидаты выбираются один раз на каст, без marker-тикеров. */

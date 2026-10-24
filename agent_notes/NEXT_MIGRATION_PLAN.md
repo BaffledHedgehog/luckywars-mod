@@ -1,5 +1,36 @@
 # Следующие этапы переноса
 
+## Tesla staff ordinary/Academy core - QUALIFIED (24 October 2026)
+
+[Contract](TESLA_PORT.md). Scoped leaves: `lbc:ported/tesla_wand` and
+`lbc:ported/academy_tesla_wand`. Distinct from Lightning Bolts/Boltbolt.
+Four default arcs reuse Electro's native geometry, shield, reflection/Curse,
+source lifetimes and electric/conduction damage. Academy has three free-change
+modes: default, five bent instant rays and150-tick chain moving every5ticks.
+Chain protects caster/allied players (user); homing selects enemies, while
+physical arcs can hit friendly mobs. Conduction remains WILD. Ten accepted
+conductor hits are counted in the existing hurt loop, without another query
+(user performance ruling). Actual used-hand trial and A promotion are native.
+Instant rays share the existing CPU-budgeted work queue, with disjoint sample
+groups; no per-sample markers or new generic scheduler. Source B/A presentation
+and ordinary offhand+0.5 launch retained. No RP/template changes or broad pools.
+Sosueneruga craft and Yellow Lightning/Mom reward chain remain gated separately.
+
+Build `8040ad37` passed 28 recorded suite results in two actual
+mode1 matches (114.85s). Includes real both-hand PKM/cost/origins,
+free mode changes, direct and WILD conduction credit, actual shield/reflection,
+protected chain enemy-ring selection/cadence/lifetime, five cooperative instant
+rays, real Time Stop, nine/ten conductor trial, Academy A promotion and actual
+match-stop cancellation. AwakenedAcid/Gaycaster/Prism/CausticOmega/AdvancedSnow/
+Neutral/Mobgun/Academy/KFC regressions passed. Exact 285 sources /
+763 classes / 2772 resources verified. Installed stopped main,
+rollback `322f2e06` retained; main not started. Three user sources unchanged and
+excluded. Evidence: `build/verification/tesla-final/`. Native fixtures include
+manual boundary ticks; no client pixels, real disk restart/unload/disconnect or
+peak-capacity performance claim.
+
+
+
 ## Awakened acid staff - QUALIFIED (24 October 2026)
 
 [Contract](AWAKENED_ACID_PORT.md). Ready scoped leaves: `lbc:ported/awakened_acid_wand`

@@ -736,6 +736,9 @@ public final class GameChecks {
                                 case "normal-drone-stop-probe" -> { NormalDroneChecks.stopProbe(game); return; }
                                 case "normal-drone-cleanup" -> { NormalDroneChecks.cleanup(game); return; }
                                 case "special-eggs" -> { SpecialEggChecks.run(game); return; }
+                                case "tesla" -> { TeslaChecks.run(game); return; }
+                                case "tesla-stop-probe" -> { TeslaChecks.stopProbe(game); return; }
+                                case "tesla-cleanup" -> { TeslaChecks.cleanup(game); return; }
                                 case "awakened-acid" -> { AwakenedAcidChecks.run(game); return; }
                                 case "awakened-acid-stop-probe" -> { AwakenedAcidChecks.stopProbe(game); return; }
                                 case "awakened-acid-cleanup" -> { AwakenedAcidChecks.cleanup(game); return; }
@@ -1137,6 +1140,7 @@ public final class GameChecks {
                 StalinEncounterChecks.tick(game);
                 NormalDroneChecks.tick(game);
                 SpecialEggChecks.tick(game);
+        TeslaChecks.tick(game);
         AwakenedAcidChecks.tick(game);
         GaycasterChecks.tick(game);
         PrismChecks.tick(game);
