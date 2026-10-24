@@ -288,10 +288,12 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             }
             return InteractionResult.PASS;
         });
-        AttackEntityCallback.EVENT.register((player, level, hand, entity, hit) ->
-                game != null && (game.items().actionsBlocked(player)
-                        || player instanceof ServerPlayer serverPlayer && game.isObserver(serverPlayer))
-                        ? InteractionResult.FAIL : InteractionResult.PASS);
+        AttackEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
+            if(game==null)return InteractionResult.PASS;
+            if(game.items().actionsBlocked(player)||player instanceof ServerPlayer observer&&game.isObserver(observer))return InteractionResult.FAIL;
+            if(player instanceof ServerPlayer serverPlayer&&game.items().attackIceCrystal(serverPlayer,entity))return InteractionResult.SUCCESS;
+            return InteractionResult.PASS;
+        });
         CommandRegistrationCallback.EVENT.register((dispatcher, registries, environment) -> {
             var root = Commands.literal("sw").executes(ctx -> {
                 if (game != null) game.menus().open(ctx.getSource().getPlayerOrException()); return 1;

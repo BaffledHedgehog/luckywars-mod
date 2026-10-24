@@ -45,6 +45,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         DUPLICATING("duplicating_combine","duplicating_wand"),
         GAYCASTER("gaycaster_combine","gaycaster"),
         ERECTO("erecto_combine","erecto_wand"),
+        ICE("ice_wand_combine","ice_wand"),
         ACID_CORRUPTION("acid_corruption_combine","acid_corruption_wand"),
         AWAKENED_ACID("awakened_acid_combine","awakened_acid_wand"),
         STAND_CLOCKS("stand_clocks","stand_clocks"),
@@ -109,6 +110,13 @@ public final class LbcCraftingRecipe extends CustomRecipe {
     /** Общее распознавание семейств: ровно два занятых слота, без расхода и случайности в preview. */
     public static Kind craftingKind(CraftingInput input) {
         if(input.ingredientCount()!=2) return LbcRerollCrafting.matches(input) ? Kind.REROLL_MACHINE : null;
+        int neutralIce=0,runicIce=0;
+        for(var stack:input.items())if(!stack.isEmpty()){
+            var data=stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
+            if(stack.is(LbcWands.NEUTRAL)||stack.is(LbcWands.ACADEMY_NEUTRAL)||data.getIntOr("neutralmage",0)==1)neutralIce++;
+            else if(LbcIceMaterials.isRunicIceShard(stack))runicIce++;
+        }
+        if(neutralIce==1&&runicIce==1)return Kind.ICE;
         int acidCorruptionAcid=0,corruption=0;
         for(var stack:input.items())if(!stack.isEmpty()){
             var data=stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
@@ -291,6 +299,21 @@ public final class LbcCraftingRecipe extends CustomRecipe {
     public net.minecraft.core.NonNullList<ItemStack> getRemainingItems(CraftingInput input) {
         var result=net.minecraft.world.item.crafting.CraftingRecipe.defaultCraftingReminder(input);
         var game=SkyWars2.game();
+        if(kind==Kind.ICE&&game!=null&&craftingKind(input)==kind){
+            var rolled=game.lbc().rollTable(game.maps().level(),net.minecraft.world.phys.Vec3.ZERO,null,"lbc:ported/neutral_ball");
+            if(!rolled.isEmpty()){
+                var remainder=rolled.getFirst().copyWithCount(1);
+                var lore=remainder.get(net.minecraft.core.component.DataComponents.LORE);
+                if(lore!=null){
+                    var context=net.minecraft.network.chat.ResolutionContext.create(game.server().createCommandSourceStack().withLevel(game.maps().level()));
+                    var lines=new java.util.ArrayList<net.minecraft.network.chat.Component>();
+                    for(var line:lore.lines())try{lines.add(net.minecraft.network.chat.ComponentUtils.resolve(context,line));}
+                        catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new IllegalStateException(error);}
+                    remainder.set(net.minecraft.core.component.DataComponents.LORE,new net.minecraft.world.item.component.ItemLore(lines));
+                }
+                for(int i=0;i<input.size();i++)if(!input.getItem(i).isEmpty()&&!LbcIceMaterials.isRunicIceShard(input.getItem(i))){result.set(i,remainder);break;}
+            }
+        }
         if((kind==Kind.CYBERKATANA || kind==Kind.ELECTRO_SHIELD) && game!=null
                 && craftingKind(input)==kind && game.maps().level().getRandom().nextFloat()<.6f)
             for(int i=0;i<input.size();i++) if(tinyElectro(input.getItem(i))) {
@@ -307,6 +330,12 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         game.items().rocketCraftTaken(player,input);
         var kind=craftingKind(input);
         if(kind==null) return;
+        if(kind==Kind.ICE){
+            var advancement=game.server().getAdvancements().get(Identifier.parse("lbc:true_advancements/staffs/neutral"));
+            if(advancement!=null)player.getAdvancements().award(advancement,"ice");
+            player.level().sendParticles(net.minecraft.core.particles.ParticleTypes.SNOWFLAKE,player.getX(),player.getY(),player.getZ(),30,.2,.2,.2,0);
+            LbcOverload.sound(player,player.position(),"minecraft:entity.player.hurt_freeze",1,0,0);return;
+        }
         if(kind==Kind.SHISH_WALL) {
             player.level().sendParticles(new net.minecraft.core.particles.ItemParticleOption(
                             net.minecraft.core.particles.ParticleTypes.ITEM,net.minecraft.world.item.Items.SPRUCE_SAPLING),

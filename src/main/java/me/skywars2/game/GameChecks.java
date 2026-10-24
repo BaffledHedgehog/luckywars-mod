@@ -736,6 +736,10 @@ public final class GameChecks {
                                 case "normal-drone-stop-probe" -> { NormalDroneChecks.stopProbe(game); return; }
                                 case "normal-drone-cleanup" -> { NormalDroneChecks.cleanup(game); return; }
                                 case "special-eggs" -> { SpecialEggChecks.run(game); return; }
+                                case "ice-wand" -> { IceWandChecks.run(game); return; }
+                                case "ice-materials" -> { IceMaterialChecks.run(game); return; }
+                                case "ice-wand-stop-probe" -> { IceWandChecks.stopProbe(game); return; }
+                                case "ice-wand-cleanup" -> { IceWandChecks.cleanup(game); return; }
                                 case "corrupted-glyphs" -> { CorruptedGlyphChecks.run(game); SkyWars2.LOGGER.info("[check] PASS corrupted-glyphs"); return; }
                                 case "corruption" -> { CorruptionChecks.run(game); return; }
                                 case "corruption-stop-probe" -> { CorruptionChecks.stopProbe(game); return; }

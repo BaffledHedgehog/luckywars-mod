@@ -1,5 +1,45 @@
 # Структура переноса игрового цикла
 
+## Permafrost Ice Wand and materials - QUALIFIED (24 October 2026)
+
+[Contract](agent_notes/ICE_WAND_PORT.md), [source presentation](agent_notes/ICE_WAND_RESOURCES.md).
+Ready scoped leaves: `lbc:ported/ice_wand`, `academy_ice_wand`,
+`runic_ice_shard`, `neutral_ball` (same prefix for all four). Exact native
+Neutral Wand + Runic Ice Shard craft works in2x2/3x3, consumes one each,
+and returns a functional Neutral Ball through the native recipe remainder.
+Only the original neutral advancement ice criterion is awarded.
+
+Ordinary/Academy costs400 normally,200 on Shift. Native Snowball physics
+replace the old motion-refresh teleport and unrelated-snowball selectors.
+One native first contact, shared cold/freeze, paired display/Interaction,
+400-active-tick crystals, owned Shift/attack/projectile/expiry explosions,
+source model poses and native barrier restoration are integrated. User
+rulings set5/5 projectile/crystal damage, WILD Academy shatter with24% current
+player HP /40% mob HP native arrow amounts and10 freeze splash, and restore
+prior terrain only if the owned barrier is still present. Native armor,
+resistance and hurt cooldown still apply. Native owner/reflection, common
+magic projectile impulse protection, antimagic and dimension Time Stop reuse
+existing systems. Actual initiating hand/stack trial and SS promotion remain
+within the shared Academy; technical roles and ordinary allied players are safe.
+
+Runic Ice Shard uses source ten-tick pulses, carried/held slot semantics,
+skill2 hand restriction and shared cold; its freeze grants Resistance V and
+jaakivi. The two source container/weapon checks are retained (selected mainhand
+can pulse twice). Neutral Ball performs the original main5000-mana/+1-regen
+and offhand1-regen/+5000-mana exchanges, main then off, each active tick.
+No new RP/template assets or broad source acquisition pools are enabled.
+
+Build `04c4694d` passed 42 recorded suite results in two actual
+mode1 matches (148.04s), including the new family/materials and
+Corruption/Erecto/Tesla/Acid/Gaycaster/Prism/other regressions. Exact 296
+sources / 800 classes / 2786 resources match the tested JAR.
+Installed stopped main with rollback `58a78a13`; main not started. Three user
+sources remain unchanged/excluded. Evidence: `build/verification/ice-wand-final/`.
+Native boundary fixtures include manual ticks; no client pixels, actual disk
+restart/unload/disconnect or peak-load performance claim.
+
+
+
 ## Corruption, Acid Corruption and four glyphs - QUALIFIED (24 October 2026)
 
 [Contract](agent_notes/CORRUPTION_PORT.md), [glyph contract](agent_notes/CORRUPTED_GLYPHS_PORT.md), [presentation](agent_notes/CORRUPTION_RESOURCES.md).

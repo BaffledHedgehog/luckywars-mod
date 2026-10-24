@@ -56,6 +56,8 @@ import net.minecraft.world.scores.ScoreHolder;
 
 /** Жезлы используют общий расход маны и каст-хуки; временные снаряды хранит существующий трекер. */
 public final class LbcWands {
+    public static final Item ICE=register("skywars2:ice_wand","ice_wand","lbc:ice_wand");
+    public static final Item ACADEMY_ICE=register("skywars2:academy_ice_wand","ice_wand","lbc:ice_wand");
     public static final Item CORRUPTION=register("skywars2:corruption_wand","corruption_wand","lbc:corruptwand");
     public static final Item ACADEMY_CORRUPTION=register("skywars2:academy_corruption_wand","corruption_wand","lbc:corruptwand");
     public static final Item ACID_CORRUPTION=register("skywars2:acid_corruption_wand","acidcorrupt_wand","lbc:acidcorrupt");
@@ -159,6 +161,8 @@ public final class LbcWands {
     public static final Item ACADEMY_EXOPERSO=register("skywars2:academy_exoperso_wand","megumin_wand","lbc:exoperso");
     public static final Item ACADEMY_EXASPERATO=register("skywars2:academy_exasperato_wand","exasperato_wand","lbc:exasperato");
     private enum Spell {
+        ACADEMY_ICE(LbcWands.ACADEMY_ICE,"ice_wand","ice_wand_mana_use",400),
+        ICE(LbcWands.ICE,"ice_wand","ice_wand_mana_use",400),
         ACADEMY_CORRUPTION(LbcWands.ACADEMY_CORRUPTION,"corrupter","corruption_wand_mana_use",1800),
         CORRUPTION(LbcWands.CORRUPTION,"corrupter","corruption_wand_mana_use",1800),
         ACADEMY_ACID_CORRUPTION(LbcWands.ACADEMY_ACID_CORRUPTION,"acidcorrupt_wand","acidcorrupt_wand_mana_use",1210),
@@ -264,7 +268,7 @@ public final class LbcWands {
         final int defaultCost;
         Spell(Item item,String flag,String cost,int defaultCost) {
             this.item=item; this.flag=flag(flag); this.cost=ScoreHolder.forNameOnly(cost); this.defaultCost=defaultCost;
-            if(item==LbcWands.ACADEMY_CORRUPTION||item==LbcWands.ACADEMY_ACID_CORRUPTION||item==LbcWands.ACADEMY_ERECTO||item==LbcWands.ACADEMY_TESLA||item==LbcWands.ACADEMY_PRISM||item==LbcWands.ACADEMY_GAYCASTER||item==LbcWands.ACADEMY_AWAKENED_ACID) this.flag.putInt("upgraded",1);
+            if(item==LbcWands.ACADEMY_ICE||item==LbcWands.ACADEMY_CORRUPTION||item==LbcWands.ACADEMY_ACID_CORRUPTION||item==LbcWands.ACADEMY_ERECTO||item==LbcWands.ACADEMY_TESLA||item==LbcWands.ACADEMY_PRISM||item==LbcWands.ACADEMY_GAYCASTER||item==LbcWands.ACADEMY_AWAKENED_ACID) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_CAUSTIC || item==LbcWands.ACADEMY_OMEGA) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_ADVANCED_ENDER || item==LbcWands.ACADEMY_SNOW) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_ENDER || item==LbcWands.ACADEMY_BAD_WIKI) this.flag.putInt("upgraded",1);
@@ -452,6 +456,7 @@ public final class LbcWands {
         Spell spell=null;
         for(var candidate:SPELLS) if(matches(stack,candidate.item,candidate.flag)) { spell=candidate; break; }
         if(spell==null) return false;
+        if(spell==Spell.ICE||spell==Spell.ACADEMY_ICE)return game.items().iceWand().use(player,hand,stack,spell==Spell.ACADEMY_ICE);
         if(spell==Spell.CORRUPTION||spell==Spell.ACADEMY_CORRUPTION)return LbcCorruption.use(game,player,hand,stack,spell==Spell.ACADEMY_CORRUPTION);
         if(spell==Spell.ACID_CORRUPTION||spell==Spell.ACADEMY_ACID_CORRUPTION)return game.items().acidCorruption().use(player,hand,stack,spell==Spell.ACADEMY_ACID_CORRUPTION);
         if(spell==Spell.ERECTO||spell==Spell.ACADEMY_ERECTO)return game.items().erecto().use(player,hand,stack,spell==Spell.ACADEMY_ERECTO);

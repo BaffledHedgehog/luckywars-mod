@@ -89,17 +89,48 @@ public final class LbcFrost {
     }
 
     /** Первый приём cold учитывает прежний Slowness; повторные добавляют базовые десять. */
-    public void add(LivingEntity entity, ServerPlayer source) {
+    public void add(LivingEntity entity, ServerPlayer source) { add(entity,source,false); }
+    private void add(LivingEntity entity,ServerPlayer source,boolean projectile) {
         if (!eligible(entity) || source != null && !game.canUseGameplayItems(source)) return;
         State state = affected.computeIfAbsent(entity, State::new);
         var slow = entity.getEffect(MobEffects.SLOWNESS);
         int multiplier = state.cold > 0 || slow == null ? 1 : slow.getAmplifier() + 1;
-        state.source=source==null?null:game.items().indirectKills().coldCause(source,false);
+        state.source=source==null?null:game.items().indirectKills().coldCause(source,projectile);
         state.cold += 10 * multiplier;
         state.cooldown = 5;
         check(state, source);
         var pos = entity.blockPosition();
         level().sendParticles(ParticleTypes.SNOWFLAKE, pos.getX()+.5, pos.getY()+1.31, pos.getZ()+.5, 20, .5, .5, .5, .01);
+        save(state);
+    }
+
+    /** Ice Wand adds cold only while thawed; another hit never refreshes an existing freeze. */
+    boolean iceHit(LivingEntity entity,ServerPlayer source){
+        if(!eligible(entity))return false;
+        if(!isFrozen(entity))add(entity,source,true);
+        return isFrozen(entity);
+    }
+
+    /** Shattering uses the same native block restoration as a normal thaw. */
+    boolean shatter(LivingEntity entity){
+        if(!isFrozen(entity))return false;
+        clear(entity);entity.removeEffect(MobEffects.SLOWNESS);return true;
+    }
+
+    /** Source Runic Ice Shard pulse; frozen holders retain the resistance reward. */
+    void runicShard(ServerPlayer player){
+        if(!eligible(player))return;
+        var state=affected.computeIfAbsent(player,State::new);
+        if(state.frozen==0){
+            var slow=player.getEffect(MobEffects.SLOWNESS);
+            if(slow!=null&&slow.getAmplifier()>=1)state.cold+=5;
+            if(state.cold<10)state.cold++;
+            state.cooldown=2;check(state,null);
+        }
+        if(state.frozen>0){
+            game.items().mana().award(player,"lbc:true_advancements/accesories/jaakivi");
+            player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,500,4),player);
+        }
         save(state);
     }
 

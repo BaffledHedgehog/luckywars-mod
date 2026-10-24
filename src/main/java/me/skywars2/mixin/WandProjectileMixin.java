@@ -19,6 +19,8 @@ public abstract class WandProjectileMixin {
     public interface ArrowAccess {
         @org.spongepowered.asm.mixin.gen.Invoker("setPierceLevel")
         void skywars2$setPierceLevel(byte level);
+        @org.spongepowered.asm.mixin.gen.Invoker("isInGround")
+        boolean skywars2$isInGround();
     }
 
     /** Splash status effects normally pass the shooter as source, so check allegiance at their native call site. */
