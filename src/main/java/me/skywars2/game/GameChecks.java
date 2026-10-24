@@ -736,6 +736,10 @@ public final class GameChecks {
                                 case "normal-drone-stop-probe" -> { NormalDroneChecks.stopProbe(game); return; }
                                 case "normal-drone-cleanup" -> { NormalDroneChecks.cleanup(game); return; }
                                 case "special-eggs" -> { SpecialEggChecks.run(game); return; }
+                                case "void-arcanum" -> { VoidArcanumChecks.run(game); return; }
+                                case "void-arcanum-stop-probe" -> { VoidArcanumChecks.stopProbe(game); return; }
+                                case "void-arcanum-cleanup" -> { VoidArcanumChecks.cleanup(game); return; }
+                                case "neutral-crafts" -> { NeutralCraftChecks.run(game); return; }
                                 case "ice-wand" -> { IceWandChecks.run(game); return; }
                                 case "ice-materials" -> { IceMaterialChecks.run(game); return; }
                                 case "ice-wand-stop-probe" -> { IceWandChecks.stopProbe(game); return; }

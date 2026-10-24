@@ -1,0 +1,204 @@
+package me.skywars2.game;
+
+import me.skywars2.SkyWars2;
+import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stat;
+import net.minecraft.stats.Stats;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.Marker;
+import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.Vec3;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.*;
+
+/** Bounded native fixture; explicit service calls below test boundaries without elapsed-time claims. */
+public final class VoidArcanumChecks {
+    private VoidArcanumChecks(){}
+    private static void require(boolean value,String why){if(!value)throw new IllegalStateException("Void Arcanum: "+why);}
+    private static Object copy(Object value){if(value instanceof int[] array)return array.clone();if(value instanceof Set<?> set)return new HashSet<>(set);return value;}
+    private static Map<Field,Object> fields(Object target){
+        var values=new LinkedHashMap<Field,Object>();try{for(var f:target.getClass().getFields())if(!Modifier.isStatic(f.getModifiers()))values.put(f,copy(f.get(target)));}
+        catch(IllegalAccessException error){throw new IllegalStateException(error);}return values;
+    }
+    private static void fields(Object target,Map<Field,Object> values){try{for(var entry:values.entrySet())entry.getKey().set(target,copy(entry.getValue()));}catch(IllegalAccessException error){throw new IllegalStateException(error);}}
+    private static final class Saved {
+        final ServerPlayer player;final GameChecks.WandThirdPlayerState state;final PlayerStore.Profile profile;final Map<Field,Object> profileFields;
+        final net.minecraft.world.scores.PlayerTeam team;final boolean shift;final int cowKills;
+        final Map<AdvancementHolder,Set<String>> advancements=new LinkedHashMap<>();
+        final Map<Stat<Identifier>,Integer> custom=new LinkedHashMap<>();final Map<Stat<Item>,Integer> crafted=new LinkedHashMap<>();
+        Saved(GameController game,ServerPlayer player){
+            this.player=player;state=new GameChecks.WandThirdPlayerState(player,game.items().mana());profile=game.players().get(player.getUUID());profileFields=fields(profile);team=player.getTeam();shift=player.isShiftKeyDown();cowKills=player.getStats().getValue(Stats.ENTITY_KILLED.get(EntityTypes.COW));
+            for(var adv:game.server().getAdvancements().getAllAdvancements()){var done=new HashSet<String>();player.getAdvancements().getOrStartProgress(adv).getCompletedCriteria().forEach(done::add);advancements.put(adv,done);}
+            for(var id:BuiltInRegistries.CUSTOM_STAT){var stat=Stats.CUSTOM.get(id);custom.put(stat,player.getStats().getValue(stat));}
+            for(var item:BuiltInRegistries.ITEM){var stat=Stats.ITEM_CRAFTED.get(item);crafted.put(stat,player.getStats().getValue(stat));}
+        }
+        void restore(GameController game){
+            advancements.forEach((adv,done)->{for(var key:adv.value().criteria().keySet())if(done.contains(key))player.getAdvancements().award(adv,key);else player.getAdvancements().revoke(adv,key);});
+            fields(profile,profileFields);state.restore(game);player.setShiftKeyDown(shift);
+            var board=game.server().getScoreboard();if(player.getTeam()!=null)board.removePlayerFromTeam(player.getScoreboardName(),player.getTeam());if(team!=null)board.addPlayerToTeam(player.getScoreboardName(),team);
+            custom.forEach((stat,value)->player.getStats().setValue(player,stat,value));crafted.forEach((stat,value)->player.getStats().setValue(player,stat,value));player.getStats().setValue(player,Stats.ENTITY_KILLED.get(EntityTypes.COW),cowKills);game.items().magic().inventoryChanged(player);
+        }
+    }
+    private static final class ProbeCow extends Cow {
+        Entity author;int accepted;
+        ProbeCow(net.minecraft.server.level.ServerLevel level){super(EntityTypes.COW,level);}
+        @Override public boolean hurtServer(net.minecraft.server.level.ServerLevel world,DamageSource source,float amount){boolean hit=super.hurtServer(world,source,amount);if(hit){accepted++;author=source.getEntity();}return hit;}
+    }
+    private static final class Fixture implements AutoCloseable {
+        final GameController game;final LbcVoidArcanum service;final ServerPlayer owner,other;final Saved saved,otherSaved;
+        final Map<Field,Object> config;final Map<String,Integer> costs=new LinkedHashMap<>();
+        final Map<BlockPos,MapManager.BlockSnapshot> blocks=new LinkedHashMap<>();final List<ProbeCow> mobs=new ArrayList<>();
+        final Set<Entity> before=Collections.newSetFromMap(new IdentityHashMap<>());final Vec3 at;final net.minecraft.world.scores.PlayerTeam team;
+        Fixture(GameController game){
+            this.game=game;service=game.items().voidArcanum();owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));other=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));
+            require(owner!=null&&other!=null&&game.playing()&&game.canUseGameplayItems(owner)&&game.canUseGameplayItems(other),"two active participants");
+            require(service.count()==0&&game.items().blackHoleVisuals().count()==0&&!game.items().timeStop().stopped(owner.level())&&!game.items().frost().isFrozen(owner)&&!game.items().frost().isFrozen(other)&&game.items().frost().cold(owner)==0&&game.items().frost().cold(other)==0,"clean body/renderer/frost/Time Stop");
+            require(owner.containerMenu==owner.inventoryMenu&&other.containerMenu==other.inventoryMenu,"initial inventory menus");
+            saved=new Saved(game,owner);otherSaved=new Saved(game,other);config=fields(game.config());owner.level().getAllEntities().forEach(before::add);
+            for(String name:List.of("void_arcanum_mana_activate","void_arcanum_mana_tick","void_arcanum_mana_tick_sec"))costs.put(name,game.items().mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly(name),"lbc.math").get());
+            at=Vec3.atCenterOf(owner.blockPosition().offset(0,48,0));require(at.y+6<owner.level().getMaxY(),"fixture below native build ceiling");
+            require(game.server().getScoreboard().getPlayerTeam("void_fixture")==null,"exclusive fixture team");team=game.server().getScoreboard().addPlayerTeam("void_fixture");team.setAllowFriendlyFire(false);
+        }
+        ItemStack loot(){var rolls=game.lbc().rollTable(owner.level(),at,owner,"lbc:ported/void_arcanum");require(rolls.size()==1&&rolls.getFirst().getCount()==1,"live source single loot");return rolls.getFirst();}
+        void move(ServerPlayer player,Vec3 p){player.teleportTo(player.level(),p.x,p.y,p.z,Set.of(),0,0,true);player.setDeltaMovement(Vec3.ZERO);}
+        void block(BlockPos pos,Block type){require(owner.level().hasChunkAt(pos),"resident fixture cell");blocks.putIfAbsent(pos.immutable(),game.maps().snapshot(owner.level(),pos));owner.level().setBlock(pos,type.defaultBlockState(),2);}
+        void init(){
+            // All synchronous native tick erosion remains within this small saved air box.
+            var origin=BlockPos.containing(at);for(var p:BlockPos.betweenClosed(origin.offset(-7,-4,-7),origin.offset(7,4,7)))block(p.immutable(),Blocks.AIR);
+            game.config().lbcSkills=false;game.config().ranked=false;
+            for(var p:List.of(owner,other)){
+                p.closeContainer();p.getInventory().clearContent();p.inventoryMenu.getCraftSlots().clearContent();p.containerMenu.setCarried(ItemStack.EMPTY);p.getInventory().setSelectedSlot(0);p.setGameMode(GameType.SURVIVAL);p.setNoGravity(true);p.setShiftKeyDown(false);p.removeAllEffects();
+                p.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(1000);p.setHealth(1000);p.setAbsorptionAmount(0);p.entityTags().remove("time_stopped");game.items().mana().noMagic(p,0);game.items().mana().set(p,100000);game.players().get(p.getUUID()).lbcSkill=0;
+                game.server().getScoreboard().addPlayerToTeam(p.getScoreboardName(),team);game.items().magic().inventoryChanged(p);
+            }
+            move(owner,at.add(-5,0,0));move(other,at.add(5,0,0));game.items().magic().flushCleansing();
+            for(var entry:Map.of("void_arcanum_mana_activate",4000,"void_arcanum_mana_tick",11,"void_arcanum_mana_tick_sec",220).entrySet())game.items().mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly(entry.getKey()),"lbc.math").set(entry.getValue());
+        }
+        void bodies(){for(var hole:service.snapshot())service.unloaded(hole.marker);}
+        void clear(){service.forget(owner);service.forget(other);owner.getInventory().clearContent();other.getInventory().clearContent();}
+        LbcVoidArcanum.Hole spawn(ServerPlayer p,Vec3 point){var hole=service.spawn(p,point);require(hole!=null,"native body spawn");return hole;}
+        void prime(){clear();for(var p:List.of(owner,other)){p.setItemInHand(InteractionHand.MAIN_HAND,loot());game.items().mana().set(p,100000);}service.tick();bodies();}
+        ProbeCow cow(Vec3 pos){var cow=new ProbeCow(owner.level());cow.setPos(pos);cow.setNoGravity(true);cow.setNoAi(true);owner.level().addFreshEntity(cow);mobs.add(cow);return cow;}
+        void presentation(){
+            var stack=loot();var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+            require(stack.is(LbcVoidArcanum.ITEM)&&Identifier.parse("lbc:arcanumblackhole").equals(stack.get(DataComponents.ITEM_MODEL))&&Identifier.parse("lbc:tier_a").equals(stack.get(DataComponents.TOOLTIP_STYLE)),"native item/source A model and tier");
+            require(stack.get(DataComponents.LORE)!=null&&stack.get(DataComponents.LORE).lines().size()==8&&stack.getHoverName().getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents name&&name.getKey().equals("void_arcanum"),"source translatable name and authored lore");
+            for(String flag:List.of("void_curse","craftusable","transformable","arcanum","arcanumt"))require(data.getIntOr(flag,0)==1,"source flag "+flag);
+        }
+        void holding(){
+            clear();owner.setItemInHand(InteractionHand.MAIN_HAND,loot());game.items().mana().set(owner,3999);service.tick();require(service.count()==0&&game.items().mana().get(owner)==3999,"hold activation below4000 rejected");
+            game.items().mana().set(owner,100000);service.tick();require(service.count()==1&&game.items().mana().get(owner)==95989,"one mainhand hold activation4000 plus11 upkeep");var first=service.snapshot().getFirst();
+            require(first.marker.position().distanceTo(at.add(-5,0,4))<.2&&!first.marker.shouldBeSaved(),"look-directed four-block native unsaved body");
+            service.tick();require(service.count()==1&&game.items().mana().get(owner)==95978,"continuous hold only upkeep");
+            owner.setItemInHand(InteractionHand.OFF_HAND,loot());service.tick();require(service.count()==1&&service.snapshot().getFirst().members.size()==2&&game.items().mana().get(owner)==91956,"independent offhand activation merges and charges22 total");
+            owner.connection.handlePlayerAction(new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND,BlockPos.ZERO,Direction.DOWN,0));
+            service.tick();require(service.count()==1&&service.snapshot().getFirst().members.size()==4&&game.items().mana().get(owner)==83868,"real F packet rearms both unchanged Arcanum hands and charges88 total");
+            clear();service.tick();require(service.count()==0&&first.marker.isRemoved()&&game.items().blackHoleVisuals().count()==0,"unequip removes owned bodies and renderer");
+        }
+        void levels(){
+            prime();
+            for(int level=1;level<=5;level++){
+                bodies();for(int i=0;i<level;i++)spawn(i==level-1&&level>1?other:owner,at);
+                game.items().mana().set(owner,100000);game.items().mana().set(other,100000);service.tick();
+                var hole=service.snapshot().getFirst();int total=11<<(level-1);
+                require(service.count()==1&&hole.level==level&&hole.members.size()==level,"native merge level "+level);
+                int paidOwner=100000-game.items().mana().get(owner),paidOther=100000-game.items().mana().get(other);
+                require(paidOwner+paidOther==total,"escalating whole-body upkeep "+total);
+                double expectedOwner=(double)total*(level==1?1:level-1)/level;
+                require(Math.abs(paidOwner-expectedOwner)<1.001&&Math.abs(paidOther-(total-expectedOwner))<1.001,"contributions split exact whole-body price");
+                require(!hole.wild,"allied contributions remain controlled");
+                for(int i=0;i<32;i++)if(level==1||level>=3)require(service.source(hole).owner().equals(owner.getUUID()),"majority contributions own damage/terrain independently of order");
+                service.updateVisual(hole,owner);float radius=(float)(new double[]{0,1,2,4,8,24}[level]/14);
+                require(hole.visual!=null&&Math.abs(hole.visual.radius-radius)<.00001&&hole.visual.disc==(level==5),"renderer source radius/14 and max-level large disc");
+                for(int i=0;i<5;i++)game.items().blackHoleVisuals().tick();
+                var index=game.items().blackHoleVisuals().origins(owner).indexOf(hole.visual.point);require(index>=0,"visible native shared-renderer handle");
+                var display=game.items().blackHoleVisuals().displays(owner).get(index);
+                require(Identifier.parse(level==5?"lbc:black_hole_large":"lbc:black_hole_small").equals(display.getItem().get(DataComponents.ITEM_MODEL))&&Math.abs(display.getScale().x()-radius)<.00001,"actual virtual display model and scale");
+                if(level==2){var authors=new HashSet<UUID>();for(int i=0;i<128;i++)authors.add(service.source(hole).owner());require(authors.equals(Set.of(owner.getUUID(),other.getUUID())),"equal contribution owners both selected randomly");}
+            }
+            var hole=service.snapshot().getFirst();game.server().getScoreboard().removePlayerFromTeam(other.getScoreboardName(),team);spawn(other,at);service.tick();
+            require(service.count()==1&&hole.level==5&&hole.members.size()==6&&hole.wild,"late hostile sixth contribution keeps one capped5 WILD body");
+            service.forget(other);require(service.count()==1&&hole.members.size()==4&&hole.level==4&&hole.wild,"WILD remains after hostile owner leaves");
+            service.forget(owner);require(service.count()==0&&hole.marker.isRemoved(),"last owner forget removes merged body");game.server().getScoreboard().addPlayerToTeam(other.getScoreboardName(),team);
+        }
+        void physical(){
+            prime();var hole=spawn(owner,at);var mob=cow(at.add(.5,0,0));var initial=mob.position();var member=service.source(hole);
+            service.physics(hole,owner,member.cause());require(mob.accepted==1&&mob.author==owner&&mob.getHealth()<mob.getMaxHealth(),"actual accepted generic damage carries selected author");
+            require(mob.position().equals(initial)&&mob.getDeltaMovement().x<0&&game.items().indirectKills().altitudeAuthor(mob)==owner,"native velocity and owned displacement without teleport");
+            var victim=cow(at.add(.4,0,0));victim.setHealth(.1f);service.physics(hole,owner,member.cause());require(victim.isDeadOrDying()&&victim.getKillCredit()==owner,"actual native lethal hole hit credits author");
+            var late=cow(at.add(.5,0,0));service.physics(hole,owner,member.cause());late.setInvulnerableTime(0);late.damageCooldownTime=0;
+            require(late.hurtServer(owner.level(),late.damageSources().playerAttack(other),1),"later real player hit accepted");late.setInvulnerableTime(0);late.damageCooldownTime=0;
+            require(late.hurtServer(owner.level(),late.damageSources().fellOutOfWorld(),1000)&&late.getKillCredit()==other,"later accepted player hit wins over prior pull cause");
+            hole.wild=true;move(owner,hole.point.add(.2,0,0));move(other,hole.point.add(-.2,0,0));for(var p:List.of(owner,other)){p.setInvulnerableTime(0);p.damageCooldownTime=0;}float a=owner.getHealth(),b=other.getHealth();
+            service.physics(hole,owner,new LbcIndirectKills.Owner(member.owner(),member.cause().order(),true,false));
+            require(owner.getHealth()<a&&other.getHealth()<b,"WILD native damage includes caster and allied player");
+            move(owner,hole.point.add(2.4,0,0));move(other,hole.point.add(-2.4,0,0));service.physics(hole,owner,member.cause());
+            require(owner.getDeltaMovement().equals(Vec3.ZERO)&&other.getDeltaMovement().equals(Vec3.ZERO),"outer influence does not pull players");
+            for(var cow:mobs){game.items().indirectKills().clear(cow);cow.discard();}mobs.clear();move(owner,at.add(-5,0,0));move(other,at.add(5,0,0));bodies();
+        }
+        void terrain(){
+            prime();var center=BlockPos.containing(at);var inside=center.offset(1,0,0);var outside=center.offset(2,2,0);
+            for(int level:new int[]{2,3}){
+                bodies();var hole=spawn(owner,at);hole.level=level;hole.frontier=2;hole.terrainCause=service.source(hole).cause();block(inside,Blocks.DIRT);block(outside,Blocks.DIRT);
+                var drops=new HashSet<Entity>();owner.level().getAllEntities().forEach(drops::add);
+                for(int i=0;i<8;i++){service.terrain(hole,owner,8192,System.nanoTime()+100_000_000);if(!hole.terrain.hasWork())break;}
+                require(owner.level().getBlockState(inside).isAir()&&owner.level().getBlockState(outside).is(Blocks.DIRT),"radial erosion rejects bounding-box corners");
+                boolean produced=false;for(var e:owner.level().getAllEntities())if(!drops.contains(e)&&e instanceof net.minecraft.world.entity.item.ItemEntity){produced=true;e.discard();}
+                require(produced==(level<=2),"small-level native drops and larger-level no-drop erosion");
+            }bodies();block(inside,Blocks.AIR);block(outside,Blocks.AIR);
+        }
+        void boundaries(){
+            prime();var hole=spawn(owner,at);service.updateVisual(hole,owner);var point=hole.point;int mana=game.items().mana().get(owner);
+            game.items().timeStop().begin(owner.level(),40);try{service.tick();require(service.count()==1&&hole.point.equals(point)&&game.items().mana().get(owner)==mana,"actual dimension Time Stop pauses body and upkeep");}finally{game.items().timeStop().end(owner.level());}
+            var stopper=new Marker(EntityTypes.MARKER,owner.level());stopper.setPos(at);stopper.entityTags().add("stopper_magic");owner.level().addFreshEntity(stopper);game.items().magic().loaded(stopper);
+            try{service.tick();require(hole.marker.isRemoved()&&service.count()==0&&game.items().blackHoleVisuals().count()==0,"actual antimagic removes native body/renderer");}
+            finally{game.items().magic().unloaded(stopper);stopper.discard();}
+            var stale=new Marker(EntityTypes.MARKER,owner.level());stale.entityTags().add("skywars2.void_arcanum");owner.level().addFreshEntity(stale);service.loaded(stale);require(stale.isRemoved(),"unowned restored body rejected on native load");clear();
+        }
+        @Override public void close(){
+            clear();for(var cow:mobs){game.items().indirectKills().clear(cow);cow.discard();}game.items().indirectKills().clear(owner);game.items().indirectKills().clear(other);
+            for(var entry:blocks.entrySet())game.maps().restoreSnapshot(owner.level(),entry.getKey(),entry.getValue());fields(game.config(),config);game.server().getScoreboard().removePlayerTeam(team);
+            saved.restore(game);otherSaved.restore(game);costs.forEach((name,value)->game.items().mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly(name),"lbc.math").set(value));
+            for(var entity:owner.level().getAllEntities())if(!before.contains(entity)&&(entity instanceof net.minecraft.world.entity.item.ItemEntity||entity instanceof net.minecraft.world.entity.ExperienceOrb))entity.discard();game.players().save();game.items().magic().flushCleansing();
+        }
+    }
+    public static void run(GameController game){try(var f=new Fixture(game)){f.init();f.presentation();f.holding();f.levels();f.physical();f.terrain();f.boundaries();}SkyWars2.LOGGER.info("[check] PASS void-arcanum (native holding/F swap, merged upkeep/majority/WILD, damage/velocity/terrain/renderer/lifecycle; explicit boundary ticks)");}
+
+    private static Saved stopSaved;private static String stopEpoch;private static LbcVoidArcanum.Hole stopHole;
+    private static final Set<Entity> stopBefore=Collections.newSetFromMap(new IdentityHashMap<>());
+    public static void stopProbe(GameController game){
+        require(stopSaved==null,"exclusive stop fixture");var owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));require(owner!=null&&game.canUseGameplayItems(owner)&&game.items().voidArcanum().count()==0,"live clean stop fixture");
+        stopSaved=new Saved(game,owner);owner.level().getAllEntities().forEach(stopBefore::add);
+        try{
+            owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcVoidArcanum.ITEM));owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);stopHole=game.items().voidArcanum().spawn(owner,owner.position().add(0,40,0));require(stopHole!=null,"actual native body before stop");
+            // Keep pending erosion inert while separate commands perform the real match-stop boundary.
+            owner.entityTags().add("time_stopped");stopHole.marker.entityTags().add("time_stopped");game.items().voidArcanum().updateVisual(stopHole,owner);stopEpoch=game.items().epoch();require(stopHole.visual!=null&&!stopHole.marker.isRemoved(),"live body and shared renderer before actual stop");
+        }catch(RuntimeException|Error failure){restoreStop(game);throw failure;}SkyWars2.LOGGER.info("[check] PASS void-arcanum-stop-probe");
+    }
+    public static void cleanup(GameController game){
+        try{require(stopSaved!=null&&!game.items().currentEpoch(stopEpoch)&&game.items().voidArcanum().count()==0&&stopHole.marker.isRemoved()&&game.items().blackHoleVisuals().count()==0,"actual match stop clears native body/shared renderer and item epoch");}
+        finally{restoreStop(game);}SkyWars2.LOGGER.info("[check] PASS void-arcanum-cleanup");
+    }
+    private static void restoreStop(GameController game){
+        if(stopSaved==null)return;var owner=stopSaved.player;game.items().voidArcanum().forget(owner);stopSaved.restore(game);
+        for(var entity:owner.level().getAllEntities())if(!stopBefore.contains(entity)&&(entity instanceof net.minecraft.world.entity.item.ItemEntity||entity instanceof net.minecraft.world.entity.ExperienceOrb))entity.discard();stopBefore.clear();game.players().save();stopSaved=null;stopHole=null;stopEpoch=null;
+    }
+}

@@ -30,10 +30,11 @@ public final class BlackHoleVisuals {
     private boolean dirty;
 
     public static final class Handle {
-        final ServerPlayer owner;
+        ServerPlayer owner;
         final ServerLevel level;
         final String epoch;
-        final float radius;
+        float radius;
+        boolean disc;
         Vec3 point;
         private Handle(ServerPlayer owner,Vec3 point,float radius,String epoch) {
             this.owner=owner; level=owner.level(); this.point=point;
@@ -48,10 +49,31 @@ public final class BlackHoleVisuals {
     }
     BlackHoleVisuals(GameController game) { this.game=game; }
     public Handle create(ServerPlayer owner,Vec3 point,float radius) {
+        return create(owner,point,radius,false);
+    }
+    public Handle create(ServerPlayer owner,Vec3 point,float radius,boolean disc) {
         if(!Float.isFinite(radius) || radius<=0 || !finite(point))
             throw new IllegalArgumentException("Black-hole position/radius must be finite");
         var hole=new Handle(owner,point,radius,game.items().epoch());
+        hole.disc=disc;
         holes.add(hole); refresh(); return hole;
+    }
+    public void update(Handle hole,Vec3 point,float radius,boolean disc) {
+        if(!finite(point)||!Float.isFinite(radius)||radius<=0) throw new IllegalArgumentException("Invalid black-hole geometry");
+        boolean changed=hole.radius!=radius||hole.disc!=disc;
+        hole.point=point;hole.radius=radius;hole.disc=disc;
+        if(changed) for(var slots:viewers.values()) for(var slot:slots) if(slot.hole==hole) {
+            slot.display.setItem(model(hole));slot.display.setScale(new Vector3f(radius));
+        }
+    }
+    public void rebind(Handle hole,ServerPlayer owner) {
+        if(owner.level()!=hole.level) throw new IllegalArgumentException("Black-hole owner changed dimension");
+        hole.owner=owner;
+    }
+    private static ItemStack model(Handle hole) {
+        var item=new ItemStack(Items.PAPER);
+        item.set(DataComponents.ITEM_MODEL,Identifier.parse(hole.disc?"lbc:black_hole_large":"lbc:black_hole_small"));
+        return item;
     }
     public void move(Handle hole,Vec3 point) {
         if(!finite(point)) throw new IllegalArgumentException("Black-hole position must be finite");
@@ -122,9 +144,7 @@ public final class BlackHoleVisuals {
         });
     }
     private void attach(ServerPlayer viewer,Slot slot,Handle hole,int index) {
-        var item=new ItemStack(Items.PAPER);
-        item.set(DataComponents.ITEM_MODEL,Identifier.parse("lbc:black_hole_small"));
-        var display=new ItemDisplayElement(item);
+        var display=new ItemDisplayElement(model(hole));
         display.setItemDisplayContext(ItemDisplayContext.NONE);
         display.setBillboardMode(Display.BillboardConstraints.FIXED);
         display.setGlowing(true); display.setGlowColorOverride(COLOR+index);

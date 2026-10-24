@@ -252,7 +252,7 @@ public final class LbcIndirectKills {
         supportRemoved(level,owner(player),pos);
     }
     /** The write scope already owns the cause, even if its author has since left. */
-    private void supportRemoved(ServerLevel level,Owner owner,BlockPos pos) {
+    void supportRemoved(ServerLevel level,Owner owner,BlockPos pos) {
         var state=level.getBlockState(pos);
         if(state.getCollisionShape(level,pos).isEmpty()) return;
         var area=new AABB(pos).inflate(.001, .0625, .001).expandTowards(0,4,0);
@@ -554,7 +554,7 @@ public final class LbcIndirectKills {
         var player=playerSource(source.getEntity());
         if(player==null && source.getEntity()==null)player=playerSource(source.getDirectEntity());
         if(player!=null && player!=target) {
-            displaced(target,player);
+            displaced(target,player,source instanceof LbcVoidArcanum.WildDamage);
         }
     }
     /** Перемещение жезлом без прямого урона также может окончиться падением; более поздний удар перебьёт автора. */
@@ -567,6 +567,14 @@ public final class LbcIndirectKills {
         var cause=owner(player,friendlyFire);
         laterAttacks.put(target,cause);
         falls.put(target,new Fall(cause,false));
+    }
+    /** Repeated sustained forces retain their original causal order. */
+    void displaced(LivingEntity target,Owner cause) {
+        if(cause==null) return;
+        var accepted=newer(laterAttacks.get(target),cause);
+        laterAttacks.put(target,accepted);
+        var old=falls.get(target);
+        falls.put(target,new Fall(newer(old==null?null:old.owner,accepted),false));
     }
 
     private Owner altitudeOwner(LivingEntity target) {

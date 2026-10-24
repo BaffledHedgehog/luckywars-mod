@@ -1,5 +1,36 @@
 # Проект SkyWars
 
+## Void Arcanum and Neutral continuations - QUALIFIED (24 October 2026)
+
+[Contract](agent_notes/VOID_ARCANUM_PORT.md), [source presentation](agent_notes/NEUTRAL_CONTINUATIONS_RESOURCES.md).
+Ready scoped leaf: `lbc:ported/void_arcanum`. Three new exact native Neutral
+crafts combine ordinary/Academy Neutral with Kiuaskivi/Tannerkivi/Void Arcanum
+into Fire/Stone/Ruby. Both grids consume one each, reject extras, preserve the
+functional Neutral Ball remainder, and award only the actual crafter's original
+fire/stone/void criterion. All four Neutral criteria now have native crafts.
+
+Nearby Void holes merge into one unsaved native body with level capped5.
+User rulings: sticky WILD across enemy contributors, including joins after5;
+upkeep11/22/44/88/176 split proportionally; majority contributor owns hits,
+equal majorities use random ties; actual successful F creates another hole.
+Small shader levels1-4 / disc level5 reuse the shared sixteen-slot renderer.
+Lens reach14*R matches radial destruction1/2/4/8/24. Mob/item/projectile pull
+uses velocity, scales by level, and preserves original causal order; players
+retain source no-pull. Homing scans eligible loaded enemies without range cap.
+Native HurtTime, technical roles, antimagic, Time Stop and lifecycle are shared.
+Radial fronts use resident sections and a moving bounded workset; small holes
+drop blocks, higher holes erase without loot. No obsidian/template or RP edits.
+
+Build `e9548260` passed 50 recorded suite results in two actual
+mode1 matches (162.45s). Exact 299 sources / 815 classes /
+2790 resources match the tested JAR. Installed stopped main with
+rollback `04c4694d`; main not started. Three user sources unchanged/excluded.
+Evidence: `build/verification/void-arcanum-final/`. Native boundary fixtures
+include manual ticks and bounded terrain probes; no real client pixels, full
+radius24 dense-load performance or actual disk restart/unload/disconnect claim.
+
+
+
 ## Permafrost Ice Wand and materials - QUALIFIED (24 October 2026)
 
 [Contract](agent_notes/ICE_WAND_PORT.md), [source presentation](agent_notes/ICE_WAND_RESOURCES.md).

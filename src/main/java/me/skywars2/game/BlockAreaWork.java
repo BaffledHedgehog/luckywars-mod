@@ -130,6 +130,10 @@ final class BlockAreaWork {
 
     /** Один section batch; retainUnloaded сохраняет принятую работу, не загружая чанк. */
     int step(GameController game, ServerPlayer owner, int allowance, long deadline) {
+        return step(game,owner,null,allowance,deadline);
+    }
+    /** Sustained/deferred work keeps its original author, policy and causal order. */
+    int step(GameController game, ServerPlayer owner,LbcIndirectKills.Owner cause,int allowance,long deadline) {
         if (scans.isEmpty() || allowance <= 0) return 0;
         var entry = scans.firstEntry();
         SectionScan scan = entry.getValue();
@@ -144,7 +148,7 @@ final class BlockAreaWork {
         }
 
         int[] inspected = {0};
-        game.items().indirectKills().trapChanges(owner, () -> {
+        Runnable writes=() -> {
             var pos = new BlockPos.MutableBlockPos();
             int cursor = 0;
             for (int n = 0; n < allowance; n++) {
@@ -162,7 +166,9 @@ final class BlockAreaWork {
                     if (result != null && !result.equals(state)) level.setBlock(pos, result, writeFlags);
                 }
             }
-        });
+        };
+        if(cause==null)game.items().indirectKills().trapChanges(owner,writes);
+        else game.items().indirectKills().trapChanges(level,cause,writes);
         if (scan.positions.isEmpty()) scans.remove(entry.getKey());
         else scans.putLast(entry.getKey(), scan);
         return inspected[0];

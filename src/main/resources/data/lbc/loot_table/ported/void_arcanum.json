@@ -1,0 +1,126 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "quality": 10,
+          "name": "skywars2:void_arcanum",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:item_model": "lbc:arcanumblackhole"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "void_arcanum",
+                  "color": "gold",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "arcanum",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                [
+                  {
+                    "text": "6 ",
+                    "italic": false,
+                    "color": "aqua",
+                    "type": "text"
+                  },
+                  {
+                    "translate": "magic_damage",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                [
+                  {
+                    "score": {
+                      "name": "void_arcanum_mana_tick_sec",
+                      "objective": "lbc.math"
+                    },
+                    "italic": false,
+                    "color": "aqua",
+                    "type": "score"
+                  },
+                  {
+                    "translate": "mana_on_use",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                [
+                  {
+                    "score": {
+                      "name": "void_arcanum_mana_activate",
+                      "objective": "lbc.math"
+                    },
+                    "italic": false,
+                    "color": "aqua",
+                    "type": "score"
+                  },
+                  {
+                    "translate": "mana_on_activate",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "void_arcanum.lore.1",
+                  "italic": false,
+                  "color": "aqua"
+                },
+                {
+                  "translate": "void_arcanum.lore.2",
+                  "italic": false,
+                  "color": "aqua"
+                },
+                {
+                  "translate": "void_arcanum.lore.3",
+                  "italic": false,
+                  "color": "aqua"
+                },
+                {
+                  "translate": "craft_with_neutralmage",
+                  "italic": false,
+                  "color": "yellow"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{craftusable:1,transformable:1,arcanum:1,arcanumt:1,void_curse:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

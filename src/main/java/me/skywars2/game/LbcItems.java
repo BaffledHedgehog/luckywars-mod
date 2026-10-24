@@ -147,7 +147,7 @@ public final class LbcItems {
     }
 
     /** Загружаем регистрацию до freeze реестров и чтения loot tables, а не при первом обращении к предмету. */
-    public static void register() { EnchantmentRules.register(); LbcSkills.register(); LbcClouds.register(); LbcPrism.register(); LbcAcidCorruption.register(); LbcIceWand.register(); LbcIceMaterials.register(); LbcCorruptedGlyphs.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcVexSword.register(); LbcSpecialEggs.register(); LbcHohlopitek.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcTntDropItem.register(); LbcCreeperDropItem.register(); LbcCageDropItem.register(); LbcHoleDropItem.register(); LbcCorrosionDropItem.register(); LbcZombieTntDropItem.register(); LbcFallingNetheriteDropItem.register(); LbcHomeItems.register(); LbcScareDropItem.register(); LbcLuckyPigDropItem.register(); LbcLevitationDropItem.register(); LbcLibraryDropItem.register(); LbcBeeDropItem.register(); LbcOpAnvilDropItem.register(); LbcSlabDropItem.register(); LbcFeedbackDropItem.register(); LbcCreatureDropItem.register(); LbcPotionSpawnerDropItem.register(); LbcIslandDropItem.register(); LbcDroneDropItem.register(); LbcAntDropItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
+    public static void register() { EnchantmentRules.register(); LbcSkills.register(); LbcClouds.register(); LbcPrism.register(); LbcAcidCorruption.register(); LbcIceWand.register(); LbcVoidArcanum.register(); LbcIceMaterials.register(); LbcCorruptedGlyphs.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcVexSword.register(); LbcSpecialEggs.register(); LbcHohlopitek.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcTntDropItem.register(); LbcCreeperDropItem.register(); LbcCageDropItem.register(); LbcHoleDropItem.register(); LbcCorrosionDropItem.register(); LbcZombieTntDropItem.register(); LbcFallingNetheriteDropItem.register(); LbcHomeItems.register(); LbcScareDropItem.register(); LbcLuckyPigDropItem.register(); LbcLevitationDropItem.register(); LbcLibraryDropItem.register(); LbcBeeDropItem.register(); LbcOpAnvilDropItem.register(); LbcSlabDropItem.register(); LbcFeedbackDropItem.register(); LbcCreatureDropItem.register(); LbcPotionSpawnerDropItem.register(); LbcIslandDropItem.register(); LbcDroneDropItem.register(); LbcAntDropItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
 
     private static final CompoundTag BROKEN_TOTEM = new CompoundTag();
     private static final CompoundTag DYNAMITE = new CompoundTag();
@@ -177,6 +177,7 @@ public final class LbcItems {
     private final LbcPrism prism;
     private final LbcAwakenedAcid awakenedAcid;
     private final LbcErecto erecto;
+    private final LbcVoidArcanum voidArcanum;
     private final LbcIceWand iceWand;
     private final LbcIceMaterials iceMaterials;
     private final LbcAcidCorruption acidCorruption;
@@ -708,6 +709,10 @@ public final class LbcItems {
         this.prism = new LbcPrism(game);
         this.awakenedAcid = new LbcAwakenedAcid(game);
         this.erecto = new LbcErecto(game);
+        this.voidArcanum = new LbcVoidArcanum(game);
+        mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("void_arcanum_mana_activate"),"lbc.math").set(4000);
+        mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("void_arcanum_mana_tick"),"lbc.math").set(11);
+        mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("void_arcanum_mana_tick_sec"),"lbc.math").set(220);
         this.iceWand = new LbcIceWand(game);
         this.iceMaterials = new LbcIceMaterials(game,mana);
         mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("ice_wand_shift_mana_use"),"lbc.math").set(200);
@@ -852,6 +857,8 @@ public final class LbcItems {
     public LbcPrism prism() { return prism; }
     LbcAwakenedAcid awakenedAcid() { return awakenedAcid; }
     LbcErecto erecto() { return erecto; }
+    LbcVoidArcanum voidArcanum() { return voidArcanum; }
+    public void voidArcanumHandsSwapped(ServerPlayer player) { voidArcanum.handSwapped(player); }
     LbcIceWand iceWand() { return iceWand; }
     LbcIceMaterials iceMaterials() { return iceMaterials; }
     public boolean attackIceCrystal(ServerPlayer player,Entity target) { return iceWand.attack(player,target); }
@@ -930,6 +937,7 @@ public final class LbcItems {
         consuming.loaded(entity);
         prism.loaded(entity);
         iceWand.loaded(entity);
+        voidArcanum.loaded(entity);
         acidCorruption.loaded(entity);
         corruptedGlyphs.loaded(entity);
         gaycasterAcademy.loaded(entity);
@@ -1020,6 +1028,7 @@ public final class LbcItems {
         consuming.unloaded(entity);
         prism.unloaded(entity);
         iceWand.unloaded(entity);
+        voidArcanum.unloaded(entity);
         acidCorruption.unloaded(entity);
         corruptedGlyphs.unloaded(entity);
         gaycasterAcademy.unloaded(entity);
@@ -1400,6 +1409,7 @@ public final class LbcItems {
         electro.tick();
         corruptedGlyphs.tick();
         iceWand.tick();
+        voidArcanum.tick();
         acidCorruption.tick();
         erecto.tick();
         wands.tick();
@@ -1522,6 +1532,7 @@ public final class LbcItems {
     public void forget(ServerPlayer player) {
         corruptedGlyphs.forget(player);
         iceWand.forget(player);
+        voidArcanum.forget(player);
         acidCorruption.forget(player);
         erecto.forget(player);
         awakenedAcid.clear(player);
@@ -1574,6 +1585,7 @@ public final class LbcItems {
         clouds.stop();
         corruptedGlyphs.stop();
         iceWand.stop();
+        voidArcanum.stop();
         acidCorruption.stop();
         erecto.stop();
         wands.stop();

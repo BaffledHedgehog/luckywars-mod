@@ -95,6 +95,14 @@ public abstract class LobbyInventoryPacketMixin {
         skywars2$rejectMutation(ci);
     }
 
+    /** Invoked only after vanilla has performed both successful hand mutations. */
+    @Inject(method = "handlePlayerAction", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayer;stopUsingItem()V", shift = At.Shift.AFTER))
+    private void skywars2$arcanumHandSwap(ServerboundPlayerActionPacket packet, CallbackInfo ci) {
+        var game=SkyWars2.game();
+        if(game!=null && packet.getAction()==ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND)
+            game.items().voidArcanumHandsSwapped(player);
+    }
+
     @Unique
     private boolean skywars2$rejectStunnedMutation(CallbackInfo ci) {
         var game = SkyWars2.game();
