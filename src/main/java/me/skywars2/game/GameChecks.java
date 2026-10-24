@@ -736,6 +736,9 @@ public final class GameChecks {
                                 case "normal-drone-stop-probe" -> { NormalDroneChecks.stopProbe(game); return; }
                                 case "normal-drone-cleanup" -> { NormalDroneChecks.cleanup(game); return; }
                                 case "special-eggs" -> { SpecialEggChecks.run(game); return; }
+                                case "defensive-arcanums" -> { DefensiveArcanumChecks.run(game); return; }
+                                case "defensive-arcanums-stop-probe" -> { DefensiveArcanumChecks.stopProbe(game); return; }
+                                case "defensive-arcanums-cleanup" -> { DefensiveArcanumChecks.cleanup(game); return; }
                                 case "void-arcanum" -> { VoidArcanumChecks.run(game); return; }
                                 case "void-arcanum-stop-probe" -> { VoidArcanumChecks.stopProbe(game); return; }
                                 case "void-arcanum-cleanup" -> { VoidArcanumChecks.cleanup(game); return; }

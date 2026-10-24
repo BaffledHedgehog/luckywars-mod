@@ -159,6 +159,7 @@ public final class LbcDamage {
     }
     public static boolean allowDamage(LivingEntity victim, DamageSource source) {
         var game=me.skywars2.SkyWars2.game();
+        if(game!=null && game.items().defensiveArcanums().blocksDamage(victim,source)) return false;
         if(game!=null && !game.items().indirectKills().allowEnvironmentDamage(victim,source)) return false;
         if(game!=null && source.getDirectEntity()!=null && !isNativeLightning(source) && !allowsKfcFriendlyFire(source) && !allowsTrapFriendlyFire(source)) {
             var reflected=game.items().electro().reflectedOwner(source.getDirectEntity());

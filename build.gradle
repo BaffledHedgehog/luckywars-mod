@@ -26,6 +26,7 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/healing_arcanum.json', 'data/lbc/loot_table/ported/barrier_arcanum.json'
     include 'data/lbc/loot_table/ported/void_arcanum.json'
     include 'data/skywars2/recipe/neutral_fire_combine.json', 'data/skywars2/recipe/neutral_stone_combine.json', 'data/skywars2/recipe/neutral_ruby_combine.json'
     include 'data/lbc/loot_table/ported/ice_wand.json', 'data/lbc/loot_table/ported/academy_ice_wand.json', 'data/lbc/loot_table/ported/runic_ice_shard.json', 'data/lbc/loot_table/ported/neutral_ball.json', 'data/skywars2/recipe/ice_wand_combine.json'

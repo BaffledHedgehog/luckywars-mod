@@ -1,5 +1,35 @@
 # Следующие этапы переноса
 
+## Eternal Life and direct Absolute Barrier - QUALIFIED (24 October 2026)
+
+[Contract](DEFENSIVE_ARCANUMS_PORT.md), [presentation](DEFENSIVE_ARCANUMS_RESOURCES.md).
+Ready scoped leaves: `lbc:ported/healing_arcanum` and `barrier_arcanum`.
+Both are native Polymer held arcanums with source models, gold names and tierA.
+Healing applies native Instant Health I for500 per needed hand, main thenoff;
+actual current HP is rechecked before each hand (user), so the second hand
+never pays after full healing. Original heal criterion uses HP+Absorption<=1.
+
+Absolute Barrier uses direct native damage rejection while held and funded,
+except FELL_OUT_OF_WORLD. User removed Resistance and its100 activation
+workaround: cost is500% of current regeneration once per player per tick,
+including two held barriers. Unequip is checked at impact, with no effect tail.
+Unrelated Resistance is preserved. Two barriers retain source strict3x3x3
+clearing, plus sneaking floor, as one resident <=36-block operation per frame;
+original causal order protects later player-hit priority for terrain deaths.
+Antimagic/noMagic, actual Time Stop/frost, observers and stop reuse shared guards.
+Source activation lore row is removed; no author RP/template changes or broad
+acquisition pool enablement. Babylon remains an independent projectile batch.
+
+Build `daa2f866` passed 56 recorded suite results in two actual
+mode1 matches (147.39s). Exact 301 sources / 821 classes /
+2792 resources match the tested JAR. Installed stopped main; rollback
+`e9548260` retained, main not started. Three user sources unchanged/excluded.
+Evidence: `build/verification/defensive-arcanums-final/`. Native fixtures include
+manual dispatch boundaries, real hurt/void/support deaths and actual match stops;
+no client pixels, actual disk restart/unload/disconnect or peak-load claim.
+
+
+
 ## Void Arcanum and Neutral continuations - QUALIFIED (24 October 2026)
 
 [Contract](VOID_ARCANUM_PORT.md), [source presentation](NEUTRAL_CONTINUATIONS_RESOURCES.md).
