@@ -435,6 +435,7 @@ public final class LbcItems {
         hudPositive(component,"  \uE113 ",psycho.hudValue(source,"lookback"),ChatFormatting.RED);
         hudPositive(component,"  \uE115 ",mana.hudValue(source,"nomagic"),ChatFormatting.RED);
         hudPositive(component,"  \uE116 ",psycho.hudValue(source,"piss"),ChatFormatting.RED);
+        hudPositive(component,"  \uE146 ",mana.hudValue(source,"effect_kiuaskivi"),ChatFormatting.RED);
         hudPositive(component,"  \uE118 ",mana.hudValue(source,"reverse_mana"),ChatFormatting.RED);
         hudPositive(component,"  \uE119 ",psycho.hudValue(source,"scared"),ChatFormatting.RED);
         hudPositive(component,"  \uE120 ",psycho.hudValue(source,"screamray"),ChatFormatting.GREEN);
@@ -902,6 +903,7 @@ public final class LbcItems {
         ruby.loaded(entity);
         consuming.loaded(entity);
         prism.loaded(entity);
+        kiuas.loaded(entity);
         advancedSnow.loaded(entity);
         neutral.loaded(entity);
         evokerBass.loaded(entity);
@@ -987,6 +989,7 @@ public final class LbcItems {
         ruby.unloaded(entity);
         consuming.unloaded(entity);
         prism.unloaded(entity);
+        kiuas.unloaded(entity);
         advancedSnow.unloaded(entity);
         neutral.unloaded(entity);
         evokerBass.unloaded(entity);
@@ -1473,7 +1476,7 @@ public final class LbcItems {
         return curse == null ? 0 : curse.remaining;
     }
 
-    public void clear(ServerPlayer player) { hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
+    public void clear(ServerPlayer player) { kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
     public void forget(ServerPlayer player) {
         hohlopitek.forget(player);
         blind.forget(player);
@@ -1483,6 +1486,7 @@ public final class LbcItems {
         bolts.forget(player);
         consuming.forget(player);
         prism.forget(player);
+        kiuas.clearCurse(player);
         advancedSnow.forget(player);
         neutral.forget(player);
         evokerBass.forget(player);

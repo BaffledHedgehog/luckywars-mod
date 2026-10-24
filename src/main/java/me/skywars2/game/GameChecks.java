@@ -736,6 +736,9 @@ public final class GameChecks {
                                 case "normal-drone-stop-probe" -> { NormalDroneChecks.stopProbe(game); return; }
                                 case "normal-drone-cleanup" -> { NormalDroneChecks.cleanup(game); return; }
                                 case "special-eggs" -> { SpecialEggChecks.run(game); return; }
+                                case "gaycaster" -> { GaycasterChecks.run(game); return; }
+                                case "gaycaster-stop-probe" -> { GaycasterChecks.stopProbe(game); return; }
+                                case "gaycaster-cleanup" -> { GaycasterChecks.cleanup(game); return; }
                                 case "prism" -> { PrismChecks.run(game); return; }
                                 case "prism-stop-probe" -> { PrismChecks.stopProbe(game); return; }
                                 case "prism-cleanup" -> { PrismChecks.cleanup(game); return; }
@@ -1131,6 +1134,7 @@ public final class GameChecks {
                 StalinEncounterChecks.tick(game);
                 NormalDroneChecks.tick(game);
                 SpecialEggChecks.tick(game);
+        GaycasterChecks.tick(game);
         PrismChecks.tick(game);
         CausticOmegaChecks.tick(game);
         AdvancedSnowChecks.tick(game);

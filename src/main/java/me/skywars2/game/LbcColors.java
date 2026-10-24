@@ -192,6 +192,7 @@ public final class LbcColors {
     private void fillAir(Entity target, BlockState replacement, int top) {
         var level=game.maps().level(); var center=target.blockPosition();
         var changes=new LinkedHashMap<BlockPos,BlockState>();
+        Runnable writes=()->{
         for(int x=-1;x<=1;x++) for(int y=-1;y<=top;y++) for(int z=-1;z<=1;z++) {
             var pos=center.offset(x,y,z);
             if(!level.hasChunkAt(pos)) continue;
@@ -199,6 +200,10 @@ public final class LbcColors {
             if(old.is(AIRS) && level.setBlock(pos,replacement,FILL_FLAGS)) changes.put(pos,old);
         }
         for(var entry:changes.entrySet()) level.updateNeighboursOnBlockSet(entry.getKey(),entry.getValue());
+        };
+        if(target instanceof LivingEntity living&&replacement.is(Blocks.WATER))
+            game.items().indirectKills().effectWorldChanges(living,MobEffects.CONDUIT_POWER,writes);
+        else writes.run();
     }
     private static void particle(ServerPlayer p, ParticleOptions options, int count, double dx, double dy, double dz, double speed) {
         particles(p,options,p.position().add(0,1,0),count,dx,dy,dz,speed);

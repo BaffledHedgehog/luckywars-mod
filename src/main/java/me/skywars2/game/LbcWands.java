@@ -57,6 +57,7 @@ import net.minecraft.world.scores.ScoreHolder;
 /** Жезлы используют общий расход маны и каст-хуки; временные снаряды хранит существующий трекер. */
 public final class LbcWands {
     public static final Item PRISM=register("skywars2:unstable_prism","unstable_prism","lbc:prism");
+    public static final Item GAYCASTER=register("skywars2:gaycaster","gaycaster","lbc:gaycaster");
     public static final Item ACADEMY_PRISM=register("skywars2:academy_unstable_prism","unstable_prism","lbc:prism");
     public static final Item CAUSTIC=register("skywars2:caustic_wand","acid_wand","lbc:acidwand");
     public static final Item ACADEMY_CAUSTIC=register("skywars2:academy_caustic_wand","acid_wand","lbc:acidwand");
@@ -149,6 +150,7 @@ public final class LbcWands {
     private enum Spell {
         ACADEMY_PRISM(LbcWands.ACADEMY_PRISM,"prisma","unstable_prism_mana_use",1200),
         REGULAR_PRISM(LbcWands.PRISM,"prisma","unstable_prism_mana_use",1200),
+        GAYCASTER(LbcWands.GAYCASTER,"gaycaster","gaycaster_mana_use",1500),
         ACADEMY_CAUSTIC(LbcWands.ACADEMY_CAUSTIC,"acidwand","acid_wand_mana_use",1200),
         REGULAR_CAUSTIC(LbcWands.CAUSTIC,"acidwand","acid_wand_mana_use",1200),
         ACADEMY_OMEGA(LbcWands.ACADEMY_OMEGA,"omegaflag","absurd_singularity_mana_use",3000),
@@ -424,6 +426,7 @@ public final class LbcWands {
         Spell spell=null;
         for(var candidate:SPELLS) if(matches(stack,candidate.item,candidate.flag)) { spell=candidate; break; }
         if(spell==null) return false;
+        if(spell==Spell.GAYCASTER)return LbcGaycaster.use(game,player,hand,stack);
         if(spell==Spell.REGULAR_PRISM||spell==Spell.ACADEMY_PRISM)return game.items().prism().use(player,hand,stack,spell==Spell.ACADEMY_PRISM);
         if(spell==Spell.REGULAR_CAUSTIC || spell==Spell.ACADEMY_CAUSTIC || spell==Spell.REGULAR_OMEGA || spell==Spell.ACADEMY_OMEGA)
             return LbcCausticOmega.use(game,player,hand,stack,spell==Spell.REGULAR_CAUSTIC || spell==Spell.ACADEMY_CAUSTIC,
@@ -959,6 +962,10 @@ public final class LbcWands {
     }
     /** Magnum uses the same arcs, with its short lifetimes and mechanism-beacon policy. */
     void magnumElectro(ServerPlayer owner,Vec3 origin,Vec3 target) {
+        shortElectro(owner,origin,target,true);
+    }
+    /** The same source four short arcs also belong to a magic staff, without mechanism suppression. */
+    void shortElectro(ServerPlayer owner,Vec3 origin,Vec3 target,boolean mechanism) {
         Vec3 direction=target.subtract(origin);
         float yaw=direction.horizontalDistanceSqr()<1e-12 ? owner.getYRot()
                 : (float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
@@ -966,7 +973,7 @@ public final class LbcWands {
                 : (float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));
         for(int i=0;i<4;i++) {
             var trace=new ElectroTrace(owner,origin,game.items().epoch(),5+i*2);
-            trace.yaw=yaw; trace.pitch=pitch; trace.mechanism=true;
+            trace.yaw=yaw; trace.pitch=pitch; trace.mechanism=mechanism;
             electroTraces.add(trace);
         }
         LbcOverload.sound(owner,origin,"minecraft:entity.firework_rocket.twinkle",1,1,0);

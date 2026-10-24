@@ -184,10 +184,12 @@ public final class LbcIndirectKills {
             levitationChanged(target);
             if(player!=null && player!=target) levitated(target,player);
         }
-        if(effect.is(MobEffects.POISON) || effect.is(MobEffects.WITHER) || effect.is(MobEffects.BLINDNESS)) {
+        if(effect.is(MobEffects.POISON) || effect.is(MobEffects.WITHER) || effect.is(MobEffects.BLINDNESS)
+                ||effect.is(MobEffects.CONDUIT_POWER)) {
             effectRemoved(target,effect);
             if(player!=null && player!=target) statuses.computeIfAbsent(target,ignored->new HashMap<>())
-                    .put(effect.getEffect(),new Status(owner(player),effect));
+                    .put(effect.getEffect(),new Status(effect.is(MobEffects.CONDUIT_POWER)?
+                            new Owner(player.getUUID(),++order,false,true):owner(player),effect));
         }
         if(effect.is(MobEffects.RAID_OMEN) && effect.getAmplifier()==20) {
             pendingMana.remove(target);
@@ -363,6 +365,12 @@ public final class LbcIndirectKills {
             finishSupportRemoval();
             hazardWriter=previous; hazardLevel=previousLevel;
         }
+    }
+    /** A continuing native effect keeps its original influence order when creating terrain hazards. */
+    void effectWorldChanges(LivingEntity target,Holder<MobEffect> effect,Runnable writes){
+        var entries=statuses.get(target);var status=entries==null?null:entries.get(effect);
+        var cause=status!=null&&status.effect==target.getEffect(effect)?status.owner:null;
+        blockWrites((ServerLevel)target.level(),cause,writes);
     }
     public void beforeBlockChange(ServerLevel level, BlockPos pos, BlockState state) {
         var frame=trapFrame;

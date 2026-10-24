@@ -866,6 +866,7 @@ public final class LbcMagic {
         }
     }
     private void clearDebuffs(ServerPlayer player) {
+        game.items().kiuas().clearCurse(player);
         game.items().kfcFood().clear(player);
         game.items().electro().clearEffects(player);
         game.items().shooters().clearStun(player);

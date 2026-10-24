@@ -327,6 +327,11 @@ public final class LbcPsycho {
         var effect=effects.computeIfAbsent(entity,e->new Affliction()); effect.owner=owner; effect.epoch=game.items().epoch();
         effect.scared+=scared; effect.lookback+=lookback; effect.twitching+=twitching; effect.piss+=piss;
     }
+    /** Yellow Gaycaster sets the existing source counter rather than extending it. */
+    boolean yellow(LivingEntity entity,ServerPlayer owner){
+        if(entity instanceof ServerPlayer player&&game.items().magic().rejectCustomEffect(player))return false;
+        afflict(entity,owner,0,0,0,0);effects.get(entity).piss=100;return true;
+    }
     private void tickEffects() {
         for(var entry:List.copyOf(effects.entrySet())) {
             var entity=entry.getKey(); var effect=entry.getValue();

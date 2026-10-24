@@ -1,0 +1,103 @@
+# Ordinary Gaycaster / native Prism + Omega craft
+
+Source: legacy LBC lbc/function/workingitems/gaycaster/ray/ (cast, cast2,
+loop, check, impact/block and impact/entity), other/craft/gaycaster,
+other/craft_ground, loot_table/gaycaster and lbcr/raycast_preloop10magnum/11.
+Read-only RP: existing gaycaster, eight lore keys, lbc:gaycaster, tier A.
+No resource-pack writes or new assets.
+
+## Scope
+
+Ready leaf: lbc:ported/gaycaster. Original lbc:gaycaster was already bundled
+as an Ultra Reforge dependency; it is not newly enabled here. Both identities
+use the ordinary native behaviour. No broad loot pool added.
+Academy entry, six-phase meditation and upgraded palette remain unopened.
+An externally supplied upgraded/trial+Shift stack is rejected without payment;
+it does not silently fall through to an ordinary paid cast.
+
+Native shapeless skywars2:gaycaster_combine accepts one Prism and one Omega
+(ordinary/Academy identities or source donor flags), exactly two occupied slots,
+in either2x2 or3x3. Native output pickup consumes one of each, one result.
+Preview has no effects/random decisions; extra ingredients are rejected.
+
+## Ordinary ray
+
+PKM,1500 mana, two source sounds, mage/trinket cast hook. Existing two-hand
+dispatcher applies the independent cost to each hand. Local cast colour
+replaces shared player/storage/caster tags, preventing cross-caster interference.
+125-block source reach remains; first native entity hitbox/block intersection
+replaces the old positive unit-cell selector. Shared Exasperato resident DDA
+queue provides its cooperative3ms budget, loaded-chunk limits and epoch/owner/
+antimagic/Time Stop cleanup. Unbounded callers retain their previous reach.
+No new projectile entity, queue cap, incidental impulse or actor framework.
+
+Forced-distance particles sample each half-block at source scale1.5; impact
+dust retains scale2. Hue starts -20 and advances5 per half-block;
+negative initial impact hues retain the source no-payload behaviour. Original
+block overlaps (red320..329 with purple; blue/purple278) remain.
+Entity impact has the original red330..359 band.
+
+Seven source payloads reuse existing services:
+
+- Red:6 native magic damage; native Instant Health II. Pending the optional
+  author question, source healing is preserved: unconditional on entity impact;
+  block impact uses the last target damage result. No answer is assumed.
+- Orange:100 source ticks of Kiuaskivi; block impact also fills the exact
+  +/-0.5 cube with fire on airs_to_fire. Native Raid Omen111 is transport only.
+- Yellow: existing Psycho piss counter set to100, rather than added.
+- Green: six shared native acid charges aimed upward, original block-origin
+  offset2 behind impact, normal lifetime300 and existing ownership/physics.
+- Cyan: four shared short electric arcs, lifetimes5/7/9/11. Staff activation
+  requires magic; released arcs stay nonmagical (user). Magnum retains its
+  separate mechanism suppression policy. Source entity
+  helper launches from the caster's eye minus one forward block.
+- Blue: native Conduit Power II,20ticks, existing indexed water behaviour.
+- Purple:5 native out_of_world damage unless void_resistance; block impact
+  destroys the +/-0.5 cube with native block/container drops.
+
+Source particles/sounds and seven advancement criteria remain. Criteria use
+source hue bands and presence of an eligible target, without requiring damage
+acceptance. Native target/role rules replace the old loose global selectors.
+Green/Cyan later damage uses their existing projectile owners.
+Physical effects hit friendly mobs; caster/allied players, spectators,
+technical roles and antimagic remain protected by existing policy (user).
+
+## Shared Kiuaskivi status and causal terrain
+
+LbcKiuas owns the existing effect_kiuaskivi raw tick counter and affected-entity
+index, reusing held Kiuaskivi's kiuResult tags. Active ticks handle only the
+source3x2x3 neighbourhood. Unchanged states are filtered before writes;
+no world scan or markers. Greed/native freeze pause it; antimagic prevents
+writes while its timer expires. Full/negative cleanse, forget, epoch and stop
+remove it; source actionbar glyph E146 displays the counter.
+KFC's exact112-source score list is unchanged: this counter was absent there.
+
+Native Raid Omen111 ingress (including existing Bad Wiki outcomes) converts
+to this status instead of starting a raid. An entity attachment retains epoch
+and causal UUID/order; the existing scoreboard retains its counter. Unload
+detaches the index; load reconstructs it and rejects stale epochs. Continuing
+terrain writes keep their original influence order, so a newer accepted player
+hit stays authoritative (user). Fire spread uses existing hazard inheritance.
+Existing cause token primitives also used by Frost are reused.
+
+Enhanced Conduit water writes use its captured native effect cause through
+LbcIndirectKills, retaining effect influence order for drowning/support removal.
+Unowned colour-artifact water stays unowned. Generic native status attribution
+still uses the existing in-memory service; disk restoration of the generic
+Conduit cause is not claimed.
+
+## Validation
+
+GaycasterChecks / tools/smoke_gaycaster.py: actual native PKM for seven colour
+bands/both hands; native2x2/3x3 menus, extra ingredient rejection, full inventory
+shift-click, one-pair output pickup; presentation/admission; native Raid111
+conversion, manual same-entity index unload/load, fire credit and later-hit
+precedence; actual Time Stop/resume and real match-stop cleanup.
+Prism/CausticOmega/AdvancedSnow/Neutral/Mobgun/Academy/KFC regressions run together
+in two actual mode1 matches. Finite125 sky rendering and actual dual-hand
+PKM costs are also covered. Fake players use an explicit native doTick for
+Instant Health; waiting alone does not tick their local player effects.
+
+Qualified build0f4337b6:24 recorded suite results in two actual mode1 matches (60.77s); exact280sources/749classes/2766resources. Installed on stopped main, rollback0c88aa25 retained. Evidence:build/verification/gaycaster-final/. Three user sources unchanged/excluded. Only the known fake-player Polymer packet-context pair appeared. Fixtures include
+direct native boundary calls; no real-client pixels, actual disk restart/unload/
+disconnect or peak-capacity performance claim.

@@ -44,6 +44,9 @@ public abstract class LbcColorEffectsMixin {
         if(game!=null) {
             var target=(LivingEntity)(Object)this;
             if(!game.items().indirectKills().allowProjectileEffect(target,effect,source)) { ci.setReturnValue(false); return; }
+            if(me.skywars2.game.LbcKiuas.isCurse(effect)){
+                ci.setReturnValue(game.items().kiuas().acceptCurse(target,effect,source));return;
+            }
             if(game.items().magic().colors().isTeleportMarker(effect))
                 ci.setReturnValue(game.items().magic().colors().acceptTeleport(target,effect,source));
         }

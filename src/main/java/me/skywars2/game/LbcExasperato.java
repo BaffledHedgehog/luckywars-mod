@@ -265,9 +265,19 @@ public final class LbcExasperato {
             Vec3 from,Vec3 direction,boolean blocksOnly,
             java.util.function.BiPredicate<BlockPos,net.minecraft.world.level.block.state.BlockState> blocks,
             java.util.function.Predicate<Entity> targets,java.util.function.BiConsumer<Vec3,Vec3> trail){
+        return searchSpell(owner,from,direction,Double.POSITIVE_INFINITY,blocksOnly,blocks,targets,trail);
+    }
+    /** Finite source beams also render through empty sky; unbounded spells keep their natural extent. */
+    java.util.concurrent.CompletableFuture<net.minecraft.world.phys.HitResult> searchSpell(ServerPlayer owner,
+            Vec3 from,Vec3 direction,double range,boolean blocksOnly,
+            java.util.function.BiPredicate<BlockPos,net.minecraft.world.level.block.state.BlockState> blocks,
+            java.util.function.Predicate<Entity> targets,java.util.function.BiConsumer<Vec3,Vec3> trail){
         direction=direction.normalize();
-        double reach=loadedRayExtent(owner,from,direction,true,blocksOnly);
-        if(!blocksOnly&&targets!=null)reach=Math.max(reach,game.items().lifetimes().livingRayExtent(owner,from,direction,targets));
+        double reach=range;
+        if(!Double.isFinite(reach)){
+            reach=loadedRayExtent(owner,from,direction,true,blocksOnly);
+            if(!blocksOnly&&targets!=null)reach=Math.max(reach,game.items().lifetimes().livingRayExtent(owner,from,direction,targets));
+        }
         var search=new Search(owner,game.items().epoch(),from,direction,reach,true,trail,blocksOnly,false,targets);
         search.blockRule=blocks;search.shieldBlockable=false;
         if(reach>0&&direction.lengthSqr()>1e-12)searches.addLast(search);else search.result.complete(null);

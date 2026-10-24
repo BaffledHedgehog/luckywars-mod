@@ -1,5 +1,38 @@
 # Структура переноса игрового цикла
 
+## Ordinary Gaycaster - QUALIFIED (24 October 2026)
+
+[Contract](agent_notes/GAYCASTER_PORT.md). Ready scoped leaf:lbc:ported/gaycaster and native
+Prism + Omega craft in both2x2/3x3. Supersedes the earlier unopened craft note.
+Seven source colour payloads reuse native acid/electric/Psycho/Conduit systems;
+local ray colour uses the shared resident CPU queue, original125 reach including
+empty sky and forced-distance source particles (beam1.5/impact2). Exact source
+band overlaps and red healing remain pending the optional author question;
+no answer/approval was assumed. Source design and original RP assets retained.
+Academy Gaycaster meditation/upgraded palette stay gated for the next batch.
+No broad pool enablement; original table was already an Ultra Reforge dependency.
+
+Kiuaskivi Raid111 transport now owns its actual100 tick fire status, HUD, native
+entity attachment/index reload and cleanse/stop routes. Original influence order
+survives continuing fire writes: later accepted player hits win. Native enhanced
+Conduit water also inherits the existing effect cause for hazards. No new generic
+actor/cause framework or artificial projectile/queue cap. Generic Conduit effect
+cause disk restoration remains outside this batch's proven coverage.
+
+Build0f4337b6 passed24 recorded suite results/two actual mode1 matches
+(60.77s), exact280sources/749classes/2766resources verified.
+Native PKM covers seven colours/both hands and actual dual-hand cost; native
+2x2/3x3 pickup, full inventory/extras, fire/drowning credit/later-hit precedence,
+finite125 empty-sky rendering, actual Time Stop/resume and actual match stop.
+Prism/CausticOmega/AdvancedSnow/Neutral/Mobgun/Academy/KFC regressions passed.
+Installed stopped main; rollback0c88aa25 retained; main not started.
+Three user sources unchanged/excluded. Evidence:build/verification/gaycaster-final/.
+Known fake-player Polymer packet-context pair only. Fake player healing uses an
+explicit native doTick. No client pixels, actual disk restart/unload/disconnect
+or peak-capacity performance claim.
+
+
+
 ## Unstable Prism - QUALIFIED (24 October 2026)
 
 [Contract](agent_notes/PRISM_PORT.md). Two scoped leaves close ordinary/Academy Prism casts.

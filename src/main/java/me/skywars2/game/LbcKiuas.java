@@ -38,6 +38,8 @@ import java.util.UUID;
 
 /** Два удерживаемых огненных арканума; обработка блоков общая с Tannerkivi. */
 public final class LbcKiuas {
+    private static final net.fabricmc.fabric.api.attachment.v1.AttachmentType<CompoundTag> CURSE=
+            net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry.create(Identifier.parse("skywars2:kiuas_curse"),b->b.persistent(CompoundTag.CODEC));
     private static final int FLAGS=Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_SUPPRESS_DROPS
             | Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS | Block.UPDATE_SKIP_ON_PLACE;
     private static final TagKey<Block> TO_AIR=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:kiuaskivi_to_air"));
@@ -54,6 +56,53 @@ public final class LbcKiuas {
     private volatile PreparedSunPattern sunPattern;
     private volatile int preparation;
     private int ticks;
+    private final Map<LivingEntity,LbcIndirectKills.Owner> cursed=new java.util.LinkedHashMap<>();
+
+    public static boolean isCurse(MobEffectInstance effect){return effect.is(MobEffects.RAID_OMEN)&&effect.getAmplifier()==111;}
+    /** Source transport marker becomes its existing tick counter, without a vanilla raid. */
+    public boolean acceptCurse(LivingEntity target,MobEffectInstance effect,Entity source){
+        if(!isCurse(effect)||!game.playing()||target.level()!=game.maps().level()||!game.items().wands().validTarget(target)
+                ||!target.canBeAffected(effect)||target instanceof ServerPlayer p&&game.items().magic().rejectCustomEffect(p))return false;
+        var owner=LbcIndirectKills.playerSource(source);
+        var cause=owner==null?null:game.items().indirectKills().coldCause(owner,true);
+        cursed.put(target,cause);
+        game.items().mana().score(target,"effect_kiuaskivi").add(Math.max(0,effect.getDuration()));saveCurse(target,cause);
+        return true;
+    }
+    private void saveCurse(LivingEntity target,LbcIndirectKills.Owner cause){
+        var tag=new CompoundTag();tag.putString("epoch",game.items().epoch());
+        if(cause!=null){tag.putString("owner",cause.player().toString());tag.putLong("order",cause.order());tag.putBoolean("projectile",cause.projectile());}
+        target.setAttached(CURSE,tag);
+    }
+    void loaded(Entity entity){
+        if(!(entity instanceof LivingEntity target))return;var tag=target.getAttached(CURSE);if(tag==null)return;
+        if(!game.items().currentEpoch(tag.getStringOr("epoch",""))){clearCurse(target);return;}
+        LbcIndirectKills.Owner cause=null;
+        try{cause=game.items().indirectKills().restoreColdCause(UUID.fromString(tag.getStringOr("owner","")),tag.getLongOr("order",0),tag.getBooleanOr("projectile",false));}catch(IllegalArgumentException ignored){}
+        if(game.items().mana().hudValue(target,"effect_kiuaskivi")>0)cursed.put(target,cause);else clearCurse(target);
+    }
+    void unloaded(Entity entity){if(entity instanceof LivingEntity target)cursed.remove(target);}
+    public void clearCurse(LivingEntity target){cursed.remove(target);target.removeAttached(CURSE);
+        if(game.items().mana().hudValue(target,"effect_kiuaskivi")!=0)game.items().mana().score(target,"effect_kiuaskivi").set(0);}
+    private void tickCurses(){
+        for(var target:java.util.List.copyOf(cursed.keySet())){
+            int remaining=game.items().mana().hudValue(target,"effect_kiuaskivi");
+            if(remaining<=0||!game.items().wands().validTarget(target)||target.level()!=game.maps().level()
+                    ||target instanceof ServerPlayer p&&game.items().magic().rejectCustomEffect(p)){clearCurse(target);continue;}
+            if(game.items().timeStop().frozen(target)||game.items().frost().isFrozen(target)||target.entityTags().contains("sin_greed_active"))continue;
+            if(!game.items().magic().suppressedAt(game.maps().level(),target.position())){
+                game.items().indirectKills().trapChanges(game.maps().level(),cursed.get(target),()->{
+                    for(var pos:BlockPos.betweenClosed(target.blockPosition().offset(-1,0,-1),target.blockPosition().offset(1,1,1))){
+                        if(!game.maps().level().hasChunkAt(pos))continue;
+                        var state=game.maps().level().getBlockState(pos);var next=kiuResult(state);
+                        if(!next.equals(state)&&game.maps().level().setBlock(pos,next,FLAGS)&&next.is(Blocks.FIRE))game.maps().level().scheduleTick(pos.immutable(),Blocks.FIRE,30);
+                    }
+                });
+                game.maps().level().sendParticles(ParticleTypes.FLAME,target.getX(),target.getY(),target.getZ(),3,.2,.2,.2,0);
+            }
+            game.items().mana().score(target,"effect_kiuaskivi").set(remaining-1);if(remaining==1)clearCurse(target);
+        }
+    }
 
     private record SunShift(int x,int y,int z) { }
     private record PreparedSunPattern(MapManager.BlockPattern pattern,Map<SunShift,java.util.List<BlockPos>> changedByShift) { }
@@ -115,6 +164,7 @@ public final class LbcKiuas {
     int queuedBlockCount() { return auras.values().stream().mapToInt(a->a.small.queuedBlockCount()+a.large.queuedBlockCount()+a.sun.queuedBlockCount()).sum(); }
 
     public void tick() {
+        tickCurses();
         boolean sunPass=++ticks%5==0;
         var present=new HashSet<UUID>();
         for(var player:game.server().getPlayerList().getPlayers()) {
@@ -304,7 +354,7 @@ public final class LbcKiuas {
         }
     }
     private void remove(Aura aura) { detach(aura); aura.small.clear(); aura.large.clear(); aura.sun.clear(); scheduled.remove(aura); auras.remove(aura.owner.getUUID()); }
-    public void stop() { auras.clear(); index.clear(); work.clear(); scheduled.clear(); ticks=0; }
+    public void stop() { for(var target:java.util.List.copyOf(cursed.keySet()))clearCurse(target);auras.clear(); index.clear(); work.clear(); scheduled.clear(); ticks=0; }
 
     private final class Aura {
         ServerPlayer owner; final ServerLevel level;
