@@ -186,7 +186,7 @@ public final class LbcMana {
     public void clearEffects(LivingEntity p) {
         game.items().indirectKills().manaEffectCleared(p);
         for(String timer:POTION_TIMERS) write(p,timer,0);
-        write(p,"reverse_mana",0); reverseOwners.remove(p); pendingPotions.remove(p); statEffects.remove(p);
+        write(p,"reverse_mana",0); write(p,"void_resistance",0); reverseOwners.remove(p); pendingPotions.remove(p); statEffects.remove(p);
         if(p instanceof ServerPlayer player) noMagic(player,0);
         if(p instanceof ServerPlayer player) overload.clearEffects(player);
     }
@@ -316,7 +316,17 @@ public final class LbcMana {
         overload.afterRegen(p);
         overload.armor().tick(p);
     }
+    /** Source void resistance returns players below y=0 to y=320, then spends one second. */
+    void voidProtectionSecond(ServerPlayer p) {
+        int remaining=hudValue(p,"void_resistance");
+        if(remaining<=0||!visible(p)||!game.server().tickRateManager().runsNormally()||game.items().timeStop().stopped(p.level())
+                ||game.items().timeStop().frozen(p)||p.entityTags().contains("time_stopped")||LbcGreed.active(p))return;
+        if(p.getY()<0)p.teleportTo(p.level(),p.getX(),320,p.getZ(),java.util.Set.of(),p.getYRot(),p.getXRot(),true);
+        score(p,"void_resistance").set(remaining-1);
+        award(p,"lbc:true_advancements/potions/effect_void_resistance");
+    }
     void secondPlayer(ServerPlayer p) {
+        voidProtectionSecond(p);
         if(visible(p) && !p.entityTags().contains("time_stopped")) {
             if(reverse(p)>0) reverse(p,reverse(p)-1);
             if(noMagic(p)>0) noMagic(p,noMagic(p)-1);

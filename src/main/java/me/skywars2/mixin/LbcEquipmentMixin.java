@@ -18,6 +18,7 @@ public abstract class LbcEquipmentMixin {
         var game=SkyWars2.game();
         if(game!=null && (Object)this instanceof ServerPlayer player) {
             game.items().halloweenWind().jump(player);
+            game.items().soulhunter().jump(player);
             game.items().mana().overload().armor().jump(player);
         }
     }

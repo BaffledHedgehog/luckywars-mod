@@ -1,5 +1,38 @@
 # Структура переноса игрового цикла
 
+## Ordinary Soulless, six metasolas and Soulhunter - QUALIFIED READY (25 October 2026)
+
+[Contract](agent_notes/SOULHUNTER_PORT.md), [source](agent_notes/SOULHUNTER_SOURCE.md),
+[presentation](agent_notes/SOULHUNTER_RESOURCES.md), [native checks](agent_notes/SOULHUNTER_CHECKS.md).
+Ready leaves: `lbc:ported/soulcorruption_wand`, `soulhunter_mace`, and
+`metasola_1` through `metasola_6`; narrow mixed reward table `lbc:metasola`.
+The ordinary wand retains configured1500 admission/spend, WILD source25 eye
+radius and additive5second ghosting, source transient attributes/invisibility/
+airborne acceleration, native hostile Vex and full usable six-way reward closure.
+Source E196 duration and all four mace cooldown/stamina HUD rows are included.
+
+Native Soulhunter keeps source components/smash, actual jump+1.2Y, airborne
+sprint0.2/stamina60 and independent cooldowns. User fixes malformed selectors:
+RMB dash only5seconds; Shift+RMB splash only20seconds. Splash retains source15
+player_attack and exact stepped destructive Y0..5 mask with native drops.
+Native two-grid craft consumes one original mace plus one Soulless per pickup.
+All six metasolas have independent native pig/display pairs, real source physics,
+full user-confirmed HP25/50/20/15/500/40, source activation and persistent fields.
+Source fire/lava/void-air mask, native heal inversion, mana/resistance and shared
+void return are retained. Each vortex uses its own center without a second search
+(user performance choice). Technical roles, Greed, Time Stop, captured native
+hurt/displacement/support/fire attribution and actual stop cleanup are shared.
+
+Build `fa036823` passed86 recorded results across two actual mode1 matches
+(151.33s). Exact316 sources/881 classes/2812 resources match the tested JAR.
+READY ONLY: user requested leaving this build prepared; main currently runs and
+still has `2558af6b`. No replacement or restart performed. Three pre-existing
+user sources remain unchanged/excluded. Evidence: `build/verification/soulhunter-final/`.
+Native fixture boundaries include explicit ticks/contacts; no real client pixels,
+actual disk restart/disconnect or peak-load claim. Author RP/template and broad
+Halloween pools are unchanged. Next: ordinary Soulless Academy trial/upgrade and
+its metasola-generation mode, now that all six generated rewards are qualified.
+
 ## Halloween wind wand and jump mace - QUALIFIED
 
 [Source contract](agent_notes/HALLOWEEN_WIND_PORT.md), [presentation](agent_notes/HALLOWEEN_WIND_RESOURCES.md),

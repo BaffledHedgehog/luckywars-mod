@@ -46,6 +46,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         GAYCASTER("gaycaster_combine","gaycaster"),
         ERECTO("erecto_combine","erecto_wand"),
         FARTUS("fartus_combine","fartus_wand"),
+        SOULHUNTER("soulhunter_combine","soulhunter_mace"),
         ICE("ice_wand_combine","ice_wand"),
         NEUTRAL_FIRE("neutral_fire_combine","fire_wand"),
         NEUTRAL_STONE("neutral_stone_combine","stone_wand"),
@@ -114,6 +115,12 @@ public final class LbcCraftingRecipe extends CustomRecipe {
     /** Общее распознавание семейств: ровно два занятых слота, без расхода и случайности в preview. */
     public static Kind craftingKind(CraftingInput input) {
         if(input.ingredientCount()!=2) return LbcRerollCrafting.matches(input) ? Kind.REROLL_MACHINE : null;
+        int soulMace=0,soulWand=0;
+        for(var stack:input.items())if(!stack.isEmpty()){
+            if(LbcHalloweenWind.isMace(stack))soulMace++;
+            else if(LbcSoulless.isWand(stack))soulWand++;
+        }
+        if(soulMace==1&&soulWand==1)return Kind.SOULHUNTER;
         int fartusTerra=0,fartusLabel=0;
         for(var stack:input.items())if(!stack.isEmpty()){
             var tag=stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
@@ -358,6 +365,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         var kind=craftingKind(input);
         if(kind==null) return;
         if(kind==Kind.FARTUS){game.items().wtf().crafted(player);return;}
+        if(kind==Kind.SOULHUNTER){game.items().soulhunter().crafted(player);return;}
         if(neutralCriterion(kind)!=null){
             var advancement=game.server().getAdvancements().get(Identifier.parse("lbc:true_advancements/staffs/neutral"));
             if(advancement!=null)player.getAdvancements().award(advancement,neutralCriterion(kind));
