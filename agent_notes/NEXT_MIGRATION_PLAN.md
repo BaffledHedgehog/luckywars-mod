@@ -1,5 +1,30 @@
 # Следующие этапы переноса
 
+## Unstable Prism - QUALIFIED (24 October 2026)
+
+[Contract](PRISM_PORT.md). Two scoped leaves close ordinary/Academy Prism casts.
+Native projectile ownership reuses existing reflection, Curse, Time Stop and
+physical-impulse exclusion. Shared native actor ownership covers EndCrystals
+and removed-source explosions. Source ordinary/stabilized destruction, glass
+palette, sample/lifetime bounds and Academy per-leg hits remain; native block
+faces resolve Academy ricochets. User trial correction: accepted hit farther
+than75 blocks from launch, actual used stack/hand, replacing the old age check.
+Immediate beams share a cooperative3ms/tick budget with no capacity discard.
+Missing pass/default-glass resource tags were caught and bundled before release.
+Prism + Omega -> Gaycaster remains a separate unopened recipe/reward family;
+source craft lore retained. No RP edits or broad pool enablement.
+
+Build0c88aa25 passed22 recorded suite results/two actual mode1 matches (52.35s),
+exact278sources/746classes/2764resources verified. Native tests include actual
+far hit, reflection, crystal detonation/credit, antimagic, freeze/resume, Academy
+promotion and real match stop with pending rays. CausticOmega/AdvancedSnow/
+Neutral/Mobgun/Academy/KFC regressions passed. Installed stopped main;
+rollbackb62a6093 retained; main not started. Three user sources unchanged/excluded.
+Evidence:build/verification/prism-final/. Known fake-player Polymer context pair
+only. Manual boundary calls included; no client pixels, disk restart/unload/
+disconnect, every rare RNG branch or peak-capacity claim.
+
+
 ## Caustic staff / Singularity of Absurdity - QUALIFIED (24 October 2026)
 
 [Contract](CAUSTIC_OMEGA_PORT.md). Four scoped leaves close ordinary/Academy acidwand and

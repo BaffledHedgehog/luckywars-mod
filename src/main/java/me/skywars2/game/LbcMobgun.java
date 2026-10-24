@@ -173,7 +173,8 @@ public final class LbcMobgun {
     public void registerChild(Entity parent,Entity child) {
         var owner=owner(parent); if(owner!=null) registerChild(owner,child);
     }
-    private void registerChild(ServerPlayer fallback,Entity child) {
+    /** Shared native actor ownership also covers crystals produced by Prism. */
+    void registerChild(ServerPlayer fallback,Entity child) {
         child.getSelfAndPassengers().forEach(entity->{
             // A later attacker may already own native chained TNT or a projectile.
             Entity nativeOwner=nativeOwner(entity);

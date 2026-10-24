@@ -51,6 +51,7 @@ public final class LbcAcademy {
     private static final CompoundTag TOKEN_DATA = flag("academy_token"), BUILDING_DATA = flag("magic_academy");
     public static final Item TOKEN = registerToken();
     private enum Wand {
+        PRISM("prisma", LbcWands.PRISM, LbcWands.ACADEMY_PRISM, "ss", "upgrade_condition_prisma", "upgrade_succesful_prisma"),
         CAUSTIC("acidwand", LbcWands.CAUSTIC, LbcWands.ACADEMY_CAUSTIC, "c", "upgrade_condition_acid", "upgrade_succesful_acid"),
         OMEGA("omegaflag", LbcWands.OMEGA, LbcWands.ACADEMY_OMEGA, "b", "upgrade_condition_omegaflag", "upgrade_succesful_omegaflag"),
         ADVANCED_ENDER("advancedteleport", LbcWands.ADVANCED_ENDER, LbcWands.ACADEMY_ADVANCED_ENDER, "s", "upgrade_condition_advancedteleport", "upgrade_succesful_advancedteleport"),

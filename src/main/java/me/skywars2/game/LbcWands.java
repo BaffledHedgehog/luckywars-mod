@@ -56,6 +56,8 @@ import net.minecraft.world.scores.ScoreHolder;
 
 /** Жезлы используют общий расход маны и каст-хуки; временные снаряды хранит существующий трекер. */
 public final class LbcWands {
+    public static final Item PRISM=register("skywars2:unstable_prism","unstable_prism","lbc:prism");
+    public static final Item ACADEMY_PRISM=register("skywars2:academy_unstable_prism","unstable_prism","lbc:prism");
     public static final Item CAUSTIC=register("skywars2:caustic_wand","acid_wand","lbc:acidwand");
     public static final Item ACADEMY_CAUSTIC=register("skywars2:academy_caustic_wand","acid_wand","lbc:acidwand");
     public static final Item OMEGA=register("skywars2:omega_flag","omega_flag","lbc:omegaflag");
@@ -145,6 +147,8 @@ public final class LbcWands {
     public static final Item ACADEMY_EXOPERSO=register("skywars2:academy_exoperso_wand","megumin_wand","lbc:exoperso");
     public static final Item ACADEMY_EXASPERATO=register("skywars2:academy_exasperato_wand","exasperato_wand","lbc:exasperato");
     private enum Spell {
+        ACADEMY_PRISM(LbcWands.ACADEMY_PRISM,"prisma","unstable_prism_mana_use",1200),
+        REGULAR_PRISM(LbcWands.PRISM,"prisma","unstable_prism_mana_use",1200),
         ACADEMY_CAUSTIC(LbcWands.ACADEMY_CAUSTIC,"acidwand","acid_wand_mana_use",1200),
         REGULAR_CAUSTIC(LbcWands.CAUSTIC,"acidwand","acid_wand_mana_use",1200),
         ACADEMY_OMEGA(LbcWands.ACADEMY_OMEGA,"omegaflag","absurd_singularity_mana_use",3000),
@@ -236,6 +240,7 @@ public final class LbcWands {
         final int defaultCost;
         Spell(Item item,String flag,String cost,int defaultCost) {
             this.item=item; this.flag=flag(flag); this.cost=ScoreHolder.forNameOnly(cost); this.defaultCost=defaultCost;
+            if(item==LbcWands.ACADEMY_PRISM) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_CAUSTIC || item==LbcWands.ACADEMY_OMEGA) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_ADVANCED_ENDER || item==LbcWands.ACADEMY_SNOW) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_ENDER || item==LbcWands.ACADEMY_BAD_WIKI) this.flag.putInt("upgraded",1);
@@ -419,6 +424,7 @@ public final class LbcWands {
         Spell spell=null;
         for(var candidate:SPELLS) if(matches(stack,candidate.item,candidate.flag)) { spell=candidate; break; }
         if(spell==null) return false;
+        if(spell==Spell.REGULAR_PRISM||spell==Spell.ACADEMY_PRISM)return game.items().prism().use(player,hand,stack,spell==Spell.ACADEMY_PRISM);
         if(spell==Spell.REGULAR_CAUSTIC || spell==Spell.ACADEMY_CAUSTIC || spell==Spell.REGULAR_OMEGA || spell==Spell.ACADEMY_OMEGA)
             return LbcCausticOmega.use(game,player,hand,stack,spell==Spell.REGULAR_CAUSTIC || spell==Spell.ACADEMY_CAUSTIC,
                     spell==Spell.ACADEMY_CAUSTIC || spell==Spell.ACADEMY_OMEGA);

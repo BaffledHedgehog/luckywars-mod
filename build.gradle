@@ -26,6 +26,8 @@ dependencies {
 }
 
 processResources {
+    include 'data/minecraft/tags/block/airs_or_glass.json', 'data/minecraft/tags/block/glass_default.json'
+    include 'data/lbc/loot_table/ported/unstable_prism.json', 'data/lbc/loot_table/ported/academy_unstable_prism.json', 'skywars2/prism_colors.json'
     include 'data/lbc/loot_table/ported/advanced_ender_wand.json', 'data/lbc/loot_table/ported/academy_advanced_ender_wand.json'
     include 'data/lbc/loot_table/ported/caustic_wand.json', 'data/lbc/loot_table/ported/academy_caustic_wand.json'
     include 'data/lbc/loot_table/ported/omega_flag.json', 'data/lbc/loot_table/ported/academy_omega_flag.json'
