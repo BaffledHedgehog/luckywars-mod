@@ -23,7 +23,7 @@ public final class ProjectileLifetimes {
     /** Spell trajectories ignore incidental native physics; deliberate owner/velocity controls stay available. */
     public static boolean protectedWandProjectile(Entity entity) {
         if (!(entity instanceof Projectile) || entity instanceof LbcClouds.AcidProjectile) return false;
-        return LbcFartus.magic(entity) || entity instanceof LbcIceWand.IceShot || entity instanceof LbcPrism.Charge || LbcNeutral.managed(entity) || entity instanceof LbcAir.Charge || entity instanceof LbcBlind.Charge
+        return LbcHalloweenWind.managed(entity) || LbcFartus.magic(entity) || entity instanceof LbcIceWand.IceShot || entity instanceof LbcPrism.Charge || LbcNeutral.managed(entity) || entity instanceof LbcAir.Charge || entity instanceof LbcBlind.Charge
                 || entity instanceof LbcExasperato.Charge || entity instanceof LbcExoperso.Charge
                 || entity instanceof LbcPsycho.Charge || entity instanceof LbcStone.Charge
                 || entity instanceof LbcLifestealer.Charge || entity instanceof LbcGovnomet.Charge

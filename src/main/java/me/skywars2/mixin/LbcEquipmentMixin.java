@@ -16,7 +16,10 @@ public abstract class LbcEquipmentMixin {
     @Inject(method = "jumpFromGround", at = @At("TAIL"))
     private void skywars2$overloadJump(CallbackInfo ci) {
         var game=SkyWars2.game();
-        if(game!=null && (Object)this instanceof ServerPlayer player) game.items().mana().overload().armor().jump(player);
+        if(game!=null && (Object)this instanceof ServerPlayer player) {
+            game.items().halloweenWind().jump(player);
+            game.items().mana().overload().armor().jump(player);
+        }
     }
     /** Normalize old miniguns before vanilla snapshots and applies equipment attribute modifiers. */
     @Inject(method = "onEquipItem", at = @At("HEAD"))

@@ -26,6 +26,7 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/vex_wind_wand.json', 'data/lbc/loot_table/ported/academy_vex_wind_wand.json', 'data/lbc/loot_table/ported/halloween_mace.json', 'data/lbc/structure/air_sphere_11x11x11.nbt'
     include 'data/lbc/loot_table/ported/fartus_wand.json', 'data/lbc/loot_table/ported/academy_fartus_wand.json', 'data/lbc/loot_table/ported/wtf_item.json', 'data/skywars2/recipe/fartus_combine.json'
     include 'data/lbc/loot_table/ported/healing_arcanum.json', 'data/lbc/loot_table/ported/barrier_arcanum.json'
     include 'data/lbc/loot_table/ported/void_arcanum.json', 'data/lbc/loot_table/ported/babylon_gate.json'

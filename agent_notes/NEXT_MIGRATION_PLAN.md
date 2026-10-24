@@ -1,5 +1,41 @@
 # Следующие этапы переноса
 
+## Halloween wind wand and jump mace - QUALIFIED
+
+[Source contract](HALLOWEEN_WIND_PORT.md), [presentation](HALLOWEEN_WIND_RESOURCES.md),
+[native checks](HALLOWEEN_WIND_CHECKS.md).
+Ready leaves: `lbc:ported/vex_wind_wand`, `academy_vex_wind_wand`,
+`halloween_mace`. This Vex wind wand is distinct from Vex Soul summons.
+Ordinary casts cost700 and add source look velocity to every eligible mob/player
+within5 of the eye context, including caster/allies. Academy mode2 affects self,
+mode3 excludes self, mode4 emits exactly five native WindCharges with source
+integer spread and eye origin. Shift changes four modes freely before mana/
+personal nomagic admission. The real used-stack trial immediately grants readiness,
+places the exact sparse air sphere from outer eye origin, and sets outward/upward
+velocity10 within11 of caster feet. Native command ordering makes selfUP10.
+
+Native WindCharge collision/blast/kinematics remain native (direct1, no explosion
+HP damage), while the shared user rule rejects incidental wand-projectile impulses.
+Special reflection uses current owner, and displacement/support deaths preserve
+original cause and newer real-hit priority. Technical roles, Greed, antimagic and
+Time Stop reuse shared guards. The native MaceItem retains source enchantments,
+attributes, model and smash behavior. Its extra boost occurs only on a real jump,
+pitch80..90, either hand, adds1 to vertical motion, and starts a5second source
+cooldown/HUD; no source mana or antimagic gate is invented for this jump branch.
+No source server, author resource pack/template or broad Halloween pool edits.
+
+Build `07ff2ecd` passed80 recorded suite results in two actual mode1
+matches (150.83s). Exact 313 sources / 866 classes /
+2800 resources match the tested JAR. Installed stopped main; rollback
+`b0dfd5ca` retained; main not started. Three pre-existing user sources
+remain unchanged/excluded. Evidence: `build/verification/halloween-wind-final/`.
+Native fixtures include explicit tick/contact/terminal-void boundaries, not a
+real client-pixel, disk restart/disconnect or peak-load qualification.
+
+Chef skin requested in chat is a separate pending addition: original PNG bytes
+were not exposed in local attachments; the full disk path was requested from the
+user. No replacement pixels or installed-skin claim is made without that file.
+
 ## Fartus Nadristailo and fixed-victim Chef - QUALIFIED (24 October 2026)
 
 [Family contract](FARTUS_PORT.md), [Chef rework](CHEF_REWORK.md),

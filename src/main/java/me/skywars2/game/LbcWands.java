@@ -429,6 +429,7 @@ public final class LbcWands {
     private boolean cast(ServerPlayer player,InteractionHand hand) {
         if(game.items().actionsBlocked(player)) return false;
         var stack=player.getItemInHand(hand);
+        if(LbcHalloweenWind.isWind(stack))return game.items().halloweenWind().use(player,hand);
         if(LbcFartus.isFartus(stack))return game.items().fartus().use(player,hand);
         if(stack.is(FEATHER_GREED)||stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("feather_greed",0)==1) return game.items().neutral().feather(player);
         if (LbcHomeItems.isMirror(stack)) return game.items().homes().use(player, hand);
@@ -1390,6 +1391,7 @@ public final class LbcWands {
     }
     public boolean canHit(Projectile projectile,Entity target) {
         if(LbcGreed.active(target) && validRoleTarget(target,false)) return true;
+        if(LbcHalloweenWind.managed(projectile))return game.items().halloweenWind().canAffect(projectile,target);
         if(LbcBabylon.managed(projectile)) return game.items().babylon().canAffect(projectile,target);
         if(LbcNeutral.managed(projectile)) return game.items().neutral().canAffect(projectile,target);
         if(LbcTransformator.managed(projectile)) return game.items().transformator().canAffect(projectile,target);
