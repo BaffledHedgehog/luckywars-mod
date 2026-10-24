@@ -118,6 +118,7 @@ public final class LbcSummons {
                 && !target.entityTags().contains("nomagic_active");
     }
     ServerPlayer owner(Entity entity) {
+        if(LbcWtf.owner(entity) instanceof ServerPlayer chefOwner)return chefOwner;
         var consequence=consequences.get(entity);
         if(consequence!=null) return game.items().currentEpoch(entity)?game.server().getPlayerList().getPlayer(consequence):null;
         if(entity instanceof Projectile projectile) return owner(projectile.getOwner());

@@ -51,6 +51,7 @@ public final class LbcAcademy {
     private static final CompoundTag TOKEN_DATA = flag("academy_token"), BUILDING_DATA = flag("magic_academy");
     public static final Item TOKEN = registerToken();
     private enum Wand {
+        FARTUS("fartus_nadristailo",LbcFartus.ITEM,LbcFartus.ACADEMY,"x","upgrade_condition_fartus_nadristailo","upgrade_succesful_fartus_nadristailo"),
         ICE("ice_wand",LbcWands.ICE,LbcWands.ACADEMY_ICE,"ss","upgrade_condition_ice","upgrade_succesful_ice"),
         CORRUPTION("corrupter",LbcWands.CORRUPTION,LbcWands.ACADEMY_CORRUPTION,"c","upgrade_condition_corrupter","upgrade_succesful_corrupter"),
         ACID_CORRUPTION("acidcorrupt_wand",LbcWands.ACID_CORRUPTION,LbcWands.ACADEMY_ACID_CORRUPTION,"ss","upgrade_condition_acidcorrupt","upgrade_succesful_acidcorrupt"),
@@ -201,9 +202,18 @@ public final class LbcAcademy {
             var upgraded = stack.transmuteCopy(wand.upgraded);
             upgraded.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
             upgraded.set(DataComponents.TOOLTIP_STYLE, Identifier.parse("lbc:tier_" + wand.tier));
-            upgraded.set(DataComponents.LORE, stack.getOrDefault(DataComponents.LORE, ItemLore.EMPTY)
-                    .withLineAdded(Component.translatable("upgraded_item").withStyle(style ->
-                            style.withColor(ChatFormatting.GREEN).withItalic(false))));
+            if(wand==Wand.FARTUS){
+                var presentations=game.lbc().rollTable(player.level(),player.position(),player,"lbc:ported/academy_fartus_wand");
+                if(presentations.isEmpty())throw new IllegalStateException("Missing qualified Fartus presentation");
+                var presentation=presentations.getFirst();
+                upgraded.set(DataComponents.LORE,presentation.getOrDefault(DataComponents.LORE,ItemLore.EMPTY));
+                upgraded.set(DataComponents.ITEM_MODEL,presentation.get(DataComponents.ITEM_MODEL));
+                upgraded.set(DataComponents.ATTRIBUTE_MODIFIERS,presentation.get(DataComponents.ATTRIBUTE_MODIFIERS));
+            }else{
+                upgraded.set(DataComponents.LORE, stack.getOrDefault(DataComponents.LORE, ItemLore.EMPTY)
+                        .withLineAdded(Component.translatable("upgraded_item").withStyle(style ->
+                                style.withColor(ChatFormatting.GREEN).withItalic(false))));
+            }
             player.setItemInHand(hand, upgraded);
             if (academy != null) consume(academy);
             game.lbc().academyPromoted(player);

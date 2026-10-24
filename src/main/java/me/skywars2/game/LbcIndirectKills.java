@@ -69,6 +69,28 @@ public final class LbcIndirectKills {
     private final Map<LivingEntity,Owner> burning = new WeakHashMap<>();
     private final Map<LivingEntity,Arrival> arrivals = new WeakHashMap<>();
     private long order;
+    private LivingEntity causeTarget;
+    private Owner activeCause;
+    private static final class CapturedDamage extends DamageSource {
+        final Owner cause;final DamageSource original;
+        CapturedDamage(DamageSource source,Owner cause){super(source.typeHolder(),source.getDirectEntity(),source.getEntity());this.cause=cause;this.original=source;}
+        @Override public net.minecraft.world.phys.Vec3 getSourcePosition(){return original.getSourcePosition();}
+    }
+    public void withCause(LivingEntity target,Owner cause,Runnable action){
+        var previousTarget=causeTarget;var previousCause=activeCause;causeTarget=target;activeCause=cause;
+        try{action.run();}finally{causeTarget=previousTarget;activeCause=previousCause;}
+    }
+    public DamageSource inheritDamage(LivingEntity target,DamageSource source){
+        return causeTarget==target&&activeCause!=null&&!(source instanceof CapturedDamage)?new CapturedDamage(source,activeCause):source;
+    }
+    public void inheritedEffect(LivingEntity target,MobEffectInstance effect,Owner cause){
+        var owner=cause==null?null:game.server().getPlayerList().getPlayer(cause.player());
+        if(!target.addEffect(effect,owner)||cause==null||target==owner)return;
+        var active=target.getEffect(effect.getEffect());
+        if(active!=null&&active.getAmplifier()==effect.getAmplifier()
+                &&(effect.is(MobEffects.POISON)||effect.is(MobEffects.WITHER)||effect.is(MobEffects.BLINDNESS)))
+            statuses.computeIfAbsent(target,k->new HashMap<>()).put(effect.getEffect(),new Status(cause,active));
+    }
     private LivingEntity effectTarget, manaTarget;
     private LivingEntity altitudeTarget;
     private Owner altitudeCause;
@@ -125,6 +147,7 @@ public final class LbcIndirectKills {
     private static ServerPlayer summonedOwner(Entity source) {
         var game=me.skywars2.SkyWars2.game();
         if(game==null) return null;
+        if(game.items().wtf().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().creeperDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().luckyPigs().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().beeDrops().owner(source) instanceof ServerPlayer player) return player;
@@ -550,10 +573,10 @@ public final class LbcIndirectKills {
     }
 
     public Owner babylonCause(DamageSource source) {
-        return source instanceof LbcBabylonEffects.OwnerDamageSource owned ? owned.cause : game.items().babylonEffects().cause(source.getDirectEntity());
+        return source instanceof CapturedDamage captured ? captured.cause : source instanceof LbcBabylonEffects.OwnerDamageSource owned ? owned.cause : game.items().babylonEffects().cause(source.getDirectEntity());
     }
     public void damaged(LivingEntity target, DamageSource source) {
-        var inherited=babylonCause(source);
+        var inherited=causeTarget==target&&activeCause!=null ? activeCause : babylonCause(source);
         if(inherited!=null) { displaced(target,inherited); return; }
         if(LbcCorruptedGlyphs.forced(source)){
             var cause=game.items().corruptedGlyphs().belialCause(target,source);
@@ -636,7 +659,7 @@ public final class LbcIndirectKills {
 
     /** Вызывается до нативного die: mob loot/XP, vanilla kill score и статистика мода видят автора. */
     public void dying(LivingEntity target, DamageSource damage) {
-        var babylon=babylonCause(damage);
+        var babylon=causeTarget==target&&activeCause!=null ? activeCause : babylonCause(damage);
         if(babylon!=null && target.level() instanceof ServerLevel level) { credit(target,level,babylon); return; }
         if(damage instanceof InheritedKill inherited&&target.level() instanceof ServerLevel level){credit(target,level,inherited.cause);return;}
         var duelCause=game.items().corruptedGlyphs().belialCause(target,damage);

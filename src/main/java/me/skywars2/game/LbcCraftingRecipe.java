@@ -45,6 +45,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         DUPLICATING("duplicating_combine","duplicating_wand"),
         GAYCASTER("gaycaster_combine","gaycaster"),
         ERECTO("erecto_combine","erecto_wand"),
+        FARTUS("fartus_combine","fartus_wand"),
         ICE("ice_wand_combine","ice_wand"),
         NEUTRAL_FIRE("neutral_fire_combine","fire_wand"),
         NEUTRAL_STONE("neutral_stone_combine","stone_wand"),
@@ -113,6 +114,13 @@ public final class LbcCraftingRecipe extends CustomRecipe {
     /** Общее распознавание семейств: ровно два занятых слота, без расхода и случайности в preview. */
     public static Kind craftingKind(CraftingInput input) {
         if(input.ingredientCount()!=2) return LbcRerollCrafting.matches(input) ? Kind.REROLL_MACHINE : null;
+        int fartusTerra=0,fartusLabel=0;
+        for(var stack:input.items())if(!stack.isEmpty()){
+            var tag=stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
+            if(stack.is(LbcWands.TERRA)||stack.is(LbcWands.ACADEMY_TERRA)||tag.getIntOr("stterra",0)==1)fartusTerra++;
+            else if(LbcFartus.isMaterial(stack))fartusLabel++;
+        }
+        if(fartusTerra==1&&fartusLabel==1)return Kind.FARTUS;
         int neutralIce=0,runicIce=0,kiuasNeutral=0,tannerNeutral=0,voidNeutral=0;
         for(var stack:input.items())if(!stack.isEmpty()){
             var data=stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
@@ -349,6 +357,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         game.items().rocketCraftTaken(player,input);
         var kind=craftingKind(input);
         if(kind==null) return;
+        if(kind==Kind.FARTUS){game.items().wtf().crafted(player);return;}
         if(neutralCriterion(kind)!=null){
             var advancement=game.server().getAdvancements().get(Identifier.parse("lbc:true_advancements/staffs/neutral"));
             if(advancement!=null)player.getAdvancements().award(advancement,neutralCriterion(kind));

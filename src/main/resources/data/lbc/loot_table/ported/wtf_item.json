@@ -1,0 +1,66 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:wtf_item",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:item_model": "lbc:banan"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "wtf_item",
+                  "color": "aqua",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "wtf_item.lore",
+                  "color": "white",
+                  "italic": false
+                },
+                [
+                  {
+                    "text": "Tinkist00",
+                    "color": "green",
+                    "italic": false,
+                    "type": "text"
+                  },
+                  {
+                    "text": " No Nut November 2023 Event",
+                    "color": "dark_gray",
+                    "italic": false,
+                    "type": "text"
+                  }
+                ],
+                {
+                  "translate": "razorpine.lore.1",
+                  "color": "yellow",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{wtf_item:1,craftusable:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

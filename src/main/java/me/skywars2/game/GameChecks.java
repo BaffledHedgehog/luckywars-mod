@@ -736,6 +736,12 @@ public final class GameChecks {
                                 case "normal-drone-stop-probe" -> { NormalDroneChecks.stopProbe(game); return; }
                                 case "normal-drone-cleanup" -> { NormalDroneChecks.cleanup(game); return; }
                                 case "special-eggs" -> { SpecialEggChecks.run(game); return; }
+                                case "chef" -> { ChefChecks.run(game); return; }
+                                case "chef-stop-probe" -> { ChefChecks.stopProbe(game); return; }
+                                case "chef-cleanup" -> { ChefChecks.cleanup(game); return; }
+                                case "fartus" -> { FartusChecks.run(game); return; }
+                                case "fartus-stop-probe" -> { FartusChecks.stopProbe(game); return; }
+                                case "fartus-cleanup" -> { FartusChecks.cleanup(game); return; }
                                 case "babylon" -> { BabylonChecks.run(game); return; }
                                 case "babylon-stop-probe" -> { BabylonChecks.stopProbe(game); return; }
                                 case "babylon-cleanup" -> { BabylonChecks.cleanup(game); return; }

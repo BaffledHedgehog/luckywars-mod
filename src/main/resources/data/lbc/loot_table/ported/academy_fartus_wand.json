@@ -1,0 +1,195 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:academy_fartus_wand",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_s",
+                "minecraft:item_model": "lbc:fartus"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "fartus_nadristailo",
+                  "color": "yellow",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "entity": "this",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "staff",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                [
+                  {
+                    "score": {
+                      "name": "fartus_nadristailo_mana_use",
+                      "objective": "lbc.math"
+                    },
+                    "italic": false,
+                    "color": "aqua",
+                    "type": "score"
+                  },
+                  {
+                    "translate": "mana_on_activate",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "fartus_nadristailo.lore.1",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "fartus_nadristailo.lore.2",
+                  "color": "yellow",
+                  "italic": false
+                },
+                {
+                  "translate": "fartus_nadristailo.lore.3",
+                  "color": "aqua",
+                  "italic": false
+                },
+                [
+                  {
+                    "text": "Tinkist00",
+                    "color": "green",
+                    "italic": false,
+                    "type": "text"
+                  },
+                  {
+                    "text": " Halloween 2025 Legendary Drop Request",
+                    "color": "dark_gray",
+                    "italic": false,
+                    "type": "text"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,staff:1,magicwand:1,fartus_nadristailo:1,swordwithability:1,upgradable:0,upgrade_available:1,upgraded:1,mode:1}",
+              "type": "minecraft:set_custom_data"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_x"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "sword",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "fartus_nadristailo_evolved.lore.1",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "fartus_nadristailo_evolved.lore.2",
+                  "italic": false,
+                  "color": "aqua"
+                },
+                {
+                  "translate": "fartus_nadristailo_evolved.lore.3",
+                  "italic": false,
+                  "color": "aqua"
+                },
+                {
+                  "translate": "fartus_nadristailo_evolved.lore.4",
+                  "italic": false,
+                  "color": "yellow"
+                },
+                [
+                  {
+                    "text": "Tinkist00",
+                    "color": "green",
+                    "italic": false,
+                    "type": "text"
+                  },
+                  {
+                    "text": " Halloween 2025 Legendary Drop Request",
+                    "color": "dark_gray",
+                    "italic": false,
+                    "type": "text"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "replace": true,
+              "modifiers": [
+                {
+                  "attribute": "minecraft:attack_damage",
+                  "id": "minecraft:base_attack_damage",
+                  "amount": 19,
+                  "operation": "add_value",
+                  "slot": "mainhand"
+                },
+                {
+                  "attribute": "minecraft:attack_speed",
+                  "id": "minecraft:base_attack_speed",
+                  "amount": -3.5,
+                  "operation": "add_value",
+                  "slot": "mainhand"
+                },
+                {
+                  "attribute": "minecraft:entity_interaction_range",
+                  "id": "a8uvy89ryvmg89dmybv8gdfrgg",
+                  "amount": 10,
+                  "operation": "add_value",
+                  "slot": "mainhand"
+                }
+              ],
+              "type": "minecraft:set_attributes"
+            },
+            {
+              "components": {
+                "item_model": "lbc:palma"
+              },
+              "type": "minecraft:set_components"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

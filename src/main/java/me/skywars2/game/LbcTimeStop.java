@@ -164,6 +164,7 @@ public final class LbcTimeStop {
     public boolean queueDamage(LivingEntity target,ServerLevel level,DamageSource source,float amount) {
         if(replaying(source) || !frozen(target) || !target.isAlive() || !(amount>0)
                 || target.level()!=level || !game.items().allowDamage(target,source)) return false;
+        source=game.items().indirectKills().inheritDamage(target,source);
         hits.computeIfAbsent(level,key->new ArrayDeque<>())
                 .addLast(new Hit(target,level,source,amount,game.items().epoch()));
         return true;

@@ -137,6 +137,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null) game.items().stand().onAcceptedDamage(entity, damage);
             if (game != null) game.items().academy().damaged(entity, damage);
             if (game != null) game.items().vexSword().damaged(entity, damage, 1);
+            if (game != null && damage.getEntity() instanceof ServerPlayer owner) game.items().fartus().melee(owner,entity,damage);
+            if (game != null) game.items().wtf().melee(entity,damage);
             if (game != null) game.items().exoperso().died(entity, damage);
             if (game != null) game.items().helicopterEncounter().died(entity, damage);
             if (game != null && entity instanceof ServerPlayer player) game.items().magic().clear(player);
@@ -148,6 +150,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null && !blocked && damage > 0) game.items().indirectKills().damaged(entity, source);
             if (game != null && !blocked && damage > 0) game.items().damaged(entity, source);
             if (game != null && !blocked && damage > 0) game.items().vexSword().damaged(entity, source, damage);
+            if (game != null && !blocked && damage > 0 && source.getEntity() instanceof ServerPlayer owner) game.items().fartus().melee(owner,entity,source);
+            if (game != null && !blocked && damage > 0) game.items().wtf().melee(entity,source);
             if (game != null && !blocked && damage > 0) game.items().trinkets().damaged(entity, source);
             if (game != null && !blocked && entity instanceof ServerPlayer player) game.hurtForSkill(player);
             if (game != null && !blocked && damage > 0 && entity instanceof ServerPlayer player)

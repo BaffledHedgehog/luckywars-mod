@@ -429,6 +429,7 @@ public final class LbcWands {
     private boolean cast(ServerPlayer player,InteractionHand hand) {
         if(game.items().actionsBlocked(player)) return false;
         var stack=player.getItemInHand(hand);
+        if(LbcFartus.isFartus(stack))return game.items().fartus().use(player,hand);
         if(stack.is(FEATHER_GREED)||stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("feather_greed",0)==1) return game.items().neutral().feather(player);
         if (LbcHomeItems.isMirror(stack)) return game.items().homes().use(player, hand);
         // Общий dispatch двух рук: хвоемёт платит боеприпасами и не проходит проверку маны жезлов.

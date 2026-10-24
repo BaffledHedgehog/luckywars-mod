@@ -1,5 +1,40 @@
 # Структура переноса игрового цикла
 
+## Fartus Nadristailo and fixed-victim Chef - QUALIFIED (24 October 2026)
+
+[Family contract](agent_notes/FARTUS_PORT.md), [Chef rework](agent_notes/CHEF_REWORK.md),
+[source presentation](agent_notes/FARTUS_RESOURCES.md), [native checks](agent_notes/CHEF_CHECKS.md).
+Ready leaves: `lbc:ported/fartus_wand`, `academy_fartus_wand`, `wtf_item`.
+Exact native2x2/3x3 Terra (ordinary/Academy) + Label craft produces ordinary
+Fartus once per pickup, with the owned60tick source fountain. Ordinary casts
+spend1250 for five source physical bananas or five labels. Source gravity,
+bounce, models, source60/100 lifetimes, native instant-effect inversion and
+owned continuing statuses are retained. Used-stack AABB trial promotes to
+source tierX/palm sword, actual melee charges and3-charge/no-mana homing volley;
+carried govnoq dynamically updates source damage modifiers and E103 HUD.
+
+User replaces the old floating Chef with an actual vanilla Mannequin. Each
+accepted Label melee hit consumes one and binds one Chef to exactly that
+living victim. Server-only action-aware A* pursues with native movement,
+netherite tools, infinite cobblestone bridges/pillars and native sword attacks.
+Search retains its frontier across bounded slices; hard-block mining retains
+progress. Native HP remains full;20 accepted damage enters200 active ticks
+of immobile, harmless, invulnerable stasis. Void rescue selects a resident
+supported surface and continues pursuit. Shared ownership excludes friendly
+Chefs from homing while ordinary friendly-mob physical contacts remain valid.
+Direct/status/terrain deaths preserve owner and newer real-hit precedence.
+Antimagic, Time Stop, Greed, technical roles and actual match-stop cleanup
+reuse shared services. No author resource-pack/template edits or broad pools.
+
+Build `b0dfd5ca` passed74 recorded suite results in two actual mode1
+matches (168.90s). Exact 311 sources / 857 classes /
+2797 resources match the tested JAR. Installed stopped main; rollback
+`0fb48f1a` retained; main not started. Three pre-existing user sources
+remain unchanged/excluded. Evidence: `build/verification/fartus-final/`.
+Native fixtures include explicit tick/physics boundaries, actual obsidian,
+bridge/elevation/long-wall pursuit and deaths; no real-client pixels, actual
+disk restart/disconnect, arbitrary-world navigation or peak-load claim.
+
 ## Gate of Babylon, active Greed guard and arcanum pools - QUALIFIED (24 October 2026)
 
 [Contract](agent_notes/BABYLON_PORT.md), [arrow effects](agent_notes/BABYLON_EFFECTS_SOURCE.md),
