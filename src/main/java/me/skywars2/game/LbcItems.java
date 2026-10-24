@@ -175,6 +175,7 @@ public final class LbcItems {
     private final LbcTerra terra;
     private final LbcWands wands;
     private final LbcPrism prism;
+    private final LbcGaycasterAcademy gaycasterAcademy;
     private final LbcAdvancedSnow advancedSnow;
     private final LbcEnderWiki enderWiki;
     private final LbcNeutral neutral;
@@ -696,6 +697,7 @@ public final class LbcItems {
         this.ruby = new LbcRuby(game);
         this.consuming = new LbcConsuming(game);
         this.prism = new LbcPrism(game);
+        this.gaycasterAcademy = new LbcGaycasterAcademy(game);
         this.advancedSnow = new LbcAdvancedSnow(game);
         this.enderWiki = new LbcEnderWiki(game);
         this.neutral = new LbcNeutral(game);
@@ -832,6 +834,7 @@ public final class LbcItems {
     public LbcRuby ruby() { return ruby; }
     public LbcConsuming consuming() { return consuming; }
     public LbcPrism prism() { return prism; }
+    LbcGaycasterAcademy gaycasterAcademy() { return gaycasterAcademy; }
     public LbcAdvancedSnow advancedSnow() { return advancedSnow; }
     public LbcEnderWiki enderWiki() { return enderWiki; }
     public LbcNeutral neutral() { return neutral; }
@@ -903,6 +906,7 @@ public final class LbcItems {
         ruby.loaded(entity);
         consuming.loaded(entity);
         prism.loaded(entity);
+        gaycasterAcademy.loaded(entity);
         kiuas.loaded(entity);
         advancedSnow.loaded(entity);
         neutral.loaded(entity);
@@ -989,6 +993,7 @@ public final class LbcItems {
         ruby.unloaded(entity);
         consuming.unloaded(entity);
         prism.unloaded(entity);
+        gaycasterAcademy.unloaded(entity);
         kiuas.unloaded(entity);
         advancedSnow.unloaded(entity);
         neutral.unloaded(entity);
@@ -1383,6 +1388,7 @@ public final class LbcItems {
         consuming.tick();
         enderWiki.tick();
         prism.tick();
+        gaycasterAcademy.tick();
         advancedSnow.tick();
         neutral.tick();
         evokerBass.tick();
@@ -1486,6 +1492,7 @@ public final class LbcItems {
         bolts.forget(player);
         consuming.forget(player);
         prism.forget(player);
+        gaycasterAcademy.forget(player);
         kiuas.clearCurse(player);
         advancedSnow.forget(player);
         neutral.forget(player);
@@ -1545,6 +1552,7 @@ public final class LbcItems {
         ruby.stop();
         consuming.stop();
         prism.stop();
+        gaycasterAcademy.stop();
         advancedSnow.stop();
         neutral.stop();
         evokerBass.stop();

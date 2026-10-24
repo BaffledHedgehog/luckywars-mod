@@ -329,8 +329,11 @@ public final class LbcPsycho {
     }
     /** Yellow Gaycaster sets the existing source counter rather than extending it. */
     boolean yellow(LivingEntity entity,ServerPlayer owner){
+        return yellow(entity,owner,100);
+    }
+    boolean yellow(LivingEntity entity,ServerPlayer owner,int ticks){
         if(entity instanceof ServerPlayer player&&game.items().magic().rejectCustomEffect(player))return false;
-        afflict(entity,owner,0,0,0,0);effects.get(entity).piss=100;return true;
+        afflict(entity,owner,0,0,0,0);effects.get(entity).piss=ticks;return true;
     }
     private void tickEffects() {
         for(var entry:List.copyOf(effects.entrySet())) {

@@ -1,4 +1,64 @@
-# Ordinary Gaycaster / native Prism + Omega craft
+# Gaycaster / native Prism + Omega craft
+
+## Academy continuation - 24 October 2026
+
+Source: `workingitems/gaycaster/meditate` and its six phase/tick helpers;
+`ray/cast_upgraded*`, `ray/cast2_<colour>*`; Academy upgrade modifier (tier S);
+awakened `acidacid/click2`, `tick`, `tick_spawn`, `explode`, and
+`lbcr/*acidbig*very` helpers. These are read-only legacy inputs.
+
+Author clarification (user):
+
+> Сохранить старое: голубой — электричество, синий — вода
+
+The Academy leaf is `lbc:ported/academy_gaycaster`. Seven selected colours and
+one sequential palette retain source125 reach and1500 mana per shot. Shift+PKM
+cycles modes before admission/debit, even with negative mana. The palette colour
+is stored in the actual used stack; the first sequential shot is red, then wraps
+after purple. Red uses the accepted-damage-only healing ruling above; yellow
+sets200 ticks on a direct target and100 for a block-area target. Orange creates
+a5x5x5 lava cube in source AIRS; blue creates water directly, not Conduit status.
+Purple preserves strict air replacement without block-item drops.
+Water/lava/support changes capture the ray's projectile cause through the existing
+terrain attribution context: friendly mobs remain affected; allied players keep
+their normal protection. Native drowning/lava calls verify both admission and
+caster credit on a friendly mob.
+
+Green uses a500-tick awakened seed at0.2 block/tick, emitting ordinary acid with
+the source40% chance. Its first native block collision releases40 owned500-tick
+acid children and removes the seed. Native projectile ownership/reflection and
+the existing acid reaction/poison/attachment service remain shared. The seed's
+source flight stays straight; reactive children retain shared acid physics.
+This dependency does not open acquisition of the unported awakened acid staff.
+
+Meditation keeps source115 five-tick units, with no mana debit/cast hook after
+the normal1500 admission. The six phases retain eleven prism warnings/shots,
+eleven delayed concrete fire circles, eleven falling acid hazards, the random
+five-lane electric walls,120-tick rising water plane, and16 rising black displays
+per five-tick unit from35 through8. Trial hits are WILD as in source, excluding
+technical roles/observers; the participant fails on contact with a trial attack.
+The actual initiating hand must keep the same trial stack. Readiness then uses
+the existing Academy interaction/promotion system, including single-use tokens.
+Continuing trial terrain paints retain the original cast's causal order, so they
+cannot silently overtake a later real player hit. Trial particles use source
+normal-distance delivery; only the red flash is forced-distance. Selected colour
+ray particles retain their original forced-distance delivery.
+
+Every participant owns its helpers; failure/unequipping/restart affects that
+participant's session. Native display load/unload reattaches by UUID only to a
+live session, otherwise discards orphaned displays. Death/disconnect/match stop
+remove the trial. Time Stop pauses it. No arbitrary projectile/queue population
+cap or alternate generic actor framework was added. Existing translated
+names/lore/model assets were checked in the author's actual pack, read-only.
+The template changes only the old mainhand-only failure wording to the actual
+initiating hand, retaining its translation key and formatting.
+
+Qualified build6559f2b8:24 recorded suite results/two real mode1 matches (124.9s); exact281sources/753classes/2767resources. Installed stopped main, rollbacke7b6df3a retained. Evidence:build/verification/academy-gaycaster-final/. Full trial uses normal server time with native teleport dodging, not counter fast-forward. No real-client pixels, actual disk restart/chunk reload/disconnect or peak-load claim.
+
+The fixture latches chunk readiness once; that warm-up limit is not a limit on
+the full575-tick trial. Explicit fake-player `doTick` heal checks set food below
+the vanilla regeneration threshold, restoring it with the existing player-state
+snapshot. This isolates the expected8HP from ordinary saturation regeneration.
 
 Source: legacy LBC lbc/function/workingitems/gaycaster/ray/ (cast, cast2,
 loop, check, impact/block and impact/entity), other/craft/gaycaster,

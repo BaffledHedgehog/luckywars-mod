@@ -1,5 +1,31 @@
 # Проект SkyWars
 
+## Academy Gaycaster - QUALIFIED (24 October 2026)
+
+[Contract](agent_notes/GAYCASTER_PORT.md). Ready scoped leaf:lbc:ported/academy_gaycaster.
+Six-stage real-time meditation, actual initiating hand, native Academy promotion,
+seven selected colours and sequential palette. Shift mode changes are free at
+negative mana. Author ruling: cyan electricity / blue water preserved (user).
+Red heals only for accepted damage. Existing shared ray/acid/effect/kill-cause
+services reused; green adds the awakened500-tick seed and forty owned acid
+children on the first native block collision. No broad acquisition pools opened.
+Trial helpers belong to each participant and close on failure/unequip/death/
+disconnect/stop; display reload matches UUID only to a live trial.
+
+Build6559f2b8 passed24 recorded suite results in two actual
+mode1 matches (124.9s), including all seven ordinary/Academy
+native casts, free mode cycling, sequential colour wrap, full elapsed meditation,
+native promotion, forty-child collision, existing craft/effect/ownership and
+Prism/CausticOmega/AdvancedSnow/Neutral/Mobgun/Academy/KFC regressions.
+Exact281sources/753classes/2767resources verified.
+Installed stopped main, rollbacke7b6df3a retained; main not started. Three user
+sources unchanged/excluded. Evidence:build/verification/academy-gaycaster-final/.
+Author RP read-only; template only corrects the mainhand-only trial failure text.
+No client pixels, actual disk restart/chunk reload/disconnect or peak-load claim.
+This supersedes the previous unopened Academy Gaycaster note.
+
+
+
 ## Gaycaster red healing - user clarification (24 October 2026)
 
 [Contract](agent_notes/GAYCASTER_PORT.md). Red entity and block impacts heal only when at least

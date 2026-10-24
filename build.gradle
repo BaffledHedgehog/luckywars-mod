@@ -147,7 +147,7 @@ processResources {
             'data/skywars2/recipe/consuming_combine.json',
             'data/lbc/structure/meditation.nbt',
             'data/lbc/structure/air11x11.nbt'
-    include 'data/lbc/loot_table/ported/gaycaster.json', 'data/skywars2/recipe/gaycaster_combine.json'
+    include 'data/lbc/loot_table/ported/gaycaster.json', 'data/lbc/loot_table/ported/academy_gaycaster.json', 'data/skywars2/recipe/gaycaster_combine.json'
     // Ultra Reforge adds only the resource closure beyond the ordinary tables.
     include 'data/lbc/loot_table/death_loot.json',
             'data/lbc/loot_table/dildomet.json',

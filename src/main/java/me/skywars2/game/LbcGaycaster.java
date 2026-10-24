@@ -43,9 +43,10 @@ final class LbcGaycaster {
     static boolean use(GameController game,ServerPlayer owner,InteractionHand hand,ItemStack stack){
         if(!game.items().mana().visible(owner)||game.items().actionsBlocked(owner)||game.items().wands().inputTimeStopped(owner)
                 ||game.items().magic().suppressed(owner)||game.items().magic().suppressedAt(owner.level(),owner.getEyePosition()))return false;
-        // Academy meditation and its upgraded palette are deliberately not advertised yet.
         var data=stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
-        if(data.getIntOr("upgraded",0)==1||owner.isShiftKeyDown()&&data.getIntOr("upgradable",0)==1)return false;
+        if(stack.is(LbcWands.ACADEMY_GAYCASTER)||data.getIntOr("upgraded",0)==1)
+            return game.items().gaycasterAcademy().use(owner,hand,stack);
+        if(owner.isShiftKeyDown()&&LbcAcademy.trial(stack))return game.items().gaycasterAcademy().meditate(owner,hand,stack);
         int cost=game.items().mana().score(ScoreHolder.forNameOnly("gaycaster_mana_use"),"lbc.math").get();
         if(!game.items().mana().trySpendWand(owner,cost))return false;
         Vec3 origin=owner.getEyePosition(),direction=owner.getLookAngle();
@@ -135,10 +136,10 @@ final class LbcGaycaster {
         }
         owner.level().sendParticles(dust(hue,2),true,false,point.x,point.y,point.z,20,.3,.3,.3,0);
     }
-    private static DamageSource damage(ServerPlayer owner,net.minecraft.resources.ResourceKey<net.minecraft.world.damagesource.DamageType> type){
+    static DamageSource damage(ServerPlayer owner,net.minecraft.resources.ResourceKey<net.minecraft.world.damagesource.DamageType> type){
         return new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(type),owner);
     }
-    private static void particles(ServerPlayer owner,net.minecraft.core.particles.ParticleOptions particle,Vec3 point,int count,double x,double y,double z,double speed){
+    static void particles(ServerPlayer owner,net.minecraft.core.particles.ParticleOptions particle,Vec3 point,int count,double x,double y,double z,double speed){
         owner.level().sendParticles(particle,true,false,point.x,point.y,point.z,count,x,y,z,speed);
     }
 }

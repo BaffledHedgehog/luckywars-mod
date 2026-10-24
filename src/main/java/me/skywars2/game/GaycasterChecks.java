@@ -35,7 +35,8 @@ public final class GaycasterChecks {
         final Map<net.minecraft.stats.Stat<Identifier>,Integer> stats=new LinkedHashMap<>();
         final boolean offhand;final int skill,trinket,challengeProgress;
         final net.minecraft.world.scores.PlayerTeam team;
-        Cow victim;int phase,color=-1,waits,warmTicks;boolean rayReady,emptyDone;double emptyDistance;long last=Long.MIN_VALUE;
+        Cow victim;int phase,color=-1,waits,warmTicks;boolean rayReady,emptyDone,academy,warmed;double emptyDistance;long last=Long.MIN_VALUE;
+        ItemStack meditation;LbcClouds.AcidProjectile seed;int trialTicks;final Set<Integer> trialPhases=new HashSet<>();
         Fixture(GameController game){
             this.game=game;owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));other=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));
             require(game.playing()&&owner!=null&&other!=null,"two active participants");
@@ -51,11 +52,20 @@ public final class GaycasterChecks {
             owner.teleportTo(owner.level(),at.x,at.y,at.z,Set.of(),0,0,true);other.teleportTo(other.level(),at.x+30,at.y,at.z,Set.of(),0,0,true);other.setNoGravity(true);
             var p=game.players().get(owner.getUUID());p.lbcSkill=0;p.lbcTrinket=0;game.config().offhandWands=true;
             game.items().mana().set(owner,100000);game.items().mana().noMagic(owner,0);owner.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);owner.setHealth(900);
+            // Explicit fake-player doTick must not add saturated-food regeneration to the heal under test.
+            owner.getFoodData().setFoodLevel(17);
             game.server().getScoreboard().addPlayerToTeam(owner.getScoreboardName(),team);game.server().getScoreboard().addPlayerToTeam(other.getScoreboardName(),team);
         }
-        boolean warm(){require(++warmTicks<=200,"resident fixture ready");for(long k:forced)if(!owner.level().areEntitiesLoaded(k))return false;return true;}
+        boolean warm(){
+            if(warmed)return true;
+            require(++warmTicks<=600,"resident fixture ready: "+forced.stream().filter(k->!owner.level().areEntitiesLoaded(k)).toList());
+            for(long k:forced)if(!owner.level().areEntitiesLoaded(k))return false;
+            warmed=true;return true;
+        }
         ItemStack loot(String leaf){var l=game.lbc().rollTable(owner.level(),at,owner,"lbc:ported/"+leaf);require(l.size()==1,"one item "+leaf);return l.getFirst();}
-        boolean use(InteractionHand hand){var s=loot("gaycaster");owner.setItemInHand(hand,s);return owner.gameMode.useItem(owner,owner.level(),s,hand).consumesAction();}
+        boolean use(InteractionHand hand){var s=loot(academy?"academy_gaycaster":"gaycaster");
+            if(academy){var data=s.get(DataComponents.CUSTOM_DATA).copyTag();data.putInt("mode",color+1);s.set(DataComponents.CUSTOM_DATA,CustomData.of(data));}
+            owner.setItemInHand(hand,s);return owner.gameMode.useItem(owner,owner.level(),s,hand).consumesAction();}
         void block(BlockPos p,net.minecraft.world.level.block.Block b){blocks.putIfAbsent(p,game.maps().snapshot(owner.level(),p));owner.level().setBlock(p,b.defaultBlockState(),2);}
         void capture(Vec3 point){var p=BlockPos.containing(point);for(var q:BlockPos.betweenClosed(p.offset(-3,-2,-3),p.offset(3,4,3)))blocks.putIfAbsent(q.immutable(),game.maps().snapshot(owner.level(),q));}
         Cow cow(Vec3 pos){var c=new Cow(EntityTypes.COW,owner.level());c.setPos(pos);c.setNoAi(true);c.setNoGravity(true);c.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);c.setHealth(1000);owner.level().addFreshEntity(c);return c;}
@@ -88,13 +98,14 @@ public final class GaycasterChecks {
         void launch(){
             clearActors();double distance=3+5*color;Vec3 p=owner.getEyePosition().add(0,-.6,distance);capture(p);victim=cow(p);
             // Every other source colour physically hits a friendly mob.
-            if(color%2==0)game.server().getScoreboard().addPlayerToTeam(victim.getScoreboardName(),team);
+            if(academy||color%2==0)game.server().getScoreboard().addPlayerToTeam(victim.getScoreboardName(),team);
             require(LbcGaycaster.target(game,owner,victim)&&!LbcGaycaster.target(game,owner,other),"friendly mobs accepted, allied player protected");
             victim.entityTags().add("strict_map_object");require(!LbcGaycaster.target(game,owner,victim),"technical role protected");victim.entityTags().remove("strict_map_object");
             int mana=game.items().mana().get(owner);require(use(color%2==0?InteractionHand.OFF_HAND:InteractionHand.MAIN_HAND)&&game.items().mana().get(owner)==mana-1500,"actual native PKM1500");
             waits=0;rayReady=false;
         }
         void verifyColor(){
+            if(academy){verifyAcademyColor();return;}
             switch(color){
                 case 0->{owner.doTick();require(victim.getHealth()==994&&victim.getKillCredit()==owner&&owner.getHealth()>900,"red6/native accepted healing/owner: hp="+victim.getHealth()+" credit="+victim.getKillCredit()+" casterHP="+owner.getHealth());}
                 case 1->require(game.items().mana().hudValue(victim,"effect_kiuaskivi")>0&&game.items().mana().hudValue(victim,"effect_kiuaskivi")<=100&&!victim.hasEffect(MobEffects.RAID_OMEN),"orange100 tick native transport conversion");
@@ -106,6 +117,49 @@ public final class GaycasterChecks {
                     victim.setInvulnerableTime(0);victim.damageCooldownTime=0;require(victim.hurtServer(owner.level(),owner.level().damageSources().drown(),1)&&victim.getKillCredit()==owner,"blue water native drowning inherits caster");}
                 case 6->require(victim.getHealth()==995&&victim.getKillCredit()==owner&&victim.getLastDamageSource().is(net.minecraft.world.damagesource.DamageTypes.FELL_OUT_OF_WORLD),"purple5 native void/owner");
             }
+        }
+        void verifyAcademyColor(){
+            switch(color){
+                case 0->{owner.removeEffect(MobEffects.INSTANT_HEALTH);owner.setHealth(900);victim.setHealth(1000);victim.setInvulnerableTime(0);victim.damageCooldownTime=0;
+                    game.items().gaycasterAcademy().impact(owner,victim.position(),new Vec3(0,0,1),1,victim);owner.doTick();
+                    require(victim.getHealth()==994&&owner.getHealth()==908,"Academy red accepted healing");
+                    victim.setPermanentlyInvulnerable(true);owner.removeEffect(MobEffects.INSTANT_HEALTH);
+                    game.items().gaycasterAcademy().impact(owner,victim.position(),new Vec3(0,0,1),1,victim);
+                    require(!owner.hasEffect(MobEffects.INSTANT_HEALTH),"Academy rejected red never heals");victim.setPermanentlyInvulnerable(false);}
+                case 1->{require(owner.level().getBlockState(victim.blockPosition()).is(Blocks.LAVA),"Academy orange native lava cube");
+                    victim.setInvulnerableTime(0);victim.damageCooldownTime=0;
+                    require(victim.hurtServer(owner.level(),owner.level().damageSources().lava(),1)&&victim.getKillCredit()==owner,"Academy lava hits friendly mobs and inherits caster");}
+                case 2->require(game.items().psycho().hudValue(victim,"piss")>100,"Academy yellow direct sets200 ticks");
+                case 3->{var shots=game.items().clouds().acidSnapshot().stream().filter(a->a.getOwner()==owner&&a.entityTags().contains("great_acid")&&!a.isRemoved()).toList();
+                    require(shots.size()==1&&LbcClouds.acidLifetime(shots.getFirst())==500&&shots.getFirst().isNoGravity()
+                            &&Math.abs(shots.getFirst().getDeltaMovement().length()-.2)<1e-5,"Academy awakened seed lifetime500/straight .2 movement");}
+                case 4->require(game.items().wands().electroSnapshot().stream().filter(a->a.owner==owner&&!a.mechanism).count()==4,"source cyan four electric arcs");
+                case 5->{require(owner.level().getBlockState(victim.blockPosition()).is(Blocks.WATER)&&!victim.hasEffect(MobEffects.CONDUIT_POWER),"source blue immediate native water");
+                    victim.setInvulnerableTime(0);victim.damageCooldownTime=0;
+                    require(victim.hurtServer(owner.level(),owner.level().damageSources().drown(),1)&&victim.getKillCredit()==owner,"Academy water hits friendly mobs and inherits caster");}
+                case 6->require(victim.getHealth()==995,"Academy purple native void5");
+            }
+        }
+        void academyBasics(){
+            clearActors();restoreBlocks();owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);var s=loot("academy_gaycaster");
+            require(s.is(LbcWands.ACADEMY_GAYCASTER)&&Identifier.parse("lbc:tier_s").equals(s.get(DataComponents.TOOLTIP_STYLE))
+                    &&s.get(DataComponents.LORE).lines().size()==12,"Academy source presentation");
+            owner.setItemInHand(InteractionHand.OFF_HAND,s);owner.setShiftKeyDown(true);game.items().mana().set(owner,-100);
+            for(int i=2;i<=9;i++){require(game.items().wands().use(owner,InteractionHand.OFF_HAND),"free negative mana offhand mode switch");
+                require(s.get(DataComponents.CUSTOM_DATA).copyTag().getIntOr("mode",0)==(i==9?1:i)&&game.items().mana().get(owner)==-100,"source eight-mode cycle without debit");}
+            var data=s.get(DataComponents.CUSTOM_DATA).copyTag();data.putInt("mode",8);data.putInt("color",8);s.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
+            owner.setShiftKeyDown(false);game.items().mana().set(owner,100000);
+            for(int i=0;i<9;i++){require(game.items().wands().use(owner,InteractionHand.OFF_HAND),"queued palette native use");
+                require(s.get(DataComponents.CUSTOM_DATA).copyTag().getIntOr("color",0)==i%7+1,"queued palette first red and wrap");}
+            owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+        }
+        void beginTrial(){
+            clearActors();restoreBlocks();game.items().mana().set(owner,100000);owner.setShiftKeyDown(true);
+            meditation=loot("gaycaster");var data=meditation.get(DataComponents.CUSTOM_DATA).copyTag();data.putInt("upgradable",1);
+            meditation.set(DataComponents.CUSTOM_DATA,CustomData.of(data));owner.setItemInHand(InteractionHand.OFF_HAND,meditation);
+            require(owner.gameMode.useItem(owner,owner.level(),meditation,InteractionHand.OFF_HAND).consumesAction()
+                    &&game.items().mana().get(owner)==100000&&game.items().gaycasterAcademy().remaining(owner)==575,"actual offhand meditation free admission");
+            owner.setShiftKeyDown(false);trialTicks=0;
         }
         void redHealing(){
             clearActors();Vec3 p=at.add(10,0,0);victim=cow(p);var second=cow(p.add(.1,0,0));
@@ -127,7 +181,7 @@ public final class GaycasterChecks {
                     LbcGaycaster.impact(game,owner,p,new Vec3(0,0,1),350,null);
                     require(first.getHealth()==(order==1?1000:994)&&last.getHealth()==(order==0?1000:994),"every target processed independently of accepted hit order");
                     require(owner.hasEffect(MobEffects.INSTANT_HEALTH)&&owner.getEffect(MobEffects.INSTANT_HEALTH).getAmplifier()==1,"any accepted block hit grants native healII");
-                    owner.doTick();require(owner.getHealth()==908,"one8HP heal regardless of target count/order");
+                    owner.doTick();require(owner.getHealth()==908,"one8HP heal regardless of target count/order: hp="+owner.getHealth()+" food="+owner.getFoodData().getFoodLevel()+" effects="+owner.getActiveEffects());
                 }
             }finally{second.discard();clearActors();}
         }
@@ -154,7 +208,8 @@ public final class GaycasterChecks {
             if(phase==1){
                 if(game.items().exasperato().pendingSearches()>0){require(++waits<200,"shared ray completes");return false;}
                 if(!rayReady){rayReady=true;return false;}
-                verifyColor();restoreBlocks();if(++color<7){launch();return false;}boundaries();phase=2;return false;
+                verifyColor();restoreBlocks();if(++color<7){launch();return false;}
+                if(!academy){academy=true;color=0;launch();return false;}academy=false;boundaries();phase=2;return false;
             }
             if(phase==2){require(victim.getHealth()==1000&&game.items().exasperato().pendingSearches()>0,"actual Time Stop freezes pending ray");if(++waits<3)return false;game.items().timeStop().end(owner.level());phase=3;waits=0;return false;}
             if(phase==3){
@@ -170,11 +225,41 @@ public final class GaycasterChecks {
             if(phase==4){
                 if(game.items().exasperato().pendingSearches()>0){require(++waits<200,"finite sky and dual casts finish");return false;}
                 require(emptyDone&&Math.abs(emptyDistance-125)<1e-5,"finite source range draws full125 in empty sky without targets");
+                academyBasics();phase=5;waits=0;return false;
+            }
+            if(phase==5){
+                if(game.items().exasperato().pendingSearches()>0){require(++waits<200,"queued palette completes");return false;}
+                clearActors();beginTrial();phase=6;return false;
+            }
+            if(phase==6){
+                // Native teleports dodge the falling acid laterally as well as the rising hazards vertically.
+                // No trial counter or service tick is fast-forwarded by this survival fixture.
+                ++trialTicks;owner.teleportTo(owner.level(),at.x+10*Math.sin(trialTicks*.3),at.y+trialTicks,at.z+10*Math.cos(trialTicks*.3),Set.of(),0,0,false);
+                int left=game.items().mana().hudValue(owner,"gaycaster_upgrade");
+                if(left>=100&&left<=110)trialPhases.add(1);if(left>=85&&left<=95)trialPhases.add(2);
+                if(left>=70&&left<=80)trialPhases.add(3);if(left>=55&&left<=65)trialPhases.add(4);
+                if(left<=50&&left>=36)trialPhases.add(5);if(left<=35&&left>=8)trialPhases.add(6);
+                if(game.items().gaycasterAcademy().remaining(owner)>0){require(trialTicks<590,"full natural trial completes");return false;}
+                require(trialPhases.size()==6&&meditation.get(DataComponents.CUSTOM_DATA).copyTag().getIntOr("upgrade_available",0)==1
+                        &&game.items().gaycasterAcademy().helperCount(owner)==0,"six natural phases / actual used hand ready / quiet helper cleanup: ticks="+trialTicks+" phases="+trialPhases+" data="+meditation.get(DataComponents.CUSTOM_DATA)+" alive="+owner.isAlive()+" hp="+owner.getHealth());
+                owner.teleportTo(owner.level(),at.x,at.y,at.z,Set.of(),0,0,false);owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+                owner.setItemInHand(InteractionHand.MAIN_HAND,meditation);
+                var actor=new net.minecraft.world.entity.Interaction(EntityTypes.INTERACTION,owner.level());actor.setPos(at);actor.entityTags().add("magic_academy");owner.level().addFreshEntity(actor);
+                try{require(game.items().academy().interact(owner,InteractionHand.MAIN_HAND,actor)&&owner.getMainHandItem().is(LbcWands.ACADEMY_GAYCASTER),"native Academy promotes trial wand");}finally{actor.discard();}
+                Vec3 point=at.add(10,1,0);capture(point);var wall=BlockPos.containing(point);block(wall,Blocks.STONE);
+                seed=game.items().clouds().greatAcid(owner,new Vec3(wall.getX()+.5,wall.getY()+.5,wall.getZ()-.1),new Vec3(0,0,1));
+                waits=0;phase=7;return false;
+            }
+            if(phase==7){
+                if(!seed.isRemoved()){require(++waits<20,"native awakened seed block impact");return false;}
+                var children=game.items().clouds().acidSnapshot().stream().filter(a->a.getOwner()==owner&&!a.isRemoved()&&LbcClouds.acidLifetime(a)==500).toList();
+                require(children.size()==40,"first native seed collision releases forty owned500-tick acids: "+children.size());
                 return true;
             }
             throw new IllegalStateException("phase");
         }
         public void close(){
+            game.items().gaycasterAcademy().forget(owner);
             game.items().timeStop().end(owner.level());clearActors();game.items().kiuas().clearCurse(owner);game.items().kiuas().clearCurse(other);
             var fresh=new ArrayList<Entity>();owner.level().getAllEntities().forEach(e->{if(!before.contains(e)&&e.position().distanceToSqr(at)<40000)fresh.add(e);});fresh.forEach(Entity::discard);
             for(var e:blocks.entrySet()){if(owner.level().getBlockEntity(e.getKey()) instanceof net.minecraft.world.Container c)c.clearContent();game.maps().restoreSnapshot(owner.level(),e.getKey(),e.getValue());}
@@ -195,7 +280,10 @@ public final class GaycasterChecks {
         var s=game.lbc().rollTable(p.level(),p.position(),p,"lbc:ported/gaycaster").getFirst();p.setItemInHand(InteractionHand.MAIN_HAND,s);
         require(game.items().wands().use(p,InteractionHand.MAIN_HAND)&&game.items().exasperato().pendingSearches()>0,"actual pending source ray before stop");
         require(p.addEffect(new net.minecraft.world.effect.MobEffectInstance(MobEffects.RAID_OMEN,100,111),p),"live curse before stop");
+        var trial=s.copy();var data=trial.get(DataComponents.CUSTOM_DATA).copyTag();data.putInt("upgradable",1);trial.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
+        p.setItemInHand(InteractionHand.OFF_HAND,trial);p.setShiftKeyDown(true);
+        require(game.items().wands().use(p,InteractionHand.OFF_HAND)&&game.items().gaycasterAcademy().remaining(p)>0,"live Academy trial before actual stop");p.setShiftKeyDown(false);
         epoch=game.items().epoch();SkyWars2.LOGGER.info("[check] PASS gaycaster-stop-probe");
     }
-    public static void cleanup(GameController game){try{var p=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));require(stopSaved!=null&&!game.items().currentEpoch(epoch)&&game.items().exasperato().pendingSearches()==0&&game.items().mana().hudValue(p,"effect_kiuaskivi")==0,"actual match stop clears queue/curse");}finally{if(stopSaved!=null)stopSaved.restore(game);stopSaved=null;epoch=null;}SkyWars2.LOGGER.info("[check] PASS gaycaster-cleanup");}
+    public static void cleanup(GameController game){try{var p=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));require(stopSaved!=null&&!game.items().currentEpoch(epoch)&&game.items().exasperato().pendingSearches()==0&&game.items().mana().hudValue(p,"effect_kiuaskivi")==0&&game.items().gaycasterAcademy().remaining(p)==0&&game.items().gaycasterAcademy().helperCount(p)==0,"actual match stop clears queue/curse/trial");}finally{if(stopSaved!=null)stopSaved.restore(game);stopSaved=null;epoch=null;}SkyWars2.LOGGER.info("[check] PASS gaycaster-cleanup");}
 }
