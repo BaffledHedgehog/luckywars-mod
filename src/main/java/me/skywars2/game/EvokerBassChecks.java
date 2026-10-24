@@ -113,6 +113,24 @@ public final class EvokerBassChecks {
             try{require(!use(s,InteractionHand.MAIN_HAND)&&game.items().mana().get(owner)==10000,"antimagic rejects without debit");}finally{game.items().magic().unloaded(marker);marker.discard();}
             owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
         }
+        int flag(ItemStack stack,String key){return stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr(key,0);}
+        void alternating(){
+            owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);var s=loot("academy_evoker_wand");mode(s,3);game.items().mana().set(owner,-100);owner.setShiftKeyDown(true);
+            require(use(s,InteractionHand.MAIN_HAND)&&flag(s,"mode")==4&&game.items().mana().get(owner)==-100,"free alternating Evoker selection");owner.setShiftKeyDown(false);
+            require(!use(s,InteractionHand.MAIN_HAND)&&flag(s,"alternating_next")==0,"failed mana preserves initial Evoker cursor");var mob=cow(at.add(0,0,6));
+            for(int action=1;action<=4;action++){
+                clean();game.items().mana().set(owner,10000);
+                require(use(s,InteractionHand.MAIN_HAND)&&game.items().mana().get(owner)==9300&&flag(s,"mode")==4&&flag(s,"alternating_next")==action%3+1,"paid Evoker cycle "+action);
+                require(game.items().evokerBass().snapshot().size()==switch(action){case 1,4->5;case 2->36;default->51;},"alternating retains exact fang formations");
+            }
+            game.items().mana().set(owner,700-1);require(!use(s,InteractionHand.MAIN_HAND)&&flag(s,"alternating_next")==2,"failed mana preserves running Evoker cursor");game.items().mana().set(owner,10000);
+            var blocker=new net.minecraft.world.entity.Marker(EntityTypes.MARKER,owner.level());blocker.setPos(owner.position());blocker.entityTags().add("stopper_magic");owner.level().addFreshEntity(blocker);game.items().magic().loaded(blocker);
+            try{require(!use(s,InteractionHand.MAIN_HAND)&&flag(s,"alternating_next")==2&&game.items().mana().get(owner)==10000,"antimagic preserves Evoker cursor and mana");}finally{game.items().magic().unloaded(blocker);blocker.discard();}
+            clean();game.items().timeStop().begin(owner.level(),200);try{require(!use(s,InteractionHand.MAIN_HAND)&&flag(s,"alternating_next")==2&&game.items().evokerBass().snapshot().isEmpty(),"Time Stop preserves Evoker cursor");}finally{game.items().timeStop().end(owner.level());}
+            var left=loot("academy_evoker_wand");mode(left,4);owner.setItemInHand(InteractionHand.OFF_HAND,left);game.items().mana().set(owner,10000);
+            require(use(s,InteractionHand.MAIN_HAND)&&flag(s,"alternating_next")==3&&flag(left,"alternating_next")==2&&game.items().mana().get(owner)==8600&&game.items().evokerBass().snapshot().size()==41,"independent two-hand Evoker cursors and exact ring plus cross");
+            clean();mob.discard();owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);owner.setShiftKeyDown(true);require(use(s,InteractionHand.MAIN_HAND)&&flag(s,"mode")==1,"Evoker wraps selection after alternating");owner.setShiftKeyDown(false);
+        }
         void bass(){
             var mob=cow(at.add(0,0,5));var s=loot("bass_wand");var d=s.get(DataComponents.CUSTOM_DATA).copyTag();d.putInt("upgradable",1);s.set(DataComponents.CUSTOM_DATA,CustomData.of(d));
             for(int i=0;i<80&&!(mob.hasEffect(MobEffects.WEAKNESS)&&mob.hasEffect(MobEffects.SLOWNESS)&&mob.hasEffect(MobEffects.BLINDNESS)&&mob.hasEffect(MobEffects.MINING_FATIGUE));i++){game.items().mana().set(owner,100000);require(use(s,InteractionHand.MAIN_HAND),"normal random bass cast");}
@@ -149,7 +167,7 @@ public final class EvokerBassChecks {
         }
     }
     public static void run(GameController game){require(running==null,"exclusive fixture");var f=new Fixture(game);running=f;try{f.init();}catch(RuntimeException|Error error){running=null;f.close();throw error;}}
-    public static void tick(GameController game){if(running==null)return;var f=running;try{if(!f.checked){if(!f.warm())return;f.presentation();f.formations();f.bass();f.checked=true;}if(f.academyStep()){running=null;f.close();SkyWars2.LOGGER.info("[check] PASS evoker-bass");}}catch(Throwable e){running=null;try{f.close();}catch(Throwable cleanup){e.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL evoker-bass",e);}}
+    public static void tick(GameController game){if(running==null)return;var f=running;try{if(!f.checked){if(!f.warm())return;f.presentation();f.formations();f.alternating();f.bass();f.checked=true;}if(f.academyStep()){running=null;f.close();SkyWars2.LOGGER.info("[check] PASS evoker-bass");}}catch(Throwable e){running=null;try{f.close();}catch(Throwable cleanup){e.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL evoker-bass",e);}}
     public static void stopProbe(GameController game){
         var owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));var state=new GameChecks.WandThirdPlayerState(owner,game.items().mana());
         try{owner.setShiftKeyDown(false);owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);game.items().mana().noMagic(owner,0);game.items().mana().set(owner,10000);var s=game.lbc().rollTable(owner.level(),owner.position(),owner,"lbc:ported/academy_evoker_wand").getFirst();var d=s.get(DataComponents.CUSTOM_DATA).copyTag();d.putInt("mode",2);s.set(DataComponents.CUSTOM_DATA,CustomData.of(d));owner.setItemInHand(InteractionHand.MAIN_HAND,s);require(game.items().wands().use(owner,InteractionHand.MAIN_HAND),"stop probe cast");stopped=game.items().evokerBass().snapshot();require(stopped.size()==36,"live fangs before actual stop");epoch=game.items().epoch();}finally{state.restore(game);}SkyWars2.LOGGER.info("[check] PASS evoker-bass-stop-probe");

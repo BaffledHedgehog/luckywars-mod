@@ -354,15 +354,17 @@ public final class LbcPsycho {
                 if(effect.scared>0) { scareTick(entity); effect.scared=Math.max(0,effect.scared-5); }
             }
             if(effect.piss>0 && !entity.entityTags().contains("sin_greed_active")) {
+                // effects/tick: anchored eyes positioned ^ ^ ^.3, shared by both audiences.
+                Vec3 particleOrigin=entity.getEyePosition().add(entity.getLookAngle().scale(.3));
                 var piss=new ItemStack(Items.STICK); piss.set(DataComponents.ITEM_MODEL,Identifier.parse("lbc:piss"));
                 if(entity instanceof ServerPlayer player) {
                     player.level().sendParticles(player,new ItemParticleOption(ParticleTypes.ITEM,ItemStackTemplate.fromNonEmptyStack(piss)),true,false,
-                            entity.getX(),entity.getY(),entity.getZ(),200,.3,.2,.3,0);
+                            particleOrigin.x,particleOrigin.y,particleOrigin.z,200,.3,.2,.3,0);
                     game.items().mana().award(player,"lbc:true_advancements/potions/effect_piss");
                 }
-                for(var viewer:game.maps().level().players()) if(viewer!=entity && viewer.position().distanceToSqr(entity.position())>=.01)
-                    game.maps().level().sendParticles(viewer,new ItemParticleOption(ParticleTypes.ITEM,Items.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.YELLOW)),false,false,
-                            entity.getX(),entity.getY(),entity.getZ(),3,.2,.2,.2,0);
+                for(var viewer:game.maps().level().players()) if(viewer!=entity && viewer.position().distanceToSqr(particleOrigin)>=.01)
+                    game.maps().level().sendParticles(viewer,new ItemParticleOption(ParticleTypes.ITEM,Items.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.YELLOW)),true,false,
+                            particleOrigin.x,particleOrigin.y,particleOrigin.z,3,.2,.2,.2,0);
                 entity.addEffect(new MobEffectInstance(MobEffects.BLINDNESS,20,0,false,false),effect.owner);
                 entity.addEffect(new MobEffectInstance(MobEffects.SLOWNESS,20,0,false,false),effect.owner);
                 if(entity instanceof Mob mob && mob.getAttribute(Attributes.FOLLOW_RANGE)!=null) {

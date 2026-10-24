@@ -43,18 +43,24 @@ public final class LbcEvokerBass {
                 || owner.entityTags().contains("time_stopped") || game.items().timeStop().stopped(owner.level())
                 || game.items().magic().suppressed(owner) || game.items().magic().suppressedAt(owner.level(),owner.getEyePosition())) return false;
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-        int count=evoker?3:4,mode=Math.max(1,Math.min(count,data.getIntOr("mode",1)));
+        int count=evoker?3:4,choices=evoker?4:count,mode=Math.max(1,Math.min(choices,data.getIntOr("mode",1)));
         if(academy && owner.isShiftKeyDown()) {
-            mode=mode%count+1;data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
+            mode=mode%choices+1;data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
             owner.getInventory().setChanged();
-            owner.sendSystemMessage(evoker?net.minecraft.network.chat.Component.translatable("formation").append(switch(mode){case 1->"@";case 2->"O";default->"\\|/";})
+            owner.sendSystemMessage(evoker?(mode==4?net.minecraft.network.chat.Component.translatableWithFallback("mode_alternating","Чередующийся"):net.minecraft.network.chat.Component.translatable("formation").append(switch(mode){case 1->"@";case 2->"O";default->"\\|/";}))
                     :net.minecraft.network.chat.Component.translatable(switch(mode){case 1->"effect_weakness";case 2->"effect_slowness";case 3->"effect_blindness";default->"effect_mining_fatigue";}));
             return true;
         }
         int cost=game.items().mana().score(ScoreHolder.forNameOnly(evoker?"evoker_wand_mana_use":"bass_wand_mana_use"),"lbc.math").get();
         if(!game.items().mana().trySpendWand(owner,cost))return false;
+        boolean alternating=evoker&&academy&&mode==4;
+        if(alternating)mode=Math.max(1,Math.min(count,data.getIntOr("alternating_next",1)));
         if(!academy)mode=owner.getRandom().nextInt(count)+1;
         if(evoker)evoker(owner,hand,stack,mode);else bass(owner,hand,stack,mode,academy);
+        if(alternating){
+            var updated=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+            updated.putInt("alternating_next",mode%count+1);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(updated));owner.getInventory().setChanged();
+        }
         game.items().wands().wandCasted(owner);return true;
     }
     private List<LivingEntity> mobs(ServerPlayer owner,double radius) {

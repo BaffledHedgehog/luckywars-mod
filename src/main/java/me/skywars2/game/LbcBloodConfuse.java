@@ -45,14 +45,21 @@ public final class LbcBloodConfuse {
                 ||game.items().timeStop().stopped(owner.level())||game.items().magic().suppressed(owner)
                 ||game.items().magic().suppressedAt(owner.level(),owner.getEyePosition()))return false;
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-        int mode=Math.max(1,Math.min(4,data.getIntOr("mode",1)));
+        int mode=Math.max(1,Math.min(5,data.getIntOr("mode",1)));
         if(!blood&&academy&&owner.isShiftKeyDown()){
-            mode=mode%4+1;data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));owner.getInventory().setChanged();
-            owner.sendSystemMessage(Component.translatable(switch(mode){case 1->"mode_invisibility";case 2->"mode_teleport";case 3->"mode_speed";default->"mode_levitate";}));return true;
+            mode=mode%5+1;data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));owner.getInventory().setChanged();
+            owner.sendSystemMessage(mode==5?Component.translatableWithFallback("mode_alternating","Чередующийся")
+                    :Component.translatable(switch(mode){case 1->"mode_invisibility";case 2->"mode_teleport";case 3->"mode_speed";default->"mode_levitate";}));return true;
         }
         int cost=game.items().mana().score(ScoreHolder.forNameOnly(blood?"blood_wand_mana_use":"confuse_wand_mana_use"),"lbc.math").get();
         if(!game.items().mana().trySpendWand(owner,cost))return false;
-        if(blood)blood(owner,hand,stack,academy);else confuse(owner,hand,stack,academy,academy?mode:owner.getRandom().nextInt(4)+1);
+        boolean alternating=!blood&&academy&&mode==5;
+        int action=alternating?Math.max(1,Math.min(4,data.getIntOr("alternating_next",1))):mode;
+        if(blood)blood(owner,hand,stack,academy);else confuse(owner,hand,stack,academy,academy?action:owner.getRandom().nextInt(4)+1);
+        if(alternating){
+            var updated=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+            updated.putInt("alternating_next",action%4+1);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(updated));owner.getInventory().setChanged();
+        }
         game.items().wands().wandCasted(owner);return true;
     }
     private List<LivingEntity> nearby(ServerPlayer owner,Vec3 center,double radius){

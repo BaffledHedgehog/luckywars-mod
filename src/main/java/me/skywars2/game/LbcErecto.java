@@ -17,6 +17,8 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
@@ -48,6 +50,8 @@ final class LbcErecto {
     private final GameController game;
     private final Set<Sphere> spheres=new LinkedHashSet<>();
     private final Map<ServerPlayer,String> rays=new IdentityHashMap<>();
+    private static final Identifier SNIPER_WINDUP=Identifier.parse("skywars2:erecto_sniper_windup");
+    private final Map<ServerPlayer,Integer> sniperWindups=new IdentityHashMap<>();
     LbcErecto(GameController game){this.game=game;}
     boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy){
         if(!game.items().mana().visible(owner)||game.items().actionsBlocked(owner)||game.items().wands().inputTimeStopped(owner)
@@ -72,7 +76,12 @@ final class LbcErecto {
         }else{
             mana.set(owner,mana.get(owner)-3900);add(owner,owner.getEyePosition(),owner.getYRot(),owner.getXRot(),200,
                     new Path(SNIPER,owner.getEyePosition(),null,0,0,owner,hand,stack));
-            owner.addEffect(new MobEffectInstance(MobEffects.SLOWNESS,20,100,false,false,false),owner);
+            // Source Slowness CI immobilizes for one second. The uncapped attribute
+            // contract would turn its -1515% modifier into negative movement speed.
+            // Multiply the current speed by zero without changing unrelated effects.
+            owner.getAttribute(Attributes.MOVEMENT_SPEED).addOrUpdateTransientModifier(
+                    new AttributeModifier(SNIPER_WINDUP,-1,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+            sniperWindups.put(owner,20);
             rotate(owner,owner.getLookAngle(),-15);LbcOverload.sound(owner,owner.getEyePosition(),"minecraft:item.trident.return",3,1.3f,0);
             owner.level().sendParticles(net.minecraft.core.particles.ColorParticleOption.create(ParticleTypes.FLASH,0xff00ffff),true,false,owner.getEyePosition().x,owner.getEyePosition().y,owner.getEyePosition().z,1,0,0,0,0);
         }
@@ -174,6 +183,14 @@ final class LbcErecto {
     int sphereCount(){return spheres.size();}
     List<Sphere> sphereSnapshot(){return List.copyOf(spheres);}
     void tick(){
+        for(var entry:List.copyOf(sniperWindups.entrySet())){
+            var owner=entry.getKey();
+            if(!owner.isAlive()||owner.isRemoved()||owner.level()!=game.maps().level()||!game.canUseGameplayItems(owner))clearSniperWindup(owner);
+            else if(!game.items().timeStop().stopped(owner.level())){
+                int remaining=entry.getValue()-1;
+                if(remaining<=0)clearSniperWindup(owner);else sniperWindups.put(owner,remaining);
+            }
+        }
         for(var entry:List.copyOf(rays.entrySet())){
             var owner=entry.getKey();if(!active(owner,entry.getValue())||game.items().magic().rejectCustomEffect(owner)){clearRay(owner);continue;}
             if(rayPending(owner)<=0){rays.remove(owner);continue;}if(game.items().timeStop().stopped(owner.level()))continue;
@@ -197,7 +214,9 @@ final class LbcErecto {
             if(affected.add(e)&&e instanceof LivingEntity living){living.addEffect(new MobEffectInstance(MobEffects.GLOWING,20,0),owner);living.addEffect(new MobEffectInstance(MobEffects.SLOWNESS,20,100),owner);}
         },null);
     }
-    void clearRay(ServerPlayer owner){rays.remove(owner);game.items().mana().score(owner,"ray").set(0);}
-    void forget(ServerPlayer owner){clearRay(owner);spheres.removeIf(s->s.owner==owner);}
-    void stop(){for(var owner:List.copyOf(rays.keySet()))clearRay(owner);spheres.clear();}
+    void clearRay(ServerPlayer owner){rays.remove(owner);game.items().mana().score(owner,"ray").set(0);clearSniperWindup(owner);}
+    int sniperWindupTicks(ServerPlayer owner){return sniperWindups.getOrDefault(owner,0);}
+    private void clearSniperWindup(ServerPlayer owner){sniperWindups.remove(owner);owner.getAttribute(Attributes.MOVEMENT_SPEED).removeModifier(SNIPER_WINDUP);}
+    void forget(ServerPlayer owner){clearRay(owner);clearSniperWindup(owner);spheres.removeIf(s->s.owner==owner);}
+    void stop(){for(var owner:List.copyOf(rays.keySet()))clearRay(owner);for(var owner:List.copyOf(sniperWindups.keySet()))clearSniperWindup(owner);spheres.clear();}
 }

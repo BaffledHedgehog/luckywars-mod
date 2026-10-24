@@ -579,11 +579,6 @@ public final class LbcIndirectKills {
     public void damaged(LivingEntity target, DamageSource source) {
         var inherited=causeTarget==target&&activeCause!=null ? activeCause : babylonCause(source);
         if(inherited!=null) { displaced(target,inherited); return; }
-        if(LbcCorruptedGlyphs.forced(source)){
-            var cause=game.items().corruptedGlyphs().belialCause(target,source);
-            if(cause!=null){laterAttacks.put(target,cause);falls.put(target,new Fall(cause,false));}
-            return;
-        }
         var player=playerSource(source.getEntity());
         if(player==null && source.getEntity()==null)player=playerSource(source.getDirectEntity());
         if(player!=null && player!=target) {

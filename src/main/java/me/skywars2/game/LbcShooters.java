@@ -18,6 +18,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.animal.chicken.Chicken;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
@@ -121,13 +122,16 @@ public final class LbcShooters {
         @Override public boolean shouldBeSaved() { return false; }
     }
     private final Map<LivingEntity,Stun> stuns = new java.util.IdentityHashMap<>();
+    private static final Identifier STUN_MOVEMENT=Identifier.parse("skywars2:stun_movement");
+    private record StunEffect(MobEffectInstance installed,MobEffectInstance previous,int installedAt){}
     private static final class Stun {
         final ServerPlayer owner;
         final String epoch;
         final float yaw,pitch;
-        int ticks=80;
-        Stun(ServerPlayer owner,LivingEntity target,String epoch) {
-            this.owner=owner; this.epoch=epoch; yaw=target.getYRot(); pitch=target.getXRot();
+        final Map<net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect>,StunEffect> effects=new java.util.IdentityHashMap<>();
+        int ticks;
+        Stun(ServerPlayer owner,LivingEntity target,String epoch,int ticks) {
+            this.owner=owner; this.epoch=epoch; this.ticks=ticks; yaw=target.getYRot(); pitch=target.getXRot();
         }
     }
     private static final class Burst {
@@ -679,14 +683,31 @@ public final class LbcShooters {
             target.addEffect(new MobEffectInstance(MobEffects.HUNGER,200,1),owner);
         } else if(mode==3) target.hurtServer(owner.level(),damage,5);
         else {
-            if(target instanceof ServerPlayer player && game.items().magic().rejectEffect(player,MobEffects.SLOWNESS)) return;
-            stuns.put(target,new Stun(owner,target,game.items().epoch()));
-            game.items().indirectKills().displaced(target,owner);
-            prepareStunnedInput(target);
-            target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS,80,127,false,false),owner);
-            target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS,80,127,false,false),owner);
-            target.addEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE,80,127,false,false),owner);
+            if(!stun(owner,target,80))return;
+            for(var effect:List.of(MobEffects.SLOWNESS,MobEffects.WEAKNESS,MobEffects.MINING_FATIGUE)){
+                var before=target.getEffect(effect);var previous=before==null?null:new MobEffectInstance(before);
+                if(target.addEffect(new MobEffectInstance(effect,80,127,false,false),owner)){
+                    var installed=target.getEffect(effect);
+                    if(installed!=null&&installed.getAmplifier()==127)
+                        stuns.get(target).effects.put(effect,new StunEffect(installed,previous,target.tickCount));
+                }
+            }
         }
+    }
+    /** Shared full input lock. Spell families own their own additional status payloads. */
+    public boolean stun(ServerPlayer owner,LivingEntity target,int ticks){
+        if(ticks<=0||!active(owner)||target.level()!=owner.level()
+                ||!game.items().wands().projectileTarget(owner,target)
+                ||game.items().wands().inputTimeStopped(owner)
+                ||game.items().timeStop().frozen(target)
+                ||target instanceof ServerPlayer player&&game.items().magic().rejectEffect(player,MobEffects.SLOWNESS))return false;
+        clearStun(target);
+        var movement=target.getAttribute(Attributes.MOVEMENT_SPEED);
+        if(movement!=null)movement.addOrUpdateTransientModifier(new AttributeModifier(STUN_MOVEMENT,-1,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+        stuns.put(target,new Stun(owner,target,game.items().epoch(),ticks));
+        game.items().indirectKills().displaced(target,owner);
+        prepareStunnedInput(target);
+        return true;
     }
     public boolean stunned(LivingEntity target) { return stunTicks(target)>0; }
     public int stunTicks(LivingEntity target) {
@@ -694,10 +715,20 @@ public final class LbcShooters {
         return stun==null?0:stun.ticks;
     }
     public void clearStun(LivingEntity target) {
-        if(stuns.remove(target)==null) return;
-        target.removeEffect(MobEffects.SLOWNESS);
-        target.removeEffect(MobEffects.WEAKNESS);
-        target.removeEffect(MobEffects.MINING_FATIGUE);
+        var stun=stuns.remove(target);if(stun==null)return;
+        // Clean our high-amplifier SLR effects before removing the zero multiplier.
+        // Generic stuns never claim ownership of pre-existing potion effects.
+        for(var entry:stun.effects.entrySet()){
+            var owned=entry.getValue();var current=target.getEffect(entry.getKey());
+            if(current!=owned.installed()||current.getAmplifier()!=127)continue;
+            target.removeEffect(entry.getKey());
+            var previous=owned.previous();
+            if(previous!=null){
+                int remaining=previous.isInfiniteDuration()?-1:previous.getDuration()-Math.max(0,target.tickCount-owned.installedAt());
+                if(remaining==-1||remaining>0)target.addEffect(new MobEffectInstance(entry.getKey(),remaining,previous.getAmplifier(),previous.isAmbient(),previous.isVisible(),previous.showIcon()));
+            }
+        }
+        var movement=target.getAttribute(Attributes.MOVEMENT_SPEED);if(movement!=null)movement.removeModifier(STUN_MOVEMENT);
     }
     /** Remove voluntary input only: deltaMovement belongs to native physics and external forces. */
     public void prepareStunnedInput(LivingEntity target) {
@@ -721,9 +752,11 @@ public final class LbcShooters {
             if(!target.isAlive() || target.isRemoved() || target.level()!=game.maps().level()
                     || !active(stun.owner) || !game.items().currentEpoch(stun.epoch)
                     || target instanceof ServerPlayer player && (!active(player)
-                        || game.items().magic().rejectEffect(player,MobEffects.SLOWNESS)) || --stun.ticks<=0) {
+                        || game.items().magic().rejectEffect(player,MobEffects.SLOWNESS))) {
                 clearStun(target); continue;
             }
+            if(game.items().timeStop().stopped((ServerLevel)target.level())||game.items().timeStop().frozen(target))continue;
+            if(--stun.ticks<=0){clearStun(target);continue;}
             prepareStunnedInput(target);
             if(target instanceof ServerPlayer player) correctStun(player);
         }

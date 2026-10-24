@@ -195,8 +195,9 @@ public final class LbcFartus {
             Vec3 end=wall==null?to:wall.getLocation();
             if(contact(shot,from,end,0))break;
             shot.setPos(end);
-            if(wall!=null){if(!level.hasChunkAt(wall.getBlockPos())||shot.kind==Kind.LABEL){remove(shot);break;}
-                shot.setDeltaMovement(shot.getDeltaMovement().reverse());}
+            // User: guided bananas fly and home without physical rebounds. Contacts
+            // before the wall still resolve; the first solid impact retires the actor.
+            if(wall!=null){remove(shot);break;}
             if(!valid(shot)){remove(shot);break;}
         }
         if(!shot.isRemoved()){if(++shot.age>=(shot.kind==Kind.LABEL?60:100))remove(shot);else orient(shot);}
@@ -270,7 +271,10 @@ public final class LbcFartus {
                     net.minecraft.sounds.SoundSource.MASTER,shot.getX(),shot.getY(),shot.getZ(),1,1,owner.getRandom().nextLong()));
             level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM,net.minecraft.world.item.ItemStackTemplate.fromNonEmptyStack(model("lbc:banan",true))),shot.getX(),shot.getY(),shot.getZ(),1,0,0,0,0);
         }else{
-            for(var effect:List.of(MobEffects.BLINDNESS,MobEffects.SLOWNESS,MobEffects.DARKNESS,MobEffects.WEAKNESS))
+            // The source's Slowness C becomes negative speed with uncapped attributes.
+            // The shared stun enforces the same40 active ticks without that exploit.
+            game.items().shooters().stun(owner,target,40);
+            for(var effect:List.of(MobEffects.BLINDNESS,MobEffects.DARKNESS,MobEffects.WEAKNESS))
                 game.items().indirectKills().inheritedEffect(target,new MobEffectInstance(effect,40,99,false,false),cause);
             game.items().indirectKills().withCause(target,cause,()->MobEffects.INSTANT_DAMAGE.value().applyInstantaneousEffect(level,shot,owner,target,3,1));
             LbcOverload.sound(owner,target.position(),"minecraft:lbcsounds.bananoponos",1,1,0);
@@ -282,8 +286,11 @@ public final class LbcFartus {
     public int charges(ServerPlayer owner){return game.items().mana().score(owner,"fartus_sword").get();}
     /** Called only by the common accepted-melee hook; source and victim remain native. */
     public void melee(ServerPlayer owner,LivingEntity victim,DamageSource source){
-        if(LbcDamage.isMeleeAttack(source,owner)&&validOwner(owner)&&academy(owner.getMainHandItem())&&game.items().wands().projectileTarget(owner,victim,true))
+        if(LbcDamage.isMeleeAttack(source,owner)&&validOwner(owner)&&academy(owner.getMainHandItem())&&game.items().wands().projectileTarget(owner,victim,true)){
             game.items().mana().score(owner,"fartus_sword").set(charges(owner)+1);
+            // User: the Academy staff's accepted close-combat strike also stuns.
+            game.items().shooters().stun(owner,victim,40);
+        }
     }
     static ItemAttributeModifiers attributes(double damage){
         return ItemAttributeModifiers.builder()

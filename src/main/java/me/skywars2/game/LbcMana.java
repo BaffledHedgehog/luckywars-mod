@@ -303,13 +303,12 @@ public final class LbcMana {
             if(visual-before>=15) award(p,"lbc:true_advancements/potions/mana_temp");
         }
         write(p,"manaregen_visual",visual);
-        int mana=get(p), max=maximum(p); boolean reversed=reverse(p)>0;
-        if(reversed) { mana-=visual; if(visual>0)game.items().indirectKills().manaLost(p,reverseOwners.get(p)); }
-        // Source helper выполняется только ниже cap при положительном regen, либо всегда при отрицательном.
-        // Уже выданный избыток маны не обрезается произвольно; нижней границы у ресурса нет.
-        if(visual>0 && mana<max || visual<0) {
-            if(!reversed) mana+=visual;
-            if(mana>max) mana=max;
+        int mana=get(p), max=maximum(p), delta=effectiveRegeneration(p);
+        // The plague flips the applied rate in both directions; positive regeneration retains the cap.
+        if(delta<0 || delta>0&&mana<max) {
+            long next=(long)mana+delta;
+            mana=(int)Math.max(Integer.MIN_VALUE,Math.min(Integer.MAX_VALUE,delta>0?Math.min(max,next):next));
+            if(delta<0&&reverse(p)>0)game.items().indirectKills().manaLost(p,reverseOwners.get(p));
         }
         set(p,mana);
         game.items().indirectKills().manaRecovered(p);
@@ -351,15 +350,21 @@ public final class LbcMana {
         }
     }
     /** Source HUD содержит glyph/числа, без языковой подписи; literal section-sign separators сохранены. */
+    // Upkeep uses the stored base rate; the plague flips only the applied and displayed rate.
+    int effectiveRegeneration(ServerPlayer p) {
+        int value=hudValue(p,"manaregen_visual");
+        return reverse(p)>0?(int)Math.max(Integer.MIN_VALUE,Math.min(Integer.MAX_VALUE,-(long)value)):value;
+    }
     public MutableComponent hud(ServerPlayer p) {
         int mana=hudValue(p,"mana");
         ChatFormatting color=mana>=0 ? ChatFormatting.AQUA : mana>=-5000 ? ChatFormatting.YELLOW
                 : mana>=-10000 ? ChatFormatting.RED : mana>=-15000 ? ChatFormatting.DARK_RED
                 : mana>=-20000 ? ChatFormatting.LIGHT_PURPLE : ChatFormatting.DARK_PURPLE;
+        int regen=effectiveRegeneration(p);
         return Component.literal(mana>=0 ? "\uE100" : "\uE132").withStyle(style->style.withColor(0x4e5c24))
                 .append(" ").append(Component.literal(Integer.toString(mana)).withStyle(color)).append("\u00a7a/")
-                .append(Component.literal(Integer.toString(hudValue(p,"manamax"))).withStyle(ChatFormatting.AQUA)).append(" \u00a7a[\u00a7a+")
-                .append(Component.literal(Integer.toString(hudValue(p,"manaregen_visual"))).withStyle(ChatFormatting.AQUA)).append("\u00a7a]");
+                .append(Component.literal(Integer.toString(hudValue(p,"manamax"))).withStyle(ChatFormatting.AQUA)).append(" \u00a7a[\u00a7a"+(regen<0?"-":"+"))
+                .append(Component.literal(Long.toString(Math.abs((long)regen))).withStyle(ChatFormatting.AQUA)).append("\u00a7a]");
     }
     /** Ported mana-related source actionbar entries, kept in source order after the other status icons. */
     public MutableComponent appendHudEarlyStatuses(ServerPlayer p,MutableComponent hud) {

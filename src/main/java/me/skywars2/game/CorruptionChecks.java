@@ -102,9 +102,29 @@ public final class CorruptionChecks {
             game.items().mana().set(owner,1209);require(!game.items().acidCorruption().use(owner,InteractionHand.MAIN_HAND,loot("acid_corruption_wand"),false)&&game.items().mana().get(owner)==1209,"continuation1210 admission");
             for(String leaf:List.of("academy_corruption_wand","academy_acid_corruption_wand")){
                 var s=loot(leaf);owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);game.items().mana().set(owner,-10000);owner.setShiftKeyDown(true);
-                for(int mode:new int[]{2,3,4,1})require(use(s,InteractionHand.OFF_HAND)&&flag(s,"mode")==mode&&game.items().mana().get(owner)==-10000,"free four-mode cycle on actual offhand at negative mana");owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+                for(int mode:leaf.equals("academy_corruption_wand")?new int[]{2,3,4,5,1}:new int[]{2,3,4,1})require(use(s,InteractionHand.OFF_HAND)&&flag(s,"mode")==mode&&game.items().mana().get(owner)==-10000,"free complete mode cycle on actual offhand at negative mana");owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
             }
             owner.setShiftKeyDown(false);game.items().mana().set(owner,1000000);
+        }
+        void alternating(){
+            owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);owner.setShiftKeyDown(false);
+            var s=loot("academy_corruption_wand");flag(s,"mode",5);var victim=cow(at.add(3,0,0));
+            game.items().mana().set(owner,1799);require(!use(s,InteractionHand.MAIN_HAND)&&flag(s,"alternating_next")==0,"failed mana preserves initial Corruption cursor");
+            for(int action=1;action<=5;action++){
+                victim.removeAllEffects();victim.setInvulnerableTime(0);victim.damageCooldownTime=0;float hp=victim.getHealth();game.items().mana().set(owner,10000);
+                require(use(s,InteractionHand.MAIN_HAND)&&game.items().mana().get(owner)==8200&&flag(s,"mode")==5&&flag(s,"alternating_next")==action%4+1,"paid Corruption cycle "+action);
+                if(action==1||action==5)require(victim.hasEffect(MobEffects.POISON),"alternating poison");
+                if(action==2)require(victim.hasEffect(MobEffects.WITHER),"alternating wither");
+                if(action==3)require(victim.hasEffect(MobEffects.HUNGER),"alternating hunger");
+                if(action==4)require(victim.getHealth()==hp-8,"alternating native damage");
+            }
+            game.items().mana().set(owner,1800-1);require(!use(s,InteractionHand.MAIN_HAND)&&flag(s,"alternating_next")==2,"failed mana preserves running Corruption cursor");game.items().mana().set(owner,10000);
+            var blocker=new net.minecraft.world.entity.Marker(EntityTypes.MARKER,owner.level());blocker.setPos(owner.position());blocker.entityTags().add("stopper_magic");owner.level().addFreshEntity(blocker);game.items().magic().loaded(blocker);
+            try{require(!use(s,InteractionHand.MAIN_HAND)&&flag(s,"alternating_next")==2&&game.items().mana().get(owner)==10000,"antimagic preserves Corruption cursor and mana");}finally{game.items().magic().unloaded(blocker);blocker.discard();}
+            game.items().timeStop().begin(owner.level(),200);try{require(!use(s,InteractionHand.MAIN_HAND)&&flag(s,"alternating_next")==2,"Time Stop preserves Corruption cursor");}finally{game.items().timeStop().end(owner.level());}
+            var left=loot("academy_corruption_wand");flag(left,"mode",5);owner.setItemInHand(InteractionHand.OFF_HAND,left);game.items().mana().set(owner,10000);
+            require(use(s,InteractionHand.MAIN_HAND)&&flag(s,"alternating_next")==3&&flag(left,"alternating_next")==2&&game.items().mana().get(owner)==6400,"both Corruption stacks advance independently and pay");
+            owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);remove(victim);game.items().mana().set(owner,1000000);
         }
         void donor(){
             var victim=cow(at.add(3,0,0));var friend=cow(at.add(-3,0,0));game.server().getScoreboard().addPlayerToTeam(friend.getScoreboardName(),team);var technical=cow(at.add(0,0,-3));technical.entityTags().add("strict_map_object");
@@ -169,7 +189,7 @@ public final class CorruptionChecks {
             frozen=service.spawn(owner,center,true);frozenDeath=cow(at.add(8,0,0));service.applyDeath(owner,frozenDeath,1);game.items().timeStop().begin(owner.level(),200);waits=0;
         }
         boolean step(){long now=owner.level().getGameTime();if(last==now)return false;last=now;
-            if(phase==0){presentation();donor();phase++;return false;}
+            if(phase==0){presentation();alternating();donor();phase++;return false;}
             if(phase==1){donorTrial();phase++;return false;}
             if(phase==2){owner.setItemInHand(InteractionHand.MAIN_HAND,trial);require(game.items().academy().interact(owner,InteractionHand.MAIN_HAND,panel)&&owner.getMainHandItem().is(LbcWands.ACADEMY_CORRUPTION)&&Identifier.parse("lbc:tier_c").equals(owner.getMainHandItem().get(DataComponents.TOOLTIP_STYLE)),"actual native C donor promotion");phase++;return false;}
             if(phase==3){acidModes();actors();phase++;return false;}

@@ -57,6 +57,7 @@ public final class GameController {
     private final Spectators spectators;
     private final AttributeHud attributeHud;
     private final ZoneBarrier zoneBarrier;
+    private final LbcTeamColors teamColors;
     private final ItemStack lobbyCompass = menuCompass();
     private final Map<UUID, Participant> participants = new LinkedHashMap<>();
     private final Set<UUID> pendingLobby = new java.util.HashSet<>();
@@ -86,6 +87,7 @@ public final class GameController {
 
     public GameController(MinecraftServer server, GameConfig config, PlayerStore players, MapManager maps) {
         this.server = server; this.config = config; this.players = players; this.maps = maps;
+        this.teamColors = new LbcTeamColors(server.getScoreboard());
         this.zoneBarrier = new ZoneBarrier(this);
         this.events = new MatchEvents(this, maps, config, players);
         this.lbc = new LbcLoadouts(this, config, players);
@@ -130,6 +132,7 @@ public final class GameController {
     public GameLuckyModifiers luckyModifiers() { return luckyModifiers; }
     MatchEvents events() { return events; }
     public AttributeHud attributeHud() { return attributeHud; }
+    LbcTeamColors teamColors() { return teamColors; }
 
     public Component status() {
         return text("game.status", text("stage." + stage.name().toLowerCase(java.util.Locale.ROOT)),
@@ -139,6 +142,7 @@ public final class GameController {
     }
 
     public void startServer() {
+        teamColors.ensurePalette();
         if (maps.level() == null) {
             mapFailure = text("map.error.dimension");
             SkyWars2.LOGGER.error("{}", mapFailure.getString()); return;
@@ -177,6 +181,7 @@ public final class GameController {
     public void leave(ServerPlayer player) {
         // При отключении снимаем временные бонусы, отмечаем участника выбывшим и сохраняем профиль.
         attributeHud.clear(player);
+        teamColors.leave(player);
         items.forget(player);
         lbc.clear(player);
         lbc.left(player);
@@ -400,6 +405,7 @@ public final class GameController {
             }
             List<MapManager.Spawn> spawns = new ArrayList<>(maps.spawns());
             Collections.shuffle(spawns);
+            if (config.gameMode == 1) teamColors.begin(ready);
             for (int i = 0; i < ready.size(); i++) {
                 ServerPlayer player = ready.get(i);
                 Participant member = new Participant(spawns.get(i), Math.max(1, config.lives));
@@ -658,6 +664,7 @@ public final class GameController {
     }
 
     private void restoreLobby() {
+        teamColors.stop();
         luckyModifiers.endMatch();
         // Общая точка завершения/отмены матча: снимает временные состояния, готовит арену и ждёт callback лобби.
         boolean preserveFinishedMap = playing() || stage == Stage.ENDING;
@@ -900,6 +907,7 @@ public final class GameController {
     }
 
     public void shutdown() {
+        teamColors.stop();
         luckyModifiers.endMatch();
         attributeHud.stop();
         items.stop();

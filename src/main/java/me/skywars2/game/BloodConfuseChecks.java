@@ -118,6 +118,28 @@ public final class BloodConfuseChecks {
             owner.teleportTo(owner.level(),at.x,at.y,at.z,Set.of(),0,0,true);owner.setShiftKeyDown(true);game.items().mana().set(owner,-100);mode(s,1);require(use(s,InteractionHand.OFF_HAND)&&flag(s,"mode")==2&&game.items().mana().get(owner)==-100,"free offhand mode change at negative mana");owner.setShiftKeyDown(false);owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
             resetHealth();target.discard();
         }
+        void alternating(){
+            resetHealth();owner.teleportTo(owner.level(),at.x,at.y,at.z,Set.of(),0,0,true);
+            var s=loot("academy_confuse_wand");mode(s,4);owner.setShiftKeyDown(true);game.items().mana().set(owner,-100);
+            require(use(s,InteractionHand.OFF_HAND)&&flag(s,"mode")==5&&game.items().mana().get(owner)==-100,"free selection of alternating Confuse");
+            owner.setShiftKeyDown(false);owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+            require(!use(s,InteractionHand.MAIN_HAND)&&flag(s,"alternating_next")==0,"failed mana never starts Confuse cycle");
+            for(int action=1;action<=5;action++){
+                owner.removeAllEffects();game.items().mana().set(owner,10000);
+                require(use(s,InteractionHand.MAIN_HAND)&&game.items().mana().get(owner)==9100&&flag(s,"mode")==5&&flag(s,"alternating_next")==action%4+1,"paid Confuse cycle "+action);
+                if(action==1||action==5)effect(owner,MobEffects.INVISIBILITY,200,0);
+                if(action==3)effect(owner,MobEffects.SPEED,200,3);
+                if(action==4)effect(owner,MobEffects.LEVITATION,20,10);
+            }
+            game.items().mana().set(owner,900-1);require(!use(s,InteractionHand.MAIN_HAND)&&flag(s,"alternating_next")==2,"failed mana preserves running Confuse cursor");game.items().mana().set(owner,10000);
+            var blocker=new net.minecraft.world.entity.Marker(EntityTypes.MARKER,owner.level());blocker.setPos(owner.position());blocker.entityTags().add("stopper_magic");owner.level().addFreshEntity(blocker);game.items().magic().loaded(blocker);
+            try{require(!use(s,InteractionHand.MAIN_HAND)&&flag(s,"alternating_next")==2&&game.items().mana().get(owner)==10000,"antimagic preserves Confuse cursor and mana");}finally{game.items().magic().unloaded(blocker);blocker.discard();}
+            game.items().timeStop().begin(owner.level(),200);
+            try{require(!use(s,InteractionHand.MAIN_HAND)&&flag(s,"alternating_next")==2,"Time Stop preserves Confuse cursor");}finally{game.items().timeStop().end(owner.level());}
+            var left=loot("academy_confuse_wand");mode(left,5);owner.setItemInHand(InteractionHand.OFF_HAND,left);game.items().mana().set(owner,10000);
+            require(use(s,InteractionHand.MAIN_HAND)&&flag(s,"alternating_next")==3&&flag(left,"alternating_next")==2&&game.items().mana().get(owner)==8200,"two Confuse stacks retain independent cursor and costs");
+            owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);owner.setShiftKeyDown(true);require(use(s,InteractionHand.MAIN_HAND)&&flag(s,"mode")==1&&flag(s,"alternating_next")==3,"Confuse selection wraps and preserves cursor");owner.setShiftKeyDown(false);resetHealth();
+        }
         void admission(){
             var s=loot("academy_confuse_wand");game.items().mana().set(owner,899);require(!use(s,InteractionHand.MAIN_HAND)&&game.items().mana().get(owner)==899,"cost admission");
             game.items().mana().set(owner,10000);game.items().timeStop().begin(owner.level(),200);try{require(!use(s,InteractionHand.MAIN_HAND)&&game.items().mana().get(owner)==10000,"dimension Time Stop rejects without cost");}finally{game.items().timeStop().end(owner.level());}
@@ -145,7 +167,7 @@ public final class BloodConfuseChecks {
         }
     }
     public static void run(GameController game){require(running==null,"exclusive fixture");var f=new Fixture(game);running=f;try{f.init();}catch(RuntimeException|Error error){running=null;f.close();throw error;}}
-    public static void tick(GameController game){if(running==null)return;var f=running;try{if(!f.checked){if(!f.warm())return;f.presentation();f.blood();f.confuse();f.admission();f.checked=true;}if(f.academyStep()){running=null;f.close();SkyWars2.LOGGER.info("[check] PASS blood-confuse");}}catch(Throwable e){running=null;try{f.close();}catch(Throwable cleanup){e.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL blood-confuse",e);}}
+    public static void tick(GameController game){if(running==null)return;var f=running;try{if(!f.checked){if(!f.warm())return;f.presentation();f.blood();f.confuse();f.alternating();f.admission();f.checked=true;}if(f.academyStep()){running=null;f.close();SkyWars2.LOGGER.info("[check] PASS blood-confuse");}}catch(Throwable e){running=null;try{f.close();}catch(Throwable cleanup){e.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL blood-confuse",e);}}
     public static void stopProbe(GameController game){var owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));require(stopState==null,"exclusive actual stop");stopState=new GameChecks.WandThirdPlayerState(owner,game.items().mana());
         owner.removeAllEffects();owner.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1000);owner.setHealth(1000);owner.setShiftKeyDown(false);owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);game.items().mana().noMagic(owner,0);game.items().mana().set(owner,10000);var s=game.lbc().rollTable(owner.level(),owner.position(),owner,"lbc:ported/blood_wand").getFirst();owner.setItemInHand(InteractionHand.MAIN_HAND,s);require(game.items().wands().use(owner,InteractionHand.MAIN_HAND)&&owner.hasEffect(MobEffects.WITHER)&&owner.hasEffect(MobEffects.POISON),"real harmful native effects before actual stop");epoch=game.items().epoch();SkyWars2.LOGGER.info("[check] PASS blood-confuse-stop-probe");}
     public static void cleanup(GameController game){var owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));try{require(stopState!=null&&epoch!=null&&!game.items().currentEpoch(epoch)&&!owner.hasEffect(MobEffects.WITHER)&&!owner.hasEffect(MobEffects.POISON)&&!owner.hasEffect(MobEffects.HUNGER),"actual match stop removes harmful effects");}finally{if(stopState!=null)stopState.restore(game);stopState=null;epoch=null;}SkyWars2.LOGGER.info("[check] PASS blood-confuse-cleanup");}

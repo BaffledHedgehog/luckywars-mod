@@ -86,12 +86,38 @@ public final class CorruptedGlyphChecks {
                 require(glyph.kind==kind&&glyph.owner==owner&&glyph.display.position().equals(at),"placer ownership and exact centered position");
                 service.forget(owner);require(glyph.display.isRemoved()&&service.count()==0,"owner cleanup");
             }
-            var friend=cow(owner,at.add(3,0,0));mobs.add(friend);var role=cow(owner,at.add(-3,0,0));mobs.add(role);role.entityTags().add("strict_map_object");
+            // A resident flat native-navigation fixture; every touched block is restored below.
+            for(int x=-18;x<=18;x++)for(int y=-1;y<=2;y++)for(int z=-10;z<=10;z++){
+                var p=origin.offset(x,y,z);blocks.putIfAbsent(p,game.maps().snapshot(owner.level(),p));
+                owner.level().setBlock(p,(y==-1?Blocks.STONE:Blocks.AIR).defaultBlockState(),2);
+            }
+            var friend=cow(owner,at.add(3,0,0));mobs.add(friend);friend.setNoAi(false);friend.setNoGravity(false);
+            var role=cow(owner,at.add(-3,0,0));mobs.add(role);role.entityTags().add("strict_map_object");
             var glyph=service.spawn(owner,at,LbcCorruptedGlyphs.Kind.BAFOMET);require(glyph!=null,"Bafomet spawn");
-            service.pulse(glyph);require(friend.getDeltaMovement().x<0&&role.getDeltaMovement().equals(Vec3.ZERO),"source pull excludes technical role");
-            require(game.items().indirectKills().altitudeAuthor(friend)==owner&&game.items().indirectKills().altitudeAuthor(role)==null,"pull registers placer displacement cause and protects technical roles");
-            var pulled=cow(owner,at.add(5,0,0));mobs.add(pulled);service.pulse(glyph);
+            float health=friend.getHealth();var original=friend.position();var velocity=friend.getDeltaMovement();
+            service.pulse(glyph);require(friend.getDeltaMovement().equals(velocity),"Bafomet pulse never injects velocity");
+            for(int i=0;i<30;i++)friend.tick();
+            require(friend.position().distanceToSqr(at)>original.distanceToSqr(at)&&friend.getHealth()==health&&role.position().equals(at.add(-3,0,0)),"native flee navigation increases distance without HP changes; technical role excluded");
+            require(game.items().indirectKills().altitudeAuthor(friend)==owner&&game.items().indirectKills().altitudeAuthor(role)==null,"navigation registers placer displacement cause and protects technical roles");
+            var pulled=cow(owner,at.add(5,0,0));mobs.add(pulled);pulled.setNoAi(false);service.aiStep(pulled);
             require(pulled.hurtServer(owner.level(),pulled.damageSources().fellOutOfWorld(),1000)&&pulled.getKillCredit()==owner&&pulled.isDeadOrDying(),"native lethal void damage inherits Bafomet placer");
+            // A real hostile has an existing attack target: Bafomet must preempt its combat AI.
+            var undead=new net.minecraft.world.entity.monster.zombie.Zombie(EntityTypes.ZOMBIE,owner.level());
+            undead.setPos(at.add(9,0,3));undead.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD,new ItemStack(net.minecraft.world.item.Items.IRON_HELMET));
+            undead.setTarget(other);owner.level().addFreshEntity(undead);
+            try{
+                double before=undead.position().distanceToSqr(at);
+                for(int i=0;i<35;i++)undead.tick();
+                require(undead.position().distanceToSqr(at)<before&&undead.getTarget()==null,"unholy mob approaches glyph despite native attack target");
+                undead.setPos(at.add(.5,0,0));undead.getNavigation().stop();service.aiStep(undead);
+                require(undead.getNavigation().isDone(),"unholy inner1.5 stops navigation");
+                undead.entityTags().add("sin_greed_active");service.tick();
+                require(undead.getTarget()==other,"Greed restores original native target immediately");
+                undead.entityTags().remove("sin_greed_active");service.aiStep(undead);
+                undead.setPos(at.add(17,0,0));service.tick();
+                require(undead.getTarget()==other,"leaving radius16 restores competing AI target");
+            }finally{game.items().indirectKills().clear(undead);undead.discard();}
+            friend.setNoAi(true);
             for(int i=0;i<2001;i++)service.tick();require(service.count()==1&&!glyph.display.isRemoved(),"no artificial glyph timeout");
             int age=glyph.ticks;game.items().timeStop().begin(owner.level(),200);
             try{for(int i=0;i<40;i++)service.tick();require(glyph.ticks==age&&!glyph.display.isRemoved(),"native dimension Time Stop pauses field cadence");}
@@ -147,16 +173,31 @@ public final class CorruptedGlyphChecks {
             }
             board.addPlayerToTeam(other.getScoreboardName(),allied);glyph=service.spawn(owner,at,LbcCorruptedGlyphs.Kind.BELIAL);service.pulse(glyph);
             require(owner.getTeam()==allied&&other.getTeam()==allied,"Belial protects allied player teams");
-            var attacker=cow(owner,at.add(7,0,0));mobs.add(attacker);friend.setInvulnerableTime(0);friend.damageCooldownTime=0;
-            require(service.belialAttack(glyph,friend,attacker)&&friend.getLastHurtByMob()==attacker,"native forced arrow keeps actual mob for revenge AI");
+            var attacker=cow(owner,at.add(7,0,0));mobs.add(attacker);friend.setPos(at.add(8,0,0));
+            friend.setNoAi(false);attacker.setNoAi(false);friend.setNoGravity(false);attacker.setNoGravity(false);
+            friend.setInvulnerableTime(0);friend.damageCooldownTime=0;
+            float friendHealth=friend.getHealth(),attackerHealth=attacker.getHealth();
+            boolean suppliedAttack=attacker.getAttributes().hasAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
+            require(service.belialAttack(glyph,friend,attacker)&&friend.getHealth()==friendHealth&&attacker.getHealth()==attackerHealth
+                    &&friend.getLastHurtByMob()==null,"Belial binds actual AI targets without any synthetic first hurt");
+            for(int i=0;i<2;i++){friend.tick();attacker.tick();}
+            require(friend.getLastHurtByMob()==attacker||attacker.getLastHurtByMob()==friend,"actual native melee AI begins combat");
             var retaliation=attacker.damageSources().mobAttack(friend);
-            require(service.belialCause(attacker,retaliation)!=null&&service.belialCause(attacker,retaliation).player().equals(owner.getUUID()),"accepted forced hit installs symmetric duel cause");
-            attacker.setInvulnerableTime(0);attacker.damageCooldownTime=0;
-            require(attacker.hurtServer(owner.level(),retaliation,1000)&&attacker.isDeadOrDying()&&attacker.getKillCredit()==owner,"native retaliation death credits glyph placer with real mob attacker");
-            var late=cow(owner,at.add(9,0,0));mobs.add(late);late.setInvulnerableTime(0);late.damageCooldownTime=0;require(service.belialAttack(glyph,late,friend),"later-hit duel preparation");
+            require(service.belialCause(attacker,retaliation)!=null&&service.belialCause(attacker,retaliation).player().equals(owner.getUUID()),"AI duel admission installs symmetric owner cause before native combat");
+            // Run actual mob ticks through the mixin and native Goal/navigation/melee boundary.
+            for(int i=0;i<160&&friend.isAlive()&&attacker.isAlive();i++){friend.tick();attacker.tick();}
+            var defeated=attacker.isDeadOrDying()?attacker:friend;
+            require(defeated.isDeadOrDying()&&defeated.getKillCredit()==owner,"native AI combat death credits glyph placer");
+            service.tick();require(service.fightCount()==0,"native death releases both retained fight actors");service.forget(owner);
+            require(attacker.getTarget()==null&&attacker.getAttributes().hasAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)==suppliedAttack,"duel cleanup restores target and temporary native attack capability");
+            // Use a fresh entity for independent later-hit attribution after the native combat death.
+            var fighter=cow(owner,at.add(8,0,0));mobs.add(fighter);fighter.setNoAi(false);
+            glyph=service.spawn(owner,at,LbcCorruptedGlyphs.Kind.BELIAL);
+            var late=cow(owner,at.add(9,0,0));mobs.add(late);late.setNoAi(false);late.setInvulnerableTime(0);late.damageCooldownTime=0;require(service.belialAttack(glyph,late,fighter),"later-hit duel preparation");
             late.setInvulnerableTime(0);late.damageCooldownTime=0;require(late.hurtServer(owner.level(),late.damageSources().playerAttack(other),1),"real later allied participant hit accepted");
-            late.setInvulnerableTime(0);late.damageCooldownTime=0;require(late.hurtServer(owner.level(),late.damageSources().mobAttack(friend),1000)&&late.getKillCredit()==other,"later accepted player action wins over forced duel cause");
-            require(service.belialCause(friend,friend.damageSources().playerAttack(other))==null,"real later player attacks override forced duel causality");service.forget(owner);
+            late.setInvulnerableTime(0);late.damageCooldownTime=0;require(late.hurtServer(owner.level(),late.damageSources().mobAttack(fighter),1000)&&late.getKillCredit()==other,"later accepted player action wins over AI duel cause");
+            service.unloaded(fighter);require(service.fightCount()==0,"native unload releases both retained AI fight actors");
+            require(service.belialCause(friend,friend.damageSources().playerAttack(other))==null,"real later player attacks override AI duel causality");service.forget(owner);
             // A single exact cube helper exercises native drops and WILD damage without random map erosion.
             var center=at.add(8,0,0);var cube=BlockPos.containing(center);
             for(var mutable:BlockPos.betweenClosed(cube.offset(-1,-1,-1),cube.offset(1,1,1))){var p=mutable.immutable();blocks.putIfAbsent(p,game.maps().snapshot(owner.level(),p));owner.level().setBlock(p,Blocks.STONE.defaultBlockState(),2);}

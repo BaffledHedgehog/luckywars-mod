@@ -1,5 +1,35 @@
 # Следующие этапы переноса
 
+## Nine gameplay corrections - QUALIFIED READY (25 October 2026)
+
+[Combined contract](GAMEPLAY_FIXES_2026_10_25.md),
+[powder AI](GLYPH_AI_FIXES.md), [team palette](TEAM_COLORS_FIX.md),
+[alternating modes](ALTERNATING_MODES.md), [combat and particles](COMBAT_VISUAL_FIXES.md).
+Belial uses actual mob AI combat; Baphomet controls native navigation rather
+than velocity. Numeric teams retain the legacy32 palette and solo match teams
+restore previous memberships. Native void/outside-border damage reaches creative
+players through the native damage pipeline; active Greed and protected roles
+remain guarded. Magic plague reverses signed mana regeneration and HUD sign.
+Academy Confuse/Corruption/Evoker cycle existing modes with independent paid-cast
+cursors and free selection. New mode translations have a Russian fallback.
+Erecto replaces unsafe Slowness100 with an owned zero movement multiplier.
+Academy Fartus melee adds40ticks of full stun with external knockback retained;
+homing bananas have no ballistic flight or wall bounce. Piss particles use the
+source camera origin and exact private/bystander wire payloads.
+
+Build `17daf0d4` passed114 recorded results in two actual mode1 matches
+(157.63s), including native AI/deaths/navigation, creative damage, signed mana,
+attribute/particle codecs and actual match-stop restoration. Exact323 sources /
+896 classes /2812 resources match the tested JAR. Three pre-existing user source
+files are unchanged/excluded. The older SLR fixture now releases its own pending
+attribution before subsequent suites; production attribution remains persistent.
+READY ONLY: main is still running installed `2558af6b`; retain the user's prior
+request to leave updates prepared. No replacement/restart performed. Evidence:
+`build/verification/gameplay-fixes-final/`. Native fixtures do not qualify real
+client pixels or peak-load behavior. Author RP is unchanged; merge only the new
+`mode_alternating` template key when convenient. Next migration scope remains
+the ordinary Soulless Academy trial/upgrade and metasola generation.
+
 ## Ordinary Soulless, six metasolas and Soulhunter - QUALIFIED READY (25 October 2026)
 
 [Contract](SOULHUNTER_PORT.md), [source](SOULHUNTER_SOURCE.md),

@@ -111,7 +111,11 @@
     "TimeStopSchedulesMixin$ChunkTicks",
     "TimeStopDamageMixin$Players",
     "TimeStopDamageMixin$Living",
-    "TimeStopDamageMixin$ReplaySource"
+    "TimeStopDamageMixin$ReplaySource",
+    "CreativeVoidDamageMixin",
+    "GlyphAiMixin",
+    "GlyphAiMixin$NavigationAccess",
+    "GlyphAiMixin$AttributeAccess"
   ],
   "injectors": {
     "defaultRequire": 1

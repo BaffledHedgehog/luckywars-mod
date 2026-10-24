@@ -35,16 +35,19 @@ final class LbcCorruption {
         if(!game.items().mana().visible(owner)||game.items().actionsBlocked(owner)||game.items().wands().inputTimeStopped(owner)
                 ||game.items().magic().suppressed(owner)||game.items().magic().suppressedAt(owner.level(),owner.getEyePosition()))return false;
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-        int mode=Mth.clamp(data.getIntOr("mode",1),1,4);
+        int mode=Mth.clamp(data.getIntOr("mode",1),1,5);
         // Mode selection is free even when the owner cannot afford a cast, in the actual used hand.
         if(academy&&owner.isShiftKeyDown()){
-            mode=mode%4+1;data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
+            mode=mode%5+1;data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));
             owner.getInventory().setChanged();
-            owner.sendSystemMessage(Component.translatable(switch(mode){case 1->"effect_poison";case 2->"effect_wither";case 3->"effect_hunger";default->"effect_damage";}));
+            owner.sendSystemMessage(mode==5?Component.translatableWithFallback("mode_alternating","Чередующийся")
+                    :Component.translatable(switch(mode){case 1->"effect_poison";case 2->"effect_wither";case 3->"effect_hunger";default->"effect_damage";}));
             return true;
         }
         int cost=game.items().mana().score(ScoreHolder.forNameOnly("corruption_wand_mana_use"),"lbc.math").get();
         if(!game.items().mana().trySpendWand(owner,cost))return false;
+        boolean alternating=academy&&mode==5;
+        if(alternating)mode=Mth.clamp(data.getIntOr("alternating_next",1),1,4);
         if(!academy)mode=owner.getRandom().nextInt(4)+1;
         var at=owner.position();
         var targets=owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(15),target->{
@@ -76,6 +79,10 @@ final class LbcCorruption {
         owner.level().sendParticles(ParticleTypes.ASH,true,false,at.x,at.y+1,at.z,300,1,1,1,1);
         for(var target:targets)if(target instanceof ServerPlayer player&&target.isAlive())
             player.sendSystemMessage(Component.translatable("player_corrupted").withStyle(ChatFormatting.RED));
+        if(alternating){
+            var updated=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+            updated.putInt("alternating_next",mode%4+1);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(updated));owner.getInventory().setChanged();
+        }
         game.items().wands().wandCasted(owner);
         return true;
     }
