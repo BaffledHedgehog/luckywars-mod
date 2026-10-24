@@ -1,9 +1,14 @@
 package me.skywars2.game;
 
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.PropertyMap;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -17,6 +22,7 @@ import net.minecraft.world.entity.decoration.Mannequin;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
@@ -26,6 +32,15 @@ import java.util.Set;
 
 /** Consumed Label melee summon: real native mannequin, with server-side terrain planning. */
 public final class LbcWtf {
+    private static final ResolvableProfile CHEF_PROFILE=chefProfile();
+    private static ResolvableProfile chefProfile(){
+        // A static native skin patch resolves from the server pack without a Mojang lookup.
+        var profile=ResolvableProfile.createResolved(new GameProfile(
+                java.util.UUID.fromString("2853d7b5-a618-4c73-98b6-ff37a92157f8"),"Shef",PropertyMap.EMPTY));
+        var tag=(CompoundTag)ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE,profile).getOrThrow();
+        tag.putString("texture","skywars2:entity/chef");tag.putString("model","wide");
+        return ResolvableProfile.CODEC.parse(NbtOps.INSTANCE,tag).getOrThrow();
+    }
     private static final String[] SOUNDS={"minecraft:lbcsounds.oluh_1","minecraft:lbcsounds.oluh_2",
             "minecraft:lbcsounds.oluh_3","minecraft:lbcsounds.oluh_4","minecraft:lbcsounds.oluh_5","minecraft:lbcsounds.oluh_6"};
     private final GameController game;
@@ -53,6 +68,7 @@ public final class LbcWtf {
             super(owner.level());this.service=service;this.owner=owner;this.target=target;
             this.cause=service.game.items().indirectKills().coldCause(owner,true);
             this.brain=new LbcChefBrain(this);
+            applyImplicitComponent(DataComponents.PROFILE,CHEF_PROFILE);
             setCustomName(Component.translatable("shef"));setCustomNameVisible(true);
             setItemSlot(EquipmentSlot.MAINHAND,new ItemStack(Items.NETHERITE_SWORD));
             setItemSlot(EquipmentSlot.OFFHAND,new ItemStack(Items.COBBLESTONE,64));

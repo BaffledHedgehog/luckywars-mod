@@ -32,9 +32,16 @@ remain unchanged/excluded. Evidence: `build/verification/halloween-wind-final/`.
 Native fixtures include explicit tick/contact/terminal-void boundaries, not a
 real client-pixel, disk restart/disconnect or peak-load qualification.
 
-Chef skin requested in chat is a separate pending addition: original PNG bytes
-were not exposed in local attachments; the full disk path was requested from the
-user. No replacement pixels or installed-skin claim is made without that file.
+Chef skin follow-up qualified on 25 October: the author's original 64x64 PNG
+is now `assets/skywars2/textures/entity/chef.png`; moved out of the server root
+without changing bytes. Static native profile metadata assigns the wide model
+before spawn; Polymer includes the original PNG in its generated server pack.
+Build `2558af6b` passed 10 recorded results in two actual mode1 matches (56.58s),
+including Chef profile stream-codec round trip and actual match-stop cleanup.
+Exact 313 sources/866 classes/2801 resources match the tested installed JAR.
+Installed stopped main; rollback `07ff2ecd` retained; server not started.
+Evidence: `build/verification/chef-skin-final/`. Clients must load the server
+pack; real client pixels are unverified. The author's separate RP is unchanged.
 
 ## Fartus Nadristailo and fixed-victim Chef - QUALIFIED (24 October 2026)
 

@@ -1,5 +1,21 @@
 # Label Chef: native mannequin rework
 
+## Author skin (user, 25 October 2026)
+
+> E:\servers_mew\skywars2_last\viktorbarinov1.png - положи куда надо и убери из корня
+
+The exact 64x64 PNG is moved to
+[chef.png](../src/main/resources/assets/skywars2/textures/entity/chef.png).
+Its bytes remain unchanged: SHA256
+`bc1ca79f70a6e01688495db3abb3fccccb60298c40f7b6d049d6dbf46848eb36`.
+The original server-root file is removed by that move. Each Chef receives a
+static native `ResolvableProfile` before spawning, with the resource skin patch
+`texture: skywars2:entity/chef`, `model: wide`. Native profile metadata carries
+the patch to vanilla clients; no signed skin upload or remote username lookup is
+needed. Existing Polymer mod-assets registration includes the PNG in the generated
+server resource pack. Clients must load that server pack to see the skin.
+The author's separate resource pack is unchanged.
+
 User ruling: each Chef remains bound to the actual accepted melee victim. Replace the old `lbc:shef` display with a real Minecraft mannequin NPC, with server-only terrain-aware pursuit, tools, an infinite building material supply and a sword. HP is infinite; each 20 accepted damage enters 200 ticks of motionless, harmless stasis. Void falls return the Chef to a nearby actual surface and pursuit continues. No additional client mod is required.
 
 Implementation is in [LbcWtf.java](../src/main/java/me/skywars2/game/LbcWtf.java) and [LbcChefBrain.java](../src/main/java/me/skywars2/game/LbcChefBrain.java). Chef subclasses the native 26.3 `Mannequin`, whose protected `Level` constructor retains `EntityTypes.MANNEQUIN`, native Avatar metadata, ordinary mannequin attributes and ordinary living-entity physics. Ordinary mannequins remain unchanged. There is no fake player, projectile carrier, display follower, custom entity registration or client dependency. The original `shef` name and six source sounds remain; the obsolete repeating-command-block model is no longer rendered.
@@ -32,3 +48,15 @@ Validation status: implementation and native source/API inspection completed by 
 Build `b0dfd5ca` passed74 recorded suite results in two actual mode1 matches (168.90s), including Fartus/Chef and the existing shared regressions. Exact 311 sources/857 classes/2797 resources match the tested installed JAR. Main installed while stopped, rollback `0fb48f1a` retained, server not started. Evidence: `build/verification/fartus-final/`. Native synchronous tick boundaries are explicit simulations; no elapsed ten-second wait, real client pixels, actual disk restart/disconnect or general-world/load guarantee is claimed. This integrated result supersedes the earlier pending-status statements by the individual source/check agents.
 
 Runtime log retains only the existing fake-bot Polymer packet-context ERROR pair during bot admission. No new error lines occurred; exact lines are recorded in the qualification manifest.
+
+
+## Author skin runtime qualification (25 October 2026)
+
+Build `2558af6b` passed 10 recorded suite results in two actual mode1 matches
+(56.58s), including the existing Chef fixtures with static native wide skin
+profile and native stream-codec round-trip assertions, and actual stop cleanup.
+The original PNG bytes occur unchanged in both the built JAR and the generated
+Polymer server resource pack. Exact 313 sources/866 classes/2801 resources match
+the tested artifact. Main installed while stopped; rollback `07ff2ecd` retained;
+server not started. Evidence: `build/verification/chef-skin-final/`.
+No real client pixel verification; clients need the Polymer server pack loaded.

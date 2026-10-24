@@ -27,3 +27,15 @@ Final review additions: stasis rejects actual native `snapTo` and `teleportTo` r
 ## Integrated runtime qualification (24 October 2026)
 
 Build `b0dfd5ca` passed74 recorded suite results in two actual mode1 matches (168.90s), including Fartus/Chef and the existing shared regressions. Exact 311 sources/857 classes/2797 resources match the tested installed JAR. Main installed while stopped, rollback `0fb48f1a` retained, server not started. Evidence: `build/verification/fartus-final/`. Native synchronous tick boundaries are explicit simulations; no elapsed ten-second wait, real client pixels, actual disk restart/disconnect or general-world/load guarantee is claimed. This integrated result supersedes the earlier pending-status statements by the individual source/check agents.
+
+
+## Author skin runtime qualification (25 October 2026)
+
+Build `2558af6b` passed 10 recorded suite results in two actual mode1 matches
+(56.58s), including the existing Chef fixtures with static native wide skin
+profile and native stream-codec round-trip assertions, and actual stop cleanup.
+The original PNG bytes occur unchanged in both the built JAR and the generated
+Polymer server resource pack. Exact 313 sources/866 classes/2801 resources match
+the tested artifact. Main installed while stopped; rollback `07ff2ecd` retained;
+server not started. Evidence: `build/verification/chef-skin-final/`.
+No real client pixel verification; clients need the Polymer server pack loaded.

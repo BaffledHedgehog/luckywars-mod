@@ -114,6 +114,14 @@ public final class ChefChecks {
             var material=game.lbc().rollTable(owner.level(),at,owner,"lbc:ported/wtf_item").getFirst();owner.setItemInHand(InteractionHand.MAIN_HAND,material.copyWithCount(2));var victim=cow(at.add(0,0,6));var foreign=cow(at.add(5,0,6));
             require(victim.hurtServer(owner.level(),victim.damageSources().playerAttack(owner),1)&&owner.getMainHandItem().getCount()==1&&service.count()==1&&mana.get(owner)==0,"actual accepted native material melee consumes one, no mana");var chef=service.snapshot().getFirst();
             require(chef instanceof net.minecraft.world.entity.decoration.Mannequin&&chef.getType()==EntityTypes.MANNEQUIN&&service.owner(chef)==owner&&chef.target==victim&&!chef.shouldBeSaved(),"actual unsaved Mannequin and fixed hit victim/current owner");require(chef.getProfile()!=null,"native Mannequin profile metadata exists");var tools=new HashSet<Item>();for(var tool:service.tools(chef))tools.add(tool.getItem());require(tools.equals(Set.of(Items.NETHERITE_PICKAXE,Items.NETHERITE_AXE,Items.NETHERITE_SHOVEL,Items.NETHERITE_HOE,Items.SHEARS,Items.NETHERITE_SWORD)),"native tools and sword available");
+            var profile=chef.getProfile();var skin=profile.skinPatch();
+            require(profile instanceof net.minecraft.world.item.component.ResolvableProfile.Static
+                    &&skin.body().orElseThrow().texturePath().equals(Identifier.parse("skywars2:textures/entity/chef.png"))
+                    &&skin.model().orElseThrow()==net.minecraft.world.entity.player.PlayerModelType.WIDE,"local wide Chef skin without remote profile lookup");
+            var buffer=io.netty.buffer.Unpooled.buffer();
+            try{net.minecraft.world.item.component.ResolvableProfile.STREAM_CODEC.encode(buffer,profile);
+                require(net.minecraft.world.item.component.ResolvableProfile.STREAM_CODEC.decode(buffer).equals(profile)&&!buffer.isReadable(),"native client profile metadata preserves local skin");
+            }finally{buffer.release();}
             victim.setInvulnerableTime(0);victim.damageCooldownTime=0;require(victim.hurtServer(owner.level(),victim.damageSources().indirectMagic(owner,owner),1)&&owner.getMainHandItem().getCount()==1&&service.count()==1,"nonmelee native damage never consumes material or creates another Chef");
             require(!game.items().wands().target(owner,chef)&&game.items().wands().projectileTarget(owner,chef),"summoned Chef excluded from owner homing but accepts friendly physical projectiles");
             var second=spawn(other,foreign);require(second.target==foreign&&service.owner(second)==other&&chef.target==victim,"two owners retain independent fixed victims");clear();owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);remove(victim);remove(foreign);
