@@ -1,377 +1,221 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:item",
+          "name": "skywars2:corrupted_dust",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_c",
+                "minecraft:item_model": "lbc:corrupted_dust",
+                "minecraft:custom_data": "{corrupted_dust:true,glyphkind:\"bafomet\"}"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:panda_spawn_egg",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style":"lbc:tier_c",
-                                "minecraft:item_model": "lbc:corrupted_dust",
-                                "minecraft:entity_data": {
-                                    "id": "minecraft:item_display",
-                                    "Tags": [
-                                        "rc_1sec",
-                                        "corrupted_dust",
-                                        "bafomet",
-                                        "magic"
-                                    ],
-                                    "interpolation_duration": 20,
-                                    "shadow_radius": 0,
-                                    "shadow_strength": 0,
-                                    "transformation": [
-                                        2,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        -1,
-                                        0,
-                                        0,
-                                        2,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        1
-                                    ],
-                                    "teleport_duration": 20,
-                                    "item_display": "fixed",
-                                    "item": {
-                                        "id": "minecraft:panda_spawn_egg",
-                                        "count": 1,
-                                        "components": {
-                                            "minecraft:item_model": "lbc:corrupted_pentagram"
-                                        }
-                                    }
-                                },
-                                "minecraft:custom_data": "{corrupted_dust:true}"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "corrupted_dust_bafomet",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "corrupted_dust",
-                                    "italic": false,
-                                    "color": "white"
-                                },
-                                {
-                                    "translate": "corrupted_dust.lore",
-                                    "italic": false,
-                                    "color": "white"
-                                },
-                                {
-                                    "translate": "corrupted_dust_bafomet.lore.1",
-                                    "italic": false,
-                                    "color": "white"
-                                },
-                                {
-                                    "translate": "corrupted_dust_bafomet.lore.2",
-                                    "italic": false,
-                                    "color": "white"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:panda_spawn_egg",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:item_model": "lbc:corrupted_dust_lamashtu",
-                                "minecraft:tooltip_style":"lbc:tier_b",
-                                "minecraft:entity_data": {
-                                    "id": "minecraft:item_display",
-                                    "Tags": [
-                                        "rc_1sec",
-                                        "corrupted_dust",
-                                        "lamashtu",
-                                        "magic"
-                                    ],
-                                    "interpolation_duration": 20,
-                                    "shadow_radius": 0,
-                                    "shadow_strength": 0,
-                                    "transformation": [
-                                        2,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        -1,
-                                        0,
-                                        0,
-                                        2,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        1
-                                    ],
-                                    "teleport_duration": 20,
-                                    "item_display": "fixed",
-                                    "item": {
-                                        "id": "minecraft:panda_spawn_egg",
-                                        "count": 1,
-                                        "components": {
-                                            "minecraft:item_model": "lbc:lamashtu"
-                                        }
-                                    }
-                                },
-                                "minecraft:custom_data": "{corrupted_dust:true}"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "corrupted_dust_lamashtu",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "corrupted_dust",
-                                    "italic": false,
-                                    "color": "white"
-                                },
-                                {
-                                    "translate": "corrupted_dust.lore",
-                                    "italic": false,
-                                    "color": "white"
-                                },
-                                {
-                                    "translate": "corrupted_dust_lamashtu.lore.1",
-                                    "italic": false,
-                                    "color": "white"
-                                },
-                                {
-                                    "translate": "corrupted_dust_lamashtu.lore.2",
-                                    "italic": false,
-                                    "color": "white"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:panda_spawn_egg",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:item_model": "lbc:corrupted_dust_belial",
-                                "minecraft:tooltip_style":"lbc:tier_a",
-                                "minecraft:entity_data": {
-                                    "id": "minecraft:item_display",
-                                    "Tags": [
-                                        "rc_1sec",
-                                        "corrupted_dust",
-                                        "belial",
-                                        "magic"
-                                    ],
-                                    "interpolation_duration": 20,
-                                    "shadow_radius": 0,
-                                    "shadow_strength": 0,
-                                    "transformation": [
-                                        2,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        -1,
-                                        0,
-                                        0,
-                                        2,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        1
-                                    ],
-                                    "teleport_duration": 20,
-                                    "item_display": "fixed",
-                                    "item": {
-                                        "id": "minecraft:panda_spawn_egg",
-                                        "count": 1,
-                                        "components": {
-                                            "minecraft:item_model": "lbc:belial"
-                                        }
-                                    }
-                                },
-                                "minecraft:custom_data": "{corrupted_dust:true}"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "corrupted_dust_belial",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "corrupted_dust",
-                                    "italic": false,
-                                    "color": "white"
-                                },
-                                {
-                                    "translate": "corrupted_dust.lore",
-                                    "italic": false,
-                                    "color": "white"
-                                },
-                                {
-                                    "translate": "corrupted_dust_belial.lore.1",
-                                    "italic": false,
-                                    "color": "white"
-                                },
-                                {
-                                    "translate": "corrupted_dust_belial.lore.2",
-                                    "italic": false,
-                                    "color": "white"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "name": "minecraft:panda_spawn_egg",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:item_model": "lbc:corrupted_dust_ahriman",
-                                "minecraft:tooltip_style":"lbc:tier_c",
-                                "minecraft:entity_data": {
-                                    "id": "minecraft:item_display",
-                                    "Tags": [
-                                        "rc_1sec",
-                                        "corrupted_dust",
-                                        "ahriman",
-                                        "magic"
-                                    ],
-                                    "interpolation_duration": 20,
-                                    "shadow_radius": 0,
-                                    "shadow_strength": 0,
-                                    "transformation": [
-                                        2,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        -1,
-                                        0,
-                                        0,
-                                        2,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        0,
-                                        1
-                                    ],
-                                    "teleport_duration": 20,
-                                    "item_display": "fixed",
-                                    "item": {
-                                        "id": "minecraft:panda_spawn_egg",
-                                        "count": 1,
-                                        "components": {
-                                            "minecraft:item_model": "lbc:ahriman"
-                                        }
-                                    }
-                                },
-                                "minecraft:custom_data": "{corrupted_dust:true}"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "corrupted_dust_ahriman",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "corrupted_dust",
-                                    "italic": false,
-                                    "color": "white"
-                                },
-                                {
-                                    "translate": "corrupted_dust.lore",
-                                    "italic": false,
-                                    "color": "white"
-                                },
-                                {
-                                    "translate": "corrupted_dust_ahriman.lore.1",
-                                    "italic": false,
-                                    "color": "white"
-                                },
-                                {
-                                    "translate": "corrupted_dust_ahriman.lore.2",
-                                    "italic": false,
-                                    "color": "white"
-                                }
-                            ]
-                        }
-                    ]
+                  "translate": "corrupted_dust_bafomet",
+                  "italic": false
                 }
-            ]
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "corrupted_dust",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "corrupted_dust.lore",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "corrupted_dust_bafomet.lore.1",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "corrupted_dust_bafomet.lore.2",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:corrupted_dust",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:corrupted_dust_lamashtu",
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:custom_data": "{corrupted_dust:true,glyphkind:\"lamashtu\"}"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "corrupted_dust_lamashtu",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "corrupted_dust",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "corrupted_dust.lore",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "corrupted_dust_lamashtu.lore.1",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "corrupted_dust_lamashtu.lore.2",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:corrupted_dust",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:corrupted_dust_belial",
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:custom_data": "{corrupted_dust:true,glyphkind:\"belial\"}"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "corrupted_dust_belial",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "corrupted_dust",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "corrupted_dust.lore",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "corrupted_dust_belial.lore.1",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "corrupted_dust_belial.lore.2",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:corrupted_dust",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "count": 1
+            },
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:item_model": "lbc:corrupted_dust_ahriman",
+                "minecraft:tooltip_style": "lbc:tier_c",
+                "minecraft:custom_data": "{corrupted_dust:true,glyphkind:\"ahriman\"}"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "corrupted_dust_ahriman",
+                  "italic": false
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "corrupted_dust",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "corrupted_dust.lore",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "corrupted_dust_ahriman.lore.1",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "corrupted_dust_ahriman.lore.2",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

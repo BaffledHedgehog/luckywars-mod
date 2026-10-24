@@ -147,7 +147,7 @@ public final class LbcItems {
     }
 
     /** Загружаем регистрацию до freeze реестров и чтения loot tables, а не при первом обращении к предмету. */
-    public static void register() { EnchantmentRules.register(); LbcSkills.register(); LbcClouds.register(); LbcPrism.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcVexSword.register(); LbcSpecialEggs.register(); LbcHohlopitek.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcTntDropItem.register(); LbcCreeperDropItem.register(); LbcCageDropItem.register(); LbcHoleDropItem.register(); LbcCorrosionDropItem.register(); LbcZombieTntDropItem.register(); LbcFallingNetheriteDropItem.register(); LbcHomeItems.register(); LbcScareDropItem.register(); LbcLuckyPigDropItem.register(); LbcLevitationDropItem.register(); LbcLibraryDropItem.register(); LbcBeeDropItem.register(); LbcOpAnvilDropItem.register(); LbcSlabDropItem.register(); LbcFeedbackDropItem.register(); LbcCreatureDropItem.register(); LbcPotionSpawnerDropItem.register(); LbcIslandDropItem.register(); LbcDroneDropItem.register(); LbcAntDropItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
+    public static void register() { EnchantmentRules.register(); LbcSkills.register(); LbcClouds.register(); LbcPrism.register(); LbcAcidCorruption.register(); LbcCorruptedGlyphs.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcVexSword.register(); LbcSpecialEggs.register(); LbcHohlopitek.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcTntDropItem.register(); LbcCreeperDropItem.register(); LbcCageDropItem.register(); LbcHoleDropItem.register(); LbcCorrosionDropItem.register(); LbcZombieTntDropItem.register(); LbcFallingNetheriteDropItem.register(); LbcHomeItems.register(); LbcScareDropItem.register(); LbcLuckyPigDropItem.register(); LbcLevitationDropItem.register(); LbcLibraryDropItem.register(); LbcBeeDropItem.register(); LbcOpAnvilDropItem.register(); LbcSlabDropItem.register(); LbcFeedbackDropItem.register(); LbcCreatureDropItem.register(); LbcPotionSpawnerDropItem.register(); LbcIslandDropItem.register(); LbcDroneDropItem.register(); LbcAntDropItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
 
     private static final CompoundTag BROKEN_TOTEM = new CompoundTag();
     private static final CompoundTag DYNAMITE = new CompoundTag();
@@ -177,6 +177,8 @@ public final class LbcItems {
     private final LbcPrism prism;
     private final LbcAwakenedAcid awakenedAcid;
     private final LbcErecto erecto;
+    private final LbcAcidCorruption acidCorruption;
+    private final LbcCorruptedGlyphs corruptedGlyphs;
     private final LbcGaycasterAcademy gaycasterAcademy;
     private final LbcAdvancedSnow advancedSnow;
     private final LbcEnderWiki enderWiki;
@@ -442,6 +444,7 @@ public final class LbcItems {
         hudPositive(component,"  \uE146 ",mana.hudValue(source,"effect_kiuaskivi"),ChatFormatting.RED);
         hudPositive(component,"  \uE118 ",mana.hudValue(source,"reverse_mana"),ChatFormatting.RED);
         hudPositive(component,"  \uE119 ",psycho.hudValue(source,"scared"),ChatFormatting.RED);
+        hudPositive(component,"  \uE111 ",acidCorruption.deathRemaining(source),ChatFormatting.RED);
         hudPositive(component,"  \uE117 ",erecto.rayPending(source),ChatFormatting.GREEN);
         hudPositive(component,"  \uE120 ",psycho.hudValue(source,"screamray"),ChatFormatting.GREEN);
         hudPositive(component,"  \uE121 ",electro.shocks(source),ChatFormatting.RED);
@@ -703,6 +706,8 @@ public final class LbcItems {
         this.prism = new LbcPrism(game);
         this.awakenedAcid = new LbcAwakenedAcid(game);
         this.erecto = new LbcErecto(game);
+        this.acidCorruption = new LbcAcidCorruption(game);
+        this.corruptedGlyphs = new LbcCorruptedGlyphs(game);
         this.gaycasterAcademy = new LbcGaycasterAcademy(game);
         this.advancedSnow = new LbcAdvancedSnow(game);
         this.enderWiki = new LbcEnderWiki(game);
@@ -842,6 +847,8 @@ public final class LbcItems {
     public LbcPrism prism() { return prism; }
     LbcAwakenedAcid awakenedAcid() { return awakenedAcid; }
     LbcErecto erecto() { return erecto; }
+    LbcAcidCorruption acidCorruption() { return acidCorruption; }
+    public LbcCorruptedGlyphs corruptedGlyphs() { return corruptedGlyphs; }
     LbcGaycasterAcademy gaycasterAcademy() { return gaycasterAcademy; }
     public LbcAdvancedSnow advancedSnow() { return advancedSnow; }
     public LbcEnderWiki enderWiki() { return enderWiki; }
@@ -914,6 +921,8 @@ public final class LbcItems {
         ruby.loaded(entity);
         consuming.loaded(entity);
         prism.loaded(entity);
+        acidCorruption.loaded(entity);
+        corruptedGlyphs.loaded(entity);
         gaycasterAcademy.loaded(entity);
         kiuas.loaded(entity);
         advancedSnow.loaded(entity);
@@ -1001,6 +1010,8 @@ public final class LbcItems {
         ruby.unloaded(entity);
         consuming.unloaded(entity);
         prism.unloaded(entity);
+        acidCorruption.unloaded(entity);
+        corruptedGlyphs.unloaded(entity);
         gaycasterAcademy.unloaded(entity);
         kiuas.unloaded(entity);
         advancedSnow.unloaded(entity);
@@ -1213,6 +1224,7 @@ public final class LbcItems {
 
     /** Общая полная очистка для зелья и артефакта: новые кастомные статусы подключаются здесь. */
     public void clearEffects(ServerPlayer player) {
+        indirectKills.clearHunger(player);
         // Сначала снимаем источник повторного наложения и привязку ко льду, затем нативные эффекты.
         // Экипировка, выбранные перки, заряды способностей и постоянные атрибуты не являются статусами.
         clear(player);
@@ -1375,6 +1387,8 @@ public final class LbcItems {
         frost.tick();
         clouds.tick();
         electro.tick();
+        corruptedGlyphs.tick();
+        acidCorruption.tick();
         erecto.tick();
         wands.tick();
         terra.tick();
@@ -1492,8 +1506,10 @@ public final class LbcItems {
         return curse == null ? 0 : curse.remaining;
     }
 
-    public void clear(ServerPlayer player) { erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
+    public void clear(ServerPlayer player) { acidCorruption.clear(player); erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
     public void forget(ServerPlayer player) {
+        corruptedGlyphs.forget(player);
+        acidCorruption.forget(player);
         erecto.forget(player);
         awakenedAcid.clear(player);
         hohlopitek.forget(player);
@@ -1543,6 +1559,8 @@ public final class LbcItems {
         mana.stop();
         frost.stop();
         clouds.stop();
+        corruptedGlyphs.stop();
+        acidCorruption.stop();
         erecto.stop();
         wands.stop();
         terra.stop();

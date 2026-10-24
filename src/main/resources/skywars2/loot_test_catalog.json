@@ -7,6 +7,7 @@
     "lbc:ported/"
   ],
   "tables": [
+    "lbc:corrupted_dust",
     "lbc:kfc_yumyumyummy",
     "lbc:trinket/blaze",
     "lbc:trinket/ghast",

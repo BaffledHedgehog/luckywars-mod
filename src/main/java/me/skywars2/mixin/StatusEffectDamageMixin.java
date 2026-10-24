@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 /** Сохраняет источник нативных тиков яда и иссушения, не подменяя их DamageSource. */
-@Mixin({PoisonMobEffect.class, WitherMobEffect.class})
+@Mixin(value={PoisonMobEffect.class, WitherMobEffect.class},targets="net.minecraft.world.effect.HealOrHarmMobEffect")
 public abstract class StatusEffectDamageMixin {
     @WrapOperation(method="applyEffectTick",at=@At(value="INVOKE",
             target="Lnet/minecraft/world/entity/LivingEntity;hurtServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
@@ -22,8 +22,9 @@ public abstract class StatusEffectDamageMixin {
                                        float amount, Operation<Boolean> original) {
         var game=SkyWars2.game();
         if(game==null) return original.call(target,level,source,amount);
-        return game.items().indirectKills().statusDamage(target,
-                source.is(DamageTypes.WITHER) ? MobEffects.WITHER : MobEffects.POISON,
+        var effect=source.is(DamageTypes.WITHER)?MobEffects.WITHER:(Object)this instanceof PoisonMobEffect?MobEffects.POISON:
+                (Object)this==MobEffects.INSTANT_DAMAGE.value()?MobEffects.INSTANT_DAMAGE:MobEffects.INSTANT_HEALTH;
+        return game.items().indirectKills().statusDamage(target,effect,
                 ()->original.call(target,level,source,amount));
     }
 }

@@ -61,6 +61,7 @@ public final class LbcIndirectKills {
     private final Map<LivingEntity,Status> pendingMana = new WeakHashMap<>();
     private final Map<LivingEntity,Owner> manaDrains = new WeakHashMap<>();
     private final Map<LivingEntity,Owner> manaDebts = new WeakHashMap<>();
+    private final Map<ServerPlayer,Owner> hungerDebts = new WeakHashMap<>();
     private final Map<LivingEntity,Support> removedSupports = new WeakHashMap<>();
     private final Map<LivingEntity,Owner> laterAttacks = new WeakHashMap<>();
     private final Map<ServerLevel,Map<BlockPos,Owner>> stone = new HashMap<>();
@@ -83,6 +84,14 @@ public final class LbcIndirectKills {
     private Owner owner(ServerPlayer player,boolean friendlyFire) { return new Owner(player.getUUID(),++order,friendlyFire,false); }
 
     /** Deferred Frost processing retains the original impact's order, rather than becoming a new hit. */
+    Owner wildCause(ServerPlayer player){return owner(player,true);}
+    /** The original cause travels with Time Stop's saved DamageSource; later accepted hits can supersede it. */
+    private static final class InheritedKill extends DamageSource {
+        final Owner cause;
+        InheritedKill(LivingEntity target,Owner cause){super(target.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.GENERIC_KILL));this.cause=cause;}
+    }
+    boolean inheritedKill(LivingEntity target,Owner cause){return target.hurtServer((ServerLevel)target.level(),new InheritedKill(target,cause),Float.MAX_VALUE);}
+    void manaLost(LivingEntity target,Owner cause){if(cause!=null)manaDebts.put(target,newer(manaDebts.get(target),cause));}
     Owner coldCause(ServerPlayer player,boolean projectile){return new Owner(player.getUUID(),++order,false,projectile);}
     Owner restoreColdCause(UUID player,long stamp,boolean projectile){
         if(stamp<=0)stamp=++order;else order=Math.max(order,stamp);
@@ -180,12 +189,16 @@ public final class LbcIndirectKills {
 
     public void effectChanged(LivingEntity target, MobEffectInstance effect, Entity source) {
         var player=playerSource(source);
+        if(effect.is(MobEffects.HUNGER)&&target instanceof ServerPlayer p){
+            hungerDebts.remove(p);
+            if(player!=null&&player!=target)hungerDebts.put(p,owner(player));
+        }
         if(effect.is(MobEffects.LEVITATION)) {
             levitationChanged(target);
             if(player!=null && player!=target) levitated(target,player);
         }
         if(effect.is(MobEffects.POISON) || effect.is(MobEffects.WITHER) || effect.is(MobEffects.BLINDNESS)
-                ||effect.is(MobEffects.CONDUIT_POWER)) {
+                ||effect.is(MobEffects.CONDUIT_POWER)||effect.is(MobEffects.INSTANT_DAMAGE)||effect.is(MobEffects.INSTANT_HEALTH)) {
             effectRemoved(target,effect);
             if(player!=null && player!=target) statuses.computeIfAbsent(target,ignored->new HashMap<>())
                     .put(effect.getEffect(),new Status(effect.is(MobEffects.CONDUIT_POWER)?
@@ -197,6 +210,8 @@ public final class LbcIndirectKills {
         }
     }
     public void effectRemoved(LivingEntity target, MobEffectInstance effect) {
+        // Natural expiry can leave an empty food bar; an explicit cleanse ends that causal debt.
+        if(effect.is(MobEffects.HUNGER)&&target instanceof ServerPlayer p&&effect.getDuration()!=0)hungerDebts.remove(p);
         var effects=statuses.get(target);
         if(effects!=null) {
             effects.remove(effect.getEffect());
@@ -399,7 +414,9 @@ public final class LbcIndirectKills {
         return owner==null || owner==target || (cause.friendlyFire ? game.items().wands().target(owner,target,true)
                 : cause.projectile ? game.items().wands().projectileTarget(owner,target) : game.items().wands().target(owner,target));
     }
+    void clearHunger(ServerPlayer target){hungerDebts.remove(target);}
     private Owner environmentOwner(LivingEntity target, DamageSource source) {
+        if(source.is(DamageTypes.STARVE)&&target instanceof ServerPlayer p)return hungerDebts.get(p);
         if(target==altitudeTarget && source.is(DamageTypes.DROWN)) return altitudeCause;
         var arrival=arrivalOwner(target,source);
         if(source.is(DamageTypes.IN_WALL)) return newer(suffocationOwner(target),arrival);
@@ -529,6 +546,11 @@ public final class LbcIndirectKills {
     }
 
     public void damaged(LivingEntity target, DamageSource source) {
+        if(LbcCorruptedGlyphs.forced(source)){
+            var cause=game.items().corruptedGlyphs().belialCause(target,source);
+            if(cause!=null){laterAttacks.put(target,cause);falls.put(target,new Fall(cause,false));}
+            return;
+        }
         var player=playerSource(source.getEntity());
         if(player==null && source.getEntity()==null)player=playerSource(source.getDirectEntity());
         if(player!=null && player!=target) {
@@ -567,6 +589,7 @@ public final class LbcIndirectKills {
     }
 
     public void tick() {
+        hungerDebts.keySet().removeIf(p->!p.isAlive()||p.isRemoved()||!p.hasEffect(MobEffects.HUNGER)&&p.getFoodData().getFoodLevel()>0);
         arrivals.entrySet().removeIf(entry-> {
             var target=entry.getKey();var arrival=entry.getValue();
             if(!target.isAlive() || target.isRemoved() || target.level()!=arrival.level) return true;
@@ -596,6 +619,9 @@ public final class LbcIndirectKills {
 
     /** Вызывается до нативного die: mob loot/XP, vanilla kill score и статистика мода видят автора. */
     public void dying(LivingEntity target, DamageSource damage) {
+        if(damage instanceof InheritedKill inherited&&target.level() instanceof ServerLevel level){credit(target,level,inherited.cause);return;}
+        var duelCause=game.items().corruptedGlyphs().belialCause(target,damage);
+        if(duelCause!=null&&target.level() instanceof ServerLevel duelLevel){credit(target,duelLevel,duelCause);return;}
         var summoner=summonedOwner(damage.getEntity());
         if(summoner==null && damage.getEntity()==null)summoner=summonedOwner(damage.getDirectEntity());
         if(summoner!=null && target.level() instanceof ServerLevel level) {
@@ -614,7 +640,7 @@ public final class LbcIndirectKills {
             if(blindness!=null && target.getEffect(MobEffects.BLINDNESS)==blindness.effect
                     && (cause==null || blindness.owner.order>cause.order)) cause=blindness.owner;
         } else if(damage.is(DamageTypes.IN_WALL)) cause=suffocationOwner(target);
-        else if(effectTarget==target && (damage.is(DamageTypes.MAGIC) && tickingEffect==MobEffects.POISON
+        else if(effectTarget==target && (damage.is(DamageTypes.MAGIC) && (tickingEffect==MobEffects.POISON||tickingEffect==MobEffects.INSTANT_DAMAGE||tickingEffect==MobEffects.INSTANT_HEALTH)
                 || damage.is(DamageTypes.WITHER) && tickingEffect==MobEffects.WITHER)) {
             var effects=statuses.get(target);
             var status=effects==null ? null : effects.get(tickingEffect);
@@ -656,12 +682,12 @@ public final class LbcIndirectKills {
         falls.remove(target); statuses.remove(target); removedSupports.remove(target); laterAttacks.remove(target);
         arrivals.remove(target);
         pendingMana.remove(target); manaDrains.remove(target); manaDebts.remove(target);
-        burning.remove(target);
+        burning.remove(target); hungerDebts.remove(target);
     }
     public void stop() {
         falls.clear(); statuses.clear(); removedSupports.clear(); laterAttacks.clear(); stone.clear();
         pendingMana.clear(); manaDrains.clear(); manaDebts.clear();
-        hazards.clear(); burning.clear(); arrivals.clear();
+        hazards.clear(); burning.clear(); arrivals.clear(); hungerDebts.clear();
     }
 }
 

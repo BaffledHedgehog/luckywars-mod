@@ -1,5 +1,46 @@
 # Проект SkyWars
 
+## Corruption, Acid Corruption and four glyphs - QUALIFIED (24 October 2026)
+
+[Contract](agent_notes/CORRUPTION_PORT.md), [glyph contract](agent_notes/CORRUPTED_GLYPHS_PORT.md), [presentation](agent_notes/CORRUPTION_RESOURCES.md).
+Ready scoped leaves: `lbc:ported/corruption_wand`, `academy_corruption_wand`,
+`acid_corruption_wand`, `academy_acid_corruption_wand`; the latter three share
+that prefix. Native `lbc:corrupted_dust` is now in the ready loot catalog with
+four equal source variants. Corruption retains four debuffs, source powder
+chance, actual used-hand trial and C Academy presentation. Acid + Corruption
+has exact native 2x2/3x3 crafting, native hard-acid balls/drops, four Academy
+modes, S/SS presentation, free changes, actual offhand meditation and promotion.
+User rulings preserve global friendly-mob sacrifice and the nine infinite
+meditation negatives. Delayed death is WILD but direct-hit only; reverse mana
+is WILD within10. E111/E118 display their original seconds counters. Shared
+causal debt/kill records preserve later real player-hit priority, including
+reverse-mana overload, Hunger starvation and real delayed mob deaths.
+
+The four native glyphs preserve source models/placement/one-second cadence,
+Bafomet pull and WILD collapse, Lamashtu owned infinite Wither/cleanup,
+Belial team removal and actual native revenge attacks, and Ahriman six random
+native destructive cubes plus eight independent permanent attribute reductions.
+Belial preserves player teams in modes3/4 (BedWars/LuckyBedWars), retaining the
+source exception; caster/allied player teams are protected. Source behavior and
+explicit author answers are in the contracts. Narrow forced-duel attribution
+does not replace native mob ownership or its revenge attacker. Lifecycle,
+antimagic, actual Time Stop and actual match-stop cleanup are covered. No
+source server, author RP/template or broad acquisition pool changes.
+
+Build `58a78a13` passed 34 recorded suite results in two actual
+mode1 matches (149.97s), including native glyph loot decoding/use,
+WILD rules, safe real destruction/drop and actual retaliation kill credit,
+used-hand trials/promotions, delayed deaths and later-hit precedence, plus
+Erecto/Tesla/Acid/Gaycaster/Prism/other family regressions. Exact 292
+sources / 785 classes / 2781 resources verified. Installed
+stopped main with rollback `0faca9ac`; main not started. Three user sources
+unchanged/excluded. Evidence: `build/verification/corruption-final/`. Native
+boundary fixtures include manual ticks and terminal attribution hooks; no
+client pixels, full natural starvation/overload player death, actual disk
+restart/unload/disconnect or peak-load performance claim.
+
+
+
 ## Erecto higher electricity ordinary/Academy - QUALIFIED (24 October 2026)
 
 [Contract](agent_notes/ERECTO_PORT.md), [resource audit](agent_notes/ERECTO_RESOURCES.md).

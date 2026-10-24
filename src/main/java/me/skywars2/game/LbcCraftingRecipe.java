@@ -45,6 +45,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         DUPLICATING("duplicating_combine","duplicating_wand"),
         GAYCASTER("gaycaster_combine","gaycaster"),
         ERECTO("erecto_combine","erecto_wand"),
+        ACID_CORRUPTION("acid_corruption_combine","acid_corruption_wand"),
         AWAKENED_ACID("awakened_acid_combine","awakened_acid_wand"),
         STAND_CLOCKS("stand_clocks","stand_clocks"),
         SHISH_WALL("shish_wall","shish_wall_wand"),
@@ -108,6 +109,13 @@ public final class LbcCraftingRecipe extends CustomRecipe {
     /** Общее распознавание семейств: ровно два занятых слота, без расхода и случайности в preview. */
     public static Kind craftingKind(CraftingInput input) {
         if(input.ingredientCount()!=2) return LbcRerollCrafting.matches(input) ? Kind.REROLL_MACHINE : null;
+        int acidCorruptionAcid=0,corruption=0;
+        for(var stack:input.items())if(!stack.isEmpty()){
+            var data=stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
+            if(stack.is(LbcWands.ACID_WAND)||data.getIntOr("stacid",0)==1)acidCorruptionAcid++;
+            else if(stack.is(LbcWands.CORRUPTION)||stack.is(LbcWands.ACADEMY_CORRUPTION)||data.getIntOr("corrupter",0)==1)corruption++;
+        }
+        if(acidCorruptionAcid==1&&corruption==1)return Kind.ACID_CORRUPTION;
         int tesla=0,erectoElectro=0;
         for(var stack:input.items())if(!stack.isEmpty()){
             var data=stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();

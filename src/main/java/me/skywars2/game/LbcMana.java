@@ -113,10 +113,18 @@ public final class LbcMana {
         if(ticks>0 && game.items().magic().rejectCustomEffect(p)) return;
         write(p,"effect_boost_mana",Math.max(0,ticks));
     }
+    private final java.util.Map<ServerPlayer,LbcIndirectKills.Owner> reverseOwners=new java.util.WeakHashMap<>();
+    /** A repeated plague is a new player action; duration-only extensions retain the old cause. */
+    void applyReverse(ServerPlayer owner,ServerPlayer target,int seconds){
+        if(seconds<=0||game.items().magic().rejectCustomEffect(target))return;
+        reverse(target,(int)Math.min(Integer.MAX_VALUE,(long)reverse(target)+seconds));
+        reverseOwners.put(target,game.items().indirectKills().wildCause(owner));
+    }
     public int reverse(ServerPlayer p) { return score(p,"reverse_mana").get(); }
     public void reverse(ServerPlayer p,int seconds) {
         if(seconds>0 && game.items().magic().rejectCustomEffect(p)) return;
         write(p,"reverse_mana",Math.max(0,seconds));
+        if(seconds<=0)reverseOwners.remove(p);
     }
     /** Personal anti-magic countdown in seconds; it is not a cast or aura gate. */
     public int noMagic(ServerPlayer p) { return score(p,"nomagic").get(); }
@@ -178,7 +186,7 @@ public final class LbcMana {
     public void clearEffects(LivingEntity p) {
         game.items().indirectKills().manaEffectCleared(p);
         for(String timer:POTION_TIMERS) write(p,timer,0);
-        write(p,"reverse_mana",0); pendingPotions.remove(p); statEffects.remove(p);
+        write(p,"reverse_mana",0); reverseOwners.remove(p); pendingPotions.remove(p); statEffects.remove(p);
         if(p instanceof ServerPlayer player) noMagic(player,0);
         if(p instanceof ServerPlayer player) overload.clearEffects(player);
     }
@@ -296,7 +304,7 @@ public final class LbcMana {
         }
         write(p,"manaregen_visual",visual);
         int mana=get(p), max=maximum(p); boolean reversed=reverse(p)>0;
-        if(reversed) mana-=visual;
+        if(reversed) { mana-=visual; if(visual>0)game.items().indirectKills().manaLost(p,reverseOwners.get(p)); }
         // Source helper выполняется только ниже cap при положительном regen, либо всегда при отрицательном.
         // Уже выданный избыток маны не обрезается произвольно; нижней границы у ресурса нет.
         if(visual>0 && mana<max || visual<0) {
@@ -363,7 +371,7 @@ public final class LbcMana {
     }
     void forget(ServerPlayer p) { write(p,"falltimer",0); gear.remove(p.getUUID()); dirty.remove(p.getUUID()); clearEffects(p); overload.reset(p); }
     void stop() {
-        gear.clear(); dirty.clear(); pendingPotions.clear();
+        gear.clear(); dirty.clear(); pendingPotions.clear(); reverseOwners.clear();
         for(var p:List.copyOf(statEffects)) for(String timer:POTION_TIMERS) write(p,timer,0);
         statEffects.clear(); for(var p:game.server().getPlayerList().getPlayers()) { write(p,"falltimer",0); clearEffects(p); overload.reset(p); }
     }

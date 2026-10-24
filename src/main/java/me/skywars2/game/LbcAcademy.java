@@ -51,6 +51,8 @@ public final class LbcAcademy {
     private static final CompoundTag TOKEN_DATA = flag("academy_token"), BUILDING_DATA = flag("magic_academy");
     public static final Item TOKEN = registerToken();
     private enum Wand {
+        CORRUPTION("corrupter",LbcWands.CORRUPTION,LbcWands.ACADEMY_CORRUPTION,"c","upgrade_condition_corrupter","upgrade_succesful_corrupter"),
+        ACID_CORRUPTION("acidcorrupt_wand",LbcWands.ACID_CORRUPTION,LbcWands.ACADEMY_ACID_CORRUPTION,"ss","upgrade_condition_acidcorrupt","upgrade_succesful_acidcorrupt"),
         ERECTO("erecto_wand",LbcWands.ERECTO,LbcWands.ACADEMY_ERECTO,"ss","upgrade_condition_erecto","upgrade_succesful_erecto"),
         TESLA("lightningwand",LbcWands.TESLA,LbcWands.ACADEMY_TESLA,"a","upgrade_condition_lightningwand","upgrade_succesful_lightningwand"),
         AWAKENED_ACID("acidacid_wand", LbcWands.AWAKENED_ACID, LbcWands.ACADEMY_AWAKENED_ACID, "ss", "upgrade_condition_acidacid", "upgrade_succesful_acidacid"),

@@ -56,6 +56,10 @@ import net.minecraft.world.scores.ScoreHolder;
 
 /** Жезлы используют общий расход маны и каст-хуки; временные снаряды хранит существующий трекер. */
 public final class LbcWands {
+    public static final Item CORRUPTION=register("skywars2:corruption_wand","corruption_wand","lbc:corruptwand");
+    public static final Item ACADEMY_CORRUPTION=register("skywars2:academy_corruption_wand","corruption_wand","lbc:corruptwand");
+    public static final Item ACID_CORRUPTION=register("skywars2:acid_corruption_wand","acidcorrupt_wand","lbc:acidcorrupt");
+    public static final Item ACADEMY_ACID_CORRUPTION=register("skywars2:academy_acid_corruption_wand","acidcorrupt_wand","lbc:acidcorrupt");
     public static final Item ERECTO=register("skywars2:erecto_wand","erecto_wand","lbc:erecto");
     public static final Item ACADEMY_ERECTO=register("skywars2:academy_erecto_wand","erecto_wand","lbc:erecto");
     public static final Item TESLA=register("skywars2:tesla_wand","lightning_wand","lbc:lightningwand");
@@ -155,6 +159,10 @@ public final class LbcWands {
     public static final Item ACADEMY_EXOPERSO=register("skywars2:academy_exoperso_wand","megumin_wand","lbc:exoperso");
     public static final Item ACADEMY_EXASPERATO=register("skywars2:academy_exasperato_wand","exasperato_wand","lbc:exasperato");
     private enum Spell {
+        ACADEMY_CORRUPTION(LbcWands.ACADEMY_CORRUPTION,"corrupter","corruption_wand_mana_use",1800),
+        CORRUPTION(LbcWands.CORRUPTION,"corrupter","corruption_wand_mana_use",1800),
+        ACADEMY_ACID_CORRUPTION(LbcWands.ACADEMY_ACID_CORRUPTION,"acidcorrupt_wand","acidcorrupt_wand_mana_use",1210),
+        ACID_CORRUPTION(LbcWands.ACID_CORRUPTION,"acidcorrupt_wand","acidcorrupt_wand_mana_use",1210),
         ACADEMY_ERECTO(LbcWands.ACADEMY_ERECTO,"erecto_wand","erecto_wand_mana_use",1100),
         ERECTO(LbcWands.ERECTO,"erecto_wand","erecto_wand_mana_use",1100),
         ACADEMY_TESLA(LbcWands.ACADEMY_TESLA,"lightningwand","lightning_wand_mana_use",1200),
@@ -256,7 +264,7 @@ public final class LbcWands {
         final int defaultCost;
         Spell(Item item,String flag,String cost,int defaultCost) {
             this.item=item; this.flag=flag(flag); this.cost=ScoreHolder.forNameOnly(cost); this.defaultCost=defaultCost;
-            if(item==LbcWands.ACADEMY_ERECTO||item==LbcWands.ACADEMY_TESLA||item==LbcWands.ACADEMY_PRISM||item==LbcWands.ACADEMY_GAYCASTER||item==LbcWands.ACADEMY_AWAKENED_ACID) this.flag.putInt("upgraded",1);
+            if(item==LbcWands.ACADEMY_CORRUPTION||item==LbcWands.ACADEMY_ACID_CORRUPTION||item==LbcWands.ACADEMY_ERECTO||item==LbcWands.ACADEMY_TESLA||item==LbcWands.ACADEMY_PRISM||item==LbcWands.ACADEMY_GAYCASTER||item==LbcWands.ACADEMY_AWAKENED_ACID) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_CAUSTIC || item==LbcWands.ACADEMY_OMEGA) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_ADVANCED_ENDER || item==LbcWands.ACADEMY_SNOW) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_ENDER || item==LbcWands.ACADEMY_BAD_WIKI) this.flag.putInt("upgraded",1);
@@ -444,6 +452,8 @@ public final class LbcWands {
         Spell spell=null;
         for(var candidate:SPELLS) if(matches(stack,candidate.item,candidate.flag)) { spell=candidate; break; }
         if(spell==null) return false;
+        if(spell==Spell.CORRUPTION||spell==Spell.ACADEMY_CORRUPTION)return LbcCorruption.use(game,player,hand,stack,spell==Spell.ACADEMY_CORRUPTION);
+        if(spell==Spell.ACID_CORRUPTION||spell==Spell.ACADEMY_ACID_CORRUPTION)return game.items().acidCorruption().use(player,hand,stack,spell==Spell.ACADEMY_ACID_CORRUPTION);
         if(spell==Spell.ERECTO||spell==Spell.ACADEMY_ERECTO)return game.items().erecto().use(player,hand,stack,spell==Spell.ACADEMY_ERECTO);
         if(spell==Spell.TESLA||spell==Spell.ACADEMY_TESLA)return LbcTesla.use(game,player,hand,stack,spell==Spell.ACADEMY_TESLA);
         if(spell==Spell.AWAKENED_ACID||spell==Spell.ACADEMY_AWAKENED_ACID)return game.items().awakenedAcid().use(player,hand,stack,spell==Spell.ACADEMY_AWAKENED_ACID);
@@ -1348,7 +1358,7 @@ public final class LbcWands {
                 && (includeAllies || !player.isAlliedTo(entity) && !game.items().blaze().friendly(player,entity) && !game.items().summons().friendly(player,entity));
     }
     boolean validTarget(Entity entity) { return validTarget(entity,false); }
-    private boolean validTarget(Entity entity,boolean allowDying) {
+    boolean validTarget(Entity entity,boolean allowDying) {
         return (allowDying || entity.isAlive()) && !entity.isRemoved() && !entity.isSpectator() && !entity.entityTags().contains("spectator")
                 && !entity.entityTags().contains("rcdenyalways") && !entity.entityTags().contains("sauvojen_tuntija")
                 && !entity.entityTags().contains("strict_map_object")
