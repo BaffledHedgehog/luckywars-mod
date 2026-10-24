@@ -76,10 +76,12 @@ public final class LbcClouds {
     /** Нативные velocity, gravity, drag и swept collision; клиенту видны только прежние частицы. */
     public static final class AcidProjectile extends ThrowableProjectile implements PolymerEntity {
         private Vec3 shieldFrom;
+        private Vec3 sweptFrom;
         AcidProjectile(EntityType<? extends AcidProjectile> type, Level level) { super(type, level); }
         @Override public void tick() {
             // The awakened acid seed flies straight; its children use the shared reactive acid physics.
-            boolean great=entityTags().contains(GREAT_ACID);Vec3 velocity=getDeltaMovement();
+            boolean great=entityTags().contains(GREAT_ACID)||awakenedVariant(this)>0;Vec3 velocity=getDeltaMovement();
+            if(awakenedVariant(this)==2)sweptFrom=position();
             if (entityTags().contains(ACID_STUCK)) {
                 // Прилипший заряд использует только базовый тик сущности, без повторного sweep/блочных callbacks.
                 super.baseTick();
@@ -89,14 +91,14 @@ public final class LbcClouds {
             shieldFrom = position();
             try {
                 super.tick();
-                if(great&&!isRemoved())setDeltaMovement(velocity);
+                if(great&&!isRemoved()&&!entityTags().contains(ACID_STUCK))setDeltaMovement(velocity);
                 if (!isRemoved()) stopAtShield(position());
             } finally { shieldFrom = null; }
         }
         /** Check the actual native gravity/drag segment, already clipped at its first collision. */
         private boolean stopAtShield(Vec3 end) {
             var game = SkyWars2.game();
-            if(entityTags().contains(GREAT_ACID)||entityTags().contains(GREAT_CHILD))return false;
+            if(entityTags().contains(GREAT_ACID)||entityTags().contains(GREAT_CHILD)||awakenedVariant(this)>0)return false;
             if (sourceAcidManaged(this) && !entityTags().contains("shield_blockable2"))return false;
             if (shieldFrom == null || game == null || !(getOwner() instanceof ServerPlayer owner)
                     || !(level() instanceof ServerLevel level)
@@ -126,7 +128,7 @@ public final class LbcClouds {
                     }
                     entityTags().add(ACID_STUCK);
                     game.items().clouds().stick(this, hit.getLocation());
-                    game.items().clouds().acidImpact(this);
+                    if(awakenedVariant(this)==0)game.items().clouds().acidImpact(this);
                     return;
                 }
                 game.items().clouds().acidImpact(this);
@@ -158,6 +160,7 @@ public final class LbcClouds {
     private static final String ORDINARY_WAND_ACID = "skywars2.wand.acid.regular";
     private static final String GREAT_ACID="skywars2.acid.great";
     private static final String GREAT_CHILD="skywars2.acid.great_child";
+    private static final String CAUST_ACID="skywars2.acid.caust",BURST_ACID="skywars2.acid.burst";
     private static final String SOURCE_ACID="skywars2.source_acid",ACID_500="skywars2.acid_500",ACID_OWNER="skywars2.acid_owner.";
     private final Map<java.util.UUID,ServerPlayer> acidAuthors=new java.util.HashMap<>();
     private static final String ACID_STUCK = "skywars2.acid_stuck";
@@ -396,16 +399,28 @@ public final class LbcClouds {
         sound(level,origin,SoundEvents.ZOMBIE_VILLAGER_CURE,1,2,Double.POSITIVE_INFINITY,0);
     }
 
-    /** Gaycaster's green Academy ray calls the awakened seed, without exposing that unported staff. */
+    /** Gaycaster's green Academy ray shares the awakened staff's ordinary seed. */
     AcidProjectile greatAcid(ServerPlayer owner,Vec3 origin,Vec3 direction){
+        return awakenedAcid(owner,origin,direction,0,false);
+    }
+    /** All awakened modes retain native owner, reflection, collision, saved age and reactive acid semantics. */
+    AcidProjectile awakenedAcid(ServerPlayer owner,Vec3 origin,Vec3 direction,int variant,boolean ignited){
+        return awakenedAcid(owner,origin,direction,variant,ignited,true);
+    }
+    AcidProjectile awakenedAcid(ServerPlayer owner,Vec3 origin,Vec3 direction,int variant,boolean ignited,boolean audible){
         Vec3 aim=direction.normalize();float yaw=(float)Math.toDegrees(Math.atan2(-aim.x,aim.z));
         float pitch=(float)-Math.toDegrees(Math.atan2(aim.y,aim.horizontalDistance()));
         var shot=new AcidProjectile(ACID_PROJECTILE,owner.level());shot.setOwner(owner);shot.setPos(origin);
-        shot.setYRot(yaw);shot.setXRot(pitch);shot.setDeltaMovement(aim.scale(.2));shot.setNoGravity(true);
-        shot.entityTags().addAll(List.of(ACID,WAND_ACID,GREAT_ACID,ACID_500,"great_acid","magic","slowraycast",game.items().epoch()));
+        shot.setYRot(yaw);shot.setXRot(pitch);shot.setDeltaMovement(aim.scale(variant==2?3:.2));shot.setNoGravity(true);
+        shot.entityTags().addAll(List.of(ACID,WAND_ACID,"magic","slowraycast",game.items().epoch()));
+        if(variant==0)shot.entityTags().addAll(List.of(GREAT_ACID,ACID_500,"great_acid"));
+        else shot.entityTags().add(variant==1?CAUST_ACID:BURST_ACID);
+        if(variant==1)shot.entityTags().add(ACID_500);
+        if(ignited)shot.entityTags().add("on_fire");
         shot.setAttached(ACID_AGE,0);owner.level().addFreshEntity(shot);
-        sound(owner.level(),origin,SoundEvents.ZOMBIE_VILLAGER_CURE,1,2,Double.POSITIVE_INFINITY,0);return shot;
+        if(audible)sound(owner.level(),origin,SoundEvents.ZOMBIE_VILLAGER_CURE,1,2,Double.POSITIVE_INFINITY,0);return shot;
     }
+    static int awakenedVariant(Entity entity){return entity.entityTags().contains(CAUST_ACID)?1:entity.entityTags().contains(BURST_ACID)?2:0;}
     private void burstGreatAcid(AcidProjectile shot,Vec3 at){
         if(shot.isRemoved())return;
         if(shot.getOwner() instanceof ServerPlayer owner)for(int i=0;i<40;i++){
@@ -468,7 +483,7 @@ public final class LbcClouds {
     public void sourceSound(ServerLevel level,Vec3 origin,net.minecraft.sounds.SoundEvent event,float volume,float pitch){
         sound(level,origin,event,volume,pitch,Double.POSITIVE_INFINITY,0);
     }
-    public static int acidLifetime(AcidProjectile projectile){return projectile.entityTags().contains(ACID_500)?500:300;}
+    public static int acidLifetime(AcidProjectile projectile){return awakenedVariant(projectile)==2?200:projectile.entityTags().contains(ACID_500)?500:300;}
     public int acidAge(AcidProjectile projectile){var state=acids.get(projectile);return state==null?projectile.getAttachedOrCreate(ACID_AGE):state.lifetime;}
     public List<AcidProjectile> acidSnapshot(){return List.copyOf(acids.keySet());}
 
@@ -491,7 +506,7 @@ public final class LbcClouds {
         if(projectile.entityTags().contains(GREAT_ACID)&&projectile.getOwner() instanceof ServerPlayer owner&&owner.getRandom().nextFloat()<.4f){
             var child=aimedWandAcid(owner,projectile.position(),0,90,false);child.entityTags().remove("shield_blockable2");child.entityTags().add(GREAT_CHILD);
         }
-        if (projectile.entityTags().contains("on_fire")) state.lifetime += 3;
+        if (projectile.entityTags().contains("on_fire")&&awakenedVariant(projectile)==0) state.lifetime += 3;
         projectile.setAttached(ACID_AGE, state.lifetime);
         if (state.lifetime >= acidLifetime(projectile)) projectile.discard();
     }
@@ -505,6 +520,7 @@ public final class LbcClouds {
 
     /** Общие эффекты для полёта и точки нативного столкновения, без собственного расчёта движения. */
     private void acidImpact(AcidProjectile projectile) {
+        if(awakenedVariant(projectile)>0){awakenedImpact(projectile);return;}
         var level = (ServerLevel) projectile.level();
         var origin = projectile.position();
         boolean wand=projectile.entityTags().contains(WAND_ACID);
@@ -569,12 +585,44 @@ public final class LbcClouds {
         } else if (level.getRandom().nextFloat() < .2f) sound(level, projectile.position(), SoundEvents.FIRE_EXTINGUISH, .15f, 2, Double.POSITIVE_INFINITY, 0);
     }
 
+    private void awakenedImpact(AcidProjectile shot){
+        var level=(ServerLevel)shot.level();int variant=awakenedVariant(shot);double radius=variant==1?15:5;
+        Vec3 from=variant==2&&shot.sweptFrom!=null?shot.sweptFrom:shot.position(),to=shot.position();shot.sweptFrom=null;
+        var nearby=level.getEntitiesOfClass(LivingEntity.class,new AABB(from,to).inflate(radius),
+                e->target(e)&&wandAcidTarget(shot,e));
+        // Seven source samples remain visual/area coverage; the author permits one effect per target per tick.
+        var hit=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<LivingEntity,Boolean>());
+        Vec3 path=to.subtract(from);double length=path.length();int samples=variant==2?Math.min(7,1+Mth.ceil(length*2-1e-6)):1;
+        if(!shot.entityTags().contains("on_fire")&&ordinaryAcidIgnited(shot))shot.entityTags().add("on_fire");
+        boolean burning=shot.entityTags().contains("on_fire");
+        for(int i=0;i<samples;i++){
+            double distance=length>3&&samples>1?length*i/(samples-1):Math.min(length,i*.5);
+            Vec3 at=length<1e-8?to:from.add(path.scale(distance/length));
+            if(burning){
+                var fire=new DustColorTransitionOptions(0xffbf60,0xffe600,3);
+                level.sendParticles(fire,true,false,at.x,at.y,at.z,variant==1?5:1,variant==1?6:1,variant==1?6:1,variant==1?6:1,.4);
+                if(variant==1)level.sendParticles(fire,at.x,at.y,at.z,40,6,6,6,.4);
+            }else{
+                level.sendParticles(ParticleTypes.SNEEZE,at.x,at.y,at.z,variant==1?10:1,variant==1?4:1,variant==1?4:1,variant==1?4:1,.1);
+                level.sendParticles(ORDINARY_ACID_DUST,true,false,at.x,at.y,at.z,variant==1?20:1,variant==1?8:1,variant==1?8:1,variant==1?8:1,.1);
+            }
+            for(var e:nearby)if(e.position().distanceToSqr(at)<=radius*radius&&hit.add(e)){
+                if(burning)e.hurtServer(level,ownedDamage(level,DamageTypes.ON_FIRE,shot,shot.getOwner()),variant==1?15:25);
+                else{
+                    e.addEffect(new MobEffectInstance(MobEffects.POISON,variant==1?2400:1000,10),shot.getOwner());
+                    if(variant==2)e.addEffect(new MobEffectInstance(MobEffects.WITHER,200,10),shot.getOwner());
+                }
+            }
+            if(level.getRandom().nextFloat()<(variant==1?.2f:.7f))sound(level,at,SoundEvents.FIRE_EXTINGUISH,variant==1?2:.5f,2,Double.POSITIVE_INFINITY,0);
+        }
+    }
+
     private boolean ordinaryAcidIgnited(AcidProjectile projectile) {
         var level=(ServerLevel)projectile.level();
         var center=projectile.blockPosition();
         for(var pos:BlockPos.betweenClosed(center.offset(-1,-1,-1),center.offset(1,1,1)))
             if(level.hasChunkAt(pos) && level.getBlockState(pos).is(FIRE_LAVA)) return true;
-        boolean great=projectile.entityTags().contains(GREAT_ACID);
+        boolean great=projectile.entityTags().contains(GREAT_ACID)||awakenedVariant(projectile)>0;
         return !level.getEntities(projectile,projectile.getBoundingBox().inflate(great?10:7),entity ->
                 (!(entity instanceof ServerPlayer player) || game.allowDamage(player))
                         && (entity.isOnFire() && entity.distanceToSqr(projectile)<=(great?56.25:25)

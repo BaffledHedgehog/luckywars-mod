@@ -1,5 +1,33 @@
 # Проект SkyWars
 
+## Awakened acid staff - QUALIFIED (24 October 2026)
+
+[Contract](agent_notes/AWAKENED_ACID_PORT.md). Ready scoped leaves: `lbc:ported/awakened_acid_wand`
+and `lbc:ported/academy_awakened_acid_wand`, with native Acid + Caustic craft
+in 2x2/3x3. Four Academy modes reuse the shared native acid actor and status
+causes. Rifle accumulates ten releases per cast and survives unequip (user).
+Fast charges affect each target once per tick (user); source ON_FIRE HurtTime
+is retained. E109 shows remaining releases. Mode/ignition changes are free;
+actual burning offhand trial and native Academy SS promotion are qualified.
+KFC +1 registers a live release; purify/forget/stop clear the queue. One ignition
+query per projectile tick replaces repeated per-sample world queries. Native
+wall collision stays sticky without restoring its old flying velocity.
+
+Build `322f2e06` passed 26 recorded suite results in two
+actual mode1 matches (115.91s), including native menu consumption,
+all mode payloads, once-per-target damage-call checks, poison/wither credit and
+later-hit precedence, accumulating release after unequip, antimagic/Time Stop,
+real Academy promotion and actual match stop. Gaycaster/Prism/CausticOmega/
+AdvancedSnow/Neutral/Mobgun/Academy/KFC regressions passed. Exact 283
+sources / 758 classes / 2770 resources verified.
+Installed stopped main; rollback `6559f2b8` retained; main not started. Three user
+sources unchanged/excluded. Evidence: `build/verification/awakened-acid-final/`.
+No RP/template edits or broad pool enablement. Native boundary fixtures include
+manual ticks; no client pixels, actual disk restart/unload/disconnect or peak
+performance claim. This closes the previously unopened awakened acid family.
+
+
+
 ## Academy Gaycaster - QUALIFIED (24 October 2026)
 
 [Contract](agent_notes/GAYCASTER_PORT.md). Ready scoped leaf:lbc:ported/academy_gaycaster.

@@ -175,6 +175,7 @@ public final class LbcItems {
     private final LbcTerra terra;
     private final LbcWands wands;
     private final LbcPrism prism;
+    private final LbcAwakenedAcid awakenedAcid;
     private final LbcGaycasterAcademy gaycasterAcademy;
     private final LbcAdvancedSnow advancedSnow;
     private final LbcEnderWiki enderWiki;
@@ -432,6 +433,7 @@ public final class LbcItems {
         if(LbcStand.isClocks(source.getMainHandItem()) || LbcStand.isClocks(source.getOffhandItem()))
             hudCooldown(component,hudSeconds(timeStop.cooldownTicks(source)));
         hudPositive(component,"  \uE110 ",blaze.headCharges(source),ChatFormatting.GREEN);
+        hudPositive(component,"  \uE109 ",awakenedAcid.pending(source),ChatFormatting.GREEN);
         hudPositive(component,"  \uE112 ",blind.queued(source),ChatFormatting.GREEN);
         hudPositive(component,"  \uE113 ",psycho.hudValue(source,"lookback"),ChatFormatting.RED);
         hudPositive(component,"  \uE115 ",mana.hudValue(source,"nomagic"),ChatFormatting.RED);
@@ -697,6 +699,7 @@ public final class LbcItems {
         this.ruby = new LbcRuby(game);
         this.consuming = new LbcConsuming(game);
         this.prism = new LbcPrism(game);
+        this.awakenedAcid = new LbcAwakenedAcid(game);
         this.gaycasterAcademy = new LbcGaycasterAcademy(game);
         this.advancedSnow = new LbcAdvancedSnow(game);
         this.enderWiki = new LbcEnderWiki(game);
@@ -834,6 +837,7 @@ public final class LbcItems {
     public LbcRuby ruby() { return ruby; }
     public LbcConsuming consuming() { return consuming; }
     public LbcPrism prism() { return prism; }
+    LbcAwakenedAcid awakenedAcid() { return awakenedAcid; }
     LbcGaycasterAcademy gaycasterAcademy() { return gaycasterAcademy; }
     public LbcAdvancedSnow advancedSnow() { return advancedSnow; }
     public LbcEnderWiki enderWiki() { return enderWiki; }
@@ -1388,6 +1392,7 @@ public final class LbcItems {
         consuming.tick();
         enderWiki.tick();
         prism.tick();
+        awakenedAcid.tick();
         gaycasterAcademy.tick();
         advancedSnow.tick();
         neutral.tick();
@@ -1482,8 +1487,9 @@ public final class LbcItems {
         return curse == null ? 0 : curse.remaining;
     }
 
-    public void clear(ServerPlayer player) { kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
+    public void clear(ServerPlayer player) { awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
     public void forget(ServerPlayer player) {
+        awakenedAcid.clear(player);
         hohlopitek.forget(player);
         blind.forget(player);
         psycho.forget(player);
@@ -1552,6 +1558,7 @@ public final class LbcItems {
         ruby.stop();
         consuming.stop();
         prism.stop();
+        awakenedAcid.stop();
         gaycasterAcademy.stop();
         advancedSnow.stop();
         neutral.stop();

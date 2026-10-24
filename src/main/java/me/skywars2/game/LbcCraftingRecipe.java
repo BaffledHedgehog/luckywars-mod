@@ -44,6 +44,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         CONSUMING("consuming_combine","consuming_wand"),
         DUPLICATING("duplicating_combine","duplicating_wand"),
         GAYCASTER("gaycaster_combine","gaycaster"),
+        AWAKENED_ACID("awakened_acid_combine","awakened_acid_wand"),
         STAND_CLOCKS("stand_clocks","stand_clocks"),
         SHISH_WALL("shish_wall","shish_wall_wand"),
         SWORD("terra_sword_awakening","true_terra_sword"),
@@ -106,6 +107,13 @@ public final class LbcCraftingRecipe extends CustomRecipe {
     /** Общее распознавание семейств: ровно два занятых слота, без расхода и случайности в preview. */
     public static Kind craftingKind(CraftingInput input) {
         if(input.ingredientCount()!=2) return LbcRerollCrafting.matches(input) ? Kind.REROLL_MACHINE : null;
+        int basicAcid=0,caustic=0;
+        for(var stack:input.items())if(!stack.isEmpty()){
+            var data=stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
+            if(stack.is(LbcWands.ACID_WAND)||data.getIntOr("stacid",0)==1)basicAcid++;
+            else if(stack.is(LbcWands.CAUSTIC)||stack.is(LbcWands.ACADEMY_CAUSTIC)||data.getIntOr("acidwand",0)==1)caustic++;
+        }
+        if(basicAcid==1&&caustic==1)return Kind.AWAKENED_ACID;
         int prism=0,omega=0;
         for(var stack:input.items())if(!stack.isEmpty()){
             var data=stack.getOrDefault(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.EMPTY).copyTag();
