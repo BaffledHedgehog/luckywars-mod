@@ -1,5 +1,25 @@
 # Проект SkyWars
 
+## Gaycaster red healing - user clarification (24 October 2026)
+
+[Contract](agent_notes/GAYCASTER_PORT.md). Red entity and block impacts heal only when at least
+one native red damage call is accepted (user). Every target is still processed;
+a later rejected hit cannot erase earlier success. One Instant Health II heal
+(8HP) is granted per impact, independent of accepted target count/query order.
+This supersedes the previous pending-question/source-healing note.
+
+Builde7b6df3a passed24 recorded suite results in two actual mode1 matches
+(85.03s), including rejected direct/all-rejected area hits,
+accepted targets before/after rejected targets, and multiple accepted targets.
+Seven-colour native casts/crafting and existing regressions still pass.
+Exact280sources/749classes/2766resources verified; installed stopped main with
+rollback0f4337b6. Main not started. Three user sources unchanged/excluded.
+Evidence:build/verification/gaycaster-healing-final/. Native fake-player doTick
+is explicit; no client pixels, real disk restart/unload/disconnect or peak-load
+claim. Academy Gaycaster remains the next unopened family stage.
+
+
+
 ## Ordinary Gaycaster - QUALIFIED (24 October 2026)
 
 [Contract](agent_notes/GAYCASTER_PORT.md). Ready scoped leaf:lbc:ported/gaycaster and native

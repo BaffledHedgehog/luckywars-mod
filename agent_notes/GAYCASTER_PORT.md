@@ -39,9 +39,10 @@ Entity impact has the original red330..359 band.
 
 Seven source payloads reuse existing services:
 
-- Red:6 native magic damage; native Instant Health II. Pending the optional
-  author question, source healing is preserved: unconditional on entity impact;
-  block impact uses the last target damage result. No answer is assumed.
+- Red:6 native magic damage; one native Instant Health II only when at least
+  one red hit is accepted, for both entity and block impact (user,24 October).
+  Every target is processed; a later rejected hit cannot erase earlier success.
+  This supersedes source unconditional entity healing and last-target block healing.
 - Orange:100 source ticks of Kiuaskivi; block impact also fills the exact
   +/-0.5 cube with fire on airs_to_fire. Native Raid Omen111 is transport only.
 - Yellow: existing Psycho piss counter set to100, rather than added.
@@ -88,6 +89,14 @@ Conduit cause is not claimed.
 
 ## Validation
 
+Red healing clarification (user,24 October 2026):
+
+> Да, лечить только за принятый урон
+
+Native regression cases cover a rejected direct hit, all rejected block targets,
+accepted/rejected targets in either query order, and multiple accepted targets.
+Only one8HP heal occurs; all eligible targets still receive their own damage call.
+
 GaycasterChecks / tools/smoke_gaycaster.py: actual native PKM for seven colour
 bands/both hands; native2x2/3x3 menus, extra ingredient rejection, full inventory
 shift-click, one-pair output pickup; presentation/admission; native Raid111
@@ -98,6 +107,6 @@ in two actual mode1 matches. Finite125 sky rendering and actual dual-hand
 PKM costs are also covered. Fake players use an explicit native doTick for
 Instant Health; waiting alone does not tick their local player effects.
 
-Qualified build0f4337b6:24 recorded suite results in two actual mode1 matches (60.77s); exact280sources/749classes/2766resources. Installed on stopped main, rollback0c88aa25 retained. Evidence:build/verification/gaycaster-final/. Three user sources unchanged/excluded. Only the known fake-player Polymer packet-context pair appeared. Fixtures include
+Qualified builde7b6df3a:24 recorded suite results in two actual mode1 matches (85.03s); exact280sources/749classes/2766resources. Installed on stopped main, rollback0f4337b6 retained. Evidence:build/verification/gaycaster-healing-final/. Three user sources unchanged/excluded. Only the known fake-player Polymer packet-context pair appeared. Fixtures include
 direct native boundary calls; no real-client pixels, actual disk restart/unload/
 disconnect or peak-capacity performance claim.

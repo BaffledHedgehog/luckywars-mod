@@ -107,7 +107,32 @@ public final class GaycasterChecks {
                 case 6->require(victim.getHealth()==995&&victim.getKillCredit()==owner&&victim.getLastDamageSource().is(net.minecraft.world.damagesource.DamageTypes.FELL_OUT_OF_WORLD),"purple5 native void/owner");
             }
         }
+        void redHealing(){
+            clearActors();Vec3 p=at.add(10,0,0);victim=cow(p);var second=cow(p.add(.1,0,0));
+            try{
+                var targets=owner.level().getEntitiesOfClass(Cow.class,new net.minecraft.world.phys.AABB(p,p).inflate(1.5),
+                        e->e.position().distanceToSqr(p)<=2.25&&LbcGaycaster.target(game,owner,e));
+                require(targets.size()==2,"native mixed-red target order");
+                var first=targets.getFirst();var last=targets.getLast();
+                owner.removeEffect(MobEffects.INSTANT_HEALTH);owner.setHealth(900);victim.setPermanentlyInvulnerable(true);
+                LbcGaycaster.impact(game,owner,p,new Vec3(0,0,1),350,victim);
+                require(victim.getHealth()==1000&&!owner.hasEffect(MobEffects.INSTANT_HEALTH),"rejected direct red hit never heals");
+                first.setPermanentlyInvulnerable(true);last.setPermanentlyInvulnerable(true);
+                LbcGaycaster.impact(game,owner,p,new Vec3(0,0,1),350,null);
+                require(!owner.hasEffect(MobEffects.INSTANT_HEALTH),"all rejected block targets never heal");
+                for(int order=0;order<3;order++){
+                    for(var e:targets){e.setPermanentlyInvulnerable(false);e.setInvulnerableTime(0);e.damageCooldownTime=0;e.setHealth(1000);}
+                    if(order==0)last.setPermanentlyInvulnerable(true);else if(order==1)first.setPermanentlyInvulnerable(true);
+                    owner.removeEffect(MobEffects.INSTANT_HEALTH);owner.setHealth(900);
+                    LbcGaycaster.impact(game,owner,p,new Vec3(0,0,1),350,null);
+                    require(first.getHealth()==(order==1?1000:994)&&last.getHealth()==(order==0?1000:994),"every target processed independently of accepted hit order");
+                    require(owner.hasEffect(MobEffects.INSTANT_HEALTH)&&owner.getEffect(MobEffects.INSTANT_HEALTH).getAmplifier()==1,"any accepted block hit grants native healII");
+                    owner.doTick();require(owner.getHealth()==908,"one8HP heal regardless of target count/order");
+                }
+            }finally{second.discard();clearActors();}
+        }
         void boundaries(){
+            redHealing();
             clearActors();victim=cow(at.add(10,0,0));capture(victim.position());var q=victim.blockPosition();block(q,Blocks.CRAFTING_TABLE);block(q.above(),Blocks.ICE);block(q.east(),Blocks.STONE);
             require(victim.addEffect(new net.minecraft.world.effect.MobEffectInstance(MobEffects.RAID_OMEN,100,111),owner),"native raid111 ingress");
             game.items().kiuas().unloaded(victim);game.items().kiuas().loaded(victim);

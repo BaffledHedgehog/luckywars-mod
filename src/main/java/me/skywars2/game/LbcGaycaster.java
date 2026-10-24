@@ -87,12 +87,9 @@ final class LbcGaycaster {
             boolean accepted=false;
             switch(color){
                 case 0->{
-                    boolean heal=false;
-                    for(var e:nearby){boolean hit=e.hurtServer(owner.level(),damage(owner,DamageTypes.MAGIC),6);accepted=hit||accepted;heal=hit;}
-                    // Preserve the source distinction pending the author's answer: entity healing is
-                    // unconditional; the block helper overwrites its success with the last target.
-                    if(!block&&!nearby.isEmpty())heal=true;
-                    if(heal){owner.addEffect(new MobEffectInstance(MobEffects.INSTANT_HEALTH,1,1,false,false,false),owner);
+                    // (user) Every target is processed; any accepted hit permits one heal.
+                    for(var e:nearby)accepted=e.hurtServer(owner.level(),damage(owner,DamageTypes.MAGIC),6)||accepted;
+                    if(accepted){owner.addEffect(new MobEffectInstance(MobEffects.INSTANT_HEALTH,1,1,false,false,false),owner);
                         particles(owner,ParticleTypes.HEART,owner.position(),5,.3,.5,.3,0);}
                     particles(owner,ParticleTypes.DAMAGE_INDICATOR,point,block?10:5,block?.5:.3,.5,block?.5:.3,0);
                 }
