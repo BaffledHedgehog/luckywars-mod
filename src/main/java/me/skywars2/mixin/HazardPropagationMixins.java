@@ -82,6 +82,7 @@ public final class HazardPropagationMixins {
                 entities.removeIf(entity->!game.items().transformator().canAffect(source,entity));
                 entities.removeIf(entity->!game.items().tntDrops().explosionTarget(source,entity));
                 entities.removeIf(entity->!game.items().creeperDrops().explosionTarget(source,entity));
+                entities.removeIf(me.skywars2.game.LbcGreed::active);
                 entities.removeIf(entity->!game.items().cageDrops().canAffect(source,entity));
                 entities.removeIf(entity->!game.items().zombieTntDrops().canAffect(source,entity));
                 entities.removeIf(entity->!game.items().droneDrops().canAffect(source,entity));
@@ -135,7 +136,14 @@ public final class HazardPropagationMixins {
             var blast=(ServerExplosion)(Object)this;
             if(game!=null && !game.items().transformator().allowExplosion(
                     blast.getDirectSourceEntity(),blast.level(),blast.center(),blast.radius())) return 0;
-            if(game==null || blast.getIndirectSourceEntity()==null) return original.call();
+            if(game==null) return original.call();
+            var savedCause=game.items().babylonEffects().cause(blast.getDirectSourceEntity());
+            if(savedCause!=null) {
+                int[] inheritedResult={0};
+                game.items().indirectKills().trapChanges(blast.level(),savedCause,()->inheritedResult[0]=original.call());
+                return inheritedResult[0];
+            }
+            if(blast.getIndirectSourceEntity()==null) return original.call();
             int[] result={0};
             var direct=blast.getDirectSourceEntity();
             // Keep the indirect player as author, and the actual trap as the source of WILD permission.

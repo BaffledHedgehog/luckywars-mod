@@ -327,10 +327,15 @@ public final class LbcMagic {
     }
 
     /** Общая точка допуска будущих кастомных статусов; type 5 сохраняет исходный native-перечень. */
-    public boolean rejectCustomEffect(ServerPlayer player) { return (cleansingTypes(player) & CLEAR_EFFECTS) != 0; }
+    public boolean rejectCustomEffect(ServerPlayer player) { return LbcGreed.active(player) || (cleansingTypes(player) & CLEAR_EFFECTS) != 0; }
 
     /** До native tickEffects, чтобы уже существующий poison не получил даже один лечебный/уронный шаг. */
     public void beforeEffects(ServerPlayer player) {
+        if(LbcGreed.active(player)) {
+            for(var effect:List.copyOf(player.getActiveEffects()))
+                if(effect.getEffect().value().getCategory()==net.minecraft.world.effect.MobEffectCategory.HARMFUL
+                        || effect.is(MobEffects.LEVITATION) || effect.is(MobEffects.SLOW_FALLING)) player.removeEffect(effect.getEffect());
+        }
         if (player.getActiveEffects().isEmpty() && !pendingCleansing.contains(player.getUUID())) return;
         pendingCleansing.remove(player.getUUID());
         cleanse(player);
@@ -390,6 +395,13 @@ public final class LbcMagic {
     }
 
     /** Источники-игроки используют UUID-набор, блоки — индекс чанков; старые marker пока поддерживаются для совместимости. */
+    boolean luckyEffectWarded(ServerLevel level,Vec3 at) {
+        for(var id:explosionArtifacts) {
+            var player=game.server().getPlayerList().getPlayer(id);
+            if(player!=null && player.level()==level && interceptorHolder(player,NO_EXPLOSIONS) && player.distanceToSqr(at)<=144) return true;
+        }
+        return false;
+    }
     public boolean suppressed(ServerPlayer owner) {
         return suppressedAt(owner.level(),owner.position());
     }

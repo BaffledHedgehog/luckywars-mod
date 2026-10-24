@@ -1,0 +1,35 @@
+﻿# Babylon arrow effects: bounded source audit (2026-10-24)
+
+Read-only source audit. Legacy root `E:/servers_mew/cringe1_21_4_skywars/world/datapacksdisabled/LBC/data/lbc/`; native root `E:/servers_mew/skywars2_last/luckywars-mod/`. No runtime test, Java/resource/build changes, or broader lucky-pills port. Killer inheritance is mandatory (user), including delayed explosions, fire, block removal, knockback/falls/void.
+
+## Live dispatch and duration
+
+`function/tick.mcfunction:1` runs `tick_not_timestopped` when global time stop is absent. `tick_not_timestopped.mcfunction:4` runs `mobs_tick` for `#minecraft:mobs`, excluding nexus/imprinted dimensions. `data/minecraft/tags/entity_type/mobs.json` includes players. `mobs_tick.mcfunction:1,3` first converts Raid Omen for nonspectator/not-time_stopped targets, then processes lucky counters. Thus this is a living target path shared by mobs and players, not projectile-only or pill reward logic.
+
+`function/projectiles/arrows2.mcfunction:1-3` reads actual remaining effect duration, normalizes exactly 2 to 1. Lines 24,32-33 add duration to cumulative counters: 101 -> effect_small_explosion, 109 -> effect_lightning_bolt, 110 -> effect_firebreak. Lines 55-60 apply skill19 nodebuff clearing, tag lucky effects, then clear Raid Omen. `arrows2_nodebuff.mcfunction:3,9-10` clears these three counters when #lbcskill=1 and target skill=19. Babylon arrow source (`items/arcanums/5t/babylon_gate/{1,2,3}.mcfunction:1`) carries duration20, not cultist duration2; native tipped-arrow duration scaling and remaining-tick timing must be verified rather than assuming twenty activations. The dispatcher receives whatever duration vanilla actually applied.
+
+`function/effects/tick.mcfunction:1-4` removes the tick tag, then runs each positive counter unless sin_greed_active. Each handler subtracts ONE and restores the tick tag, even if its actual action is suppressed. No second/5-tick cadence: each admitted target can act once per server tick, starting in the same mobs_tick invocation as conversion. Multiple hits add duration. If sin_greed_active prevents every active handler, tag removal means counters can remain dormant until something re-tags target; do not silently describe this as ordinary pause/resume. Per-target time_stopped blocks conversion, but the subsequent effects/tick line itself has no such tag gate; global stop prevents whole tick_not_timestopped.
+
+## Exact handlers
+
+- `function/effects/effect_small_explosion.mcfunction:1-3` (101): summon silent, invulnerable, ignited CREEPER at target feet, `ExplosionRadius:1b,Fuse:0`. This is not TNT; no TNT fuse or power is authored. Radius1 is creeper explosion power1. Suppressed by any player within12 carrying custom_data mystical:1,type:2, or marker stopper within20. Not stopper_magic.
+- `function/effects/effect_lightning_bolt.mcfunction:1-3` (109): summon real vanilla lightning at target feet. No explicit damage override, cosmetic-only marker, friendly-fire filter, ownership, or direct /damage command. Vanilla lightning damage/fire/transformation behavior remains in play. Suppression uses same inventory ward within12 and stopper_magic marker within20.
+- `function/effects/effect_firebreak.mcfunction:1-5` (110): first fill relative +3,+3,+3 to -3,-3,-3 with fire replacing #minecraft:airs, then fill +1.5,+1.5,+1.5 to -1.5,-1.5,-1.5 with air destroy. Both have the ward/stopper_magic gates. Preserve command coordinate floor semantics: second box endpoints depend on fractional target position; do not casually label this a centered 3³ box. It destroys blocks/drops and removes central fire after outer fill. No explosion entity or damage command.
+
+None has friendship/same_team predicates; nearby ward check includes anyone carrying item, not just target. Counter decrement occurs under suppression as well. Source has no caster ownership on these secondary summons/world edits: that is a migration gap, not intended loss of credit.
+
+## Native integration recommendation and bounded exclusions
+
+The actual native file is `src/main/java/me/skywars2/game/LbcSummons.java`; bounded filename/content searches found no LbcCultists or LbcSummonCultists class and no `klee`, `case 101`, `==101`, or `== 101` handler in Java (excluding GameChecks for literal searches). LbcSummons chaosCast at lines318+ implements chaos spells, not this 101 arrow transport. Do not infer a native effect101 equivalent from the legacy cultist using amplifier101.
+
+Implement these as Babylon-specific target counters with caster UUID attribution and existing match/epoch lifecycle, or add a narrow reusable transport owner only if needed; this task does not authorize porting all pill effects. Reuse `LbcIndirectKills.worldChanges`/trap attribution patterns for fire/destroy/support removal and attributed damage sources for lightning/explosion consequences. Arrow owner must flow into the deferred target counter, creeper explosion, lightning/fire, dropped-block cascades, and falls/void. Concurrent casters need an explicit owner model per queued contribution rather than a single mutable last-caster field.
+
+User discretion needed before normalizing source quirks: skill19 counter reset; greed tag dormancy; actual duration scaling versus nominal20; ward consumption without action; 101 stopper versus magic stopper; firebreak fractional box. Existing outer Babylon #random5 cascade bug remains documented in REMAINING_ARCANUMS_SOURCE.md and is separate from these handlers. No evidence here authorizes changing team policy or replacing creeper explosion with TNT.
+
+## Native implementation contract (2026-10-24)
+
+Author ruling overrides historical greed dormancy: Greed rejects incoming external effects entirely and pauses/resumes previously accepted contributions. LbcBabylonEffects owns only Babylon arrow101/109/110 queues. Each per-kind FIFO contribution captures owner UUID and original indirect-cause order; persistent entity attachment retains queues across unload with match epoch guard. Duration2 normalizes to one action after vanilla arrow application. Skill19 clears, time stop pauses, wards consume charges. 101 uses native MOB power1 explosion;109 native lightning;110 exact fractional fire/destroy coordinates. Root integration must preserve captured cause for native lightning/explosion damage and world edits through cause(Entity)/OwnerDamageSource and maintain native WILD policy. No runtime verification is claimed in this note.
+
+## Qualified batch evidence
+
+Build `0fb48f1a` passed62 recorded suite results across two actual mode1 matches (144.06s). Exact 306 sources / 837 classes / 2793 resources match the tested artifact. Installed stopped main with rollback `daa2f866`; main was not started. Shared lifecycle, source transport and active-Greed guards are integrated. Three protected user sources are unchanged/excluded. Evidence: `build/verification/babylon-final/`. Boundary fixtures include manual ticks; no real client pixels, actual disk restart/disconnect or peak-capacity performance claim.

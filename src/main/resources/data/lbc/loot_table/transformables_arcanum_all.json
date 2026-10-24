@@ -10,12 +10,12 @@
         },
         {
           "type": "minecraft:loot_table",
-          "value": "lbc:tuntijaa_fire_kiuas",
+          "value": "lbc:ported/sun_arcanum",
           "weight": 1
         },
         {
           "type": "minecraft:loot_table",
-          "value": "lbc:neutral_ball",
+          "value": "lbc:ported/neutral_ball",
           "weight": 1
         }
       ]

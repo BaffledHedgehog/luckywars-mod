@@ -2,6 +2,10 @@
   "required": true,
   "package": "me.skywars2.mixin",
   "mixins": [
+    "GreedGuardMixin",
+    "GreedGuardMixin$Players",
+    "GreedGuardMixin$Collision",
+    "GreedGuardMixin$Projectiles",
     "LootSuggestionsMixin",
     "ArenaFlatWorldMixin",
     "ArenaBlockMixin",

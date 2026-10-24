@@ -24,6 +24,7 @@ public final class TimeStopDamageMixin {
         @WrapMethod(method="hurtServer")
         private boolean skywars2$queueStoppedPlayerDamage(ServerLevel level,DamageSource source,float amount,
                                                          Operation<Boolean> original) {
+            if(me.skywars2.game.LbcGreed.active((net.minecraft.world.entity.Entity)(Object)this)) return false;
             var game=SkyWars2.game();
             if(game!=null && !game.items().timeStop().replaying(source)
                     && game.items().timeStop().queueDamage((ServerPlayer)(Object)this,level,source,amount)) return true;
@@ -36,6 +37,7 @@ public final class TimeStopDamageMixin {
         @WrapMethod(method="hurtServer")
         private boolean skywars2$queueStoppedLivingDamage(ServerLevel level,DamageSource source,float amount,
                                                          Operation<Boolean> original) {
+            if(me.skywars2.game.LbcGreed.active((net.minecraft.world.entity.Entity)(Object)this)) return false;
             var game=SkyWars2.game();
             if(game!=null && !game.items().timeStop().replaying(source)
                     && game.items().timeStop().queueDamage((LivingEntity)(Object)this,level,source,amount)) return true;

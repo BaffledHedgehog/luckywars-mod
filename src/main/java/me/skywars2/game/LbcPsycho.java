@@ -341,7 +341,7 @@ public final class LbcPsycho {
             if(!entity.isAlive() || entity.isRemoved() || !game.items().currentEpoch(effect.epoch)
                     || entity.level()!=game.maps().level() || entity instanceof ServerPlayer player && game.items().magic().rejectCustomEffect(player)
                     || entity.isSpectator() || entity.entityTags().contains("spectator")) { removeEffect(entity); continue; }
-            if(game.items().wands().timeStopped() || entity.entityTags().contains("time_stopped") || game.items().frost().isFrozen(entity)) continue;
+            if(LbcGreed.active(entity) || game.items().wands().timeStopped() || entity.entityTags().contains("time_stopped") || game.items().frost().isFrozen(entity)) continue;
             if(entity instanceof ServerPlayer player && effect.forcedItem!=null) {
                 if(!sameForcedUse(player,effect) || player.getTicksUsingItem()<effect.lastUseTicks) forgetForcedUse(effect);
                 else {

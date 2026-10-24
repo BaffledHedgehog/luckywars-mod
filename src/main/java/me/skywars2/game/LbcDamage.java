@@ -115,6 +115,7 @@ public final class LbcDamage {
     }
     /** (user) Зона снимает HP без hurt pipeline: броня, эффекты, absorption и velocity не участвуют. */
     public static void removeHealth(ServerPlayer player, float amount, DamageSource source) {
+        if (LbcGreed.active(player)) return;
         if (!(amount > 0) || !Float.isFinite(amount) || !player.isAlive()) return;
         player.getCombatTracker().recordDamage(source, amount);
         player.setHealth(Math.max(0, player.getHealth() - amount));
@@ -140,7 +141,7 @@ public final class LbcDamage {
     }
     public static boolean allowsTrapFriendlyFire(DamageSource source) {
         var game=me.skywars2.SkyWars2.game();
-        return source instanceof LbcVoidArcanum.WildDamage || source instanceof LbcIceWand.WildSource || source instanceof LbcCorruptedGlyphs.WildSource || source instanceof LbcCausticOmega.WildSource || source instanceof LbcGaycasterAcademy.TrialDamage || game!=null && (LbcTransformator.managed(source.getDirectEntity()) || LbcStalin.managed(source.getDirectEntity()) || game.items().cageDrops().wild(source.getDirectEntity())
+        return source instanceof LbcBabylonEffects.OwnerDamageSource || source instanceof LbcVoidArcanum.WildDamage || source instanceof LbcIceWand.WildSource || source instanceof LbcCorruptedGlyphs.WildSource || source instanceof LbcCausticOmega.WildSource || source instanceof LbcGaycasterAcademy.TrialDamage || game!=null && (LbcTransformator.managed(source.getDirectEntity()) || LbcStalin.managed(source.getDirectEntity()) || game.items().cageDrops().wild(source.getDirectEntity())
                 || game.items().creeperDrops().wild(source.getDirectEntity())
                 || game.items().zombieTntDrops().wild(source.getDirectEntity())
                 || game.items().potionSpawnerDrops().wild(source.getDirectEntity())
@@ -158,6 +159,7 @@ public final class LbcDamage {
                 || source.is(CONSUMING) || source.is(YELLOW_BOLT) || source.is(LbcKfcRewards.CULTUS_ARROW);
     }
     public static boolean allowDamage(LivingEntity victim, DamageSource source) {
+        if(LbcGreed.active(victim)) return false;
         var game=me.skywars2.SkyWars2.game();
         if(game!=null && game.items().defensiveArcanums().blocksDamage(victim,source)) return false;
         if(game!=null && !game.items().indirectKills().allowEnvironmentDamage(victim,source)) return false;

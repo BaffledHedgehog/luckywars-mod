@@ -75,7 +75,11 @@ public final class ElectroNativeMixins {
             boolean applied=original.call(target,level,source,amount);
             var game=SkyWars2.game();
             if(game!=null && bolt.getCause()!=null && target instanceof LivingEntity living)
-                game.items().indirectKills().projectileIgnited(living,bolt.getCause(),true);
+                {
+                    var inherited=game.items().babylonEffects().cause(bolt);
+                    if(inherited!=null) game.items().indirectKills().inheritedIgnited(living,inherited);
+                    else game.items().indirectKills().projectileIgnited(living,bolt.getCause(),true);
+                }
             return applied;
         }
     }

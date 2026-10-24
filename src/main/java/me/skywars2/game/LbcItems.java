@@ -147,7 +147,7 @@ public final class LbcItems {
     }
 
     /** Загружаем регистрацию до freeze реестров и чтения loot tables, а не при первом обращении к предмету. */
-    public static void register() { EnchantmentRules.register(); LbcSkills.register(); LbcClouds.register(); LbcPrism.register(); LbcAcidCorruption.register(); LbcIceWand.register(); LbcVoidArcanum.register(); LbcDefensiveArcanums.register(); LbcIceMaterials.register(); LbcCorruptedGlyphs.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcVexSword.register(); LbcSpecialEggs.register(); LbcHohlopitek.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcTntDropItem.register(); LbcCreeperDropItem.register(); LbcCageDropItem.register(); LbcHoleDropItem.register(); LbcCorrosionDropItem.register(); LbcZombieTntDropItem.register(); LbcFallingNetheriteDropItem.register(); LbcHomeItems.register(); LbcScareDropItem.register(); LbcLuckyPigDropItem.register(); LbcLevitationDropItem.register(); LbcLibraryDropItem.register(); LbcBeeDropItem.register(); LbcOpAnvilDropItem.register(); LbcSlabDropItem.register(); LbcFeedbackDropItem.register(); LbcCreatureDropItem.register(); LbcPotionSpawnerDropItem.register(); LbcIslandDropItem.register(); LbcDroneDropItem.register(); LbcAntDropItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
+    public static void register() { EnchantmentRules.register(); LbcSkills.register(); LbcClouds.register(); LbcPrism.register(); LbcAcidCorruption.register(); LbcIceWand.register(); LbcVoidArcanum.register(); LbcDefensiveArcanums.register(); LbcBabylon.register(); LbcIceMaterials.register(); LbcCorruptedGlyphs.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcVexSword.register(); LbcSpecialEggs.register(); LbcHohlopitek.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcTntDropItem.register(); LbcCreeperDropItem.register(); LbcCageDropItem.register(); LbcHoleDropItem.register(); LbcCorrosionDropItem.register(); LbcZombieTntDropItem.register(); LbcFallingNetheriteDropItem.register(); LbcHomeItems.register(); LbcScareDropItem.register(); LbcLuckyPigDropItem.register(); LbcLevitationDropItem.register(); LbcLibraryDropItem.register(); LbcBeeDropItem.register(); LbcOpAnvilDropItem.register(); LbcSlabDropItem.register(); LbcFeedbackDropItem.register(); LbcCreatureDropItem.register(); LbcPotionSpawnerDropItem.register(); LbcIslandDropItem.register(); LbcDroneDropItem.register(); LbcAntDropItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
 
     private static final CompoundTag BROKEN_TOTEM = new CompoundTag();
     private static final CompoundTag DYNAMITE = new CompoundTag();
@@ -178,6 +178,8 @@ public final class LbcItems {
     private final LbcAwakenedAcid awakenedAcid;
     private final LbcErecto erecto;
     private final LbcDefensiveArcanums defensiveArcanums;
+    private final LbcBabylon babylon;
+    private final LbcBabylonEffects babylonEffects;
     private final LbcVoidArcanum voidArcanum;
     private final LbcIceWand iceWand;
     private final LbcIceMaterials iceMaterials;
@@ -393,6 +395,9 @@ public final class LbcItems {
                 .append(Component.literal(Integer.toString(coldCooldown)).withStyle(ChatFormatting.WHITE))
                 .append(Component.literal("\u00a7fs)").withStyle(ChatFormatting.RED));
         hudPositive(component,"  \uE138 ",frozen,ChatFormatting.RED);
+        hudPositive(component,"  \uE139 ",babylonEffects.queued(source,110),ChatFormatting.RED);
+        hudPositive(component,"  \uE163 ",babylonEffects.queued(source,101),ChatFormatting.RED);
+        hudPositive(component,"  \uE164 ",babylonEffects.queued(source,109),ChatFormatting.RED);
         boolean bow=heldVanillaBow(source);
         if(bow || LbcShooters.isSlr(source.getMainHandItem()) || LbcShooters.isSlr(source.getOffhandItem())) {
             // The source uses /clear ... 0: native counting-only includes crafting slots and cursor, without mutation.
@@ -711,6 +716,8 @@ public final class LbcItems {
         this.awakenedAcid = new LbcAwakenedAcid(game);
         this.erecto = new LbcErecto(game);
         this.defensiveArcanums = new LbcDefensiveArcanums(game,mana);
+        this.babylon = new LbcBabylon(game,mana);
+        this.babylonEffects = new LbcBabylonEffects(game,mana);
         this.voidArcanum = new LbcVoidArcanum(game);
         mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("void_arcanum_mana_activate"),"lbc.math").set(4000);
         mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("void_arcanum_mana_tick"),"lbc.math").set(11);
@@ -859,6 +866,8 @@ public final class LbcItems {
     public LbcPrism prism() { return prism; }
     LbcAwakenedAcid awakenedAcid() { return awakenedAcid; }
     LbcErecto erecto() { return erecto; }
+    public LbcBabylon babylon() { return babylon; }
+    public LbcBabylonEffects babylonEffects() { return babylonEffects; }
     LbcDefensiveArcanums defensiveArcanums() { return defensiveArcanums; }
     LbcVoidArcanum voidArcanum() { return voidArcanum; }
     public void voidArcanumHandsSwapped(ServerPlayer player) { voidArcanum.handSwapped(player); }
@@ -941,6 +950,8 @@ public final class LbcItems {
         prism.loaded(entity);
         iceWand.loaded(entity);
         voidArcanum.loaded(entity);
+        babylon.loaded(entity);
+        babylonEffects.loaded(entity);
         acidCorruption.loaded(entity);
         corruptedGlyphs.loaded(entity);
         gaycasterAcademy.loaded(entity);
@@ -1032,6 +1043,8 @@ public final class LbcItems {
         prism.unloaded(entity);
         iceWand.unloaded(entity);
         voidArcanum.unloaded(entity);
+        babylon.unloaded(entity);
+        babylonEffects.unloaded(entity);
         acidCorruption.unloaded(entity);
         corruptedGlyphs.unloaded(entity);
         gaycasterAcademy.unloaded(entity);
@@ -1414,6 +1427,9 @@ public final class LbcItems {
         iceWand.tick();
         voidArcanum.tick();
         defensiveArcanums.tick();
+        LbcGreed.tick(game);
+        babylonEffects.tick();
+        babylon.tick();
         acidCorruption.tick();
         erecto.tick();
         wands.tick();
@@ -1532,11 +1548,13 @@ public final class LbcItems {
         return curse == null ? 0 : curse.remaining;
     }
 
-    public void clear(ServerPlayer player) { acidCorruption.clear(player); erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
+    public void clear(ServerPlayer player) { babylonEffects.clear(player); acidCorruption.clear(player); erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
     public void forget(ServerPlayer player) {
         corruptedGlyphs.forget(player);
         iceWand.forget(player);
         voidArcanum.forget(player);
+        babylon.forget(player);
+        babylonEffects.forget(player);
         defensiveArcanums.forget(player);
         acidCorruption.forget(player);
         erecto.forget(player);
@@ -1591,6 +1609,8 @@ public final class LbcItems {
         corruptedGlyphs.stop();
         iceWand.stop();
         voidArcanum.stop();
+        babylon.stop();
+        babylonEffects.stop();
         defensiveArcanums.stop();
         acidCorruption.stop();
         erecto.stop();

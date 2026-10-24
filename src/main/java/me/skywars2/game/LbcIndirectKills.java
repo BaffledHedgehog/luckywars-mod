@@ -317,7 +317,7 @@ public final class LbcIndirectKills {
     public void trapChanges(ServerLevel level,ServerPlayer owner,boolean friendlyFire,Runnable writes) {
         trapChanges(level,owner(owner,friendlyFire),writes);
     }
-    void trapChanges(ServerLevel level,Owner cause,Runnable writes){
+    public void trapChanges(ServerLevel level,Owner cause,Runnable writes){
         var previous=trapFrame;
         var frame=new TrapFrame(cause,level,new HashMap<>());
         trapFrame=frame;
@@ -370,7 +370,8 @@ public final class LbcIndirectKills {
     /** Terrain traps retain WILD consequences after their source item has been consumed. */
     public void worldChanges(ServerLevel level, Entity source, boolean friendlyFire, Runnable writes) {
         var player=playerSource(source);
-        blockWrites(level,player==null ? null : new Owner(player.getUUID(),++order,friendlyFire,
+        var inherited=game.items().babylonEffects().cause(source);
+        blockWrites(level,inherited!=null ? inherited : player==null ? null : new Owner(player.getUUID(),++order,friendlyFire,
                 source instanceof Projectile || source instanceof net.minecraft.world.entity.LightningBolt),writes);
     }
     private void blockWrites(ServerLevel level, Owner source, Runnable writes) {
@@ -528,6 +529,9 @@ public final class LbcIndirectKills {
     public void projectileIgnited(LivingEntity target,ServerPlayer player) {
         projectileIgnited(target,player,false);
     }
+    public void inheritedIgnited(LivingEntity target,Owner cause) {
+        if(cause!=null && target.isAlive() && target.isOnFire()) burning.put(target,newer(burning.get(target),cause));
+    }
     public void projectileIgnited(LivingEntity target,ServerPlayer player,boolean friendlyFire) {
         if(target.isAlive() && target.isOnFire()) burning.put(target,new Owner(player.getUUID(),++order,friendlyFire,true));
     }
@@ -545,7 +549,12 @@ public final class LbcIndirectKills {
         if(fall!=null && fall.levitation) falls.remove(target);
     }
 
+    public Owner babylonCause(DamageSource source) {
+        return source instanceof LbcBabylonEffects.OwnerDamageSource owned ? owned.cause : game.items().babylonEffects().cause(source.getDirectEntity());
+    }
     public void damaged(LivingEntity target, DamageSource source) {
+        var inherited=babylonCause(source);
+        if(inherited!=null) { displaced(target,inherited); return; }
         if(LbcCorruptedGlyphs.forced(source)){
             var cause=game.items().corruptedGlyphs().belialCause(target,source);
             if(cause!=null){laterAttacks.put(target,cause);falls.put(target,new Fall(cause,false));}
@@ -627,6 +636,8 @@ public final class LbcIndirectKills {
 
     /** Вызывается до нативного die: mob loot/XP, vanilla kill score и статистика мода видят автора. */
     public void dying(LivingEntity target, DamageSource damage) {
+        var babylon=babylonCause(damage);
+        if(babylon!=null && target.level() instanceof ServerLevel level) { credit(target,level,babylon); return; }
         if(damage instanceof InheritedKill inherited&&target.level() instanceof ServerLevel level){credit(target,level,inherited.cause);return;}
         var duelCause=game.items().corruptedGlyphs().belialCause(target,damage);
         if(duelCause!=null&&target.level() instanceof ServerLevel duelLevel){credit(target,duelLevel,duelCause);return;}

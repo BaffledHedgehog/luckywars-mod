@@ -91,7 +91,8 @@ public final class LbcClouds {
             shieldFrom = position();
             try {
                 super.tick();
-                if(great&&!isRemoved()&&!entityTags().contains(ACID_STUCK))setDeltaMovement(velocity);
+                if(great&&!isRemoved()&&!entityTags().contains(ACID_STUCK)
+                        && !entityTags().remove(LbcGreed.REFLECTED))setDeltaMovement(velocity);
                 if (!isRemoved()) stopAtShield(position());
             } finally { shieldFrom = null; }
         }
@@ -113,8 +114,8 @@ public final class LbcClouds {
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder) { }
         @Override public EntityType<?> getPolymerEntityType(PacketContext context) { return EntityTypes.MARKER; }
         @Override protected boolean canHitEntity(Entity entity) {
-            // User: every shared acid variant retains the source marker's passage through actors.
-            return false;
+            // Greed reflects even acid; ordinary actors retain source passage.
+            return LbcGreed.active(entity);
         }
         @Override protected void onHit(HitResult hit) {
             if (stopAtShield(hit.getLocation())) return;

@@ -1137,6 +1137,11 @@ public final class LbcWands {
     private boolean electroStep(ElectroTrace trace) {
         var level=trace.level;
         Vec3 from=trace.position,direction=Vec3.directionFromRotation(trace.pitch,trace.yaw);
+        var greed=LbcGreed.firstHit(level,from,from.add(direction.scale(trace.teslaChain?4:trace.meditation||trace.npcSource!=null?3.6:2)),.15);
+        if(greed!=null && greed.getEntity() instanceof ServerPlayer reflector && reflector!=trace.owner) {
+            trace.owner=reflector; trace.yaw+=180; trace.pitch=-trace.pitch;
+            return true;
+        }
         int samples=trace.teslaChain?20:trace.meditation || trace.npcSource!=null ? 18 : 10;
         var shield=shieldHit(trace.source(),from,from.add(direction.scale(samples*.2)),trace.meditation);
         double shieldDistance=shield==null ? Double.POSITIVE_INFINITY : from.distanceTo(shield.getLocation());
@@ -1351,7 +1356,7 @@ public final class LbcWands {
     public boolean projectileTarget(ServerPlayer player,Entity entity) { return projectileTarget(player,entity,false); }
     /** Accepted lethal hits still trigger their sword; role/team exclusions remain authoritative. */
     boolean projectileTarget(ServerPlayer player,Entity entity,boolean allowDying) {
-        return entity!=player && validTarget(entity,allowDying)
+        return entity!=player && !LbcGreed.active(entity) && validTarget(entity,allowDying)
                 && (!(entity instanceof ServerPlayer) || !player.isAlliedTo(entity));
     }
     public boolean target(ServerPlayer player,Entity entity) {
@@ -1359,11 +1364,14 @@ public final class LbcWands {
     }
     /** Узкое исключение притягивания Ruby: роли остаются защищены, союзников можно включить отдельно. */
     boolean target(ServerPlayer player,Entity entity,boolean includeAllies) {
-        return entity!=player && validTarget(entity)
+        return entity!=player && !LbcGreed.active(entity) && validTarget(entity)
                 && (includeAllies || !player.isAlliedTo(entity) && !game.items().blaze().friendly(player,entity) && !game.items().summons().friendly(player,entity));
     }
     boolean validTarget(Entity entity) { return validTarget(entity,false); }
     boolean validTarget(Entity entity,boolean allowDying) {
+        return !LbcGreed.active(entity) && validRoleTarget(entity,allowDying);
+    }
+    boolean validRoleTarget(Entity entity,boolean allowDying) {
         return (allowDying || entity.isAlive()) && !entity.isRemoved() && !entity.isSpectator() && !entity.entityTags().contains("spectator")
                 && !entity.entityTags().contains("rcdenyalways") && !entity.entityTags().contains("sauvojen_tuntija")
                 && !entity.entityTags().contains("strict_map_object")
@@ -1380,6 +1388,8 @@ public final class LbcWands {
                 && game.items().electro().canHit(projectile,target);
     }
     public boolean canHit(Projectile projectile,Entity target) {
+        if(LbcGreed.active(target) && validRoleTarget(target,false)) return true;
+        if(LbcBabylon.managed(projectile)) return game.items().babylon().canAffect(projectile,target);
         if(LbcNeutral.managed(projectile)) return game.items().neutral().canAffect(projectile,target);
         if(LbcTransformator.managed(projectile)) return game.items().transformator().canAffect(projectile,target);
         if(LbcPotionSpawnerDrops.managed(projectile)) return game.items().potionSpawnerDrops().canAffect(projectile,target);
@@ -1407,6 +1417,8 @@ public final class LbcWands {
     }
     /** Радиус взрыва native firework обходит canHitEntity; союзников защищаем и в финальном уроне. */
     public boolean allowDamage(Entity victim,DamageSource source) {
+        if(LbcGreed.active(victim)) return false;
+        if(LbcBabylon.managed(source.getDirectEntity())) return game.items().babylon().canAffect((Projectile)source.getDirectEntity(),victim);
         if(LbcNeutral.managed(source.getDirectEntity())) return game.items().neutral().canAffect((Projectile)source.getDirectEntity(),victim);
         if(LbcTransformator.managed(source.getDirectEntity())) return game.items().transformator().canAffect(source.getDirectEntity(),victim);
         if(LbcStalin.managed(source.getDirectEntity())) return game.items().stalin().canAffect(source.getDirectEntity(),victim);

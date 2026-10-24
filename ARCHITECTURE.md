@@ -1,5 +1,42 @@
 # Структура переноса игрового цикла
 
+## Gate of Babylon, active Greed guard and arcanum pools - QUALIFIED (24 October 2026)
+
+[Contract](agent_notes/BABYLON_PORT.md), [arrow effects](agent_notes/BABYLON_EFFECTS_SOURCE.md),
+[presentation](agent_notes/BABYLON_RESOURCES.md), [Greed ruling](agent_notes/GREED_GUARD.md).
+Ready leaf: `lbc:ported/babylon_gate`. The held native Polymer arcanum retains
+its source name, model, four lore rows and tierA. Every two ticks each hand
+independently spends300 and emits exactly one random native projectile from
+one of five original positions (user). Native arrows/trident/rocket retain
+source velocity, first-frame orientation and exact colors/fireworks payload.
+The three tipped transports use native scaling20->2, normalize2->1 and enqueue
+owned FIFO consequences: native MOB explosion1, WILD vanilla lightning, or
+source air-fire plus fractional central destructive carve. Native owner
+transfer controls later attribution; captured cause preserves newer-hit priority.
+Source ward radii, distinct stopper types, skill19, HUD, purify, persisted
+same-epoch queues, Time Stop and actual match-stop cleanup are integrated.
+
+User clarified `sin_greed_active` as absolute immunity, superseding a mere
+pause interpretation. Native/bypass/void/direct-HP damage, knockback and
+external effects are rejected; physical projectiles reflect before impact.
+Common targets and manual spell/electric/acid paths share the guard. Existing
+Babylon counters wait; new incoming counters are rejected while active.
+This closes the active-tag guard, not Greed acquisition/activation/upkeep.
+
+All six ordinary arcanums are native, so `lbc:transformables_arcanum` and
+`lbc:transformables_arcanum_all` now route to qualified leaves and are visible
+in loot suggestions. Original inner equal weights and outer6:1:1 are retained;
+the complete pool has eight equal outcomes. No author RP/template edits.
+
+Build `0fb48f1a` passed62 recorded suite results in two actual mode1 matches
+(144.06s). Exact 306 sources / 837 classes / 2793 resources
+match the tested JAR. Installed stopped main; rollback `daa2f866` retained,
+main not started. Three pre-existing user sources remain unchanged/excluded.
+Evidence: `build/verification/babylon-final/`. Native boundary fixtures include
+manual ticks; no real client pixels, actual disk restart/disconnect or
+peak-load performance claim. The direct tag guard does not claim every future
+unported ability has already been integrated.
+
 ## Eternal Life and direct Absolute Barrier - QUALIFIED (24 October 2026)
 
 [Contract](agent_notes/DEFENSIVE_ARCANUMS_PORT.md), [presentation](agent_notes/DEFENSIVE_ARCANUMS_RESOURCES.md).

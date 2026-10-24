@@ -106,6 +106,7 @@ public abstract class WandProjectileMixin {
     }
     @Inject(method="canHitEntity",at=@At("HEAD"),cancellable=true)
     private void skywars2$wandTarget(Entity target,CallbackInfoReturnable<Boolean> ci) {
+        if(me.skywars2.game.LbcGreed.active(target) && target.isAlive()) { ci.setReturnValue(true); return; }
         if(target instanceof Projectile && (ProjectileLifetimes.protectedWandProjectile(target)
                 || ProjectileLifetimes.protectedWandProjectile((Entity)(Object)this))) {
             ci.setReturnValue(false);
