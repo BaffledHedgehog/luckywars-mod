@@ -75,9 +75,10 @@ template changes are required.
 
 Ready scoped leaves after qualification:
 `lbc:ported/tesla_wand`, `lbc:ported/academy_tesla_wand`.
-Broad staff/LuckyWars pools remain gated. The Sosueneruga continuation craft and
-special mushroom-stem/`mom` Yellow Lightning encounter/reward chain are separate
-unported dependencies, as previously recorded in [Electro](WANDS_ELECTRO_PORT.md).
+Broad staff/LuckyWars pools remain gated. The Tesla + Electro continuation craft
+is now qualified separately as [Erecto](ERECTO_PORT.md). The special mushroom-stem/
+`mom` Yellow Lightning encounter/reward chain remains a separate unported
+dependency, as previously recorded in [Electro](WANDS_ELECTRO_PORT.md).
 This batch qualifies Tesla's ordinary combat and three Academy modes, not those
 rare encounter rewards or the complete acquisition pools.
 

@@ -56,6 +56,8 @@ import net.minecraft.world.scores.ScoreHolder;
 
 /** Жезлы используют общий расход маны и каст-хуки; временные снаряды хранит существующий трекер. */
 public final class LbcWands {
+    public static final Item ERECTO=register("skywars2:erecto_wand","erecto_wand","lbc:erecto");
+    public static final Item ACADEMY_ERECTO=register("skywars2:academy_erecto_wand","erecto_wand","lbc:erecto");
     public static final Item TESLA=register("skywars2:tesla_wand","lightning_wand","lbc:lightningwand");
     public static final Item ACADEMY_TESLA=register("skywars2:academy_tesla_wand","lightning_wand","lbc:lightningwand");
     public static final Item PRISM=register("skywars2:unstable_prism","unstable_prism","lbc:prism");
@@ -153,6 +155,8 @@ public final class LbcWands {
     public static final Item ACADEMY_EXOPERSO=register("skywars2:academy_exoperso_wand","megumin_wand","lbc:exoperso");
     public static final Item ACADEMY_EXASPERATO=register("skywars2:academy_exasperato_wand","exasperato_wand","lbc:exasperato");
     private enum Spell {
+        ACADEMY_ERECTO(LbcWands.ACADEMY_ERECTO,"erecto_wand","erecto_wand_mana_use",1100),
+        ERECTO(LbcWands.ERECTO,"erecto_wand","erecto_wand_mana_use",1100),
         ACADEMY_TESLA(LbcWands.ACADEMY_TESLA,"lightningwand","lightning_wand_mana_use",1200),
         TESLA(LbcWands.TESLA,"lightningwand","lightning_wand_mana_use",1200),
         ACADEMY_AWAKENED_ACID(LbcWands.ACADEMY_AWAKENED_ACID,"acidacid_wand","acidacid_wand_mana_use",1450),
@@ -252,7 +256,7 @@ public final class LbcWands {
         final int defaultCost;
         Spell(Item item,String flag,String cost,int defaultCost) {
             this.item=item; this.flag=flag(flag); this.cost=ScoreHolder.forNameOnly(cost); this.defaultCost=defaultCost;
-            if(item==LbcWands.ACADEMY_TESLA||item==LbcWands.ACADEMY_PRISM||item==LbcWands.ACADEMY_GAYCASTER||item==LbcWands.ACADEMY_AWAKENED_ACID) this.flag.putInt("upgraded",1);
+            if(item==LbcWands.ACADEMY_ERECTO||item==LbcWands.ACADEMY_TESLA||item==LbcWands.ACADEMY_PRISM||item==LbcWands.ACADEMY_GAYCASTER||item==LbcWands.ACADEMY_AWAKENED_ACID) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_CAUSTIC || item==LbcWands.ACADEMY_OMEGA) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_ADVANCED_ENDER || item==LbcWands.ACADEMY_SNOW) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_ENDER || item==LbcWands.ACADEMY_BAD_WIKI) this.flag.putInt("upgraded",1);
@@ -294,6 +298,7 @@ public final class LbcWands {
         final int lifetime;
         final boolean meditation;
         boolean mechanism,teslaChain;
+        LbcErecto.Path erecto;
         ServerPlayer trialOwner;
         InteractionHand trialHand;
         ItemStack trialStack;
@@ -439,6 +444,7 @@ public final class LbcWands {
         Spell spell=null;
         for(var candidate:SPELLS) if(matches(stack,candidate.item,candidate.flag)) { spell=candidate; break; }
         if(spell==null) return false;
+        if(spell==Spell.ERECTO||spell==Spell.ACADEMY_ERECTO)return game.items().erecto().use(player,hand,stack,spell==Spell.ACADEMY_ERECTO);
         if(spell==Spell.TESLA||spell==Spell.ACADEMY_TESLA)return LbcTesla.use(game,player,hand,stack,spell==Spell.ACADEMY_TESLA);
         if(spell==Spell.AWAKENED_ACID||spell==Spell.ACADEMY_AWAKENED_ACID)return game.items().awakenedAcid().use(player,hand,stack,spell==Spell.ACADEMY_AWAKENED_ACID);
         if(spell==Spell.GAYCASTER||spell==Spell.ACADEMY_GAYCASTER)return LbcGaycaster.use(game,player,hand,stack);
@@ -1065,10 +1071,13 @@ public final class LbcWands {
             if(trace.level!=level) return false;
             Vec3 next=transform.apply(trace.position);
             if(next==null) return true;
-            trace.position=next; return false;
+            trace.position=next;
+            if(trace.erecto!=null&&trace.erecto.focus!=null)trace.erecto.focus=transform.apply(trace.erecto.focus);
+            return false;
         });
     }
 
+    void higherElectro(ElectroTrace trace){electroTraces.add(trace);}
     java.util.List<ElectroTrace> electroSnapshot() { return java.util.List.copyOf(electroTraces); }
     /** Electro хранится записями, поэтому глобальный Curse использует тот же выбор цели без marker-сущностей. */
     void redirectCursedElectro() {
@@ -1106,7 +1115,7 @@ public final class LbcWands {
                 if(timeStopped || owner!=null && owner.entityTags().contains("time_stopped")) continue;
                 // (user) Мана/антимагия проверяются при использовании жезла; выпущенная дуга немагическая.
                 if(!trace.level.hasChunkAt(BlockPos.containing(trace.position))
-                        || (trace.teslaChain&&trace.age%5!=0 ? false : !electroStep(trace)) || ++trace.age>=trace.lifetime) electroTraces.remove(trace);
+                        || (trace.erecto!=null ? !game.items().erecto().step(trace) : trace.teslaChain&&trace.age%5!=0 ? false : !electroStep(trace)) || ++trace.age>=trace.lifetime) electroTraces.remove(trace);
             }
         } finally { electroBatch.clear(); }
     }

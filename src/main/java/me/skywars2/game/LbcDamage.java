@@ -75,6 +75,23 @@ public final class LbcDamage {
             net.minecraft.world.phys.Vec3 from, net.minecraft.world.phys.Vec3 to,
             net.minecraft.world.phys.Vec3 padding, double spacing, float amount, int targetLimit,
             java.util.function.Predicate<net.minecraft.world.entity.Entity> target, boolean includeOwner) {
+        hurtSegment(level,damage,from,to,padding,spacing,amount,targetLimit,target,includeOwner,null);
+    }
+    /** Spell trials/status payloads observe accepted native hits without another entity query. */
+    static void hurtSegment(net.minecraft.server.level.ServerLevel level, DamageSource damage,
+            net.minecraft.world.phys.Vec3 from, net.minecraft.world.phys.Vec3 to,
+            net.minecraft.world.phys.Vec3 padding, double spacing, float amount, int targetLimit,
+            java.util.function.Predicate<net.minecraft.world.entity.Entity> target, boolean includeOwner,
+            java.util.function.Consumer<net.minecraft.world.entity.Entity> acceptedHit) {
+        hurtSegment(level,damage,from,to,padding,spacing,amount,targetLimit,target,includeOwner,null,acceptedHit);
+    }
+    /** Source payloads may apply after a sampled hit even when native damage is rejected. */
+    static void hurtSegment(net.minecraft.server.level.ServerLevel level, DamageSource damage,
+            net.minecraft.world.phys.Vec3 from, net.minecraft.world.phys.Vec3 to,
+            net.minecraft.world.phys.Vec3 padding, double spacing, float amount, int targetLimit,
+            java.util.function.Predicate<net.minecraft.world.entity.Entity> target, boolean includeOwner,
+            java.util.function.Consumer<net.minecraft.world.entity.Entity> sampledHit,
+            java.util.function.Consumer<net.minecraft.world.entity.Entity> acceptedHit) {
         double length=from.distanceTo(to);
         int maxSample=(int)Math.floor(length/spacing+1e-6);
         int[] perSample=new int[maxSample+1];
@@ -90,7 +107,9 @@ public final class LbcDamage {
             if(end<begin) begin=end=Math.min(maxSample,begin);
             for(int i=begin;i<=end;i++) if(perSample[i]<targetLimit && target.test(entity)) {
                 perSample[i]++;
-                entity.hurtServer(level,damage,amount);
+                boolean accepted=entity.hurtServer(level,damage,amount);
+                if(sampledHit!=null)sampledHit.accept(entity);
+                if(accepted&&acceptedHit!=null)acceptedHit.accept(entity);
             }
         }
     }

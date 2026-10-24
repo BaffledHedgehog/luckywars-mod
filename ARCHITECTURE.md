@@ -1,5 +1,37 @@
 # Структура переноса игрового цикла
 
+## Erecto higher electricity ordinary/Academy - QUALIFIED (24 October 2026)
+
+[Contract](agent_notes/ERECTO_PORT.md), [resource audit](agent_notes/ERECTO_RESOURCES.md).
+Scoped leaves: `lbc:ported/erecto_wand`, `lbc:ported/academy_erecto_wand`.
+Native exact Tesla + Electro craft works in 2x2/3x3, one donor each; no extras.
+Source name is Jibjun Tssengi Akke, S/SS; Sosueneruga is the Electro donor.
+Default central/eight side arcs reuse shared native electric traces with
+cast-local focus/curvature, owner transfer and real hit attribution. Academy
+adds accumulating forty-release ray, fifteen-second sphere (sixteen wall-passing
+arcs every five ticks), and 1100-admission/5000-debit sniper with native erosion
+and twenty-percent termination (user rulings). Free mode changes, raw E117 ray
+HUD/KFC counter, actual >70-block side-hit trial and SS promotion are native.
+Finite short rays execute inline; moving charges retain source tick cadence.
+Antimagic prevents activation, released electricity continues; Time Stop pauses.
+No RP/template changes or broad pool enablement. The Tesla + Electro continuation
+is closed; Yellow Lightning/Mom and unreachable admin helper branches remain
+separate. See contract for source limits and exact user rulings.
+
+Build `0faca9ac` passed 30 recorded suite results in two actual
+mode1 matches (146.69s), including full real-time sphere lifecycle,
+actual Academy trial/promotion, ray/status/rejection/HUD/KFC, native craft menus,
+reflection/conduction, sniper erosion and both termination outcomes, actual
+Time Stop and match-stop cancellation. Tesla/AwakenedAcid/Gaycaster/Prism/
+CausticOmega/AdvancedSnow/Neutral/Mobgun/Academy/KFC regressions passed.
+Exact 287 sources / 769 classes / 2775 resources
+verified. Installed stopped main; rollback `8040ad37` retained; main not started.
+Three user sources unchanged/excluded. Evidence: `build/verification/erecto-final/`.
+Native boundary fixtures include manual ticks; no real client pixels, disk
+restart/unload/disconnect or peak-load performance claim.
+
+
+
 ## Скорость заклинаний и бюджет CPU — уточнение user, 24 октября 2026
 
 Кратковременные 18–19 TPS допустимы, если альтернатива — чрезмерно растянутые

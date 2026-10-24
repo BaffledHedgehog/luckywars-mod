@@ -181,6 +181,7 @@ public final class LbcKfcFood {
                 case "nomagic" -> mana.noMagic(p,mana.noMagic(p)+1);
                 case "blaze" -> game.items().blaze().addHeadCharges(p,1);
                 case "coldownshish" -> game.items().reactive().addPlayerCounter(p);
+                case "ray" -> game.items().erecto().addPlayerCounter(p);
                 case "acid_rifle" -> game.items().awakenedAcid().addPlayerCounter(p);
                 default -> mana.score(p,name).add(1);
             }
