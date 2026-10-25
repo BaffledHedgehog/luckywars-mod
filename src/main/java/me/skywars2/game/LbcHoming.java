@@ -142,6 +142,19 @@ public final class LbcHoming {
         if(!donor&&!upgraded)LbcOverload.sound(owner,owner.position(),"minecraft:entity.firework_rocket.shoot",1,1,0);
         int mode=upgraded?Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY)
                 .copyTag().getIntOr("mode",1),1,donor?3:4):1;
+        launch(owner,donor,mode,upgraded,true);
+        if(!upgraded && owner.isShiftKeyDown() && LbcAcademy.trial(stack)) {
+            trial(owner,donor);
+            game.items().academy().ready(owner,hand,stack);
+        }
+        game.items().wands().wandCasted(owner); return true;
+    }
+
+    void grimoire(ServerPlayer owner,int mode) {
+        if(mode==1)LbcOverload.sound(owner,owner.position(),"minecraft:entity.firework_rocket.shoot",1,1,0);
+        launch(owner,false,mode,mode!=1,false);
+    }
+    private void launch(ServerPlayer owner,boolean donor,int mode,boolean upgraded,boolean achievement) {
         if(!donor && mode==3) destinies.add(new Effect(owner,owner.getEyePosition(),600,game.items().epoch()));
         else if(!donor && mode==4) curseRay(owner);
         else {
@@ -150,15 +163,10 @@ public final class LbcHoming {
                 if(hit==null) return;
                 Vec3 point=hit.getLocation();
                 if(donor) stars(owner,point,mode); else homing(owner,point,mode==2);
-                if(donor && origin.distanceToSqr(point)>=150*150 && nearest(owner,point,7)!=null)
-                    mana.award(owner,"lbc:true_advancements/staffs/falling_stars");
+                if(achievement && donor && origin.distanceToSqr(point)>=150*150 && nearest(owner,point,7)!=null)
+                    game.items().mana().award(owner,"lbc:true_advancements/staffs/falling_stars");
             });
         }
-        if(!upgraded && owner.isShiftKeyDown() && LbcAcademy.trial(stack)) {
-            trial(owner,donor);
-            game.items().academy().ready(owner,hand,stack);
-        }
-        game.items().wands().wandCasted(owner); return true;
     }
 
     /** Единое первое попадание: блок и существо в одной ячейке не удваивают эффект. */

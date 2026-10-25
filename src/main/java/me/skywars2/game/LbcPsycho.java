@@ -186,20 +186,25 @@ public final class LbcPsycho {
         int mode=academy?Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("mode",1),1,4):0;
         if(donor) psycho(owner,hand,stack,mode);
         else {
-            if(mode==2) rays.merge(owner,40,Integer::sum);
-            else if(mode==3) spawn(owner,owner.getEyePosition(),owner.getLookAngle(),false,true,100);
-            else spread(owner,mode==1?4:3,mode==4);
+            psychoblind(owner,mode);
             if(!academy && owner.isShiftKeyDown() && LbcAcademy.trial(stack)) {
                 afflict(owner,owner,150,40,150,150); game.items().screamer(owner,owner);
                 game.items().academy().ready(owner,hand,stack);
             }
+
+        }
+        game.items().wands().wandCasted(owner); return true;
+    }
+    void psychoblind(ServerPlayer owner,int mode) {
+            if(mode==2) rays.merge(owner,40,Integer::sum);
+            else if(mode==3) spawn(owner,owner.getEyePosition(),owner.getLookAngle(),false,true,100);
+            else spread(owner,mode==1?4:3,mode==4);
             if(mode!=2) {
                 LbcOverload.sound(owner,"minecraft:item.trident.riptide_1",.7f,0,0);
                 LbcOverload.sound(owner,"minecraft:item.trident.riptide_1",.7f,1,0);
             }
-        }
-        game.items().wands().wandCasted(owner); return true;
     }
+
     private void psycho(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode) {
         int roll=mode==0?owner.getRandom().nextInt(6)+1:mode==1?1:mode+2;
         boolean trial=false;

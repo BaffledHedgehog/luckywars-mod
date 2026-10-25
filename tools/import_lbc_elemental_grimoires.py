@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Import28 direct ordinary and variant elemental library spells, preserving source components."""
+"""Import40 direct ordinary and variant elemental library spells, preserving source components."""
 from copy import deepcopy
 from pathlib import Path
 import re
@@ -11,7 +11,8 @@ from import_lbc_woodificator import read_json
 
 RP = Path('C:/Users/yarik_temp/AppData/Roaming/FreesmLauncher/instances/26.3(1)/minecraft/resourcepacks/all_in_one_1.21.8')
 SPELLS = {160:'ruby',163:'terra',165:'electro',167:'air',171:'acid',173:'teleport',176:'stone',181:'fire',184:'blind',
-          161:'ruby_ray', 162:'ruby_hole', 164:'terra_fast', 166:'electro_ray', 168:'air_burst', 169:'air_fast', 170:'air_homing', 172:'acid_burning', 174:'teleport_inverted', 175:'teleport_cloud', 177:'stone_ray', 178:'stone_spikes', 179:'stone_bridge', 180:'stone_shield', 182:'fire_big', 183:'fire_ray', 185:'blind_gatling', 186:'blind_phantom', 187:'blind_rain'}
+          161:'ruby_ray', 162:'ruby_hole', 164:'terra_fast', 166:'electro_ray', 168:'air_burst', 169:'air_fast', 170:'air_homing', 172:'acid_burning', 174:'teleport_inverted', 175:'teleport_cloud', 177:'stone_ray', 178:'stone_spikes', 179:'stone_bridge', 180:'stone_shield', 182:'fire_big', 183:'fire_ray', 185:'blind_gatling', 186:'blind_phantom', 187:'blind_rain',
+          204:'exahoming', 205:'exahoming_curse', 206:'exahoming_destiny', 207:'exahoming_sisyphus', 208:'psychoblind', 209:'psychoblind_invisible', 210:'psychoblind_ray', 211:'psychoblind_spray', 212:'boltbolt', 213:'boltbolt_meteor', 214:'boltbolt_watering', 215:'boltbolt_racer'}
 
 def main():
     firearms.RP = RP  # Audit the current author pack; never modify it.

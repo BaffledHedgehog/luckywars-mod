@@ -1,5 +1,27 @@
 # Структура переноса игрового цикла
 
+## Twelve Homing/Psychoblind/Boltbolt grimoires - QUALIFIED AND INSTALLED (25 October 2026)
+
+[Source and verification](agent_notes/ADVANCED_GRIMOIRES_2026_10_25.md). Library IDs204..215 now expose12 native
+consumed grimoires through shared wand-mode producers. Source models, component
+formatting and red Legendary/adjective rows remain exact. Both hands and Shift
+consume one actual book without mana admission/debit, Academy trial or mode
+switch. Source grimoire IDs map invisible Psychoblind to mode4 and spray to
+mode3; existing wand counts are preserved. Homing callbacks/Curse/Destiny,
+cumulative Scream Ray, Boltbolt centers/meteor/watering/racer retain their
+native ownership, collision, timing and lifecycle. Broad/random library stays gated.
+
+Build6fb1a606 passed16 groups in two actual mode1 matches (50.31s): all12
+consumed modes, prior ordinary elemental and full Exahoming/Psycho/Boltbolt
+regressions, native input/count/owner/component checks and actual-stop cleanup.
+The older Psycho assertion now respects allied-mob hits; the runner observes
+a real advancing game clock between independent Academy fixtures. No gameplay
+filter or Academy deduplication change. Exact375 sources/1059 classes/2877
+resources match. Installer21840 installed6fb1a606 over462ab2c6 with rollback
+and no restart. Evidence: build/verification/advanced-grimoires-final/.
+User files/deletions and author RP preserved. Client pixels/audio and peak TPS
+not observed. Obsolete older archive retired with current and rollback retained.
+
 ## Nineteen elemental grimoire variants - QUALIFIED AND INSTALLED (25 October 2026)
 
 [Source and verification](agent_notes/ELEMENTAL_VARIANT_GRIMOIRES_2026_10_25.md). Direct consumed library IDs161/162/164/166/

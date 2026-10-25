@@ -765,6 +765,9 @@ public final class GameChecks {
                                 case "team-colors-stop-probe" -> { TeamColorChecks.stopProbe(game); return; }
                                 case "team-colors-cleanup" -> { TeamColorChecks.cleanup(game); return; }
                                 case "danmaku" -> { DanmakuChecks.run(game); return; }
+                                case "advanced-grimoires" -> { AdvancedGrimoireChecks.run(game); return; }
+                                case "advanced-grimoires-stop-probe" -> { AdvancedGrimoireChecks.stopProbe(game); return; }
+                                case "advanced-grimoires-cleanup" -> { AdvancedGrimoireChecks.cleanup(game); return; }
                                 case "elemental-variant-grimoires" -> { ElementalVariantGrimoireChecks.run(game); return; }
                                 case "elemental-variant-grimoires-stop-probe" -> { ElementalVariantGrimoireChecks.stopProbe(game); return; }
                                 case "elemental-variant-grimoires-cleanup" -> { ElementalVariantGrimoireChecks.cleanup(game); return; }
@@ -12042,11 +12045,13 @@ public final class GameChecks {
                                 require(service.rayCount(owner)==39 && service.effectValue(victim,"scared")==1
                                                 && service.effectValue(victim,"lookback")==1 && service.effectValue(victim,"piss")==1,
                                                 "Wide Mindray applies mental effects once per target in its first tick");
-                                for(var excluded:java.util.List.of(rayNpc,suppressed,ally))
+                                for(var excluded:java.util.List.of(rayNpc,suppressed))
                                         require(service.effectValue(excluded,"scared")==0
                                                         && service.effectValue(excluded,"lookback")==0
                                                         && excluded.getHealth()==10,
-                                                        "Mindray excludes allies, service NPC and antimagic targets");
+                                                        "Mindray excludes service NPC and antimagic targets");
+                                require(service.effectValue(ally,"scared")==1 && service.effectValue(ally,"lookback")==1
+                                                && ally.getHealth()<10,"Mindray can affect allied mobs under the author projectile rule");
                                 for(int tick=1;tick<40;tick++) service.tick();
                                 require(service.rayCount(owner)==0,"Mindray ends after exactly forty service ticks");
                         } finally {

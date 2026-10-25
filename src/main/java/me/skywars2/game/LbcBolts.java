@@ -296,7 +296,21 @@ public final class LbcBolts {
         if(donor && mode==2) cost=0;
         if(!mana.trySpendWand(owner,cost,cost)) return false;
         if(donor) donor(owner,hand,stack,mode,upgraded);
-        else if(mode==2) game.items().teleport().castRideableArrow(owner,2,true);
+        else boltbolt(owner,hand,stack,mode);
+        LbcOverload.sound(owner,"minecraft:entity.lightning_bolt.thunder",1,2,0);
+        if(!(donor && mode==2)) game.items().wands().wandCasted(owner);
+        else game.items().trinkets().castWand(owner);
+        return true;
+    }
+    boolean grimoire(ServerPlayer owner,int mode) {
+        if(mode==3&&!ready())return false;
+        // Library carriers are anchored at the eyes regardless of the consumed hand.
+        boltbolt(owner,InteractionHand.MAIN_HAND,ItemStack.EMPTY,mode);
+        if(mode==1)LbcOverload.sound(owner,"minecraft:entity.lightning_bolt.thunder",1,2,0);
+        return true;
+    }
+    private void boltbolt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode) {
+        if(mode==2) game.items().teleport().castRideableArrow(owner,2,true);
         else if(mode==4) watering(owner);
         else {
             Vec3 at=ray(owner,hand,150,mode==3?ParticleTypes.SNOWFLAKE:ParticleTypes.CLOUD,false);
@@ -304,11 +318,8 @@ public final class LbcBolts {
                 if(mode==3) meteor(owner,at.add(0,50,0)); else terminal(owner,hand,stack,at);
             }
         }
-        LbcOverload.sound(owner,"minecraft:entity.lightning_bolt.thunder",1,2,0);
-        if(!(donor && mode==2)) game.items().wands().wandCasted(owner);
-        else game.items().trinkets().castWand(owner);
-        return true;
     }
+
     /** The shared collision helper yields exactly one terminal and never probes an unloaded chunk. */
     private Vec3 ray(ServerPlayer owner,InteractionHand hand,double range,net.minecraft.core.particles.ParticleOptions particle,boolean items) {
         return ray(owner,hand,range,particle,items,false);

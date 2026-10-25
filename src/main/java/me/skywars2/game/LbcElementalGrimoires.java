@@ -27,7 +27,7 @@ import net.minecraft.world.level.Level;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Direct consumed elemental library160..187, sharing native ordinary/Academy payloads. */
+/** Direct consumed elemental library160..187 and204..215, sharing native ordinary/Academy payloads. */
 public final class LbcElementalGrimoires {
     public enum Kind {
         RUBY(160,"ruby","swarogia",1200,"c","ruby",1,2,3),
@@ -57,7 +57,19 @@ public final class LbcElementalGrimoires {
         FIRE_RAY(183,"fire_ray","fire",200,"b","libspell_fire_2","universal",ChatFormatting.YELLOW,"libspell_fire_2.lore"),
         BLIND_GATLING(185,"blind_gatling","blind",300,"c","libspell_blind_1","enhanced",ChatFormatting.GRAY,"libspell_blind_1.lore"),
         BLIND_PHANTOM(186,"blind_phantom","blind",300,"d","libspell_blind_2","universal",ChatFormatting.YELLOW,"libspell_blind_2.lore"),
-        BLIND_RAIN(187,"blind_rain","blind",300,"c","libspell_blind_3","smart",ChatFormatting.AQUA,"libspell_blind_3.lore");
+        BLIND_RAIN(187,"blind_rain","blind",300,"c","libspell_blind_3","smart",ChatFormatting.AQUA,"libspell_blind_3.lore"),
+        EXAHOMING(204,"exahoming","homing",2000,"a","libspell_homing",null,null,"libspell_homing.lore"),
+        EXAHOMING_CURSE(205,"exahoming_curse","homing",2000,"x","libspell_homing_1","smart",ChatFormatting.AQUA,"libspell_homing_1.lore"),
+        EXAHOMING_DESTINY(206,"exahoming_destiny","homing",2000,"x","libspell_homing_2","unreal",ChatFormatting.RED,"libspell_homing_2.lore"),
+        EXAHOMING_SISYPHUS(207,"exahoming_sisyphus","homing",2000,"x","libspell_homing_3","powerful",ChatFormatting.DARK_PURPLE,"libspell_homing_3.lore"),
+        PSYCHOBLIND(208,"psychoblind","psychoblind",2000,"b","libspell_psychoblind",null,null,"libspell_psychoblind.lore"),
+        PSYCHOBLIND_INVISIBLE(209,"psychoblind_invisible","psychoblind",2000,"b","libspell_psychoblind_1","enhanced",ChatFormatting.GRAY,"libspell_psychoblind_1.lore"),
+        PSYCHOBLIND_RAY(210,"psychoblind_ray","psychoblind",2000,"a","libspell_psychoblind_2","smart",ChatFormatting.AQUA,"libspell_psychoblind_2.lore"),
+        PSYCHOBLIND_SPRAY(211,"psychoblind_spray","psychoblind",2000,"s","libspell_psychoblind_3","universal",ChatFormatting.YELLOW,"libspell_psychoblind_3.lore"),
+        BOLTBOLT(212,"boltbolt","boltbolt",2000,"a","libspell_boltbolt",null,null,"libspell_boltbolt.lore"),
+        BOLTBOLT_METEOR(213,"boltbolt_meteor","boltbolt",2000,"a","libspell_boltbolt_1","smart",ChatFormatting.AQUA,"libspell_boltbolt_1.lore"),
+        BOLTBOLT_WATERING(214,"boltbolt_watering","boltbolt",2000,"b","libspell_boltbolt_2","smart",ChatFormatting.AQUA,"libspell_boltbolt_2.lore"),
+        BOLTBOLT_RACER(215,"boltbolt_racer","boltbolt",2000,"s","libspell_boltbolt_3","smart",ChatFormatting.AQUA,"libspell_boltbolt_3.lore");
 
 
         final int spellId,metadataMana;
@@ -85,7 +97,9 @@ public final class LbcElementalGrimoires {
     private LbcElementalGrimoires() { }
     public static void register() { Kind.values(); }
     static List<Kind> ordinary() { return List.of(Kind.RUBY,Kind.TERRA,Kind.ELECTRO,Kind.AIR,Kind.ACID,Kind.TELEPORT,Kind.STONE,Kind.FIRE,Kind.BLIND); }
-    static List<Kind> variants() { return java.util.Arrays.stream(Kind.values()).filter(kind->kind.modifier!=null).toList(); }
+    static List<Kind> variants() { return java.util.Arrays.stream(Kind.values()).filter(kind->kind.modifier!=null&&kind.spellId<=187).toList(); }
+
+    static List<Kind> advanced() { return java.util.Arrays.stream(Kind.values()).filter(kind->kind.spellId>=204&&kind.spellId<=215).toList(); }
 
     private static Component text(String key,ChatFormatting color) {
         return Component.translatable(key).withStyle(color).withStyle(style->style.withItalic(false));
@@ -100,7 +114,9 @@ public final class LbcElementalGrimoires {
         lore.add(text("type",ChatFormatting.AQUA).copy().append(text("libspell",ChatFormatting.AQUA)));
         lore.add(Component.empty());
         for(var row:kind.lore)lore.add(text(row,ChatFormatting.GOLD));
-        var rarity=text("rarity",ChatFormatting.WHITE).copy().append(text("epic",ChatFormatting.DARK_PURPLE));
+        // These three source library families use Legendary, independently of their tooltip tier.
+        boolean legendary=kind.spellId>=204&&kind.spellId<=215;
+        var rarity=text("rarity",ChatFormatting.WHITE).copy().append(text(legendary?"legendary":"epic",legendary?ChatFormatting.RED:ChatFormatting.DARK_PURPLE));
         if(kind.modifier!=null)rarity.append(text(kind.modifier,kind.modifierColor));
         lore.add(rarity);
         var properties=new Item.Properties(){@Override public Identifier effectiveModel(){return model;}}
@@ -140,6 +156,18 @@ public final class LbcElementalGrimoires {
                 ||game.items().magic().suppressed(player)
                 ||game.items().magic().suppressedAt(player.level(),player.getEyePosition()))return false;
         switch(kind) {
+            case EXAHOMING -> game.items().homing().grimoire(player,1);
+            case EXAHOMING_CURSE -> game.items().homing().grimoire(player,4);
+            case EXAHOMING_DESTINY -> game.items().homing().grimoire(player,3);
+            case EXAHOMING_SISYPHUS -> game.items().homing().grimoire(player,2);
+            case PSYCHOBLIND -> game.items().psycho().psychoblind(player,1);
+            case PSYCHOBLIND_INVISIBLE -> game.items().psycho().psychoblind(player,4);
+            case PSYCHOBLIND_RAY -> game.items().psycho().psychoblind(player,2);
+            case PSYCHOBLIND_SPRAY -> game.items().psycho().psychoblind(player,3);
+            case BOLTBOLT,BOLTBOLT_METEOR,BOLTBOLT_WATERING,BOLTBOLT_RACER -> {
+                int mode=switch(kind){case BOLTBOLT_METEOR -> 3;case BOLTBOLT_WATERING -> 4;case BOLTBOLT_RACER -> 2;default -> 1;};
+                if(!game.items().bolts().grimoire(player,mode))return false;
+            }
             case RUBY -> game.items().ruby().cast(player,0);
             case TERRA -> game.items().terra().cast(player);
             case ELECTRO -> game.items().wands().electroVolley(player);
