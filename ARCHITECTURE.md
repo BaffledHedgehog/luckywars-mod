@@ -1,5 +1,34 @@
 # Структура переноса игрового цикла
 
+## All-item sound audit and consumed Danmaku grimoire - QUALIFIED READY (25 October 2026)
+
+[Combined contract](agent_notes/ALL_ITEM_SOUNDS_PORT_2026_10_25.md),
+[active sound audit](agent_notes/ALL_ITEM_WAND_SOUND_AUDIT_2026_10_25.md),
+[drop/passive audit](agent_notes/ALL_ITEM_DROP_SOUND_AUDIT_2026_10_25.md),
+[grimoire port](agent_notes/DANMAKU_GRIMOIRE_PORT.md).
+All271 ready leaves are classified across101 native owners; source inventory
+covers1656 legacy/285 native sound sites.262 literal native vanilla event sites
+match the local26.3 registry, with no unknown IDs. Scoped fixes restore source
+Ender audiences, Tanner category/coordinates, private delayed-death cues,
+barrier activation, clocks activation/sparse restore trail, Exahoming click,
+helicopter combat/stop audio and token exact coordinates. No author RP edit.
+
+Native direct159 grimoire uses source stack99/components and no mana debit,
+consumes once and queues captured-hand ordinary Danmaku even without staff.
+Both hands/repeat casts work; free bomb starts at50 with no old1000 refund.
+New narrow lbc:ported/danmaku_grimoire is packaged; broad libraries remain gated.
+RTP regression fixed an older Greed guard order so pending timers pause/resume.
+
+Buildccb40b6c passed46 results in two mode1 matches (88.93s), including packet
+capture, actual item/spawn behavior and three actual stop-cleanup families.
+Exact355 sources/988 classes/2819 resources match; all271 leaves are in JAR.
+Ready build/verification/skywars2-all-item-sounds-ccb40b6c.jar; evidence
+build/verification/all-item-sounds-final/. READY ONLY, main remains04396ca4.
+User edits/deletions preserved. Real client audio/every conditional mode is not
+independently observed. Removed obsolete Hole54941d0e after qualification;
+previous Weapon593a39df and main fallbacks retained. Cleanup290 JARs/9.53GiB.
+Remaining large ports:combined Sauvojen,Hedgehog,unstable spellbook/broad library.
+
 ## Weapon sound fixes - QUALIFIED READY (25 October 2026)
 
 [Source audit and verification](agent_notes/WEAPON_SOUND_FIX_2026_10_25.md).

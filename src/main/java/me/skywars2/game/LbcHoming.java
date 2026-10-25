@@ -138,6 +138,8 @@ public final class LbcHoming {
         }
         int cost=mana.score(ScoreHolder.forNameOnly(donor?"falling_stars_wand_mana_use":"exahoming_wand_mana_use"),"lbc.math").get();
         if(!mana.trySpendWand(owner,cost)) return false;
+        // Ordinary Exahoming clicks sound even when the ray finds no target; Academy modes are separate.
+        if(!donor&&!upgraded)LbcOverload.sound(owner,owner.position(),"minecraft:entity.firework_rocket.shoot",1,1,0);
         int mode=upgraded?Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY)
                 .copyTag().getIntOr("mode",1),1,donor?3:4):1;
         if(!donor && mode==3) destinies.add(new Effect(owner,owner.getEyePosition(),600,game.items().epoch()));

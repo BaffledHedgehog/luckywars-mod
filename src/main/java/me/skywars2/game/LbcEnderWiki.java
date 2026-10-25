@@ -67,14 +67,14 @@ public final class LbcEnderWiki {
     private void ender(ServerPlayer p,InteractionHand hand,ItemStack stack,boolean academy){
         Vec3 origin=p.position();
         if(academy)p.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,60,0,false,false),p);
-        LbcOverload.sound(p,origin,"minecraft:entity.enderman.teleport",2,1,0);
+        LbcOverload.sound(p,origin,"minecraft:entity.enderman.teleport",2,1,16);
         p.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(net.minecraft.core.Holder.direct(net.minecraft.sounds.SoundEvents.ENDERMAN_TELEPORT),net.minecraft.sounds.SoundSource.MASTER,origin.x,origin.y,origin.z,200,1,p.getRandom().nextLong()));
         p.level().sendParticles(ParticleTypes.PORTAL,true,false,origin.x,origin.y,origin.z+1,100,.2,.5,.2,.5);
         var destination=LbcSurfaceTeleport.destination(p.level(),game.config().noBorders?origin:Vec3.ZERO,100,
                 p.level().dimension()==Level.NETHER?125:p.level().getMaxY()+1,p.getRandom());
         if(destination!=null)p.teleportTo(p.level(),destination.x,destination.y+.5,destination.z,Set.of(),p.getYRot(),p.getXRot(),true);
         p.level().sendParticles(ParticleTypes.REVERSE_PORTAL,true,false,origin.x,origin.y,origin.z+1,100,.2,.5,.2,.5);
-        LbcOverload.sound(p,origin,"minecraft:entity.enderman.teleport",2,1,0);
+        LbcOverload.sound(p,origin,"minecraft:entity.enderman.teleport",2,1,16);
         if(p.level().players().stream().anyMatch(e->e!=p&&!e.isSpectator()&&e.distanceToSqr(p)>=.0001&&e.distanceToSqr(p)<=64))
             game.items().mana().award(p,"lbc:true_advancements/staffs/ender_random");
         if(!academy&&LbcAcademy.trial(stack)&&game.items().mana().score(p,"falltimer").get()>=100)game.items().academy().ready(p,hand,stack);

@@ -37,6 +37,22 @@ public final class LbcTimeStop {
     private final Map<UUID,Cooldown> cooldowns=new HashMap<>();
     private final Map<ServerPlayer,Exemption> exemptions=new IdentityHashMap<>();
     private final Map<ServerLevel,ArrayDeque<Hit>> hits=new IdentityHashMap<>();
+    private final Map<ServerLevel,Trail> trails=new IdentityHashMap<>();
+    private static final class Trail {
+        final String epoch;
+        final java.util.ArrayList<Vec3> points=new java.util.ArrayList<>();
+        final Map<BlockPos,java.util.ArrayList<Vec3>> cells=new HashMap<>();
+        Trail(String epoch){this.epoch=epoch;}
+        void sample(Vec3 point){
+            var cell=BlockPos.containing(point);
+            // The source selector suppresses a new marker within one block of any player's trail.
+            for(int x=-1;x<=1;x++)for(int y=-1;y<=1;y++)for(int z=-1;z<=1;z++){
+                var nearby=cells.get(cell.offset(x,y,z));
+                if(nearby!=null)for(var previous:nearby)if(previous.distanceToSqr(point)<=1)return;
+            }
+            points.add(point);cells.computeIfAbsent(cell,key->new java.util.ArrayList<>()).add(point);
+        }
+    }
     private DamageSource replaying;
     private final Map<ServerLevel,Map<BlockPos,Contact>> contacts=new IdentityHashMap<>();
     private final Set<Contact> contactLeases=java.util.Collections.newSetFromMap(new IdentityHashMap<>());
@@ -96,7 +112,7 @@ public final class LbcTimeStop {
                 || game.items().magic().suppressedAt(player.level(),player.getEyePosition())) return false;
         cooldowns.put(player.getUUID(),new Cooldown(player.level()));
         begin(player.level(),STOP_TICKS);
-        LbcOverload.sound(player,player.position(),"minecraft:lbcsounds.zawardo",10,1,0);
+        LbcOverload.sound(player,player.position(),"minecraft:lbcsounds.zawardo",1,1,0,.5f);
         return true;
     }
 
@@ -105,7 +121,10 @@ public final class LbcTimeStop {
         if(ticks<=0) throw new IllegalArgumentException("Time stop duration must be positive");
         boolean first=!stopped(level);
         stops.put(level,ticks); exemptions.clear();
-        if(first) LbcTimeStopSchedules.begin(level);
+        if(first){
+            trails.put(level,new Trail(game.items().epoch()));
+            LbcTimeStopSchedules.begin(level);
+        }
         for(var entity:level.getAllEntities()) if(frozen(entity)) prepareFrozen(entity);
     }
 
@@ -272,6 +291,14 @@ public final class LbcTimeStop {
     }
     void end(ServerLevel level) {
         if(stops.remove(level)==null) return;
+        var trail=trails.remove(level);
+        if(trail!=null&&game.items().currentEpoch(trail.epoch)){
+            var dust=new net.minecraft.core.particles.DustColorTransitionOptions(0xffffff,0,3);
+            for(var point:trail.points){
+                level.sendParticles(dust,true,false,point.x,point.y+1,point.z,2,.3,.6,.3,2);
+                LbcOverload.sound(level,point,"minecraft:entity.lightning_bolt.impact",.1f,2,16,0);
+            }
+        }
         LbcTimeStopSchedules.end(level); exemptions.clear();
         for(var entry:List.copyOf(frozen.entrySet())) if(entry.getValue().level==level) {
             frozen.remove(entry.getKey()); restore(entry.getKey(),entry.getValue());
@@ -292,6 +319,14 @@ public final class LbcTimeStop {
     public void tick() {
         if(!game.server().tickRateManager().runsNormally()) return;
         exemptions.clear();
+        for(var level:stops.keySet()){
+            String dimension=level.dimension().identifier().toString();
+            if(dimension.equals("minecraft:nexus")||dimension.equals("minecraft:imprinted"))continue;
+            var trail=trails.get(level);
+            if(trail==null||!game.items().currentEpoch(trail.epoch))continue;
+            for(var player:level.players())if(!player.isRemoved()&&!game.isObserver(player)
+                    &&!player.entityTags().contains("spectator")&&!frozen(player))trail.sample(player.position());
+        }
         Set<ServerLevel> pausedAtStart=new HashSet<>(stops.keySet());
         for(var level:List.copyOf(stops.keySet())) {
             int left=stops.get(level)-1;
@@ -328,6 +363,8 @@ public final class LbcTimeStop {
         exemptions.remove(player); cooldowns.remove(player.getUUID());
     }
     void stop() {
+        // Match/epoch cancellation restores physics but must not replay an old stop's presentation.
+        trails.clear();
         for(var level:List.copyOf(stops.keySet())) end(level);
         cooldowns.clear(); exemptions.clear(); hits.clear(); replaying=null;
         LbcTimeStopSchedules.clear();

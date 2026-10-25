@@ -194,7 +194,7 @@ public final class LbcHelicopterEncounter {
             d.setPos(origin);d.setYRot(contextYaw+10);d.setXRot(contextPitch);
             var at=origin;at=new Vec3(Mth.floor(at.x)+random.nextInt(15)-7,at.y,Mth.floor(at.z)+random.nextInt(15)-7);
             tnt(pair,at,1000,1,true);
-            if(random.nextFloat()<.1f) sound(level,d.position(),"lbcsounds.drop_bomb",1,1);
+            if(random.nextFloat()<.1f) LbcOverload.sound(level,origin,"minecraft:lbcsounds.drop_bomb",.5f,1,150,.5f);
             if(random.nextFloat()<.01f) pair.phase=1;
         }
         if(pair.terminal || d.isRemoved()) return;
@@ -202,7 +202,7 @@ public final class LbcHelicopterEncounter {
         var frame=new ItemStack(net.minecraft.world.item.Items.REPEATING_COMMAND_BLOCK);
         frame.set(DataComponents.ITEM_MODEL,Identifier.parse("lbc:helicopter_"+pair.frame));d.setItemStack(frame);
         pair.hitbox.setPos(d.position().add(0,-3,0));pair.hitbox.setDeltaMovement(Vec3.ZERO);
-        if(pair.hitbox.hurtTime==10) {level.sendParticles(new net.minecraft.core.particles.DustColorTransitionOptions(0xffe01f,0x7d701c,4),true,false,d.getX(),d.getY(),d.getZ(),50,.5,.5,.5,1);sound(level,d.position(),"entity.blaze.hurt",1,1.5f);}
+        if(pair.hitbox.hurtTime==10) {level.sendParticles(new net.minecraft.core.particles.DustColorTransitionOptions(0xffe01f,0x7d701c,4),true,false,d.getX(),d.getY(),d.getZ(),50,.5,.5,.5,1);LbcOverload.sound(level,origin,"minecraft:entity.blaze.hurt",1,1.5f,150,1);}
         d.needsSync=true;pair.hitbox.needsSync=true;
     }
     private static void face(Entity entity,Vec3 direction,boolean horizontal) {
@@ -218,7 +218,8 @@ public final class LbcHelicopterEncounter {
         // Native launch initializes both current and previous rotation before the spawn packet.
         arrow.shoot(forward.x,forward.y,forward.z,6,0);
         arrow.entityTags().add("killedarrow");track(arrow);level.addFreshEntity(arrow);
-        sound(level,arrow.position(),"entity.firework_rocket.blast",1,parity%2==0?2:1.8f);
+        var shotOrigin=origin.add(forward.scale(8));
+        shotSound(level,shotOrigin,shotOrigin.add(left.scale(parity%2==0?2:-2)),parity%2==0?2:1.8f);
     }
     private void track(Entity entity) {entity.entityTags().add(ATTACK);game.items().markCurrentItemEpoch(entity);attacks.add(entity);game.items().timeStop().prepareFrozen(entity);}
     private void tnt(Pair pair,Vec3 at,int fuse,int power,boolean ground) {
@@ -280,6 +281,8 @@ public final class LbcHelicopterEncounter {
     void stop() {
         pending.clear();
         for(var pair:List.copyOf(pairs)) terminal(pair,false);
+        for(String id:List.of("lbcsounds.helicopter","lbcsounds.kazahstan"))
+            for(var player:game.server().getPlayerList().getPlayers()) player.connection.send(new ClientboundStopSoundPacket(Identifier.withDefaultNamespace(id),null));
         var detached=List.copyOf(attacks);attacks.clear();for(var entity:detached) entity.discard();authors.clear();clocks.clear();lastDispatch.clear();lastPendingTick=Integer.MIN_VALUE;
     }
     private boolean damageTarget(Entity target) {return !target.entityTags().contains(HITBOX) && game.items().wands().validTarget(target);}
@@ -300,7 +303,16 @@ public final class LbcHelicopterEncounter {
     int activeCount() {return pairs.size();}
     List<View> snapshot() {return pairs.stream().map(p->new View(p.display,p.hitbox,p.phase,p.frame,p.dispatches)).toList();}
     List<Entity> attackSnapshot() {return List.copyOf(attacks);}
-    private static void sound(ServerLevel level,Vec3 at,String id,float volume,float pitch) {
-        level.playSound(null,at.x,at.y,at.z,net.minecraft.sounds.SoundEvent.createVariableRangeEvent(Identifier.withDefaultNamespace(id)),SoundSource.MASTER,volume,pitch);
+    private static void shotSound(ServerLevel level,Vec3 selectorOrigin,Vec3 at,float pitch) {
+        // The selector is centered at the command context, independently of the local sound offset.
+        var sound=net.minecraft.core.Holder.direct(net.minecraft.sounds.SoundEvents.FIREWORK_ROCKET_BLAST);
+        double range=sound.value().getRange(1);long seed=level.getRandom().nextLong();
+        for(var viewer:level.players()) {
+            if(viewer.position().distanceToSqr(selectorOrigin)>80*80) continue;
+            boolean distant=viewer.position().distanceToSqr(at)>range*range;
+            Vec3 heardAt=distant?viewer.position().add(at.subtract(viewer.position()).normalize().scale(2)):at;
+            viewer.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(sound,SoundSource.MASTER,
+                    heardAt.x,heardAt.y,heardAt.z,distant?.5f:1,pitch,seed));
+        }
     }
 }

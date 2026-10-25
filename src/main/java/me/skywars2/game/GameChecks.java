@@ -644,6 +644,7 @@ public final class GameChecks {
                                 case "magnum" -> { MagnumChecks.run(game); return; }
                                 case "rifle-zoom" -> { RifleZoomChecks.run(game); return; }
                                 case "weapon-sounds" -> { WeaponSoundChecks.run(game); return; }
+                                case "item-sounds" -> { ItemSoundAuditChecks.run(game); return; }
                                 case "minigun-visual" -> { MinigunVisualChecks.run(game); return; }
                                 case "rifle-zoom-stop-probe" -> { RifleZoomChecks.stopProbe(game); return; }
                                 case "rifle-zoom-cleanup" -> { RifleZoomChecks.cleanup(game); return; }
@@ -755,6 +756,9 @@ public final class GameChecks {
                                 case "team-colors-stop-probe" -> { TeamColorChecks.stopProbe(game); return; }
                                 case "team-colors-cleanup" -> { TeamColorChecks.cleanup(game); return; }
                                 case "danmaku" -> { DanmakuChecks.run(game); return; }
+                                case "danmaku-grimoire" -> { DanmakuGrimoireChecks.run(game); return; }
+                                case "danmaku-grimoire-stop-probe" -> { DanmakuGrimoireChecks.stopProbe(game); return; }
+                                case "danmaku-grimoire-cleanup" -> { DanmakuGrimoireChecks.cleanup(game); return; }
                                 case "sheep" -> { SheepChecks.run(game); return; }
                                 case "sheep-stop-probe" -> { SheepChecks.stopProbe(game); return; }
                                 case "sheep-cleanup" -> { SheepChecks.cleanup(game); return; }

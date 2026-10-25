@@ -481,7 +481,7 @@ public final class LbcAcademy {
             it.remove();
             if (token) {
                 game.maps().level().sendParticles(ParticleTypes.WITCH, item.getX(), item.getY(), item.getZ(), 350, 5, 5, 5, 1);
-                item.level().playSound(null, item.blockPosition(), net.minecraft.sounds.SoundEvents.ENDERMAN_TELEPORT,
+                item.level().playSound(null, item.getX(), item.getY(), item.getZ(), net.minecraft.sounds.SoundEvents.ENDERMAN_TELEPORT,
                         net.minecraft.sounds.SoundSource.MASTER, 1, 1);
                 item.discard();
             } else {

@@ -73,3 +73,12 @@ archive was removed (38,322,316bytes). Keep new Weapon Sound, previous Hole
 Erosion54941d0e, main disk Danmaku04396ca4 and former main2558af6b fallback.
 Main remains unchanged. Cumulative cleanup:289 JARs/10,193,077,832bytes/9.49GiB.
 Receipt: `build/verification/weapon-sound-final/build-cleanup-receipt.json`.
+
+## All-item sounds and grimoire ready checkpoint
+
+Afterccb40b6c passed46 results in two matches, the qualified older Hole
+Erosion54941d0e archive was verified and removed (38,336,771bytes). Keep current
+All-item Sounds/Grimoire, previous Weapon Sound593a39df, main disk04396ca4 and
+former-main2558af6b fallback. Main was not replaced/restarted. Cumulative removal:
+290 JARs/10,231,414,603bytes/9.53GiB. Receipt:
+`build/verification/all-item-sounds-final/build-cleanup-receipt.json`.

@@ -180,7 +180,9 @@ final class LbcAcidCorruption {
         game.items().mana().score(target,"delayed_death").set((int)Math.min(Integer.MAX_VALUE,(long)deathRemaining(target)+seconds));
         deaths.put(target,game.items().indirectKills().wildCause(owner));
         target.addEffect(new MobEffectInstance(MobEffects.NAUSEA,20,0),owner);
-        if(target instanceof ServerPlayer p)for(int i=0;i<4;i++)LbcOverload.sound(p,target.position(),"minecraft:ambient.cave",1,1,0);
+        if(target instanceof ServerPlayer p)for(int i=0;i<4;i++)p.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
+                net.minecraft.sounds.SoundEvents.AMBIENT_CAVE,net.minecraft.sounds.SoundSource.MASTER,
+                p.getX(),p.getY(),p.getZ(),1,1,p.getRandom().nextLong()));
         var at=target.position();((ServerLevel)target.level()).sendParticles(new DustParticleOptions(0x2a4957,1),true,false,at.x,at.y+4,at.z,100,.3,4,.3,0);
     }
     void tick(){

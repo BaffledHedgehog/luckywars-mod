@@ -134,8 +134,14 @@ public final class LbcDefensiveArcanums {
         }
         // A newly acquired hand keeps its original influence order through all subsequent upkeep.
         if(state.cause==null)state.cause=game.items().indirectKills().coldCause(player,false);
-        if(main)state.main=state.cause;
-        if(off)state.off=state.cause;
+        if(main){
+            if(state.main==null)LbcOverload.sound(player,"minecraft:block.beacon.activate",1,1,0);
+            state.main=state.cause;
+        }
+        if(off){
+            if(state.off==null)LbcOverload.sound(player,"minecraft:block.beacon.activate",1,1,0);
+            state.off=state.cause;
+        }
         state.paidAt=game.server().getTickCount();
         sparks(player);
         return true;

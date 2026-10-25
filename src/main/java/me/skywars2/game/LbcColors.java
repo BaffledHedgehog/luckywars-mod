@@ -297,10 +297,11 @@ public final class LbcColors {
     void tickTeleports() {
         for(var target:List.copyOf(teleporting)) {
             if(!eligible(target) || target.level()!=game.maps().level()) { clearEffects(target); continue; }
+            if(target.entityTags().contains("sin_greed_active"))continue;
             if(target instanceof ServerPlayer player && game.items().magic().rejectCustomEffect(player)) {
                 clearEffects(target); continue;
             }
-            if(target.entityTags().contains("sin_greed_active")||target.entityTags().contains("time_stopped"))continue;
+            if(target.entityTags().contains("time_stopped"))continue;
             boolean remaining=false;
             for(int tier=0;tier<3;tier++){
                 int ticks=score(target,RTP[tier]).get();if(ticks<=0)continue;

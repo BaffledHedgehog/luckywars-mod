@@ -39,6 +39,7 @@ import java.util.*;
 /** Authored Danmaku display raycasters; no native projectile impulse or explosion. */
 public final class LbcDanmaku {
     public static final Item ITEM=item(false), ACADEMY=item(true);
+    public static final Item GRIMOIRE=grimoireItem();
     private static final String TAG="skywars2.danmaku";
     private final GameController game;
     private final LbcMana mana;
@@ -46,7 +47,7 @@ public final class LbcDanmaku {
     private final List<Bomb> bombs=new ArrayList<>();
     private final Set<Entity> spawning=Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<ServerPlayer,List<LivingEntity>> targets=new IdentityHashMap<>();
-    private final Map<UUID,External> external=new HashMap<>();
+    private final Map<UUID,EnumMap<InteractionHand,External>> external=new HashMap<>();
     private record External(boolean academy,InteractionHand hand,int ticks) {}
     LbcDanmaku(GameController game,LbcMana mana){this.game=game;this.mana=mana;var holder=ScoreHolder.forNameOnly("danmaku_staff_mana_use");var board=game.server().getScoreboard();var objective=board.getObjective("lbc.math");if(objective==null||board.getPlayerScoreInfo(holder,objective)==null)mana.score(holder,"lbc.math").set(1000);}
     public static void register(){}
@@ -61,6 +62,53 @@ public final class LbcDanmaku {
         return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(props,Items.CARROT_ON_A_STICK,true){
             @Override public InteractionResult use(Level level,Player player,InteractionHand hand){var game=me.skywars2.SkyWars2.game();return game!=null&&player instanceof ServerPlayer p&&game.items().wands().use(p,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;}
         });
+    }
+    private static Item grimoireItem(){
+        var key=ResourceKey.create(Registries.ITEM,Identifier.parse("skywars2:danmaku_grimoire"));
+        var model=Identifier.parse("lbc:spelllib/danmaku");
+        var tag=new CompoundTag();for(var flag:List.of("transformable","gadget","libspell","unresolved_grimoire","spellwithcooldown"))tag.putInt(flag,1);
+        tag.putInt("mana",1200);tag.putInt("spellid",159);
+        var lore=new ArrayList<Component>();
+        lore.add(Component.translatable("type").withStyle(style->style.withColor(0x55ffff).withItalic(false)).append(Component.translatable("libspell").withStyle(style->style.withColor(0x55ffff).withItalic(false))));
+        lore.add(Component.empty());
+        for(var keyName:List.of("danmaku_wand.lore.1","danmaku_wand.lore.2","danmaku_wand.lore.3","danmaku_wand.lore.4","danmaku_wand.lore.5","danmaku_wand.lore.6","danmaku_wand.lore.7"))lore.add(Component.translatable(keyName).withStyle(style->style.withColor(0xffffff).withItalic(false)));
+        lore.add(Component.translatable("rarity").withStyle(style->style.withColor(0xffffff).withItalic(false))
+                .append(Component.translatable("rare").withStyle(style->style.withColor(0xffff55).withItalic(false))));
+        var props=new Item.Properties(){@Override public Identifier effectiveModel(){return model;}}.setId(key).stacksTo(99).overrideDescription("libspell_danmaku")
+                .component(DataComponents.ITEM_MODEL,model).component(DataComponents.TOOLTIP_STYLE,Identifier.parse("lbc:tier_c"))
+                .component(DataComponents.CUSTOM_DATA,CustomData.of(tag))
+                .component(DataComponents.CUSTOM_NAME,Component.translatable("libspell_danmaku").withStyle(style->style.withColor(0xffffff).withItalic(false)))
+                .component(DataComponents.LORE,new net.minecraft.world.item.component.ItemLore(lore));
+        return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(props,Items.SNOWBALL,true){
+            @Override public InteractionResult use(Level level,Player player,InteractionHand hand){
+                var game=me.skywars2.SkyWars2.game();return game!=null&&player instanceof ServerPlayer p&&game.items().wands().use(p,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
+            }
+        });
+    }
+    public static boolean isGrimoire(ItemStack stack){
+        var data=LbcFartus.data(stack);return !stack.isEmpty()&&(stack.is(GRIMOIRE)||data.getIntOr("libspell",0)==1&&data.getIntOr("spellid",0)==159);
+    }
+    /** The grimoire stores mana metadata for other mechanics; its consumed cast never spends mana. */
+    public boolean useGrimoire(ServerPlayer p,InteractionHand hand){
+        var stack=p.getItemInHand(hand);
+        if(!isGrimoire(stack)||!validOwner(p)||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands
+                ||game.items().actionsBlocked(p)||game.items().wands().inputTimeStopped(p)||game.items().magic().suppressed(p)
+                ||game.items().magic().suppressedAt(p.level(),p.getEyePosition()))return false;
+        if(p.isShiftKeyDown())castBomb(p,hand,ItemStack.EMPTY);
+        else queueExternal(p,hand,false);
+        p.level().playSound(null,p.getX(),p.getY(),p.getZ(),net.minecraft.sounds.SoundEvents.SNOWBALL_THROW,
+                net.minecraft.sounds.SoundSource.NEUTRAL,.5f,.4f/(p.level().getRandom().nextFloat()*.4f+.8f));
+        p.awardStat(net.minecraft.stats.Stats.ITEM_USED.get(GRIMOIRE));
+        stack.consume(1,p);
+        return true;
+    }
+    private boolean castBomb(ServerPlayer p,InteractionHand hand,ItemStack trialStack){
+        int charge=mana.score(p,"danmaku_score").get();if(charge<50)return false;
+        var a=display(p,p.position(),false,true);var b=display(p,p.position(),false,true);
+        if(a==null||b==null){if(a!=null)a.discard();if(b!=null)b.discard();return false;}
+        a.entityTags().add("act");scale(b,-1);bombs.add(new Bomb(p,a,b,charge));mana.score(p,"danmaku_score").set(0);
+        if(charge>=1500&&!trialStack.isEmpty()&&!isAcademy(trialStack)&&LbcAcademy.trial(trialStack))game.items().academy().ready(p,hand,trialStack);
+        LbcOverload.sound(p,p.position(),"minecraft:lbcsounds.bomb",2,1,0);game.items().wands().wandCasted(p);return true;
     }
     public static boolean isItem(ItemStack stack){return !stack.isEmpty()&&(stack.is(ITEM)||stack.is(ACADEMY)||LbcFartus.data(stack).getIntOr("danmaku_staff",0)==1);}
     public static boolean isAcademy(ItemStack stack){return isItem(stack)&&(stack.is(ACADEMY)||LbcFartus.data(stack).getIntOr("upgraded",0)==1);}
@@ -82,19 +130,17 @@ public final class LbcDanmaku {
     public boolean use(ServerPlayer p,InteractionHand hand){
         var stack=p.getItemInHand(hand);
         if(!isItem(stack)||!validOwner(p)||game.items().actionsBlocked(p)||game.items().wands().inputTimeStopped(p)||game.items().magic().suppressed(p)||game.items().magic().suppressedAt(p.level(),p.getEyePosition()))return false;
-        if(p.isShiftKeyDown()){
-            int charge=mana.score(p,"danmaku_score").get();if(charge<50)return false;
-            var a=display(p,p.position(),false,true);var b=display(p,p.position(),false,true);if(a==null||b==null){if(a!=null)a.discard();if(b!=null)b.discard();return false;}
-            a.entityTags().add("act");scale(b,-1);bombs.add(new Bomb(p,a,b,charge));mana.score(p,"danmaku_score").set(0);
-            if(charge>=1500&&!isAcademy(stack)&&LbcAcademy.trial(stack))game.items().academy().ready(p,hand,stack);
-            LbcOverload.sound(p,p.position(),"minecraft:lbcsounds.bomb",2,1,0);game.items().wands().wandCasted(p);return true;
-        }
+        if(p.isShiftKeyDown())return castBomb(p,hand,stack);
         int cost=mana.score(ScoreHolder.forNameOnly("danmaku_staff_mana_use"),"lbc.math").get();
         if(!mana.trySpendWand(p,cost))return false;
         mana.score(p,"danmaku").set((int)Math.min(Integer.MAX_VALUE,(long)remaining(p)+20));game.items().wands().wandCasted(p);return true;
     }
-    /** Future consumed sources explicitly opt out of held-stack admission. */
-    void queueExternal(ServerPlayer p,InteractionHand hand,boolean academy){var prior=external.get(p.getUUID());external.put(p.getUUID(),new External(academy,hand,prior==null?20:(int)Math.min(Integer.MAX_VALUE,(long)prior.ticks+20)));}
+    /** Consumed casts retain their actual hand and continue independently of held staff input. */
+    void queueExternal(ServerPlayer p,InteractionHand hand,boolean academy){
+        var hands=external.computeIfAbsent(p.getUUID(),key->new EnumMap<>(InteractionHand.class));
+        var prior=hands.get(hand);hands.put(hand,new External(academy,hand,prior==null?20:(int)Math.min(Integer.MAX_VALUE,(long)prior.ticks+20)));
+    }
+    int externalRemaining(ServerPlayer p){var hands=external.get(p.getUUID());if(hands==null)return 0;return (int)Math.min(Integer.MAX_VALUE,hands.values().stream().mapToLong(External::ticks).sum());}
     public void redirectCursedCards(){for(var c:List.copyOf(cards))game.items().homing().redirect(c);}
     public void tick(){
         targets.clear();
@@ -103,7 +149,13 @@ public final class LbcDanmaku {
             int n=remaining(p);if(game.items().wands().inputTimeStopped(p)||game.items().magic().suppressed(p)||game.items().magic().suppressedAt(p.level(),p.getEyePosition()))continue;
             var hand=(n&1)==0?InteractionHand.MAIN_HAND:InteractionHand.OFF_HAND;var stack=p.getItemInHand(hand);
             if(n>0){if(isItem(stack))emit(p,hand,isAcademy(stack),phase(n,hand));mana.score(p,"danmaku").set(n-1);}
-            var extra=external.get(p.getUUID());if(extra!=null){if(((extra.ticks&1)==0)==(extra.hand==InteractionHand.MAIN_HAND))emit(p,extra.hand,extra.academy,phase(extra.ticks,extra.hand));if(extra.ticks<=1)external.remove(p.getUUID());else external.put(p.getUUID(),new External(extra.academy,extra.hand,extra.ticks-1));}
+            var extras=external.get(p.getUUID());if(extras!=null){
+                for(var extra:List.copyOf(extras.values())){
+                    if(((extra.ticks&1)==0)==(extra.hand==InteractionHand.MAIN_HAND))emit(p,extra.hand,extra.academy,phase(extra.ticks,extra.hand));
+                    if(extra.ticks<=1)extras.remove(extra.hand);else extras.put(extra.hand,new External(extra.academy,extra.hand,extra.ticks-1));
+                }
+                if(extras.isEmpty())external.remove(p.getUUID());
+            }
         }
         for(var c:List.copyOf(cards))tick(c);
         for(var b:List.copyOf(bombs))tick(b);
@@ -188,6 +240,7 @@ public final class LbcDanmaku {
     public void stop(){for(var c:List.copyOf(cards))remove(c);for(var b:List.copyOf(bombs))remove(b);for(var p:game.server().getPlayerList().getPlayers())forget(p);external.clear();targets.clear();}
     public MutableComponent hud(ServerPlayer p){
         var text=Component.empty();int ticks=mana.hudValue(p,"danmaku"),score=mana.hudValue(p,"danmaku_score");
+        if(mana.visible(p)){var hands=external.get(p.getUUID());if(hands!=null)for(var extra:hands.values())ticks=Math.max(ticks,extra.ticks);}
         if(ticks>0)text.append(Component.literal("    \uE133 ").append(Component.literal(Integer.toString(ticks)).withColor(0xFFA1F2)));
         if(score>0)text.append(Component.literal("  \uE134 ").append(Component.literal(Integer.toString(score)).withColor(0xD494FF)));
         return text;

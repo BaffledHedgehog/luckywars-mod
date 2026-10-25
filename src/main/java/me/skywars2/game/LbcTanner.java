@@ -267,7 +267,7 @@ public final class LbcTanner {
         Runnable writeDirt = () -> level.setBlock(pos, Blocks.DIRT.defaultBlockState(), BLOCK_FLAGS);
         if (owner.isAlive() && !game.isObserver(owner)) game.items().indirectKills().trapChanges(owner, writeDirt);
         else game.items().indirectKills().worldChanges(level, entity, writeDirt);
-        level.playSound(null, pos, SoundEvents.ROOTED_DIRT_BREAK, SoundSource.BLOCKS, 1.0f, 1.0f);
+        level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), SoundEvents.ROOTED_DIRT_BREAK, SoundSource.MASTER, 1.0f, 1.0f);
         level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.DIRT.defaultBlockState()),
                 pos.getX() + .5, pos.getY() + .5, pos.getZ() + .5, 20, .25, .25, .25, 1);
         entity.discard();

@@ -439,6 +439,7 @@ public final class LbcWands {
         var stack=player.getItemInHand(hand);
         if(LbcSoulhunter.isMace(stack))return game.items().soulhunter().use(player,hand);
         if(LbcSoulless.isWand(stack)||LbcSoulless.material(stack)>0)return game.items().soulless().use(player,hand);
+        if(LbcDanmaku.isGrimoire(stack))return game.items().danmaku().useGrimoire(player,hand);
         if(LbcDanmaku.isItem(stack))return game.items().danmaku().use(player,hand);
         if(LbcSheep.isWand(stack))return game.items().sheep().use(player,hand);
         if(LbcHalloweenWind.isWind(stack))return game.items().halloweenWind().use(player,hand);

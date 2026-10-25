@@ -72,10 +72,7 @@ public final class LbcUltraponos {
         boolean mega=nearest!=null && game.config().lbcSkills && game.players().get(nearest.getUUID()).lbcSkill==9;
         spawnCreepers(level,center,owner,mega);
         emitters.add(new Emitter(level,center,game.items().epoch(),author));
-        var sound=net.minecraft.core.Holder.direct(net.minecraft.sounds.SoundEvent.createVariableRangeEvent(Identifier.parse("minecraft:lbcsounds.ponos")));
-        long seed=level.getRandom().nextLong();
-        for(var player:level.players()) player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
-                sound,net.minecraft.sounds.SoundSource.MASTER,center.x,center.y,center.z,1,1,seed));
+        LbcOverload.sound(level,token.position(),"minecraft:lbcsounds.ponos",1,1,0,0);
         return true;
     }
     private void spawnCreepers(ServerLevel level,Vec3 center,LivingEntity owner,boolean mega) {
