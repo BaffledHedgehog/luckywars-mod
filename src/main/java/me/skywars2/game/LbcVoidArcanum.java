@@ -38,12 +38,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 /** One native body per merged hole; contributions retain their own author and resource cost. */
 public final class LbcVoidArcanum {
     private static final String BODY_TAG="skywars2.void_arcanum";
-    private static final double[] RADII={0,1,2,4,8,24}, HURT={0,1.5,2,4,8,24}, PULL={0,3,4,8,12,30};
+    // Legacy block footprints, rounded outward to a radial whole-block reach; cube corners stay excluded.
+    private static final double[] RADII={0,2,3,5,9,24}, HURT={0,1.5,2,4,8,24}, PULL={0,3,4,8,12,30};
     private static final float[] DAMAGE={0,.2f,.25f,.3f,.35f,.4f};
+    private static final double[] ACCELERATION={0,.025,.035,.05,.075,.12}, MAX_SPEED={0,.4,.55,.75,1,1.6};
     private static final int FLAGS=Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE|Block.UPDATE_SUPPRESS_DROPS
             |Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS|Block.UPDATE_SKIP_ON_PLACE;
     public static final Item ITEM=registerItem();
@@ -71,6 +75,8 @@ public final class LbcVoidArcanum {
         final ServerLevel world;final Marker marker;final String epoch;
         final List<Contribution> members=new ArrayList<>();
         Vec3 point;int level=1;boolean wild;
+        Vec3 velocity=Vec3.ZERO;
+        final Quaternionf tilt=new Quaternionf();
         BlackHoleVisuals.Handle visual;
         BlockAreaWork terrain;int frontier=1,refresh;
         LbcIndirectKills.Owner terrainCause;
@@ -257,19 +263,40 @@ public final class LbcVoidArcanum {
             double distance=target.position().distanceToSqr(hole.point);
             if(distance>=1&&distance<best){best=distance;nearest=target;}
         }
+        var desiredTilt=new Quaternionf();
         if(nearest!=null){
-            Vec3 next=hole.point.add(nearest.position().subtract(hole.point).normalize().scale(hole.level==5?.5:.13));
+            Vec3 offset=nearest.position().subtract(hole.point);
+            // Bounded steering retains momentum while accelerating toward the current nearest target.
+            // Slow down near contact, and never sweep an unbounded distance in one frame.
+            double speed=Math.min(MAX_SPEED[hole.level],Math.max(0,offset.length()-1));
+            Vec3 desired=offset.normalize().scale(speed),change=desired.subtract(hole.velocity);
+            double amount=change.length();
+            if(amount>ACCELERATION[hole.level])change=change.scale(ACCELERATION[hole.level]/amount);
+            hole.velocity=hole.velocity.add(change);
+            double horizontal=Math.hypot(offset.x,offset.z);
+            if(horizontal>1.0e-6){
+                // The disc's normal leans at most 18 degrees toward the chase direction.
+                float lean=(float)Math.sin(Math.toRadians(18)),up=(float)Math.cos(Math.toRadians(18));
+                desiredTilt.rotationTo(new Vector3f(0,1,0),new Vector3f((float)(offset.x/horizontal)*lean,up,(float)(offset.z/horizontal)*lean));
+            }
+            Vec3 next=hole.point.add(hole.velocity);
             if(resident(hole.world,next)&&!game.items().magic().suppressedAt(hole.world,next)){
                 hole.point=next;hole.marker.snapTo(next.x,next.y,next.z,0,0);
-            }
-        }
+            }else hole.velocity=Vec3.ZERO;
+        }else hole.velocity=Vec3.ZERO;
+        hole.tilt.slerp(hole.level==5?desiredTilt:new Quaternionf(),.12f).normalize();
     }
     void updateVisual(Hole hole,ServerPlayer owner){
         float radius=(float)(RADII[hole.level]/14);
         if(hole.visual==null)hole.visual=game.items().blackHoleVisuals().create(owner,hole.point,radius,hole.level==5);
         else{game.items().blackHoleVisuals().rebind(hole.visual,owner);game.items().blackHoleVisuals().update(hole.visual,hole.point,radius,hole.level==5);}
+        game.items().blackHoleVisuals().tilt(hole.visual,hole.tilt);
     }
     int terrain(Hole hole,ServerPlayer owner,int allowance,long deadline){
+        int radius=(int)RADII[hole.level];
+        // Always enqueue the full live reach. An empty/moving inner front must not stall growth.
+        // BlockAreaWork clips stale cells on movement and the shared frame budget bounds inspection.
+        if(hole.frontier!=radius){hole.frontier=radius;if(hole.terrain!=null)hole.terrain.clear();}
         if(hole.terrain==null)hole.terrain=new BlockAreaWork(hole.world,state->!state.isAir(),(pos,state)->{
             if(Vec3.atCenterOf(pos).distanceToSqr(hole.point)>hole.frontier*hole.frontier
                     ||game.items().magic().suppressedAt(hole.world,Vec3.atCenterOf(pos)))return null;
@@ -280,12 +307,11 @@ public final class LbcVoidArcanum {
             }
             return Blocks.AIR.defaultBlockState();
         },FLAGS,false,true);
-        int radius=hole.frontier;var center=BlockPos.containing(hole.point);
+        var center=BlockPos.containing(hole.point);
         var bounds=new BlockAreaWork.Bounds(center.getX()-radius,center.getY()-radius,center.getZ()-radius,
                 center.getX()+radius,center.getY()+radius,center.getZ()+radius);
         hole.terrain.move(bounds,false);
         if(!hole.terrain.hasWork()){
-            if(hole.frontier<RADII[hole.level]){hole.frontier++;hole.terrain.clear();return 0;}
             if(++hole.refresh>=20){hole.refresh=0;hole.terrain.move(bounds,true);}
         }
         int[] used={0};
@@ -302,6 +328,7 @@ public final class LbcVoidArcanum {
     public void unloaded(Entity entity){for(var hole:List.copyOf(holes))if(hole.marker==entity)remove(hole);}
     private void remove(Hole hole){
         holes.remove(hole);if(hole.terrain!=null)hole.terrain.clear();
+        hole.velocity=Vec3.ZERO;hole.tilt.identity();
         if(hole.visual!=null){game.items().blackHoleVisuals().remove(hole.visual);hole.visual=null;}
         if(!hole.marker.isRemoved())hole.marker.discard();
     }

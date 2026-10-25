@@ -31,7 +31,7 @@ public final class LbcCreatureDrops {
     private static final String ACTOR="skywars2.creature_drop", OWNER="skywars2.creature_owner.";
     private static final CompoundTag VEX=preset("{Health:1.0f,attributes:[{id:\"minecraft:max_health\",base:1}]}");
     private static final String NORMAL_VEX="skywars2.normal_vex_drop";
-    private static final CompoundTag NORMAL_VEX_DATA=preset("{Tags:[\"skywars2.normal_vex_drop\"],DeathLootTable:\"lbc:vex_sword\",Health:1.0f,attributes:[{id:\"minecraft:max_health\",base:1}]}");
+    private static final CompoundTag NORMAL_VEX_DATA=preset("{Tags:[\"skywars2.normal_vex_drop\"],DeathLootTable:\"lbc:vex_sword\",equipment:{mainhand:{}},Health:1.0f,attributes:[{id:\"minecraft:max_health\",base:1}]}");
     private static final CompoundTag SKELETON=preset("""
             {PersistenceRequired:1b,CustomNameVisible:1b,CustomName:{"italic":false,"translate":"fat_skeleton"},equipment:{mainhand:{id:"minecraft:bone",components:{"minecraft:enchantments":{"minecraft:knockback":1},"minecraft:custom_name":{"italic":false,"translate":"omega_bone"},"minecraft:attribute_modifiers":[{type:"minecraft:attack_damage",slot:"mainhand",amount:7,operation:"add_value",id:"minecraft:base_attack_damage"},{type:"minecraft:attack_speed",slot:"mainhand",id:"minecraft:base_attack_speed",amount:-3.5,operation:"add_value"},{type:"minecraft:knockback_resistance",slot:"mainhand",id:"d90ihe89fyw39tg",amount:1,operation:"add_value"},{type:"minecraft:movement_speed",slot:"mainhand",id:"ih89urgh8ghfdg",amount:-0.7,operation:"add_multiplied_base"}]},count:1},feet:{id:"minecraft:bone_meal",count:64},legs:{id:"minecraft:bone",count:32},chest:{id:"minecraft:iron_chestplate",count:1},head:{id:"minecraft:skeleton_skull",count:1}},drop_chances:{mainhand:1.0f,legs:1.0f,feet:1.0f},attributes:[{id:"minecraft:movement_speed",base:0.6d},{id:"minecraft:armor",base:20},{id:"minecraft:attack_knockback",base:100},{id:"minecraft:armor_toughness",base:5}]}
             """);
@@ -122,8 +122,10 @@ public final class LbcCreatureDrops {
         prepare(actor,author);
         if(!level.addFreshEntity(actor)){tracked.remove(actor);actor.discard();}
     }
-    /** Native eggs keep their own finalizeSpawn/data; only lifecycle and causal author are attached. */
+    /** Keep native egg finalization and data, then remove the unwanted vanilla sword before insertion. */
     void adoptEggVex(Vex actor,ServerPlayer author){
+        actor.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND,net.minecraft.world.item.ItemStack.EMPTY);
+        actor.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND,net.minecraft.world.item.ItemStack.EMPTY);
         actor.entityTags().add(NORMAL_VEX);
         prepare(actor,author);
     }

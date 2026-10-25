@@ -61,6 +61,9 @@ public final class AcademySingleUseChecks {
         boolean closed;
         final String epoch;
         Fixture(GameController game) {
+            this(game,false);
+        }
+        Fixture(GameController game,boolean stopIsolation) {
             this.game=game;level=game.maps().level();academy=game.items().academy();epoch=game.items().epoch();
             alpha=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
             beta=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));
@@ -73,9 +76,28 @@ public final class AcademySingleUseChecks {
             var a=game.players().get(alpha.getUUID());var b=game.players().get(beta.getUUID());
             alphaChallenge=a.lbcChallenge;alphaProgress=a.lbcChallengeProgress;
             betaChallenge=b.lbcChallenge;betaProgress=b.lbcChallengeProgress;
-            base=new BlockPos((int)Math.floor(alpha.getX()/16)*16+2,240,(int)Math.floor(alpha.getZ()/16)*16+2);
-            bounds=new BoundingBox(base.getX()-2,base.getY()-2,base.getZ()-2,base.getX()+45,base.getY()+13,base.getZ()+13);
             level.getAllEntities().forEach(before::add);
+            int x=(int)Math.floor(alpha.getX()/16)*16+2,z=(int)Math.floor(alpha.getZ()/16)*16+2;
+            int height=stopIsolation?emptyStopHeight(x,z):240;
+            base=new BlockPos(x,height,z);
+            bounds=new BoundingBox(base.getX()-2,base.getY()-2,base.getZ()-2,base.getX()+45,base.getY()+13,base.getZ()+13);
+        }
+        int emptyStopHeight(int x,int z) {
+            var missing=new ArrayList<String>();
+            for(int cx=(x-2)>>4;cx<=(x+45)>>4;cx++)for(int cz=(z-2)>>4;cz<=(z+13)>>4;cz++){
+                boolean blocks=level.getChunkSource().getChunkNow(cx,cz)!=null;
+                boolean entities=level.areEntitiesLoaded(net.minecraft.world.level.ChunkPos.pack(cx,cz));
+                if(!blocks||!entities)missing.add(cx+","+cz+" blocks="+blocks+" entities="+entities);
+            }
+            require(missing.isEmpty(),"stop fixture needs already resident native columns: "+missing);
+            for(int y=level.getMaxY()-32;y>=level.getMinY()+16;y-=16){
+                var candidate=new BoundingBox(x-2,y-2,z-2,x+45,y+13,z+13);
+                if(before.stream().noneMatch(entity->!(entity instanceof ServerPlayer)&&candidate.isInside(entity.blockPosition())))return y;
+            }
+            var occupied=before.stream().filter(entity->!(entity instanceof ServerPlayer)
+                    &&entity.getX()>=x-2&&entity.getX()<x+46&&entity.getZ()>=z-2&&entity.getZ()<z+14)
+                    .map(entity->entity.getType()+"@"+entity.position()).limit(64).toList();
+            throw new IllegalStateException("Academy single use: no empty resident stop fixture height in native range; occupied="+occupied);
         }
         void initialize() {
             var template=game.server().getStructureTemplateManager().get(Identifier.parse("lbc:magic_academy")).orElseThrow();
@@ -116,7 +138,13 @@ public final class AcademySingleUseChecks {
             var old=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());level.getAllEntities().forEach(old::add);
             var drop=new ItemEntity(level,source.x,source.y,source.z,loot.getFirst().copy());drop.setThrower(alpha);drop.setOnGround(true);
             owned.add(drop);require(level.addFreshEntity(drop),"native grounded token admission");
-            academy.tick();require(drop.isRemoved() && academy.pendingCount()==1,"single native acquisition admitted");
+            academy.tick();
+            require(drop.isRemoved() && academy.pendingCount()==1,"single native acquisition admitted: origin="+origin
+                    +" removed="+drop.isRemoved()+" pending="+academy.pendingCount()+" onGround="+drop.onGround()
+                    +" canAdmitDrop="+(game.playing()&&game.canUseGameplayItems(alpha)&&drop.level()==level)
+                    +" mapsBusy="+game.maps().busy()+" timeStop="+game.items().timeStop().stopped(level)
+                    +" blockResident="+(level.getChunkSource().getChunkNow(drop.blockPosition().getX()>>4,drop.blockPosition().getZ()>>4)!=null)
+                    +" entitiesLoaded="+level.areEntitiesLoaded(net.minecraft.world.level.ChunkPos.pack(drop.blockPosition().getX()>>4,drop.blockPosition().getZ()>>4)));
             for(int i=0;i<20 && academy.pendingCount()>0;i++)academy.tick();
             require(academy.pendingCount()==0,"all eleven native rows completed");
             var actors=new ArrayList<Interaction>();var labels=new ArrayList<Display.TextDisplay>();
@@ -127,7 +155,12 @@ public final class AcademySingleUseChecks {
             }
             require(actors.size()==1 && labels.size()==1,"one actual native Interaction and one TextDisplay");
             require(actors.getFirst().position().distanceToSqr(Vec3.atLowerCornerOf(origin).add(6,1,10.5))<.0001,"source interaction coordinates");
-            require(labels.getFirst().position().distanceToSqr(Vec3.atLowerCornerOf(origin).add(6,2,10))<.0001,"source label coordinates");
+            require(labels.getFirst().position().distanceToSqr(Vec3.atLowerCornerOf(origin).add(6,token?3:2,token?9.97:10))<.0001,"token title centred above floor and clear of panel; ordinary source coordinates");
+            if(token){
+                var title=labels.getFirst();
+                require(level.getBlockState(title.blockPosition()).isAir()&&title.getY()>origin.getY()+2.9
+                        &&title.getZ()<origin.getZ()+10,"actual token label origin is in front of solid background");
+            }
             return new School(origin,actors.getFirst(),labels.getFirst());
         }
         void panel(School school,Block block) {
@@ -136,6 +169,15 @@ public final class AcademySingleUseChecks {
         }
         void alive(School school) {require(!school.actor.isRemoved() && !school.label.isRemoved(),"own NPC and label remain usable");}
         void click(ServerPlayer player,School school) {require(academy.interact(player,InteractionHand.MAIN_HAND,school.actor),"actual interaction callback");}
+        String interactionState(ServerPlayer player,School school) {
+            return " player="+player.getScoreboardName()+" alive="+player.isAlive()+" removed="+player.isRemoved()
+                    +" mode="+player.gameMode()+" observer="+game.isObserver(player)+" gameplay="+game.canUseGameplayItems(player)
+                    +" playerTags="+player.entityTags()+" frost="+game.items().frost().isFrozen(player)
+                    +" dimensionStop="+game.items().timeStop().stopped(level)+" dimension="+player.level().dimension()
+                    +" actorAlive="+school.actor.isAlive()+" actorRemoved="+school.actor.isRemoved()+" actorTags="+school.actor.entityTags()
+                    +" item="+player.getMainHandItem()+" data="+player.getMainHandItem().getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag()
+                    +" gameTime="+level.getGameTime()+" fixtureEpochCurrent="+game.items().currentEpoch(epoch);
+        }
         void wand(ServerPlayer player) {player.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcWands.FIRE_WAND));}
         void ready(ServerPlayer player) {
             var trial=player.getMainHandItem();require(flag(trial,"upgradable")==1,"actual trial assigned");
@@ -159,7 +201,7 @@ public final class AcademySingleUseChecks {
                     game.spectators().enter(beta);wand(beta);click(beta,first);
                     require(flag(beta.getMainHandItem(),"upgradable")==0,"observer cannot start trial or spend academy");
                     game.spectators().remove(beta);beta.setGameMode(GameType.SURVIVAL);
-                    click(alpha,first);require(flag(alpha.getMainHandItem(),"upgradable")==1,"supported native trial assignment");alive(first);
+                    click(alpha,first);require(flag(alpha.getMainHandItem(),"upgradable")==1,"supported native trial assignment;"+interactionState(alpha,first));alive(first);
                 }
                 case 2 -> {
                     click(alpha,first);require(flag(alpha.getMainHandItem(),"upgradable")==1,"unmet conditions leave trial intact");alive(first);
@@ -227,6 +269,13 @@ public final class AcademySingleUseChecks {
             var a=game.players().get(alpha.getUUID());var b=game.players().get(beta.getUUID());
             a.lbcChallenge=alphaChallenge;a.lbcChallengeProgress=alphaProgress;b.lbcChallenge=betaChallenge;b.lbcChallengeProgress=betaProgress;
             alphaState.restore(game);betaState.restore(game);alpha.setOnGround(alphaGround);beta.setOnGround(betaGround);
+            if(!game.items().currentEpoch(epoch)){
+                // Retained probes borrow manual source pauses from earlier stop fixtures.
+                // Those pauses belong to the expired match and must not be resurrected by
+                // this later whole-player snapshot after the production stop cleared them.
+                alpha.entityTags().remove("time_stopped");beta.entityTags().remove("time_stopped");
+                require(!alpha.entityTags().contains("time_stopped")&&!beta.entityTags().contains("time_stopped"),"expired fixture restores no borrowed manual pause");
+            }
         }
     }
     public static void run(GameController game) {
@@ -240,8 +289,11 @@ public final class AcademySingleUseChecks {
             SkyWars2.LOGGER.error("[check] FAIL academy-single-use",error);}
     }
     public static void stopProbe(GameController game) {
-        require(running==null && stopping==null,"actual stop fixture exclusive");stopping=new Fixture(game);
+        require(running==null && stopping==null,"actual stop fixture exclusive");stopping=new Fixture(game,true);
         try {
+            // Earlier retained probes can pause this dimension and keep actors near the players.
+            // Build these isolated schools normally, then retain their own pause until match stop.
+            game.items().timeStop().end(stopping.level);
             stopping.initialize();game.items().timeStop().begin(stopping.level,200);
             SkyWars2.LOGGER.info("[check] PASS academy-single-use-stop-probe");
         }catch(RuntimeException|Error error){try{stopping.close();}finally{stopping=null;}throw error;}

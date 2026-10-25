@@ -74,15 +74,17 @@ public final class VoidArcanumChecks {
             require(owner.containerMenu==owner.inventoryMenu&&other.containerMenu==other.inventoryMenu,"initial inventory menus");
             saved=new Saved(game,owner);otherSaved=new Saved(game,other);config=fields(game.config());owner.level().getAllEntities().forEach(before::add);
             for(String name:List.of("void_arcanum_mana_activate","void_arcanum_mana_tick","void_arcanum_mana_tick_sec"))costs.put(name,game.items().mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly(name),"lbc.math").get());
-            at=Vec3.atCenterOf(owner.blockPosition().offset(0,48,0));require(at.y+6<owner.level().getMaxY(),"fixture below native build ceiling");
+            at=Vec3.atCenterOf(owner.blockPosition().offset(0,48,0));require(at.y+25<owner.level().getMaxY(),"full-radius fixture below native build ceiling");
             require(game.server().getScoreboard().getPlayerTeam("void_fixture")==null,"exclusive fixture team");team=game.server().getScoreboard().addPlayerTeam("void_fixture");team.setAllowFriendlyFire(false);
         }
         ItemStack loot(){var rolls=game.lbc().rollTable(owner.level(),at,owner,"lbc:ported/void_arcanum");require(rolls.size()==1&&rolls.getFirst().getCount()==1,"live source single loot");return rolls.getFirst();}
         void move(ServerPlayer player,Vec3 p){player.teleportTo(player.level(),p.x,p.y,p.z,Set.of(),0,0,true);player.setDeltaMovement(Vec3.ZERO);}
         void block(BlockPos pos,Block type){require(owner.level().hasChunkAt(pos),"resident fixture cell");blocks.putIfAbsent(pos.immutable(),game.maps().snapshot(owner.level(),pos));owner.level().setBlock(pos,type.defaultBlockState(),2);}
         void init(){
-            // All synchronous native tick erosion remains within this small saved air box.
-            var origin=BlockPos.containing(at);for(var p:BlockPos.betweenClosed(origin.offset(-7,-4,-7),origin.offset(7,4,7)))block(p.immutable(),Blocks.AIR);
+            // Full-radius erosion is live immediately. Save/clear only nonair resident cells;
+            // the fixture, like production, must never request an unloaded chunk.
+            var origin=BlockPos.containing(at);for(var p:BlockPos.betweenClosed(origin.offset(-32,-25,-32),origin.offset(32,25,32)))
+                if(owner.level().getChunkSource().getChunkNow(p.getX()>>4,p.getZ()>>4)!=null&&!owner.level().getBlockState(p).isAir())block(p.immutable(),Blocks.AIR);
             game.config().lbcSkills=false;game.config().ranked=false;
             for(var p:List.of(owner,other)){
                 p.closeContainer();p.getInventory().clearContent();p.inventoryMenu.getCraftSlots().clearContent();p.containerMenu.setCarried(ItemStack.EMPTY);p.getInventory().setSelectedSlot(0);p.setGameMode(GameType.SURVIVAL);p.setNoGravity(true);p.setShiftKeyDown(false);p.removeAllEffects();
@@ -126,7 +128,7 @@ public final class VoidArcanumChecks {
                 require(Math.abs(paidOwner-expectedOwner)<1.001&&Math.abs(paidOther-(total-expectedOwner))<1.001,"contributions split exact whole-body price");
                 require(!hole.wild,"allied contributions remain controlled");
                 for(int i=0;i<32;i++)if(level==1||level>=3)require(service.source(hole).owner().equals(owner.getUUID()),"majority contributions own damage/terrain independently of order");
-                service.updateVisual(hole,owner);float radius=(float)(new double[]{0,1,2,4,8,24}[level]/14);
+                service.updateVisual(hole,owner);float radius=(float)(new double[]{0,2,3,5,9,24}[level]/14);
                 require(hole.visual!=null&&Math.abs(hole.visual.radius-radius)<.00001&&hole.visual.disc==(level==5),"renderer source radius/14 and max-level large disc");
                 for(int i=0;i<5;i++)game.items().blackHoleVisuals().tick();
                 var index=game.items().blackHoleVisuals().origins(owner).indexOf(hole.visual.point);require(index>=0,"visible native shared-renderer handle");
@@ -155,15 +157,45 @@ public final class VoidArcanumChecks {
             for(var cow:mobs){game.items().indirectKills().clear(cow);cow.discard();}mobs.clear();move(owner,at.add(-5,0,0));move(other,at.add(5,0,0));bodies();
         }
         void terrain(){
-            prime();var center=BlockPos.containing(at);var inside=center.offset(1,0,0);var outside=center.offset(2,2,0);
-            for(int level:new int[]{2,3}){
-                bodies();var hole=spawn(owner,at);hole.level=level;hole.frontier=2;hole.terrainCause=service.source(hole).cause();block(inside,Blocks.DIRT);block(outside,Blocks.DIRT);
+            prime();var center=BlockPos.containing(at);
+            for(int level=1;level<=5;level++){
+                int radius=new int[]{0,2,3,5,9,24}[level];var inside=center.offset(radius,0,0);var outside=center.offset(radius,1,0);var corner=center.offset(radius,radius,0);
+                bodies();var hole=spawn(owner,at);hole.level=level;hole.terrainCause=service.source(hole).cause();block(inside,Blocks.DIRT);block(outside,Blocks.DIRT);block(corner,Blocks.DIRT);
                 var drops=new HashSet<Entity>();owner.level().getAllEntities().forEach(drops::add);
-                for(int i=0;i<8;i++){service.terrain(hole,owner,8192,System.nanoTime()+100_000_000);if(!hole.terrain.hasWork())break;}
-                require(owner.level().getBlockState(inside).isAir()&&owner.level().getBlockState(outside).is(Blocks.DIRT),"radial erosion rejects bounding-box corners");
+                for(int i=0;i<40;i++){service.terrain(hole,owner,8192,System.nanoTime()+100_000_000);if(!hole.terrain.hasWork())break;}
+                require(hole.frontier==radius&&!hole.terrain.hasWork()&&owner.level().getBlockState(inside).isAir()&&owner.level().getBlockState(outside).is(Blocks.DIRT)&&owner.level().getBlockState(corner).is(Blocks.DIRT),"actual restored radial boundary and excluded corners tier "+level);
+                service.updateVisual(hole,owner);require(Math.abs(hole.visual.radius*14-radius)<.00001,"shader lens boundary equals actual destruction radius tier "+level);
+                require(hole.terrain.queuedBlockCount()<=49*49*49,"bounded resident moving workset");
                 boolean produced=false;for(var e:owner.level().getAllEntities())if(!drops.contains(e)&&e instanceof net.minecraft.world.entity.item.ItemEntity){produced=true;e.discard();}
                 require(produced==(level<=2),"small-level native drops and larger-level no-drop erosion");
-            }bodies();block(inside,Blocks.AIR);block(outside,Blocks.AIR);
+                block(inside,Blocks.AIR);block(outside,Blocks.AIR);block(corner,Blocks.AIR);
+            }bodies();
+        }
+        void motion(){
+            prime();var hole=spawn(owner,at);hole.level=5;var target=cow(at.add(14,0,0));var member=service.source(hole);
+            double last=0;
+            for(int i=0;i<5;i++){
+                var start=hole.point;service.physics(hole,owner,member.cause());double speed=hole.point.distanceTo(start);
+                require(speed>last+.001&&speed<=1.600001&&hole.velocity.x>0,"native level5 accelerates toward nearest suitable entity");last=speed;
+            }
+            service.updateVisual(hole,owner);for(int i=0;i<5;i++)game.items().blackHoleVisuals().tick();
+            var normal=hole.tilt.transform(new org.joml.Vector3f(0,1,0));
+            require(normal.x>0&&normal.y>Math.cos(Math.toRadians(18.01))&&normal.y<1,"smoothed modest disc lean toward target");
+            var index=game.items().blackHoleVisuals().origins(owner).indexOf(hole.point);require(index>=0,"tilted live display present");
+            var display=game.items().blackHoleVisuals().displays(owner).get(index);
+            require(display.getLeftRotation().equals(hole.tilt)&&display.getRightRotation().equals(new org.joml.Quaternionf()),"actual native left-rotation metadata and identity right-rotation");
+            var near=cow(hole.point.add(0,0,4));var beforeVelocity=hole.velocity;var beforeTilt=new org.joml.Quaternionf(hole.tilt);
+            service.physics(hole,owner,member.cause());
+            require(hole.velocity.z>beforeVelocity.z&&hole.velocity.x<beforeVelocity.x&&hole.velocity.subtract(beforeVelocity).length()<=.120001,"nearest replacement steers with bounded acceleration");
+            require(!hole.tilt.equals(beforeTilt)&&hole.tilt.transform(new org.joml.Vector3f(0,1,0)).z>0,"tilt smoothly follows replacement target");
+            service.updateVisual(hole,owner);require(display.getLeftRotation().equals(hole.tilt),"existing native display receives changed tilt metadata");
+            for(var cow:List.of(target,near)){game.items().indirectKills().clear(cow);cow.discard();mobs.remove(cow);}
+            var temporarilyStopped=new ArrayList<Entity>();
+            try{
+                for(var entity:hole.world.getAllEntities())if(entity instanceof net.minecraft.world.entity.LivingEntity&&!entity.entityTags().contains("time_stopped")){entity.entityTags().add("time_stopped");temporarilyStopped.add(entity);}
+                service.physics(hole,owner,member.cause());require(hole.velocity.equals(Vec3.ZERO),"no suitable target clears motion");
+            }finally{for(var entity:temporarilyStopped)entity.entityTags().remove("time_stopped");}
+            bodies();require(hole.velocity.equals(Vec3.ZERO)&&hole.tilt.equals(new org.joml.Quaternionf())&&game.items().blackHoleVisuals().count()==0,"body cleanup releases motion tilt and renderer");
         }
         void boundaries(){
             prime();var hole=spawn(owner,at);service.updateVisual(hole,owner);var point=hole.point;int mana=game.items().mana().get(owner);
@@ -180,7 +212,7 @@ public final class VoidArcanumChecks {
             for(var entity:owner.level().getAllEntities())if(!before.contains(entity)&&(entity instanceof net.minecraft.world.entity.item.ItemEntity||entity instanceof net.minecraft.world.entity.ExperienceOrb))entity.discard();game.players().save();game.items().magic().flushCleansing();
         }
     }
-    public static void run(GameController game){try(var f=new Fixture(game)){f.init();f.presentation();f.holding();f.levels();f.physical();f.terrain();f.boundaries();}SkyWars2.LOGGER.info("[check] PASS void-arcanum (native holding/F swap, merged upkeep/majority/WILD, damage/velocity/terrain/renderer/lifecycle; explicit boundary ticks)");}
+    public static void run(GameController game){try(var f=new Fixture(game)){f.init();f.presentation();f.holding();f.levels();f.physical();f.terrain();f.motion();f.boundaries();}SkyWars2.LOGGER.info("[check] PASS void-arcanum (native holding/F swap, merged upkeep/majority/WILD, restored radii/lens, accelerating nearest steering, tilt metadata and cleanup; explicit boundary ticks)");}
 
     private static Saved stopSaved;private static String stopEpoch;private static LbcVoidArcanum.Hole stopHole;
     private static final Set<Entity> stopBefore=Collections.newSetFromMap(new IdentityHashMap<>());

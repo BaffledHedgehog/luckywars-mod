@@ -162,6 +162,7 @@ public final class VexFamilyChecks {
             for(var e:normalActors) {
                 require(e instanceof Vex v && v.getHealth()==1 && v.getMaxHealth()==1 && e.position().equals(origin)
                         && game.items().creatureDrops().owner(e)==owner && game.items().currentEpoch(e),"ten co-located1HP native authored Vex");
+                require(((Vex)e).getMainHandItem().isEmpty() && ((Vex)e).getOffhandItem().isEmpty(),"normal LowVex trap has no sword in either hand");
                 ((Vex)e).setNoAi(true);e.setNoGravity(true);
             }
         }
@@ -263,7 +264,42 @@ public final class VexFamilyChecks {
             game.items().timeStop().end(level);
             var service=game.items().vexSword();var zone=service.zoneSnapshot().getFirst();int before=service.arrowCount();
             service.tick();capture();
-            require(zone.remaining==69 && service.arrowCount()==before+5,"anchored box selects five distinct eligible enemies and excludes service target and inventory sword player");
+            require(zone.remaining==69 && service.arrowCount()==before+5,"anchored box fires five independently randomized shots at eligible enemies");
+            // Keep exactly one eligible enemy: all five shots must still fire with replacement.
+            var excluded=new ArrayList<LivingEntity>();
+            for(var actor:level.getEntitiesOfClass(LivingEntity.class,
+                    new net.minecraft.world.phys.AABB(zone.origin.x-30,zone.origin.y-30,zone.origin.z-30,
+                            zone.origin.x+31,zone.origin.y+6,zone.origin.z+31))) {
+                if(actor!=target && actor!=protectedTarget && !actor.entityTags().contains("magic_academy")) {
+                    actor.entityTags().add("magic_academy");excluded.add(actor);
+                }
+            }
+            try {
+                for(var arrow:service.arrowSnapshot())arrow.discard();
+                service.tick();capture();
+                require(service.arrowCount()==5 && target.isAlive(),
+                        "five fresh random shots can choose the same still-living sole eligible enemy");
+                for(var arrow:service.arrowSnapshot())require(arrow.position().distanceTo(target.position())>=4.9
+                        && arrow.position().distanceTo(target.position())<=5.01,
+                        "every sole-target shot spawns around the eligible enemy");
+                var second=cow(zone.origin.add(12,0,6));
+                owner.getRandom().setSeed(1717L);
+                var chosen=new HashSet<LivingEntity>();
+                for(int update=0;update<4;update++) {
+                    for(var arrow:service.arrowSnapshot())arrow.discard();
+                    service.tick();capture();
+                    require(service.arrowCount()==5,"every update independently emits five area shots");
+                    for(var arrow:service.arrowSnapshot()) {
+                        var aim=arrow.position().add(arrow.getDeltaMovement().scale(5));
+                        if(aim.distanceTo(target.position())<.00001) chosen.add(target);
+                        else if(aim.distanceTo(second.position())<.00001) chosen.add(second);
+                        else throw new IllegalStateException("Vex family: field shot selected ineligible target at "+aim);
+                    }
+                }
+                require(chosen.size()==2 && target.isAlive() && second.isAlive(),
+                        "fresh shot rolls switch between two living targets without waiting for either death");
+                second.discard();
+            } finally {for(var actor:excluded)actor.entityTags().remove("magic_academy");}
             for(var arrow:service.arrowSnapshot())arrow.discard();service.tick();
             double[][] form={{5,0,-1,0},{-5,0,1,0},{0,5,0,-1},{0,-5,0,1},{3.5,3.5,-.7,-.7},{-3.5,3.5,.7,-.7},{3.5,-3.5,-.7,.7},{-3.5,-3.5,.7,.7}};
             for(int i=0;i<8;i++) {
@@ -278,7 +314,7 @@ public final class VexFamilyChecks {
             var breaker=service.phantomShot(owner,target,1);owned.add(breaker);
             for(int i=0;i<5&&!breaker.isRemoved();i++)level.tickNonPassenger(breaker);
             require(breaker.isRemoved() && level.getBlockState(block).isAir(),"actual native block hit invokes groundbreaker terrain destruction and retires arrow");
-            for(int i=0;i<68;i++)service.tick();require(service.zoneCount()==0,"zone expires at exactly70 active updates");
+            for(int i=0;i<63;i++)service.tick();require(service.zoneCount()==0,"zone expires at exactly70 active updates");
             service.clear(owner);place(origin);hand(InteractionHand.OFF_HAND);game.config().offhandWands=false;service.addPlayerCounter(owner);
             require(!nativeUse(InteractionHand.OFF_HAND) && service.charges(owner)==1,"offhand configuration declines without spend");game.config().offhandWands=true;
             require(nativeUse(InteractionHand.OFF_HAND) && service.charges(owner)==0,"normal allowed offhand creates working zone");service.clear(owner);

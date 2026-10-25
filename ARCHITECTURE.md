@@ -1,5 +1,45 @@
 # Структура переноса игрового цикла
 
+## Visual, weapon and frozen-world corrections - QUALIFIED READY (25 October 2026)
+
+[ACADEMY_KIUAS_CORRECTIONS_2026_10_25](agent_notes/ACADEMY_KIUAS_CORRECTIONS_2026_10_25.md), [GAYCASTER_PORT](agent_notes/GAYCASTER_PORT.md), [WEAPON_PRESENTATION_FIXES_2026_10_25](agent_notes/WEAPON_PRESENTATION_FIXES_2026_10_25.md), [TIME_STOP_CONTACTS_2026_10_25](agent_notes/TIME_STOP_CONTACTS_2026_10_25.md), [ULTRAPONOS_PARTICLES_2026_10_25](agent_notes/ULTRAPONOS_PARTICLES_2026_10_25.md), [VOID_ARCANUM_MOTION_RADIUS_2026_10_25](agent_notes/VOID_ARCANUM_MOTION_RADIUS_2026_10_25.md).
+
+Token-only Academy title is one block higher and0.03 clear of its panel;
+ordinary Academy stays at its source anchor. Gaycaster cubes use actual native
+black concrete,3x3x3 geometry, glowing and3866675 outline; the naturally ticking
+six-stage trial produces11/11/11/chance50/1/448 helpers, retaining source motion
+and damage. Kiuas aura/curse/Blaze fire requires resident floor or combustible
+side support; no-aura block events exit immediately. Minigun beams use native
+per-hand LocalCoordinates. LowVex trap/eggs have empty hands. Sword ultimate
+rolls each shot independently with replacement. SLR/Magnum synchronize NONE
+attack animation while retaining actual attack and scope behavior. Vanilla
+predicts the ordinary mainhand swing when a rifle is ONLY offhand; this specific
+client limitation is documented rather than hidden by fake gameplay items.
+
+Time Stop keeps actual TNT fuse/motion while sending long-fuse metadata for
+flashing and late tracking. Owned air-only barriers make TNT/falling blocks
+solid, share overlap leases, preserve newer blocks and restore exact airs.
+Native entity saves use original motion/gravity; detached chunk snapshots omit
+temporary barriers without changing live collision or loading absent chunks.
+Ultraponos uses the same brown-wool TerrainParticle visual through DUST_PILLAR,
+60/tick, mean upwardY0.8 with native Gaussian jitter. Void destruction reaches
+2/3/5/9/24 with matching14R lens, bounded accelerating nearest-target chase and
+smooth maximum18-degree level5 disc tilt. Merge/WILD/upkeep/credit remain.
+
+Build `5eb9bab9` passed184 recorded results in
+two actual mode1 matches (172.65s), including real stop cleanup.
+Exact342 sources /
+936 classes /
+2812 resources match the artifact.
+READY ONLY by the user's existing choice: main remains2558af6b, no replacement
+or restart. Ready JAR: `build/verification/skywars2-visual-contact-5eb9bab9.jar`; evidence:
+`build/verification/visual-contact-final/`. Five pre-existing user files and
+removed applied RP templates remain unchanged and excluded from this commit.
+No author RP edits or new resource-pack template are required.
+Native fixtures qualify packets and serialization boundaries, not actual client
+pixels, physical chunk unload/disk restart or peak-load performance. Next
+migration remains the ordinary Soulless Academy trial/upgrade and metasola generation.
+
 ## Gameplay review and signed attributes - QUALIFIED READY (25 October2026)
 
 [Combined contract](agent_notes/GAMEPLAY_REVIEW_2026_10_25.md), [user attribute decisions](agent_notes/ATTRIBUTE_DECISIONS_2026_10_25.md).

@@ -130,10 +130,10 @@ public final class LbcUltraponos {
             item.setDefaultPickUpDelay(); game.items().markCurrentItemEpoch(item);
             game.items().timeStop().prepareFrozen(item); level.addFreshEntity(item);
         }
-        // One batched directed packet retains 300 particles per five ticks without area-spawn jitter.
-        // ALTERNATIVE keeps positive Y instead of the default Gaussian speeds with random signs.
-        level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.WOOL.pick(net.minecraft.world.item.DyeColor.BROWN).defaultBlockState()),
-                position.x,position.y,position.z,60,0,0,0,0,5,0,
+        // Same TerrainParticle brown-wool shards; BLOCK normalizes input speed to <=.28Y.
+        // DustPillarProvider restores supplied Y plus native Gaussian jitter, with item-like .8 mean.
+        level.sendParticles(new BlockParticleOption(ParticleTypes.DUST_PILLAR,Blocks.WOOL.pick(net.minecraft.world.item.DyeColor.BROWN).defaultBlockState()),
+                position.x,position.y,position.z,60,0,0,0,0,.8,0,
                 net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket.RandomizationType.ALTERNATIVE);
     }
     public int emitterCount() { return emitters.size(); }

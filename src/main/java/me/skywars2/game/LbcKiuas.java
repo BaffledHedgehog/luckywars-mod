@@ -3,6 +3,7 @@ package me.skywars2.game;
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
 import me.skywars2.SkyWars2;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
@@ -28,6 +29,8 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 import net.minecraft.world.level.chunk.LevelChunk;
 
 import java.util.HashMap;
@@ -94,7 +97,7 @@ public final class LbcKiuas {
                 game.items().indirectKills().trapChanges(game.maps().level(),cursed.get(target),()->{
                     for(var pos:BlockPos.betweenClosed(target.blockPosition().offset(-1,0,-1),target.blockPosition().offset(1,1,1))){
                         if(!game.maps().level().hasChunkAt(pos))continue;
-                        var state=game.maps().level().getBlockState(pos);var next=kiuResult(state);
+                        var state=game.maps().level().getBlockState(pos);var next=kiuResult(game.maps().level(),pos,state);
                         if(!next.equals(state)&&game.maps().level().setBlock(pos,next,FLAGS)&&next.is(Blocks.FIRE))game.maps().level().scheduleTick(pos.immutable(),Blocks.FIRE,30);
                     }
                 });
@@ -303,6 +306,29 @@ public final class LbcKiuas {
         var result=state.is(TO_AIR)?Blocks.AIR.defaultBlockState():state;
         return result.is(TO_FIRE)?Blocks.FIRE.defaultBlockState():result;
     }
+    /** Preserve the ordered classification, but admit new fire only at a supported live position. */
+    static BlockState kiuResult(ServerLevel level,BlockPos pos,BlockState state) {
+        var result=kiuResult(state);
+        if(!result.is(Blocks.FIRE)||state.is(Blocks.FIRE)||fireSupported(level,pos))return result;
+        // The first conversion still removes water/snow even when the second cannot ignite it.
+        return state.is(TO_AIR)?Blocks.AIR.defaultBlockState():state;
+    }
+    static boolean fireSupported(ServerLevel level,BlockPos pos) {
+        var below=pos.below();
+        if(resident(level,below)&&!level.getBlockState(below).isAir())return true;
+        for(var direction:Direction.values())if(direction!=Direction.DOWN){
+            var neighbour=pos.relative(direction);if(!resident(level,neighbour))continue;
+            var state=level.getBlockState(neighbour);
+            if(state.hasProperty(BlockStateProperties.WATERLOGGED)&&state.getValue(BlockStateProperties.WATERLOGGED))continue;
+            var flammable=FlammableBlockRegistry.getDefaultInstance().get(state.getBlock());
+            if(flammable!=null&&flammable.getIgniteOdds()>0)return true;
+        }
+        return false;
+    }
+    private static boolean resident(ServerLevel level,BlockPos pos) {
+        return pos.getY()>=level.getMinY()&&pos.getY()<=level.getMaxY()
+                &&level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)!=null;
+    }
     static boolean kiuEligible(BlockState state) { return !kiuResult(state).equals(state); }
 
     private void reindex(Aura aura) {
@@ -333,6 +359,16 @@ public final class LbcKiuas {
         aura.chunks.clear();
     }
     public void blockChanged(BlockPos pos,BlockState state) {
+        if(index.isEmpty())return;
+        // Support changes can make an already-scanned adjacent air cell ignite.
+        enqueueChanged(pos,state);
+        var level=game.maps().level();
+        for(var direction:Direction.values()){
+            var neighbour=pos.relative(direction);
+            if(resident(level,neighbour))enqueueChanged(neighbour,level.getBlockState(neighbour));
+        }
+    }
+    private void enqueueChanged(BlockPos pos,BlockState state) {
         var holders=index.get(ChunkPos.pack(pos.getX()>>4,pos.getZ()>>4));
         if(holders==null) return;
         for(var aura:holders) {
@@ -369,7 +405,7 @@ public final class LbcKiuas {
         Aura(ServerPlayer owner) {
             this.owner=owner; this.level=owner.level();
             java.util.function.BiFunction<BlockPos,BlockState,BlockState> fire=(pos,state)-> {
-                var result=kiuResult(state);
+                var result=kiuResult(level,pos,state);
                 if(result.is(Blocks.FIRE) && !result.equals(state)) level.scheduleTick(pos.immutable(),Blocks.FIRE,30);
                 return result;
             };

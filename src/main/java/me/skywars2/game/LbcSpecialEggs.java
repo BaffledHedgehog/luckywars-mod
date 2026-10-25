@@ -48,7 +48,7 @@ public final class LbcSpecialEggs {
                  drop_chances:{head:1.0f},active_effects:[{id:"minecraft:invisibility",amplifier:1,duration:2000000,show_particles:false}]}
                 """),
         LOW_VEX("skywars2:low_vex_spawn_egg", "low_vex_spawn_egg", Items.VEX_SPAWN_EGG, EntityTypes.VEX, "lbc:tier_f", """
-                {DeathLootTable:"lbc:vex_sword",Health:1.0f,attributes:[{id:"minecraft:max_health",base:1.0d}]}
+                {DeathLootTable:"lbc:vex_sword",equipment:{mainhand:{}},Health:1.0f,attributes:[{id:"minecraft:max_health",base:1.0d}]}
                 """),
         SARVATRA_CREEPER("skywars2:sarvatra_creeper_spawn_egg", "sarvatra_creeper_spawn_egg", Items.CREEPER_SPAWN_EGG, EntityTypes.CREEPER, "lbc:tier_f", """
                 {ExplosionRadius:1,DeathLootTable:"lbc:creeper_wand"}

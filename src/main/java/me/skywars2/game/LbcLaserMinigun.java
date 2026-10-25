@@ -167,7 +167,7 @@ public final class LbcLaserMinigun {
         spool.shots++;
         if(spool.spread<=1000) game.items().mana().award(owner,"lbc:true_advancements/shooter/laser_minigun");
         sound(owner,"shot",2,0);
-        nativeRay(spool);
+        nativeRay(spool,hand);
     }
     private Spool state(ServerPlayer owner) {
         return states.computeIfAbsent(owner.getUUID(),id->new Spool(owner,game.items().epoch()));
@@ -192,10 +192,10 @@ public final class LbcLaserMinigun {
                 Identifier.parse("lbc:laser_minigun/"+nextFrame(frame(owner,hand),sourceSequentialSkip)));
     }
     /** Source ray/cast rotations and muzzle, with the author's native first-hit endpoint policy. */
-    private void nativeRay(Spool spool) {
+    private void nativeRay(Spool spool,InteractionHand hand) {
         var owner=spool.owner;
         int spread=spool.spread;
-        Vec3 origin=muzzle(owner);
+        Vec3 origin=muzzle(owner,hand);
         if(!owner.level().hasChunkAt(BlockPos.containing(origin))) return;
         float yaw=owner.getYRot()+(owner.getRandom().nextInt(spread*2+1)-spread)*.001f;
         float pitch=owner.getXRot()+(owner.getRandom().nextInt(spread*2+1)-spread)*.001f;
@@ -220,13 +220,13 @@ public final class LbcLaserMinigun {
         owner.level().sendParticles(ParticleTypes.ELECTRIC_SPARK,force,false,
                 position.x,position.y,position.z,count,0,0,0,.3);
     }
-    /** Exact local muzzle offset is computed before the two independent spread rotations. */
-    static Vec3 muzzle(ServerPlayer owner) {
-        Vec3 forward=owner.getLookAngle();
-        double yaw=Math.toRadians(owner.getYRot());
-        Vec3 right=new Vec3(Math.cos(yaw),0,Math.sin(yaw));
-        Vec3 up=forward.cross(right);
-        return owner.getEyePosition().add(right.scale(.3)).add(up.scale(-.2)).add(forward.scale(.5));
+    /** Legacy main-hand ^-.3 ^-.2 ^.5; the already-correct offhand mirrors only lateral offset. */
+    static Vec3 muzzle(ServerPlayer owner) { return muzzle(owner,InteractionHand.MAIN_HAND); }
+    static Vec3 muzzle(ServerPlayer owner,InteractionHand hand) {
+        // Use the actual command basis, including its native Mth angle quantization at steep pitch.
+        return new net.minecraft.commands.arguments.coordinates.LocalCoordinates(
+                hand==InteractionHand.MAIN_HAND?-.3:.3,-.2,.5)
+                .apply(owner.getEyePosition(),new net.minecraft.world.phys.Vec2(owner.getXRot(),owner.getYRot()));
     }
     private void display(ServerPlayer owner,Vec3 origin,float yaw,float pitch,double length) {
         var stack=new ItemStack(Items.REPEATING_COMMAND_BLOCK);

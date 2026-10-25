@@ -203,19 +203,46 @@ public final class UltraponosDropChecks {
                 var before=entities();ticks(1);addedItems(before);
                 var emitted=packets.stream().filter(p->p instanceof net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket)
                         .map(p->(net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket)p).toList();
-                require(emitted.size()==1,"one batched stream packet per nearby viewer and tick");var particle=emitted.getFirst();
+                require(emitted.size()==1,"one batched stream packet per nearby viewer and tick");
+                var buffer=new net.minecraft.network.RegistryFriendlyByteBuf(io.netty.buffer.Unpooled.buffer(),level.registryAccess());
+                var decoded=new net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket[1];
+                try {net.fabricmc.fabric.api.networking.v1.context.PacketContext.runWithContext(
+                        (net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider)alpha.connection,()->{
+                            net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket.STREAM_CODEC.encode(buffer,emitted.getFirst());
+                            decoded[0]=net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket.STREAM_CODEC.decode(buffer);
+                        });
+                } finally {buffer.release();}
+                var particle=decoded[0];
                 require(particle.particle() instanceof net.minecraft.core.particles.BlockParticleOption block
-                        && block.getType()==net.minecraft.core.particles.ParticleTypes.BLOCK
-                        && block.getState().is(Blocks.WOOL.pick(net.minecraft.world.item.DyeColor.BROWN)),"same brown-wool block particle");
+                        && block.getType()==net.minecraft.core.particles.ParticleTypes.DUST_PILLAR
+                        && block.getState().is(Blocks.WOOL.pick(net.minecraft.world.item.DyeColor.BROWN)),"native same TerrainParticle brown-wool shard appearance");
                 require(particle.x()==base.getX()+.5 && Math.abs(particle.y()-base.getY()-1.05)<1e-9 && particle.z()==base.getZ()+.5
                         && particle.xDist()==0 && particle.yDist()==0 && particle.zDist()==0,"stream starts at hopper rim with no area randomization");
-                require(particle.count()==60 && particle.xMaxSpeed()==0 && particle.yMaxSpeed()==5 && particle.zMaxSpeed()==0
+                require(particle.count()==60 && particle.xMaxSpeed()==0 && Math.abs(particle.yMaxSpeed()-.8)<1e-7 && particle.zMaxSpeed()==0
                         && particle.randomizationType()==net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket.RandomizationType.ALTERNATIVE,
-                        "positive upward stream retains source particle rate in one native packet");
+                        "item-like mean upward speed retains source particle rate in one native packet");
+                dustPillarSourceSemantics(particle);
             } finally {
                 alpha.connection=previous;previous.resetPosition();
                 alpha.teleportTo(level,origin.x+35,origin.y+15,origin.z,Set.of(),0,0,true);
             }
+        }
+        /** Exact26.3 TerrainParticle.DustPillarProvider + Particle.tick equations, not real client rendering. */
+        void dustPillarSourceSemantics(net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket packet) {
+            var random=net.minecraft.util.RandomSource.create(0x4c4243554c545241L);
+            double meanY=0,meanX=0,meanZ=0,firstDisplacement=0;int rising=0;int samples=4096;
+            for(int i=0;i<samples;i++) {
+                // ALTERNATIVE passes the packet axis speeds directly, unlike DEFAULT's signed Gaussian.
+                double x=random.nextGaussian()/30.0,y=packet.yMaxSpeed()+random.nextGaussian()/2.0,z=random.nextGaussian()/30.0;
+                // DustPillarProvider overwrites the normalized constructor velocities with these values.
+                meanX+=x;meanY+=y;meanZ+=z;firstDisplacement+=y-.04;
+                if(y-.04>0)rising++;
+            }
+            meanX/=samples;meanY/=samples;meanZ/=samples;firstDisplacement/=samples;
+            require(Math.abs(meanY-.8)<.03 && Math.abs(firstDisplacement-.76)<.03 && rising>samples*.90,
+                    "source provider cohort rises with item-like meanY.8 and gravity.04; native jitter permits rare downward shards");
+            require(Math.abs(meanX)<.003 && Math.abs(meanZ)<.003,
+                    "source provider gives independent centered Gaussian horizontal scatter with sigma1/30");
         }
         void threshold() {
             reset();activate();var center=Vec3.atCenterOf(base).add(0,1,0);var blockers=new ArrayList<ItemEntity>();

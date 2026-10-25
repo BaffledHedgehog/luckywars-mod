@@ -1,5 +1,30 @@
 # Gaycaster / native Prism + Omega craft
 
+## Rising-cube rendering correction - 25 October 2026
+
+The final meditation display used legacy `block_state:{Name:...}`. Exact26.3
+`BlockState.CODEC` now accepts a block identifier or an `id`/`properties` map;
+the old compound silently fell back to air. `Glowing` and
+`glow_color_override` were valid, but an air display has no outlined geometry.
+The native factory now directly sets black concrete, scale3, glowing,
+override3866675 and one-tick interpolation before insertion. No author RP change.
+
+Audited read-only `workingitems/gaycaster/meditate/phase_*`, `tick_5t_ok`,
+`tick_mediprism*`, `tick_fireball`, `tick_acid`, `tick_electricity`,
+`tick_zatop` and `tick_medifade*`. The115 five-tick counter retains six stages:
+11 prisms,11 ground indicators,11 acid helpers, up to11 electric-wall chances
+at50%, one rising-water helper, and28 waves of16 cubes (448 total).
+Prism warnings at ages1/11/21, firing31, explosion49/retirement50,
+electric retirement80, water retirement120 and cube rise1block/tick remain.
+Helpers retain their own trial/author and WILD damage; old global selectors
+are not restored. Source damage7/10/PoisonII/8/4/4 is unchanged.
+
+`GaycasterChecks` observes actual helpers during the naturally ticking trial,
+checks all six counts, all cubes' concrete/glowing/color and prism model, and
+round-trips native display metadata including scale3, shared glow flag and
+color. Qualification for this correction belongs to the visual-contact batch;
+real client outline pixels still need the user's visual confirmation.
+
 ## Academy continuation - 24 October 2026
 
 Source: `workingitems/gaycaster/meditate` and its six phase/tick helpers;

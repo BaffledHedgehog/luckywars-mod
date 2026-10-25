@@ -97,7 +97,9 @@ public final class SoulhunterChecks {
         }
         void init(){
             var box=new net.minecraft.world.phys.AABB(Vec3.atLowerCornerOf(center.offset(-12,-12,-12)),Vec3.atLowerCornerOf(center.offset(13,14,13)));
-            require(owner.level().getEntities(owner,box,e->e!=other).isEmpty(),"no unrelated entities in terrain fixture");
+            var unrelated=owner.level().getEntities(owner,box,e->e!=other);
+            require(unrelated.isEmpty(),"no unrelated entities in terrain fixture: "+unrelated.stream()
+                    .map(e->e.getType()+"@"+e.position()+" tags="+e.entityTags()).toList());
             for(var p:BlockPos.betweenClosed(center.offset(-12,-12,-12),center.offset(12,13,12))){require(owner.level().hasChunkAt(p),"resident region");blocks.put(p.immutable(),game.maps().snapshot(owner.level(),p));}
             for(var p:blocks.keySet())block(p,Blocks.AIR);
             game.config().ranked=false;game.config().lbcSkills=false;game.config().offhandWands=true;

@@ -121,7 +121,7 @@ final class LbcGaycasterAcademy {
         owner.connection.send(new net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket(Component.literal(" ")));
         owner.connection.send(new net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket(Component.translatable(key)));
     }
-    private static final class Hazard {
+    static final class Hazard {
         final int kind;Vec3 at;final Vec3 direction;int age;Entity display;UUID visual;
         Hazard(int kind,Vec3 at,Vec3 direction){this.kind=kind;this.at=at;this.direction=direction;}
         void close(){if(display!=null)display.discard();}
@@ -139,6 +139,7 @@ final class LbcGaycasterAcademy {
     private void counter(Trial trial){game.items().mana().score(trial.owner,"gaycaster_upgrade").set(trial.remaining);}
     int remaining(ServerPlayer owner){var t=trials.get(owner);return t==null?0:t.remaining*5-t.ticks%5;}
     int helperCount(ServerPlayer owner){var t=trials.get(owner);return t==null?0:t.hazards.size();}
+    List<Hazard> hazardSnapshot(ServerPlayer owner){var t=trials.get(owner);return t==null?List.of():List.copyOf(t.hazards);}
     void tick(){
         for(var t:List.copyOf(trials.values())){
             if(!t.owner.isAlive()||t.owner.isRemoved()||!game.items().currentEpoch(t.epoch)||!game.playing()||game.isObserver(t.owner)
@@ -188,11 +189,19 @@ final class LbcGaycasterAcademy {
         }
     }
     private Entity display(Trial t,Hazard h,boolean block){
-        String preset=block?"{teleport_duration:1,interpolation_duration:1,block_state:{Name:'minecraft:black_concrete'},glow_color_override:3866675,Glowing:1b,transformation:{translation:[0f,0f,0f],scale:[3f,3f,3f],left_rotation:[0f,0f,0f,1f],right_rotation:[0f,0f,0f,1f]}}":
-                "{teleport_duration:1,interpolation_duration:1,shadow_radius:0f,shadow_strength:0f,item_display:'fixed',transformation:[0f,0f,1f,0f,1f,0f,0f,0f,0f,1f,0f,0f,0f,0f,0f,1f],item:{id:'minecraft:carrot_on_a_stick',count:1,components:{'minecraft:item_model':'lbc:prism'}}}";
         Entity d=block?new Display.BlockDisplay(EntityTypes.BLOCK_DISPLAY,t.level):new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,t.level);
-        try{d.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,t.owner.registryAccess(),TagParser.parseCompoundFully(preset)));}
-        catch(com.mojang.brigadier.exceptions.CommandSyntaxException e){throw new IllegalStateException(e);}
+        if(d instanceof Display.BlockDisplay cube){
+            // 26.3 BlockState.CODEC uses id/properties; the old Name compound decoded as air.
+            cube.setBlockState(Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.BLACK).defaultBlockState());
+            cube.setGlowingTag(true);cube.setGlowColorOverride(3866675);
+            cube.setTransformation(new com.mojang.math.Transformation(new org.joml.Vector3f(),new org.joml.Quaternionf(),
+                    new org.joml.Vector3f(3),new org.joml.Quaternionf()));
+            cube.setPosRotInterpolationDuration(1);cube.setTransformationInterpolationDuration(1);
+        }else{
+            String preset="{teleport_duration:1,interpolation_duration:1,shadow_radius:0f,shadow_strength:0f,item_display:'fixed',transformation:[0f,0f,1f,0f,1f,0f,0f,0f,0f,1f,0f,0f,0f,0f,0f,1f],item:{id:'minecraft:carrot_on_a_stick',count:1,components:{'minecraft:item_model':'lbc:prism'}}}";
+            try{d.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,t.owner.registryAccess(),TagParser.parseCompoundFully(preset)));}
+            catch(com.mojang.brigadier.exceptions.CommandSyntaxException e){throw new IllegalStateException(e);}
+        }
         d.setPos(h.at);d.setYRot((float)Math.toDegrees(Math.atan2(-h.direction.x,h.direction.z)));
         d.entityTags().add("skywars2.gaycaster.trial");game.items().markCurrentItemEpoch(d);
         h.display=d;h.visual=d.getUUID();t.level.addFreshEntity(d);return d;

@@ -684,6 +684,10 @@ public final class GameChecks {
                                 case "time-stop-menu" -> checkTimeStopMenu(game);
                                 case "time-stop-crafting" -> checkTimeStopCrafting(game);
                                 case "time-stop" -> checkTimeStop(game);
+                                case "time-stop-contacts" -> { TimeStopContactChecks.run(game); return; }
+                                case "time-stop-contacts-stop-probe" -> { TimeStopContactChecks.stopProbe(game); return; }
+                                case "time-stop-contacts-cleanup" -> { TimeStopContactChecks.cleanup(game); return; }
+                                case "kiuas-support" -> { KiuasSupportChecks.run(game); return; }
                                 case "time-stop-schedules" -> checkTimeStopSchedules(game);
                                 case "time-stop-cleanup" -> checkTimeStopCleanup(game);
                                 case "stand-arrow" -> checkStandArrow(game);
@@ -1188,6 +1192,7 @@ public final class GameChecks {
         TeslaChecks.tick(game);
         AwakenedAcidChecks.tick(game);
         GaycasterChecks.tick(game);
+        TimeStopContactChecks.tick(game);
         ChainLightningFixChecks.tick(game);
         PrismChecks.tick(game);
         CausticOmegaChecks.tick(game);
@@ -6980,12 +6985,27 @@ public final class GameChecks {
                 return stack;
         }
 
+        private static java.util.Set<java.util.UUID> fixtureLootBefore(net.minecraft.server.level.ServerLevel level) {
+                var saved=new java.util.HashSet<java.util.UUID>();
+                for(var entity:level.getAllEntities())if(entity instanceof net.minecraft.world.entity.item.ItemEntity
+                                ||entity instanceof net.minecraft.world.entity.ExperienceOrb)saved.add(entity.getUUID());
+                return saved;
+        }
+        private static void clearFixtureLoot(net.minecraft.server.level.ServerLevel level,java.util.Set<java.util.UUID> before,
+                                             java.util.Collection<? extends net.minecraft.world.entity.Entity> actors) {
+                var fresh=new java.util.ArrayList<net.minecraft.world.entity.Entity>();
+                for(var entity:level.getAllEntities())if(!before.contains(entity.getUUID())
+                                &&(entity instanceof net.minecraft.world.entity.item.ItemEntity||entity instanceof net.minecraft.world.entity.ExperienceOrb)
+                                &&actors.stream().anyMatch(actor->actor.position().distanceToSqr(entity.position())<9))fresh.add(entity);
+                fresh.forEach(net.minecraft.world.entity.Entity::discard);
+        }
         private static void checkKiuasRuntime(GameController game) {
                 require(game.playing(),"Kiuas runtime checks require a live match");
                 var owner=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
                 require(owner!=null && game.allowDamage(owner),"Kiuas owner is an active participant");
                 var state=new WandThirdPlayerState(owner,game.items().mana());
                 var service=game.items().kiuas(); var mana=game.items().mana(); var level=game.maps().level();
+                var originalLoot=fixtureLootBefore(level);
                 var blocks=new java.util.LinkedHashMap<net.minecraft.core.BlockPos,MapManager.BlockSnapshot>();
                 var cows=new java.util.ArrayList<net.minecraft.world.entity.animal.cow.Cow>();
                 var entities=new java.util.ArrayList<net.minecraft.world.entity.Entity>();
@@ -7009,6 +7029,8 @@ public final class GameChecks {
                         owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,new ItemStack(LbcKiuas.KIUASKIVI));
                         var wood=center.offset(1,0,1); var stone=center.offset(-1,0,-1);
                         var water=center.offset(0,0,1);
+                        level.setBlockAndUpdate(wood.below(),net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());
+                        level.setBlockAndUpdate(water.below(),net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());
                         level.setBlockAndUpdate(wood,net.minecraft.world.level.block.Blocks.OAK_PLANKS.defaultBlockState());
                         level.setBlockAndUpdate(stone,net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());
                         level.setBlockAndUpdate(water,net.minecraft.world.level.block.Blocks.WATER.defaultBlockState());
@@ -7027,6 +7049,7 @@ public final class GameChecks {
                                         && level.getBlockState(stone).is(net.minecraft.world.level.block.Blocks.STONE),
                                         "Kiuaskivi keeps ordered air-then-fire fills including water, without burning untagged stone");
                         var changed=center.offset(1,1,0);
+                        level.setBlockAndUpdate(changed.below(),net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());
                         level.setBlockAndUpdate(changed,net.minecraft.world.level.block.Blocks.OAK_PLANKS.defaultBlockState());
                         service.tick();
                         require(level.getBlockState(changed).is(net.minecraft.world.level.block.Blocks.FIRE),"Kiuaskivi reacts to new eligible blocks through native dirty events");
@@ -7153,6 +7176,7 @@ public final class GameChecks {
                         require(mana.get(owner)==8990,"Kiuaskivi resumes after the pause with its normal activation and upkeep");
                         SkyWars2.LOGGER.info("[check] PASS kiuas");
                 } finally {
+                        clearFixtureLoot(level,originalLoot,cows);
                         service.stop();
                         entities.forEach(net.minecraft.world.entity.Entity::discard);
                         for(var cow:cows) { board.removePlayerFromTeam(cow.getScoreboardName()); cow.discard(); }
@@ -12181,6 +12205,7 @@ public final class GameChecks {
                 var owner=game.server().getPlayerList().getPlayer(offlineUuid("TestAlpha"));
                 require(owner!=null && game.allowDamage(owner),"Blaze owner is an active participant");
                 var mana=game.items().mana(); var service=game.items().blaze(); var level=game.maps().level();
+                var originalLoot=fixtureLootBefore(level);
                 var state=new WandThirdPlayerState(owner,mana);
                 var cows=new java.util.ArrayList<net.minecraft.world.entity.animal.cow.Cow>();
                 var testBlazes=new java.util.ArrayList<net.minecraft.world.entity.monster.Blaze>();
@@ -12229,8 +12254,8 @@ public final class GameChecks {
                         require(volley.size()==1,"One nearby enemy creates one Fireblaze shot; ally and academy NPC are excluded");
                         var shot=volley.getFirst(); spawned.addAll(volley);
                         require(shot.getOwner()==owner && game.items().wands().canHit(shot,victim)
-                                        && !game.items().wands().canHit(shot,ally) && !game.items().wands().canHit(shot,npc),
-                                        "Fireblaze has a native owner and filters allies and service NPC before hit");
+                                        && game.items().wands().canHit(shot,ally) && !game.items().wands().canHit(shot,npc),
+                                        "Fireblaze aims at enemies, can physically hit friendly mobs and protects service NPC");
                         var velocity=shot.getDeltaMovement();
                         require(velocity.dot(victim.position().add(0,1,0).subtract(shot.position()))>0,
                                         "Random Fireblaze projectile is already directed toward its target on spawn");
@@ -12403,6 +12428,8 @@ public final class GameChecks {
                         var campfire=kiuasVictim.blockPosition().offset(3,1,1).immutable();
                         changedBlocks.putIfAbsent(water,game.maps().snapshot(water));
                         changedBlocks.putIfAbsent(campfire,game.maps().snapshot(campfire));
+                        level.setBlockAndUpdate(water.below(),net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());
+                        level.setBlockAndUpdate(campfire.below(),net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());
                         level.setBlockAndUpdate(water,net.minecraft.world.level.block.Blocks.WATER.defaultBlockState());
                         level.setBlockAndUpdate(campfire,net.minecraft.world.level.block.Blocks.CAMPFIRE.defaultBlockState());
                         academyFireData=academyFire.get(DataComponents.CUSTOM_DATA).copyTag(); academyFireData.putInt("mode",4);
@@ -12466,9 +12493,9 @@ public final class GameChecks {
                         service.loaded(nativeShot); spawned.add(nativeShot);
                         require(nativeShot.getOwner()==owner && game.items().wands().isFireProjectile(nativeShot)
                                         && game.items().currentEpoch(nativeShot) && !game.items().wands().canHit(nativeShot,owner)
-                                        && !game.items().wands().canHit(nativeShot,hostileBlaze)
+                                        && game.items().wands().canHit(nativeShot,hostileBlaze)
                                         && service.canTarget(hostileBlaze,blazeEnemy) && !service.canTarget(hostileBlaze,owner),
-                                        "Loaded Blaze projectile adopts the player owner, current epoch and self-hit guards");
+                                        "Loaded Blaze projectile adopts player credit and epoch, protects its player and can hit friendly mobs");
                         for(var mob:hostileTrialMobs) { mob.discard(); testBlazes.remove(mob); }
                         hostileBlaze.discard(); testBlazes.remove(hostileBlaze); service.stop();
                         require(service.count()==0,"Blaze trial mobs and services are fully removed between fixtures");
@@ -12512,6 +12539,7 @@ public final class GameChecks {
                 } finally {
                         service.stop(); game.config().offhandWands=oldOffhand;
                         spawned.addAll(fresh.get()); for(var entity:spawned) entity.discard();
+                        clearFixtureLoot(level,originalLoot,cows);
                         for(var cow:cows) { board.removePlayerFromTeam(cow.getScoreboardName()); cow.discard(); }
                         for(var mob:testBlazes) mob.discard();
                         if(academyNpc!=null) academyNpc.discard();
@@ -16723,6 +16751,9 @@ public final class GameChecks {
                         owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,shooterPairSource(game,owner,"laser_minigun"));
                         shots=gun.shots(owner); mana.set(owner,200); minigunRefresh(game,owner,1);
                         require(gun.shots(owner)==shots+2 && mana.get(owner)==0,"Two held miniguns fire two independently paid100-mana shots");
+                        var dualBeams=gun.beamSnapshot();
+                        require(dualBeams.stream().anyMatch(b->b.origin().distanceTo(LbcLaserMinigun.muzzle(owner,net.minecraft.world.InteractionHand.MAIN_HAND))<.00001)
+                                &&dualBeams.stream().anyMatch(b->b.origin().distanceTo(LbcLaserMinigun.muzzle(owner,net.minecraft.world.InteractionHand.OFF_HAND))<.00001),"Dual paid beams start at their separate mirrored muzzles");
                         shots=gun.shots(owner); mana.set(owner,100); minigunRefresh(game,owner,1);
                         require(gun.shots(owner)==shots+1 && mana.get(owner)==0,"Dual miniguns with only100 mana emit exactly one paid shot");
                         owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,new ItemStack(Items.STICK));

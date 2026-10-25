@@ -95,6 +95,44 @@ public final class RifleZoomChecks {
             require(zoom.projectAbilities(player.getUUID(),latestNative)==latestNative,"inactive projection preserves original packet identity");
         }finally{zoom.forget(player);abilities.apply(packed);attribute.setBaseValue(base);}
     }
+    private static void attackAnimation(GameController game,ServerPlayer player,ItemStack gun,Recording recording) {
+        require(gun.getAttackAnimation().equals(LbcRifleZoom.SCOPE_ATTACK_ANIMATION),
+                "rifle prototype and loot provide vanilla NONE attack animation");
+        var provider=(net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider)recording;
+        net.fabricmc.fabric.api.networking.v1.context.PacketContext.runWithContext(provider,()->{
+            var projected=eu.pb4.polymer.core.api.item.PolymerItemUtils.getPolymerItemStack(gun,
+                    net.minecraft.world.item.TooltipFlag.NORMAL,provider.getPacketContext(),player.registryAccess());
+            require(projected.getAttackAnimation().equals(LbcRifleZoom.SCOPE_ATTACK_ANIMATION),
+                    "actual vanilla Polymer item retains NONE before client predicts LMB swing");
+        });
+        player.connection.handlePunch(ServerboundPunchPacket.INSTANCE);
+        require(player.getCurrentSwing()!=null && player.getCurrentSwing().animation()
+                .equals(LbcRifleZoom.SCOPE_ATTACK_ANIMATION),"native punch uses NONE and still reaches scope toggle");
+        // Fixture players need not be enrolled in ChunkMap.entityMap in the same command tick.
+        // Send the native handler's actual swing descriptor through the real connection explicitly.
+        player.connection.send(new net.minecraft.network.protocol.game.ClientboundSwingAnimationPacket(
+                player,InteractionHand.MAIN_HAND,player.getCurrentSwing().animation()));
+        var packet=recording.packets.stream().filter(net.minecraft.network.protocol.game.ClientboundSwingAnimationPacket.class::isInstance)
+                .map(net.minecraft.network.protocol.game.ClientboundSwingAnimationPacket.class::cast)
+                .reduce((a,b)->b).orElseThrow();
+        var bytes=io.netty.buffer.Unpooled.buffer();
+        try {
+            net.minecraft.network.protocol.game.ClientboundSwingAnimationPacket.STREAM_CODEC.encode(bytes,packet);
+            var decoded=net.minecraft.network.protocol.game.ClientboundSwingAnimationPacket.STREAM_CODEC.decode(bytes);
+            require(decoded.entityId()==player.getId() && decoded.hand()==InteractionHand.MAIN_HAND
+                    && decoded.animation().equals(LbcRifleZoom.SCOPE_ATTACK_ANIMATION),
+                    "native handler swing descriptor retains NONE through actual connection and packet codec");
+        } finally {bytes.release();}
+        var victim=new net.minecraft.world.entity.animal.cow.Cow(net.minecraft.world.entity.EntityTypes.COW,player.level());
+        victim.setNoAi(true);victim.setNoGravity(true);victim.setPos(player.position().add(0,0,1.5));
+        require(player.level().addFreshEntity(victim),"native melee regression victim admitted");
+        try {
+            float health=victim.getHealth();
+            player.connection.handleAttack(new net.minecraft.network.protocol.game.ServerboundAttackPacket(victim.getId()));
+            require(victim.getHealth()<health,"NONE scope animation preserves genuine native entity attack damage");
+        } finally {victim.discard();}
+        game.items().rifleZoom().forget(player);
+    }
     public static void run(GameController game) {
         var player=player(game); var zoom=game.items().rifleZoom();
         require(game.playing() && game.allowDamage(player),"requires active match participant");
@@ -108,6 +146,7 @@ public final class RifleZoomChecks {
             for(String table:List.of("lbc:ported/slr","lbc:ported/magnum")) {
                 var gun=game.lbc().rollTable(player.level(),player.position(),player,table).getFirst();
                 player.setItemInHand(InteractionHand.MAIN_HAND,gun);
+                attackAnimation(game,player,gun,swap.recording);
                 player.connection.handlePunch(ServerboundPunchPacket.INSTANCE);
                 require(zoomed(player),"native punch enables "+table);
                 player.connection.handlePunch(ServerboundPunchPacket.INSTANCE);

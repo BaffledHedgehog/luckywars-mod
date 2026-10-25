@@ -178,7 +178,10 @@ public final class LbcVexSword {
                 var targets=new ArrayList<>(zone.level.getEntitiesOfClass(LivingEntity.class,bounds,
                         target->enemy(owner,target) && !immune(target)));
                 for(int i=0;i<5 && !targets.isEmpty();i++) {
-                    var target=targets.remove(owner.getRandom().nextInt(targets.size()));
+                    // Every arrow rolls independently, including repeat hits on a still-living target.
+                    targets.removeIf(target->!enemy(owner,target) || immune(target));
+                    if(targets.isEmpty()) break;
+                    var target=targets.get(owner.getRandom().nextInt(targets.size()));
                     phantomShot(owner,target,owner.getRandom().nextInt(8)+1);
                 }
             }

@@ -100,4 +100,51 @@ public abstract class TimeStopNativeMixin {
             if (game != null && game.items().timeStop().stopped(level)) ci.cancel();
         }
     }
+
+    @Mixin(net.minecraft.world.entity.item.PrimedTnt.class)
+    public interface TntData {
+        @org.spongepowered.asm.mixin.gen.Accessor("DATA_FUSE_ID")
+        static net.minecraft.network.syncher.EntityDataAccessor<Integer> skywars2$fuseData() {
+            throw new AssertionError("mixin accessor");
+        }
+    }
+
+    /** Pairing must also use the presentation fuse, including a late viewer of fuse-one TNT. */
+    @Mixin(net.minecraft.server.level.ServerEntity.class)
+    public abstract static class TntTracking {
+        @Shadow @Final private Entity entity;
+        @org.spongepowered.asm.mixin.injection.ModifyArg(method={"sendPairingData","sendDirtyEntityData"},
+                at=@At(value="INVOKE",target="Lnet/minecraft/network/protocol/game/ClientboundSetEntityDataPacket;<init>(ILjava/util/List;)V"),index=1)
+        private java.util.List<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>> skywars2$tntPresentation(
+                java.util.List<net.minecraft.network.syncher.SynchedEntityData.DataValue<?>> values) {
+            var game=SkyWars2.game();
+            return game==null?values:game.items().timeStop().tntPresentation(entity,values);
+        }
+    }
+
+
+    @Mixin(Entity.class)
+    public abstract static class Persistence {
+        @ModifyExpressionValue(method="saveWithoutId",at=@At(value="INVOKE",target="Lnet/minecraft/world/entity/Entity;getDeltaMovement()Lnet/minecraft/world/phys/Vec3;"))
+        private net.minecraft.world.phys.Vec3 skywars2$saveMotion(net.minecraft.world.phys.Vec3 original) {
+            var game=SkyWars2.game();
+            return game==null?original:game.items().timeStop().persistedVelocity((Entity)(Object)this,original);
+        }
+        @ModifyExpressionValue(method="saveWithoutId",at=@At(value="INVOKE",target="Lnet/minecraft/world/entity/Entity;isNoGravity()Z"))
+        private boolean skywars2$saveGravity(boolean original) {
+            var game=SkyWars2.game();
+            return game==null?original:game.items().timeStop().persistedNoGravity((Entity)(Object)this,original);
+        }
+    }
+
+    @Mixin(net.minecraft.world.level.chunk.storage.SerializableChunkData.class)
+    public abstract static class ChunkPersistence {
+        @Inject(method="copyOf",at=@At("RETURN"),cancellable=true)
+        private static void skywars2$saveContacts(ServerLevel level,net.minecraft.world.level.chunk.ChunkAccess chunk,
+                org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<net.minecraft.world.level.chunk.storage.SerializableChunkData> cir) {
+            var game=SkyWars2.game();
+            if(game!=null) cir.setReturnValue(game.items().timeStop().persistedChunk(level,chunk,cir.getReturnValue()));
+        }
+    }
+
 }

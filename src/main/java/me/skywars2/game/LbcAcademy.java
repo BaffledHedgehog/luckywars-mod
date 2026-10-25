@@ -415,6 +415,9 @@ public final class LbcAcademy {
                 if (entity instanceof net.minecraft.world.entity.Display.TextDisplay label) {
                     label.setText(Component.translatableWithFallback(SINGLE_USE_WELCOME,"Single-use Academy of Magic")
                             .withStyle(label.getText().getStyle()));
+                    // A short title belongs at the panel's centre, just in front of its inner face.
+                    // The ordinary welcome keeps its source position and multi-line layout.
+                    label.setPos(placing.origin.getX()+6,placing.origin.getY()+3,placing.origin.getZ()+9.97);
                     entity.entityTags().add(SINGLE_PANEL);
                 }
             }

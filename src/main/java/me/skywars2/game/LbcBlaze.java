@@ -258,7 +258,7 @@ public final class LbcBlaze {
     private void enqueue(ServerPlayer owner,ArrayDeque<BlockAreaWork> areas,BlockAreaWork.Bounds bounds,boolean lava) {
         var level=owner.level();
         var work=new BlockAreaWork(level,lava?s->!s.equals(Blocks.LAVA.defaultBlockState()):LbcKiuas::kiuEligible,(pos,state)-> {
-            var result=lava?Blocks.LAVA.defaultBlockState():LbcKiuas.kiuResult(state);
+            var result=lava?Blocks.LAVA.defaultBlockState():LbcKiuas.kiuResult(level,pos,state);
             if(result.is(Blocks.LAVA)) level.scheduleTick(pos.immutable(),net.minecraft.world.level.material.Fluids.LAVA,
                     net.minecraft.world.level.material.Fluids.LAVA.getTickDelay(level));
             else if(result.is(Blocks.FIRE)) level.scheduleTick(pos.immutable(),Blocks.FIRE,30);

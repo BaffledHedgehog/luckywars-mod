@@ -83,6 +83,7 @@ public final class LbcMagnum {
         return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(new Item.Properties() {
             @Override public Identifier effectiveModel() { return Identifier.parse("lbc:magnum"); }
         }.setId(key).stacksTo(1).overrideDescription("magnum_mode_standard")
+                .component(DataComponents.ATTACK_ANIMATION,LbcRifleZoom.SCOPE_ATTACK_ANIMATION)
                 .component(DataComponents.INTERACT_ANIMATION,new net.minecraft.world.item.component.SwingAnimation(
                         net.minecraft.world.item.SwingAnimationType.NONE,6))
                 .component(DataComponents.ITEM_MODEL,Identifier.parse("lbc:magnum"))

@@ -101,6 +101,30 @@ public final class MinigunVisualChecks {
         require(Math.abs(pose.transformDirection(new Vector3f(.125f,0,0)).length()-scale.x()*.125f)<.00001,
                 "RP two-pixel beam width remains source scale/8");
     }
+    private static void muzzles(ServerPlayer owner) {
+        float yaw=owner.getYRot(),pitch=owner.getXRot();
+        try {
+            for(float y:new float[]{0,90,180,-90,37}) for(float x:new float[]{0,-70,55}) {
+                owner.setYRot(y); owner.setXRot(x);
+                for(var hand:InteractionHand.values()) {
+                    var expected=new net.minecraft.commands.arguments.coordinates.LocalCoordinates(
+                            hand==InteractionHand.MAIN_HAND?-.3:.3,-.2,.5)
+                            .apply(owner.getEyePosition(),new net.minecraft.world.phys.Vec2(x,y));
+                    require(LbcLaserMinigun.muzzle(owner,hand).distanceTo(expected)<.00001,
+                            "native local-coordinate muzzle for "+hand+" yaw="+y+" pitch="+x);
+                }
+                var main=LbcLaserMinigun.muzzle(owner,InteractionHand.MAIN_HAND);
+                var off=LbcLaserMinigun.muzzle(owner,InteractionHand.OFF_HAND);
+                var lateral=new net.minecraft.commands.arguments.coordinates.LocalCoordinates(1,0,0)
+                        .apply(Vec3.ZERO,new net.minecraft.world.phys.Vec2(x,y));
+                var separation=off.subtract(main);
+                var idealLeft=new Vec3(Math.cos(Math.toRadians(y)),0,Math.sin(Math.toRadians(y)));
+                require(separation.distanceTo(lateral.scale(.6))<.00001
+                        && separation.dot(idealLeft)>.59 && Math.abs(separation.y)<.00001,
+                        "hands mirror exact native quantized lateral basis yaw="+y+" pitch="+x);
+            }
+        } finally {owner.setYRot(yaw);owner.setXRot(pitch);}
+    }
     public static void run(GameController game) {
         var owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
         var viewer=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));
@@ -108,6 +132,7 @@ public final class MinigunVisualChecks {
         var savedOwner=new GameChecks.WandThirdPlayerState(owner,game.items().mana());
         var savedViewer=new GameChecks.WandThirdPlayerState(viewer,game.items().mana());
         var gun=game.items().laserMinigun();
+        boolean offhand=game.config().offhandWands;
         try(var a=new Swap(game,owner); var b=new Swap(game,viewer)) {
             try {
                 gun.forget(owner); owner.closeContainer(); owner.getInventory().clearContent();
@@ -115,6 +140,7 @@ public final class MinigunVisualChecks {
                 owner.entityTags().removeAll(Set.of("developer","time_stopped","have_stand","stand_clocks_active"));
                 owner.teleportTo(game.maps().level(),.5,281,70.5,Set.of(),37,-70,true);
                 owner.setNoGravity(true); owner.setDeltaMovement(Vec3.ZERO);
+                muzzles(owner);
                 owner.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcLaserMinigun.ITEM));
                 game.items().mana().inventoryChanged(owner); game.items().mana().noMagic(owner,0);
                 game.items().magic().inventoryChanged(owner); game.items().magic().flushCleansing();
@@ -160,9 +186,23 @@ public final class MinigunVisualChecks {
                 require(!removed(a.recording,id),"beam survives every positive lifetime");
                 gun.tick(); require(removed(a.recording,id) && gun.beamSnapshot().isEmpty(),
                         "sixth active tick sends actual native removal and releases beam");
+                gun.forget(owner); game.config().offhandWands=true; owner.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);
+                owner.setItemInHand(InteractionHand.OFF_HAND,new ItemStack(LbcLaserMinigun.ITEM));
+                game.items().mana().set(owner,100); a.recording.packets.clear();
+                for(int tick=0;tick<30;tick++) {
+                    owner.connection.handleClientTickEnd(ServerboundClientTickEndPacket.INSTANCE);
+                    owner.connection.handleUseItem(new ServerboundUseItemPacket(InteractionHand.OFF_HAND,30+tick,
+                            owner.getYRot(),owner.getXRot()));
+                    gun.tick();
+                }
+                var offBeam=gun.beamSnapshot().getFirst();var offSpawn=spawn(a.recording);
+                require(gun.shots(owner)==1 && gun.beamSnapshot().size()==1
+                        && offBeam.origin().distanceTo(LbcLaserMinigun.muzzle(owner,InteractionHand.OFF_HAND))<.00001
+                        && new Vec3(offSpawn.getX(),offSpawn.getY(),offSpawn.getZ()).distanceTo(offBeam.origin())<.00001,
+                        "real offhand input and outgoing packet retain correct mirrored muzzle");
                 SkyWars2.LOGGER.info("[check] PASS minigun-visual");
             } finally {
-                gun.forget(owner); savedViewer.restore(game); savedOwner.restore(game);
+                gun.forget(owner); game.config().offhandWands=offhand; savedViewer.restore(game); savedOwner.restore(game);
             }
         }
     }

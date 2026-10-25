@@ -13,6 +13,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
+import org.joml.Quaternionf;
+import org.joml.Quaternionfc;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -36,6 +38,7 @@ public final class BlackHoleVisuals {
         float radius;
         boolean disc;
         Vec3 point;
+        final Quaternionf tilt=new Quaternionf();
         private Handle(ServerPlayer owner,Vec3 point,float radius,String epoch) {
             this.owner=owner; level=owner.level(); this.point=point;
             this.radius=radius; this.epoch=epoch;
@@ -69,6 +72,11 @@ public final class BlackHoleVisuals {
     public void rebind(Handle hole,ServerPlayer owner) {
         if(owner.level()!=hole.level) throw new IllegalArgumentException("Black-hole owner changed dimension");
         hole.owner=owner;
+    }
+    public void tilt(Handle hole,Quaternionfc rotation) {
+        if(!rotation.isFinite())throw new IllegalArgumentException("Black-hole rotation must be finite");
+        hole.tilt.set(rotation);
+        for(var slots:viewers.values())for(var slot:slots)if(slot.hole==hole)slot.display.setLeftRotation(new Quaternionf(hole.tilt));
     }
     private static ItemStack model(Handle hole) {
         var item=new ItemStack(Items.PAPER);
@@ -150,6 +158,7 @@ public final class BlackHoleVisuals {
         display.setGlowing(true); display.setGlowColorOverride(COLOR+index);
         display.setDisplaySize(0,0); display.setViewRange(64);
         display.setScale(new Vector3f(hole.radius));
+        display.setLeftRotation(new Quaternionf(hole.tilt));
         display.setTeleportDuration(1); display.setInterpolationDuration(1);
         var holder=new ElementHolder(); holder.addElement(display);
         new ManualAttachment(holder,hole.level,()->hole.point);

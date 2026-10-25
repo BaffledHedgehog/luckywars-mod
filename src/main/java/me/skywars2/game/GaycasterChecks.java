@@ -37,6 +37,8 @@ public final class GaycasterChecks {
         final net.minecraft.world.scores.PlayerTeam team;
         Cow victim;int phase,color=-1,waits,warmTicks;boolean rayReady,emptyDone,academy,warmed;double emptyDistance;long last=Long.MIN_VALUE;
         ItemStack meditation;LbcClouds.AcidProjectile seed;int trialTicks;final Set<Integer> trialPhases=new HashSet<>();
+        final Set<LbcGaycasterAcademy.Hazard> trialSeen=Collections.newSetFromMap(new IdentityHashMap<>());
+        final int[] trialCounts=new int[7];boolean cubeWire;
         Fixture(GameController game){
             this.game=game;owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));other=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));
             require(game.playing()&&owner!=null&&other!=null,"two active participants");
@@ -157,6 +159,38 @@ public final class GaycasterChecks {
                 require(s.get(DataComponents.CUSTOM_DATA).copyTag().getIntOr("color",0)==i%7+1,"queued palette first red and wrap");}
             owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
         }
+        void observeTrial(){
+            for(var h:game.items().gaycasterAcademy().hazardSnapshot(owner))if(trialSeen.add(h)){
+                trialCounts[h.kind]++;
+                if(h.kind==1)require(h.display instanceof net.minecraft.world.entity.Display.ItemDisplay prism
+                        &&Identifier.parse("lbc:prism").equals(prism.getItemStack().get(DataComponents.ITEM_MODEL)),"native source prism model");
+                if(h.kind!=6)continue;
+                require(h.display instanceof net.minecraft.world.entity.Display.BlockDisplay,"rising cube owns native block display");
+                var cube=(net.minecraft.world.entity.Display.BlockDisplay)h.display;
+                require(cube.getBlockState().is(Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.BLACK))
+                        &&cube.isCurrentlyGlowing()&&cube.getTeamColor()==3866675,"all rising cubes have real geometry and purple outline");
+                require(cube.getPosRotInterpolationDuration()==1,"source one-tick cube movement interpolation");
+                if(cubeWire)continue;
+                var metadata=new net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket(cube.getId(),cube.getEntityData().getNonDefaultValues());
+                var buffer=new net.minecraft.network.RegistryFriendlyByteBuf(io.netty.buffer.Unpooled.buffer(),owner.registryAccess());
+                net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket decoded;
+                var connection=new net.minecraft.network.Connection(net.minecraft.network.protocol.PacketFlow.SERVERBOUND){
+                    @Override public net.minecraft.network.PacketListener getPacketListener(){return owner.connection;}
+                };
+                try{net.fabricmc.fabric.api.networking.v1.context.PacketContext.runWithContext(
+                        (net.fabricmc.fabric.api.networking.v1.context.PacketContextProvider)connection,
+                        ()->net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket.STREAM_CODEC.encode(buffer,metadata));
+                    decoded=net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket.STREAM_CODEC.decode(buffer);
+                }finally{buffer.release();}
+                require(decoded.id()==cube.getId()
+                        &&decoded.packedItems().stream().anyMatch(v->v.value() instanceof net.minecraft.world.level.block.state.BlockState b&&b.equals(cube.getBlockState()))
+                        &&decoded.packedItems().stream().anyMatch(v->v.value() instanceof Byte b&&(b&64)!=0)
+                        &&decoded.packedItems().stream().anyMatch(v->v.value() instanceof Integer n&&n==3866675)
+                        &&decoded.packedItems().stream().anyMatch(v->v.value() instanceof org.joml.Vector3fc v3&&v3.x()==3&&v3.y()==3&&v3.z()==3),
+                        "native metadata codec carries solid3x3x3 geometry, glowing flag and source outline colour");
+                cubeWire=true;
+            }
+        }
         void beginTrial(){
             clearActors();restoreBlocks();game.items().mana().set(owner,100000);owner.setShiftKeyDown(true);
             meditation=loot("gaycaster");var data=meditation.get(DataComponents.CUSTOM_DATA).copyTag();data.putInt("upgradable",1);
@@ -191,13 +225,13 @@ public final class GaycasterChecks {
         }
         void boundaries(){
             redHealing();
-            clearActors();victim=cow(at.add(10,0,0));capture(victim.position());var q=victim.blockPosition();block(q,Blocks.CRAFTING_TABLE);block(q.above(),Blocks.ICE);block(q.east(),Blocks.STONE);
+            clearActors();victim=cow(at.add(10,0,0));capture(victim.position());var q=victim.blockPosition();block(q.below(),Blocks.STONE);block(q,Blocks.CRAFTING_TABLE);block(q.above(),Blocks.ICE);block(q.east(),Blocks.STONE);
             require(victim.addEffect(new net.minecraft.world.effect.MobEffectInstance(MobEffects.RAID_OMEN,100,111),owner),"native raid111 ingress");
             game.items().kiuas().unloaded(victim);game.items().kiuas().loaded(victim);
             game.items().kiuas().tick();require(owner.level().getBlockState(q).is(Blocks.FIRE)&&owner.level().getBlockState(q.east()).is(Blocks.STONE)&&game.items().mana().hudValue(victim,"effect_kiuaskivi")==99,"resumed curse burns exact source tags and decrements one tick: state="+owner.level().getBlockState(q)+" ticks="+game.items().mana().hudValue(victim,"effect_kiuaskivi"));
             victim.setInvulnerableTime(0);victim.damageCooldownTime=0;require(victim.hurtServer(owner.level(),owner.level().damageSources().inFire(),1)&&victim.getKillCredit()==owner,"native curse fire inherits owner");
             victim.setInvulnerableTime(0);victim.damageCooldownTime=0;victim.hurtServer(owner.level(),owner.level().damageSources().playerAttack(other),1);
-            victim.setPos(victim.position().add(2,0,0));capture(victim.position());block(victim.blockPosition(),Blocks.CRAFTING_TABLE);game.items().kiuas().tick();
+            victim.setPos(victim.position().add(2,0,0));capture(victim.position());block(victim.blockPosition().below(),Blocks.STONE);block(victim.blockPosition(),Blocks.CRAFTING_TABLE);game.items().kiuas().tick();
             victim.setInvulnerableTime(0);victim.damageCooldownTime=0;victim.hurtServer(owner.level(),owner.level().damageSources().inFire(),1);
             require(victim.getKillCredit()==other,"continuing old curse does not overwrite later real hit");
             game.items().kiuas().clearCurse(victim);require(game.items().mana().hudValue(victim,"effect_kiuaskivi")==0,"purify curse removes owner/counter");
@@ -236,6 +270,7 @@ public final class GaycasterChecks {
                 clearActors();beginTrial();phase=6;return false;
             }
             if(phase==6){
+                observeTrial();
                 // Native teleports dodge the falling acid laterally as well as the rising hazards vertically.
                 // No trial counter or service tick is fast-forwarded by this survival fixture.
                 ++trialTicks;owner.teleportTo(owner.level(),at.x+10*Math.sin(trialTicks*.3),at.y+trialTicks,at.z+10*Math.cos(trialTicks*.3),Set.of(),0,0,false);
@@ -246,6 +281,8 @@ public final class GaycasterChecks {
                 if(game.items().gaycasterAcademy().remaining(owner)>0){require(trialTicks<590,"full natural trial completes");return false;}
                 require(trialPhases.size()==6&&meditation.get(DataComponents.CUSTOM_DATA).copyTag().getIntOr("upgrade_available",0)==1
                         &&game.items().gaycasterAcademy().helperCount(owner)==0,"six natural phases / actual used hand ready / quiet helper cleanup: ticks="+trialTicks+" phases="+trialPhases+" data="+meditation.get(DataComponents.CUSTOM_DATA)+" alive="+owner.isAlive()+" hp="+owner.getHealth());
+                require(cubeWire&&trialCounts[1]==11&&trialCounts[2]==11&&trialCounts[3]==11&&trialCounts[4]>=0&&trialCounts[4]<=11
+                        &&trialCounts[5]==1&&trialCounts[6]==448,"source helper counts11/11/11/chance50/1/448: "+Arrays.toString(trialCounts));
                 owner.teleportTo(owner.level(),at.x,at.y,at.z,Set.of(),0,0,false);owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
                 owner.setItemInHand(InteractionHand.MAIN_HAND,meditation);
                 var actor=new net.minecraft.world.entity.Interaction(EntityTypes.INTERACTION,owner.level());actor.setPos(at);actor.entityTags().add("magic_academy");owner.level().addFreshEntity(actor);

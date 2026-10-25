@@ -16,6 +16,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /** Rifle projection zoom plus independent scope-overlay entry/exit effects. */
 public final class LbcRifleZoom {
+    /** Native 26.3 client reads this before predicting each LMB swing; attack damage remains native. */
+    public static final net.minecraft.world.item.component.SwingAnimation SCOPE_ATTACK_ANIMATION=
+            new net.minecraft.world.item.component.SwingAnimation(net.minecraft.world.item.SwingAnimationType.NONE,6);
     private static final Identifier ZOOM=Identifier.parse("lbc:zoom");
     private static final Identifier ZOOM_OUT=Identifier.parse("lbc:zoom_out");
     private static final int EXIT_TICKS=6;

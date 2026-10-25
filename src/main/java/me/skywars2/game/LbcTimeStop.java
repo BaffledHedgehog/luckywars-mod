@@ -1,6 +1,15 @@
 package me.skywars2.game;
 
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.item.PrimedTnt;
+import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import me.skywars2.mixin.TimeStopNativeMixin;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -29,6 +38,18 @@ public final class LbcTimeStop {
     private final Map<ServerPlayer,Exemption> exemptions=new IdentityHashMap<>();
     private final Map<ServerLevel,ArrayDeque<Hit>> hits=new IdentityHashMap<>();
     private DamageSource replaying;
+    private final Map<ServerLevel,Map<BlockPos,Contact>> contacts=new IdentityHashMap<>();
+    private final Set<Contact> contactLeases=java.util.Collections.newSetFromMap(new IdentityHashMap<>());
+    private static final int CONTACT_FLAGS=Block.UPDATE_CLIENTS|Block.UPDATE_SKIP_ALL_SIDEEFFECTS;
+    private static final class Contact {
+        final BlockState previous;
+        final net.minecraft.world.level.chunk.LevelChunk chunk;
+        final BlockPos pos;
+        int holders;
+        Contact(BlockState previous,net.minecraft.world.level.chunk.LevelChunk chunk,BlockPos pos) {
+            this.previous=previous;this.chunk=chunk;this.pos=pos;
+        }
+    }
     private record Exemption(int tick,boolean immune) { }
     private static final class Cooldown {
         final ServerLevel level;
@@ -40,7 +61,8 @@ public final class LbcTimeStop {
         final Vec3 position, velocity;
         final float yaw,pitch;
         final boolean noGravity;
-        int correctedAt=Integer.MIN_VALUE;
+        int correctedAt=Integer.MIN_VALUE, presentedAt=Integer.MIN_VALUE;
+        Contact contact;
         Frozen(Entity entity) {
             level=(ServerLevel)entity.level(); position=entity.position(); velocity=entity.getDeltaMovement();
             yaw=entity.getYRot(); pitch=entity.getXRot();
@@ -107,6 +129,9 @@ public final class LbcTimeStop {
     public void prepareFrozen(Entity entity) {
         if(!frozen(entity)) return;
         var state=frozen.get(entity);
+        if(state!=null && entity.level()!=state.level) {
+            frozen.remove(entity); restore(entity,state); state=null;
+        }
         if(state==null) {
             state=new Frozen(entity); frozen.put(entity,state);
             // У смешанной связки транспорта tick родителя иначе двигал бы замершего пассажира
@@ -120,6 +145,14 @@ public final class LbcTimeStop {
             entity.setDeltaMovement(Vec3.ZERO);
             if(!(entity instanceof ServerPlayer)) entity.setNoGravity(true);
             sendMotion(entity);
+            acquireContact(entity,state);
+        }
+        if(entity instanceof PrimedTnt tnt) {
+            int tick=game.server().getTickCount();
+            if(state.presentedAt==Integer.MIN_VALUE || tick-state.presentedAt>=40) {
+                state.presentedAt=tick;
+                sendTntFuse(tnt,presentationFuse());
+            }
         }
         entity.setPos(state.position); entity.setYRot(state.yaw); entity.setXRot(state.pitch);
         entity.setDeltaMovement(Vec3.ZERO);
@@ -144,8 +177,93 @@ public final class LbcTimeStop {
             level.getChunkSource().sendToTrackingPlayersAndSelf(entity,packet);
         }
     }
+    /** Legacy uses the feet cell and replaces airs only. Existing blocks and BEs stay untouched. */
+    private void acquireContact(Entity entity,Frozen state) {
+        if(!(entity instanceof PrimedTnt) && !(entity instanceof FallingBlockEntity)) return;
+        BlockPos pos=BlockPos.containing(state.position);
+        var chunk=state.level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4);
+        if(chunk==null) return;
+        var cells=contacts.computeIfAbsent(state.level,key->new HashMap<>());
+        var contact=cells.get(pos);
+        if(contact==null || contact.chunk!=chunk) {
+            var previous=chunk.getBlockState(pos);
+            if(!previous.isAir()) { if(cells.isEmpty()) contacts.remove(state.level); return; }
+            contact=new Contact(previous,chunk,pos);
+            if(!state.level.setBlock(pos,Blocks.BARRIER.defaultBlockState(),CONTACT_FLAGS)) {
+                if(cells.isEmpty()) contacts.remove(state.level);
+                return;
+            }
+            cells.put(pos,contact);contactLeases.add(contact);
+        }
+        contact.holders++; state.contact=contact;
+    }
+    private void releaseContact(Frozen state) {
+        var contact=state.contact;
+        if(contact==null) return;
+        if(--contact.holders==0) {
+            contactLeases.remove(contact);
+            // Retain the actual chunk, so release never asks the level to load an absent chunk.
+            if(contact.chunk.getBlockState(contact.pos).is(Blocks.BARRIER)) {
+                var resident=state.level.getChunkSource().getChunkNow(contact.pos.getX()>>4,contact.pos.getZ()>>4);
+                if(resident==contact.chunk) state.level.setBlock(contact.pos,contact.previous,CONTACT_FLAGS);
+                else contact.chunk.setBlockState(contact.pos,contact.previous,CONTACT_FLAGS);
+            }
+            var cells=contacts.get(state.level);
+            if(cells!=null) {
+                cells.remove(contact.pos,contact);
+                if(cells.isEmpty()) contacts.remove(state.level);
+            }
+        }
+        state.contact=null;
+    }
+    /** Save authoritative pre-freeze physics without changing the live frozen entity. */
+    public Vec3 persistedVelocity(Entity entity,Vec3 original) {
+        var state=frozen.get(entity);return state==null?original:state.velocity;
+    }
+    public boolean persistedNoGravity(Entity entity,boolean original) {
+        var state=frozen.get(entity);return state==null?original:state.noGravity;
+    }
+    /** copyOf owns these detached section copies; temporary collision blocks must never reach disk. */
+    public net.minecraft.world.level.chunk.storage.SerializableChunkData persistedChunk(ServerLevel level,
+            net.minecraft.world.level.chunk.ChunkAccess chunk,net.minecraft.world.level.chunk.storage.SerializableChunkData data) {
+        if(contactLeases.isEmpty()) return data;
+        boolean changed=false;
+        for(var contact:contactLeases) {
+            if(contact.chunk!=chunk) continue;
+            for(var section:data.sectionData()) if(section.y()==(contact.pos.getY()>>4) && section.chunkSection()!=null) {
+                int x=contact.pos.getX()&15,y=contact.pos.getY()&15,z=contact.pos.getZ()&15;
+                if(section.chunkSection().getBlockState(x,y,z).is(Blocks.BARRIER)) {
+                    section.chunkSection().setBlockState(x,y,z,contact.previous);changed=true;
+                }
+                break;
+            }
+        }
+        if(!changed) return data;
+        // Native read recomputes omitted heightmaps; invalidate copied lighting after removing solids.
+        return new net.minecraft.world.level.chunk.storage.SerializableChunkData(data.containerFactory(),data.chunkPos(),
+                data.minSectionY(),data.lastUpdateTime(),data.inhabitedTime(),data.chunkStatus(),data.blendingData(),
+                data.belowZeroRetrogen(),data.upgradeData(),Map.of(),data.packedTicks(),data.postProcessingSections(),
+                false,data.sectionData(),data.entities(),data.blockEntities(),data.structureData());
+    }
+    int contactCount() { return contactLeases.size(); }
+    private int presentationFuse() { return 32000-Math.floorMod(game.server().getTickCount(),1000); }
+    public List<SynchedEntityData.DataValue<?>> tntPresentation(Entity entity,List<SynchedEntityData.DataValue<?>> values) {
+        if(!(entity instanceof PrimedTnt) || !frozen(entity)) return values;
+        var result=new java.util.ArrayList<SynchedEntityData.DataValue<?>>(values);
+        var accessor=TimeStopNativeMixin.TntData.skywars2$fuseData();
+        result.removeIf(value->value.id()==accessor.id());
+        result.add(SynchedEntityData.DataValue.create(accessor,presentationFuse()));
+        return result;
+    }
+    private void sendTntFuse(PrimedTnt entity,int fuse) {
+        var packet=new ClientboundSetEntityDataPacket(entity.getId(),List.of(
+                SynchedEntityData.DataValue.create(TimeStopNativeMixin.TntData.skywars2$fuseData(),fuse)));
+        ((ServerLevel)entity.level()).getChunkSource().sendToTrackingPlayersAndSelf(entity,packet);
+    }
     private void restore(Entity entity,Frozen state) {
-        if(entity.isRemoved() || !entity.isAlive() || entity.level()!=state.level) return;
+        releaseContact(state);
+        if(entity.isRemoved() || !entity.isAlive()) return;
+        if(entity instanceof PrimedTnt tnt) sendTntFuse(tnt,tnt.getFuse());
         entity.setNoGravity(state.noGravity);
         entity.setDeltaMovement(state.velocity); sendMotion(entity);
         if(entity instanceof ServerPlayer player) {

@@ -202,6 +202,7 @@ public final class SpecialEggChecks {
         }
         void rewards() {
             var vex=(Vex)spawn(LbcSpecialEggs.Kind.LOW_VEX,InteractionHand.OFF_HAND,true);
+            require(vex.getMainHandItem().isEmpty()&&vex.getOffhandItem().isEmpty(),"LowVex egg clears native default sword before world insertion");
             require(vex.getHealth()==1&&vex.getMaxHealth()==1&&game.items().creatureDrops().owner(vex)==owner,"native offhand one-HP Vex retains adoption");
             seededReward(vex,"lbc:vex_sword","lbc:ported/vex_sword");
             var creeper=(Creeper)spawn(LbcSpecialEggs.Kind.SARVATRA_CREEPER,InteractionHand.MAIN_HAND,true);
@@ -214,7 +215,7 @@ public final class SpecialEggChecks {
             var stack=egg(LbcSpecialEggs.Kind.LOW_VEX,2);owner.setItemInHand(InteractionHand.MAIN_HAND,stack);
             var before=current();require(owner.gameMode.useItem(owner,level,stack,InteractionHand.MAIN_HAND).consumesAction()&&stack.getCount()==1,"actual source-water right-click consumes one egg");
             var actors=fresh(before).stream().filter(e->e instanceof Vex).toList();
-            require(actors.size()==1&&((Vex)actors.getFirst()).getHealth()==1&&game.items().creatureDrops().owner(actors.getFirst())==owner,"native fluid ray creates adopted one-HP Vex");actors.forEach(Entity::discard);
+            require(actors.size()==1&&((Vex)actors.getFirst()).getHealth()==1&&((Vex)actors.getFirst()).getMainHandItem().isEmpty()&&((Vex)actors.getFirst()).getOffhandItem().isEmpty()&&game.items().creatureDrops().owner(actors.getFirst())==owner,"native fluid ray creates adopted one-HP Vex");actors.forEach(Entity::discard);
             set(pad.above(),Blocks.AIR.defaultBlockState());
             owner.teleportTo(level,origin.x,origin.y+2,origin.z-3,Set.of(),0,0,true);
         }
