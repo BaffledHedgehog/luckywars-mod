@@ -75,7 +75,7 @@ public final class LbcSheep {
     static final class Hole {
         final Marker entity;final UUID owner;final LbcIndirectKills.Owner cause;final String epoch;
         final ServerLevel level;Vec3 point,velocity=Vec3.ZERO;final Quaternionf tilt=new Quaternionf();
-        BlockAreaWork terrain;BlackHoleVisuals.Handle visual;int refresh;
+        BlackHoleErosion terrain;BlackHoleVisuals.Handle visual;
         Hole(Marker entity,ServerPlayer owner,Vec3 point,LbcIndirectKills.Owner cause,String epoch){
             this.entity=entity;this.owner=owner.getUUID();this.level=owner.level();this.point=point;this.cause=cause;this.epoch=epoch;
         }
@@ -266,23 +266,17 @@ public final class LbcSheep {
         game.items().blackHoleVisuals().tilt(h.visual,h.tilt);
     }
     int terrain(Hole h,ServerPlayer author,int allowance,long deadline){
-        if(h.terrain==null)h.terrain=new BlockAreaWork(h.level,state->!state.isAir(),(pos,state)->{
-            if(Vec3.atCenterOf(pos).distanceToSqr(h.point)>552||suppressed(h.level,Vec3.atCenterOf(pos)))return null;
-            game.items().indirectKills().supportRemoved(h.level,h.cause,pos);
-            if(h.level.getBlockEntity(pos) instanceof Container container)container.clearContent();
-            return Blocks.AIR.defaultBlockState();
-        },FLAGS,false,true);
-        var center=BlockPos.containing(h.point);int radius=24;
-        var bounds=new BlockAreaWork.Bounds(center.getX()-radius,center.getY()-radius,center.getZ()-radius,
-                center.getX()+radius,center.getY()+radius,center.getZ()+radius);
-        h.terrain.move(bounds,false);
-        if(!h.terrain.hasWork()&&++h.refresh>=20){h.refresh=0;h.terrain.move(bounds,true);}
-        int[] used={0};
-        game.items().indirectKills().withSupportCandidates(h.level,new AABB(bounds.minX(),bounds.minY(),bounds.minZ(),bounds.maxX()+1,bounds.maxY()+1,bounds.maxZ()+1),()->{
-            while(h.terrain.hasWork()&&used[0]<allowance&&System.nanoTime()<deadline){
-                int n=h.terrain.step(game,author,h.cause,Math.min(256,allowance-used[0]),deadline);if(n==0)break;used[0]+=n;
-            }
-        });return used[0];
+        if(h.terrain==null)h.terrain=new BlackHoleErosion(h.level,h.entity.getUUID().getLeastSignificantBits(),true);
+        h.terrain.move(h.point,RADIUS,game.server().getTickCount());
+        int[] used={0};var kills=game.items().indirectKills();
+        kills.withSupportCandidates(h.level,new AABB(h.point,h.point).inflate(RADIUS+1),()->
+            kills.trapChanges(h.level,h.cause,()->used[0]=h.terrain.step(allowance,deadline,(pos,state)->{
+                if(suppressed(h.level,Vec3.atCenterOf(pos)))return;
+                kills.supportRemoved(h.level,h.cause,pos);
+                if(h.level.getBlockEntity(pos) instanceof Container container)container.clearContent();
+                h.level.setBlock(pos,Blocks.AIR.defaultBlockState(),FLAGS);
+            })));
+        return used[0];
     }
     public void tick(){
         if(!game.server().tickRateManager().runsNormally())return;
@@ -302,7 +296,7 @@ public final class LbcSheep {
             active.add(h);
         }
         // Physics cannot consume the terrain allowance before its first slice starts.
-        long deadline=System.nanoTime()+4_000_000;int budget=8192;
+        long deadline=System.nanoTime()+6_000_000;int budget=12288;
         for(var h:active){
             if(budget<=0||System.nanoTime()>=deadline)break;
             var p=player(h.owner);if(validOwner(p)&&holes.contains(h))budget-=terrain(h,p,budget,deadline);

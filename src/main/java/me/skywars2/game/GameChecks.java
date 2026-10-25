@@ -11083,6 +11083,11 @@ public final class GameChecks {
                         var outside=terrain.offset(8,0,0); duplicatingChest(game,outside);
                         var inner=terrain.offset(1,0,0); var shell=terrain.offset(6,0,0); var corner=terrain.offset(5,5,5);
                         for(var pos:java.util.List.of(inner,shell,corner)) game.maps().level().setBlock(pos,net.minecraft.world.level.block.Blocks.BEDROCK.defaultBlockState(),2);
+                        var noisyCells=new java.util.ArrayList<net.minecraft.core.BlockPos>();
+                        for(int x=3;x<=6;x++)for(int y=-2;y<=2;y++)for(int z=-2;z<=2;z++){
+                                var cell=terrain.offset(x,y,z);if(x*x+y*y+z*z>42)continue;
+                                game.maps().level().setBlock(cell,net.minecraft.world.level.block.Blocks.BEDROCK.defaultBlockState(),2);noisyCells.add(cell);
+                        }
                         var nativeDrops=new java.util.HashSet<UUID>(); for(var entity:game.maps().level().getAllEntities())
                                 if(entity instanceof net.minecraft.world.entity.item.ItemEntity) nativeDrops.add(entity.getUUID());
                         owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,duplicatingMode(game,owner,4)); mana.set(owner,1000);
@@ -11100,9 +11105,11 @@ public final class GameChecks {
                                         && owner.position().equals(ownerPos) && owner.getDeltaMovement().equals(Vec3.ZERO),"BlackHole protects technical NPC and its owner");
                         require(Math.abs(service.markerSnapshot().getFirst().point().distanceTo(marker.point())-.3)<.00001,"BlackHole advances by source0.3");
                         require(game.maps().level().getBlockState(terrain).isAir() && game.maps().level().getBlockState(inner).isAir()
-                                        && game.maps().level().getBlockState(shell).isAir() && duplicatingChestAt(game,outside)
+                                        && duplicatingChestAt(game,outside)
                                         && game.maps().level().getBlockState(corner).is(net.minecraft.world.level.block.Blocks.BEDROCK),
-                                        "BlackHole consumes radius 7 terrain including containers while preserving exterior and cuboid corners");
+                                        "BlackHole consumes its tiny core including containers while preserving radius7 exterior and cuboid corners");
+                        long eroded=noisyCells.stream().filter(cell->game.maps().level().getBlockState(cell).isAir()).count();
+                        require(eroded>0&&eroded<noisyCells.size(),"BlackHole leaves irregular dithered remnants in its outer destruction area");
                         var afterDrops=new java.util.HashSet<UUID>(); for(var entity:game.maps().level().getAllEntities())
                                 if(entity instanceof net.minecraft.world.entity.item.ItemEntity) afterDrops.add(entity.getUUID());
                         require(afterDrops.equals(nativeDrops),"Consuming BlackHole containers creates no native item drops");
@@ -11215,7 +11222,9 @@ public final class GameChecks {
                                 }
                                 require(colors.size()==16,"BlackHole uses16 unique shader colors per viewer");
                         }
-                        var moved=point.add(0,2,0); visuals.move(handles.get(1),moved); visuals.tick();
+                        // Preserve this handle's horizontal rank for both viewers; a Y-only move must not
+                        // evict a different visible handle when this tick also refreshes nearest16.
+                        var moved=point.add(2,2,0); visuals.move(handles.get(1),moved); visuals.tick();
                         var origins=visuals.origins(owner); int index=origins.indexOf(moved);
                         require(index>=0 && visuals.displays(owner).get(index).getHolder().getAttachment().getPos().equals(moved),"Manual BlackHole attachment follows a moving origin on the next tick");
                         var removed=visuals.displays(other).stream().map(display->display.getHolder()).toList();
@@ -11230,7 +11239,14 @@ public final class GameChecks {
                                         && removed.stream().allMatch(holder->holder.getWatchingPlayers().isEmpty() && holder.getAttachment()==null),"Owner lifecycle destroys every virtual BlackHole attachment");
                         var after=new java.util.HashSet<UUID>(); for(var entity:level.getAllEntities()) after.add(entity.getUUID());
                         require(after.equals(nativeIds),"BlackHole renderer creates no native world entities");
-                } finally { visuals.stop(); ownerSaved.restore(game); saved.restore(game); }
+                } finally {
+                        visuals.stop(); ownerSaved.restore(game); saved.restore(game);
+                        // Simulate the headless client's acknowledgement of this fixture's dimension round trip.
+                        // Otherwise native ServerPlayer rejects subsequent non-pearl damage until an acknowledgement.
+                        other.hasChangedDimension();
+                        require(!other.isChangingDimension() && other.connection.hasClientLoaded(),
+                                        "BlackHole viewer dimension fixture restores native damage readiness");
+                }
         }
 
         private static void duplicatingExpandRegion(GameController game,net.minecraft.server.level.ServerLevel level,

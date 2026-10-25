@@ -1,5 +1,32 @@
 # Проект SkyWars
 
+## Black-hole motion and dithered erosion ? QUALIFIED READY (25 October 2026)
+
+[Contract](agent_notes/BLACK_HOLE_EROSION_PORT_2026_10_25.md),
+[native checks](agent_notes/BLACK_HOLE_EROSION_CHECKS_2026_10_25.md).
+
+Void Arcanum3?5 now accelerate at.018/.022/.025 with speed caps.6/.7/.8;
+levels1/2 retain their former motion and complete native-drop clearing.
+Shared BlackHoleErosion gives Void3?5, Sheep and Academy Duplicating noisy
+center-first destruction with dithered remnants. Tiny core clears immediately;
+radial spatial noise advances over passes, retaining more blocks near edges.
+Exact destruction radii/lens scales, damage, pull, owners/WILD and mana remain.
+Bounded offset work follows the live center without old-position queues or
+restarting the outer pass on each move; absent chunks are never loaded.
+Arcanum terrain's6ms/12288 budget now starts after entity search/physics.
+Sheep shares the same allowance; Duplicating keeps its shared scheduler.
+
+Build54941d0e passed28 results in two real mode1 matches (63.41s), including
+actual three-family stop cleanup and dense57777-block native terrain probes.
+First slices removed3582/4035 blocks at~6ms; complete noisy passes used7/6
+slices, leaving outer remnants. This does not qualify busy-main TPS or client
+pixels. Exact352 sources/977 classes/2818 resources match the artifact.
+Ready build/verification/skywars2-hole-erosion-54941d0e.jar; evidence
+build/verification/hole-erosion-final/. READY ONLY, main remains04396ca4;
+no main installation/stop/restart or author-RP/template change. Existing user
+edits/deletions preserved. Old Sheep archive removed after qualification;
+cumulative cleanup288 JARs/9.46GiB. Previous Chef/main fallbacks retained.
+
 ## Chef mannequin AI, knock and presentation ? QUALIFIED READY (25 October 2026)
 
 [Contract](agent_notes/CHEF_REWORK_PORT.md), [AI source audit](agent_notes/CHEF_AI_REWORK_SOURCE.md),

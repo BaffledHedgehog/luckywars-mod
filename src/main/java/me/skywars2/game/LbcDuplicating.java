@@ -41,14 +41,6 @@ public final class LbcDuplicating {
     private final java.util.Map<ServerPlayer,Integer> dividerTimers=new IdentityHashMap<>();
     private static final double HOLE_INFLUENCE=16,HOLE_STRONG=1.3,HOLE_DESTRUCTION=7;
     private static final float HOLE_SHADER_RADIUS=.5f;
-    private static final List<BlockPos> HOLE_CELLS=holeCells();
-    private static List<BlockPos> holeCells() {
-        var cells=new ArrayList<BlockPos>();
-        for(int x=-7;x<=7;x++) for(int y=-7;y<=7;y++) for(int z=-7;z<=7;z++)
-            cells.add(new BlockPos(x,y,z));
-        cells.sort(java.util.Comparator.comparingInt(pos->pos.getX()*pos.getX()+pos.getY()*pos.getY()+pos.getZ()*pos.getZ()));
-        return List.copyOf(cells);
-    }
     private static class Owned {
         final ServerPlayer owner; final ServerLevel level; final String epoch;
         boolean cancelled;
@@ -472,33 +464,29 @@ public final class LbcDuplicating {
             seen++;
         }
     }
-    /** One replaceable center-outward pass per hole, scheduled by the existing shared queue. */
+    /** Shared noisy radial erosion follows the latest body, without queued old positions. */
     private final class HoleTerrain extends Job {
-        final MarkerState marker; BlockPos origin; int cursor,refreshAt;
-        HoleTerrain(MarkerState marker) { super(marker.owner); this.marker=marker; }
-        @Override public boolean ready() {
-            return !valid(this) || !valid(marker) || !BlockPos.containing(marker.point).equals(origin)
-                    || cursor<HOLE_CELLS.size() || marker.age>=refreshAt;
+        final MarkerState marker;final BlackHoleErosion erosion;int clock=Integer.MIN_VALUE;
+        HoleTerrain(MarkerState marker){
+            super(marker.owner);this.marker=marker;
+            erosion=new BlackHoleErosion(level,owner.getRandom().nextLong(),true);
         }
-        @Override public boolean step() {
-            if(!valid(this) || !valid(marker) || game.items().magic().suppressedAt(level,marker.point)) { cancel(); return true; }
-            if(paused(owner)) return false;
-            BlockPos latest=BlockPos.containing(marker.point);
-            if(!latest.equals(origin) || cursor>=HOLE_CELLS.size() && marker.age>=refreshAt) { origin=latest; cursor=0; }
-            long deadline=System.nanoTime()+500_000; int[] budget={512};
-            game.items().indirectKills().trapChanges(level,owner,()-> {
-                while(cursor<HOLE_CELLS.size() && budget[0]>0 && System.nanoTime()<deadline) {
-                    BlockPos pos=origin.offset(HOLE_CELLS.get(cursor++)); budget[0]--;
-                    if(pos.getY()<level.getMinY() || pos.getY()>level.getMaxY() || !resident(level,pos)
-                            || Vec3.atCenterOf(pos).distanceToSqr(marker.point)>HOLE_DESTRUCTION*HOLE_DESTRUCTION || level.getBlockState(pos).isAir()
-                            || game.items().magic().suppressedAt(level,Vec3.atCenterOf(pos))) continue;
-                    game.items().indirectKills().supportRemoved(level,owner,pos);
+        @Override public boolean ready(){return !valid(this)||!valid(marker)||erosion.hasWork()||clock!=marker.age;}
+        @Override public boolean step(){
+            if(!valid(this)||!valid(marker)||game.items().magic().suppressedAt(level,marker.point)){cancel();return true;}
+            if(paused(owner))return false;
+            clock=marker.age;erosion.move(marker.point,HOLE_DESTRUCTION,clock);
+            var kills=game.items().indirectKills();
+            kills.withSupportCandidates(level,new AABB(marker.point,marker.point).inflate(HOLE_DESTRUCTION+1),()->
+                kills.trapChanges(level,owner,()->erosion.step(1024,System.nanoTime()+750_000,(pos,state)->{
+                    if(game.items().magic().suppressedAt(level,Vec3.atCenterOf(pos)))return;
+                    kills.supportRemoved(level,owner,pos);
+                    if(level.getBlockEntity(pos) instanceof net.minecraft.world.Container container)container.clearContent();
                     level.setBlock(pos,Blocks.AIR.defaultBlockState(),FLAGS);
-                }
-            });
-            if(cursor>=HOLE_CELLS.size()) refreshAt=marker.age+20;
+                })));
             return false;
         }
+        @Override public void cancel(){erosion.clear();super.cancel();}
     }
     private void removeVisual(MarkerState marker) {
         if(marker.visual!=null) { game.items().blackHoleVisuals().remove(marker.visual); marker.visual=null; }

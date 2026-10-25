@@ -55,3 +55,13 @@ Cumulative cleanup remains287 obsolete JARs/9.42 GiB after Sheep advancement.
 Current build/libs contains the active binary and source JAR. Main, worlds and
 caches are preserved. Temporary diagnostic scripts/evidence live under ignored
 build/verification rather than the project/server root.
+
+## Hole erosion ready checkpoint
+
+After build54941d0e passed28 results in two matches, the older Sheep65a39f13
+archive was verified against its qualification SHA and deleted (38,281,250bytes).
+Kept new Hole Erosion, preceding Chef4bf4649e, main disk Danmaku04396ca4 and
+former main2558af6b fallback while the running main JVM's original build remains
+unverified. No main file was replaced. Cumulative removal:288 JARs,
+10,154,755,516bytes/9.46GiB. Receipt:
+`build/verification/hole-erosion-final/build-cleanup-receipt.json`.

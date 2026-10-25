@@ -47,7 +47,7 @@ public final class LbcVoidArcanum {
     // Legacy block footprints, rounded outward to a radial whole-block reach; cube corners stay excluded.
     private static final double[] RADII={0,2,3,5,9,24}, HURT={0,1.5,2,4,8,24}, PULL={0,3,4,8,12,30};
     private static final float[] DAMAGE={0,.2f,.25f,.3f,.35f,.4f};
-    private static final double[] ACCELERATION={0,.025,.035,.05,.075,.12}, MAX_SPEED={0,.4,.55,.75,1,1.6};
+    private static final double[] ACCELERATION={0,.025,.035,.018,.022,.025}, MAX_SPEED={0,.4,.55,.6,.7,.8};
     private static final int FLAGS=Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE|Block.UPDATE_SUPPRESS_DROPS
             |Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS|Block.UPDATE_SKIP_ON_PLACE;
     public static final Item ITEM=registerItem();
@@ -78,7 +78,7 @@ public final class LbcVoidArcanum {
         Vec3 velocity=Vec3.ZERO;
         final Quaternionf tilt=new Quaternionf();
         BlackHoleVisuals.Handle visual;
-        BlockAreaWork terrain;int frontier=1,refresh;
+        BlackHoleErosion terrain;int frontier=1,terrainLevel;
         LbcIndirectKills.Owner terrainCause;
         Hole(ServerLevel world,Marker marker,Vec3 point,String epoch){this.world=world;this.marker=marker;this.point=point;this.epoch=epoch;}
     }
@@ -161,9 +161,8 @@ public final class LbcVoidArcanum {
                 removeOwner(entry.getKey());
             }
         }
-        long deadline=System.nanoTime()+4_000_000;int budget=8192;
         // Rotate the first body each frame so a large hole cannot starve later bodies.
-        var current=List.copyOf(holes);int size=current.size();
+        var current=List.copyOf(holes);int size=current.size();var active=new ArrayList<Hole>();
         for(int index=0;index<size;index++){
             var hole=current.get((terrainTurn+index)%size);
             var member=source(hole);var author=member==null?null:owner(member);
@@ -171,8 +170,16 @@ public final class LbcVoidArcanum {
             var cause=cause(hole,member);hole.terrainCause=cause;
             physics(hole,author,cause);
             if(!holes.contains(hole))continue;
-            updateVisual(hole,author);
-            if(budget>0&&System.nanoTime()<deadline)budget-=terrain(hole,author,budget,deadline);
+            updateVisual(hole,author);active.add(hole);
+
+        }
+        // Entity search/physics cannot consume the terrain allowance before it starts.
+        long deadline=System.nanoTime()+6_000_000;int budget=12288;
+        for(var hole:active){
+            if(budget<=0||System.nanoTime()>=deadline)break;
+            var author=hole.terrainCause==null?null:game.server().getPlayerList().getPlayer(hole.terrainCause.player());
+            if(author==null||paused(author)||!holes.contains(hole))continue;
+            budget-=terrain(hole,author,budget,deadline);
         }
         terrainTurn=size==0?0:(terrainTurn+1)%size;
     }
@@ -294,34 +301,24 @@ public final class LbcVoidArcanum {
     }
     int terrain(Hole hole,ServerPlayer owner,int allowance,long deadline){
         int radius=(int)RADII[hole.level];
-        // Always enqueue the full live reach. An empty/moving inner front must not stall growth.
-        // BlockAreaWork clips stale cells on movement and the shared frame budget bounds inspection.
-        if(hole.frontier!=radius){hole.frontier=radius;if(hole.terrain!=null)hole.terrain.clear();}
-        if(hole.terrain==null)hole.terrain=new BlockAreaWork(hole.world,state->!state.isAir(),(pos,state)->{
-            if(Vec3.atCenterOf(pos).distanceToSqr(hole.point)>hole.frontier*hole.frontier
-                    ||game.items().magic().suppressedAt(hole.world,Vec3.atCenterOf(pos)))return null;
-            game.items().indirectKills().supportRemoved(hole.world,hole.terrainCause,pos);
-            if(hole.level<=2){
-                var author=hole.terrainCause==null?null:game.server().getPlayerList().getPlayer(hole.terrainCause.player());
-                hole.world.destroyBlock(pos,true,author);return null;
-            }
-            return Blocks.AIR.defaultBlockState();
-        },FLAGS,false,true);
-        var center=BlockPos.containing(hole.point);
-        var bounds=new BlockAreaWork.Bounds(center.getX()-radius,center.getY()-radius,center.getZ()-radius,
-                center.getX()+radius,center.getY()+radius,center.getZ()+radius);
-        hole.terrain.move(bounds,false);
-        if(!hole.terrain.hasWork()){
-            if(++hole.refresh>=20){hole.refresh=0;hole.terrain.move(bounds,true);}
+        if(hole.terrainLevel!=hole.level){
+            if(hole.terrain!=null)hole.terrain.clear();hole.terrain=null;hole.terrainLevel=hole.level;
         }
+        hole.frontier=radius;
+        if(hole.terrain==null)hole.terrain=new BlackHoleErosion(hole.world,hole.marker.getUUID().getLeastSignificantBits(),hole.level>=3);
+        hole.terrain.move(hole.point,radius,game.server().getTickCount());
         int[] used={0};
-        game.items().indirectKills().withSupportCandidates(hole.world,new AABB(bounds.minX(),bounds.minY(),bounds.minZ(),
-                bounds.maxX()+1,bounds.maxY()+1,bounds.maxZ()+1),()->{
-            while(hole.terrain.hasWork()&&used[0]<allowance&&System.nanoTime()<deadline){
-                int n=hole.terrain.step(game,owner,hole.terrainCause,Math.min(256,allowance-used[0]),deadline);
-                if(n==0)break;used[0]+=n;
-            }
-        });
+        var kills=game.items().indirectKills();
+        var terrainCause=hole.terrainCause==null?kills.coldCause(owner,hole.wild):hole.terrainCause;
+        kills.withSupportCandidates(hole.world,new AABB(hole.point,hole.point).inflate(radius+1),()->
+            kills.trapChanges(hole.world,terrainCause,()->
+                used[0]=hole.terrain.step(allowance,deadline,(pos,state)->{
+                    if(game.items().magic().suppressedAt(hole.world,Vec3.atCenterOf(pos)))return;
+                    kills.supportRemoved(hole.world,terrainCause,pos);
+                    if(hole.level<=2){hole.world.destroyBlock(pos,true,owner);return;}
+                    if(hole.world.getBlockEntity(pos) instanceof net.minecraft.world.Container container)container.clearContent();
+                    hole.world.setBlock(pos,Blocks.AIR.defaultBlockState(),FLAGS);
+                })));
         return used[0];
     }
     public void loaded(Entity entity){if(entity.entityTags().contains(BODY_TAG)&&holes.stream().noneMatch(hole->hole.marker==entity))entity.discard();}

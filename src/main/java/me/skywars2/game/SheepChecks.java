@@ -200,7 +200,11 @@ public final class SheepChecks {
         void place(BlockPos p,Block block){blocks.putIfAbsent(p.immutable(),game.maps().snapshot(owner.level(),p));owner.level().setBlock(p,block.defaultBlockState(),2);}
         void physics(){
             move(owner,holeAt.add(0,0,-40));move(other,holeAt.add(28,0,0));
-            var center=BlockPos.containing(holeAt);place(center,Blocks.OBSIDIAN);place(center.offset(8,0,0),Blocks.STONE);place(center.offset(22,0,0),Blocks.STONE);place(center.offset(24,0,0),Blocks.STONE);
+            var center=BlockPos.containing(holeAt);place(center,Blocks.OBSIDIAN);place(center.offset(28,0,0),Blocks.STONE);
+            var noisyCells=new ArrayList<BlockPos>();
+            for(int x=8;x<=22;x+=2)for(int y=-2;y<=2;y++)for(int z=-2;z<=2;z++){
+                var cell=center.offset(x,y,z);place(cell,Blocks.STONE);noisyCells.add(cell);
+            }
             var nativeHole=sheep.spawnHole(owner,holeAt);require(sheep.holeViews().size()==1,"native sheep hole admission");
             var view=sheep.holeViews().getFirst();require(view.disc()&&Math.abs(view.radius()-Math.sqrt(552))<1e-6,"disc shader radius matches destructive source sphere");require(nativeHole.visual!=null&&nativeHole.visual.disc&&Math.abs(nativeHole.visual.radius*14-LbcSheep.RADIUS)<1e-5,"actual shared shader handle has matching radius and large-disc selection");
             var near=cow(holeAt.add(12,0,0));var far=cow(holeAt.add(28,0,0));var damage=cow(holeAt.add(0,0,2));var role=cow(holeAt.add(1,0,0));role.entityTags().add("strict_map_object");var greed=cow(holeAt.add(-1,0,0));greed.entityTags().add("sin_greed_active");
@@ -222,7 +226,8 @@ public final class SheepChecks {
             require(owner.getDeltaMovement().y>owner.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.GRAVITY)&&other.getDeltaMovement().y>other.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.GRAVITY),"strong inner pull overcomes gravity and lifts both players despite forward input: owner="+owner.getDeltaMovement()+", teammate="+other.getDeltaMovement());
             move(owner,holeAt.add(0,0,-40));move(other,holeAt.add(28,0,0));
             for(int i=0;i<48;i++)sheep.tick();
-            require(owner.level().getBlockState(center).isAir()&&owner.level().getBlockState(center.offset(8,0,0)).isAir()&&owner.level().getBlockState(center.offset(22,0,0)).isAir()&&owner.level().getBlockState(center.offset(24,0,0)).is(Blocks.STONE),"bounded native destruction removes obsidian core and shell while preserving outside sphere");
+            long eroded=noisyCells.stream().filter(cell->owner.level().getBlockState(cell).isAir()).count();
+            require(owner.level().getBlockState(center).isAir()&&eroded>0&&eroded<noisyCells.size()&&owner.level().getBlockState(center.offset(28,0,0)).is(Blocks.STONE),"native sheep hole clears its obsidian core and leaves dithered shell remnants while preserving exterior");
             var normal=nativeHole.tilt.transform(new org.joml.Vector3f(0,1,0));require(normal.y<1&&normal.y>=Math.cos(Math.toRadians(18.01)),"actual disc tilts toward motion within18degrees");
             for(var e:owner.level().getEntities((Entity)null,new net.minecraft.world.phys.AABB(damage.position(),damage.position()).inflate(3),e->!before.contains(e)&&(e instanceof ItemEntity||e instanceof net.minecraft.world.entity.ExperienceOrb)))owned.add(e);
             var retained=sheep.holeViews().getFirst();game.items().timeStop().begin(owner.level(),40);
