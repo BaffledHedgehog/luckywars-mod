@@ -1,5 +1,41 @@
 # Следующие этапы переноса
 
+## Danmaku Staff and build retention - QUALIFIED READY (25 October 2026)
+
+[DANMAKU_PORT](DANMAKU_PORT.md),
+[DANMAKU_RESOURCES](DANMAKU_RESOURCES.md),
+[DANMAKU_CHECKS](DANMAKU_CHECKS.md).
+
+Full native ordinary and S-tier Academy Danmaku are now portable through narrow
+ported loot leaves. Each paid hand adds20 shared ticks for1000 mana. Actual
+held hand emits its source pattern; putting it away suppresses shots while
+remaining ticks decay. Future consumed sources have separate explicit provenance.
+Free Shift bomb consumes all charge from50, without a mana admission gate;
+ordinary actual used-stack bomb at1500 immediately readies Academy promotion.
+Source patterns are40/35 ordinary main/off and89/60 Academy main/off per20ticks.
+Cards fly three0.4 steps/tick for60 source ticks, with no added impact physics.
+Generic damage bypasses cooldown through the original imported tag. Cards keep
+source+3 perimpact, hit friendly mobs and protect allied players; homing selects
+enemies. Greed reflects; Curse retains the specified owner-transfer rule. Bombs
+keep their signed red-glass shells and source radius/lifetime, clear hostile
+physical/virtual projectiles and deal source magic damage. Actionbar shows the
+remaining timer and charge with original glyphs and numeric colors.
+
+Build `04396ca4` passed 24 recorded results in
+two actual mode1 matches (62.1s), including real stop cleanup.
+Exact 346 sources / 952 classes /
+2816 resources match the artifact.
+Ready JAR: `build/verification/skywars2-danmaku-04396ca4.jar`; evidence: `build/verification/danmaku-final/`.
+READY ONLY by existing user choice: main remains2558af6b, no replacement or restart.
+Five pre-existing user files and removed applied RP templates are preserved.
+No author RP changes or new RP fragment. Native checks do not qualify real
+client pixels, physical disk restart/disconnect or peak-load performance.
+Remaining large source systems include combined Sauvojen, sheep, hedgehog and
+unstable book. No unfinished broad pool is enabled. Build retention is recorded
+in [BUILD_ARTIFACT_RETENTION](BUILD_ARTIFACT_RETENTION.md): keep current and previous qualified ready
+JARs plus one installed-version rollback.286 obsolete JARs were removed,
+freeing9.39 GiB; worlds/mods/caches preserved.
+
 ## Ordinary Acid Academy - QUALIFIED READY (25 October 2026)
 
 [ACID_ACADEMY_PORT](ACID_ACADEMY_PORT.md),

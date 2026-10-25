@@ -153,6 +153,7 @@ public final class LbcIndirectKills {
         if(game==null) return null;
         if(game.items().wtf().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().soulless().owner(source) instanceof ServerPlayer player) return player;
+        if(game.items().danmaku().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().creeperDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().luckyPigs().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().beeDrops().owner(source) instanceof ServerPlayer player) return player;

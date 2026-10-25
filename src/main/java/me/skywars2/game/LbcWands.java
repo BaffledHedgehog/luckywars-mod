@@ -439,6 +439,7 @@ public final class LbcWands {
         var stack=player.getItemInHand(hand);
         if(LbcSoulhunter.isMace(stack))return game.items().soulhunter().use(player,hand);
         if(LbcSoulless.isWand(stack)||LbcSoulless.material(stack)>0)return game.items().soulless().use(player,hand);
+        if(LbcDanmaku.isItem(stack))return game.items().danmaku().use(player,hand);
         if(LbcHalloweenWind.isWind(stack))return game.items().halloweenWind().use(player,hand);
         if(LbcFartus.isFartus(stack))return game.items().fartus().use(player,hand);
         if(stack.is(FEATHER_GREED)||stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("feather_greed",0)==1) return game.items().neutral().feather(player);
@@ -1129,6 +1130,19 @@ public final class LbcWands {
 
     void higherElectro(ElectroTrace trace){electroTraces.add(trace);}
     java.util.List<ElectroTrace> electroSnapshot() { return java.util.List.copyOf(electroTraces); }
+    /** Danmaku clears moving electrical traces as well as their entity-backed counterparts. */
+    int clearDanmakuRays(ServerPlayer caster,Vec3 center,double radius) {
+        int before=electroTraces.size();double distance=radius*radius;
+        electroTraces.removeIf(trace->{
+            if(trace.level!=caster.level() || trace.position.distanceToSqr(center)>distance) return false;
+            var source=trace.source();
+            if(source!=null && !validRoleTarget(source,false)) return false;
+            var owner=trace.cause==null ? LbcIndirectKills.playerSource(source)
+                    : game.server().getPlayerList().getPlayer(trace.cause.player());
+            return owner!=caster && (owner==null || owner.getTeam()==null || owner.getTeam()!=caster.getTeam());
+        });
+        return before-electroTraces.size();
+    }
     /** Electro хранится записями, поэтому глобальный Curse использует тот же выбор цели без marker-сущностей. */
     void redirectCursedElectro() {
         for(var trace:electroTraces) game.items().homing().redirect(trace);

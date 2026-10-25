@@ -753,6 +753,9 @@ public final class GameChecks {
                                 case "team-colors" -> { TeamColorChecks.run(game); return; }
                                 case "team-colors-stop-probe" -> { TeamColorChecks.stopProbe(game); return; }
                                 case "team-colors-cleanup" -> { TeamColorChecks.cleanup(game); return; }
+                                case "danmaku" -> { DanmakuChecks.run(game); return; }
+                                case "danmaku-stop-probe" -> { DanmakuChecks.stopProbe(game); return; }
+                                case "danmaku-cleanup" -> { DanmakuChecks.cleanup(game); return; }
                                 case "acid-academy" -> { AcidAcademyChecks.run(game); return; }
                                 case "acid-academy-stop-probe" -> { AcidAcademyChecks.stopProbe(game); return; }
                                 case "acid-academy-cleanup" -> { AcidAcademyChecks.cleanup(game); return; }
@@ -1163,6 +1166,7 @@ public final class GameChecks {
 
         /** Called once per server tick after the controller tick. */
         public static void tick(GameController game) {
+            DanmakuChecks.tick(game);
             AcidAcademyChecks.tick(game);
             SoullessAcademyChecks.tick(game);
             HelicopterEncounterChecks.tick(game);

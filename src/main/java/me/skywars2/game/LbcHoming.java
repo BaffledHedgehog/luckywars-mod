@@ -397,8 +397,26 @@ public final class LbcHoming {
             }
         }
         game.items().wands().redirectCursedElectro();
+        game.items().danmaku().redirectCursedCards();
     }
     public void clear(LivingEntity entity) { curses.remove(entity); }
+    /** Manual Danmaku cards use the same global Curse target and ownership rule as native projectiles. */
+    void redirect(LbcDanmaku.Card card) {
+        LivingEntity nearest=null;Curse chosen=null;double distance=Double.POSITIVE_INFINITY;
+        for(var entry:curses.entrySet()) {
+            var victim=entry.getKey();var curse=entry.getValue();
+            if(victim.level()!=card.display.level() || !target(curse.owner,victim) || paused(curse.owner)) continue;
+            double d=card.display.position().distanceToSqr(victim.position());
+            if(d<distance){distance=d;nearest=victim;chosen=curse;}
+        }
+        if(nearest==null)return;
+        if(card.owner==null || card.owner==nearest)card.owner=chosen.owner;
+        var direction=nearest.getEyePosition().subtract(card.display.position());
+        if(direction.lengthSqr()<1e-12)return;
+        card.direction=direction.normalize();
+        card.display.setYRot((float)Math.toDegrees(Math.atan2(-direction.x,direction.z)));
+        card.display.setXRot((float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance())));
+    }
     void redirect(LbcWands.ElectroTrace trace) {
         LivingEntity nearest=null; Curse chosen=null; double distance=Double.POSITIVE_INFINITY;
         for(var entry:curses.entrySet()) {
