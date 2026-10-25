@@ -123,6 +123,7 @@
     "TimeStopDamageMixin$Living",
     "TimeStopDamageMixin$ReplaySource",
     "CreativeVoidDamageMixin",
+    "ChefMannequinAccess",
     "GlyphAiMixin",
     "GlyphAiMixin$NavigationAccess",
     "GlyphAiMixin$AttributeAccess"

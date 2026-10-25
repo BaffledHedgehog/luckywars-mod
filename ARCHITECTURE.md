@@ -1,5 +1,36 @@
 # Структура переноса игрового цикла
 
+## Chef mannequin AI, knock and presentation ? QUALIFIED READY (25 October 2026)
+
+[Contract](agent_notes/CHEF_REWORK_PORT.md), [AI source audit](agent_notes/CHEF_AI_REWORK_SOURCE.md),
+[presentation audit](agent_notes/CHEF_PRESENTATION_REWORK_SOURCE.md).
+
+Chef remains one real native Mannequin with its accepted WTF-label victim.
+Shape-aware fractional-floor A*, diagonals/steps/drops, validated parkour and
+runways precede attributed bridge/pillar/mining actions. Native movement uses
+smooth body/head steering, safe sprint jumps and falling critical attacks.
+Sword is native skywars2:oguzok_sword with lbc:oguzok_sword model,+3 damage and
+-2.4 attack speed (wooden analogue). Native subtitle metadata is hidden.
+Knock now uses prone0.6box for200 active ticks while gravity/void rescue work;
+actual Stand Time Stop remains separate and pauses knock. Hunger/timed eating,
+swimming, native bucket extinguishing/water-clutch and owned-source retrieval
+are implemented. No normal travel uses teleport or no-gravity integration.
+
+Original PNG exists unchanged in mod and generated server pack. Minimal manual
+RP PNG template is supplied; author RP remains read-only. Client loaded-pack
+state and rendered pixels have not been observed. Do not claim a proven wrong
+skin identifier: skywars2:entity/chef was already correct.
+
+Build4bf4649e passed22 recorded results in two actual mode1 matches, including
+both naturally ticking falling-knock/traversal/bridge/combat chases and real
+stop cleanup. Exact350 sources/975 classes/2818 resources match the artifact.
+Ready: build/verification/skywars2-chef-rework-4bf4649e.jar; evidence:
+build/verification/chef-rework-final/. READY ONLY: main remains04396ca4;
+no install or main stop/restart. Existing user edits/deletions preserved.
+Fixtures do not qualify arbitrary map routes, client pixels or peak-load AI.
+Sheep is also checkpointed separately at3c9401c. Remaining large source work:
+combined Sauvojen, Hedgehog, unstable spellbook; no unfinished pool is exposed.
+
 ## Sheep wand and native sheep holes - QUALIFIED READY (25 October 2026)
 
 [SHEEP_PORT](agent_notes/SHEEP_PORT.md), [SHEEP_CHECKS](agent_notes/SHEEP_CHECKS.md),

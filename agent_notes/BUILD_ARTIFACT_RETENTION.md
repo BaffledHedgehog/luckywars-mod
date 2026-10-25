@@ -44,3 +44,14 @@ the obsolete Acid ready archive was removed. Cumulative cleanup:287 JARs,
 10,116,474,266 bytes (9.42 GiB). Kept Sheep ready, preceding Danmaku ready and
 chef-skin2558af6b rollback. Main disk JAR was externally updated to04396ca4
 (Danmaku); this task preserved it and did not install or restart the server.
+
+## Chef rework ready checkpoint
+
+Qualified Chef4bf4649e is now ready. No extra historical version series was
+created. Keep preceding Sheep65a39f13, current main disk Danmaku04396ca4 and
+former main2558af6b fallback until the next supervised main replacement; this
+session did not verify which JAR an already-running main JVM originally loaded.
+Cumulative cleanup remains287 obsolete JARs/9.42 GiB after Sheep advancement.
+Current build/libs contains the active binary and source JAR. Main, worlds and
+caches are preserved. Temporary diagnostic scripts/evidence live under ignored
+build/verification rather than the project/server root.
