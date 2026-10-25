@@ -133,6 +133,46 @@ public final class RifleZoomChecks {
         } finally {victim.discard();}
         game.items().rifleZoom().forget(player);
     }
+    private static void reconnect(GameController game) {
+        var profile=new com.mojang.authlib.GameProfile(java.util.UUID.randomUUID(),"ScopeReconnect");
+        var source=new ServerPlayer(game.server(),game.maps().level(),profile,
+                net.minecraft.server.level.ClientInformation.createDefault());
+        for(var effect:List.of(ZOOM,ZOOM_OUT)) {
+            source.clearPostEffects();source.addPostEffect(OTHER);source.addPostEffect(effect);
+            var output=net.minecraft.world.level.storage.TagValueOutput.createWithContext(
+                    net.minecraft.util.ProblemReporter.DISCARDING,source.registryAccess());
+            source.saveWithoutId(output);
+            var restored=new ServerPlayer(game.server(),source.level(),profile,source.clientInformation());
+            restored.load(net.minecraft.world.level.storage.TagValueInput.create(
+                    net.minecraft.util.ProblemReporter.DISCARDING,restored.registryAccess(),output.buildResult()));
+            require(restored.getPostEffects().contains(effect)&&restored.getPostEffects().contains(OTHER),
+                    "native player save/load reproduces persisted "+effect);
+            var recording=new Recording(restored);
+            restored.connection=new ServerGamePacketListenerImpl(game.server(),recording,restored,
+                    new CommonListenerCookie(profile,0,restored.clientInformation(),false));
+            restored.connection.handleAcceptPlayerLoad(new ServerboundPlayerLoadedPacket());
+            try {
+                // Exercise the registered login callback, with no in-memory scope state.
+                net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents.JOIN.invoker().onJoin(restored);
+                require(!zoomed(restored)&&!restored.getPostEffects().contains(ZOOM_OUT)
+                        &&restored.getPostEffects().contains(OTHER),"join repairs orphan saved scope and preserves unrelated effect");
+                var packet=recording.packets.stream()
+                        .filter(net.minecraft.network.protocol.common.ClientboundPostEffectsPacket.class::isInstance)
+                        .map(net.minecraft.network.protocol.common.ClientboundPostEffectsPacket.class::cast)
+                        .reduce((a,b)->b).orElseThrow();
+                require(packet.postEffects().equals(List.of(OTHER)),"login sends repaired post-effect list immediately");
+                var resaved=net.minecraft.world.level.storage.TagValueOutput.createWithContext(
+                        net.minecraft.util.ProblemReporter.DISCARDING,restored.registryAccess());
+                restored.saveWithoutId(resaved);
+                var next=new ServerPlayer(game.server(),restored.level(),profile,restored.clientInformation());
+                next.load(net.minecraft.world.level.storage.TagValueInput.create(
+                        net.minecraft.util.ProblemReporter.DISCARDING,next.registryAccess(),resaved.buildResult()));
+                require(next.getPostEffects().equals(List.of(OTHER)),"next native save/load stays repaired");
+            } finally {
+                game.leave(restored);restored.discard();
+            }
+        }
+    }
     public static void run(GameController game) {
         var player=player(game); var zoom=game.items().rifleZoom();
         require(game.playing() && game.allowDamage(player),"requires active match participant");
@@ -198,6 +238,7 @@ public final class RifleZoomChecks {
             player.setHealth(0);int deathPacket=swap.recording.packets.size();zoom.tick();restored(player,swap.recording,deathPacket);
             require(!zoomed(player)&&!player.getPostEffects().contains(ZOOM_OUT),"death clears both rifle effects");
             player.setHealth(health);
+            reconnect(game);
             SkyWars2.LOGGER.info("[check] PASS rifle-zoom");
         } finally {
             zoom.forget(player); game.items().timeStop().end(player.level()); saved.restore(game);

@@ -160,6 +160,7 @@ public final class GameController {
     }
 
     public void join(ServerPlayer player) {
+        items.rifleZoom().joined(player);
         players.get(player.getUUID()).username = player.getScoreboardName();
         if (host == null || server.getPlayerList().getPlayer(host) == null) host = player.getUUID();
         // Joining during a match never silently enrolls a new participant.

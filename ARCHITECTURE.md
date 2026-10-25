@@ -1,5 +1,24 @@
 # Структура переноса игрового цикла
 
+## Rifle scope reconnect repair - QUALIFIED, AUTO INSTALL QUEUED (25 October 2026)
+
+Native player data persists `post_effects`, including scope snapshots made before
+LEAVE cleanup. `GameController.join` now resets RifleZoom state and immediately
+sends the repaired effect list. Only `lbc:zoom` and `lbc:zoom_out` are removed;
+unrelated effects remain. Already saved orphan overlays are repaired on login,
+even without an in-memory scope state (including after a server restart).
+
+Build1cebc78b passed16 recorded results in two actual mode1 matches (49.39s).
+Native player save/load plus the registered JOIN callback reproduces and repairs
+both orphan overlays; re-save remains clean. Existing SLR/Magnum input, both
+hands, six-tick exit, movement FOV, weapon sounds and actual-stop cleanup pass.
+Exact365 sources/1031 classes/2837 resources match the artifact. Physical client
+reconnection and rendered pixels are not directly observed. Evidence:
+`build/verification/scope-reconnect-final/`. Main95c3db2f unchanged at qualification;
+auto installer adopts this update after normal shutdown, with rollback.
+User edits and author RP preserved. No new loot or resource changes.
+
+
 ## Hedgehog family and speed-only FOV - QUALIFIED, AUTO INSTALL QUEUED (25 October 2026)
 
 [Family contract](agent_notes/HEDGEHOG_PORT_2026_10_25.md),

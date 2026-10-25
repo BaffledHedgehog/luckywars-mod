@@ -184,6 +184,12 @@ public final class LbcRifleZoom {
             if(!state.active && state.exitUntil==0 && !current(state)) iterator.remove();
         }
     }
+    public void joined(ServerPlayer player) {
+        // Native player data persists post_effects, including saves made before LEAVE.
+        // A new connection never resumes an old scope or its six-tick exit animation.
+        forget(player);
+        player.sendPostEffects();
+    }
     public void forget(ServerPlayer player) {
         State state=states.remove(player.getUUID());
         scopedMovement.remove(player.getUUID());
