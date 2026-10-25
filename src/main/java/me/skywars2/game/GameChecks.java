@@ -620,6 +620,11 @@ public final class GameChecks {
                                 case "exoperso-menu" -> checkExopersoMenu(game);
                                 case "exoperso" -> checkExoperso(game);
                                 case "nuclear-visual" -> checkNuclearVisual(game);
+                                case "visual-reload" -> {
+                                        require(deferredCheck==null,"No earlier asynchronous visual check");
+                                        VisualReloadChecks.begin(game);
+                                        deferredTicks=3;deferredCheck=()->VisualReloadChecks.finish(game);return;
+                                }
                                 case "exoperso-blast" -> checkExopersoBlast(game);
                                 case "bedrock-menu" -> checkBedrockMenu(game);
                                 case "bedrock-wand" -> checkBedrockWand(game);

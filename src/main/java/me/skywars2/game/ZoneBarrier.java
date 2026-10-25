@@ -1,7 +1,6 @@
 package me.skywars2.game;
 
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
-import eu.pb4.polymer.virtualentity.api.attachment.ManualAttachment;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
@@ -53,7 +52,7 @@ public final class ZoneBarrier {
         holder = new ElementHolder();
         holder.addElement(display);
         // ManualAttachment не зависит от center chunk: барьер виден и далеко за островами.
-        new ManualAttachment(holder, game.maps().level(), () -> center);
+        game.visualTracking().attach(holder, game.maps().level(), () -> center);
         refreshViewers();
         holder.tick();
     }

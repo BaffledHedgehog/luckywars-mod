@@ -58,6 +58,7 @@ public final class GameController {
     private final AttributeHud attributeHud;
     private final ZoneBarrier zoneBarrier;
     private final LbcTeamColors teamColors;
+    private final ManualVisualTracking visualTracking=new ManualVisualTracking(this);
     private final ItemStack lobbyCompass = menuCompass();
     private final Map<UUID, Participant> participants = new LinkedHashMap<>();
     private final Set<UUID> pendingLobby = new java.util.HashSet<>();
@@ -100,6 +101,7 @@ public final class GameController {
 
     public void menus(GameMenus menus) { this.menus = menus; }
     public MinecraftServer server() { return server; }
+    public ManualVisualTracking visualTracking() { return visualTracking; }
     public Stage stage() { return stage; }
     public UUID host() { return host; }
     public boolean inLobby() { return stage == Stage.LOBBY && lobbyReady; }
@@ -440,6 +442,7 @@ public final class GameController {
     }
 
     public void tick() {
+        visualTracking.tick();
         // Tracking callbacks run inside native section iterators. Pair teardown may remove siblings.
         // Drain outside those iterators, including while game time is frozen.
         var unloaded=List.copyOf(nativeEntityUnloads);nativeEntityUnloads.clear();
@@ -908,6 +911,7 @@ public final class GameController {
     }
 
     public void shutdown() {
+        visualTracking.stop();
         teamColors.stop();
         luckyModifiers.endMatch();
         attributeHud.stop();

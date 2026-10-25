@@ -2,7 +2,6 @@ package me.skywars2.game;
 
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
-import eu.pb4.polymer.virtualentity.api.attachment.ManualAttachment;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
@@ -240,7 +239,7 @@ public final class LbcLaserMinigun {
         display.setScale(new Vector3f(0,0,scale));
         var holder=new ElementHolder(); holder.addElement(display);
         // Rotation, zero initial width and final length exist before the first spawn packet.
-        new ManualAttachment(holder,owner.level(),()->origin);
+        game.visualTracking().attach(holder,owner.level(),()->origin);
         refreshViewers(holder,owner,origin);
         holder.tick();
         beams.add(new Beam(owner,game.items().epoch(),holder,display,scale,origin,yaw,pitch));

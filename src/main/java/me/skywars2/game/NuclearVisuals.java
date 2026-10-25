@@ -2,7 +2,7 @@ package me.skywars2.game;
 
 import com.mojang.math.Transformation;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
-import eu.pb4.polymer.virtualentity.api.attachment.ManualAttachment;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
@@ -29,7 +29,7 @@ public final class NuclearVisuals {
     private static final int SLOT_TAIL=90, LIFETIME=120, UPDATE_TICKS=2;
     private final GameController game;
     private final List<Effect> effects=new ArrayList<>();
-    private final Map<ServerPlayer,Slot[]> viewers=new IdentityHashMap<>();
+    private final Map<ServerGamePacketListenerImpl,Slot[]> viewers=new IdentityHashMap<>();
     private int clock;
 
     private static final class Effect {
@@ -77,9 +77,9 @@ public final class NuclearVisuals {
         // Stage the natural handoff one active tick before the six-second deadline.
         for(var entry:viewers.entrySet()) for(int index=0;index<SLOT_COUNT;index++) {
             var slot=entry.getValue()[index];
-            if(slot.effect!=null && entry.getKey().level()==slot.effect.level
+            if(slot.effect!=null && entry.getKey().player.level()==slot.effect.level
                     && !slot.retiring && slot.fade==null && slot.effect.age>=LIFETIME-1)
-                stageFade(entry.getKey(),slot,index,LIFETIME,true);
+                stageFade(entry.getKey().player,slot,index,LIFETIME,true);
         }
         boolean removed=effects.removeIf(effect->!game.items().currentEpoch(effect.epoch)
                 || effect.cancelInAntimagic && game.items().magic().suppressedAt(effect.level,effect.origin)
@@ -111,7 +111,7 @@ public final class NuclearVisuals {
 
     private void refreshViewers() {
         var players=game.server().getPlayerList().getPlayers();
-        var connected=new HashSet<>(players);
+        var connected=new HashSet<>(players.stream().map(player->player.connection).toList());
         for(var iterator=viewers.entrySet().iterator();iterator.hasNext();) {
             var entry=iterator.next();
             if(!connected.contains(entry.getKey())) {
@@ -121,12 +121,12 @@ public final class NuclearVisuals {
         }
         for(var player:players) {
             var wanted=nearest(player);
-            var slots=viewers.get(player);
+            var slots=viewers.get(player.connection);
             if(slots==null) {
                 if(wanted.isEmpty()) continue;
                 slots=new Slot[SLOT_COUNT];
                 java.util.Arrays.setAll(slots,index->new Slot());
-                viewers.put(player,slots);
+                viewers.put(player.connection,slots);
             }
             for(int index=0;index<slots.length;index++) {
                 var slot=slots[index];
@@ -189,7 +189,7 @@ public final class NuclearVisuals {
         var holder=new ElementHolder(); holder.addElement(display);
         // Ручная привязка исключает зависимость от tracking range маленькой native-сущности
         // и не загружает чанк эпицентра. У каждого клиента свои 16 shader-слотов.
-        new ManualAttachment(holder,effect.level,()->effect.displayOrigin);
+        game.visualTracking().attach(holder,effect.level,()->effect.displayOrigin);
         holder.startWatching(player); holder.tick();
         return holder;
     }
@@ -215,7 +215,7 @@ public final class NuclearVisuals {
     }
 
     private void maintainSlots() {
-        var connected=new HashSet<>(game.server().getPlayerList().getPlayers());
+        var connected=new HashSet<>(game.server().getPlayerList().getPlayers().stream().map(player->player.connection).toList());
         for(var iterator=viewers.entrySet().iterator();iterator.hasNext();) {
             var entry=iterator.next();
             if(!connected.contains(entry.getKey())) {
@@ -224,7 +224,7 @@ public final class NuclearVisuals {
             }
             for(var slot:entry.getValue()) {
                 if(slot.effect==null) continue;
-                if(entry.getKey().level()!=slot.effect.level) { destroyImmediately(slot); continue; }
+                if(entry.getKey().player.level()!=slot.effect.level) { destroyImmediately(slot); continue; }
                 if(slot.retiring && slot.holder!=null && clock>slot.stagedAt
                         && (!slot.natural || slot.effect.age>=LIFETIME)) {
                     // Send the terminal age before removal; fade remains independently tracked.
@@ -256,24 +256,24 @@ public final class NuclearVisuals {
     }
 
     List<ItemDisplayElement> displays(ServerPlayer player) {
-        var result=new ArrayList<ItemDisplayElement>(); var slots=viewers.get(player);
+        var result=new ArrayList<ItemDisplayElement>(); var slots=viewers.get(player.connection);
         if(slots!=null) for(var slot:slots) if(slot.display!=null && !slot.retiring) result.add(slot.display);
         return List.copyOf(result);
     }
     List<Vec3> origins(ServerPlayer player) {
-        var result=new ArrayList<Vec3>(); var slots=viewers.get(player);
+        var result=new ArrayList<Vec3>(); var slots=viewers.get(player.connection);
         if(slots!=null) for(var slot:slots) if(slot.effect!=null && !slot.retiring) result.add(slot.effect.origin);
         return List.copyOf(result);
     }
 
     List<ItemDisplayElement> fadeDisplays(ServerPlayer player) {
-        var result=new ArrayList<ItemDisplayElement>(); var slots=viewers.get(player);
+        var result=new ArrayList<ItemDisplayElement>(); var slots=viewers.get(player.connection);
         if(slots!=null) for(var slot:slots) if(slot.fade!=null) result.add(slot.fade);
         return List.copyOf(result);
     }
 
     List<Vec3> fadingOrigins(ServerPlayer player) {
-        var result=new ArrayList<Vec3>(); var slots=viewers.get(player);
+        var result=new ArrayList<Vec3>(); var slots=viewers.get(player.connection);
         if(slots!=null) for(var slot:slots) if(slot.fade!=null) result.add(slot.effect.origin);
         return List.copyOf(result);
     }
@@ -282,7 +282,7 @@ public final class NuclearVisuals {
                      boolean retiring,boolean natural,boolean mainPresent,boolean fadePresent) {}
 
     List<SlotFrame> frames(ServerPlayer player) {
-        var result=new ArrayList<SlotFrame>(); var slots=viewers.get(player);
+        var result=new ArrayList<SlotFrame>(); var slots=viewers.get(player.connection);
         if(slots!=null) for(int index=0;index<slots.length;index++) {
             var slot=slots[index];
             if(slot.effect!=null) result.add(new SlotFrame(index,slot.effect.origin,slot.fixedAge,

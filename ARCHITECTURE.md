@@ -1,5 +1,29 @@
 # Структура переноса игрового цикла
 
+## Manual visual respawn recovery - QUALIFIED AND INSTALLED (25 October 2026)
+
+[Source cause and verification](agent_notes/VISUAL_RESPAWN_REPAIR_2026_10_25.md).
+Native respawn retains entity ID and listener but replaces ServerPlayer.
+Shader viewer caches now use connection identity, avoiding duplicate stale
+rows caused by mixing player identity maps with Entity ID equality.
+ManualVisualTracking registers all five owned manual-attachment sites.
+Actual outbound Respawn packets queue full native re-pairing after loaded ACK,
+including same-object dimension trips. Black holes, nuclear main/fades, border,
+minigun beams and Terra terminal models preserve IDs/metadata/slots/effect ages.
+Destroyed holders and other dimensions are skipped; unaffected viewers and idle
+ticks get no duplicate spawn. No ordinary entity tracking or gameplay changes.
+
+Build71d12d26 passed24 results in two mode1 matches (43.27s), including real
+lethal damage/PERFORM_RESPAWN, loaded ACK, dimension roundtrip, nuclear/minigun,
+scope/120 accuracy cases and actual-stop cleanup. Exact371 sources/1043 classes/
+2837 resources match. Client pixels/reconnect/restart and peak TPS not observed.
+Evidence: build/verification/visual-respawn-final/. Previously queued ea7979f0
+installed during this task; receipt and hash were validated before rebasing.
+Qualified71d12d26 is now installed, with ea7979f0 rollback; main not restarted.
+User edits/deletions and author RP preserved. Historical 2558/0439 fallbacks
+can now retire because normal main shutdown and replacement are established.
+
+
 ## Separate rifle scope presentation - QUALIFIED, AUTO INSTALL QUEUED (25 October 2026)
 
 [Author guide and implementation](agent_notes/SPLIT_RIFLE_SCOPES_2026_10_25.md).

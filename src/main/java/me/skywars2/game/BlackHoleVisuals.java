@@ -1,7 +1,7 @@
 package me.skywars2.game;
 
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
-import eu.pb4.polymer.virtualentity.api.attachment.ManualAttachment;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
@@ -27,7 +27,7 @@ public final class BlackHoleVisuals {
     private static final int SLOTS=16, COLOR=11618816, TAIL=4;
     private final GameController game;
     private final List<Handle> holes=new ArrayList<>();
-    private final Map<ServerPlayer,Slot[]> viewers=new IdentityHashMap<>();
+    private final Map<ServerGamePacketListenerImpl,Slot[]> viewers=new IdentityHashMap<>();
     private int clock;
     private boolean dirty;
 
@@ -122,7 +122,7 @@ public final class BlackHoleVisuals {
     }
     private void refresh() {
         dirty=false;
-        var players=game.server().getPlayerList().getPlayers(); var connected=new HashSet<>(players);
+        var players=game.server().getPlayerList().getPlayers(); var connected=new HashSet<>(players.stream().map(player->player.connection).toList());
         for(var iterator=viewers.entrySet().iterator();iterator.hasNext();) {
             var entry=iterator.next();
             if(!connected.contains(entry.getKey())) {
@@ -131,10 +131,10 @@ public final class BlackHoleVisuals {
             }
         }
         for(var player:players) {
-            var wanted=nearest(player); var slots=viewers.get(player);
+            var wanted=nearest(player); var slots=viewers.get(player.connection);
             if(slots==null) {
                 if(wanted.isEmpty()) continue;
-                slots=new Slot[SLOTS]; java.util.Arrays.setAll(slots,index->new Slot()); viewers.put(player,slots);
+                slots=new Slot[SLOTS]; java.util.Arrays.setAll(slots,index->new Slot()); viewers.put(player.connection,slots);
             }
             for(var slot:slots) if(slot.hole!=null && !wanted.contains(slot.hole)) release(slot);
             for(var hole:wanted) {
@@ -161,7 +161,7 @@ public final class BlackHoleVisuals {
         display.setLeftRotation(new Quaternionf(hole.tilt));
         display.setTeleportDuration(1); display.setInterpolationDuration(1);
         var holder=new ElementHolder(); holder.addElement(display);
-        new ManualAttachment(holder,hole.level,()->hole.point);
+        game.visualTracking().attach(holder,hole.level,()->hole.point);
         slot.hole=hole; slot.holder=holder; slot.display=display;
         holder.startWatching(viewer); holder.tick();
     }
@@ -178,12 +178,12 @@ public final class BlackHoleVisuals {
     }
     int count() { return holes.size(); }
     List<ItemDisplayElement> displays(ServerPlayer viewer) {
-        var result=new ArrayList<ItemDisplayElement>(); var slots=viewers.get(viewer);
+        var result=new ArrayList<ItemDisplayElement>(); var slots=viewers.get(viewer.connection);
         if(slots!=null) for(var slot:slots) if(slot.display!=null) result.add(slot.display);
         return List.copyOf(result);
     }
     List<Vec3> origins(ServerPlayer viewer) {
-        var result=new ArrayList<Vec3>(); var slots=viewers.get(viewer);
+        var result=new ArrayList<Vec3>(); var slots=viewers.get(viewer.connection);
         if(slots!=null) for(var slot:slots) if(slot.hole!=null) result.add(slot.hole.point);
         return List.copyOf(result);
     }

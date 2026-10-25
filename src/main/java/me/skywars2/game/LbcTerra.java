@@ -5,7 +5,6 @@ import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import eu.pb4.polymer.core.api.item.SimplePolymerItem;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.attachment.EntityAttachment;
-import eu.pb4.polymer.virtualentity.api.attachment.ManualAttachment;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.minecraft.core.BlockPos;
@@ -478,7 +477,7 @@ public final class LbcTerra {
         var previous = holder.getAttachment();
         Vec3 impact = projectile.position();
         // Отцепляем от сущности до discard: EntityAttachment иначе удалит картинку вместе с ней.
-        new ManualAttachment(holder, (ServerLevel) projectile.level(), () -> impact);
+        game.visualTracking().attach(holder, (ServerLevel) projectile.level(), () -> impact);
         if (previous != null) previous.destroy();
         projectile.holder = null;
         // Полный тик интерполяции + тик для кадра в конечной точке, без новых gameplay-тиков.
