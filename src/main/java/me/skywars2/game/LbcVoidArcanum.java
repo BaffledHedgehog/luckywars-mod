@@ -47,7 +47,8 @@ public final class LbcVoidArcanum {
     // Legacy block footprints, rounded outward to a radial whole-block reach; cube corners stay excluded.
     private static final double[] RADII={0,2,3,5,9,24}, HURT={0,1.5,2,4,8,24}, PULL={0,3,4,8,12,30};
     private static final float[] DAMAGE={0,.2f,.25f,.3f,.35f,.4f};
-    private static final double[] ACCELERATION={0,.025,.035,.018,.022,.025}, MAX_SPEED={0,.4,.55,.6,.7,.8};
+    // Legacy voidcursed1..4 move .13 per tick; voidcursed5 moves .5.
+    private static final double[] ACCELERATION={0,.025,.035,.018,.022,.025}, MAX_SPEED={0,.13,.13,.13,.13,.5};
     private static final int FLAGS=Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE|Block.UPDATE_SUPPRESS_DROPS
             |Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS|Block.UPDATE_SKIP_ON_PLACE;
     public static final Item ITEM=registerItem();
@@ -280,6 +281,10 @@ public final class LbcVoidArcanum {
             double amount=change.length();
             if(amount>ACCELERATION[hole.level])change=change.scale(ACCELERATION[hole.level]/amount);
             hole.velocity=hole.velocity.add(change);
+            // Membership loss may lower the tier while the old body still has
+            // higher momentum. Enforce the current tier's limit on total 3D speed.
+            double cap=MAX_SPEED[hole.level];
+            if(hole.velocity.lengthSqr()>cap*cap)hole.velocity=hole.velocity.normalize().scale(cap);
             double horizontal=Math.hypot(offset.x,offset.z);
             if(horizontal>1.0e-6){
                 // The disc's normal leans at most 18 degrees toward the chase direction.

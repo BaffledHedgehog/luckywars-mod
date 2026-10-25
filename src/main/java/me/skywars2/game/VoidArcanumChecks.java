@@ -233,17 +233,34 @@ public final class VoidArcanumChecks {
         }
         void motion(){
             prime();LbcVoidArcanum.Hole hole=null;ProbeCow target=null;
-            double[] acceleration={0,.025,.035,.018,.022,.025},caps={0,.4,.55,.6,.7,.8};
+            double[] acceleration={0,.025,.035,.018,.022,.025},caps={0,.13,.13,.13,.13,.5};
             for(int level=1;level<=5;level++){
                 bodies();hole=spawn(owner,at);hole.level=level;target=cow(at.add(14,0,0));var cause=service.source(hole).cause();double last=0;
                 for(int i=0;i<5;i++){
                     var start=hole.point;var velocity=hole.velocity;service.physics(hole,owner,cause);double speed=hole.point.distanceTo(start);
-                    require(speed>last+.001&&speed<=caps[level]+.000001&&hole.velocity.x>0,"native level "+level+" accelerates toward nearest suitable entity");
-                    require(Math.abs(speed-last-acceleration[level])<.000001&&hole.velocity.subtract(velocity).length()<=acceleration[level]+.000001,"exact gentler high-tier acceleration and preserved tiers1/2 "+level);last=speed;
+                    require(speed>=last-.000001&&speed<=caps[level]+.000001&&hole.velocity.x>0,"native level "+level+" accelerates toward nearest suitable entity up to legacy speed");
+                    require(Math.abs(speed-Math.min(caps[level],last+acceleration[level]))<.000001&&hole.velocity.subtract(velocity).length()<=acceleration[level]+.000001,"preserved acceleration with legacy tier ceiling "+level);last=speed;
                 }
                 // Exercise the cap boundary without claiming elapsed native travel time.
                 hole.velocity=new Vec3(caps[level]-acceleration[level]/2,0,0);var start=hole.point;service.physics(hole,owner,cause);
                 require(Math.abs(hole.point.distanceTo(start)-caps[level])<.000001,"actual native displacement obeys tier speed cap "+level);
+                var cappedPoint=hole.point;var cappedVelocity=hole.velocity;var cappedTilt=new org.joml.Quaternionf(hole.tilt);
+                var originalTarget=target.position();
+                for(Vec3 momentum:List.of(new Vec3(3,0,0),new Vec3(1,2,3),new Vec3(-2,-1,-3))){
+                    target.setPos(hole.point.add(8,6,8));hole.velocity=momentum;start=hole.point;
+                    service.physics(hole,owner,cause);
+                    require(hole.point.distanceTo(start)<=caps[level]+.000001&&hole.velocity.length()<=caps[level]+.000001,
+                            "over-cap inherited/downgraded momentum and diagonal steering obey legacy 3D limit "+level);
+                }
+                for(int tick=0;tick<48;tick++){
+                    target.setPos(hole.point.add(tick%2==0?8:-8,4,8));start=hole.point;
+                    service.physics(hole,owner,cause);
+                    require(hole.point.distanceTo(start)<=caps[level]+.000001,"sustained turning chase never exceeds legacy speed "+level);
+                }
+                // Keep the pre-existing positive-X visual/steering fixture
+                // independent of the deliberately alternating diagonal chase.
+                hole.point=cappedPoint;hole.velocity=cappedVelocity;hole.tilt.set(cappedTilt);
+                hole.marker.snapTo(cappedPoint.x,cappedPoint.y,cappedPoint.z,0,0);target.setPos(originalTarget);
                 if(level<5){game.items().indirectKills().clear(target);target.discard();mobs.remove(target);}
             }
             var member=service.source(hole);

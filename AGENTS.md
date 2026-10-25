@@ -1,5 +1,26 @@
 # Проект SkyWars
 
+## Void Arcanum legacy speed ceilings - QUALIFIED AND INSTALLED (25 October 2026)
+
+[Source and verification](agent_notes/VOID_ARCANUM_LEGACY_SPEED_2026_10_25.md).
+Legacy voidcursed1..4 move0.13 blocks/tick; voidcursed5 moves0.5. These now
+replace inflated native caps0.4/0.55/0.6/0.7/0.8. Existing acceleration and
+near-contact slowdown remain. The final total3D velocity is clamped before
+moving the marker, including old excessive momentum after tier reduction.
+Attraction, destruction/noise/radii, shaders/tilt, merge/upkeep/WILD and
+attribution/lifecycle remain unchanged.
+
+Build22b646b6 passed10 results in two mode1 matches (69.12s), with all five
+caps, exact acceleration/saturation, three excessive vectors per tier and48
+alternating elevated/diagonal steps per tier. Full arcanum/erosion, native
+visual respawn and actual-stop cleanup pass. Exact371 sources/1044 classes/
+2837 resources match. No client-frame or peak-TPS claim.
+Evidence: build/verification/void-speed-final/. Main16e097ca unchanged through
+qualification; installer then installed22b646b6 with16e097ca rollback, no restart.
+User files/deletions and author RP preserved. Keep pending/latest, current main
+and preceding rollback; obsolete older archive removed after verification.
+
+
 ## Chef action facing and pursuit - QUALIFIED AND INSTALLED (25 October 2026)
 
 [Behavior and evidence](agent_notes/CHEF_ACTION_MOVEMENT_2026_10_25.md).
