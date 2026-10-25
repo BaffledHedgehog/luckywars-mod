@@ -765,6 +765,9 @@ public final class GameChecks {
                                 case "team-colors-stop-probe" -> { TeamColorChecks.stopProbe(game); return; }
                                 case "team-colors-cleanup" -> { TeamColorChecks.cleanup(game); return; }
                                 case "danmaku" -> { DanmakuChecks.run(game); return; }
+                                case "corrosive-grimoires" -> { CorrosiveGrimoireChecks.run(game); return; }
+                                case "corrosive-grimoires-stop-probe" -> { CorrosiveGrimoireChecks.stopProbe(game); return; }
+                                case "corrosive-grimoires-cleanup" -> { CorrosiveGrimoireChecks.cleanup(game); return; }
                                 case "shaping-grimoires" -> { ShapingGrimoireChecks.run(game); return; }
                                 case "shaping-grimoires-stop-probe" -> { ShapingGrimoireChecks.stopProbe(game); return; }
                                 case "shaping-grimoires-cleanup" -> { ShapingGrimoireChecks.cleanup(game); return; }
@@ -14054,7 +14057,11 @@ public final class GameChecks {
                                 "Electro Shield reverses Exasperato and replaces the native owner, including allied projectiles");
                         owner.stopUsingItem(); owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,ItemStack.EMPTY);
                         wand.tick();
-                        require(wand.count() == 0, "First swept tick colliding with a native wall consumes the Charge");
+                        require(wand.count() == 0, "First swept tick colliding with a native wall consumes the Charge"
+                                        +" remaining="+wand.count()+" removed="+charge.isRemoved()+" at="+charge.position()
+                                        +" velocity="+charge.getDeltaMovement()+" frozen="+game.items().timeStop().frozen(charge)
+                                        +" stopped="+game.items().wands().timeStopped()+" ownerTags="+owner.entityTags()
+                                        +" wall="+level.getBlockState(wall));
                         var tnts = freshExasperatoPayload(level, net.minecraft.world.entity.item.PrimedTnt.class, beforeWallTnt);
                         var bolts = freshExasperatoPayload(level, net.minecraft.world.entity.LightningBolt.class, beforeWallBolts);
                         require(tnts.isEmpty() && wand.pendingShortBlasts()>0 && wand.pendingShortBlasts()<85 && bolts.size() == 50,
@@ -14147,7 +14154,7 @@ public final class GameChecks {
                                         && boltCow.getLastDamageSource().getEntity() == owner,
                                         "Native lightning tick applies owner-attributed ELECTRIC damage to a neutral cow");
                         require(ally.getHealth() == allyHealth && ally.getDeltaMovement().equals(allyVelocity),
-                                        "Native lightning skips teammate damage and knockback");
+                                        "The out-of-range teammate remains unchanged by this native lightning tick");
 
                         // Shared smart-lifetime reviews at 100-199 ticks: age 200 survives only with a reachable target.
                         wand.cast(owner); var protectedCharge = wand.snapshot().get(0);

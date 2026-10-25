@@ -27,7 +27,7 @@ import net.minecraft.world.level.Level;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Direct consumed elemental library160..187 and204..215, sharing native ordinary/Academy payloads. */
+/** Direct consumed library spells share the native ordinary/Academy wand payloads. */
 public final class LbcElementalGrimoires {
     public enum Kind {
         RUBY(160,"ruby","swarogia",1200,"c","ruby",1,2,3),
@@ -82,7 +82,18 @@ public final class LbcElementalGrimoires {
         STONEKIVI(233,"stonekivi","stonestone",2500,"s","libspell_stonestone",null,null,"libspell_stonestone.lore"),
         STONEKIVI_EARTH(234,"stonekivi_earth","stonestone",2500,"s","libspell_stonestone_1","powerful",ChatFormatting.DARK_PURPLE,"libspell_stonestone_1.lore"),
         STONEKIVI_SUN(235,"stonekivi_sun","stonestone",2500,"k","libspell_stonestone_2","unreal",ChatFormatting.RED,"libspell_stonestone_2.lore"),
-        STONEKIVI_COMET(236,"stonekivi_comet","stonestone",2500,"ss","libspell_stonestone_3","overhauled",ChatFormatting.GOLD,"libspell_stonestone_3.lore");
+        STONEKIVI_COMET(236,"stonekivi_comet","stonestone",2500,"ss","libspell_stonestone_3","overhauled",ChatFormatting.GOLD,"libspell_stonestone_3.lore"),
+        AWAKENED_ACID(188,"awakened_acid","acidacid",1000,"a","libspell_acidacid",null,null,"libspell_acidacid.lore"),
+        AWAKENED_ACID_CAUST(190,"awakened_acid_caust","acidacid",1000,"ss","libspell_acidacid_2","powerful",ChatFormatting.DARK_PURPLE,"libspell_acidacid_2.lore"),
+        AWAKENED_ACID_CAUST_BURNING(191,"awakened_acid_caust_burning","acidacid",1000,"ss","libspell_acidacid_3","powerful",ChatFormatting.DARK_PURPLE,"libspell_acidacid_3.lore"),
+        AWAKENED_ACID_GATLING(192,"awakened_acid_gatling","acidacid",1000,"ss","libspell_acidacid_4","universal",ChatFormatting.YELLOW,"libspell_acidacid_4.lore"),
+        AWAKENED_ACID_GATLING_BURNING(193,"awakened_acid_gatling_burning","acidacid",1000,"ss","libspell_acidacid_5","universal",ChatFormatting.YELLOW,"libspell_acidacid_5.lore"),
+        AWAKENED_ACID_RIFLE(194,"awakened_acid_rifle","acidacid",1000,"ss","libspell_acidacid_6","enhanced",ChatFormatting.GRAY,"libspell_acidacid_6.lore"),
+        EXASPERATO(199,"exasperato","exasperato",1000,"a","libspell_exasperato",null,null,"libspell_exasperato.lore"),
+        EXASPERATO_TRIPLE(200,"exasperato_triple","exasperato",1000,"a","libspell_exasperato_1","powerful",ChatFormatting.DARK_PURPLE,"libspell_exasperato_1.lore"),
+        EXASPERATO_CHAOS(201,"exasperato_chaos","exasperato",1000,"ss","libspell_exasperato_2","universal",ChatFormatting.YELLOW,"libspell_exasperato_2.lore"),
+        EXASPERATO_RAY(202,"exasperato_ray","exasperato",1000,"a","libspell_exasperato_3","enhanced",ChatFormatting.GRAY,"libspell_exasperato_3.lore"),
+        EXASPERATO_NUKE(203,"exasperato_nuke","exasperato",1000,"ss","libspell_exasperato_4","powerful",ChatFormatting.DARK_PURPLE,"libspell_exasperato_4.lore");
 
 
         final int spellId,metadataMana;
@@ -116,6 +127,8 @@ public final class LbcElementalGrimoires {
 
     static List<Kind> shaping() { return java.util.Arrays.stream(Kind.values()).filter(kind->kind.spellId>=216&&kind.spellId<=224||kind.spellId>=233&&kind.spellId<=236).toList(); }
 
+    static List<Kind> corrosive() { return java.util.Arrays.stream(Kind.values()).filter(kind->kind.spellId==188||kind.spellId>=190&&kind.spellId<=194||kind.spellId>=199&&kind.spellId<=203).toList(); }
+
     private static Component text(String key,ChatFormatting color) {
         return Component.translatable(key).withStyle(color).withStyle(style->style.withItalic(false));
     }
@@ -129,8 +142,8 @@ public final class LbcElementalGrimoires {
         lore.add(text("type",ChatFormatting.AQUA).copy().append(text("libspell",ChatFormatting.AQUA)));
         lore.add(Component.empty());
         for(var row:kind.lore)lore.add(text(row,ChatFormatting.GOLD));
-        // These three source library families use Legendary, independently of their tooltip tier.
-        boolean legendary=kind.spellId>=204;
+        // Awakened source families use Legendary, independently of their tooltip tier.
+        boolean legendary=kind.spellId>=188;
         var rarity=text("rarity",ChatFormatting.WHITE).copy().append(text(legendary?"legendary":"epic",legendary?ChatFormatting.RED:ChatFormatting.DARK_PURPLE));
         if(kind.modifier!=null)rarity.append(text(kind.modifier,kind.modifierColor));
         lore.add(rarity);
@@ -171,6 +184,13 @@ public final class LbcElementalGrimoires {
                 ||game.items().magic().suppressed(player)
                 ||game.items().magic().suppressedAt(player.level(),player.getEyePosition()))return false;
         switch(kind) {
+            case AWAKENED_ACID,AWAKENED_ACID_CAUST,AWAKENED_ACID_CAUST_BURNING,AWAKENED_ACID_GATLING,AWAKENED_ACID_GATLING_BURNING,AWAKENED_ACID_RIFLE ->
+                    game.items().awakenedAcid().castMode(player,hand,ItemStack.EMPTY,
+                            switch(kind){case AWAKENED_ACID -> 1;case AWAKENED_ACID_CAUST,AWAKENED_ACID_CAUST_BURNING -> 2;case AWAKENED_ACID_RIFLE -> 4;default -> 3;},
+                            kind==Kind.AWAKENED_ACID_CAUST_BURNING||kind==Kind.AWAKENED_ACID_GATLING_BURNING);
+            case EXASPERATO -> game.items().exasperato().cast(player,false);
+            case EXASPERATO_TRIPLE,EXASPERATO_CHAOS,EXASPERATO_RAY,EXASPERATO_NUKE -> game.items().exasperato().cast(player,
+                    switch(kind){case EXASPERATO_TRIPLE -> 1;case EXASPERATO_RAY -> 2;case EXASPERATO_CHAOS -> 3;default -> 4;});
             case ERECTO,ERECTO_RAY,ERECTO_SNIPER,ERECTO_SPHERE -> game.items().erecto().castMode(player,hand,ItemStack.EMPTY,
                     switch(kind){case ERECTO_RAY -> 2;case ERECTO_SNIPER -> 4;case ERECTO_SPHERE -> 3;default -> 1;});
             case FIREBLAZE,FIREBLAZE_KIUAS,FIREBLAZE_MEGA,FIREBLAZE_PILLARS,FIREBLAZE_WORLD -> game.items().blaze().fireblaze(player,

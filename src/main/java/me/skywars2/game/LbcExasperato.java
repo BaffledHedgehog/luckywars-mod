@@ -121,7 +121,7 @@ public final class LbcExasperato {
     }
 
     LbcExasperato(GameController game) { this.game=game; }
-    public int count() { return charges.size(); }
+    public int count() { charges.removeIf(Entity::isRemoved); return charges.size(); }
     public int pendingSearches() { return searches.size(); }
     public int mushroomCount() { return game.items().nuclearVisuals().count(); }
     public int pendingBlasts() {
@@ -129,7 +129,7 @@ public final class LbcExasperato {
         for(var batch:blasts) remaining+=batch.offsets.length-batch.next;
         return remaining;
     }
-    List<Charge> snapshot() { return List.copyOf(charges); }
+    List<Charge> snapshot() { charges.removeIf(Entity::isRemoved); return List.copyOf(charges); }
     void loaded(Entity entity) {
         if(entity instanceof Charge charge) {
             if(!game.items().currentEpoch(charge) || !(charge.getOwner() instanceof ServerPlayer)
@@ -146,11 +146,15 @@ public final class LbcExasperato {
     }
 
     public void cast(ServerPlayer owner) {
+        cast(owner,LbcAcademy.trial(owner.getMainHandItem()));
+    }
+
+    void cast(ServerPlayer owner,boolean academyTrial) {
         if(owner.level()!=game.maps().level() || !game.canUseGameplayItems(owner)) return;
         Charge charge=TYPE.create(owner.level(),net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
         if(charge==null) return;
         charge.setOwner(owner); charge.setPos(owner.getEyePosition());
-        charge.academyTrial=LbcAcademy.trial(owner.getMainHandItem());
+        charge.academyTrial=academyTrial;
         charge.entityTags().add("magic");
         charge.setNoGravity(true); charge.setDeltaMovement(owner.getLookAngle());
         charge.setYRot(owner.getYRot()); charge.setXRot(owner.getXRot());
@@ -364,7 +368,11 @@ public final class LbcExasperato {
                 if(!charge.isRemoved() && ++charge.age>=charge.lifetime && charge.lifetime>0) charge.discard();
                 if(!charge.isRemoved()) game.items().lifetimes().advance(charge,charge.age);
             }
-        } finally { batch.clear(); }
+        } finally {
+            batch.clear();
+            // A freshly added actor in a hidden section may be discarded before an unload event.
+            charges.removeIf(Entity::isRemoved);
+        }
         searchTick();
         blastTick();
     }

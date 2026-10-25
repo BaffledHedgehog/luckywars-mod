@@ -36,7 +36,12 @@ final class LbcAwakenedAcid {
         int cost=game.items().mana().score(ScoreHolder.forNameOnly("acidacid_wand_mana_use"),"lbc.math").get();
         if(!game.items().mana().trySpendWand(owner,cost))return false;
         boolean ignited=academy&&data.getIntOr("tier",0)==1;
-        if(!academy||mode<=2)game.items().clouds().awakenedAcid(owner,owner.getEyePosition(),owner.getLookAngle(),academy&&mode==2?1:0,ignited);
+        castMode(owner,hand,stack,academy?mode:1,ignited);
+        if(!academy&&owner.isOnFire()&&LbcAcademy.trial(stack))game.items().academy().ready(owner,hand,stack);
+        game.items().wands().wandCasted(owner);return true;
+    }
+    void castMode(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,boolean ignited){
+        if(mode<=2)game.items().clouds().awakenedAcid(owner,owner.getEyePosition(),owner.getLookAngle(),mode==2?1:0,ignited);
         else if(mode==3){
             for(int i=0;i<8;i++){
                 float yaw=(Mth.floor(owner.getYRot()*100)+owner.getRandom().nextInt(6001)-3000)*.01f;
@@ -47,8 +52,6 @@ final class LbcAwakenedAcid {
             // The source counter belongs to the player and accumulates ten releases per paid cast.
             game.items().mana().score(owner,"acid_rifle").add(10);rifles.put(owner,new Rifle(stack,hand,game.items().epoch()));
         }
-        if(!academy&&owner.isOnFire()&&LbcAcademy.trial(stack))game.items().academy().ready(owner,hand,stack);
-        game.items().wands().wandCasted(owner);return true;
     }
     int pending(ServerPlayer owner){return Math.max(0,game.items().mana().hudValue(owner,"acid_rifle"));}
     void addPlayerCounter(ServerPlayer owner){

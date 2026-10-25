@@ -1,5 +1,26 @@
 # Структура переноса игрового цикла
 
+## Eleven awakened-acid/Exasperato grimoires - QUALIFIED AND INSTALLED (26 October 2026)
+
+[Source and verification](agent_notes/CORROSIVE_GRIMOIRES_2026_10_26.md). Library IDs188/190..194/199..203 expose11 native
+consumed modes through shared wand producers. Both hands/Shift consume one book
+without a mana gate/debit, Academy trial or mode switching. Source components,
+red Legendary/adjective rows, models and tiers remain exact. Acid ignition,
+eight-charge patterns and cumulative ten-release rifle queues use the native
+engine. Exasperato shares ordinary/triple/chaos/electro-ray/nuke producers,
+loaded-chunk aiming, native blasts and common nuclear visuals. Books cannot
+inherit an unrelated main-hand trial. Broad/random library remains gated.
+
+Build753bcbe3 passed18 groups in two actual mode1 matches (54.87s): all11
+consumed modes, earlier ordinary/shaping books, full awakened-acid and base/
+Academy Exasperato regressions, actual native input and actual-stop cleanup.
+The existing Exasperato hidden-section lifecycle leak is fixed: removed charges
+are pruned without relying on an unload callback. Exact377 sources/1065 classes/
+2901 resources match. Installer12628 installed753bcbe3 over d49c7381 with rollback
+and no restart. Evidence: `build/verification/corrosive-grimoires-final/`.
+User files/deletions and author RP preserved. Client rendering/audio playback
+and peak TPS are not directly observed. Oldest obsolete build archive retired.
+
 ## Thirteen Erecto/Fireblaze/Stonekivi grimoires - QUALIFIED AND INSTALLED (26 October 2026)
 
 [Source and verification](agent_notes/SHAPING_GRIMOIRES_2026_10_26.md). Library IDs216..224/233..236 expose13 consumed
