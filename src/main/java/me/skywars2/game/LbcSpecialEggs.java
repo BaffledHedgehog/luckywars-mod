@@ -170,5 +170,14 @@ public final class LbcSpecialEggs {
                 }
             }
         }
+        restoreAuthoredName(entity,stack);
+    }
+    /** ENTITY_DATA recursively merges compounds; an omitted color must not inherit the red egg title. */
+    private static void restoreAuthoredName(Entity entity,ItemStack stack) {
+        var data=stack.get(DataComponents.ENTITY_DATA);
+        if(data==null || data.type()!=entity.getType() || !data.contains("CustomName")) return;
+        var input=net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,
+                entity.registryAccess(),data.copyTagWithoutId());
+        input.read("CustomName",net.minecraft.network.chat.ComponentSerialization.CODEC).ifPresent(entity::setCustomName);
     }
 }

@@ -148,6 +148,40 @@ public final class FartusChecks {
                 GameChecks.inventoryClick(owner,0,0,net.minecraft.world.inventory.ContainerInput.QUICK_MOVE);int results=0;for(int i=0;i<36;i++)if(owner.getInventory().getItem(i).is(LbcFartus.ITEM))results+=owner.getInventory().getItem(i).getCount();require(results==1&&grid.getFirst().getItem().isEmpty()&&grid.getLast().getItem().isEmpty(),"native shift take transfers exactly remaining craft");owner.closeContainer();owner.getInventory().clearContent();
             }
         }
+        void displayPacket(LbcFartus.Shot shot,float yaw,float pitch,org.joml.Quaternionf left,float scale){
+            var display=shot.display;var raw=io.netty.buffer.Unpooled.buffer();
+            try{
+                var buffer=new net.minecraft.network.RegistryFriendlyByteBuf(raw,owner.registryAccess());
+                var spawn=new net.minecraft.network.protocol.game.ClientboundAddEntityPacket(display.getId(),display.getUUID(),display.getX(),display.getY(),display.getZ(),display.getXRot(),display.getYRot(),display.getType(),0,Vec3.ZERO,0);
+                net.minecraft.network.protocol.game.ClientboundAddEntityPacket.STREAM_CODEC.encode(buffer,spawn);
+                var decodedSpawn=net.minecraft.network.protocol.game.ClientboundAddEntityPacket.STREAM_CODEC.decode(buffer);
+                require(Math.abs(net.minecraft.util.Mth.wrapDegrees(decodedSpawn.getYRot()-yaw))<1.5&&Math.abs(decodedSpawn.getXRot()-pitch)<1.5,"native display spawn packet retains source entity yaw/pitch convention");
+                var metadata=new net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket(display.getId(),display.getEntityData().getNonDefaultValues());
+                net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket.STREAM_CODEC.encode(buffer,metadata);
+                var decoded=net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket.STREAM_CODEC.decode(buffer);
+                var received=new net.minecraft.world.entity.Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,owner.level());received.getEntityData().assignValues(decoded.packedItems());
+                var getter=net.minecraft.world.entity.Display.class.getDeclaredMethod("createTransformation",net.minecraft.network.syncher.SynchedEntityData.class);getter.setAccessible(true);
+                var transform=(com.mojang.math.Transformation)getter.invoke(null,received.getEntityData());
+                var actual=transform.leftRotation();
+                require(Math.abs(actual.x()-left.x())<1e-5&&Math.abs(actual.y()-left.y())<1e-5&&Math.abs(actual.z()-left.z())<1e-5&&Math.abs(actual.w()-left.w())<1e-5,"native metadata round trip retains source local left rotation kind="+shot.kind+" actual="+actual+" expected="+left+" scale="+transform.scale());
+                require(transform.scale().equals(new org.joml.Vector3f(scale))&&transform.translation().equals(new org.joml.Vector3f())&&transform.rightRotation().equals(new org.joml.Quaternionf()),"source display scale/translation/right identity survive native metadata");
+                require(received.getItemTransform()==net.minecraft.world.item.ItemDisplayContext.FIXED&&Identifier.parse(shot.kind==LbcFartus.Kind.LABEL?"lbc:banan":"lbc:banana").equals(received.getItemStack().get(DataComponents.ITEM_MODEL))&&received.isNoGravity()&&raw.readableBytes()==0,"fixed source model and gravity-free display survive native wire encoding");
+            }catch(ReflectiveOperationException error){throw new IllegalStateException("Fartus native display transformation",error);}finally{raw.release();}
+        }
+        void visuals(){
+            held("fartus_wand",InteractionHand.MAIN_HAND);owner.setYRot(71);owner.setXRot(-23);
+            for(var kind:LbcFartus.Kind.values()){
+                var motion=new Vec3(.3,.2,.4);var shot=shot(kind,at.add(0,5,0),motion);
+                float yaw=kind==LbcFartus.Kind.BANANA?71:shot.getYRot(),pitch=kind==LbcFartus.Kind.BANANA?-23:shot.getXRot();
+                var left=kind==LbcFartus.Kind.LABEL?new org.joml.Quaternionf(1,0,0,1).normalize():new org.joml.Quaternionf();
+                displayPacket(shot,yaw,pitch,left,kind==LbcFartus.Kind.LABEL?.5f:1);
+                service.flight(shot);require(!shot.isRemoved(),"display fixture has one unobstructed active frame");
+                if(kind==LbcFartus.Kind.BANANA)left=new org.joml.Quaternionf().rotateY((float)Math.toRadians(-shot.getYRot())).rotateX((float)Math.toRadians(shot.getXRot()));
+                else{yaw=shot.getYRot();pitch=shot.getXRot();}
+                displayPacket(shot,yaw,pitch,left,kind==LbcFartus.Kind.LABEL?.5f:1);clear();
+            }
+            owner.setYRot(0);owner.setXRot(0);
+        }
         void nativeContacts(){
             held("fartus_wand",InteractionHand.MAIN_HAND);
             var c=cow(at.add(0,0,4));var p=shot(LbcFartus.Kind.BANANA,c.position().add(0,.6,-2),new Vec3(0,0,3));service.flight(p);require(c.isDeadOrDying()&&c.getKillCredit()==owner&&p.isRemoved()&&p.display.isRemoved(),"actual native banana collision48 damage and direct real death owner");remove(c);
@@ -171,9 +205,11 @@ public final class FartusChecks {
             // Exclude all loaded living targets, then exercise native entity tick plus service
             // boundaries so no implicit gravity/drag can hide behind manual movement calls.
             var excluded=new ArrayList<Entity>();for(var entity:owner.level().getAllEntities())if(entity!=owner&&entity instanceof net.minecraft.world.entity.LivingEntity&&!entity.entityTags().contains("strict_map_object")){entity.entityTags().add("strict_map_object");excluded.add(entity);}
-            try{var start=at.add(0,12,0);p=shot(LbcFartus.Kind.HOMING,start,new Vec3(0,0,.4));for(int i=0;i<8;i++){p.tick();service.flight(p);}require(!p.isRemoved()&&p.isNoGravity()&&!p.entityTags().contains("physical_object")&&p.position().distanceToSqr(start.add(0,0,9.6))<1e-8&&p.getDeltaMovement().distanceToSqr(new Vec3(0,0,.4))<1e-12,"Academy homing flies straight1.2/tick without target, native gravity, drag or ordinary-banana physics");clear();
+            try{var start=at.add(0,12,0);p=shot(LbcFartus.Kind.HOMING,start,new Vec3(0,0,.4));for(int i=0;i<8;i++){p.tick();p.display.tick();service.flight(p);require(Math.abs(p.getY()-start.y)<1e-9&&p.getDeltaMovement().y==0,"every native homing frame retains altitude without target/gravity");}require(!p.isRemoved()&&p.isNoGravity()&&!p.entityTags().contains("physical_object")&&p.position().distanceToSqr(start.add(0,0,9.6))<1e-8&&p.getDeltaMovement().distanceToSqr(new Vec3(0,0,.4))<1e-12,"Academy homing flies straight1.2/tick without target, native gravity, drag or ordinary-banana physics");clear();
+                var levelTarget=cow(start.add(4,0,18));levelTarget.setPos(levelTarget.getX(),start.y-levelTarget.getEyeHeight(),levelTarget.getZ());
+                try{p=shot(LbcFartus.Kind.HOMING,start,new Vec3(0,0,.4));for(int i=0;i<8;i++){p.tick();p.display.tick();service.flight(p);require(Math.abs(p.getY()-start.y)<1e-8&&Math.abs(p.getDeltaMovement().y)<1e-9,"native homing frames steer toward level eyes without gravity/downward drift");}require(p.getX()>start.x,"gravity-free native flight still homes toward the loaded enemy");}finally{clear();remove(levelTarget);}
                 var homingWall=BlockPos.containing(at).offset(0,4,2);block(homingWall,Blocks.STONE);
-                try{p=shot(LbcFartus.Kind.HOMING,Vec3.atCenterOf(homingWall).add(0,0,-1),new Vec3(0,0,.4));p.tick();service.flight(p);require(p.isRemoved()&&p.display.isRemoved()&&p.getDeltaMovement().distanceToSqr(new Vec3(0,0,.4))<1e-12&&Math.abs(p.getZ()-homingWall.getZ())<1e-9,"Academy homing retires at first actual solid impact without reverse velocity or physical rebound");}finally{block(homingWall,Blocks.AIR);}
+                try{p=shot(LbcFartus.Kind.HOMING,Vec3.atCenterOf(homingWall).add(0,0,-1),new Vec3(0,0,.4));p.tick();service.flight(p);require(!p.isRemoved()&&!p.display.isRemoved()&&p.getDeltaMovement().distanceToSqr(new Vec3(0,0,-.4))<1e-12&&p.getZ()<homingWall.getZ()&&Math.abs(p.getY()-(homingWall.getY()+.5))<1e-9,"Academy homing retains source wall reversal without downward gravity drift");}finally{block(homingWall,Blocks.AIR);}
             }finally{excluded.forEach(e->e.entityTags().remove("strict_map_object"));clear();}
             var wall=BlockPos.containing(at).offset(0,4,2);block(wall,Blocks.STONE);p=shot(LbcFartus.Kind.LABEL,Vec3.atCenterOf(wall).add(0,0,-1),new Vec3(0,0,.4));service.flight(p);require(p.isRemoved(),"label terminates at actual wall");p=shot(LbcFartus.Kind.BANANA,Vec3.atCenterOf(wall).add(0,0,-1.1),new Vec3(0,0,.4));service.flight(p);require(!p.isRemoved()&&Math.abs(p.getDeltaMovement().z+.36)<1e-9,"native physical cube clips wall and rebounds with source.9 coefficient");clear();block(wall,Blocks.AIR);
         }
@@ -220,7 +256,7 @@ public final class FartusChecks {
             game.players().save();mana.inventoryChanged(owner);mana.inventoryChanged(other);game.items().magic().flushCleansing();
         }
     }
-    public static void run(GameController game){try(var f=new Fixture(game)){f.init();CombatVisualChecks.piss(game,f.owner,f.other);f.owner.removeAllEffects();f.other.removeAllEffects();f.move(f.owner,f.at);f.move(f.other,f.at.add(7,0,0));f.presentationAndInputs();f.recipes();f.nativeContacts();f.movement();f.trialAndSword();f.boundaries();}SkyWars2.LOGGER.info("[check] PASS fartus (native loot/input/craft, used-hand trial/X promotion, actual source projectile impacts/deaths/reflection, full melee stun, camera particle wire payload and lifecycle; explicit boundary ticks)");}
+    public static void run(GameController game){try(var f=new Fixture(game)){f.init();CombatVisualChecks.piss(game,f.owner,f.other);f.owner.removeAllEffects();f.other.removeAllEffects();f.move(f.owner,f.at);f.move(f.other,f.at.add(7,0,0));f.presentationAndInputs();f.recipes();f.visuals();f.nativeContacts();f.movement();f.trialAndSword();f.boundaries();}SkyWars2.LOGGER.info("[check] PASS fartus (native loot/input/craft, used-hand trial/X promotion, actual source projectile impacts/deaths/reflection, full melee stun, camera particle wire payload and lifecycle; explicit boundary ticks)");}
     private static Saved stopSaved;private static String stopEpoch;private static LbcFartus.Shot stopShot;private static Set<Entity> stopBefore;
     public static void stopProbe(GameController game){
         var owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));require(stopSaved==null&&owner!=null&&game.canUseGameplayItems(owner)&&game.items().fartus().count()==0&&cleanAttribution(game,owner),"clean exclusive actual-stop probe");stopSaved=new Saved(game,owner);stopBefore=Collections.newSetFromMap(new IdentityHashMap<>());owner.level().getAllEntities().forEach(stopBefore::add);

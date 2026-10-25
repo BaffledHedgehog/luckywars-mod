@@ -110,7 +110,11 @@ public final class GaycasterChecks {
                 case 0->{owner.doTick();require(victim.getHealth()==994&&victim.getKillCredit()==owner&&owner.getHealth()>900,"red6/native accepted healing/owner: hp="+victim.getHealth()+" credit="+victim.getKillCredit()+" casterHP="+owner.getHealth());}
                 case 1->require(game.items().mana().hudValue(victim,"effect_kiuaskivi")>0&&game.items().mana().hudValue(victim,"effect_kiuaskivi")<=100&&!victim.hasEffect(MobEffects.RAID_OMEN),"orange100 tick native transport conversion");
                 case 2->{require(game.items().psycho().hudValue(victim,"piss")>0,"yellow existing affliction");require(game.items().psycho().yellow(victim,owner)&&game.items().psycho().hudValue(victim,"piss")==100,"yellow sets100 instead of stacking");}
-                case 3->require(game.items().clouds().acidSnapshot().stream().filter(a->a.getOwner()==owner&&!a.isRemoved()).count()==6,"green six native owned acids");
+                case 3->{var acids=game.items().clouds().acidSnapshot().stream().filter(a->a.getOwner()==owner&&!a.isRemoved()).toList();
+                    require(acids.size()==6&&acids.stream().allMatch(a->a.entityTags().contains("raycastacid")
+                            &&a.entityTags().contains("shield_blockable2")&&!a.entityTags().contains("great_acid")
+                            &&!a.entityTags().contains("raycastacidbig")&&LbcClouds.acidLifetime(a)==300&&!a.isNoGravity()),
+                            "ordinary green uses six300tick ordinary ballistic acids, not big/awakened acid");}
                 case 4->{var arcs=game.items().wands().electroSnapshot().stream().filter(a->a.owner==owner).toList();require(arcs.size()==4&&arcs.stream().allMatch(a->!a.mechanism)&&arcs.stream().map(a->a.lifetime).sorted().toList().equals(List.of(5,7,9,11)),"cyan four short magic arcs");}
                 case 5->{require(victim.hasEffect(MobEffects.CONDUIT_POWER)&&victim.getEffect(MobEffects.CONDUIT_POWER).getAmplifier()==1,"blue exact native enhanced conduit");
                     game.items().magic().colors().tickWater();require(owner.level().getBlockState(victim.blockPosition()).is(Blocks.WATER),"native indexed enhanced water");

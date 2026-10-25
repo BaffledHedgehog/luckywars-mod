@@ -98,6 +98,7 @@ public final class EncounterEggChecks {
             var actors=fresh(before).stream().filter(e->e instanceof Mob||e instanceof ItemEntity).toList();
             require(actors.size()==1,"one native actor/token "+kind);var actor=actors.getFirst();
             require(game.items().currentEpoch(actor)&&Math.abs(actor.getX()-origin.x)<1e-6&&Math.abs(actor.getZ()-origin.z)<1e-6,"native position and pre-insertion epoch "+kind);
+            EggPresentationChecks.name(actor,stack);
             return actor;
         }
         void presentation(){
@@ -129,7 +130,9 @@ public final class EncounterEggChecks {
             var tag=saved(actor);
             switch(kind){
                 case FAT_SKELETON->{var s=(net.minecraft.world.entity.monster.skeleton.Skeleton)actor;
-                    require(s.getAttributeValue(Attributes.MOVEMENT_SPEED)==.6&&s.getAttributeValue(Attributes.ARMOR)==20&&s.getAttributeValue(Attributes.ATTACK_KNOCKBACK)==100,"native source skeleton attributes");
+                    require(s.getAttributeValue(Attributes.MOVEMENT_SPEED)==.6&&s.getAttributeValue(Attributes.ARMOR)==20
+                            &&s.getAttribute(Attributes.ATTACK_KNOCKBACK).getBaseValue()==100
+                            &&s.getAttributeValue(Attributes.ATTACK_KNOCKBACK)==10,"source skeleton base attributes and user-selected knockback cap10");
                     require(s.getItemBySlot(EquipmentSlot.MAINHAND).is(Items.BONE)&&s.getItemBySlot(EquipmentSlot.MAINHAND).getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS,net.minecraft.world.item.component.ItemAttributeModifiers.EMPTY).modifiers().isEmpty()&&s.getItemBySlot(EquipmentSlot.LEGS).isEmpty(),"egg skeleton remains distinct from normal bone modifiers/leg drops");
                     require(tag.getStringOr("DeathLootTable","").equals("lbc:fat_skeleton_rewards"),"complete native skeleton rewards alias");}
                 case LUCKY_PIG->require(actor instanceof net.minecraft.world.entity.animal.pig.Pig&&actor.isCustomNameVisible()&&tag.getStringOr("DeathLootTable","").equals("lbc:applepig"),"native named lucky-pig loot");
@@ -139,7 +142,9 @@ public final class EncounterEggChecks {
                     require(s.getItemBySlot(EquipmentSlot.CHEST).get(DataComponents.EQUIPPABLE).assetId().orElseThrow().identifier().equals(Identifier.parse("lbc:stalin")),"source Stalin equipment asset");}
                 case TRANSFORMATOR->{var z=(Zombie)actor;require(z.isBaby()&&z.isNoAi()&&z.getHealth()==500&&z.getMaxHealth()==500&&z.hasEffect(net.minecraft.world.effect.MobEffects.INVISIBILITY),"egg baby500HP Transformer preserves original NoAI/effect");
                     require(z.getCustomName().getString().contains("05.06.2024")&&game.items().transformator().snapshot().stream().anyMatch(v->v.actor()==z&&v.text()==null),"source birthday label, without invented text display");}
-                case ANT->{var z=(Zombie)actor;require(z.isBaby()&&z.isSilent()&&z.getHealth()==10&&z.getMaxHealth()==10&&z.getAttributeValue(Attributes.SPAWN_REINFORCEMENTS_CHANCE)==100,"native10HP ant source traits");
+                case ANT->{var z=(Zombie)actor;require(z.isBaby()&&z.isSilent()&&z.getHealth()==10&&z.getMaxHealth()==10
+                        &&z.getAttribute(Attributes.SPAWN_REINFORCEMENTS_CHANCE).getBaseValue()==100
+                        &&z.getAttributeValue(Attributes.SPAWN_REINFORCEMENTS_CHANCE)==1,"native10HP ant source traits and restored vanilla probability limit");
                     require(z.getItemBySlot(EquipmentSlot.HEAD).get(DataComponents.UNBREAKABLE)==null&&tag.getStringOr("DeathLootTable","").equals("lbc:ant_rewards"),"egg ant keeps vanishing helmet instead of drop's unbreakable preset");}
                 case HELICOPTER->{var token=(ItemEntity)actor;require(saved(token).getIntOr("PickupDelay",0)==32767&&token.getItem().is(Items.REPEATING_COMMAND_BLOCK)&&LbcHelicopterEncounter.isTrigger(token.getItem())&&token.getOwner()==owner,"source unpickable helicopter token and actual summoner");return;}
                 default->throw new IllegalStateException();
@@ -196,9 +201,24 @@ public final class EncounterEggChecks {
             for(var kind:List.of(LbcSpecialEggs.Kind.ANT,LbcSpecialEggs.Kind.TRANSFORMATOR)){
                 var stack=egg(kind,2);owner.setItemInHand(InteractionHand.OFF_HAND,stack);var before=current();
                 require(parent.interact(owner,InteractionHand.OFF_HAND,Vec3.ZERO).consumesAction()&&stack.getCount()==1,"native matching-mob use consumes one "+kind);
-                var children=fresh(before).stream().filter(e->e instanceof Zombie).toList();require(children.size()==1,"one configured native child "+kind);payload(kind,children.getFirst());children.forEach(Entity::discard);
+                var children=fresh(before).stream().filter(e->e instanceof Zombie).toList();require(children.size()==1,"one configured native child "+kind);payload(kind,children.getFirst());EggPresentationChecks.name(children.getFirst(),stack);children.forEach(Entity::discard);
                 require(!parent.isBaby()&&!parent.isSilent()&&parent.getItemBySlot(EquipmentSlot.HEAD).isEmpty(),"existing parent remains ordinary");
             }parent.discard();
+        }
+        void nameFluids(){
+            set(pad.above(),Blocks.WATER.defaultBlockState());
+            owner.teleportTo(level,origin.x,origin.y+2,origin.z,Set.of(),0,90,true);
+            for(var kind:List.of(LbcSpecialEggs.Kind.FAT_SKELETON,LbcSpecialEggs.Kind.ANT)) {
+                var stack=egg(kind,2); owner.setItemInHand(InteractionHand.MAIN_HAND,stack);
+                var before=current();
+                require(owner.gameMode.useItem(owner,level,stack,InteractionHand.MAIN_HAND).consumesAction()
+                        && stack.getCount()==1,"native source-fluid name route consumes one "+kind);
+                var actors=fresh(before).stream().filter(e->e.getType()==stack.get(DataComponents.ENTITY_DATA).type()).toList();
+                require(actors.size()==1,"one source-fluid actor "+kind);
+                EggPresentationChecks.name(actors.getFirst(),stack); actors.forEach(Entity::discard);
+            }
+            set(pad.above(),Blocks.AIR.defaultBlockState());
+            owner.teleportTo(level,origin.x,origin.y+2,origin.z-3,Set.of(),0,0,true);
         }
         void freeze(){
             for(var kind:KINDS){var actor=spawn(kind,InteractionHand.MAIN_HAND);if(actor instanceof ItemEntity token){var before=current();require(game.items().helicopterEncounter().spawn(token),"freeze probe creates actual boss");fresh(before);}}
@@ -207,7 +227,7 @@ public final class EncounterEggChecks {
             game.items().timeStop().begin(level,200);
         }
         boolean step(){int now=game.server().getTickCount();if(now==lastTick)return false;lastTick=now;require(game.playing(),"actual match retained");
-            if(phase==0){if(!warm())return false;presentation();admission();families();offspring();capture();owned.forEach(Entity::discard);freeze();phase++;return false;}
+            if(phase==0){if(!warm())return false;presentation();admission();families();offspring();nameFluids();capture();owned.forEach(Entity::discard);freeze();phase++;return false;}
             require(frozen.stream().allMatch(e->!e.isRemoved()&&e.position().distanceTo(positions.get(e))<1e-8),"actual dimension Time Stop freezes all seven egg families");
             if(++wait<3)return false;game.items().timeStop().end(level);return true;
         }
@@ -220,7 +240,7 @@ public final class EncounterEggChecks {
     }
     public static void run(GameController game){require(running==null&&stopping==null,"exclusive fixture");var f=new Fixture(game);running=f;try{f.initialize();}catch(RuntimeException|Error e){running=null;f.close();throw e;}}
     public static void tick(GameController game){
-        if(stopping!=null&&stopEpoch==null){var f=stopping;try{if(!f.warm())return;f.freeze();stopActors=f.frozen;stopEpoch=game.items().epoch();f.close(true);game.items().timeStop().begin(f.level,200);SkyWars2.LOGGER.info("[check] PASS encounter-eggs-stop-probe");}catch(Throwable e){f.close();stopping=null;SkyWars2.LOGGER.error("[check] FAIL encounter-eggs-stop-probe",e);}return;}
+        if(stopping!=null&&stopEpoch==null){var f=stopping;try{if(!f.warm())return;game.items().timeStop().end(f.level);f.owner.setNoGravity(true);f.owner.setDeltaMovement(Vec3.ZERO);f.owner.teleportTo(f.level,f.origin.x,f.origin.y+2,f.origin.z-3,Set.of(),0,0,true);f.freeze();stopActors=f.frozen;stopEpoch=game.items().epoch();f.close(true);game.items().timeStop().begin(f.level,200);SkyWars2.LOGGER.info("[check] PASS encounter-eggs-stop-probe");}catch(Throwable e){f.close();stopping=null;SkyWars2.LOGGER.error("[check] FAIL encounter-eggs-stop-probe",e);}return;}
         if(running==null)return;var f=running;try{if(f.step()){f.close();running=null;SkyWars2.LOGGER.info("[check] PASS encounter-eggs");}}catch(Throwable e){try{f.close();}catch(Throwable cleanup){e.addSuppressed(cleanup);}running=null;SkyWars2.LOGGER.error("[check] FAIL encounter-eggs",e);}
     }
     public static void stopProbe(GameController game){require(running==null&&stopping==null,"exclusive stop fixture");var f=new Fixture(game);stopping=f;try{f.initialize();}catch(RuntimeException|Error e){stopping=null;f.close();throw e;}}

@@ -184,6 +184,7 @@ public final class LbcMana {
         clearEffects(p); overload.reset(p); write(p,"falltimer",0); write(p,"food_count",0); inventoryChanged(p);
     }
     public void clearEffects(LivingEntity p) {
+        game.items().bolts().clearChainStatus(p);
         game.items().indirectKills().manaEffectCleared(p);
         for(String timer:POTION_TIMERS) write(p,timer,0);
         write(p,"reverse_mana",0); write(p,"void_resistance",0); reverseOwners.remove(p); pendingPotions.remove(p); statEffects.remove(p);
@@ -193,6 +194,10 @@ public final class LbcMana {
     public void effectsChanged(LivingEntity p) {
         if(p.level()!=game.maps().level()) return;
         var effect=p.getEffect(MobEffects.RAID_OMEN);
+        if(effect!=null&&LbcChainLightningStatus.isMarker(effect)){
+            if(game.items().bolts().acceptStatus(p,effect,p))p.removeEffect(MobEffects.RAID_OMEN);
+            return;
+        }
         if(effect!=null && effect.getAmplifier()>=16 && effect.getAmplifier()<=20) {
             if(p instanceof ServerPlayer player && game.items().magic().rejectCustomEffect(player)) {
                 pendingPotions.remove(p); return;
@@ -283,6 +288,7 @@ public final class LbcMana {
         return result;
     }
     void tickPlayer(ServerPlayer p) {
+        game.items().bolts().observeStatus(p);
         // После выхода из подавления старые таймеры не должны успеть изменить ману до пассивной очистки.
         if(game.items().magic().rejectCustomEffect(p)
                 && (pendingPotions.contains(p) || statEffects.contains(p)
@@ -373,6 +379,7 @@ public final class LbcMana {
         return hud;
     }
     public MutableComponent appendHudManaStatuses(ServerPlayer p,MutableComponent hud) {
+        appendHudScore(hud,p,"effect_chain_lightning","\uE156",ChatFormatting.GREEN);
         appendHudScore(hud,p,"effect_add_mana","\uE157",ChatFormatting.GREEN);
         appendHudScore(hud,p,"effect_add_manamax","\uE157",ChatFormatting.GREEN);
         appendHudScore(hud,p,"effect_add_manaregen","\uE157",ChatFormatting.GREEN);

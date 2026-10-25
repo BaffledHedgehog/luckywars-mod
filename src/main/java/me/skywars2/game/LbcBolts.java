@@ -40,6 +40,8 @@ import java.util.Set;
 
 /** Lightning Bolts/Boltbolt share native Electro lightning, block work and the rideable-arrow service. */
 public final class LbcBolts {
+    private static final net.minecraft.core.particles.DustParticleOptions REFORGE_DUST=
+            new net.minecraft.core.particles.DustParticleOptions(0x00C3FF,.3f);
     private static final Identifier AIR=id("air_sphere_11x11x11"), SNOW=id("big_snowball");
     private static final TagKey<net.minecraft.world.level.block.Block> SNOW_REPLACE=
             TagKey.create(Registries.BLOCK,id("minecraft","tannerkivi"));
@@ -168,7 +170,12 @@ public final class LbcBolts {
         int untilNext=40;
         Chain(ServerPlayer owner,Vec3 position,String epoch) { super(owner,position,epoch); }
     }
-    LbcBolts(GameController game) { this.game=game; }
+    private final LbcChainLightningStatus chainStatus;
+    LbcBolts(GameController game) { this.game=game;chainStatus=new LbcChainLightningStatus(game); }
+    public boolean acceptStatus(LivingEntity target,MobEffectInstance effect,Entity source){return chainStatus.accept(target,effect,source);}
+    void observeStatus(LivingEntity target){chainStatus.observe(target);}
+    int statusCount(LivingEntity target){return chainStatus.queued(target);}
+    public void clearChainStatus(LivingEntity target){chainStatus.clear(target);}
     static void register() { }
     private static Identifier id(String path) { return id("lbc",path); }
     private static Identifier id(String namespace,String path) { return Identifier.fromNamespaceAndPath(namespace,path); }
@@ -326,8 +333,8 @@ public final class LbcBolts {
         for(double d=0;d<=distance;d+=items?.35:.5) {
             Vec3 p=from.add(direction.scale(d));
             if(!owner.level().hasChunkAt(BlockPos.containing(p))) return null;
-            double spread=particle==ParticleTypes.END_ROD?.3:.1;
-            owner.level().sendParticles(particle,particle!=ParticleTypes.END_ROD,false,p.x,p.y,p.z,1,spread,spread,spread,0);
+            double spread=particle==REFORGE_DUST?0:particle==ParticleTypes.END_ROD?.3:.1;
+            owner.level().sendParticles(particle,particle!=ParticleTypes.END_ROD&&particle!=REFORGE_DUST,false,p.x,p.y,p.z,1,spread,spread,spread,0);
             if(particle==ParticleTypes.CLOUD) owner.level().sendParticles(ParticleTypes.SCULK_SOUL,p.x,p.y,p.z,1,.1,.1,.1,0);
         }
         if(Double.isFinite(suppressed) && distance>=from.distanceTo(to)-1e-6) return null;
@@ -335,7 +342,7 @@ public final class LbcBolts {
         return point;
     }
     private void donor(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,boolean upgraded) {
-        Vec3 at=ray(owner,hand,mode==2?7:100,ParticleTypes.END_ROD,mode==2,mode==3);
+        Vec3 at=ray(owner,hand,mode==2?7:100,mode==2?REFORGE_DUST:ParticleTypes.END_ROD,mode==2,mode==3);
         if(at==null) return;
         if(mode==2) { reforge(owner,at); return; }
         game.items().electro().lightning(owner,at);
@@ -560,6 +567,7 @@ public final class LbcBolts {
         LbcOverload.sound(owner,at,"minecraft:entity.lightning_bolt.thunder",19,0,0);
     }
     void loaded(Entity entity) {
+        if(entity instanceof LivingEntity living)chainStatus.loaded(living);
         if(entity.entityTags().contains("skywars2.boltbolt.meteor")
                 && meteors.stream().noneMatch(meteor->meteor.display==entity)) entity.discard();
     }
@@ -568,13 +576,15 @@ public final class LbcBolts {
             meteors.remove(meteor);
             if(!entity.isRemoved()) entity.discard();
         }
-        if(entity instanceof LivingEntity living) clearEffects(living);
+        if(entity instanceof LivingEntity living){chainStatus.unloaded(living);for(var chain:chains)chain.current.remove(living);chains.removeIf(chain->chain.current.isEmpty());}
     }
     public void clearEffects(LivingEntity target) {
+        chainStatus.clear(target);
         for(var chain:chains) chain.current.remove(target);
         chains.removeIf(chain->chain.current.isEmpty());
     }
     public void forget(ServerPlayer owner) {
+        chainStatus.forget(owner);
         ownerWorkGeneration.merge(owner,1,Integer::sum);
         for(var entry:List.copyOf(reforgeJobs.entrySet())) if(entry.getValue()==owner) entry.getKey().cancel();
         bolts.removeIf(state->state.owner==owner); waters.removeIf(state->state.owner==owner);
@@ -585,6 +595,7 @@ public final class LbcBolts {
         }
     }
     public void stop() {
+        chainStatus.stop();
         workGeneration++; ownerWorkGeneration.clear();
         for(var job:List.copyOf(reforgeJobs.keySet())) job.cancel();
         bolts.clear(); waters.clear(); chains.clear();
@@ -596,7 +607,7 @@ public final class LbcBolts {
     public void tick() {
         if(game.stage()==GameController.Stage.LOADING || game.stage()==GameController.Stage.ENDING) { stop(); return; }
         if(game.items().wands().timeStopped()) return;
-        ticks++;
+        ticks++;chainStatus.tick();
         for(var bolt:List.copyOf(bolts)) {
             if(!valid(bolt) || !bolt.level.hasChunkAt(BlockPos.containing(bolt.position))
                     || game.items().magic().suppressedAt(bolt.level,bolt.position)) { bolts.remove(bolt); continue; }

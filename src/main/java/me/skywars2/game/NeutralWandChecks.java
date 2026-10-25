@@ -128,6 +128,25 @@ public final class NeutralWandChecks {
             try{require(!use(s,InteractionHand.MAIN_HAND)&&!use(loot("feather_greed"),InteractionHand.OFF_HAND)&&game.items().mana().get(owner)==10000,"antimagic blocks wand and feather");}finally{game.items().magic().unloaded(marker);marker.discard();}
             owner.setItemInHand(InteractionHand.OFF_HAND,academy(3));int mana=game.items().mana().get(owner);require(use(academy(2),InteractionHand.MAIN_HAND)&&game.items().neutral().snapshot().size()==4&&game.items().mana().get(owner)==mana-2400,"independent parallel native casts in both hands");clear();owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
         }
+        void alternating(){
+            clear();owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);var s=academy(5);owner.setShiftKeyDown(true);game.items().mana().set(owner,-100);
+            require(use(s,InteractionHand.MAIN_HAND)&&flag(s,"mode")==6&&game.items().mana().get(owner)==-100,"free alternating Neutral selection");owner.setShiftKeyDown(false);
+            require(!use(s,InteractionHand.MAIN_HAND)&&flag(s,"alternating_next")==0,"failed initial mana preserves Neutral cursor");
+            var types=List.of(EntityTypes.WITHER_SKULL,EntityTypes.SMALL_FIREBALL,EntityTypes.FIREBALL,EntityTypes.FIREWORK_ROCKET,EntityTypes.SPLASH_POTION);
+            for(int action=1;action<=6;action++){
+                clear();game.items().mana().set(owner,10000);int index=(action-1)%5;
+                require(use(s,InteractionHand.MAIN_HAND)&&game.items().mana().get(owner)==8800&&flag(s,"mode")==6&&flag(s,"alternating_next")==action%5+1,"paid Neutral alternating cycle "+action);
+                var shots=game.items().neutral().snapshot();require(shots.size()==(index==2?1:3)&&shots.stream().allMatch(shot->shot.getType()==types.get(index)&&shot.getOwner()==owner),"alternating exact native projectile family/count/owner");
+            }
+            clear();game.items().mana().set(owner,1199);require(!use(s,InteractionHand.MAIN_HAND)&&flag(s,"alternating_next")==2,"failed running mana preserves Neutral cursor");game.items().mana().set(owner,10000);
+            game.items().timeStop().begin(owner.level(),200);try{require(!use(s,InteractionHand.MAIN_HAND)&&flag(s,"alternating_next")==2&&game.items().neutral().snapshot().isEmpty(),"Time Stop preserves Neutral cursor");}finally{game.items().timeStop().end(owner.level());}
+            var blocker=new net.minecraft.world.entity.Marker(EntityTypes.MARKER,owner.level());blocker.setPos(owner.position());blocker.entityTags().add("stopper_magic");owner.level().addFreshEntity(blocker);game.items().magic().loaded(blocker);
+            try{require(!use(s,InteractionHand.MAIN_HAND)&&flag(s,"alternating_next")==2&&game.items().mana().get(owner)==10000,"antimagic preserves Neutral cursor and debit");}finally{game.items().magic().unloaded(blocker);blocker.discard();}
+            var left=academy(6);owner.setItemInHand(InteractionHand.OFF_HAND,left);game.items().mana().set(owner,10000);
+            require(use(s,InteractionHand.MAIN_HAND)&&flag(s,"alternating_next")==3&&flag(left,"alternating_next")==2&&game.items().mana().get(owner)==7600,"independent two-hand Neutral cursors/costs");
+            require(game.items().neutral().snapshot().stream().filter(shot->shot.getType()==EntityTypes.WITHER_SKULL).count()==3&&game.items().neutral().snapshot().stream().filter(shot->shot.getType()==EntityTypes.SMALL_FIREBALL).count()==3,"distinct hand cycles produce skulls and fireballs");
+            clear();owner.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);owner.setShiftKeyDown(true);require(use(s,InteractionHand.MAIN_HAND)&&flag(s,"mode")==1&&flag(s,"alternating_next")==3,"Neutral mode selection wraps preserving cursor");owner.setShiftKeyDown(false);
+        }
         void feather(){var s=loot("feather_greed");game.items().mana().set(owner,-100);
             var slots=new net.minecraft.world.entity.EquipmentSlot[]{net.minecraft.world.entity.EquipmentSlot.HEAD,net.minecraft.world.entity.EquipmentSlot.CHEST,net.minecraft.world.entity.EquipmentSlot.LEGS,net.minecraft.world.entity.EquipmentSlot.FEET};
             var items=new net.minecraft.world.item.Item[]{Items.LEATHER_HELMET,Items.LEATHER_CHESTPLATE,Items.LEATHER_LEGGINGS,Items.LEATHER_BOOTS};
@@ -148,7 +167,7 @@ public final class NeutralWandChecks {
             for(long key:forced)owner.level().setChunkForced(net.minecraft.world.level.ChunkPos.getX(key),net.minecraft.world.level.ChunkPos.getZ(key),false);}
     }
     public static void run(GameController game){require(running==null,"exclusive fixture");var f=new Fixture(game);running=f;try{f.init();}catch(RuntimeException|Error e){running=null;f.close();throw e;}}
-    public static void tick(GameController game){if(running==null)return;var f=running;try{if(!f.checked){if(!f.warm())return;f.presentation();f.payloads();f.combat();f.trialAndHands();f.feather();f.checked=true;}if(f.step()){running=null;f.close();SkyWars2.LOGGER.info("[check] PASS neutral-wand");}}catch(Throwable e){running=null;try{f.close();}catch(Throwable cleanup){e.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL neutral-wand",e);}}
+    public static void tick(GameController game){if(running==null)return;var f=running;try{if(!f.checked){if(!f.warm())return;f.presentation();f.payloads();f.combat();f.trialAndHands();f.alternating();f.feather();f.checked=true;}if(f.step()){running=null;f.close();SkyWars2.LOGGER.info("[check] PASS neutral-wand");}}catch(Throwable e){running=null;try{f.close();}catch(Throwable cleanup){e.addSuppressed(cleanup);}SkyWars2.LOGGER.error("[check] FAIL neutral-wand",e);}}
     public static void stopProbe(GameController game){var p=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));require(stopState==null,"exclusive actual stop");stopState=new GameChecks.WandThirdPlayerState(p,game.items().mana());p.setShiftKeyDown(false);p.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);game.items().mana().noMagic(p,0);
         for(int m=1;m<=5;m++){var s=game.lbc().rollTable(p.level(),p.position(),p,"lbc:ported/academy_neutral_wand").getFirst();var d=s.get(DataComponents.CUSTOM_DATA).copyTag();d.putInt("mode",m);s.set(DataComponents.CUSTOM_DATA,CustomData.of(d));p.setItemInHand(InteractionHand.MAIN_HAND,s);game.items().mana().set(p,10000);require(game.items().wands().use(p,InteractionHand.MAIN_HAND),"actual pre-stop native cast");}
         stopped=game.items().neutral().snapshot();require(stopped.size()==13,"thirteen projectiles before actual stop");epoch=game.items().epoch();game.items().timeStop().begin(p.level(),200);SkyWars2.LOGGER.info("[check] PASS neutral-wand-stop-probe");}

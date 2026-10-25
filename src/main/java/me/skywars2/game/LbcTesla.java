@@ -18,6 +18,7 @@ import net.minecraft.world.phys.Vec3;
 /** Tesla input and its finite bent instant ray; existing Electro owns moving arcs and conduction. */
 final class LbcTesla {
     private static final TagKey<Block> AIRS=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:airs"));
+    private static final TagKey<Block> CONDUCTIVE=TagKey.create(Registries.BLOCK,Identifier.parse("minecraft:electroprovod"));
     private static final TagKey<net.minecraft.world.entity.EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     private static final DustParticleOptions WHITE=new DustParticleOptions(0xffffff,.5f),PURPLE=new DustParticleOptions(0x6f4bb3,.75f);
     private LbcTesla(){}
@@ -50,14 +51,15 @@ final class LbcTesla {
         private void reset(){point=origin;currentYaw=yaw;currentPitch=pitch;sample=0;}
         @Override public boolean step(){
             if(!game.items().currentEpoch(epoch)||!owner.isAlive()||owner.isRemoved()||owner.level()!=level||!game.canUseGameplayItems(owner))return true;
-            Vec3 from=point,last=point;boolean terminal=false,emitted=false;
+            Vec3 from=point,last=point,conductor=null;boolean terminal=false,emitted=false;
             for(int i=0;i<8;i++){
                 var pos=BlockPos.containing(point);if(!level.hasChunkAt(pos)){terminal=true;break;}
                 emitted=true;last=point;level.sendParticles(WHITE,true,false,point.x,point.y,point.z,1,0,0,0,2);
                 level.sendParticles(PURPLE,true,false,point.x,point.y,point.z,1,0,0,0,1);
                 var state=level.getBlockState(pos);
-                if(!state.is(AIRS)){
-                    if(state.is(net.minecraft.world.level.block.Blocks.WATER))game.items().wands().teslaConduction(trace,point);
+                if(state.is(CONDUCTIVE)){
+                    if(conductor==null)conductor=point;
+                }else if(!state.is(AIRS)){
                     terminal=true;break;
                 }
                 if(++sample>400){terminal=true;break;}
@@ -69,6 +71,8 @@ final class LbcTesla {
             // Groups have disjoint sample endpoints, so splitting work cannot duplicate bypass-cooldown hits.
             if(emitted)LbcDamage.hurtSegment(level,damage,from,last,Vec3.ZERO,.25,.5f,1,
                     entity->entity.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(owner,entity),false);
+            // Like moving Electro, one shared WILD conductor pulse per sampled segment.
+            if(conductor!=null)game.items().wands().teslaConduction(trace,conductor);
             if(terminal){if(++beam>=5)return true;reset();}
             return false;
         }

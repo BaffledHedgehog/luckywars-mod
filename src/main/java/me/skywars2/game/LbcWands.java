@@ -309,7 +309,8 @@ public final class LbcWands {
         final String epoch;
         final int lifetime;
         final boolean meditation;
-        boolean mechanism,teslaChain;
+        boolean mechanism,teslaChain,statusWild;
+        LbcIndirectKills.Owner cause;
         LbcErecto.Path erecto;
         ServerPlayer trialOwner;
         InteractionHand trialHand;
@@ -335,6 +336,10 @@ public final class LbcWands {
             lifetime=30; meditation=false; mechanism=true;
             yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
             pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));
+        }
+        ElectroTrace(LivingEntity emitter,ServerPlayer owner,Vec3 position,String epoch,LbcIndirectKills.Owner cause){
+            npcSource=emitter;this.owner=owner;level=(ServerLevel)emitter.level();this.position=position;this.epoch=epoch;
+            lifetime=10;meditation=false;statusWild=true;this.cause=cause;yaw=0;pitch=-90;
         }
         LivingEntity source() { return owner==null?npcSource:owner; }
     }
@@ -970,6 +975,10 @@ public final class LbcWands {
     void mechanismElectro(LivingEntity source,Vec3 origin,Vec3 direction) {
         electroTraces.add(new ElectroTrace(source,origin,direction,game.items().epoch()));
     }
+    /** Source Raid Omen124 emits three upward, ten-tick WILD arcs per chained contact. */
+    void chainStatusElectro(LivingEntity emitter,ServerPlayer owner,Vec3 at,LbcIndirectKills.Owner cause){
+        for(int i=0;i<3;i++)electroTraces.add(new ElectroTrace(emitter,owner,at,game.items().epoch(),cause));
+    }
     /** Виртуальные разряды участвуют в том же отражении, что нативные снаряды. Возраст сохраняется. */
     void reflectElectro(ServerPlayer player) {
         for(var trace:electroTraces) if(trace.level==player.level() && trace.position.distanceToSqr(player.position())<=49) {
@@ -1147,7 +1156,7 @@ public final class LbcWands {
             return true;
         }
         int samples=trace.teslaChain?20:trace.meditation || trace.npcSource!=null ? 18 : 10;
-        var shield=shieldHit(trace.source(),from,from.add(direction.scale(samples*.2)),trace.meditation);
+        var shield=shieldHit(trace.source(),from,from.add(direction.scale(samples*.2)),trace.meditation||trace.statusWild);
         double shieldDistance=shield==null ? Double.POSITIVE_INFINITY : from.distanceTo(shield.getLocation());
         double mechanismFraction=trace.mechanism ? game.items().magic().mechanismSuppressionFraction(
                 level,from,from.add(direction.scale(samples*.2))) : Double.POSITIVE_INFINITY;
@@ -1224,10 +1233,15 @@ public final class LbcWands {
     }
     private void electroHits(ElectroTrace trace,Vec3 from,Vec3 to,double spacing,float amount,int targetLimit) {
         var damage=new DamageSource(trace.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
-                .getOrThrow(trace.meditation ? LbcDamage.ELECTRO_MEDITATION : LbcDamage.ELECTRO_BOLT),trace.source());
-        LbcDamage.hurtSegment(trace.level,damage,from,to,Vec3.ZERO,spacing,amount,targetLimit,
+                .getOrThrow(trace.meditation ? LbcDamage.ELECTRO_MEDITATION : LbcDamage.ELECTRO_BOLT),trace.statusWild?trace.owner:trace.source());
+        LbcDamage.hurtSegment(trace.level,game.items().indirectKills().captureDamage(damage,traceCause(trace)),from,to,Vec3.ZERO,spacing,amount,targetLimit,
                 entity->entity.getType().builtInRegistryHolder().is(MOBS)
-                        && electroTarget(trace.source(),entity,trace.meditation),trace.meditation);
+                        && (trace.statusWild?validTarget(entity):electroTarget(trace.source(),entity,trace.meditation)),trace.meditation||trace.statusWild);
+    }
+    private LbcIndirectKills.Owner traceCause(ElectroTrace trace){
+        if(trace.statusWild&&trace.owner!=null&&(trace.cause==null||!trace.cause.player().equals(trace.owner.getUUID())))
+            trace.cause=game.items().indirectKills().wildCause(trace.owner);
+        return trace.cause;
     }
     private boolean electroTarget(LivingEntity owner,Entity entity,boolean meditation) {
         if(!meditation && owner instanceof ServerPlayer player) return projectileTarget(player,entity);
@@ -1241,8 +1255,8 @@ public final class LbcWands {
     /** Проводник: один импульс за тик луча; только Electro-типы обходят cooldown, остальные не меняем. */
     private void electroConduction(ElectroTrace trace,Vec3 point) {
         int accepted=0;
-        var damage=new DamageSource(trace.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
-                .getOrThrow(LbcDamage.ELECTRO_CONDUCTION),trace.source());
+        var damage=game.items().indirectKills().captureDamage(new DamageSource(trace.level.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+                .getOrThrow(LbcDamage.ELECTRO_CONDUCTION),trace.statusWild?trace.owner:trace.source()),traceCause(trace));
         for(var entity:trace.level.getEntitiesOfClass(LivingEntity.class,new AABB(point,point).inflate(10),
                 entity->validTarget(entity) && entity.getType().builtInRegistryHolder().is(MOBS)
                         && !entity.isSpectator() && !entity.entityTags().contains("spectator")
@@ -1423,6 +1437,7 @@ public final class LbcWands {
     /** Радиус взрыва native firework обходит canHitEntity; союзников защищаем и в финальном уроне. */
     public boolean allowDamage(Entity victim,DamageSource source) {
         if(LbcGreed.active(victim)) return false;
+        if(source instanceof LbcBabylonEffects.OwnerDamageSource) return validTarget(victim);
         if(LbcBabylon.managed(source.getDirectEntity())) return game.items().babylon().canAffect((Projectile)source.getDirectEntity(),victim);
         if(LbcNeutral.managed(source.getDirectEntity())) return game.items().neutral().canAffect((Projectile)source.getDirectEntity(),victim);
         if(LbcTransformator.managed(source.getDirectEntity())) return game.items().transformator().canAffect(source.getDirectEntity(),victim);

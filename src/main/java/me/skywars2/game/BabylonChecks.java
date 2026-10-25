@@ -206,6 +206,38 @@ public final class BabylonChecks {
             }
             for(var p:blocks.keySet())block(p,Blocks.AIR);
         }
+        net.minecraft.world.entity.projectile.Projectile blockShot(int kind,BlockPos wall,ServerPlayer author){
+            block(wall,kind==3?Blocks.DIRT:Blocks.OBSIDIAN);
+            var shot=service.emit(owner,3,kind);shot.setOwner(author);shot.setNoGravity(true);
+            shot.setPos(wall.getX()+.5,wall.getY()+.5,wall.getZ()-1.5);shot.setDeltaMovement(new Vec3(0,0,3));shot.tick();
+            require(shot.isRemoved()&&service.count()==0,"native solid impact consumes Babylon transport exactly once kind"+kind);
+            require(shot.position().distanceToSqr(new Vec3(wall.getX()+.5,wall.getY()+.5,wall.getZ()-.05F))<1e-10,"block consequence uses native embedded arrow position before retirement");
+            return shot;
+        }
+        void nativeBlockEffects(){
+            hands(false,false);var effects=game.items().babylonEffects();var wall=BlockPos.containing(at).offset(0,2,4);
+            var victim=cow(new Vec3(wall.getX()+1.3,wall.getY()-.1,wall.getZ()-.05));victim.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(100);victim.setHealth(100);
+            var technical=cow(new Vec3(wall.getX()-.3,wall.getY()-.1,wall.getZ()-.05));technical.entityTags().add("strict_map_object");
+            var shot=blockShot(1,wall,other);require(victim.getHealth()<100&&victim.getKillCredit()==other&&technical.getHealth()==20,"native block-triggered power1 explosion retains reflected current owner and protected roles: hp="+victim.getHealth()+" credit="+victim.getKillCredit()+" expected="+other+" technical="+technical.getHealth()+" source="+victim.getLastDamageSource());
+            victim.setHealth(100);victim.setInvulnerableTime(0);victim.damageCooldownTime=0;shot.tick();require(victim.getHealth()==100,"retired explosion transport cannot trigger again on another native tick");game.items().indirectKills().clear(victim);victim.discard();technical.discard();block(wall,Blocks.AIR);
+            shot=blockShot(2,wall,other);var bolts=bolts();require(bolts.size()==1&&bolts.getFirst().position().distanceToSqr(shot.position())<1e-10&&effects.cause(bolts.getFirst()).player().equals(other.getUUID()),"native block-triggered lightning spawns once at impact with reflected owner");shot.tick();require(bolts().size()==1,"second native tick cannot duplicate block lightning");clearBolts();block(wall,Blocks.AIR);
+            var support=wall.offset(3,-1,-1);block(support,Blocks.STONE);var outside=wall.offset(4,0,0);block(outside,Blocks.DIAMOND_BLOCK);
+            shot=blockShot(3,wall,owner);var center=shot.blockPosition();
+            require(owner.level().getBlockState(wall).isAir()&&owner.level().getBlockState(center.offset(3,0,0)).is(Blocks.FIRE)&&owner.level().getBlockState(outside).is(Blocks.DIAMOND_BLOCK),"block firebreak preserves source air fire, fractional destructive inner carve and outside boundary");
+            block(wall,Blocks.DIRT);shot.tick();require(owner.level().getBlockState(wall).is(Blocks.DIRT),"retired firebreak transport cannot carve a replacement block again");
+            for(var pos:blocks.keySet())block(pos,Blocks.AIR);
+            var ward=new ItemStack(Items.STICK);var data=new net.minecraft.nbt.CompoundTag();data.putInt("mystical",1);data.putInt("type",2);ward.set(DataComponents.CUSTOM_DATA,CustomData.of(data));owner.getInventory().setItem(9,ward);game.items().magic().inventoryChanged(owner);game.items().magic().flushCleansing();
+            try{blockShot(2,wall,owner);require(bolts().isEmpty(),"nearby inventory ward consumes in-ground transport without lightning");}finally{owner.getInventory().setItem(9,ItemStack.EMPTY);game.items().magic().inventoryChanged(owner);game.items().magic().flushCleansing();block(wall,Blocks.AIR);}
+            block(wall,Blocks.OBSIDIAN);var paused=service.emit(owner,3,2);paused.setNoGravity(true);paused.setPos(wall.getX()+.5,wall.getY()+.5,wall.getZ()-1.5);paused.setDeltaMovement(new Vec3(0,0,3));var pausedAt=paused.position();
+            game.items().timeStop().begin(owner.level(),40);
+            try{paused.tick();require(!paused.isRemoved()&&paused.position().equals(pausedAt)&&bolts().isEmpty(),"Time Stop pauses native arrow before its block consequence");}finally{game.items().timeStop().end(owner.level());}
+            paused.tick();require(paused.isRemoved()&&bolts().size()==1,"resumed native block contact releases exactly one deferred-by-flight consequence");clearBolts();block(wall,Blocks.AIR);
+            var stopper=new Marker(EntityTypes.MARKER,owner.level());stopper.setPos(Vec3.atCenterOf(wall));stopper.entityTags().add("stopper");owner.level().addFreshEntity(stopper);game.items().magic().loaded(stopper);
+            try{blockShot(2,wall,owner);require(bolts().size()==1,"mechanism-only stopper does not suppress block lightning");clearBolts();}finally{game.items().magic().unloaded(stopper);stopper.discard();block(wall,Blocks.AIR);}
+            var magicStopper=new Marker(EntityTypes.MARKER,owner.level());magicStopper.setPos(Vec3.atCenterOf(wall));magicStopper.entityTags().add("stopper_magic");owner.level().addFreshEntity(magicStopper);game.items().magic().loaded(magicStopper);
+            try{blockShot(2,wall,owner);require(bolts().isEmpty(),"magic stopper consumes block lightning transport without action");}finally{game.items().magic().unloaded(magicStopper);magicStopper.discard();block(wall,Blocks.AIR);}
+            require(effects.pendingCount()==0,"block impacts never fabricate living-target effect queues");
+        }
         void pools(){
             Set<Item> ordinary=Set.of(LbcVoidArcanum.ITEM,LbcDefensiveArcanums.BARRIER,LbcDefensiveArcanums.HEALING,LbcKiuas.KIUASKIVI,LbcTanner.ITEM,LbcBabylon.ITEM);
             var all=new HashSet<>(ordinary);all.add(LbcKiuas.SUN);all.add(LbcIceMaterials.NEUTRAL_BALL);var exactAll=Set.copyOf(all);
@@ -227,11 +259,13 @@ public final class BabylonChecks {
             for(var c:cows){game.items().babylonEffects().clear(c);game.items().indirectKills().clear(c);c.discard();}game.items().indirectKills().clear(owner);game.items().indirectKills().clear(other);
             for(var entry:blocks.entrySet())game.maps().restoreSnapshot(owner.level(),entry.getKey(),entry.getValue());fields(game.config(),config);saved.restore(game);otherSaved.restore(game);game.server().getScoreboard().removePlayerTeam(team);
             costs.forEach((key,value)->mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly(key),"lbc.math").set(value));
-            for(var e:owner.level().getAllEntities())if(!before.contains(e)&&(e instanceof net.minecraft.world.entity.item.ItemEntity||e instanceof net.minecraft.world.entity.ExperienceOrb||e instanceof net.minecraft.world.entity.LightningBolt)){game.items().babylonEffects().unloaded(e);e.discard();}
+            var debris=new ArrayList<Entity>();
+            for(var e:owner.level().getAllEntities())if(!before.contains(e)&&(e instanceof net.minecraft.world.entity.item.ItemEntity||e instanceof net.minecraft.world.entity.ExperienceOrb||e instanceof net.minecraft.world.entity.LightningBolt))debris.add(e);
+            for(var e:debris){game.items().babylonEffects().unloaded(e);e.discard();}
             game.players().save();mana.inventoryChanged(owner);mana.inventoryChanged(other);game.items().magic().flushCleansing();
         }
     }
-    public static void run(GameController game){try(var f=new Fixture(game)){f.init();f.presentation();f.manaAndHands();f.launches();f.nativeFlights();f.nativeArrowEffects();f.greed();f.firebreak();f.pools();f.boundaries();}SkyWars2.LOGGER.info("[check] PASS babylon (native loot, independent both-hand300 dispatch, source25 origin/weapon combinations at2 angles, native markers/rocket, gates and reload retirement; explicit boundary ticks)");}
+    public static void run(GameController game){try(var f=new Fixture(game)){f.init();f.presentation();f.manaAndHands();f.launches();f.nativeFlights();f.nativeArrowEffects();f.greed();f.firebreak();f.nativeBlockEffects();f.pools();f.boundaries();}SkyWars2.LOGGER.info("[check] PASS babylon (native loot, independent both-hand300 dispatch, source25 origin/weapon combinations at2 angles, native markers/rocket, block/entity consequences, gates and reload retirement; explicit boundary ticks)");}
     private static Saved stopSaved;private static String stopEpoch;private static net.minecraft.world.entity.projectile.Projectile stopShot;private static Cow stopTarget;
     public static void stopProbe(GameController game){
         require(stopSaved==null,"exclusive stop fixture");var owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));require(owner!=null&&game.canUseGameplayItems(owner)&&game.items().babylon().count()==0,"clean actual stop probe");stopSaved=new Saved(game,owner);

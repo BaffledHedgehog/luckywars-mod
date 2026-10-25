@@ -57,6 +57,19 @@ public final class LbcBabylonEffects {
     }
     private boolean valid(LivingEntity target){return game.playing()&&target.level()==game.maps().level()&&game.items().wands().validTarget(target);}
     private boolean skillImmune(LivingEntity target){return mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("#lbcskill"),"swrg.math").get()==1 && mana.score(target,"lbc.skill").get()==19;}
+    /** Legacy in-ground arrows fire once, independent of living-target duration queues. */
+    void blockImpact(Projectile arrow,int amp,Vec3 at){
+        int kind=index(amp);var owner=LbcIndirectKills.playerSource(arrow);
+        if(kind<0||owner==null||!LbcBabylon.managed(arrow)||!game.items().currentEpoch(arrow)
+                ||!game.playing()||arrow.level()!=game.maps().level()||!arrow.level().hasChunkAt(BlockPos.containing(at))
+                ||!game.server().tickRateManager().runsNormally()||game.items().timeStop().stopped((ServerLevel)arrow.level())
+                ||game.items().timeStop().frozen(arrow)||arrow.entityTags().contains("time_stopped"))return;
+        var level=(ServerLevel)arrow.level();
+        if(game.items().magic().luckyEffectWarded(level,at)
+                ||(kind==0?game.items().magic().mechanismSuppressedAt(level,at):game.items().magic().suppressedAt(level,at)))return;
+        var cause=game.items().indirectKills().coldCause(owner,true);
+        actAt(level,at,kind,new LbcIndirectKills.Owner(cause.player(),cause.order(),true,true));
+    }
     public void tick(){for(var target:List.copyOf(pending.keySet()))tickTarget(target);}
     public void tickTarget(LivingEntity target){
         var all=pending.get(target);if(all==null)return;
@@ -75,7 +88,10 @@ public final class LbcBabylonEffects {
         if(all.stream().allMatch(Deque::isEmpty))clear(target);else sync(target);
     }
     private void act(LivingEntity target,int kind,LbcIndirectKills.Owner cause){
-        var level=(ServerLevel)target.level();var at=target.position();var owner=game.server().getPlayerList().getPlayer(cause.player());
+        actAt((ServerLevel)target.level(),target.position(),kind,cause);
+    }
+    private void actAt(ServerLevel level,Vec3 at,int kind,LbcIndirectKills.Owner cause){
+        var owner=game.server().getPlayerList().getPlayer(cause.player());
         if(kind==0){
             var carrier=new net.minecraft.world.entity.monster.Creeper(EntityTypes.CREEPER,level);carrier.setPos(at);secondary.put(carrier,cause);
             var damage=new OwnerDamageSource(level,carrier,owner,cause);

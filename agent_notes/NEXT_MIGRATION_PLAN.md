@@ -1,5 +1,30 @@
 # Следующие этапы переноса
 
+## Gameplay review and signed attributes - QUALIFIED READY (25 October2026)
+
+[Combined contract](GAMEPLAY_REVIEW_2026_10_25.md), [user attribute decisions](ATTRIBUTE_DECISIONS_2026_10_25.md).
+All40 selected attribute ranges are implemented; unknown/modded attributes keep
+native limits. Above40 armor uses the authorized remaining-damage40/armor curve.
+Negative native melee/stabs/custom mob attacks and falls heal directly; negative
+oxygen spends air faster; negative mining copies an adjacent block with full
+independent BE contents. Greed, roles and existing gameplay guards remain.
+WILD Thunder/Raid124 chains, Reforge dust, Neutral alternating, Tesla conduction,
+supported terrain antigravity, source banana poses/gravity-free bounce, Babylon
+block consequences and authored egg names are qualified. Native display SNBT now
+includes required translation so label scale0.5/rotation actually load. The
+user already applied the26.3 ant head transform and removed its template.
+
+Build `b4cdfa8d` passed148 recorded results in two actual mode1 matches
+(164.19s), including actual stop cleanup. Exact340 sources /
+925 classes /2812 resources match the tested artifact. Five existing user
+files and removed applied templates are preserved/excluded. READY ONLY by user:
+main remains2558af6b, no replacement/restart. Evidence:
+`build/verification/gameplay-review-final/`. Native fixtures do not qualify
+real client pixels, actual disk restart/disconnect or peak-capacity behavior.
+The vanilla client retains its own attribute ranges. Next migration remains
+the ordinary Soulless Academy trial/upgrade and metasola generation.
+
+
 ## Nine gameplay corrections - QUALIFIED READY (25 October 2026)
 
 [Combined contract](GAMEPLAY_FIXES_2026_10_25.md),

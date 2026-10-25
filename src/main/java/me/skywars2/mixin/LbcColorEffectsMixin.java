@@ -45,6 +45,9 @@ public abstract class LbcColorEffectsMixin {
             var target=(LivingEntity)(Object)this;
             if(me.skywars2.game.LbcGreed.active(target) && source!=target) { ci.setReturnValue(false); return; }
             var arrow=me.skywars2.game.LbcBabylon.effectArrow();
+            if(me.skywars2.game.LbcChainLightningStatus.isMarker(effect)){
+                ci.setReturnValue(game.items().bolts().acceptStatus(target,effect,arrow==null?source:arrow));return;
+            }
             if(arrow!=null && me.skywars2.game.LbcBabylonEffects.isEffect(effect)) {
                 ci.setReturnValue(game.items().babylonEffects().accept(target,arrow,effect)); return;
             }

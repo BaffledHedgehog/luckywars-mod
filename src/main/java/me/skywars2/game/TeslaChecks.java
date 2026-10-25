@@ -110,6 +110,20 @@ public final class TeslaChecks {
             require(owner.getHealth()==999&&other.getHealth()==999,"conduction reaches caster and allied player even with team friendly fire disabled");
             other.teleportTo(other.level(),at.x+30,at.y,at.z,Set.of(),0,0,true);
         }
+        void instantConduction(){
+            owner.setYRot(0);owner.setXRot(0);var eye=owner.getEyePosition();var pos=BlockPos.containing(eye);
+            var victim=cow(eye.add(4,-.6,0));var technical=cow(eye.add(-4,-.6,0));technical.entityTags().add("strict_map_object");
+            var invulnerable=cow(eye.add(3,-.6,0));invulnerable.setPermanentlyInvulnerable(true);
+            other.teleportTo(other.level(),eye.x-3,at.y,eye.z,Set.of(),0,0,true);other.setHealth(1000);other.setAbsorptionAmount(0);owner.setHealth(1000);
+            block(pos,Blocks.IRON_BLOCK);var work=new LbcTesla.Instant(game,owner);Vec3 start=work.point;float ownHp=owner.getHealth(),allyHp=other.getHealth();
+            require(!work.step()&&work.beam==0&&work.point.distanceToSqr(start)>0,"instant ray passes tagged metal without terminating");
+            require(victim.conducting==1&&victim.getHealth()==999&&victim.getKillCredit()==owner,"one shared conduction pulse per instant segment with native owner");
+            require(owner.getHealth()==ownHp-1&&other.getHealth()==allyHp-1,"instant conduction remains WILD for caster/allied player");
+            require(technical.getHealth()==1000&&invulnerable.getHealth()==1000,"instant shared conduction preserves protected roles/native rejected damage");
+            block(pos,Blocks.WATER);work=new LbcTesla.Instant(game,owner);int pulses=victim.conducting;require(!work.step()&&work.beam==0&&victim.conducting==pulses+1,"water shares conductor continuation and one segment pulse");
+            block(pos,Blocks.STONE);work=new LbcTesla.Instant(game,owner);pulses=victim.conducting;require(!work.step()&&work.beam==1&&victim.conducting==pulses,"nonconductor terminates beam without conduction");
+            block(pos,Blocks.AIR);victim.discard();technical.discard();invulnerable.discard();other.teleportTo(other.level(),at.x+30,at.y,at.z,Set.of(),0,0,true);
+        }
         void chain(){
             var s=loot("academy_tesla_wand");flag(s,"mode",3);require(use(s,InteractionHand.MAIN_HAND)&&shots().size()==1,"one native chain carrier");var trace=shots().getFirst();require(trace.teslaChain&&trace.lifetime==150,"source chain flag/lifetime150");
             var center=at.add(0,4,12);trace.position=center;trace.yaw=0;trace.pitch=0;
@@ -144,7 +158,7 @@ public final class TeslaChecks {
             clear();cows.forEach(Entity::discard);technical.discard();
         }
         boolean step(){long now=owner.level().getGameTime();if(last==now)return false;last=now;
-            if(phase==0){presentation();geometry();chain();boundaries();beginInstant();phase++;return false;}
+            if(phase==0){presentation();geometry();instantConduction();chain();boundaries();beginInstant();phase++;return false;}
             if(phase==1){require(game.items().stonekivi().count()>0&&instantVictim.direct==0,"actual Time Stop freezes queued instant work");if(++waits<3)return false;game.items().timeStop().end(owner.level());waits=0;phase++;return false;}
             if(phase==2){if(game.items().stonekivi().count()>0){require(++waits<200,"queued five rays complete");return false;}require(instantVictim.getHealth()<1000&&instantVictim.direct>=5&&instantVictim.getKillCredit()==owner,"all five native instant beams hit and credit real caster");instantVictim.discard();
                 panel=new net.minecraft.world.entity.Interaction(EntityTypes.INTERACTION,owner.level());panel.setPos(at);panel.entityTags().add("magic_academy");owner.level().addFreshEntity(panel);trial=loot("tesla_wand");owner.setItemInHand(InteractionHand.MAIN_HAND,trial);require(game.items().academy().interact(owner,InteractionHand.MAIN_HAND,panel)&&LbcAcademy.trial(trial),"actual Tesla Academy admission");phase++;return false;}

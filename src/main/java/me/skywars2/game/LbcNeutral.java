@@ -58,15 +58,21 @@ public final class LbcNeutral {
     boolean use(ServerPlayer p,InteractionHand hand,ItemStack stack,boolean academy){
         if(!active(p))return false;
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-        int mode=Math.max(1,Math.min(5,data.getIntOr("mode",1)));
+        int mode=Math.max(1,Math.min(6,data.getIntOr("mode",1)));
         if(academy&&p.isShiftKeyDown()){
-            mode=mode%5+1;data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));p.getInventory().setChanged();
-            p.sendSystemMessage(Component.translatable(MODES[mode-1]));return true;
+            mode=mode%6+1;data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));p.getInventory().setChanged();
+            p.sendSystemMessage(mode==6?Component.translatableWithFallback("mode_alternating","Чередующийся"):Component.translatable(MODES[mode-1]));return true;
         }
         int cost=game.items().mana().score(ScoreHolder.forNameOnly("neutral_wand_mana_use"),"lbc.math").get();
         if(!game.items().mana().trySpendWand(p,cost))return false;
+        boolean alternating=academy&&mode==6;
+        if(alternating)mode=Math.max(1,Math.min(5,data.getIntOr("alternating_next",1)));
         if(!academy)mode=p.getRandom().nextInt(5)+1;
         cast(p,mode);
+        if(alternating){
+            var updated=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+            updated.putInt("alternating_next",mode%5+1);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(updated));p.getInventory().setChanged();
+        }
         if(!academy&&LbcAcademy.trial(stack)){
             int combo=data.getIntOr("type_combo",-1)==mode?data.getIntOr("score",0)+1:0;
             data.putInt("type_combo",mode);data.putInt("score",combo);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));p.getInventory().setChanged();

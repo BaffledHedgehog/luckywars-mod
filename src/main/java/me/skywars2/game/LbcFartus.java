@@ -101,7 +101,7 @@ public final class LbcFartus {
     public static boolean academy(ItemStack stack){return isFartus(stack)&&(stack.is(ACADEMY)||data(stack).getIntOr("upgraded",0)==1);}
     public static boolean magic(Entity entity){return entity instanceof Shot shot&&shot.kind!=Kind.BANANA;}
     public static final class Shot extends Projectile implements PolymerEntity {
-        Kind kind=Kind.BANANA;int age;Display.ItemDisplay display;LbcFartus service;
+        Kind kind=Kind.BANANA;int age;float launchYaw,launchPitch;Display.ItemDisplay display;LbcFartus service;
         Shot(EntityType<? extends Shot> type,Level level){super(type,level);}
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder){}
         @Override public EntityType<?> getPolymerEntityType(PacketContext context){return EntityTypes.MARKER;}
@@ -156,13 +156,16 @@ public final class LbcFartus {
     }
     Shot spawn(ServerPlayer owner,Kind kind,Vec3 origin,Vec3 motion){
         if(!owner.level().hasChunkAt(BlockPos.containing(origin)))return null;
-        var shot=new Shot(TYPE,owner.level());shot.service=this;shot.kind=kind;shot.setOwner(owner);shot.setPos(origin);shot.setNoGravity(true);shot.setDeltaMovement(motion);
+        var shot=new Shot(TYPE,owner.level());shot.service=this;shot.kind=kind;shot.launchYaw=owner.getYRot();shot.launchPitch=owner.getXRot();shot.setOwner(owner);shot.setPos(origin);shot.setNoGravity(true);shot.setDeltaMovement(motion);
         shot.entityTags().add(kind==Kind.BANANA?"physical_object":"magic");shot.entityTags().add("skywars2.fartus_shot");game.items().markCurrentItemEpoch(shot);
         var display=new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,owner.level());shot.display=display;
         try{
-            var preset=TagParser.parseCompoundFully("{teleport_duration:1,interpolation_duration:1,shadow_radius:0f,shadow_strength:0f,item_display:'fixed',view_range:10f,transformation:{left_rotation:"+(kind==Kind.LABEL?"[1f,0f,0f,1f]":"[0f,0f,0f,1f]")+",right_rotation:[0f,0f,0f,1f],scale:"+(kind==Kind.LABEL?"[.5f,.5f,.5f]":"[1f,1f,1f]")+"},item:{id:'"+(kind==Kind.LABEL?"minecraft:repeating_command_block":"minecraft:carrot_on_a_stick")+"',count:1,components:{'minecraft:item_model':'"+(kind==Kind.LABEL?"lbc:banan":"lbc:banana")+"'}}}");
+            var preset=TagParser.parseCompoundFully("{teleport_duration:1,interpolation_duration:1,shadow_radius:0f,shadow_strength:0f,item_display:'fixed',view_range:10f,transformation:{translation:[0f,0f,0f],left_rotation:"+(kind==Kind.LABEL?"[1f,0f,0f,1f]":"[0f,0f,0f,1f]")+",right_rotation:[0f,0f,0f,1f],scale:"+(kind==Kind.LABEL?"[.5f,.5f,.5f]":"[1f,1f,1f]")+"},item:{id:'"+(kind==Kind.LABEL?"minecraft:repeating_command_block":"minecraft:carrot_on_a_stick")+"',count:1,components:{'minecraft:item_model':'"+(kind==Kind.LABEL?"lbc:banan":"lbc:banana")+"'}}}");
             display.load(TagValueInput.create(ProblemReporter.DISCARDING,owner.registryAccess(),preset));
         }catch(com.mojang.brigadier.exceptions.CommandSyntaxException error){throw new IllegalStateException(error);}
+        // Visual actors never simulate gravity; ordinary banana gravity belongs only
+        // to physical(shot), while homing flight has no gravitational acceleration.
+        display.setNoGravity(true);
         display.entityTags().add("skywars2.fartus_display");if(kind!=Kind.BANANA)display.entityTags().add("magic");game.items().markCurrentItemEpoch(display);
         orient(shot);shots.add(shot);game.items().timeStop().prepareFrozen(shot);game.items().timeStop().prepareFrozen(display);
         if(!owner.level().addFreshEntity(shot)||shot.isRemoved()||!owner.level().addFreshEntity(display))remove(shot);
@@ -170,7 +173,16 @@ public final class LbcFartus {
     }
     private void orient(Shot shot){
         var v=shot.getDeltaMovement();if(v.lengthSqr()>1e-12){shot.setYRot((float)-Math.toDegrees(Math.atan2(v.x,v.z)));shot.setXRot((float)-Math.toDegrees(Math.atan2(v.y,v.horizontalDistance())));}
-        if(shot.display!=null)shot.display.snapTo(shot.getX(),shot.getY(),shot.getZ(),shot.getYRot(),shot.getXRot());
+        if(shot.display!=null){
+            if(shot.kind==Kind.BANANA){
+                // Source ItemDisplay retains its launch entity Rotation. Paper
+                // PhysicalObjectPhysics applies current motion in left_rotation.
+                shot.display.snapTo(shot.getX(),shot.getY(),shot.getZ(),shot.launchYaw,shot.launchPitch);
+                if(shot.age>0&&v.lengthSqr()>1e-6)shot.display.setTransformation(new com.mojang.math.Transformation(
+                        new org.joml.Vector3f(),new org.joml.Quaternionf().rotateY((float)Math.toRadians(-shot.getYRot())).rotateX((float)Math.toRadians(shot.getXRot())),
+                        new org.joml.Vector3f(1),new org.joml.Quaternionf()));
+            }else shot.display.snapTo(shot.getX(),shot.getY(),shot.getZ(),shot.getYRot(),shot.getXRot());
+        }
     }
     private boolean validOwner(ServerPlayer owner){return game.playing()&&game.stage()!=GameController.Stage.ENDING&&owner.isAlive()&&!owner.isRemoved()
             &&game.canUseGameplayItems(owner)&&owner.level()==game.maps().level();}
@@ -195,9 +207,12 @@ public final class LbcFartus {
             Vec3 end=wall==null?to:wall.getLocation();
             if(contact(shot,from,end,0))break;
             shot.setPos(end);
-            // User: guided bananas fly and home without physical rebounds. Contacts
-            // before the wall still resolve; the first solid impact retires the actor.
-            if(wall!=null){remove(shot);break;}
+            // User clarified: keep source homing wall reversal, disable only gravity.
+            if(wall!=null){if(!level.hasChunkAt(wall.getBlockPos())||shot.kind==Kind.LABEL){remove(shot);break;}
+                // Keep the swept hit just outside the solid so the following
+                // outward substep does not collide again at the same boundary.
+                shot.setPos(end.subtract(shot.getDeltaMovement().normalize().scale(1e-7)));
+                shot.setDeltaMovement(shot.getDeltaMovement().reverse());}
             if(!valid(shot)){remove(shot);break;}
         }
         if(!shot.isRemoved()){if(++shot.age>=(shot.kind==Kind.LABEL?60:100))remove(shot);else orient(shot);}

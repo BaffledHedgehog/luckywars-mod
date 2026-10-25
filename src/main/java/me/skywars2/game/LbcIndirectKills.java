@@ -83,6 +83,10 @@ public final class LbcIndirectKills {
     public DamageSource inheritDamage(LivingEntity target,DamageSource source){
         return causeTarget==target&&activeCause!=null&&!(source instanceof CapturedDamage)?new CapturedDamage(source,activeCause):source;
     }
+    /** Detached spell segments retain the original accepted effect's author and ordering. */
+    DamageSource captureDamage(DamageSource source,Owner cause){return cause==null?source:new CapturedDamage(source,cause);}
+    /** Native ServerPlayer friendship admission runs before LivingEntity's damage callbacks. */
+    public static boolean isWildCaptured(DamageSource source){return source instanceof CapturedDamage captured&&captured.cause.friendlyFire();}
     public void inheritedEffect(LivingEntity target,MobEffectInstance effect,Owner cause){
         var owner=cause==null?null:game.server().getPlayerList().getPlayer(cause.player());
         if(!target.addEffect(effect,owner)||cause==null||target==owner)return;

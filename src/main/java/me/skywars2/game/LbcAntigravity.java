@@ -24,6 +24,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -36,12 +37,21 @@ public final class LbcAntigravity {
     private final GameController game;
     private final List<Storm> storms=new ArrayList<>();
     private final Map<Display.BlockDisplay,Lifted> displays=new LinkedHashMap<>();
-    private record Storm(ServerLevel level,Vec3 origin,ServerPlayer author,String epoch,int[] age) { }
+    private record Storm(ServerLevel level,Vec3 origin,ServerPlayer author,String epoch,int[] age,
+                         List<BlockPos> columns,boolean[] indexed) { }
     private static final class Lifted {
         final Storm storm;
+        final List<Passenger> passengers;
         double speed;
         int stale;
-        Lifted(Storm storm) { this.storm=storm; }
+        Lifted(Storm storm,List<Passenger> passengers) { this.storm=storm; this.passengers=passengers; }
+    }
+    private static final class Passenger {
+        final LivingEntity entity;
+        final List<AABB> surfaces;
+        boolean controlled,detached;
+        double appliedSpeed;
+        Passenger(LivingEntity entity,List<AABB> surfaces) {this.entity=entity;this.surfaces=surfaces;}
     }
     public LbcAntigravity(GameController game) { this.game=game; }
     private boolean active(ServerLevel level,String epoch) {
@@ -68,9 +78,10 @@ public final class LbcAntigravity {
         game.items().markCurrentItemEpoch(token);
         var origin=Vec3.atLowerCornerOf(token.blockPosition());
         var author=LbcIndirectKills.playerSource(game.items().specialDrops().owner(token));
-        var storm=new Storm(level,origin,author,game.items().epoch(),new int[1]);
+        var storm=new Storm(level,origin,author,game.items().epoch(),new int[1],new ArrayList<>(),new boolean[1]);
         storms.add(storm);
-        launch(storm,token.blockPosition());
+        var initial=terrain(storm,token.blockPosition());
+        if(initial!=null) launch(storm,initial);
         for(var player:level.players()) if(eligible(player) && player.position().distanceToSqr(origin)<=17*17) {
             player.connection.send(new ClientboundSetTitlesAnimationPacket(0,40,10));
             player.connection.send(new ClientboundSetTitleTextPacket(Component.translatable("antigravity_started")));
@@ -79,8 +90,71 @@ public final class LbcAntigravity {
         return true;
     }
     private boolean eligible(LivingEntity entity) { return game.items().wands().validTarget(entity); }
+    /** No chunk tickets: search resident nonempty sections for the closest actual column surface. */
+    private static BlockPos surface(ServerLevel level,int x,int z,int y) {
+        var chunk=level.getChunkSource().getChunkNow(x>>4,z>>4);
+        if(chunk==null) return null;
+        BlockPos best=null; long distance=Long.MAX_VALUE;
+        var sections=chunk.getSections();
+        for(int i=0;i<sections.length;i++) {
+            var section=sections[i];
+            if(section.hasOnlyAir()) continue;
+            int base=chunk.getSectionYFromSectionIndex(i)<<4;
+            if((y<base && (long)base-y>distance) || (y>base+15 && (long)y-base-15>distance)) continue;
+            for(int localY=15;localY>=0;localY--) {
+                int atY=base+localY; long delta=Math.abs((long)atY-y);
+                if(delta>=distance || !section.getBlockState(x&15,localY,z&15).isSolid()) continue;
+                var pos=new BlockPos(x,atY,z);
+                if(level.getBlockState(pos.above()).isSolid()) continue;
+                best=pos; distance=delta;
+            }
+        }
+        return best;
+    }
+    private static BlockPos nearbySurface(ServerLevel level,BlockPos center) {
+        if(!resident(level,center)) return null;
+        BlockPos best=null; long distance=Long.MAX_VALUE;
+        for(int x=center.getX()-1;x<=center.getX()+1;x++) for(int z=center.getZ()-1;z<=center.getZ()+1;z++) {
+            var pos=surface(level,x,z,center.getY());
+            if(pos!=null && Math.abs((long)pos.getY()-center.getY())<distance) {
+                best=center.atY(pos.getY()); distance=Math.abs((long)pos.getY()-center.getY());
+            }
+        }
+        return best;
+    }
+    private static BlockPos terrain(Storm storm,BlockPos sampled) {
+        if(resident(storm.level,sampled)) {
+            for(var pos:BlockPos.betweenClosed(sampled.offset(-1,-1,-1),sampled.offset(1,1,1)))
+                if(!storm.level.isOutsideBuildHeight(pos) && storm.level.getBlockState(pos).isSolid()) return sampled;
+            var nearby=nearbySurface(storm.level,sampled);
+            if(nearby!=null) return nearby;
+        }
+        // Build the sparse fallback only on a miss; revalidate selected columns against live terrain.
+        if(!storm.indexed[0]) {
+            storm.indexed[0]=true;
+            var origin=BlockPos.containing(storm.origin);
+            for(int x=-16;x<16;x++) for(int z=-16;z<16;z++) {
+                var center=origin.offset(x,0,z);
+                if(resident(storm.level,center) && surface(storm.level,center.getX(),center.getZ(),center.getY())!=null)
+                    storm.columns.add(center);
+            }
+        }
+        while(!storm.columns.isEmpty()) {
+            int index=storm.level.getRandom().nextInt(storm.columns.size());
+            var center=storm.columns.get(index);
+            if(resident(storm.level,center)) {
+                var pos=surface(storm.level,center.getX(),center.getZ(),center.getY());
+                if(pos!=null) return center.atY(pos.getY());
+            }
+            storm.columns.remove(index);
+        }
+        return null;
+    }
     private void launch(Storm storm,BlockPos center) {
         if(!resident(storm.level,center)) return;
+        // Snapshot actual support before any block is cleared. One broad query per cube, not per display/tick.
+        var candidates=storm.level.getEntitiesOfClass(LivingEntity.class,
+                new AABB(Vec3.atLowerCornerOf(center.offset(-1,-1,-1)),Vec3.atLowerCornerOf(center.offset(2,4,2))),this::eligible);
         Runnable changes=()->{
             for(var mutable:BlockPos.betweenClosed(center.offset(-1,-1,-1),center.offset(1,1,1))) {
                 var pos=mutable.immutable();
@@ -93,9 +167,15 @@ public final class LbcAntigravity {
                 display.setViewRange(128); display.setShadowRadius(0); display.setShadowStrength(0);
                 display.setBillboardConstraints(Display.BillboardConstraints.FIXED);
                 display.setTransformationInterpolationDuration(1); display.setPosRotInterpolationDuration(1);
-                display.snapTo(pos.getX()-.5,pos.getY(),pos.getZ()-.5,0,0);
+                // Native BlockDisplay renders the unit model from its lower corner.
+                display.snapTo(pos.getX(),pos.getY(),pos.getZ(),0,0);
                 display.entityTags().add(ACTOR); game.items().markCurrentItemEpoch(display);
-                displays.put(display,new Lifted(storm));
+                var passengers=new ArrayList<Passenger>();
+                for(var living:candidates) {
+                    var surfaces=state.getCollisionShape(storm.level,pos,CollisionContext.of(living)).toAabbs();
+                    if(touches(living,display.position(),surfaces)) passengers.add(new Passenger(living,surfaces));
+                }
+                displays.put(display,new Lifted(storm,passengers));
                 game.items().timeStop().prepareFrozen(display);
                 if(!storm.level.addFreshEntity(display)) { displays.remove(display); display.discard(); continue; }
                 // CraftBlock.setType(AIR,false) removes the BE before its no-physics replacement.
@@ -109,16 +189,40 @@ public final class LbcAntigravity {
     }
     public void tick() {
         // Existing displays move first: a cube emitted below starts moving next tick, like the source scheduler.
+        var carried=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<LivingEntity,Boolean>());
         for(var entry:List.copyOf(displays.entrySet())) {
             var display=entry.getKey(); var lifted=entry.getValue(); var storm=lifted.storm;
             if(display.isRemoved()) { displays.remove(display); continue; }
             if(!active(storm.level,storm.epoch)) { displays.remove(display); display.discard(); continue; }
             if(game.items().timeStop().stopped(storm.level)) continue;
             if(lifted.speed<3) lifted.speed+=.04;
-            var next=display.position().add(0,lifted.speed,0);
+            var previous=display.position();
+            var next=previous.add(0,lifted.speed,0);
+            for(var passenger:lifted.passengers) {
+                var living=passenger.entity;
+                if(passenger.detached || carried.contains(living))continue;
+                if(living.level()!=storm.level || !eligible(living) || game.items().frost().isFrozen(living)
+                        || living.isJumping() || living.isPassenger()
+                        || (passenger.controlled && (living.getDeltaMovement().y>passenger.appliedSpeed+.125
+                        || living.verticalCollision && !living.onGround()))) {
+                    passenger.detached=true;continue;
+                }
+                double top=supportTop(living,previous,passenger.surfaces);
+                double gap=living.getBoundingBox().minY-top;
+                // A captured passenger may lag one native movement step, but never rejoin from above/at distance.
+                double below=passenger.controlled?lifted.speed+.125:.0625;
+                if(!Double.isFinite(top) || gap>.0625 || gap< -below
+                        || (!passenger.controlled && living.getDeltaMovement().y>lifted.speed+.125)) {
+                    passenger.detached=true;continue;
+                }
+                // Air travel moves first, then applies gravity/drag. Targeting the next top needs no teleport,
+                // onGround forgery or .2 launch: the following native move reaches the same moving surface.
+                double speed=Math.max(0,top+lifted.speed-living.getBoundingBox().minY);
+                lift(living,speed,storm.author);
+                passenger.appliedSpeed=speed;passenger.controlled=true;carried.add(living);
+                living.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,30,0,true,false,false),storm.author);
+            }
             display.setPos(next);
-            for(var living:storm.level.getEntitiesOfClass(LivingEntity.class,box(next,1,1,1),this::eligible))
-                lift(living,lifted.speed+.2,storm.author);
             boolean nearby=false;
             var range=box(next,80,110,80);
             for(var player:storm.level.players()) if(eligible(player) && range.intersects(player.getBoundingBox())) { nearby=true; break; }
@@ -136,19 +240,29 @@ public final class LbcAntigravity {
     private void pulse(Storm storm) {
         var random=storm.level.getRandom();
         var at=storm.origin.add(random.nextDouble()*32-16,0,random.nextDouble()*32-16);
-        launch(storm,BlockPos.containing(at));
+        var center=terrain(storm,BlockPos.containing(at));
+        if(center==null) return; // An empty loaded footprint cannot produce a platform or entity-only pulse.
+        launch(storm,center);
+        at=new Vec3(center.getX()+at.x-Math.floor(at.x),center.getY(),center.getZ()+at.z-Math.floor(at.z));
         storm.level.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE,at.x+.5,at.y+1,at.z+.5,25,1,1,1,0);
         sound(storm.level,at,SoundEvents.PARROT_FLY); sound(storm.level,at,SoundEvents.STONE_BREAK);
-        for(var living:storm.level.getEntitiesOfClass(LivingEntity.class,box(storm.origin,17,60,17),this::eligible)) {
-            lift(living,.55,storm.author);
-            living.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,30,0,true,false,false),storm.author);
-
-        }
+    }
+    private static double supportTop(LivingEntity living,Vec3 origin,List<AABB> surfaces) {
+        var feet=living.getBoundingBox();
+        double best=Double.NEGATIVE_INFINITY;
+        for(var shape:surfaces) if(feet.maxX>origin.x+shape.minX+1e-6 && feet.minX<origin.x+shape.maxX-1e-6
+                && feet.maxZ>origin.z+shape.minZ+1e-6 && feet.minZ<origin.z+shape.maxZ-1e-6)
+            best=Math.max(best,origin.y+shape.maxY);
+        return best;
+    }
+    /** Initial admission requires real feet contact, before any terrain is cleared. */
+    private static boolean touches(LivingEntity living,Vec3 origin,List<AABB> surfaces) {
+        return Math.abs(living.getBoundingBox().minY-supportTop(living,origin,surfaces))<=.0625;
     }
     private void lift(LivingEntity living,double speed,ServerPlayer author) {
         if(game.items().frost().isFrozen(living)) return;
         var motion=living.getDeltaMovement();
-        if(motion.y>=speed) return;
+        if(Math.abs(motion.y-speed)<1e-12) return;
         living.setDeltaMovement(motion.x,speed,motion.z); living.needsSync=true; living.syncVelocity=true;
         if(author!=null) game.items().indirectKills().displaced(living,author,true);
     }

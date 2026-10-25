@@ -101,7 +101,7 @@ public final class LbcBabylon {
         Vec3 pos=owner.getEyePosition().add(local(owner,ORIGINS[originIndex-1]));
         if(!owner.level().hasChunkAt(BlockPos.containing(pos)))return null;
         Projectile shot=switch(kind){
-            case 1,2,3->{var arrow=new BabylonArrow(owner.level());load(arrow,ARROWS[kind-1]);yield arrow;}
+            case 1,2,3->{var arrow=new BabylonArrow(owner.level(),kind==1?101:kind==2?109:110);load(arrow,ARROWS[kind-1]);yield arrow;}
             case 4->new BabylonTrident(owner.level());
             case 5->{var rocket=new BabylonRocket(owner.level());load(rocket,ROCKET);yield rocket;}
             default->throw new IllegalStateException();
@@ -148,10 +148,24 @@ public final class LbcBabylon {
     public int count(){return projectiles.size();}
     List<Projectile> snapshot(){return List.copyOf(projectiles);}
     private final class BabylonArrow extends Arrow {
-        boolean retired;
-        BabylonArrow(ServerLevel level){super(EntityTypes.ARROW,level);}
+        boolean retired,blockEffectDone;final int transportAmp;
+        BabylonArrow(ServerLevel level,int transportAmp){super(EntityTypes.ARROW,level);this.transportAmp=transportAmp;}
         @Override public boolean shouldBeSaved(){return false;}
-        @Override public void tick(){if(!valid(this)){unloaded(this);return;}super.tick();}
+        @Override public void tick(){
+            if(!valid(this)){unloaded(this);return;}
+            if(!game.server().tickRateManager().runsNormally()||game.items().timeStop().stopped((ServerLevel)level())
+                    ||game.items().timeStop().frozen(this)||entityTags().contains("time_stopped"))return;
+            super.tick();
+        }
+        @Override protected void onHitBlock(net.minecraft.world.phys.BlockHitResult hit){
+            super.onHitBlock(hit);
+            // Legacy prein -> arrows_f acts once at the embedded arrow position,
+            // then kills the transport even when a ward suppresses its consequence.
+            if(blockEffectDone||retired||!valid(this))return;
+            blockEffectDone=true;
+            game.items().babylonEffects().blockImpact(this,transportAmp,position());
+            unloaded(this);
+        }
         @Override protected void doPostHurtEffects(LivingEntity target){
             var previous=EFFECT_ARROW.get();
             EFFECT_ARROW.set(this);

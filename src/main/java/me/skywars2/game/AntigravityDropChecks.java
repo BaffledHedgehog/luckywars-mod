@@ -101,9 +101,24 @@ public final class AntigravityDropChecks {
                     }
                     level.getChunkAt(new BlockPos(x*16,center.getY(),z*16));
                 }
+            // Isolate every resident column that the corrected terrain search can reach.
+            // Snapshot only nonair cells in nonempty sections; keep the original low island intact on close.
+            for(int x=center.getX()-18;x<=center.getX()+18;x++) for(int z=center.getZ()-18;z<=center.getZ()+18;z++) {
+                var chunk=level.getChunkSource().getChunkNow(x>>4,z>>4);
+                var sections=chunk.getSections();
+                for(int i=0;i<sections.length;i++) {
+                    var section=sections[i]; if(section.hasOnlyAir()) continue;
+                    int base=chunk.getSectionYFromSectionIndex(i)<<4;
+                    for(int y=0;y<16;y++) if(!section.getBlockState(x&15,y,z&15).isAir()) {
+                        var pos=new BlockPos(x,base+y,z);
+                        blocks.putIfAbsent(pos,game.maps().snapshot(level,pos));
+                        set(pos,Blocks.AIR.defaultBlockState());
+                    }
+                }
+            }
             // Includes the entire floor(random[-16,16))+[-1,1] footprint and update halo.
             for (var p : BlockPos.betweenClosed(center.offset(-18,-2,-18),center.offset(18,2,18))) {
-                blocks.put(p.immutable(),game.maps().snapshot(level,p));
+                blocks.putIfAbsent(p.immutable(),game.maps().snapshot(level,p));
                 set(p,Blocks.AIR.defaultBlockState());
             }
             for (var p : List.of(alpha,beta)) {
@@ -116,6 +131,7 @@ public final class AntigravityDropChecks {
             lastTick=game.server().getTickCount();
         }
         void set(BlockPos p, BlockState state) {
+            if(!blocks.containsKey(p)) blocks.put(p.immutable(),game.maps().snapshot(level,p));
             if (level.getBlockEntity(p) instanceof net.minecraft.world.Container c) c.clearContent();
             level.setBlock(p,state,818);
         }
@@ -183,10 +199,10 @@ public final class AntigravityDropChecks {
             require(displays.size()==27 && game.items().antigravity().stormCount()==1,"initial complete 3-cube and one finite storm");
             var seen=new HashSet<BlockPos>();
             for (var d:displays) {
-                var p=BlockPos.containing(d.getX()+.5,d.getY(),d.getZ()+.5);
+                var p=BlockPos.containing(d.position());
                 require(expected.containsKey(p) && seen.add(p) && d.getBlockState().equals(expected.get(p)),"exact native oriented state");
-                require(d.position().distanceTo(new Vec3(p.getX()-.5,p.getY(),p.getZ()-.5))<1e-9
-                        && d.getYRot()==0 && d.getXRot()==0 && level.getBlockState(p).isAir(),"floored source offset and actual terrain removal");
+                require(d.position().distanceTo(Vec3.atLowerCornerOf(p))<1e-9
+                        && d.getYRot()==0 && d.getXRot()==0 && level.getBlockState(p).isAir(),"rendered unit cube aligned with removed native block lower corner");
                 var nbt=saved(d,level);
                 require(nbt.getFloatOr("view_range",0)==128 && nbt.getIntOr("interpolation_duration",0)==1
                         && nbt.getIntOr("teleport_duration",0)==1 && nbt.getFloatOr("shadow_radius",-1)==0
@@ -204,7 +220,7 @@ public final class AntigravityDropChecks {
             int minX=Integer.MAX_VALUE,minZ=Integer.MAX_VALUE,maxX=Integer.MIN_VALUE,maxZ=Integer.MIN_VALUE;
             var pulseCells=new HashSet<BlockPos>();
             for(var d:pulse) {
-                var p=BlockPos.containing(d.getX()+.5,d.getY(),d.getZ()+.5);
+                var p=BlockPos.containing(d.position());
                 require(pulseCells.add(p) && p.getY()>=center.getY()-1 && p.getY()<=center.getY()+1
                         && d.getBlockState().is(Blocks.STONE) && level.getBlockState(p).isAir(),"pulse fixed source Y and real captured/cleared block");
                 minX=Math.min(minX,p.getX());maxX=Math.max(maxX,p.getX());
@@ -225,67 +241,123 @@ public final class AntigravityDropChecks {
             for (var e:level.getAllEntities()) if (!existing.contains(e) && e instanceof ItemEntity item)
                 require(!item.getItem().is(Items.DIAMOND) && !item.getItem().is(Items.CHEST),"source does not eject inventory or block rewards");
         }
+        void offHeightTerrain() {
+            reset();
+            var island=center.below(7);
+            for(var pos:BlockPos.betweenClosed(island.offset(-1,0,-1),island.offset(1,0,1)))
+                set(pos,Blocks.STONE.defaultBlockState());
+            var supported=cow(Vec3.atLowerCornerOf(island).add(.5,1,.5));
+            var floating=cow(Vec3.atLowerCornerOf(center).add(.5,1,.5));
+            activate();
+            var displays=game.items().antigravity().snapshot();
+            require(displays.size()==9 && displays.stream().allMatch(d->d.getY()==island.getY()
+                    && d.getBlockState().is(Blocks.STONE)),"real island seven blocks below airborne token is selected instead of an air cube");
+            require(level.getBlockState(island).isAir(),"selected off-height terrain is really removed");
+            ticks(1);
+            require(Math.abs(supported.getDeltaMovement().y-.04)<1e-9 && floating.getDeltaMovement().equals(Vec3.ZERO),
+                    "off-height island passenger lifts while airborne origin actor stays unsupported");
+            ticks(9);
+            require(game.items().antigravity().snapshot().stream().allMatch(d->!d.getBlockState().isAir()),
+                    "all-air pulse creates no fake display");
+        }
+        void collisionSupport() {
+            reset(); set(center,Blocks.OAK_SLAB.defaultBlockState());
+            var start=Vec3.atLowerCornerOf(center);
+            var supported=cow(start.add(.5,.5,.5));
+            var unitTop=cow(start.add(.5,1,.5));
+            activate(); ticks(1);
+            require(Math.abs(supported.getDeltaMovement().y-.04)<1e-9 && unitTop.getDeltaMovement().equals(Vec3.ZERO),
+                    "native slab collision top supports at half height; imagined full-cube top never lifts");
+        }
         void motionAndCredit() {
-            reset(); set(center,Blocks.STONE.defaultBlockState()); activate();
-            var display=game.items().antigravity().snapshot().getFirst();
-            var start=display.position();
-            var victim=cow(start.add(0,.3,0)); victim.setDeltaMovement(.12,-.8,-.13);
-            var fast=cow(start.add(.1,.3,.1)); fast.setDeltaMovement(.2,2,.3);
+            reset(); set(center,Blocks.STONE.defaultBlockState());
+            var start=Vec3.atLowerCornerOf(center);
+            var victim=cow(start.add(.5,1,.5)); victim.setDeltaMovement(.12,-.8,-.13);
+            var fast=cow(start.add(.5,1,.5)); fast.setDeltaMovement(.2,2,.3);
+            var floating=cow(start.add(.5,1.3,.5));
+            var adjacent=cow(start.add(1.6,1,.5));
             var blocked=new ArrayList<Cow>();
-            for (var tag:List.of("spectator","rcdenyalways","strict_map_object","sauvojen_tuntija","magic_academy","transformator")) {
-                var c=cow(start.add(0,.3,0)); c.entityTags().add(tag); blocked.add(c);
+            for (var tag:List.of("spectator","rcdenyalways","strict_map_object","sauvojen_tuntija","magic_academy","transformator","sin_greed_active")) {
+                var c=cow(start.add(.5,1,.5)); c.entityTags().add(tag); blocked.add(c);
             }
+            activate();
+            var display=game.items().antigravity().snapshot().getFirst();
             ticks(1);
             require(display.position().distanceTo(start.add(0,.04,0))<1e-9
-                    && victim.getDeltaMovement().distanceTo(new Vec3(.12,.24,-.13))<1e-9
-                    && fast.getDeltaMovement().equals(new Vec3(.2,2,.3)),"first .04 acceleration, max lift and horizontal velocity preservation");
-            require(blocked.stream().allMatch(c->c.getDeltaMovement().equals(Vec3.ZERO)),"display lift excludes service and observer roles");
+                    && victim.getDeltaMovement().distanceTo(new Vec3(.12,.04,-.13))<1e-9
+                    && fast.getDeltaMovement().equals(new Vec3(.2,2,.3)),"supported first .04 acceleration, surface servo and horizontal velocity preservation");
+            require(blocked.stream().allMatch(c->c.getDeltaMovement().equals(Vec3.ZERO)),"support lift excludes service, observer and active Greed roles");
+            require(floating.getDeltaMovement().equals(Vec3.ZERO) && adjacent.getDeltaMovement().equals(Vec3.ZERO)
+                    && !floating.hasEffect(MobEffects.SLOW_FALLING) && !adjacent.hasEffect(MobEffects.SLOW_FALLING),
+                    "hovering and adjacent actors receive neither lift nor slowfall");
+            var effect=victim.getEffect(MobEffects.SLOW_FALLING);
+            require(effect!=null && effect.getDuration()==30 && effect.getAmplifier()==0 && effect.isAmbient()
+                    && !effect.isVisible() && !effect.showIcon(),"supported lift retains source hidden30 slowfall");
+            victim.setPos(start.add(.5,4,.5)); victim.setDeltaMovement(.1,-.3,.2);
             ticks(2);
-            require(display.position().distanceTo(start.add(0,.24,0))<1e-9,"per-active-tick acceleration .04/.08/.12");
+            require(victim.getDeltaMovement().equals(new Vec3(.1,-.3,.2))
+                    && display.position().distanceTo(start.add(0,.24,0))<1e-9,"departed passenger receives no hovering lift; display accelerates normally");
             victim.setHealth(1); victim.setInvulnerableTime(0); victim.damageCooldownTime=0;
             var before=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());
             level.getAllEntities().forEach(before::add);
             victim.hurtServer(level,victim.damageSources().fellOutOfWorld(),1000);
             for(var e:level.getAllEntities())if(!before.contains(e))debris.add(e);
             require(victim.isDeadOrDying() && victim.getKillCredit()==alpha
-                    && victim.getLastDamageSource().is(DamageTypes.FELL_OUT_OF_WORLD),"native lifted victim void death credits thrower rather than pickup target");
+                    && victim.getLastDamageSource().is(DamageTypes.FELL_OUT_OF_WORLD),"native supported victim void death credits thrower rather than pickup target");
+        }
+        void nativeSupportPhysics() {
+            reset();set(center,Blocks.STONE.defaultBlockState());
+            var rider=cow(Vec3.atLowerCornerOf(center).add(.5,1,.5));
+            rider.setNoAi(false);rider.removeAllGoals(goal->true);rider.setNoGravity(false);
+            activate();var display=game.items().antigravity().snapshot().getFirst();
+            for(int step=0;step<40;step++) {
+                ticks(1);rider.tick();
+                require(Math.abs(rider.getY()-(display.getY()+1))<1e-6,
+                        "native gravity/drag tick retains supported rider at moving surface step="+step
+                                +" feet="+rider.getY()+" top="+(display.getY()+1)+" velocity="+rider.getDeltaMovement());
+            }
+            require(rider.getY()>center.getY()+30,"forty actual native movement steps rise with accelerating terrain");
+            // A real native jump is a departure, not a reason to recapture an airborne former rider.
+            reset();set(center,Blocks.STONE.defaultBlockState());
+            rider=cow(Vec3.atLowerCornerOf(center).add(.5,1,.5));
+            rider.setNoAi(false);rider.removeAllGoals(goal->true);rider.setNoGravity(false);
+            activate();display=game.items().antigravity().snapshot().getFirst();
+            for(int i=0;i<3;i++){ticks(1);rider.tick();}
+            rider.jumpFromGround();rider.tick();
+            var departure=rider.getDeltaMovement();ticks(1);
+            require(rider.getDeltaMovement().equals(departure),"native jump is not overwritten by support servo");
+            rider.setPos(display.position().add(.5,1,.5));rider.setDeltaMovement(0,-.7,0);
+            ticks(1);
+            require(rider.getDeltaMovement().y==-.7,"departed rider cannot be recaptured even after returning to contact");
+            // Vanilla collision must stop a rider at a real ceiling; the visual may continue as in source.
+            reset();set(center,Blocks.STONE.defaultBlockState());
+            for(var pos:BlockPos.betweenClosed(center.offset(-1,3,-1),center.offset(1,3,1)))
+                set(pos,Blocks.STONE.defaultBlockState());
+            rider=cow(Vec3.atLowerCornerOf(center).add(.5,1,.5));
+            rider.setNoAi(false);rider.removeAllGoals(goal->true);rider.setNoGravity(false);
+            activate();display=game.items().antigravity().snapshot().getFirst();
+            boolean collided=false;
+            for(int i=0;i<8;i++) {
+                ticks(1);rider.tick();collided|=rider.verticalCollision;
+                require(rider.getBoundingBox().maxY<=center.getY()+3+1e-6,"native rider never passes through solid overhead terrain");
+            }
+            require(collided && display.getY()+1-rider.getY()>.2,"ceiling detaches physically blocked rider instead of snapping through terrain");
         }
         void pulsesAndDuration() {
             reset(); activate();
-            var board=game.server().getScoreboard();
-            var oldA=alpha.getTeam(); var oldB=beta.getTeam();
-            require(board.getPlayerTeam("codex_antigravity_probe")==null,"fixture team available");
-            var team=board.addPlayerTeam("codex_antigravity_probe"); team.setAllowFriendlyFire(false);
-            try {
-                board.addPlayerToTeam(alpha.getScoreboardName(),team); board.addPlayerToTeam(beta.getScoreboardName(),team);
-                place(alpha,10,30); place(beta,12,30);
-                alpha.setDeltaMovement(.1,-.1,.2); beta.setDeltaMovement(-.2,2,.1);
-                var normal=cow(new Vec3(center.getX()+8,center.getY()+2,center.getZ()+.5));
-                var outside=cow(new Vec3(center.getX()+19,center.getY()+2,center.getZ()+.5));
-                var role=cow(normal.position()); role.entityTags().add("strict_map_object");
-                ticks(9);
-                require(alpha.getHealth()==1000 && beta.getHealth()==1000 && !normal.hasEffect(MobEffects.SLOW_FALLING),"no pulse before tick10");
-                ticks(1);
-                require(alpha.getHealth()==1000 && beta.getHealth()==1000 && alpha.getDeltaMovement().equals(new Vec3(.1,.55,.2))
-                        && beta.getDeltaMovement().equals(new Vec3(-.2,2,.1)),"fixed-origin pulse lifts author and ally without local altitude damage");
-                var effect=normal.getEffect(MobEffects.SLOW_FALLING);
-                require(effect!=null && effect.getDuration()==30 && effect.getAmplifier()==0 && effect.isAmbient()
-                        && !effect.isVisible() && !effect.showIcon() && normal.getDeltaMovement().y==.55
-                        && !outside.hasEffect(MobEffects.SLOW_FALLING) && !role.hasEffect(MobEffects.SLOW_FALLING)
-                        && role.getDeltaMovement().equals(Vec3.ZERO),"native pulse30 slowfall, fixed area and service exclusions");
-                ticks(9); require(alpha.getHealth()==1000 && beta.getHealth()==1000,"local storm never applies altitude damage");
-                ticks(1); require(alpha.getHealth()==1000 && beta.getHealth()==1000,"later pulse only lifts and grants slowfall");
-                place(alpha,10,29.99); place(beta,12,29.99); ticks(10);
-                require(alpha.getHealth()==1000 && beta.getHealth()==1000,"relative height does not control global altitude hazard");
-                ticks(269); require(game.items().antigravity().stormCount()==1,"finite storm retained through active tick299");
-                ticks(1); require(game.items().antigravity().stormCount()==0 && alpha.getHealth()==1000 && beta.getHealth()==1000,"exact30 pulses end at active tick300 without local damage");
-                normal.removeAllEffects(); normal.setDeltaMovement(Vec3.ZERO); ticks(20);
-                require(!normal.hasEffect(MobEffects.SLOW_FALLING) && normal.getDeltaMovement().equals(Vec3.ZERO),"no legacy perpetual marker or extra pulses");
-            } finally {
-                board.removePlayerTeam(team);
-                if(oldA!=null)board.addPlayerToTeam(alpha.getScoreboardName(),oldA);
-                if(oldB!=null)board.addPlayerToTeam(beta.getScoreboardName(),oldB);
-            }
+            var floating=cow(new Vec3(center.getX()+8,center.getY()+2,center.getZ()+.5));
+            alpha.setDeltaMovement(.1,-.1,.2); beta.setDeltaMovement(-.2,2,.1);
+            ticks(10);
+            require(alpha.getHealth()==1000 && beta.getHealth()==1000
+                    && alpha.getDeltaMovement().equals(new Vec3(.1,-.1,.2))
+                    && beta.getDeltaMovement().equals(new Vec3(-.2,2,.1))
+                    && floating.getDeltaMovement().equals(Vec3.ZERO) && !floating.hasEffect(MobEffects.SLOW_FALLING),
+                    "empty pulse never lifts unsupported caster, ally or floating mob");
+            ticks(289); require(game.items().antigravity().stormCount()==1,"finite storm retained through active tick299");
+            ticks(1); require(game.items().antigravity().stormCount()==0,"exact30 pulses end at active tick300");
+            ticks(20);
+            require(floating.getDeltaMovement().equals(Vec3.ZERO) && !floating.hasEffect(MobEffects.SLOW_FALLING),
+                    "no perpetual gravity or extra pulses");
         }
         void staleAndLifecycle() {
             reset(); set(center,Blocks.STONE.defaultBlockState()); activate();
@@ -334,7 +406,7 @@ public final class AntigravityDropChecks {
                     if (!level.getEntities((Entity)null,new AABB(center).inflate(20),e->e==beta).contains(beta)) {
                         require(++wait<100,"native player-section warmup"); return false;
                     }
-                    presentation(); guards(); geometry(); motionAndCredit(); pulsesAndDuration(); staleAndLifecycle();
+                    presentation(); guards(); geometry(); offHeightTerrain(); collisionSupport(); motionAndCredit(); nativeSupportPhysics(); pulsesAndDuration(); staleAndLifecycle();
                     reset(); set(center,Blocks.STONE.defaultBlockState()); stack=drop(2); phase++;
                 }
                 case 1 -> {

@@ -740,6 +740,12 @@ public final class GameChecks {
                                 case "halloween-wind-stop-probe" -> { HalloweenWindChecks.stopProbe(game); return; }
                                 case "halloween-wind-cleanup" -> { HalloweenWindChecks.cleanup(game); return; }
                                 case "player-rules" -> { PlayerRuleChecks.run(game); return; }
+                                case "chain-lightning-fixes" -> { ChainLightningFixChecks.run(game); return; }
+                                case "egg-presentation" -> { EggPresentationChecks.run(game); return; }
+                                case "attribute-policy" -> { AttributePolicyChecks.run(game); return; }
+                                case "armor-calculation" -> { ArmorCalculationChecks.run(game); return; }
+                                case "negative-mining" -> { NegativeMiningChecks.run(game); return; }
+                                case "negative-attributes" -> { NegativeAttributeChecks.run(game); return; }
                                 case "team-colors" -> { TeamColorChecks.run(game); return; }
                                 case "team-colors-stop-probe" -> { TeamColorChecks.stopProbe(game); return; }
                                 case "team-colors-cleanup" -> { TeamColorChecks.cleanup(game); return; }
@@ -1182,6 +1188,7 @@ public final class GameChecks {
         TeslaChecks.tick(game);
         AwakenedAcidChecks.tick(game);
         GaycasterChecks.tick(game);
+        ChainLightningFixChecks.tick(game);
         PrismChecks.tick(game);
         CausticOmegaChecks.tick(game);
         AdvancedSnowChecks.tick(game);
