@@ -1,5 +1,33 @@
 # Проект SkyWars
 
+## Chef action facing and pursuit - QUALIFIED AND INSTALLED (25 October 2026)
+
+[Behavior and evidence](agent_notes/CHEF_ACTION_MOVEMENT_2026_10_25.md).
+Chef turns its actual camera/head to each placement, mining, melee or bucket
+point before acting (two-degree gate); rotation feedback precedes actions.
+Only the main hand is used, with six active ticks between deliberate item swaps.
+Placement/mining have block sounds; rejected attacks still swing, sound and emit
+particles. Native Player sprint air control, airborne takeoff friction, retained
+run-up/landing intent and supported direct pursuit remove artificial air stops.
+
+Graph supports five-cell parkour edges, diagonal face-connected bridges and
+rising ramps. Elevation-aware fallback considers construction sooner. Safe
+pillar preparation, overlap backoff and failed-edge/progress memory address
+stuck jump loops. Water actions prepare their hand/aim and settle before pickup.
+Skin, sword, knock/gravity/void, actual Time Stop and ownership remain intact.
+
+Full build16e097ca passed10 results in two mode1 matches (88.48s): both Chef
+runs passed17 fixture groups, including3/4 and3/4/3 gaps without edits, slab
+staircase corner, complete horizontal/rising diagonal bridges, pillar to an
+airborne target, actual rejected-hit feedback, water/food/combat and guards.
+Two naturally ticking chases and actual-stop cleanup also pass. Exact371 sources/
+1044 classes/2837 resources match. Client frames/human likeness/peak TPS not observed.
+Evidence: build/verification/chef-motion-final/. Main71d12d26 unchanged through
+qualification; installer then installed16e097ca with71d12d26 rollback, no restart.
+User files/deletions and author RP preserved. Old build archives/temporary
+helpers are cleaned with retained current/pending artifacts and rollback.
+
+
 ## Manual visual respawn recovery - QUALIFIED AND INSTALLED (25 October 2026)
 
 [Source cause and verification](agent_notes/VISUAL_RESPAWN_REPAIR_2026_10_25.md).

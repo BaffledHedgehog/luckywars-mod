@@ -77,6 +77,13 @@ public final class LbcWtf {
         final LbcChefBrain brain;
         final LbcChefSurvival survival;
         int stasis,attackDelay,combatJumpWait;
+        static final int HAND_INTERVAL=6;
+        private int handChanged=-HAND_INTERVAL,aimUntil=-1;
+        private Vec3 actionAim;
+        private int sentAimYaw=256,sentAimPitch=256,sentAimHead=256;
+        Vec3 lastActionPoint;
+        double lastActionError;
+        int actionSerial;
         float damage;
         Chef(LbcWtf service,ServerPlayer owner,LivingEntity target){
             super(owner.level());this.service=service;this.owner=owner;this.target=target;
@@ -92,7 +99,7 @@ public final class LbcWtf {
             applyImplicitComponent(DataComponents.PROFILE,CHEF_PROFILE);
             setCustomName(Component.translatable("shef"));setCustomNameVisible(true);
             equipCombat();
-            setItemSlot(EquipmentSlot.OFFHAND,new ItemStack(Items.COBBLESTONE,64));
+            setItemSlot(EquipmentSlot.OFFHAND,ItemStack.EMPTY);
             setSpeed(.1f);
         }
         public ServerPlayer getOwner(){return owner;}
@@ -111,19 +118,28 @@ public final class LbcWtf {
         }
         boolean metadataDescriptionHidden(){return getDescription()==null;}
         ItemStack combatWeapon(){return sword();}
-        void equipCombat(){
-            var weapon=combatWeapon();setItemSlot(EquipmentSlot.MAINHAND,weapon);
+        boolean equip(ItemStack stack){
+            if(ItemStack.isSameItemSameComponents(getMainHandItem(),stack))return true;
+            if(tickCount-handChanged<HAND_INTERVAL)return false;
+            setItemSlot(EquipmentSlot.MAINHAND,stack);handChanged=tickCount;
+            return true;
+        }
+        boolean equipCombat(){
+            var weapon=combatWeapon();if(!equip(weapon))return false;
             // An action may switch back from a tool before the next equipment tick.
             weapon.forEachModifier(EquipmentSlot.MAINHAND,(attribute,modifier)->{
                 var instance=getAttribute(attribute);
                 if(instance!=null){instance.removeModifier(modifier.id());instance.addTransientModifier(modifier);}
             });
+            return true;
         }
         @Override public void setSprinting(boolean sprint){
             super.setSprinting(sprint&&(survival==null||survival.canSprint())&&stasis==0);
         }
+        @Override protected float getFlyingSpeed(){return isSprinting()?.025999999f:.02f;}
         @Override public void tick(){
             if(timeFrozen())return;
+            if(tickCount>aimUntil){sentAimYaw=256;sentAimPitch=256;sentAimHead=256;}
             setNoGravity(false);
             if(stasis>0){halt();super.setDeltaMovement(0,getDeltaMovement().y,0);setPose(net.minecraft.world.entity.Pose.SWIMMING);}
             super.tick();
@@ -168,16 +184,31 @@ public final class LbcWtf {
         }
         @Override public void jumpFromGround(){
             if(paused())return;
-            super.jumpFromGround();survival.jumpExhaustion();
+            super.jumpFromGround();
+            // Bridging looks at a support face while movement is strafed. Keep the
+            // native sprint impulse in that movement direction, not backwards into the gap.
+            if(isSprinting()&&xxa*xxa+zza*zza>.01){
+                double yaw=Math.toRadians(getYRot());
+                Vec3 input=new Vec3(xxa*Math.cos(yaw)-zza*Math.sin(yaw),0,xxa*Math.sin(yaw)+zza*Math.cos(yaw)).normalize();
+                setDeltaMovement(getDeltaMovement().add(Math.sin(yaw)*.2,0,-Math.cos(yaw)*.2).add(input.scale(.2)));
+            }
+            // Mannequin has no LocalPlayer input controller to enter airborne
+            // travel on takeoff. Ground drag here would consume the sprint impulse.
+            if(getDeltaMovement().y>0)setOnGround(false);
+            survival.jumpExhaustion();
         }
         void pillarJump(){halt();jumping=true;}
         void lookAt(Vec3 at){
+            if(actionAim!=null&&tickCount<=aimUntil)at=actionAim;
+            turnLook(at,15,8);
+        }
+        private void turnLook(Vec3 at,float yawStep,float pitchStep){
             Vec3 delta=at.subtract(getEyePosition());
             float yaw=(float)(Math.atan2(-delta.x,delta.z)*180/Math.PI);
             float pitch=(float)(-Math.atan2(delta.y,Math.max(.01,delta.horizontalDistance()))*180/Math.PI);
-            float head=net.minecraft.util.Mth.approachDegrees(getYHeadRot(),yaw,15);
+            float head=net.minecraft.util.Mth.approachDegrees(getYHeadRot(),yaw,yawStep);
             head=getYRot()+net.minecraft.util.Mth.clamp(net.minecraft.util.Mth.wrapDegrees(head-getYRot()),-75,75);
-            setYHeadRot(head);setXRot(net.minecraft.util.Mth.approachDegrees(getXRot(),pitch,8));
+            setYHeadRot(head);setXRot(net.minecraft.util.Mth.approachDegrees(getXRot(),pitch,pitchStep));
         }
         void face(Vec3 at){
             Vec3 delta=at.subtract(getEyePosition());
@@ -186,16 +217,44 @@ public final class LbcWtf {
             setYBodyRot(net.minecraft.util.Mth.approachDegrees(yBodyRot,getYRot(),15));
             lookAt(at);
         }
+        /** An action waits for the actual camera ray, rather than merely requesting a turn. */
+        boolean aimAction(Vec3 at){
+            actionAim=at;aimUntil=tickCount+2;
+            Vec3 offset=at.subtract(getEyePosition());
+            float yaw=(float)Math.toDegrees(Math.atan2(-offset.x,offset.z));
+            setYRot(net.minecraft.util.Mth.approachDegrees(getYRot(),yaw,25));
+            setYBodyRot(net.minecraft.util.Mth.approachDegrees(yBodyRot,getYRot(),20));
+            turnLook(at,25,20);
+            byte packedYaw=net.minecraft.util.Mth.packDegrees(getYRot()),packedPitch=net.minecraft.util.Mth.packDegrees(getXRot());
+            byte packedHead=net.minecraft.util.Mth.packDegrees(getYHeadRot());
+            // Action feedback can happen between ordinary entity-tracker updates.
+            // Send its camera rotation first, without teleporting or moving the actor.
+            var chunks=((ServerLevel)level()).getChunkSource();
+            if(sentAimYaw!=packedYaw||sentAimPitch!=packedPitch){
+                chunks.sendToTrackingPlayers(this,new net.minecraft.network.protocol.game.ClientboundMoveEntityPacket.Rot(getId(),packedYaw,packedPitch,onGround()));
+                sentAimYaw=packedYaw;sentAimPitch=packedPitch;
+            }
+            if(sentAimHead!=packedHead){
+                chunks.sendToTrackingPlayers(this,new net.minecraft.network.protocol.game.ClientboundRotateHeadPacket(this,packedHead));sentAimHead=packedHead;
+            }
+            Vec3 delta=at.subtract(getEyePosition()).normalize();
+            return getLookAngle().dot(delta)>=Math.cos(Math.toRadians(2))
+                    &&Math.abs(net.minecraft.util.Mth.wrapDegrees(getYHeadRot()-getYRot()))<=2;
+        }
+        void acted(Vec3 at){
+            lastActionPoint=at;lastActionError=Math.toDegrees(Math.acos(net.minecraft.util.Mth.clamp(
+                    getLookAngle().dot(at.subtract(getEyePosition()).normalize()),-1,1)));actionSerial++;
+        }
         void steer(Vec3 destination,boolean jump){
             Vec3 delta=destination.subtract(position());
             double distance=delta.horizontalDistance();
             if(distance<.035){xxa=0;zza=0;jumping=jump;return;}
             float desiredYaw=(float)(Math.atan2(-delta.x,delta.z)*180/Math.PI);
-            setYRot(net.minecraft.util.Mth.approachDegrees(getYRot(),desiredYaw,20));
-            setYBodyRot(net.minecraft.util.Mth.approachDegrees(yBodyRot,getYRot(),15));
+            if(actionAim==null||tickCount>aimUntil)setYRot(net.minecraft.util.Mth.approachDegrees(getYRot(),desiredYaw,20));
+            if(actionAim==null||tickCount>aimUntil)setYBodyRot(net.minecraft.util.Mth.approachDegrees(yBodyRot,getYRot(),15));
             // Direction is independent of bounded body rotation: corners cannot make a circling actor.
             double yaw=Math.toRadians(getYRot()),dx=delta.x/distance,dz=delta.z/distance;
-            float throttle=(float)Math.min(1,distance*2.5);
+            float throttle=(float)(!onGround()?1:Math.min(1,distance*4));
             xxa=(float)(dx*Math.cos(yaw)+dz*Math.sin(yaw))*throttle;
             zza=(float)(-dx*Math.sin(yaw)+dz*Math.cos(yaw))*throttle;
             setSpeed((float)getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED));
@@ -238,9 +297,10 @@ public final class LbcWtf {
         if(chef.attackDelay>0)chef.attackDelay--;
         if(chef.survival.tick())return;
         if(chef.distanceToSqr(chef.target)<=6.25&&chef.hasLineOfSight(chef.target)){
-            chef.halt();chef.face(chef.target.getEyePosition());chef.equipCombat();
+            chef.halt();
+            boolean ready=chef.aimAction(chef.target.getEyePosition())&&chef.equipCombat();
             boolean crit=!chef.onGround()&&chef.getDeltaMovement().y<-.05&&!chef.isInWater()&&!chef.onClimbable()&&!chef.isPassenger();
-            if(chef.attackDelay==0){
+            if(chef.attackDelay==0&&ready){
                 boolean safeJump=chef.onGround()&&!chef.isInWater()&&chef.level().noCollision(chef,chef.getBoundingBox().move(0,1.25,0));
                 if(safeJump&&chef.combatJumpWait==0){chef.pillarJump();chef.combatJumpWait=12;return;}
                 if(chef.combatJumpWait>0&&!crit){chef.combatJumpWait--;if(chef.combatJumpWait>0)return;}
@@ -249,12 +309,18 @@ public final class LbcWtf {
                 double speed=chef.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_SPEED);
                 chef.attackDelay=(int)Math.ceil(20/Math.max(.1,speed));
                 chef.swing(InteractionHand.MAIN_HAND,net.minecraft.world.item.component.SwingAnimation.DEFAULT,true);
+                chef.acted(chef.target.getEyePosition());
                 var level=(ServerLevel)chef.level();
                 var source=new DamageSource(level.damageSources().mobAttack(chef).typeHolder(),chef,chef.owner);
                 float hit=(float)chef.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)*(crit?1.5f:1);
                 var cause=game.items().indirectKills().coldCause(chef.owner,false);
                 boolean[] accepted={false};game.items().indirectKills().withCause(chef.target,cause,()->accepted[0]=chef.target.hurtServer(level,source,hit));
-                if(accepted[0]){chef.survival.attackExhaustion();if(crit)level.sendParticles(ParticleTypes.CRIT,chef.target.getX(),chef.target.getY()+.9,chef.target.getZ(),8,.2,.3,.2,.1);}
+                level.playSound(null,chef.getX(),chef.getY(),chef.getZ(),accepted[0]
+                        ?(crit?net.minecraft.sounds.SoundEvents.PLAYER_ATTACK_CRIT:net.minecraft.sounds.SoundEvents.PLAYER_ATTACK_STRONG)
+                        :net.minecraft.sounds.SoundEvents.PLAYER_ATTACK_NODAMAGE,net.minecraft.sounds.SoundSource.PLAYERS,1,1);
+                level.sendParticles(crit?ParticleTypes.CRIT:ParticleTypes.SWEEP_ATTACK,
+                        chef.target.getX(),chef.target.getY()+.9,chef.target.getZ(),crit?8:1,.2,.3,.2,.1);
+                if(accepted[0])chef.survival.attackExhaustion();
             }
             return;
         }

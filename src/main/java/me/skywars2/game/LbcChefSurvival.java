@@ -50,10 +50,21 @@ final class LbcChefSurvival {
             cancelEating();
             if(bucket.is(Items.WATER_BUCKET)&&waterCooldown==0){
                 Landing landing=predictLanding();
-                if(landing!=null&&(chef.isOnFire()||landing.ticks<=3)&&placeWater(landing))return true;
+                if(landing!=null){
+                    // Start taking out the bucket and looking down while still in flight.
+                    // Its use still waits for native reach and the last safe landing ticks.
+                    boolean equipped=chef.equip(bucket),aimed=chef.aimAction(landing.hit.getLocation());
+                    if(equipped&&aimed&&(chef.isOnFire()||landing.ticks<=3)&&placeWater(landing))return true;
+                    return true;
+                }
             }
         }
         if(recoverWater())return true;
+        if(ownedWater!=null&&touchedWater&&!chef.isOnFire()&&chef.position().distanceToSqr(Vec3.atCenterOf(ownedWater))<6){
+            // Let the landing settle before swimming away from the source we need
+            // to pick up. Native gravity and water buoyancy remain in control.
+            chef.halt();return true;
+        }
         if(chef.isInWater()){
             cancelEating();
             swim();
@@ -69,7 +80,8 @@ final class LbcChefSurvival {
         if(foodLevel<20&&safe){
             if(food.isEmpty())food=new ItemStack(Items.COOKED_BEEF,64);
             chef.halt();chef.setSprinting(false);
-            chef.setItemSlot(EquipmentSlot.MAINHAND,food);
+            if(!chef.equip(food))return true;
+            food=chef.getMainHandItem();
             var consumable=food.get(DataComponents.CONSUMABLE);
             var properties=food.get(DataComponents.FOOD);
             if(consumable!=null&&properties!=null){
@@ -179,8 +191,9 @@ final class LbcChefSurvival {
         // Verify the real clicked support face is visible from the hand's eye ray.
         BlockHitResult visible=clip(chef.getEyePosition(),landing.hit.getLocation().add(0,-.015,0),ClipContext.Fluid.NONE);
         if(visible==null||!visible.getBlockPos().equals(landing.hit.getBlockPos())||visible.getDirection()!=Direction.UP)return false;
-        chef.halt();chef.setSprinting(false);chef.lookAt(landing.hit.getLocation());
-        chef.setItemSlot(EquipmentSlot.MAINHAND,bucket);
+        chef.halt();chef.setSprinting(false);
+        if(!chef.equip(bucket)||!chef.aimAction(landing.hit.getLocation()))return false;
+        chef.acted(landing.hit.getLocation());
         boolean[] emptied={false};
         chef.service.gameItems().indirectKills().trapChanges(level,
                 chef.service.gameItems().indirectKills().coldCause(chef.owner,false),
@@ -221,7 +234,9 @@ final class LbcChefSurvival {
         if(hit==null||!hit.getBlockPos().equals(ownedWater))return false;
         BlockState state=level.getBlockState(ownedWater);
         if(!state.equals(ownedWaterState)||!(state.getBlock() instanceof BucketPickup pickup))return false;
-        chef.halt();chef.setSprinting(false);chef.lookAt(aim);chef.setItemSlot(EquipmentSlot.MAINHAND,bucket);
+        chef.halt();chef.setSprinting(false);
+        if(!chef.equip(bucket)||!chef.aimAction(aim))return true;
+        chef.acted(aim);
         ItemStack[] recovered={ItemStack.EMPTY};
         chef.service.gameItems().indirectKills().trapChanges(level,
                 chef.service.gameItems().indirectKills().coldCause(chef.owner,false),

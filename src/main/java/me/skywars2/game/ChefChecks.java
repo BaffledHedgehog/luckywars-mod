@@ -130,7 +130,10 @@ public final class ChefChecks {
         void clear(){for(var c:service.snapshot())service.unloaded(c);require(service.count()==0,"all fixture Chefs retired");}
         void remove(Cow c){game.items().indirectKills().clear(c);c.discard();}
         long fixtureTick;
-        void advance(LbcWtf.Chef chef,int ticks){for(int i=0;i<ticks&&!chef.isRemoved();i++){LbcChefBrain.beginTick(--fixtureTick);service.step(chef);chef.commonTick();chef.tick();require(blocks.containsKey(chef.blockPosition()),"native pursuit remains in saved resident box: "+chef.position());}}
+        void advance(LbcWtf.Chef chef,int ticks){for(int i=0;i<ticks&&!chef.isRemoved();i++){LbcChefBrain.beginTick(--fixtureTick);service.step(chef);
+            require(chef.getOffhandItem().isEmpty(),"all Chef actions leave the offhand empty");
+            require(chef.lastActionError<=2.001,"every accepted world/combat/bucket action faces its exact point: "+chef.lastActionError);
+            chef.commonTick();chef.tick();require(blocks.containsKey(chef.blockPosition()),"native pursuit remains in saved resident box: "+chef.position());}}
         void nativeMaterialAndOwnership(){
             var material=game.lbc().rollTable(owner.level(),at,owner,"lbc:ported/wtf_item").getFirst();owner.setItemInHand(InteractionHand.MAIN_HAND,material.copyWithCount(2));var victim=cow(at.add(0,0,6));var foreign=cow(at.add(5,0,6));
             require(victim.hurtServer(owner.level(),victim.damageSources().playerAttack(owner),1)&&owner.getMainHandItem().getCount()==1&&service.count()==1&&mana.get(owner)==0,"actual accepted native material melee consumes one, no mana");var chef=service.snapshot().getFirst();
@@ -230,6 +233,93 @@ public final class ChefChecks {
             require(detoured&&chef.getZ()>=at.z+2,"native pursuit retains search progress across slices and goes around a long unbreakable wall");clear();remove(victim);
             for(int x=-12;x<=12;x++)for(int y=-3;y<=12;y++)block(center.offset(x,y,0),Blocks.AIR);
         }
+        void longParkour(){
+            for(int gap:List.of(3,4)){
+                corridor(false);
+                for(int z=-5;z<=8;z++)block(center.offset(0,2,z),Blocks.AIR);
+                for(int z=0;z<gap;z++)block(center.offset(0,-1,z),Blocks.AIR);
+                var unchanged=terrain();var victim=cow(at.add(0,0,8));var chef=spawn(owner,victim);
+                chef.setPos(at.add(0,0,-4));chef.setDeltaMovement(Vec3.ZERO);chef.setOnGround(true);
+                boolean crossed=false,air=false;int elapsed;
+                for(elapsed=0;elapsed<230&&!chef.isRemoved();elapsed++){
+                    advance(chef,1);
+                    if(chef.getZ()>at.z-.5&&chef.getZ()<at.z+gap-.4&&!chef.onGround()){
+                        air=true;require(chef.getDeltaMovement().z>.08,gap+"-block gap flight keeps forward momentum instead of stopping in mid-air: "+chef.position()+" "+chef.brain.diagnostics());
+                    }
+                    if(chef.getZ()>=at.z+gap+.2&&chef.onGround()){crossed=true;break;}
+                }
+                require(crossed&&air&&terrain().equals(unchanged),"native "+gap+"-block gap is sprint-jumped promptly without bridge edits; ticks="+elapsed+" pos="+chef.position()+" "+chef.brain.diagnostics());
+                clear();remove(victim);clearCorridor();
+            }
+        }
+        void diagonalBuilding(){
+            for(int kind=0;kind<3;kind++){
+                boolean rising=kind>0,vertical=kind==2;
+                // Only a small starting island and distant landing exist; cardinal
+                // detours and terrain walking cannot masquerade as diagonal building.
+                for(int x=-8;x<=10;x++)for(int z=-8;z<=10;z++)block(center.offset(x,-1,z),Blocks.AIR);
+                for(int x=-8;x<=10;x++)for(int z=-8;z<=10;z++)if(x==-8||x==10||z==-8||z==10)
+                    for(int y=-3;y<=12;y++)block(center.offset(x,y,z),Blocks.BEDROCK);
+                for(int x=-5;x<=-3;x++)for(int z=-5;z<=-3;z++)block(center.offset(x,-1,z),Blocks.STONE);
+                int height=vertical?6:rising?4:0;
+                if(!vertical)for(int x=4;x<=6;x++)for(int z=4;z<=6;z++)block(center.offset(x,height-1,z),Blocks.STONE);
+                var victim=cow(at.add(vertical?-4:5,height,vertical?-4:5));var chef=spawn(owner,victim);chef.setPos(at.add(-4,0,-4));chef.setDeltaMovement(Vec3.ZERO);chef.setOnGround(true);
+                int firstBlock=-1,blocksPlaced=0;var seen=new HashSet<BlockPos>();
+                Item previousItem=chef.getMainHandItem().getItem();int lastSwap=chef.tickCount;
+                for(int tick=0;tick<460&&!chef.isRemoved()&&victim.getHealth()==20;tick++){
+                    advance(chef,1);
+                    Item current=chef.getMainHandItem().getItem();
+                    if(current!=previousItem){
+                        boolean bucketUse=(current==Items.BUCKET||current==Items.WATER_BUCKET)&&(previousItem==Items.BUCKET||previousItem==Items.WATER_BUCKET);
+                        require(bucketUse||chef.tickCount-lastSwap>=LbcWtf.Chef.HAND_INTERVAL,"actual building/combat item changes respect hand dwell time: "+previousItem+" -> "+current+" dt="+(chef.tickCount-lastSwap));
+                        if(!bucketUse)lastSwap=chef.tickCount;previousItem=current;
+                    }
+                    for(var p:blocks.keySet())if(owner.level().getBlockState(p).is(Blocks.COBBLESTONE)&&seen.add(p)){blocksPlaced++;if(firstBlock<0)firstBlock=tick;}
+                }
+                require(firstBlock>=0&&firstBlock<90&&blocksPlaced>=(vertical?3:4)&&victim.getHealth()<20,"completed "+(vertical?"vertical pillar to airborne target":rising?"rising diagonal bridge":"horizontal diagonal bridge")+" reaches fixed victim; first="+firstBlock+" blocks="+blocksPlaced+" pos="+chef.position()+" "+chef.brain.diagnostics());
+                require(vertical||seen.stream().anyMatch(p->p.getX()>center.getX()-2&&p.getZ()>center.getZ()-2),"construction advances on both horizontal axes");
+                clear();remove(victim);
+                for(int x=-8;x<=10;x++)for(int z=-8;z<=10;z++)for(int y=-3;y<=12;y++)block(center.offset(x,y,z),y==-1?Blocks.STONE:Blocks.AIR);
+            }
+        }
+        void stairCorner(){
+            for(int x=-4;x<=7;x++)for(int z=-8;z<=3;z++)block(center.offset(x,-1,z),Blocks.AIR);
+            for(int z=-6;z<=0;z++){
+                double height=(z+6)*.5;int whole=(int)height;
+                for(int y=-1;y<whole;y++)block(center.offset(0,y,z),Blocks.STONE);
+                if(height!=whole)block(center.offset(0,whole,z),Blocks.STONE_SLAB);
+            }
+            for(int x=1;x<=5;x++)for(int y=-1;y<=2;y++)block(center.offset(x,y,0),Blocks.STONE);
+            var unchanged=terrain();var victim=cow(at.add(5,3,0));var chef=spawn(owner,victim);
+            chef.setPos(at.add(0,0,-6));chef.setDeltaMovement(Vec3.ZERO);chef.setOnGround(true);
+            int ticks;for(ticks=0;ticks<300&&!chef.isRemoved()&&victim.getHealth()==20;ticks++)advance(chef,1);
+            require(victim.getHealth()<20&&terrain().equals(unchanged),"continuous half-step staircase and right-angle detour completed without bridge/mining or a jump loop; ticks="+ticks+" pos="+chef.position()+" "+chef.brain.diagnostics());
+            clear();remove(victim);
+        }
+        void parkourChain(){
+            for(int z=-14;z<=14;z++)for(int x=-1;x<=1;x++)for(int y=0;y<=3;y++)
+                block(center.offset(x,y,z),x==0?Blocks.AIR:Blocks.BEDROCK);
+            for(int z=-14;z<=14;z++)block(center.offset(0,-1,z),
+                    z>=-8&&z<=-6||z>=-2&&z<=1||z>=5&&z<=7?Blocks.AIR:Blocks.STONE);
+            var unchanged=terrain();var victim=cow(at.add(0,0,14));var chef=spawn(owner,victim);
+            chef.setPos(at.add(0,0,-12));chef.setDeltaMovement(Vec3.ZERO);chef.setOnGround(true);
+            int ticks;for(ticks=0;ticks<400&&!chef.isRemoved()&&chef.getZ()<at.z+9; ticks++)advance(chef,1);
+            require(chef.getZ()>=at.z+9&&terrain().equals(unchanged),"three consecutive 3/4/3-block gaps crossed by parkour without construction; ticks="+ticks+" pos="+chef.position()+" "+chef.brain.diagnostics());
+            clear();remove(victim);
+        }
+        void rejectedSwingFeedback(){
+            move(owner,at.add(8,0,0));
+            var victim=cow(at.add(0,0,3));victim.setPermanentlyInvulnerable(true);
+            var chef=spawn(owner,victim);chef.setPos(victim.position().add(0,0,-1.5));chef.setDeltaMovement(Vec3.ZERO);chef.setOnGround(true);
+            boolean swung=false;
+            try(var recording=new Recording(game,owner)){
+                for(int tick=0;tick<60;tick++){int before=chef.actionSerial;advance(chef,1);if(chef.actionSerial>before)swung|=chef.isSwinging();}
+                require(victim.getHealth()==20&&swung&&chef.actionSerial>=2,"invulnerable victim still receives visible native swing attempts");
+                require(recording.packets.stream().anyMatch(p->p instanceof net.minecraft.network.protocol.game.ClientboundSoundPacket sound&&sound.getSound().value()==net.minecraft.sounds.SoundEvents.PLAYER_ATTACK_NODAMAGE),"rejected native attacks send no-damage sound");
+                require(recording.packets.stream().anyMatch(net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket.class::isInstance),"rejected native attacks send their attack particles");
+            }
+            clear();remove(victim);
+        }
         void voidRecovery(){
             var victim=cow(at.add(0,0,5));var chef=spawn(owner,victim);chef.setPos(at.x,owner.level().getMinY()-24,at.z);service.step(chef);
             require(!chef.isRemoved()&&owner.level().hasChunkAt(chef.blockPosition())&&owner.level().getBlockState(chef.blockPosition().below()).isSolidRender()&&chef.target==victim,"void Chef returns to real loaded solid surface retaining fixed victim");if(!blocks.containsKey(chef.blockPosition()))chef.setPos(at.add(0,0,-4));var pos=chef.position();advance(chef,30);require(chef.position().distanceToSqr(pos)>.01||victim.getHealth()<20,"after rescue live fixed-victim pursuit continues inside saved fixture");clear();remove(victim);
@@ -252,7 +342,7 @@ public final class ChefChecks {
                 chef.setSprinting(true);for(int event=0;event<25;event++)chef.survival.jumpExhaustion();chef.survival.tick();
             }
             require(chef.survival.foodLevel()<=6&&!chef.survival.canSprint()&&!chef.survival.eating(),"accepted exertion drains saturation/food and locks sprint; nearby threat forbids food use");
-            victim.setPos(at.add(0,0,10));chef.setOnGround(true);service.step(chef);
+            victim.setPos(at.add(0,0,10));chef.setOnGround(true);advance(chef,LbcWtf.Chef.HAND_INTERVAL+1);
             require(chef.survival.eating()&&chef.isUsingItem()&&chef.getMainHandItem().is(Items.COOKED_BEEF),"safe hungry Chef starts real native timed food use");int hungry=chef.survival.foodLevel(),count=chef.getMainHandItem().getCount();
             // Exertion can still drain food while native use is in progress.
             advance(chef,10);require(chef.survival.foodLevel()<=hungry&&chef.getMainHandItem().getCount()==count,"partial native food use has no early nutrition");
@@ -269,7 +359,7 @@ public final class ChefChecks {
                 contact|=chef.isInWater();if(contact&&chef.survival.ownedWater()==null)break;
             }
             require(water!=null&&contact,"falling Chef places reachable real water and physically lands in it");
-            require(chef.survival.ownedWater()==null&&owner.level().getFluidState(water).isEmpty()&&chef.survival.supplies().stream().anyMatch(s->s.is(Items.WATER_BUCKET)),"safe landing recovers its actual source through native bucket pickup");clear();remove(victim);
+            require(chef.survival.ownedWater()==null&&owner.level().getFluidState(water).isEmpty()&&chef.survival.supplies().stream().anyMatch(s->s.is(Items.WATER_BUCKET)),"safe landing recovers its actual source through native bucket pickup; pos="+chef.position()+" water="+chef.survival.ownedWater()+" velocity="+chef.getDeltaMovement());clear();remove(victim);
         }
         void fireWater(){
             var victim=cow(at.add(0,0,8));var chef=spawn(owner,victim);chef.setPos(at.add(0,0,-4));chef.setDeltaMovement(Vec3.ZERO);chef.setOnGround(true);
@@ -290,6 +380,22 @@ public final class ChefChecks {
             game.server().getScoreboard().removePlayerFromTeam(other.getScoreboardName(),team);move(other,at.add(0,0,4));other.entityTags().add("sin_greed_active");chef=service.spawn(owner,other);if(chef!=null){chef.setPos(other.position().add(0,0,-1));service.step(chef);require(other.getHealth()==20,"Greed victim rejects actual nearby Chef sword attempt");}clear();other.entityTags().remove("sin_greed_active");move(other,at.add(12,0,-12));
             game.spectators().enter(owner);victim=cow(at.add(0,0,6));chef=service.spawn(owner,victim);if(chef!=null)service.step(chef);require(game.isObserver(owner)&&service.count()==0&&victim.getHealth()==20,"observer cannot own active Chef");clear();remove(victim);
         }
+    }
+    private static final class Recording extends net.minecraft.network.Connection implements AutoCloseable {
+        final ServerPlayer player;final net.minecraft.server.network.ServerGamePacketListenerImpl previous;
+        final List<net.minecraft.network.protocol.Packet<?>> packets=new ArrayList<>();
+        Recording(GameController game,ServerPlayer player){
+            super(net.minecraft.network.protocol.PacketFlow.SERVERBOUND);this.player=player;previous=player.connection;
+            player.connection=new net.minecraft.server.network.ServerGamePacketListenerImpl(game.server(),this,player,
+                    new net.minecraft.server.network.CommonListenerCookie(player.getGameProfile(),0,player.clientInformation(),false));
+            player.connection.handleAcceptPlayerLoad(new net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket());
+        }
+        @Override public boolean isMemoryConnection(){return true;}
+        @Override public boolean isConnected(){return true;}
+        @Override public net.minecraft.network.PacketListener getPacketListener(){return player.connection;}
+        @Override public void send(net.minecraft.network.protocol.Packet<?> packet,io.netty.channel.ChannelFutureListener listener,boolean flush){packets.add(packet);}
+        @Override public void flushChannel(){}
+        @Override public void close(){player.connection=previous;previous.resetPosition();}
     }
     private record Case(String name,java.util.function.Consumer<Fixture> action){}
     private static Natural natural;
@@ -354,7 +460,7 @@ public final class ChefChecks {
         require(natural==null,"explicit checks cannot overlap natural Chef fixture");
         var failures=new ArrayList<String>();
         for(var test:List.of(new Case("material/ownership",Fixture::nativeMaterialAndOwnership),new Case("stasis",Fixture::infiniteHealthAndStasis),
-                new Case("sword",Fixture::directSword),new Case("shapes",Fixture::shapeTraversal),new Case("terrain",Fixture::boundedTerrain),new Case("long detour",Fixture::longDetour),
+                new Case("sword",Fixture::directSword),new Case("shapes",Fixture::shapeTraversal),new Case("terrain",Fixture::boundedTerrain),new Case("long detour",Fixture::longDetour),new Case("long parkour",Fixture::longParkour),new Case("parkour chain",Fixture::parkourChain),new Case("stair corner",Fixture::stairCorner),new Case("diagonal building",Fixture::diagonalBuilding),new Case("rejected feedback",Fixture::rejectedSwingFeedback),
                 new Case("void",Fixture::voidRecovery),new Case("knocked void/ceiling",Fixture::knockedVoidAndLowCeiling),new Case("hunger/food",Fixture::hungerAndConsumption),new Case("fall water",Fixture::fallWater),new Case("fire water",Fixture::fireWater),new Case("guards",Fixture::guards))){
             try(var f=new Fixture(game)){f.init();test.action.accept(f);}
             catch(RuntimeException failure){failures.add(test.name+": "+failure.getMessage());}

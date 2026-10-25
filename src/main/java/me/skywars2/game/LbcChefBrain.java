@@ -5,7 +5,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
@@ -29,7 +28,11 @@ final class LbcChefBrain {
             new ItemStack(Items.NETHERITE_SHOVEL),new ItemStack(Items.NETHERITE_HOE),new ItemStack(Items.SHEARS),LbcWtf.sword());
     private final Set<BlockPos> placed=new HashSet<>();
     private final ArrayDeque<Step> path=new ArrayDeque<>();
+    private final Map<Step,Integer> failedSteps=new HashMap<>();
     private Search search;
+    private Step progressStep;
+    private double bestProgress;
+    private int progressAt;
     private BlockPos goal,mining;
     private Vec3 lastGround;
     private BlockState miningState;
@@ -39,7 +42,8 @@ final class LbcChefBrain {
     private Vec3 previous=Vec3.ZERO;
     private boolean airborneJump,pillarLaunched;
     private Step preparingJump,pillarStep;
-    private Vec3 runway;
+    private Vec3 runway,flightAim;
+    private boolean placementWaiting;
     private int runwayPhase,pillarSettle,resets;
     private String lastReset="none",lastPlacement="none";
 
@@ -49,7 +53,7 @@ final class LbcChefBrain {
         Vec3 point(){return new Vec3(x+.5,y(),z+.5);}
         BlockPos cell(){return BlockPos.containing(x+.5,y()+.02,z+.5);}
     }
-    private enum Action{WALK,DROP,JUMP,BRIDGE,MINE,PILLAR}
+    private enum Action{WALK,DROP,JUMP,BRIDGE,MINE,PILLAR,RAMP}
     private record Step(Spot from,Spot to,Action action){}
     private record Node(Spot spot,double cost,double estimate,Node parent,Action action){}
     private record FloorKey(int x,int z,int low,int high){}
@@ -77,8 +81,8 @@ final class LbcChefBrain {
             +" probes="+probes+" ground="+chef.onGround()+" velocity="+chef.getDeltaMovement()+" resets="+resets+" lastReset="+lastReset+" placement="+lastPlacement;}
     void reset(){reset("external");}
     private void reset(String why){lastReset=why+" step="+path.peek()+" at="+chef.position();resets++;
-        path.clear();search=null;clearMining();replan=0;stuck=0;clearTakeoff();}
-    private void clearTakeoff(){airborneJump=false;preparingJump=null;runway=null;runwayPhase=0;
+        path.clear();search=null;progressStep=null;clearMining();replan=0;stuck=0;clearTakeoff();}
+    private void clearTakeoff(){airborneJump=false;preparingJump=null;runway=null;flightAim=null;runwayPhase=0;
         pillarStep=null;pillarLaunched=false;pillarSettle=0;}
     private boolean loaded(BlockPos p){return level.isInWorldBounds(p)&&level.hasChunkAt(p)&&level.getWorldBorder().isWithinBounds(p);}
     private boolean hazard(BlockPos p){
@@ -165,15 +169,30 @@ final class LbcChefBrain {
         beginTick(chef.owner.level().getServer().getTickCount());
         if(chef.getY()<level.getMinY()-8){returnFromVoid();return;}
         if(chef.onGround()&&floorSupported(chef.position())&&clear(chef.position()))lastGround=chef.position();
+        if(flightAim!=null){
+            if(!chef.onGround()){chef.setSprinting(true);chef.steer(flightAim,false);return;}
+            flightAim=null;
+        }
         if(replan>0)replan--;
+        failedSteps.entrySet().removeIf(e->e.getValue()<=chef.tickCount);
         BlockPos target=chef.target.blockPosition();
         if(goal==null||(goal.distManhattan(target)>4&&(!airborneJump||chef.onGround()))){reset("target moved");goal=target;}
         if(!path.isEmpty()&&mining==null&&chef.onGround()&&chef.position().distanceToSqr(previous)<.001)stuck++;else stuck=0;
         previous=chef.position();
-        if(stuck>30){reset("stuck");goal=target;replan=3;}
+        if(stuck>24){failedSteps.put(path.peek(),chef.tickCount+100);reset("stuck");goal=target;replan=3;}
         retireReached();
         if(path.isEmpty()&&(search!=null||replan==0)){plan(target);if(search==null)replan=8;}
-        if(path.isEmpty()){chef.halt();return;}
+        if(path.isEmpty()){if(chef.onGround())chef.halt();return;}
+        Step current=path.peek();
+        if(current!=progressStep){progressStep=current;bestProgress=Double.NEGATIVE_INFINITY;progressAt=chef.tickCount;}
+        Vec3 edge=current.to.point().subtract(current.from.point());
+        double advance=chef.position().subtract(current.from.point()).dot(edge.normalize());
+        if(advance>bestProgress+.15){bestProgress=advance;progressAt=chef.tickCount;}
+        // A jump loop can repeatedly leave the ground without getting any closer.
+        // Exclude sustained mining and deliberate runway repositioning from this watchdog.
+        if(mining==null&&preparingJump==null&&chef.tickCount-progressAt>48){
+            failedSteps.put(current,chef.tickCount+100);reset("no edge progress");chef.halt();return;
+        }
         execute(path.peek());
     }
     private void retireReached(){
@@ -197,26 +216,37 @@ final class LbcChefBrain {
             BlockPos obstacle=obstacle(next);
             if(obstacle!=null){mine(obstacle);return;}
         }
+        if(step.action==Action.RAMP){
+            BlockPos block=BlockPos.containing(next.x,next.y-1,next.z);
+            if(!support(block)){
+                chef.setSprinting(false);
+                if(chef.getBoundingBox().intersects(new AABB(block))){chef.steer(step.from.point(),false);return;}
+                if(!place(block)){if(!placementWaiting){failedSteps.put(step,chef.tickCount+100);reset("ramp place "+lastPlacement);chef.halt();}return;}
+                nextBuild=chef.tickCount+2;
+            }
+        }
         if(step.action==Action.PILLAR){
             BlockPos block=BlockPos.containing(next.x,next.y-1,next.z);
             if(!support(block)){
                 if(!clear(next)){reset("pillar headroom");chef.halt();return;}
-                chef.setSprinting(false);chef.lookAt(Vec3.atCenterOf(block));
+                chef.setSprinting(false);
                 if(pillarStep!=step){pillarStep=step;pillarLaunched=false;pillarSettle=0;}
                 if(!pillarLaunched){
                     // Ground friction settles the real actor before its jump. A zero-input jump
                     // must not inherit the preceding walk's horizontal momentum off the column.
                     if(!chef.onGround()){chef.halt();return;}
                     double centering=chef.position().subtract(step.from.point()).horizontalDistanceSqr();
-                    if(centering>.0064){pillarSettle=0;chef.steer(step.from.point(),false);return;}
-                    if(chef.getDeltaMovement().horizontalDistanceSqr()>.000625){pillarSettle=0;chef.halt();return;}
-                    if(++pillarSettle<2){chef.halt();return;}
+                    if(centering>.0256){pillarSettle=0;chef.steer(step.from.point(),false);return;}
+                    if(chef.getDeltaMovement().horizontalDistanceSqr()>.0025){pillarSettle=0;chef.halt();return;}
+                    boolean equipped=chef.equip(new ItemStack(Items.COBBLESTONE,64));
+                    boolean aimed=chef.aimAction(Vec3.atBottomCenterOf(block));
+                    if(!equipped||!aimed){chef.halt();return;}
                     pillarLaunched=true;
                 }
                 chef.halt();
                 if(chef.onGround())chef.pillarJump();
                 if(chef.getBoundingBox().minY>=block.getY()+1-.01&&chef.tickCount>=nextBuild){
-                    if(!place(block)){reset("pillar place "+lastPlacement);return;}
+                    if(!place(block)){if(!placementWaiting)reset("pillar place "+lastPlacement);return;}
                     nextBuild=chef.tickCount+2;
                 }
                 return;
@@ -228,17 +258,19 @@ final class LbcChefBrain {
             BlockPos block=BlockPos.containing(next.x,next.y-1,next.z);
             if(chef.tickCount<nextBuild){chef.halt();return;}
             if(!floorSupported(chef.position())||!clear(next)){reset("bridge support/headroom");chef.halt();return;}
-            chef.lookAt(Vec3.atCenterOf(block));
-            if(!place(block)){reset("bridge place "+lastPlacement);chef.halt();return;}
+            if(!place(block)){if(!placementWaiting){reset("bridge place "+lastPlacement);chef.halt();}return;}
             nextBuild=chef.tickCount+2;
         }
         if(!clear(next)||(!floorSupported(next)&&step.action!=Action.JUMP)){reset("invalid destination");chef.halt();return;}
-        clearMining();chef.setItemSlot(EquipmentSlot.MAINHAND,chef.combatWeapon());
-        boolean jump=step.action==Action.JUMP;
+        clearMining();
+        boolean jump=step.action==Action.JUMP||step.action==Action.RAMP;
         if(jump){
             // Recheck a launch after terrain changes, but leave native flight in control after takeoff.
             if(!airborneJump&&chef.onGround()){
                 if(!jumpClear(step.from,to)){reset("jump recheck");chef.halt();return;}
+                if(next.y>chef.getY()+.6&&chef.position().subtract(step.from.point()).horizontalDistanceSqr()>.24){
+                    chef.setSprinting(false);chef.steer(step.from.point(),false);return;
+                }
                 double length=Math.sqrt(step.from.point().subtract(next).horizontalDistanceSqr());
                 if(length>2.2&&!prepareRunup(step))return;
                 airborneJump=true;preparingJump=null;runway=null;nextJump=chef.tickCount+12;
@@ -260,6 +292,8 @@ final class LbcChefBrain {
                 aim=further.to.point();
             }
         }
+        Vec3 direct=new Vec3(chef.target.getX(),next.y,chef.target.getZ());
+        if(openRun&&direct.distanceToSqr(chef.position())<256&&walkClear(chef.position(),direct,true))aim=direct;
         chef.setSprinting(openRun);
         boolean runningJump=false;
         if(openRun&&chef.onGround()&&chef.tickCount>=nextJump&&chef.position().distanceToSqr(chef.target.position())>25){
@@ -269,7 +303,7 @@ final class LbcChefBrain {
                 List<Spot> ends=floors(null,(int)Math.floor(landing.x),(int)Math.floor(landing.z),chef.getY()-.4,chef.getY()+.2);
                 Spot start=actualStart();
                 for(Spot end:ends)if(start!=null&&walkClear(chef.position(),end.point(),true)&&jumpClear(start,end)){
-                    runningJump=true;nextJump=chef.tickCount+14;break;
+                    runningJump=true;flightAim=end.point();nextJump=chef.tickCount+10;break;
                 }
             }
         }
@@ -293,10 +327,16 @@ final class LbcChefBrain {
         // getDeltaMovement is the previous tick's post-ground-friction velocity, not
         // the pre-drag travel distance. Native sprint at base .1 caches about .156;
         // requiring .245 would loop around the runway forever despite a full run-up.
-        if(along>=-.13&&along<=.32&&lateral<.14&&speed>=.13)return true;
+        double jumpLength=landing.subtract(takeoff).horizontalDistance();
+        double earliest=jumpLength>4.1?.55:-.38;
+        if(along>=earliest&&along<=.82&&lateral<.38&&speed>=.12)return true;
+        if(along>=-1&&along<earliest&&lateral<.38&&speed>=.12){
+            chef.setSprinting(true);chef.steer(landing,false);return false;
+        }
         if(preparingJump!=step){
             preparingJump=step;runway=runway(step.from,step.to);runwayPhase=0;
             if(runway==null||!walkClear(chef.position(),runway,true)){
+                failedSteps.put(step,chef.tickCount+100);
                 reset("runway changed");chef.halt();return false;
             }
         }
@@ -307,7 +347,7 @@ final class LbcChefBrain {
         }
         // Aim through the takeoff point so native input does not throttle just before launch.
         // The accepted jump impulse is delivered only on the last supported part of the runway.
-        if(along>.32||lateral>.25){runwayPhase=0;chef.halt();return false;}
+        if(along>.82||lateral>.4){runwayPhase=0;return false;}
         chef.setSprinting(true);chef.steer(landing,false);return false;
     }
     private BlockPos obstacle(Vec3 feet){
@@ -341,9 +381,8 @@ final class LbcChefBrain {
     private boolean jumpClear(Spot from,Spot to){
         double dx=to.x-from.x,dz=to.z-from.z,distance=Math.sqrt(dx*dx+dz*dz);
         double rise=to.y()-from.y();
-        if(distance>4.05||rise>1.05||rise< -2.5||!safe(to))return false;
+        if(distance>5.05||rise>1.05||rise< -2.5||!safe(to))return false;
         if(distance>1.5&&!chef.survival.canSprint())return false;
-        if(distance>2.2&&runway(from,to)==null)return false;
         // Conservative native jump envelope (.42 launch, .08 gravity, .98 drag). Delayed
         // horizontal progress on ascent models pressing into a one-block step until feet clear it.
         double y=from.y(),vy=.42;
@@ -353,12 +392,16 @@ final class LbcChefBrain {
             if(tick>4&&y<=to.y()+.08)break;
         }
         int ticks=arc.size();
-        if(ticks<6||distance/ticks>.34)return false;
+        double edge=distance>3?.30:0;
+        if(ticks<6||(distance-edge*2)/ticks>.4)return false;
         int wait=rise>.61?3:0;
-        Vec3 prev=from.point();
+        Vec3 direction=to.point().subtract(from.point()).multiply(1,0,1).normalize();
+        Vec3 start=from.point().add(direction.scale(edge)),finish=to.point().subtract(direction.scale(edge));
+        Vec3 prev=start;
         for(int i=0;i<ticks;i++){
             double t=Math.max(0,(i+1-wait)/(double)(ticks-wait));
-            Vec3 p=new Vec3(from.x+.5+dx*t,Math.max(to.y(),arc.get(i)),from.z+.5+dz*t);
+            Vec3 horizontal=start.lerp(finish,t);
+            Vec3 p=new Vec3(horizontal.x,Math.max(to.y(),arc.get(i)),horizontal.z);
             if(!walkClear(prev,p,false))return false;
             prev=p;
         }
@@ -381,10 +424,10 @@ final class LbcChefBrain {
             if(heuristic(n.spot,work.destination)<heuristic(work.best.spot,work.destination))work.best=n;
             if(heuristic(n.spot,work.destination)<.75&&n!=work.root){completed=n;break;}
             expand(work,n);
-            if(work.expanded>=(work.edits?EDIT_LIMIT:TERRAIN_LIMIT)||work.open.size()>=MAX_OPEN)break;
+            if(work.expanded>=searchLimit(work)||work.open.size()>=MAX_OPEN)break;
         }
         if(completed!=null){commit(completed);return;}
-        boolean exhausted=work.open.isEmpty()||work.expanded>=(work.edits?EDIT_LIMIT:TERRAIN_LIMIT)||work.open.size()>=MAX_OPEN;
+        boolean exhausted=work.open.isEmpty()||work.expanded>=searchLimit(work)||work.open.size()>=MAX_OPEN;
         if(!exhausted)return; // Retain the entire frontier through detours and CPU slices.
         if(!work.edits){
             // A bounded terrain-only search gets the first opportunity, including short parkour.
@@ -393,6 +436,11 @@ final class LbcChefBrain {
             search=new Search(work.start,destination,true);return;
         }
         if(work.best!=work.root)commit(work.best);else{search=null;replan=12;}
+    }
+    private int searchLimit(Search work){
+        // Flat ground cannot lead up to an airborne target: consider construction early.
+        return work.edits?EDIT_LIMIT:work.destination.getY()>work.start.y()+2.5
+                &&work.best.spot.y()<=work.start.y()+.6?96:TERRAIN_LIMIT;
     }
     private void commit(Node end){
         for(Node n=end;n.parent!=null;n=n.parent)path.addFirst(new Step(n.parent.spot,n.spot,n.action));
@@ -405,12 +453,11 @@ final class LbcChefBrain {
             int x=s.x+dx,z=s.z+dz;
             if(Math.abs(x-work.start.x)>32||Math.abs(z-work.start.z)>32)continue;
             boolean ordinaryWalk=false;
-            boolean plannedSupport=n.action==Action.BRIDGE||n.action==Action.PILLAR;
+            boolean plannedSupport=n.action==Action.BRIDGE||n.action==Action.PILLAR||n.action==Action.RAMP;
             for(Spot p:floors(work,x,z,s.y()-2.5,s.y()+1.05)){
                 double rise=p.y()-s.y();Action action;
                 if(rise>.61)action=Action.JUMP;else if(rise<-.65)action=Action.DROP;else action=Action.WALK;
                 boolean possible=action==Action.JUMP?jumpClear(s,p):walkClear(s.point(),p.point(),action!=Action.DROP&&!plannedSupport);
-                if(plannedSupport&&dx!=0&&dz!=0)possible=false;
                 if(action==Action.DROP)possible=dropClear(s,p);
                 if(possible){
                     if(action==Action.WALK)ordinaryWalk=true;
@@ -419,18 +466,23 @@ final class LbcChefBrain {
             }
             // Multi-cell parkour is considered before any construction edges. Diagonal corner
             // collisions are checked with the same complete mannequin box as cardinal movement.
-            if(!work.edits&&!ordinaryWalk)for(int length=2;length<=4;length++){
+            if(!ordinaryWalk)for(int length=2;length<=5;length++){
                 if(dx!=0&&dz!=0&&length>2)break;
                 for(Spot p:floors(work,s.x+dx*length,s.z+dz*length,s.y()-1.2,s.y()+.65)){
                     if(jumpClear(s,p))offer(work,p,n.cost+Math.hypot(dx,dz)*length+.65,n,Action.JUMP);
                 }
             }
-            if(!work.edits||dx!=0&&dz!=0)continue;
+            if(!work.edits)continue;
             Spot flat=new Spot(x,z,s.height);
             BlockPos below=BlockPos.containing(x+.5,s.y()-1,z+.5);
             if(s.height%16==0&&!floorSupported(flat.point())&&clear(flat.point())&&replaceable(below))
                 offer(work,flat,n.cost+8,n,Action.BRIDGE);
             if(s.height%16==0&&support(below)&&mineableBody(flat))offer(work,flat,n.cost+12+miningCost(flat),n,Action.MINE);
+            if(s.height%16==0&&work.destination.getY()>s.y()+.7){
+                Spot rising=new Spot(x,z,s.height+16);
+                if(replaceable(flat.cell())&&clear(rising.point())&&Math.abs(rising.y()-work.start.y())<14)
+                    offer(work,rising,n.cost+10+Math.hypot(dx,dz),n,Action.RAMP);
+            }
         }
         if(work.edits&&s.height%16==0&&work.destination.getY()>s.y()+.7){
             Spot up=new Spot(s.x,s.z,s.height+16);
@@ -458,15 +510,21 @@ final class LbcChefBrain {
         return obstacle==null?0:Math.max(0,level.getBlockState(obstacle).getDestroySpeed(level,obstacle)*2);
     }
     private void offer(Search work,Spot p,double cost,Node parent,Action action){
+        if(failedSteps.containsKey(new Step(parent.spot,p,action)))return;
         if(Math.abs(p.y()-work.start.y())>16||cost>=work.costs.getOrDefault(p,Double.POSITIVE_INFINITY)||work.costs.size()>=8192)return;
-        work.costs.put(p,cost);work.open.add(new Node(p,cost,cost+heuristic(p,work.destination),parent,action));
+        double remaining=heuristic(p,work.destination);
+        // Terrain routing has already tried real stairs and parkour. In edit mode,
+        // price the missing height as construction instead of exploring a flat
+        // arena as though another thousand ground cells could reach an airborne victim.
+        if(work.edits)remaining+=Math.max(0,work.destination.getY()-p.y())*8;
+        work.costs.put(p,cost);work.open.add(new Node(p,cost,cost+remaining,parent,action));
     }
     private void clearMining(){
         if(mining!=null)level.destroyBlockProgress(chef.getId(),mining,-1);
         mining=null;miningState=null;miningCause=null;progress=0;
     }
     private void mine(BlockPos pos){
-        chef.setSprinting(false);chef.halt();chef.lookAt(Vec3.atCenterOf(pos));
+        chef.setSprinting(false);chef.halt();
         if(Vec3.atCenterOf(pos).distanceToSqr(chef.getEyePosition())>20.25||!breakable(pos)){reset("mining reach/state");return;}
         BlockState state=level.getBlockState(pos);
         if(!pos.equals(mining)||!state.equals(miningState)){
@@ -474,8 +532,10 @@ final class LbcChefBrain {
             miningCause=chef.service.gameItems().indirectKills().coldCause(chef.owner,false);
         }
         ItemStack tool=tools.stream().max(Comparator.comparingDouble(t->t.getDestroySpeed(state))).orElse(tools.getFirst());
-        chef.setItemSlot(EquipmentSlot.MAINHAND,tool.copy());
+        if(!chef.equip(tool.copy())||!chef.aimAction(Vec3.atCenterOf(pos)))return;
         if(chef.tickCount%4==0)chef.swing(InteractionHand.MAIN_HAND,net.minecraft.world.item.component.SwingAnimation.DEFAULT,true);
+        chef.acted(Vec3.atCenterOf(pos));
+        if(chef.tickCount%4==0)level.playSound(null,pos,state.getSoundType().getHitSound(),net.minecraft.sounds.SoundSource.BLOCKS,.5f,1);
         float hardness=state.getDestroySpeed(level,pos);
         progress+=hardness==0?1:tool.getDestroySpeed(state)/hardness/(tool.isCorrectToolForDrops(state)||!state.requiresCorrectToolForDrops()?30:100);
         level.destroyBlockProgress(chef.getId(),pos,Math.min(9,(int)(progress*10)));
@@ -488,7 +548,11 @@ final class LbcChefBrain {
         });
         clearMining();
     }
-    private boolean place(BlockPos pos){
+    private boolean place(BlockPos pos){return place(pos,2,new HashSet<>());}
+    private boolean place(BlockPos pos,int connect,Set<BlockPos> visited){
+        placementWaiting=false;
+        if(!visited.add(pos))return false;
+        if(chef.tickCount<nextBuild){placementWaiting=true;chef.halt();return false;}
         if(!replaceable(pos)||Vec3.atCenterOf(pos).distanceToSqr(chef.getEyePosition())>20.25){lastPlacement="reach/replaceable "+pos;return false;}
         // Find a real collision face on a neighbour and aim at its surface, as a player's
         // block interaction would. Fluids/noncolliding decorations do not attach a bridge.
@@ -507,13 +571,28 @@ final class LbcChefBrain {
             }
             if(hit!=null)break;
         }
-        if(hit==null){lastPlacement="no attached visible face "+pos;return false;}
+        if(hit==null){
+            // Diagonals still require a visible, face-connected real block.
+            if(connect>0)for(Direction side:Direction.values()){
+                BlockPos elbow=pos.relative(side);
+                if(!replaceable(elbow))continue;
+                boolean built=place(elbow,connect-1,visited);
+                if(built||placementWaiting){placementWaiting=true;return false;}
+            }
+            lastPlacement="no attached visible face "+pos;return false;
+        }
         BlockState state=Blocks.COBBLESTONE.defaultBlockState();
         if(!level.isUnobstructed(state,pos,CollisionContext.empty())){lastPlacement="entity collision "+pos;return false;}
-        chef.lookAt(hit);chef.setItemSlot(EquipmentSlot.MAINHAND,new ItemStack(Items.COBBLESTONE,64));
+        if(!chef.equip(new ItemStack(Items.COBBLESTONE,64))||!chef.aimAction(hit)){
+            placementWaiting=true;chef.halt();return false;
+        }
+        chef.acted(hit);
         chef.swing(InteractionHand.MAIN_HAND,net.minecraft.world.item.component.SwingAnimation.DEFAULT,true);
         chef.service.gameItems().indirectKills().trapChanges(level,chef.service.gameItems().indirectKills().coldCause(chef.owner,false),()->level.setBlock(pos,state,3));
         if(!level.getBlockState(pos).is(Blocks.COBBLESTONE)){lastPlacement="world write rejected "+pos;return false;}
+        level.playSound(null,pos,state.getSoundType().getPlaceSound(),net.minecraft.sounds.SoundSource.BLOCKS,1,.8f);
+        level.gameEvent(chef,net.minecraft.world.level.gameevent.GameEvent.BLOCK_PLACE,pos);
+        nextBuild=chef.tickCount+2;
         lastPlacement="placed "+pos;placed.add(pos.immutable());return true;
     }
 }
