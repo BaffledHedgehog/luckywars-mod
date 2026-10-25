@@ -1,0 +1,70 @@
+"""Offline closure for the added library families and the copyable RP template."""
+from pathlib import Path
+import hashlib
+import json
+import subprocess
+import generate_extra_grimoires as gen
+
+ROOT = gen.ROOT
+load = gen.read
+digest = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+
+
+def check():
+    rows = load(ROOT/'resourcepack_template/EXTRA_GRIMOIRES.json')
+    assert len(rows) == 21 and [r['spellId'] for r in rows] == list(range(243, 264))
+    manifest = load(ROOT/'src/main/resources/skywars2/remaining_grimoires.json')
+    extra = [r for r in manifest['items'] if r['spellId'] >= 243]
+    assert len(extra) == 21
+    broad_path = 'src/main/resources/data/lbc/loot_table/spells_library.json'
+    old_broad = json.loads(subprocess.check_output(['git', 'show', 'a5fa2013:'+broad_path], cwd=ROOT))
+    broad = load(ROOT/broad_path)
+    entries = broad['pools'][0]['entries']
+    assert len(entries) == 261 and entries[:240] == old_broad['pools'][0]['entries']
+    names = [e['name'] for e in entries]
+    assert len(set(names)) == 261
+    models = ROOT/'resourcepack_template'
+    for row, definition in zip(rows, extra):
+        name = row['id'].removesuffix('_grimoire')
+        assert row['spellId'] == definition['spellId']
+        leaf = load(ROOT/f"src/main/resources/data/lbc/loot_table/ported/{row['id']}.json")
+        entry = leaf['pools'][0]['entries'][0]
+        assert entry == entries[names.index('skywars2:'+row['id'])]
+        assert entry['modifier'][-1]['tag'] == definition['data']
+        assert definition['model'] == 'lbc:spelllib/'+name
+        components = {}
+        for fn in load(ROOT/f"src/main/resources/data/lbc/loot_table/ported/{row['wand']}.json")['pools'][0]['entries'][0]['modifier']:
+            if fn['type'] == 'minecraft:set_components':
+                components.update(fn['components'])
+        assert row['tier'] == definition['tooltip'] == components['minecraft:tooltip_style']
+        item = load(models/f'assets/lbc/items/spelllib/{name}.json')
+        model = load(models/f'assets/lbc/models/item/spelllib/{name}.json')
+        assert item['model']['model'] == 'lbc:item/spelllib/'+name
+        assert model['textures']['layer0'] == 'lbc:item/spelllib/'+name
+        assert (models/f'assets/lbc/textures/item/spelllib/{name}.png').read_bytes().startswith(b'\x89PNG\r\n\x1a\n')
+    for lang in ('ru_ru','en_us','rpr'):
+        keys = load(models/f'updates/extra_grimoires.{lang}.json')
+        author = load(gen.RP/f'assets/minecraft/lang/{lang}.json')
+        assert len(keys) == 42 and not set(keys).intersection(author)
+        assert all(value and '?' not in value for value in keys.values())
+        for row in rows:
+            key = 'libspell_'+row['id'].removesuffix('_grimoire')
+            assert key in keys and key+'.lore' in keys
+    adv_path = 'src/main/resources/data/lbc/advancement/true_advancements/legends/all_grimoires.json'
+    old = json.loads(subprocess.check_output(['git','show','a5fa2013:'+adv_path], cwd=ROOT))
+    adv = load(ROOT/adv_path)
+    assert len(adv['criteria']) == 261 and 'spell_189' not in adv['criteria']
+    for key, criterion in old['criteria'].items():
+        if key != 'spell_189':
+            assert adv['criteria'][key] == criterion
+    assert {int(key.removeprefix('spell_')) for key in adv['criteria']} == set(range(1,264))-{189,242}
+    outputs = [ROOT/broad_path, ROOT/adv_path, ROOT/'src/main/resources/skywars2/remaining_grimoires.json']
+    outputs += [p for p in models.rglob('*') if p.is_file() and ('extra_grimoires.' in p.name or '/spelllib/' in p.as_posix())]
+    before = {p: digest(p) for p in outputs}
+    gen.generate()
+    assert all(digest(p) == value for p, value in before.items()), 'Generator must be byte-idempotent'
+    print('PASS21 books,261 unchanged-prefix library entries/attainable criteria, exact wand tiers,63 RP assets,126 keys and idempotent generation')
+
+
+if __name__ == '__main__':
+    check()

@@ -771,6 +771,14 @@ public final class LbcWands {
         if(mana.mageFullSet(player)) mana.maximum(player,mana.maximum(player)+mana.score(MAGE_BONUS,"lbc.math").get());
         game.items().trinkets().castWand(player);
     }
+    void extraTiny(ServerPlayer p,int kind){
+        switch(kind){
+            case 0->fire(p);case 1->ray(p,Spell.BLIND);case 2->ray(p,Spell.AIR);
+            case 3->ray(p,Spell.STONE);case 4->ray(p,Spell.TELEPORT);case 5->rubyRay(p);
+            case 6->terraRay(p);case 7->ray(p,Spell.ACID);case 8->electro(p);
+            default->throw new IllegalArgumentException("Unknown tiny spell "+kind);
+        }
+    }
     private void fire(ServerPlayer player) {
         smallFire(player,0);
         LbcOverload.sound(player,player.getEyePosition(),"minecraft:item.firecharge.use",1,2,0);

@@ -17,7 +17,7 @@ import java.util.*;
 public final class AllGrimoireChecks {
     private AllGrimoireChecks() { }
     private static void require(boolean b,String why){if(!b)throw new IllegalStateException("All grimoires: "+why);}
-    private static final class Fixture implements AutoCloseable {
+    static final class Fixture implements AutoCloseable {
         final ElementalGrimoireChecks.Fixture base;final net.minecraft.server.level.ServerLevel level;final Vec3 at;
         final net.minecraft.server.level.ServerPlayer beta;final GameChecks.WandThirdPlayerState betaSaved;
         final Map<BlockPos,MapManager.BlockSnapshot> cells=new LinkedHashMap<>();
@@ -47,6 +47,7 @@ public final class AllGrimoireChecks {
         }
         void reset(){
             var i=base.game.items();i.libraryRandom().stop();i.bedrock().stop();i.evokerBass().stop();i.lifestealer().stop();i.advancedSnow().stop();i.neutral().stop();i.prism().stop();
+            i.soulless().stop();i.halloweenWind().stop();i.fartus().stop();i.summons().stop();i.reactive().stop();
             i.hedgehog().stop();i.sheep().stop();i.homing().stop();i.bolts().stop();i.blaze().stop();i.psycho().stop();i.exoperso().stop();i.exasperato().stop();i.acidCorruption().stop();
             i.consuming().stop();i.duplicating().stop();i.awakenedAcid().stop();i.erecto().stop();i.danmaku().stop();i.iceWand().stop();i.vexSword().stop();i.stonekivi().stop();base.clear();
             var fresh=new ArrayList<Entity>();for(var e:level.getAllEntities())if(!base.before.contains(e))fresh.add(e);fresh.forEach(Entity::discard);

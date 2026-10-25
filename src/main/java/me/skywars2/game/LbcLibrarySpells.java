@@ -59,11 +59,12 @@ public final class LbcLibrarySpells {
             for(var entry:json.getAsJsonObject("wiki").entrySet()){
                 var d=entry.getValue().getAsJsonObject();WIKI.put(Integer.parseInt(entry.getKey()),new LbcEnderWiki.Effect(d.get("id").getAsString(),d.get("ticks").getAsInt(),d.get("amplifier").getAsInt(),d.get("hidden").getAsBoolean()));
             }
-            if(BOOKS.size()!=167||WIKI.size()!=84)throw new IllegalStateException("Incomplete library presets");
+            if(BOOKS.size()!=167+LbcExtraGrimoires.COUNT||WIKI.size()!=84)throw new IllegalStateException("Incomplete library presets");
         }catch(Exception e){throw new ExceptionInInitializerError(e);}
     }
     public static void register(){ }
-    static List<Definition> definitions(){return List.copyOf(BOOKS.values());}
+    static List<Definition> definitions(){return BOOKS.values().stream().filter(d->d.spellId()<LbcExtraGrimoires.FIRST).toList();}
+    static List<Definition> extraDefinitions(){return BOOKS.values().stream().filter(d->d.spellId()>=LbcExtraGrimoires.FIRST).toList();}
     static LbcEnderWiki.Effect fixedEffect(int id){return WIKI.get(id);}
     static Definition kind(ItemStack stack){
         if(stack.isEmpty())return null;var data=LbcFartus.data(stack);
@@ -86,6 +87,7 @@ public final class LbcLibrarySpells {
         p.awardStat(Stats.ITEM_USED.get(stack.getItem()));stack.consume(1,p);return true;
     }
     static boolean cast(GameController g,ServerPlayer p,InteractionHand hand,int id){
+        if(id>=LbcExtraGrimoires.FIRST&&id<=LbcExtraGrimoires.LAST)return LbcExtraGrimoires.cast(g,p,hand,id);
         for(var kind:LbcElementalGrimoires.Kind.values())if(kind.spellId==id)return LbcElementalGrimoires.cast(g,p,hand,kind);
         if(id>=28&&id<=111){g.items().enderWiki().libraryEffect(p,WIKI.get(id));return true;}
         var empty=ItemStack.EMPTY;
@@ -107,7 +109,7 @@ public final class LbcLibrarySpells {
             case 126 -> g.items().blaze().libraryHead(p);
             case 127 -> LbcLibraryRandom.castRandom(g,p,hand,p.getRandom().nextInt(53)+1);
             case 128 -> {
-                int selected=128;for(int attempt=0;attempt<5&&selected==128;attempt++)selected=p.getRandom().nextInt(242)+1;
+                int selected=128;for(int attempt=0;attempt<5&&selected==128;attempt++)selected=p.getRandom().nextInt(LbcExtraGrimoires.LAST)+1;
                 if(selected!=128)return cast(g,p,hand,selected);
             }
             case 129,130,131,132,133 -> {

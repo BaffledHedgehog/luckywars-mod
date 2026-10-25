@@ -4155,28 +4155,6 @@
                 ]
             }
         },
-        "spell_189": {
-            "trigger": "minecraft:inventory_changed",
-            "conditions": {
-                "player": {
-                    "term": {
-                        "entity": "this",
-                        "predicate": {
-                            "minecraft:nbt": "{playerGameType:3}"
-                        },
-                        "type": "minecraft:entity_properties"
-                    },
-                    "type": "minecraft:inverted"
-                },
-                "items": [
-                    {
-                        "predicates": {
-                            "minecraft:custom_data": "{spellid: 189}"
-                        }
-                    }
-                ]
-            }
-        },
         "spell_190": {
             "trigger": "minecraft:inventory_changed",
             "conditions": {
@@ -5316,6 +5294,468 @@
                     {
                         "predicates": {
                             "minecraft:custom_data": "{spellid: 241}"
+                        }
+                    }
+                ]
+            }
+        },
+        "spell_243": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{libspell:1,spellid:243}"
+                        }
+                    }
+                ]
+            }
+        },
+        "spell_244": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{libspell:1,spellid:244}"
+                        }
+                    }
+                ]
+            }
+        },
+        "spell_245": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{libspell:1,spellid:245}"
+                        }
+                    }
+                ]
+            }
+        },
+        "spell_246": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{libspell:1,spellid:246}"
+                        }
+                    }
+                ]
+            }
+        },
+        "spell_247": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{libspell:1,spellid:247}"
+                        }
+                    }
+                ]
+            }
+        },
+        "spell_248": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{libspell:1,spellid:248}"
+                        }
+                    }
+                ]
+            }
+        },
+        "spell_249": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{libspell:1,spellid:249}"
+                        }
+                    }
+                ]
+            }
+        },
+        "spell_250": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{libspell:1,spellid:250}"
+                        }
+                    }
+                ]
+            }
+        },
+        "spell_251": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{libspell:1,spellid:251}"
+                        }
+                    }
+                ]
+            }
+        },
+        "spell_252": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{libspell:1,spellid:252}"
+                        }
+                    }
+                ]
+            }
+        },
+        "spell_253": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{libspell:1,spellid:253}"
+                        }
+                    }
+                ]
+            }
+        },
+        "spell_254": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{libspell:1,spellid:254}"
+                        }
+                    }
+                ]
+            }
+        },
+        "spell_255": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{libspell:1,spellid:255}"
+                        }
+                    }
+                ]
+            }
+        },
+        "spell_256": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{libspell:1,spellid:256}"
+                        }
+                    }
+                ]
+            }
+        },
+        "spell_257": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{libspell:1,spellid:257}"
+                        }
+                    }
+                ]
+            }
+        },
+        "spell_258": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{libspell:1,spellid:258}"
+                        }
+                    }
+                ]
+            }
+        },
+        "spell_259": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{libspell:1,spellid:259}"
+                        }
+                    }
+                ]
+            }
+        },
+        "spell_260": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{libspell:1,spellid:260}"
+                        }
+                    }
+                ]
+            }
+        },
+        "spell_261": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{libspell:1,spellid:261}"
+                        }
+                    }
+                ]
+            }
+        },
+        "spell_262": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{libspell:1,spellid:262}"
+                        }
+                    }
+                ]
+            }
+        },
+        "spell_263": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+                "player": {
+                    "term": {
+                        "entity": "this",
+                        "predicate": {
+                            "minecraft:nbt": "{playerGameType:3}"
+                        },
+                        "type": "minecraft:entity_properties"
+                    },
+                    "type": "minecraft:inverted"
+                },
+                "items": [
+                    {
+                        "predicates": {
+                            "minecraft:custom_data": "{libspell:1,spellid:263}"
                         }
                     }
                 ]

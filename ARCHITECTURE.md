@@ -1,3 +1,18 @@
+## Additional21 grimoire families - QUALIFIED AND INSTALLED (26 October2026)
+
+See [implementation and qualification](agent_notes/EXTRA_GRIMOIRES_2026_10_26.md).
+IDs243..263 add9 Tiny books, Soulless/default+Metasola, Halloween wind/default+3
+Academy modes, Fartus, Gaycaster, Ice, Shish-wall and two summoners. Shared
+producers; no mana debit/admission or unrelated trials. Existing240 entries
+retained; attainable collection261, phantom189 removed. New RP files and
+merge-only translations live in resourcepack_template; author pack read-only.
+Evidence: build/verification/extra-grimoires-final/.
+Build081a2f7a passed28 groups in two actual mode1 matches (114.93s).
+Exact383 sources/1081 classes/3097 resources verified; installer25680 installed
+over0d3733b6 with rollback and no restart. Native collection trigger, all new
+final-stack uses and shared-family regressions pass. Protected user files and
+prior deletions remain unchanged. Obsolete753bcbe3 archive retired.
+
 # Структура переноса игрового цикла
 
 ## Complete240-book grimoire library - QUALIFIED AND INSTALLED (26 October 2026)

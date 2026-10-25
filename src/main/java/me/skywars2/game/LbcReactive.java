@@ -49,6 +49,9 @@ public final class LbcReactive {
             return true;
         }
         if(!LbcReactiveItems.isWall(stack) || mana.get(player)<500 && mana.overloadArmor(player)!=15) return false;
+        return castWall(player,true);
+    }
+    boolean castWall(ServerPlayer player,boolean paid){
         var origin=player.getEyePosition(); var direction=player.getLookAngle().normalize();
         int mode=player.isShiftKeyDown()?3:!player.onGround()?2:player.isSprinting()?4:1;
         float yaw=player.getYRot(); String epoch=game.items().epoch(); var level=player.level();
@@ -61,9 +64,9 @@ public final class LbcReactive {
                     || !admitted(player) || player.level()!=level || !level.hasChunkAt(hit.getBlockPos())) return;
             int cost=Math.max(0,mana.score(WALL_COST,"lbc.math").get());
             // A miss is free. Recheck admission on deferred completion before charging exactly one hit.
-            if(!mana.trySpendWand(player,500,cost)) return;
+            if(paid&&!mana.trySpendWand(player,500,cost)) return;
             LbcWall.shishTerminal(game,player,hit,direction,mode,yaw);
-            game.items().wands().wandCasted(player);
+            if(paid)game.items().wands().wandCasted(player);
         });
         return true;
     }

@@ -123,7 +123,7 @@ public final class LbcSoulless {
         }else cast(p);
         game.items().wands().wandCasted(p);return true;
     }
-    private boolean generate(ServerPlayer p){
+    boolean generate(ServerPlayer p){
         var loot=game.lbc().rollTable(p.level(),p.position(),p,"lbc:metasola");
         if(loot.isEmpty())return false;
         for(var stack:loot){

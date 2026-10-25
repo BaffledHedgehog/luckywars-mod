@@ -1,0 +1,75 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:tiny_terra_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:item_model": "lbc:spelllib/tiny_terra"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_tiny_terra",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_tiny_terra.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "epic",
+                    "italic": false,
+                    "color": "dark_purple"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:249}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

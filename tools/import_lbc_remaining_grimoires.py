@@ -74,6 +74,8 @@ def main():
     path=ROOT/'src/main/resources/skywars2/remaining_grimoires.json'
     path.write_text(json.dumps({'items':descriptors,'wiki':effects},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     write_table(ROOT/'src/main/resources/data/lbc/loot_table/spells_library.json',broad)
+    import generate_extra_grimoires
+    generate_extra_grimoires.generate()
     print(f'Imported {len(descriptors)} remaining books, {len(effects)} fixed effects, complete {len(ids)}-entry library; RP read-only.')
 
 if __name__=='__main__':main()

@@ -1,3 +1,16 @@
+## Additional21 grimoire families - QUALIFIED AND INSTALLED (26 October2026)
+
+See [implementation and qualification](EXTRA_GRIMOIRES_2026_10_26.md).
+All missing wand families have shared native consumed books;21 added,261 total.
+No duplicate ordinary-equivalent Academy modes. New RP assets/key merges are
+in resourcepack_template; the author pack is read-only.
+Evidence: build/verification/extra-grimoires-final/.
+Build081a2f7a passed28 groups in two actual mode1 matches (114.93s).
+Exact383 sources/1081 classes/3097 resources verified; installer25680 installed
+over0d3733b6 with rollback and no restart. Native collection trigger, all new
+final-stack uses and shared-family regressions pass. Protected user files and
+prior deletions remain unchanged. Obsolete753bcbe3 archive retired.
+
 # Следующие этапы переноса
 
 ## Complete240-book grimoire library - QUALIFIED AND INSTALLED (26 October 2026)

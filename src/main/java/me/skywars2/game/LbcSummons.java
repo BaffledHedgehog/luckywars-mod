@@ -152,6 +152,16 @@ public final class LbcSummons {
                 .min(Comparator.comparingDouble(owner::distanceToSqr)).orElse(null):null;
         // Исходный допуск 1000 сохраняется и при реальном расходе 3000 возле врага.
         if(!mana.trySpendWand(owner,price,psycho && !down && destination!=null?price*3:price)) return false;
+        return castSummon(owner,psycho,down,destination,true);
+    }
+    boolean grimoire(ServerPlayer owner,boolean psycho){
+        if(!ready())return false;
+        boolean down=owner.getXRot()>=85;
+        var destination=psycho&&!down?owner.level().players().stream().filter(player->target(owner,player))
+                .min(Comparator.comparingDouble(owner::distanceToSqr)).orElse(null):null;
+        return castSummon(owner,psycho,down,destination,false);
+    }
+    private boolean castSummon(ServerPlayer owner,boolean psycho,boolean down,ServerPlayer destination,boolean bonus){
         if(!psycho) {
             for(var mob:List.copyOf(mobs.keySet())) {
                 var state=mobs.get(mob);
@@ -164,14 +174,14 @@ public final class LbcSummons {
             if(down) point=owner.position().add(horizontal(owner).scale(2));
             else {
                 var enemy=destination;
-                if(enemy==null) { effects(owner,true); game.items().trinkets().summoned(owner); return true; }
+                if(enemy==null) { effects(owner,true); if(bonus)game.items().trinkets().summoned(owner); return true; }
                 int direction=owner.getRandom().nextInt(4);
                 Vec3 forward=horizontal(owner),right=new Vec3(-forward.z,0,forward.x);
                 point=enemy.position().add((direction<2?forward:right).scale(direction%2==0?2:-2));
             }
             spawnPreset(owner,CULTISTS[owner.getRandom().nextInt(6)],point);
         }
-        effects(owner,psycho); game.items().trinkets().summoned(owner); return true;
+        effects(owner,psycho); if(bonus)game.items().trinkets().summoned(owner); return true;
     }
     private static Vec3 horizontal(LivingEntity entity) {
         double yaw=Math.toRadians(entity.getYRot()); return new Vec3(-Math.sin(yaw),0,Math.cos(yaw));

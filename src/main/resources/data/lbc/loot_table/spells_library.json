@@ -17422,6 +17422,1412 @@
               "type": "minecraft:set_custom_data"
             }
           ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:tiny_fire_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:item_model": "lbc:spelllib/tiny_fire"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_tiny_fire",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_tiny_fire.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "epic",
+                    "italic": false,
+                    "color": "dark_purple"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:243}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:tiny_blind_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:item_model": "lbc:spelllib/tiny_blind"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_tiny_blind",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_tiny_blind.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "epic",
+                    "italic": false,
+                    "color": "dark_purple"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:244}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:tiny_air_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:item_model": "lbc:spelllib/tiny_air"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_tiny_air",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_tiny_air.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "epic",
+                    "italic": false,
+                    "color": "dark_purple"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:245}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:tiny_stone_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:item_model": "lbc:spelllib/tiny_stone"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_tiny_stone",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_tiny_stone.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "epic",
+                    "italic": false,
+                    "color": "dark_purple"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:246}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:tiny_teleport_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:item_model": "lbc:spelllib/tiny_teleport"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_tiny_teleport",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_tiny_teleport.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "epic",
+                    "italic": false,
+                    "color": "dark_purple"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:247}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:tiny_ruby_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:item_model": "lbc:spelllib/tiny_ruby"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_tiny_ruby",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_tiny_ruby.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "epic",
+                    "italic": false,
+                    "color": "dark_purple"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:248}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:tiny_terra_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:item_model": "lbc:spelllib/tiny_terra"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_tiny_terra",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_tiny_terra.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "epic",
+                    "italic": false,
+                    "color": "dark_purple"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:249}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:tiny_acid_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:item_model": "lbc:spelllib/tiny_acid"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_tiny_acid",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_tiny_acid.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "epic",
+                    "italic": false,
+                    "color": "dark_purple"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:250}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:tiny_electro_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:item_model": "lbc:spelllib/tiny_electro"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_tiny_electro",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_tiny_electro.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "epic",
+                    "italic": false,
+                    "color": "dark_purple"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:251}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:soulless_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:item_model": "lbc:spelllib/soulless"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_soulless",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_soulless.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "base",
+                    "italic": false,
+                    "color": "gray"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:252}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:soulless_metasola_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:item_model": "lbc:spelllib/soulless_metasola"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_soulless_metasola",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_soulless_metasola.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "base",
+                    "italic": false,
+                    "color": "gray"
+                  },
+                  {
+                    "translate": "enhanced",
+                    "italic": false,
+                    "color": "gray"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:253}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:halloween_wind_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:item_model": "lbc:spelllib/halloween_wind"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_halloween_wind",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_halloween_wind.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "rare",
+                    "italic": false,
+                    "color": "yellow"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:254}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:halloween_wind_self_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:item_model": "lbc:spelllib/halloween_wind_self"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_halloween_wind_self",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_halloween_wind_self.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "rare",
+                    "italic": false,
+                    "color": "yellow"
+                  },
+                  {
+                    "translate": "enhanced",
+                    "italic": false,
+                    "color": "gray"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:255}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:halloween_wind_others_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:item_model": "lbc:spelllib/halloween_wind_others"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_halloween_wind_others",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_halloween_wind_others.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "rare",
+                    "italic": false,
+                    "color": "yellow"
+                  },
+                  {
+                    "translate": "enhanced",
+                    "italic": false,
+                    "color": "gray"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:256}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:halloween_wind_charges_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:item_model": "lbc:spelllib/halloween_wind_charges"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_halloween_wind_charges",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_halloween_wind_charges.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "rare",
+                    "italic": false,
+                    "color": "yellow"
+                  },
+                  {
+                    "translate": "enhanced",
+                    "italic": false,
+                    "color": "gray"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:257}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:fartus_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_s",
+                "minecraft:item_model": "lbc:spelllib/fartus"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_fartus",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_fartus.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "legendary",
+                    "italic": false,
+                    "color": "red"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:258}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:gaycaster_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:item_model": "lbc:spelllib/gaycaster"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_gaycaster",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_gaycaster.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "legendary",
+                    "italic": false,
+                    "color": "red"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:259}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:ice_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_s",
+                "minecraft:item_model": "lbc:spelllib/ice"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_ice",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_ice.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "legendary",
+                    "italic": false,
+                    "color": "red"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:260}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:shish_wall_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:item_model": "lbc:spelllib/shish_wall"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_shish_wall",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_shish_wall.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "rare",
+                    "italic": false,
+                    "color": "yellow"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:261}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:summoner_vexes_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:item_model": "lbc:spelllib/summoner_vexes"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_summoner_vexes",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_summoner_vexes.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "rare",
+                    "italic": false,
+                    "color": "yellow"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:262}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:psychovex_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_s",
+                "minecraft:item_model": "lbc:spelllib/psychovex"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_psychovex",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_psychovex.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "legendary",
+                    "italic": false,
+                    "color": "red"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:263}"
+            }
+          ]
         }
       ]
     }
