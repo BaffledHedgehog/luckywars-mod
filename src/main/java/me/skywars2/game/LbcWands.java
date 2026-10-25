@@ -440,6 +440,7 @@ public final class LbcWands {
         if(LbcSoulhunter.isMace(stack))return game.items().soulhunter().use(player,hand);
         if(LbcSoulless.isWand(stack)||LbcSoulless.material(stack)>0)return game.items().soulless().use(player,hand);
         if(LbcDanmaku.isItem(stack))return game.items().danmaku().use(player,hand);
+        if(LbcSheep.isWand(stack))return game.items().sheep().use(player,hand);
         if(LbcHalloweenWind.isWind(stack))return game.items().halloweenWind().use(player,hand);
         if(LbcFartus.isFartus(stack))return game.items().fartus().use(player,hand);
         if(stack.is(FEATHER_GREED)||stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("feather_greed",0)==1) return game.items().neutral().feather(player);

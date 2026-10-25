@@ -36,3 +36,11 @@ after verifying its exact hash and the new ready artifact. Final cleanup totals:
 286 JARs,10,078,304,331 bytes (9.39 GiB). Kept the new Danmaku ready JAR, the
 previous Acid ready JAR, and chef-skin2558af6b as the installed-version fallback.
 Current build/libs stays available; the main installed JAR is unchanged.
+
+## Retention advanced after Sheep qualification
+
+Sheep passed 26 recorded results in two actual matches. After hash verification,
+the obsolete Acid ready archive was removed. Cumulative cleanup:287 JARs,
+10,116,474,266 bytes (9.42 GiB). Kept Sheep ready, preceding Danmaku ready and
+chef-skin2558af6b rollback. Main disk JAR was externally updated to04396ca4
+(Danmaku); this task preserved it and did not install or restart the server.

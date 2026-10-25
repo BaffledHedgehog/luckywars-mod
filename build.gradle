@@ -26,6 +26,7 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/sheep_wand.json', 'data/lbc/loot_table/ported/academy_sheep_wand.json'
     include 'data/lbc/loot_table/ported/danmaku_staff.json', 'data/lbc/loot_table/ported/academy_danmaku_staff.json'
     include 'data/lbc/loot_table/ported/academy_acid_wand.json'
     include 'data/lbc/loot_table/ported/academy_soulcorruption_wand.json', 'data/lbc/loot_table/ported/soulcorruption_wand.json', 'data/lbc/loot_table/ported/soulhunter_mace.json', 'data/lbc/loot_table/metasola.json', 'data/skywars2/recipe/soulhunter_combine.json', 'data/lbc/loot_table/ported/metasola_1.json', 'data/lbc/loot_table/ported/metasola_2.json', 'data/lbc/loot_table/ported/metasola_3.json', 'data/lbc/loot_table/ported/metasola_4.json', 'data/lbc/loot_table/ported/metasola_5.json', 'data/lbc/loot_table/ported/metasola_6.json', 'data/lbc/structure/light_sphere_21x21.nbt'

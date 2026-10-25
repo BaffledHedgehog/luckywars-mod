@@ -1,5 +1,47 @@
 # Следующие этапы переноса
 
+## Sheep wand and native sheep holes - QUALIFIED READY (25 October 2026)
+
+[SHEEP_PORT](SHEEP_PORT.md), [SHEEP_CHECKS](SHEEP_CHECKS.md),
+[SHEEP_RESOURCES](SHEEP_RESOURCES.md), [SHEEP_DECISIONS](SHEEP_DECISIONS.md),
+[source audit](SHEEP_HEDGEHOG_SOURCE.md).
+
+Ordinary Sheep and its X-tier Academy version now have narrow native loot
+leaves. Each hand uses configured500 mana and original first-impact ray
+presentation. Permanent replacement creates a real jeb_ sheep with source
+empty loot and knockback resistance20, quietly discarding the old mob. Players
+are never polymorphed; no hotbar-removal or temporary-restoration mechanic was
+added. The earlier interpretation was a terminal-reading error, corrected in
+the decision record. Academy retains sex tags and male-triggered holes.
+
+Exact succubus-potion interactions create holes and ready the actual ordinary
+used trial stack, including offhand; the real token school promotes to X tier.
+Greed, role and observer protections apply to potion inventory effects too.
+Sheep holes are WILD, retain source10 outside_border damage within5 and clear
+ordinary items/projectiles there. Shader disc lens matches original occupied
+sphere radius sqrt552 (~23.5); radial clearing removes both core and shell,
+without creating obsidian. Terrain uses a shared4ms budget after physics, with
+immediate changes and rotating hole priority. Velocity pull is strong inside,
+weak out to48 and respects voluntary player input outside. Disc tilt follows
+hole movement. No arbitrary TTL or held-wand requirement was introduced.
+
+Build `65a39f13` passed 26 recorded results in
+two actual mode1 matches (79.34s), including real stop cleanup.
+Exact 348 sources / 965 classes /
+2818 resources match the artifact.
+Ready JAR: `build/verification/skywars2-sheep-65a39f13.jar`; evidence: `build/verification/sheep-final/`.
+READY ONLY by existing user choice: main remains04396ca4, no install or restart.
+Five pre-existing user files and removed applied templates are preserved.
+No author RP change or new translation fragment. Native fixtures do not qualify
+real client pixels, disk restart/unload/disconnect or peak-load performance.
+
+Remaining large source families include combined Sauvojen, Hedgehog and
+unstable spellbook. Hedgehog dependencies and the separate, still-gated Danmaku
+grimoire are statically documented. No unfinished broad pool is enabled.
+Build retention keeps this Sheep ready JAR, preceding Danmaku ready JAR and the
+installed-version fallback; obsolete Acid archive is removed only after this
+qualification. [Retention policy](BUILD_ARTIFACT_RETENTION.md).
+
 ## Danmaku Staff and build retention - QUALIFIED READY (25 October 2026)
 
 [DANMAKU_PORT](DANMAKU_PORT.md),
