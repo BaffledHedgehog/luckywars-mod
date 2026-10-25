@@ -8,6 +8,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,14 +21,26 @@ public final class LbcRifleZoom {
     /** Native 26.3 client reads this before predicting each LMB swing; attack damage remains native. */
     public static final net.minecraft.world.item.component.SwingAnimation SCOPE_ATTACK_ANIMATION=
             new net.minecraft.world.item.component.SwingAnimation(net.minecraft.world.item.SwingAnimationType.NONE,6);
-    private static final Identifier ZOOM=Identifier.parse("lbc:zoom");
-    private static final Identifier ZOOM_OUT=Identifier.parse("lbc:zoom_out");
+    private enum Scope {
+        SLG("slg","super_rifle"), MAGNUM("magnum","magnum");
+        final Identifier effect,out,model;
+        Scope(String name,String model) {
+            effect=Identifier.parse("lbc:zoom_"+name);out=Identifier.parse("lbc:zoom_"+name+"_out");
+            this.model=Identifier.parse("lbc:"+model+"_scoped");
+        }
+        static Scope of(ItemStack stack) { return LbcShooters.isSlr(stack)?SLG:LbcMagnum.isMagnum(stack)?MAGNUM:null; }
+    }
+    private static final java.util.List<Identifier> OWNED_EFFECTS=java.util.List.of(
+            Identifier.parse("lbc:zoom"),Identifier.parse("lbc:zoom_out"),
+            Scope.SLG.effect,Scope.SLG.out,Scope.MAGNUM.effect,Scope.MAGNUM.out);
+    private static boolean projectionRegistered;
     private static final int EXIT_TICKS=6;
     private final GameController game;
     private final Map<UUID,State> states=new HashMap<>();
     // Outbound packets may originate outside the simulation thread. Publish only immutable FOV inputs.
     private final Map<UUID,Float> scopedMovement=new ConcurrentHashMap<>();
     private final Map<UUID,Float> movementViews=new ConcurrentHashMap<>();
+    private final Map<UUID,Scope> modelViews=new ConcurrentHashMap<>();
     enum SpeedFovPolicy { GAIN_FIVE_PERCENT, CLAMP_FIVE_PERCENT }
     static final SpeedFovPolicy SPEED_FOV_POLICY=SpeedFovPolicy.GAIN_FIVE_PERCENT;
 
@@ -57,16 +71,45 @@ public final class LbcRifleZoom {
         final ServerLevel level;
         final InteractionHand hand;
         final ItemStack gun;
+        final Scope scope;
         int lastPunch;
         int exitUntil;
         boolean active;
         State(ServerPlayer player,InteractionHand hand) {
             this.player=player; this.level=player.level(); this.hand=hand;
             this.gun=player.getItemInHand(hand);
+            this.scope=Scope.of(gun);
         }
     }
 
-    LbcRifleZoom(GameController game) { this.game=game; }
+    LbcRifleZoom(GameController game) { this.game=game; registerProjection(); }
+    private static Identifier projectedModel(ItemStack original,net.fabricmc.fabric.api.networking.v1.context.PacketContext context) {
+        var kind=Scope.of(original);
+        if(kind==null)return null;
+        var viewer=eu.pb4.polymer.common.api.PolymerCommonUtils.getPlayer(context);
+        var controller=me.skywars2.SkyWars2.game();
+        if(viewer==null||controller==null)return null;
+        var scope=controller.items().rifleZoom().modelViews.get(viewer.getUUID());
+        return scope!=null&&kind==scope?scope.model:null;
+    }
+    private static void registerProjection() {
+        if(projectionRegistered)return;projectionRegistered=true;
+        eu.pb4.polymer.core.api.item.PolymerItemUtils.CONTEXT_ITEM_CHECK.register(
+                (stack,context)->stack instanceof ItemStack item&&projectedModel(item,context)!=null);
+        eu.pb4.polymer.core.api.item.PolymerItemUtils.ITEM_MODIFICATION_EVENT.register((original,client,context)->{
+            var model=projectedModel(original,context);
+            if(model==null||client.isEmpty())return client;
+            var result=client.copy();result.set(DataComponents.ITEM_MODEL,model);return result;
+        });
+    }
+    private static void clearEffects(ServerPlayer player) {
+        for(var effect:OWNED_EFFECTS)player.removePostEffect(effect);
+    }
+    private static void refreshModels(ServerPlayer player) {
+        // Native menu snapshots; no authoritative stack/slot is replaced for presentation.
+        player.inventoryMenu.sendAllDataToRemote();
+        if(player.containerMenu!=player.inventoryMenu)player.containerMenu.sendAllDataToRemote();
+    }
     public void punch(ServerPlayer player) { punch(player,game.server().getTickCount()); }
 
     // Explicit tick permits deterministic checks of duplicate/continuous mining packets.
@@ -87,10 +130,12 @@ public final class LbcRifleZoom {
         state.lastPunch=tick;
         if(state.active) leave(state,tick,true); else {
             state.active=true; state.exitUntil=0;
-            player.removePostEffect(ZOOM_OUT);
-            player.addPostEffect(ZOOM);
+            clearEffects(player);
+            player.addPostEffect(state.scope.effect);
+            modelViews.put(player.getUUID(),state.scope);
             scopedMovement.put(player.getUUID(),movement(player));
             syncAbilities(player);
+            refreshModels(player);
         }
     }
     boolean scoped(ServerPlayer player) {
@@ -119,13 +164,14 @@ public final class LbcRifleZoom {
     private void leave(State state,int now,boolean animate) {
         state.active=false;
         scopedMovement.remove(state.player.getUUID());
-        state.player.removePostEffect(ZOOM);
+        modelViews.remove(state.player.getUUID());
+        clearEffects(state.player);
         syncAbilities(state.player);
+        refreshModels(state.player);
         if(animate) {
-            state.player.addPostEffect(ZOOM_OUT);
+            state.player.addPostEffect(state.scope.out);
             state.exitUntil=now+EXIT_TICKS;
         } else {
-            state.player.removePostEffect(ZOOM_OUT);
             state.exitUntil=0;
         }
     }
@@ -169,12 +215,12 @@ public final class LbcRifleZoom {
             if(!state.player.isAlive() || state.player.isRemoved() || state.player.level()!=state.level
                     || !game.canUseGameplayItems(state.player)) {
                 if(state.active) leave(state,now,false);
-                else state.player.removePostEffect(ZOOM_OUT);
+                else clearEffects(state.player);
                 iterator.remove();
                 continue;
             }
             if(state.active && !current(state))
-                leave(state,now,state.player.isAlive() && !state.player.isRemoved()
+                leave(state,now,state.player.getItemInHand(state.hand)==state.gun && state.player.isAlive() && !state.player.isRemoved()
                         && state.player.level()==state.level && game.canUseGameplayItems(state.player));
             if(state.active) {
                 float speed=movement(state.player);
@@ -182,8 +228,8 @@ public final class LbcRifleZoom {
                 if(previous==null || Float.floatToIntBits(previous)!=Float.floatToIntBits(speed))
                     syncAbilities(state.player);
             }
-            if(state.exitUntil!=0 && now>=state.exitUntil) {
-                state.player.removePostEffect(ZOOM_OUT); state.exitUntil=0;
+            if(state.exitUntil!=0 && (now>=state.exitUntil || state.player.getItemInHand(state.hand)!=state.gun)) {
+                clearEffects(state.player); state.exitUntil=0;
             }
             if(!state.active && state.exitUntil==0 && !current(state)) iterator.remove();
         }
@@ -197,16 +243,39 @@ public final class LbcRifleZoom {
     public void forget(ServerPlayer player) {
         State state=states.remove(player.getUUID());
         scopedMovement.remove(player.getUUID());
-        player.removePostEffect(ZOOM); player.removePostEffect(ZOOM_OUT);
-        if(state!=null && state.active) syncAbilities(player);
+        modelViews.remove(player.getUUID());
+        clearEffects(player);
+        if(state!=null && state.active) { syncAbilities(player);refreshModels(player); }
     }
     public void stop() {
         for(State state:states.values()) {
             scopedMovement.remove(state.player.getUUID());
-            state.player.removePostEffect(ZOOM); state.player.removePostEffect(ZOOM_OUT);
-            if(state.active) syncAbilities(state.player);
+            modelViews.remove(state.player.getUUID());
+            clearEffects(state.player);
+            if(state.active) { syncAbilities(state.player);refreshModels(state.player); }
         }
-        states.clear(); scopedMovement.clear();
+        states.clear(); scopedMovement.clear();modelViews.clear();
         // Global speed attenuation continues in the lobby after a match stops.
+    }
+    TraceView tracer(ServerPlayer owner) { return new TraceView(owner,scoped(owner)); }
+    static final class TraceView {
+        private final ServerPlayer owner;
+        private final Vec3 eye,down;
+        private final boolean scoped;
+        TraceView(ServerPlayer owner,boolean scoped) {
+            this.owner=owner;this.scoped=scoped;eye=owner.getEyePosition();down=owner.getUpVector(1).normalize().scale(-1);
+        }
+        void send(net.minecraft.core.particles.ParticleOptions particle,Vec3 point,int count,double spread,double speed) {
+            var level=owner.level();double distance=eye.distanceToSqr(point);
+            if(!scoped||distance>=64) {
+                level.sendParticles(particle,true,false,point.x,point.y,point.z,count,spread,spread,spread,speed);return;
+            }
+            double fade=1-Math.sqrt(distance)/8;
+            var local=point.add(down.scale(.22*fade*fade));
+            for(var viewer:level.players()) {
+                var at=viewer==owner?local:point;
+                level.sendParticles(viewer,particle,true,false,at.x,at.y,at.z,count,spread,spread,spread,speed);
+            }
+        }
     }
 }

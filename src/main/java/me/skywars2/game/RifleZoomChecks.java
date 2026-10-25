@@ -23,8 +23,8 @@ import java.util.ArrayList;
 
 /** Explicit native input and post-effect lifecycle regression. No client rendering claim. */
 public final class RifleZoomChecks {
-    private static final Identifier ZOOM=Identifier.parse("lbc:zoom");
-    private static final Identifier ZOOM_OUT=Identifier.parse("lbc:zoom_out");
+    private static final Identifier ZOOM=Identifier.parse("lbc:zoom_slg");
+    private static final Identifier ZOOM_OUT=Identifier.parse("lbc:zoom_slg_out");
     private static final Identifier OTHER=Identifier.parse("minecraft:blur");
     private static ServerPlayer stopStandOwner;
     private static boolean stopAddedStand;
@@ -36,7 +36,8 @@ public final class RifleZoomChecks {
         var player=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
         require(player!=null,"requires TestAlpha"); return player;
     }
-    private static boolean zoomed(ServerPlayer player) { return player.getPostEffects().contains(ZOOM); }
+    private static boolean zoomed(ServerPlayer player) { return player.getPostEffects().contains(ZOOM)||player.getPostEffects().contains(Identifier.parse("lbc:zoom_magnum")); }
+    private static boolean exiting(ServerPlayer player) { return player.getPostEffects().contains(ZOOM_OUT)||player.getPostEffects().contains(Identifier.parse("lbc:zoom_magnum_out")); }
     private static final class Recording extends Connection {
         final ServerPlayer player; final List<Packet<?>> packets=new ArrayList<>();
         Recording(ServerPlayer player){super(PacketFlow.SERVERBOUND);this.player=player;}
@@ -91,7 +92,7 @@ public final class RifleZoomChecks {
             projected(player,recording.latest(start),latestNative);
             require(attribute.getBaseValue()==(base==0?.13:base*1.6)&&abilities.pack().equals(latestPacked)&&player.getSpeed()==changedMovement&&player.position().equals(position)&&player.getDeltaMovement().equals(velocity),"refresh changes only outbound FOV denominator");
             start=recording.packets.size();zoom.forget(player);var restored=recording.latest(start);flags(restored,latestNative);
-            require(restored.getWalkingSpeed()==LbcRifleZoom.projectedWalking((float)player.getAttributeValue(Attributes.MOVEMENT_SPEED),latestNative.getWalkingSpeed(),false,LbcRifleZoom.SPEED_FOV_POLICY)&&!zoomed(player)&&!player.getPostEffects().contains(ZOOM_OUT),"hard cleanup restores attenuated baseline and removes both overlays");
+            require(restored.getWalkingSpeed()==LbcRifleZoom.projectedWalking((float)player.getAttributeValue(Attributes.MOVEMENT_SPEED),latestNative.getWalkingSpeed(),false,LbcRifleZoom.SPEED_FOV_POLICY)&&!zoomed(player)&&!exiting(player),"hard cleanup restores attenuated baseline and removes both overlays");
             require(zoom.projectAbilities(player.getUUID(),latestNative).getWalkingSpeed()==restored.getWalkingSpeed(),"inactive projection preserves attenuated baseline across native resends");
         }finally{zoom.forget(player);abilities.apply(packed);attribute.setBaseValue(base);}
     }
@@ -137,7 +138,7 @@ public final class RifleZoomChecks {
         var profile=new com.mojang.authlib.GameProfile(java.util.UUID.randomUUID(),"ScopeReconnect");
         var source=new ServerPlayer(game.server(),game.maps().level(),profile,
                 net.minecraft.server.level.ClientInformation.createDefault());
-        for(var effect:List.of(ZOOM,ZOOM_OUT)) {
+        for(var effect:List.of(ZOOM,ZOOM_OUT,Identifier.parse("lbc:zoom_magnum"),Identifier.parse("lbc:zoom_magnum_out"),Identifier.parse("lbc:zoom"),Identifier.parse("lbc:zoom_out"))) {
             source.clearPostEffects();source.addPostEffect(OTHER);source.addPostEffect(effect);
             var output=net.minecraft.world.level.storage.TagValueOutput.createWithContext(
                     net.minecraft.util.ProblemReporter.DISCARDING,source.registryAccess());
@@ -154,7 +155,7 @@ public final class RifleZoomChecks {
             try {
                 // Exercise the registered login callback, with no in-memory scope state.
                 net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents.JOIN.invoker().onJoin(restored);
-                require(!zoomed(restored)&&!restored.getPostEffects().contains(ZOOM_OUT)
+                require(!zoomed(restored)&&!exiting(restored)
                         &&restored.getPostEffects().contains(OTHER),"join repairs orphan saved scope and preserves unrelated effect");
                 var packet=recording.packets.stream()
                         .filter(net.minecraft.network.protocol.common.ClientboundPostEffectsPacket.class::isInstance)
@@ -195,17 +196,17 @@ public final class RifleZoomChecks {
                 for(int tick=1;tick<=20;tick++) zoom.punch(player,now+tick);
                 require(zoomed(player),"held mining packet stream stays enabled");
                 int exitPacket=swap.recording.packets.size();zoom.punch(player,now+23);restored(player,swap.recording,exitPacket);
-                require(!zoomed(player) && player.getPostEffects().contains(ZOOM_OUT) && player.getPostEffects().contains(OTHER),
+                require(!zoomed(player) && exiting(player) && player.getPostEffects().contains(OTHER),
                         "next separate click starts zoom-out and preserves other effects");
-                zoom.tick(now+28);require(player.getPostEffects().contains(ZOOM_OUT),"zoom-out remains for first five ticks");
-                zoom.tick(now+29);require(!player.getPostEffects().contains(ZOOM_OUT),"zoom-out expires exactly after six ticks");
+                zoom.tick(now+28);require(exiting(player),"zoom-out remains for first five ticks");
+                zoom.tick(now+29);require(!exiting(player),"zoom-out expires exactly after six ticks");
                 zoom.punch(player,now+32);
                 require(zoomed(player),"a later click enables again");
-                zoom.punch(player,now+35);require(player.getPostEffects().contains(ZOOM_OUT),"second exit starts animation");
-                zoom.punch(player,now+38);require(zoomed(player)&&!player.getPostEffects().contains(ZOOM_OUT),"reenter cancels pending exit animation");
+                zoom.punch(player,now+35);require(exiting(player),"second exit starts animation");
+                zoom.punch(player,now+38);require(zoomed(player)&&!exiting(player),"reenter cancels pending exit animation");
                 player.setItemInHand(InteractionHand.MAIN_HAND,gun.copy()); zoom.tick(now+39);
-                require(!zoomed(player)&&player.getPostEffects().contains(ZOOM_OUT),"replacing even an identical gun starts zoom-out");
-                zoom.tick(now+45);require(!player.getPostEffects().contains(ZOOM_OUT),"unhold zoom-out expires after six ticks");
+                require(!zoomed(player)&&!exiting(player),"replacing even an identical gun clears old scope immediately");
+                zoom.tick(now+45);require(!exiting(player),"unhold zoom-out expires after six ticks");
                 // Existing consumable/model components are not needed to enable a scope.
                 require(gun.get(DataComponents.ITEM_MODEL)!=null,"native loot keeps its original model");
             }
@@ -216,12 +217,12 @@ public final class RifleZoomChecks {
             player.connection.handlePunch(ServerboundPunchPacket.INSTANCE);
             require(zoomed(player),"rifle in offhand supports the same left-click toggle");
             player.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY); zoom.tick();
-            require(!zoomed(player)&&player.getPostEffects().contains(ZOOM_OUT),"unholding offhand rifle starts zoom-out");
+            require(!zoomed(player)&&!exiting(player),"unholding offhand rifle clears old scope immediately");
             player.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcShooters.SLR));
             player.connection.handlePunch(ServerboundPunchPacket.INSTANCE);
             require(zoomed(player),"native give prototype is supported");
             zoom.forget(player);
-            require(!zoomed(player) && !player.getPostEffects().contains(ZOOM_OUT) && player.getPostEffects().contains(OTHER),"disconnect cleanup clears both rifle effects and retains other effects");
+            require(!zoomed(player) && !exiting(player) && player.getPostEffects().contains(OTHER),"disconnect cleanup clears both rifle effects and retains other effects");
             game.items().timeStop().begin(player.level(),40);
             require(game.items().actionsBlocked(player),"native time stop really blocks the fixture player");
             player.connection.handlePunch(ServerboundPunchPacket.INSTANCE);
@@ -236,7 +237,7 @@ public final class RifleZoomChecks {
             require(zoomed(player),"separate click after unblock enters scope before death");
             float health=player.getHealth();
             player.setHealth(0);int deathPacket=swap.recording.packets.size();zoom.tick();restored(player,swap.recording,deathPacket);
-            require(!zoomed(player)&&!player.getPostEffects().contains(ZOOM_OUT),"death clears both rifle effects");
+            require(!zoomed(player)&&!exiting(player),"death clears both rifle effects");
             player.setHealth(health);
             reconnect(game);
             SkyWars2.LOGGER.info("[check] PASS rifle-zoom");
@@ -268,7 +269,7 @@ public final class RifleZoomChecks {
     }
     public static void cleanup(GameController game) {
         try {
-            require(game.inLobby() && !zoomed(player(game))&&!player(game).getPostEffects().contains(ZOOM_OUT),"actual match stop removes both rifle effects");
+            require(game.inLobby() && !zoomed(player(game))&&!exiting(player(game)),"actual match stop removes both rifle effects");
             SkyWars2.LOGGER.info("[check] PASS rifle-zoom-cleanup");
         } finally {restoreStopStand();}
     }

@@ -250,6 +250,7 @@ public final class LbcMagnum {
     private static final net.minecraft.core.particles.DustColorTransitionOptions VOID_DUST=
             new net.minecraft.core.particles.DustColorTransitionOptions(0x4d0066,0x000000,1);
     private void trail(ServerPlayer owner,Vec3 origin,Vec3 end,int mode) {
+        var tracer=game.items().rifleZoom().tracer(owner);
         net.minecraft.core.particles.ParticleOptions particle=switch(mode) {
             case 1->ParticleTypes.SMALL_FLAME; case 2->ELECTRIC_DUST;
             case 3->ParticleTypes.SNEEZE; case 4->VOID_DUST; case 5->ParticleTypes.LARGE_SMOKE; default->ParticleTypes.ASH;
@@ -258,8 +259,8 @@ public final class LbcMagnum {
         int count=mode==0?5:mode==3?1:2; double spread=mode==0?.02:.05;
         for(double distance=0;distance<=length;distance+=.5) {
             var point=origin.add(direction.scale(distance));
-            owner.level().sendParticles(particle,true,false,point.x,point.y,point.z,count,spread,spread,spread,0);
-            if(mode==2) owner.level().sendParticles(ParticleTypes.ELECTRIC_SPARK,true,false,point.x,point.y,point.z,3,.05,.05,.05,1);
+            tracer.send(particle,point,count,spread,0);
+            if(mode==2) tracer.send(ParticleTypes.ELECTRIC_SPARK,point,3,.05,1);
         }
     }
     public int queued(ServerPlayer owner) { var burst=bursts.get(owner.getUUID()); return burst==null?0:burst.remaining; }

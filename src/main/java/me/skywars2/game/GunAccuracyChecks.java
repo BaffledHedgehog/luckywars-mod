@@ -42,6 +42,7 @@ public final class GunAccuracyChecks {
             var trail=packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance)
                     .map(ClientboundLevelParticlesPacket.class::cast)
                     .filter(p->p.particle().getType()==(ak?ParticleTypes.WHITE_ASH:ParticleTypes.ASH))
+                    .filter(p->owner.getEyePosition().distanceToSqr(new Vec3(p.x(),p.y(),p.z()))>=64)
                     .limit(2).toList();
             require(trail.size()==2,"actual native shot delivered two trace samples");
             var a=trail.getFirst();var b=trail.getLast();

@@ -626,6 +626,7 @@ public final class LbcShooters {
     }
     private void slrRay(ServerPlayer owner,Vec3 origin,Vec3 direction,int mode) {
         var level=owner.level();
+        var tracer=game.items().rifleZoom().tracer(owner);
         var seen=new java.util.HashSet<UUID>();
         // At most 19 narrow spatial queries, with DDA checking every crossed block before reads.
         for(int part=0;part<19;part++) {
@@ -658,7 +659,7 @@ public final class LbcShooters {
             double length=from.distanceTo(end);
             for(double distance=0;distance<=length;distance+=.2) {
                 var point=from.add(direction.scale(distance));
-                level.sendParticles(particle,true,false,point.x,point.y,point.z,1,0,0,0,0);
+                tracer.send(particle,point,1,0,0);
             }
             if(mode==3 && !hits.isEmpty()) return;
             if(wall!=null) {

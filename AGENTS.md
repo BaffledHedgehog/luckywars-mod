@@ -1,5 +1,26 @@
 # Проект SkyWars
 
+## Separate rifle scope presentation - QUALIFIED, AUTO INSTALL QUEUED (25 October 2026)
+
+[Author guide and implementation](agent_notes/SPLIT_RIFLE_SCOPES_2026_10_25.md).
+SLG/Magnum select their own zoom_slg/zoom_magnum overlays and matching six-tick
+out animations. Weapon change clears previous overlays; login repairs all six
+new/legacy saved effect IDs. Owning-client item_model projects to the authored
+super_rifle_scoped/magnum_scoped definitions. Authoritative stacks/slots stay
+untouched and exact Polymer roundtrip is verified; real Shift-click retains one
+gun. Scope transitions refresh native menu snapshots. FOV remains0.25.
+
+Only the scoped shooter's near tracers shift screen-down, up to0.22 blocks with
+quadratic convergence at8 blocks. Observers and all distant samples retain the
+exact native ray. Damage, modes, recoil and particle payloads retain their engines.
+Build ea7979f0 passed26 results in two real mode1 matches (49.18s), including
+both weapons/hands, recipient models/traces, save/load JOIN cleanup for six IDs,
+120 accuracy cases and payload/ammo/FOV/sound/actual-stop regressions. Client
+pixels/GPU and peak TPS not observed. Evidence: build/verification/split-scopes-final/.
+Main95c3db2f unchanged at qualification; auto installer adopts the newest build
+for normal shutdown. User files, author RP and deleted applied templates preserved.
+
+
 ## Speed-dependent gun accuracy - QUALIFIED, AUTO INSTALL QUEUED (25 October 2026)
 
 Magnum and SLG-88/SLR have a5-degree hip-fire cone; actual scope removes that
