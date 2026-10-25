@@ -380,6 +380,13 @@ public final class LbcClouds {
         return aimedWandAcid(owner,owner.getEyePosition(),yaw,pitch,true);
     }
 
+    /** Academy removes the ordinary aim spread while retaining its native acid physics and reactions. */
+    AcidProjectile academyWandAcid(ServerPlayer owner,boolean ignited) {
+        var shot=aimedWandAcid(owner,owner.getEyePosition(),owner.getYRot(),owner.getXRot(),true);
+        if(ignited)shot.entityTags().add("on_fire");
+        return shot;
+    }
+
     /** Reuse acid physics/effects; source acid_get_id spreads each normal charge around the supplied aim. */
     void magnumAcid(ServerPlayer owner,Vec3 origin,Vec3 direction,boolean big) {
         volleyAcid(owner,origin,direction,big?1:6,big,false);
@@ -556,12 +563,16 @@ public final class LbcClouds {
             if (burning) projectile.entityTags().add("on_fire");
         }
         if (burning) {
+            // Native Projectile angles use a different convention from Entity.getLookAngle().
+            // Derive the trailing visual from flight; a stuck charge retains its last native orientation.
+            var flight=projectile.getDeltaMovement();
+            var direction=flight.lengthSqr()>1e-12 ? flight.normalize()
+                    : Vec3.directionFromRotation(-projectile.getXRot(),-projectile.getYRot());
+            var behind=origin.subtract(direction.scale(.5));
             if(great){
-                var behind=origin.subtract(projectile.getLookAngle().scale(.5));
                 level.sendParticles(ParticleTypes.FLAME,behind.x,behind.y,behind.z,15,1,1,1,.4);
                 level.sendParticles(ParticleTypes.FLAME,origin.x,origin.y+1,origin.z,5,2,2,2,.3);
             }else if(ordinary) {
-                var behind=origin.subtract(projectile.getLookAngle().scale(.5));
                 level.sendParticles(ParticleTypes.FLAME,behind.x,behind.y,behind.z,15,.5,.1,.5,.2);
             } else level.sendParticles(ParticleTypes.FLAME, origin.x, origin.y, origin.z, 5, .3, .3, .3, .15);
         }

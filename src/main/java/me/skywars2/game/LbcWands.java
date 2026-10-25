@@ -147,6 +147,7 @@ public final class LbcWands {
     public static final Item ACADEMY_TERRA=register("skywars2:academy_terra_wand","sauvojen_wand_terra","lbc:st/terra");
     public static final Item TINY_ACID=register("skywars2:tiny_acid_wand","wand_acid_tiny","lbc:st/acid_tiny");
     public static final Item ACID_WAND=register("skywars2:acid_wand","sauvojen_wand_acid","lbc:st/acid");
+    public static final Item ACADEMY_ACID_WAND=register("skywars2:academy_acid_wand","sauvojen_wand_acid","lbc:st/acid");
     public static final Item TINY_ELECTRO=register("skywars2:tiny_electro_wand","wand_electro_tiny","lbc:st/electro_tiny");
     public static final Item ELECTRO=register("skywars2:electro_wand","sauvojen_wand_electro","lbc:st/electro");
     public static final Item ACADEMY_ELECTRO=register("skywars2:academy_electro_wand","sauvojen_wand_electro","lbc:st/electro");
@@ -248,6 +249,7 @@ public final class LbcWands {
         REGULAR_TERRA(LbcWands.TERRA,"stterra","stterra_wand_mana_use",1000),
         TRUE_TERRA(LbcTerra.TRUE_SWORD,"true_terra","true_terra_mana_use",1000),
         ACID(TINY_ACID,"stacid_tiny","tiny_acid_wand_mana_use",63),
+        ACADEMY_REGULAR_ACID(LbcWands.ACADEMY_ACID_WAND,"stacid","stacid_wand_mana_use",250),
         REGULAR_ACID(LbcWands.ACID_WAND,"stacid","stacid_wand_mana_use",250),
         ELECTRO(TINY_ELECTRO,"stelectro_tiny","tiny_electro_wand_mana_use",100),
         ACADEMY_ELECTRO(LbcWands.ACADEMY_ELECTRO,"stelectro","stelectro_wand_mana_use",400),
@@ -269,6 +271,7 @@ public final class LbcWands {
         Spell(Item item,String flag,String cost,int defaultCost) {
             this.item=item; this.flag=flag(flag); this.cost=ScoreHolder.forNameOnly(cost); this.defaultCost=defaultCost;
             if(item==LbcWands.ACADEMY_ICE||item==LbcWands.ACADEMY_CORRUPTION||item==LbcWands.ACADEMY_ACID_CORRUPTION||item==LbcWands.ACADEMY_ERECTO||item==LbcWands.ACADEMY_TESLA||item==LbcWands.ACADEMY_PRISM||item==LbcWands.ACADEMY_GAYCASTER||item==LbcWands.ACADEMY_AWAKENED_ACID) this.flag.putInt("upgraded",1);
+            if(item==LbcWands.ACADEMY_ACID_WAND) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_CAUSTIC || item==LbcWands.ACADEMY_OMEGA) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_ADVANCED_ENDER || item==LbcWands.ACADEMY_SNOW) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_ENDER || item==LbcWands.ACADEMY_BAD_WIKI) this.flag.putInt("upgraded",1);
@@ -657,6 +660,18 @@ public final class LbcWands {
             player.sendSystemMessage(Component.translatable(mode==1 ? "mode_default" : "mode_ray"));
             return true;
         }
+        if(spell==Spell.REGULAR_ACID || spell==Spell.ACADEMY_REGULAR_ACID) {
+            if(inputTimeStopped(player) || game.items().magic().suppressedAt(player.level(),player.getEyePosition())) return false;
+            if(spell==Spell.ACADEMY_REGULAR_ACID && player.isShiftKeyDown()) {
+                if(!mana.visible(player) || game.items().magic().suppressed(player)) return false;
+                // Mode selection is independent per used hand and never enters the paid cast path.
+                var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+                int mode=data.getIntOr("mode",1)==2 ? 1 : 2;
+                data.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));player.getInventory().setChanged();
+                player.sendSystemMessage(Component.translatable(mode==1 ? "mode_default" : "mode_ignited"));
+                return true;
+            }
+        }
         // Улучшенный Wall в исходнике имеет собственную фиксированную цену 500.
         int requiredMana=spell==Spell.ACADEMY_WALL?500:mana.score(spell.cost,"lbc.math").get();
         int spentMana=spell==Spell.REGULAR_EXOPERSO?25000:spell==Spell.ACADEMY_EXOPERSO?10000:requiredMana;
@@ -716,6 +731,13 @@ public final class LbcWands {
             case TRUE_TERRA -> game.items().terra().cast(player,LbcTerra.Kind.TRUE_CHARGE);
             case REGULAR_ACID -> {
                 game.items().clouds().ordinaryWandAcid(player);
+                // The source trial checks burning at the cast, without replacing the normal shot.
+                if(player.isOnFire()) game.items().academy().ready(player,hand,stack);
+                LbcOverload.sound(player,player.getEyePosition(),"minecraft:entity.zombie_villager.cure",1,2,0);
+            }
+            case ACADEMY_REGULAR_ACID -> {
+                boolean ignited=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("mode",1)==2;
+                game.items().clouds().academyWandAcid(player,ignited);
                 LbcOverload.sound(player,player.getEyePosition(),"minecraft:entity.zombie_villager.cure",1,2,0);
             }
             case ELECTRO -> electro(player);

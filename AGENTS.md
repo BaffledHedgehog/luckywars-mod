@@ -1,5 +1,33 @@
 # Проект SkyWars
 
+## Ordinary Acid Academy - QUALIFIED READY (25 October 2026)
+
+[ACID_ACADEMY_PORT](agent_notes/ACID_ACADEMY_PORT.md),
+[ACID_ACADEMY_RESOURCES](agent_notes/ACID_ACADEMY_RESOURCES.md),
+[ACID_ACADEMY_CHECKS](agent_notes/ACID_ACADEMY_CHECKS.md).
+
+The ordinary stacid trial fires its usual spread charge and immediately readies
+the actual used stack when the caster is on fire. Promotion yields native
+skywars2:academy_acid_wand with A tier and all authored source presentation.
+Default/Ignited selection is free and independent per hand; actual casts cost
+configured250 per hand and launch one accurate native big acid charge. Mode2
+starts ignited. Shared gravity/reactivity/lifetime300/entity passage/shield and
+Greed behavior remain. Native flight supplies the trailing flame direction.
+
+Build `1229b044` passed 28 recorded results in
+two actual mode1 matches (124.28s), including real stop cleanup.
+Exact 344 sources / 942 classes /
+2814 resources match the artifact.
+Ready JAR: `build/verification/skywars2-acid-academy-1229b044.jar`; evidence: `build/verification/acid-academy-final/`.
+READY ONLY by existing user choice: main remains2558af6b, no replacement or restart.
+Five pre-existing user files and removed applied RP templates are preserved.
+No author RP changes or new RP fragment. Native checks do not qualify real
+client pixels, physical disk restart/disconnect or peak-load performance.
+This closes the previously missing stacid Academy path. Remaining source
+Academy audit is documented separately: Danmaku, combined Sauvojen, sheep,
+hedgehog and unstable book require their ordinary systems/dependencies first.
+No unfinished broad loot pool is enabled by this narrow leaf.
+
 ## Soulless Academy - QUALIFIED READY (25 October 2026)
 
 [SOULLESS_ACADEMY_PORT](agent_notes/SOULLESS_ACADEMY_PORT.md),
