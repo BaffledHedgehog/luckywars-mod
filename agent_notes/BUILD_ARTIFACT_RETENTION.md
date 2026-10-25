@@ -82,3 +82,11 @@ All-item Sounds/Grimoire, previous Weapon Sound593a39df, main disk04396ca4 and
 former-main2558af6b fallback. Main was not replaced/restarted. Cumulative removal:
 290 JARs/10,231,414,603bytes/9.53GiB. Receipt:
 `build/verification/all-item-sounds-final/build-cleanup-receipt.json`.
+
+## Grimoire consumption correction checkpoint
+
+After95c3db2f passed14 results in two matches, verified obsolete Weapon
+Sound593a39df was removed (38,350,217bytes). Keep new Grimoire, previous
+All-item Soundsccb40b6c and main04396ca4/former-main2558af6b fallbacks.
+Cumulative cleanup291 JARs/10,269,764,820bytes/9.56GiB. Main unchanged.
+Receipt: `build/verification/grimoire-consumption-final/build-cleanup-receipt.json`.

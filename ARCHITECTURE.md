@@ -1,5 +1,23 @@
 # Структура переноса игрового цикла
 
+## Danmaku grimoire author correction - QUALIFIED READY (25 October 2026)
+
+[Current grimoire contract](agent_notes/DANMAKU_GRIMOIRE_PORT.md).
+Author confirmed no mana refund and no grimoire consumption for Shift use,
+including below50 charge. Only ordinary casts consume one. The same final
+book can cast another bomb after recharging. Charge50 still starts a bomb;
+source feedback/stat/sound, guards, normal queues and staff behavior remain.
+
+Build95c3db2f passed14 results in two mode1 matches (64.26s), testing both
+hands/49,50,1500 charge, repeated final-book bombs then actual ordinary
+consumption, staff regressions and real stop cleanup. Exact355 sources/988
+classes/2819 resources match. Ready:
+build/verification/skywars2-grimoire-consumption-95c3db2f.jar; evidence:
+build/verification/grimoire-consumption-final/. READY ONLY; main04396ca4
+unchanged, no install/restart or RP/template changes. User edits preserved.
+Removed obsolete Weapon593a39df after qualification; keep priorccb40b6c and
+main fallbacks. Cumulative cleanup291 JARs/9.56GiB.
+
 ## All-item sound audit and consumed Danmaku grimoire - QUALIFIED READY (25 October 2026)
 
 [Combined contract](agent_notes/ALL_ITEM_SOUNDS_PORT_2026_10_25.md),

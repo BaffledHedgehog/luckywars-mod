@@ -99,7 +99,7 @@ public final class LbcDanmaku {
         p.level().playSound(null,p.getX(),p.getY(),p.getZ(),net.minecraft.sounds.SoundEvents.SNOWBALL_THROW,
                 net.minecraft.sounds.SoundSource.NEUTRAL,.5f,.4f/(p.level().getRandom().nextFloat()*.4f+.8f));
         p.awardStat(net.minecraft.stats.Stats.ITEM_USED.get(GRIMOIRE));
-        stack.consume(1,p);
+        if(!p.isShiftKeyDown())stack.consume(1,p);
         return true;
     }
     private boolean castBomb(ServerPlayer p,InteractionHand hand,ItemStack trialStack){

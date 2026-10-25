@@ -14,7 +14,7 @@ All original name/lore components, C tier, model, flags and maximum stack99
 remain. Existing author RP model/textures/RU/EN/RPR keys are read only and
 verified by `tools/import_lbc_danmaku_grimoire.py`; no RP fragment is required.
 
-An admitted native use consumes one (creative follows native consumption),
+An admitted normal use consumes one (creative follows native consumption),
 awards its use stat, and plays the native snowball throw sound. It creates no
 throwaway snowball entity. Stored `mana:1200` is source metadata, not a mana
 price; zero/negative mana does not prevent use or change its balance.
@@ -26,12 +26,13 @@ overwriting earlier casts' hand. Active remaining duration uses the existing
 Danmaku actionbar row; staff-paid and consumed provenance remain distinct so
 putting a staff away cannot suppress an already consumed grimoire cast.
 
-Shift use consumes one even below50 charge, as the original vanilla throw did.
-From50 charge it invokes the ordinary existing bomb and clears the charge.
-Grimoire bombs never satisfy/promote a forged staff trial. The old1000-mana
-refund is removed consistently with the current free-bomb behavior. The parent
-asked an optional author question about that legacy refund and stated this
-assumption after giving time to answer; later author steering takes priority.
+The author confirmed (25 October 2026): Shift use never consumes a grimoire,
+including below50 charge. Only normal casting consumes the book. From50 charge
+Shift invokes the existing ordinary bomb and clears the charge; the same final
+book remains reusable after recharging. Below50 it preserves both book and
+charge. Grimoire bombs never satisfy/promote a forged staff trial. The old1000
+mana refund is removed by explicit author instruction, replacing the earlier
+assumption. Existing native input feedback/stat/sound behavior is retained.
 No mana cost/admission was added. Input guards reject without consuming for
 observer/dead/offhand-disabled/blocked/time-stop/antimagic states. Accepted
 consumed queues pause under time stop/antimagic, and clear with owner/match
@@ -71,3 +72,18 @@ Obsolete Hole Erosion54941d0e archive was removed after qualification; previous
 Weapon Sound593a39df and main fallbacks remain. Cumulative cleanup290 JARs/
 10,231,414,603bytes/9.53GiB. The native packet fixture covers selected source
 boundaries; inventory classification is broader than runtime/client playback.
+
+## Author correction qualification
+
+The explicit author follow-up supersedes the old throw-consumption rule:
+Shift never consumes a grimoire; only ordinary casts do, and no mana refund.
+Build95c3db2f passed14 results in two real mode1 matches (64.26s). Both hands
+preserve their final book at49/50/1500 charge, can reuse it for another bomb
+after charging, and finally consume it for a normal20-tick cast. Existing
+staff/Academy regression and actual consumed-queue/card stop cleanup pass.
+Exact355 sources/988 classes/2819 resources match. Ready:
+`build/verification/skywars2-grimoire-consumption-95c3db2f.jar`; evidence:
+`build/verification/grimoire-consumption-final/qualification.json` and derived
+`run.py`. Main04396ca4 remains unchanged; READY ONLY, no install/restart/RP edits.
+Earlier46-result sound qualification above is historical; this narrowly
+scoped correction reruns the relevant grimoire/staff/stop checks.

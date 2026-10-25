@@ -88,13 +88,18 @@ public final class DanmakuGrimoireChecks {
             require(service.externalRemaining(owner)==0&&emitted.size()==75,"simultaneous captured hands retain40+35 patterns");service.forget(owner);
         }
         void bombs(){
-            for(int charge:new int[]{49,50,1500}){
-                var stack=held(InteractionHand.MAIN_HAND,2);owner.setShiftKeyDown(true);mana.set(owner,-100);mana.score(owner,"danmaku_score").set(charge);
+            for(var hand:InteractionHand.values())for(int charge:new int[]{49,50,1500}){
+                var stack=held(hand,1);owner.setShiftKeyDown(true);mana.set(owner,-100);mana.score(owner,"danmaku_score").set(charge);
                 if(charge==1500){var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();tag.putInt("upgradable",1);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));}
-                require(input(InteractionHand.MAIN_HAND)&&stack.getCount()==1&&mana.get(owner)==-100&&service.externalRemaining(owner)==0,"consumed free sneak grimoire without refund "+charge);
-                if(charge<50)require(service.bombs().isEmpty()&&service.count()==0&&mana.score(owner,"danmaku_score").get()==49,"below50 consumes original throw but creates no bomb");
+                require(input(hand)&&stack.getCount()==1&&owner.getItemInHand(hand)==stack&&mana.get(owner)==-100&&service.externalRemaining(owner)==0,"reusable free sneak grimoire without refund "+hand+" / "+charge);
+                if(charge<50)require(service.bombs().isEmpty()&&service.count()==0&&mana.score(owner,"danmaku_score").get()==49,"below50 preserves grimoire and charge without creating a bomb");
                 else{require(service.bombs().size()==1&&service.count()==1&&mana.score(owner,"danmaku_score").get()==0,"source threshold creates exactly one two-shell bomb "+charge);var bomb=service.bombs().getFirst();require(bomb.charge==charge&&bomb.owner==owner&&!bomb.positive.isRemoved()&&!bomb.negative.isRemoved()&&bomb.positive!=bomb.negative,"two live captured-owner source shells");}
-                require(flag(stack,"upgrade_available")==0&&flag(stack,"upgraded")==0,"grimoire bomb never promotes or readies a forged staff trial");service.forget(owner);owner.setShiftKeyDown(false);
+                require(flag(stack,"upgrade_available")==0&&flag(stack,"upgraded")==0,"grimoire bomb never promotes or readies a forged staff trial");
+                service.forget(owner);mana.score(owner,"danmaku_score").set(50);
+                require(input(hand)&&stack.getCount()==1&&service.bombs().size()==1&&mana.get(owner)==-100,"same final grimoire can bomb again after recharge");
+                service.forget(owner);owner.setShiftKeyDown(false);
+                require(input(hand)&&stack.isEmpty()&&service.externalRemaining(owner)==20,"ordinary cast still consumes the same final grimoire after reusable bombs");
+                service.forget(owner);
             }
         }
         void observer(){game.spectators().enter(owner);var stack=held(InteractionHand.MAIN_HAND,2);require(game.isObserver(owner)&&!input(InteractionHand.MAIN_HAND)&&stack.getCount()==2&&service.externalRemaining(owner)==0,"Adventure observer role blocks copied grimoire");}

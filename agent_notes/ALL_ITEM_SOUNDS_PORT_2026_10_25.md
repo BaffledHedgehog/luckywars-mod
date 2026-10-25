@@ -44,6 +44,9 @@ no mana; mana1200 remains metadata. Captured ordinary hand queues survive
 consumption/putting other items in hand, accumulate, and support simultaneous
 hands through the existing dispatcher. Free bomb uses the shared charge from50,
 without the legacy accidental1000 refund; grimoire cannot promote a staff.
+Author follow-up: Shift bombs never consume the book (even below50); only
+normal casts consume it. This replaces the first implementation's source throw
+consumption rule.
 [Detailed behavior and author-assumption record](DANMAKU_GRIMOIRE_PORT.md).
 
 The joint Ender regression exposed an older ordering bug: the Greed rejection
