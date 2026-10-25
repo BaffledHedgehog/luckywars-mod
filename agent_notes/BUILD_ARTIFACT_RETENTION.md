@@ -90,3 +90,15 @@ Sound593a39df was removed (38,350,217bytes). Keep new Grimoire, previous
 All-item Soundsccb40b6c and main04396ca4/former-main2558af6b fallbacks.
 Cumulative cleanup291 JARs/10,269,764,820bytes/9.56GiB. Main unchanged.
 Receipt: `build/verification/grimoire-consumption-final/build-cleanup-receipt.json`.
+
+## Hedgehog qualification and automatic installation
+
+Build4cd2ef8f passed32 recorded results in two actual matches. After verifying
+new/old archive hashes, removed obsoleteccb40b6c (38,391,489 bytes).
+Cumulative removal:292 JARs,10,308,156,309 bytes (~9.60GiB). Keep latest
+4cd2ef8f, precedingb2f50a60, current main95c3db2f and old main fallbacks until the
+running JVM's original artifact is known. Installer reuses the matching
+qualified95c3db2f archive as rollback instead of making another duplicate.
+User now requests automatic qualified installs; install_when_stopped waits
+for normal shutdown, and newer qualified requests supersede pending builds.
+Live receipt: build/verification/hedgehog-final/main-install.json.

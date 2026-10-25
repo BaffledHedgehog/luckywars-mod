@@ -84,7 +84,7 @@ public final class LbcIndirectKills {
         return causeTarget==target&&activeCause!=null&&!(source instanceof CapturedDamage)?new CapturedDamage(source,activeCause):source;
     }
     /** Detached spell segments retain the original accepted effect's author and ordering. */
-    DamageSource captureDamage(DamageSource source,Owner cause){return cause==null?source:new CapturedDamage(source,cause);}
+    public DamageSource captureDamage(DamageSource source,Owner cause){return cause==null?source:new CapturedDamage(source,cause);}
     /** Native ServerPlayer friendship admission runs before LivingEntity's damage callbacks. */
     public static boolean isWildCaptured(DamageSource source){return source instanceof CapturedDamage captured&&captured.cause.friendlyFire();}
     public void inheritedEffect(LivingEntity target,MobEffectInstance effect,Owner cause){
@@ -155,6 +155,9 @@ public final class LbcIndirectKills {
         if(game.items().soulless().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().danmaku().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().sheep().owner(source) instanceof ServerPlayer player) return player;
+        if(game.items().hedgehog().owner(source) instanceof ServerPlayer player) return player;
+        if(game.items().godHedgehog().owner(source) instanceof ServerPlayer player) return player;
+        if(game.items().hedgehogSpikes().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().creeperDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().luckyPigs().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().beeDrops().owner(source) instanceof ServerPlayer player) return player;
@@ -580,7 +583,10 @@ public final class LbcIndirectKills {
     }
 
     public Owner babylonCause(DamageSource source) {
-        return source instanceof CapturedDamage captured ? captured.cause : source instanceof LbcBabylonEffects.OwnerDamageSource owned ? owned.cause : game.items().babylonEffects().cause(source.getDirectEntity());
+        if (source instanceof CapturedDamage captured) return captured.cause;
+        if (source instanceof LbcBabylonEffects.OwnerDamageSource owned) return owned.cause;
+        var bossCause=game.items().godHedgehog().cause(source.getDirectEntity());
+        return bossCause!=null ? bossCause : game.items().babylonEffects().cause(source.getDirectEntity());
     }
     public void damaged(LivingEntity target, DamageSource source) {
         var inherited=causeTarget==target&&activeCause!=null ? activeCause : babylonCause(source);

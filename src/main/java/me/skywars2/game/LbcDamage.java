@@ -141,7 +141,8 @@ public final class LbcDamage {
     }
     public static boolean allowsTrapFriendlyFire(DamageSource source) {
         var game=me.skywars2.SkyWars2.game();
-        return LbcIndirectKills.isWildCaptured(source) || source instanceof LbcBabylonEffects.OwnerDamageSource || source instanceof LbcVoidArcanum.WildDamage || source instanceof LbcIceWand.WildSource || source instanceof LbcCorruptedGlyphs.WildSource || source instanceof LbcCausticOmega.WildSource || source instanceof LbcGaycasterAcademy.TrialDamage || game!=null && (LbcTransformator.managed(source.getDirectEntity()) || LbcStalin.managed(source.getDirectEntity()) || game.items().cageDrops().wild(source.getDirectEntity())
+        return LbcIndirectKills.isWildCaptured(source) || source instanceof LbcBabylonEffects.OwnerDamageSource || source instanceof LbcVoidArcanum.WildDamage || source instanceof LbcIceWand.WildSource || source instanceof LbcCorruptedGlyphs.WildSource || source instanceof LbcCausticOmega.WildSource || source instanceof LbcGaycasterAcademy.TrialDamage || game!=null && (game.items().godHedgehog().cause(source.getDirectEntity())!=null && game.items().godHedgehog().cause(source.getDirectEntity()).friendlyFire()
+                || LbcTransformator.managed(source.getDirectEntity()) || LbcStalin.managed(source.getDirectEntity()) || game.items().cageDrops().wild(source.getDirectEntity())
                 || game.items().creeperDrops().wild(source.getDirectEntity())
                 || game.items().zombieTntDrops().wild(source.getDirectEntity())
                 || game.items().potionSpawnerDrops().wild(source.getDirectEntity())

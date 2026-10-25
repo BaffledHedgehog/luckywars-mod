@@ -38,6 +38,8 @@ FAMILIES = {
  'Fartus': 'fartus_wand', 'Wtf': 'wtf_item', 'Hohlopitek': 'hohlopitek',
  'Soulhunter': 'soulhunter_mace', 'Stand': 'stand_oraora stand_arrow homing_lightning',
  'TimeStop': 'stand_clocks', 'Babylon': 'babylon_gate', 'Magic': 'magic_beacon mechanism_beacon',
+ 'Hedgehog': 'hedgehog_wand', 'HedgehogSpikes': 'ender_spike blind_spike explosive_spike spike wither_spike poison_spike impulse_spike',
+ 'GodHedgehog': 'god',
  'Homes': 'magic_mirror', 'IceMaterials': 'runic_ice_shard neutral_ball',
 }
 # These owners are compared in the companion drop/passive audit. A mapped leaf

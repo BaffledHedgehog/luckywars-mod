@@ -106,7 +106,14 @@ public abstract class WandProjectileMixin {
     }
     @Inject(method="canHitEntity",at=@At("HEAD"),cancellable=true)
     private void skywars2$wandTarget(Entity target,CallbackInfoReturnable<Boolean> ci) {
-        if(me.skywars2.game.LbcGreed.active(target) && target.isAlive()) { ci.setReturnValue(true); return; }
+        if(me.skywars2.game.LbcGreed.active(target) && target.isAlive()) {
+            var shot=(Projectile)(Object)this;
+            boolean leavingOwner=shot.getOwner()==target && target.getBoundingBox().inflate(.2).contains(shot.position());
+            var game=SkyWars2.game();
+            ci.setReturnValue(!leavingOwner && target.canBeHitByProjectile()
+                    && (game==null || game.items().wands().canHit(shot,target)));
+            return;
+        }
         if(target instanceof Projectile && (ProjectileLifetimes.protectedWandProjectile(target)
                 || ProjectileLifetimes.protectedWandProjectile((Entity)(Object)this))) {
             ci.setReturnValue(false);

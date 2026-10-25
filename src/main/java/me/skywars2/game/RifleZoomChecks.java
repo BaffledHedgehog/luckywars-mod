@@ -59,7 +59,7 @@ public final class RifleZoomChecks {
     }
     private static void restored(ServerPlayer player,Recording recording,int start){
         var expected=new ClientboundPlayerAbilitiesPacket(player.getAbilities());var actual=recording.latest(start);flags(actual,expected);
-        require(actual.getWalkingSpeed()==expected.getWalkingSpeed(),"exit packet restores latest authoritative walking speed");
+        require(actual.getWalkingSpeed()==LbcRifleZoom.projectedWalking((float)player.getAttributeValue(Attributes.MOVEMENT_SPEED),expected.getWalkingSpeed(),false,LbcRifleZoom.SPEED_FOV_POLICY),"exit packet restores latest attenuated speed FOV baseline");
     }
     // Exact 26.3 AbstractClientPlayer arithmetic without item use; FOV Effects is a client preference.
     private static float clientFov(ServerPlayer player,ClientboundPlayerAbilitiesPacket packet,float effects){
@@ -91,8 +91,8 @@ public final class RifleZoomChecks {
             projected(player,recording.latest(start),latestNative);
             require(attribute.getBaseValue()==(base==0?.13:base*1.6)&&abilities.pack().equals(latestPacked)&&player.getSpeed()==changedMovement&&player.position().equals(position)&&player.getDeltaMovement().equals(velocity),"refresh changes only outbound FOV denominator");
             start=recording.packets.size();zoom.forget(player);var restored=recording.latest(start);flags(restored,latestNative);
-            require(restored.getWalkingSpeed()==latestNative.getWalkingSpeed()&&!zoomed(player)&&!player.getPostEffects().contains(ZOOM_OUT),"hard cleanup restores latest native abilities and removes both overlays");
-            require(zoom.projectAbilities(player.getUUID(),latestNative)==latestNative,"inactive projection preserves original packet identity");
+            require(restored.getWalkingSpeed()==LbcRifleZoom.projectedWalking((float)player.getAttributeValue(Attributes.MOVEMENT_SPEED),latestNative.getWalkingSpeed(),false,LbcRifleZoom.SPEED_FOV_POLICY)&&!zoomed(player)&&!player.getPostEffects().contains(ZOOM_OUT),"hard cleanup restores attenuated baseline and removes both overlays");
+            require(zoom.projectAbilities(player.getUUID(),latestNative).getWalkingSpeed()==restored.getWalkingSpeed(),"inactive projection preserves attenuated baseline across native resends");
         }finally{zoom.forget(player);abilities.apply(packed);attribute.setBaseValue(base);}
     }
     private static void attackAnimation(GameController game,ServerPlayer player,ItemStack gun,Recording recording) {

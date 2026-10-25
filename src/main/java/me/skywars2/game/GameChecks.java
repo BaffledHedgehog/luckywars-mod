@@ -643,6 +643,8 @@ public final class GameChecks {
                                 case "shooter-pair-menu" -> checkShooterPairMenu(game);
                                 case "magnum" -> { MagnumChecks.run(game); return; }
                                 case "rifle-zoom" -> { RifleZoomChecks.run(game); return; }
+                                case "speed-fov" -> { SpeedFovChecks.run(game); return; }
+                                case "hedgehog-dimensions" -> { HedgehogDimensionChecks.run(game); return; }
                                 case "weapon-sounds" -> { WeaponSoundChecks.run(game); return; }
                                 case "item-sounds" -> { ItemSoundAuditChecks.run(game); return; }
                                 case "minigun-visual" -> { MinigunVisualChecks.run(game); return; }
@@ -759,6 +761,15 @@ public final class GameChecks {
                                 case "danmaku-grimoire" -> { DanmakuGrimoireChecks.run(game); return; }
                                 case "danmaku-grimoire-stop-probe" -> { DanmakuGrimoireChecks.stopProbe(game); return; }
                                 case "danmaku-grimoire-cleanup" -> { DanmakuGrimoireChecks.cleanup(game); return; }
+                                case "hedgehog-spikes" -> { HedgehogSpikeChecks.run(game); return; }
+                                case "hedgehog-spikes-stop-probe" -> { HedgehogSpikeChecks.stopProbe(game); return; }
+                                case "hedgehog-spikes-cleanup" -> { HedgehogSpikeChecks.cleanup(game); return; }
+                                case "hedgehog" -> { HedgehogChecks.run(game); return; }
+                                case "hedgehog-stop-probe" -> { HedgehogChecks.stopProbe(game); return; }
+                                case "hedgehog-cleanup" -> { HedgehogChecks.cleanup(game); return; }
+                                case "god-hedgehog" -> { GodHedgehogChecks.run(game); return; }
+                                case "god-hedgehog-stop-probe" -> { GodHedgehogChecks.stopProbe(game); return; }
+                                case "god-hedgehog-cleanup" -> { GodHedgehogChecks.cleanup(game); return; }
                                 case "sheep" -> { SheepChecks.run(game); return; }
                                 case "sheep-stop-probe" -> { SheepChecks.stopProbe(game); return; }
                                 case "sheep-cleanup" -> { SheepChecks.cleanup(game); return; }
@@ -1177,6 +1188,9 @@ public final class GameChecks {
         public static void tick(GameController game) {
             DanmakuChecks.tick(game);
             SheepChecks.tick(game);
+            HedgehogChecks.tick(game);
+            HedgehogSpikeChecks.tick(game);
+            GodHedgehogChecks.tick(game);
             ChefChecks.tick(game);
             AcidAcademyChecks.tick(game);
             SoullessAcademyChecks.tick(game);

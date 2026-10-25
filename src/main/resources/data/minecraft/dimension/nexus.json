@@ -6,12 +6,7 @@
       "biome": "minecraft:nexus",
       "lakes": false,
       "features": false,
-      "layers": [
-        {
-          "height": 0,
-          "block": "minecraft:air"
-        }
-      ]
+      "layers": []
     }
   }
 }

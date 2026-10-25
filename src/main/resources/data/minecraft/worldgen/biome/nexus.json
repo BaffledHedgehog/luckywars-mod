@@ -3,19 +3,23 @@
   "downfall": 0,
   "has_precipitation": false,
   "temperature_modifier": "none",
-  "creature_spawn_probability": 0,
-  "effects": {
-    "sky_color": 3997731,
-    "fog_color": 3997731,
-    "foliage_color": 0,
-    "grass_color": 159868,
-    "water_color": 159868,
-    "water_fog_color": 242824,
-    "grass_color_modifier": "none",
-    "music_volume": 0
-  },
-  "spawners": {},
-  "spawn_costs": {},
   "carvers": [],
-  "features": []
+  "features": [],
+  "effects": {
+    "foliage_color": "#000000",
+    "grass_color": "#02707C",
+    "water_color": "#02707C",
+    "grass_color_modifier": "none"
+  },
+  "attributes": {
+    "minecraft:visual/sky_color": "#3D0023",
+    "minecraft:visual/fog_color": "#3D0023",
+    "minecraft:visual/water_fog_color": "#03B488",
+    "minecraft:audio/music_volume": 0,
+    "minecraft:gameplay/creature_world_gen_spawn_probability": 0,
+    "minecraft:gameplay/natural_mob_spawns": {
+      "spawns_by_category": {},
+      "spawn_costs": {}
+    }
+  }
 }

@@ -6,6 +6,7 @@
     "GreedGuardMixin$Players",
     "GreedGuardMixin$Collision",
     "GreedGuardMixin$Projectiles",
+    "GreedGuardMixin$Arrows",
     "LootSuggestionsMixin",
     "ArenaFlatWorldMixin",
     "ArenaBlockMixin",

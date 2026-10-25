@@ -1,0 +1,9 @@
+# Speed-only FOV attenuation
+
+Author choice: multiply speed contribution by0.05, matching FOV Effects5% for speed only; no hard five-percent clamp. The native26.3 AbstractClientPlayer speed factor is `(MOVEMENT_SPEED / abilities.walkingSpeed +1)/2`. Publish a client-only denominator for the desired `1 +(original-1)*0.05`, retaining every abilities flag and flying speed. Movement attributes, authoritative abilities and velocity remain unchanged. Login and subsequent native ability resends pass through the same projection. Server tick publishes immutable inputs for off-thread sends.
+
+SLR/Magnum scope takes precedence with its existing0.25 speed projection; leaving scope restores attenuated speed. Flight and bow-use FOV terms remain independent. This cannot change the client's FOV Effects preference: users who selected5% must restore100% manually for full scope zoom. Exact zero movement is the native ratio's singular case: walkingSpeed0 disables the speed branch, giving normal overview; it cannot produce a nonunit scope factor at exactly zero speed with this packet alone.
+
+Checks: SpeedFovChecks exercises actual outgoing abilities packets for zero, normal, doubled and extreme speed, preserves flags/flying speed/authoritative state, tests scope entry/exit and off-thread immutable projection. RifleZoomChecks retains overlay and cleanup coverage. Native speed-fov, rifle-zoom and actual-stop checks passed in both mode1 matches of build4cd2ef8f (32 combined results). Exact binary/source closure verified. Rendered client pixels/options are not claimed.
+
+Projection first mirrors the unmodified26.3 client MOVEMENT_SPEED sanitization (0..1024). This handles server attributes beyond that vanilla limit, including1,000,000,000, without changing the server attribute. Native packet checks cover0,normal,1000,1024 and1b values; full scope remains0.25.

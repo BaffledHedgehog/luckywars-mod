@@ -18,6 +18,6 @@ public abstract class RifleZoomPacketMixin {
         if (!(packet instanceof ClientboundPlayerAbilitiesPacket abilities)
                 || !((Object) this instanceof ServerGamePacketListenerImpl connection)) return packet;
         var game = SkyWars2.game();
-        return game == null ? packet : game.items().rifleZoom().projectAbilities(connection.player.getUUID(), abilities);
+        return game == null ? packet : game.items().rifleZoom().projectAbilities(connection.player, abilities);
     }
 }

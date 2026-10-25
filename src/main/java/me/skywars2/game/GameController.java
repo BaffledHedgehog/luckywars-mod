@@ -502,7 +502,7 @@ public final class GameController {
                         int x = Math.max(0, ((int) Math.floor(Math.abs(player.getX())) - 500) / 10);
                         int z = Math.max(0, ((int) Math.floor(Math.abs(player.getZ())) - 500) / 10);
                         float amount = (float) Math.floor(config.health * .1) + x + z;
-                        player.hurtServer(maps.level(), player.damageSources().generic(), Math.max(1, amount));
+                        player.hurtServer(player.level(), player.damageSources().generic(), Math.max(1, amount));
                     }
                 }
             }

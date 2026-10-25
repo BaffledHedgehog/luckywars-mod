@@ -1,5 +1,50 @@
 # Структура переноса игрового цикла
 
+## Hedgehog family and speed-only FOV - QUALIFIED, AUTO INSTALL QUEUED (25 October 2026)
+
+[Family contract](agent_notes/HEDGEHOG_PORT_2026_10_25.md),
+[FOV contract](agent_notes/SPEED_FOV_PORT_2026_10_25.md).
+Native ordinary/Academy Hedgehog, five helper modes,65-fish WILD walls,
+seven consumable spikes, real dimension transitions, God boss and inert
+trophy expose ten narrow leaves. Arena is the logical Overworld destination;
+real Nether/End/Nexus/Imprinted remain separate worlds. Boss removes all other
+silverfish in its own dimension and rejects new ones while alive.
+
+Author rule: ignited Fuse0/1 creepers are datapack workarounds; use native
+explosions, never spawn them as instant explosives. Rare numerical1e-13
+silverfish sneeze queues32 native power20 MOB explosions, with captured WILD
+author, real TNT-chain lineage and shared nuclear shader. Chat key
+`skywars2.hedgehog.sneeze` is already author-applied to RU/EN RP.
+
+Speed FOV contribution is multiplied by0.05; full rifle projection remains
+0.25. The server cannot force the client's FOV Effects preference to100%.
+A shared Greed fix lets allied native arrows contact the deflector and leave
+the new owner's hitbox without self-reflecting. Native boss fuse0 lasers
+ignore TNT protection and work in their actual encounter dimension.
+
+Build4cd2ef8f passed32 results in two actual mode1 matches (83.49s),
+including both hands/modes/payloads, native explosions/roles/Greed/ownership,
+actual player/world transitions and real stop cleanup. Helpers and boss stop
+probes are in separate matches because the boss forbids helper silverfish.
+Exact365 sources/1031 classes/2837 resources match; all281 ready leaves
+are packaged. Sound inventory maps281/281 leaves,292 sites,104 owners,
+zero unknown native vanilla IDs. Client pixels and peak main TPS not observed.
+
+Ready: build/verification/skywars2-hedgehog-4cd2ef8f.jar; evidence:
+build/verification/hedgehog-final/. Main disk95c3db2f unchanged at qualification.
+User now authorizes automatic qualified installs, superseding READY ONLY.
+`tools/install_when_stopped.py` is running: main-install.json records live
+status. It waits for normal shutdown/world unlock, validates hashes and keeps
+rollback; it never kills/restarts main. Subsequent qualified requests replace
+the pending one. Main currently running with RCON disabled.
+
+User files/deletions and author RP are preserved. Empty already-applied
+sneeze fragments removed. Obsoleteccb40b6c archive removed after qualification;
+retain latest4cd2ef8f, precedingb2f50a60, main95c3db2f and historical fallbacks
+until the running JVM's provenance is known. Cumulative cleanup292 JARs,
+10,308,156,309 bytes (~9.60GiB). Remaining large families: combined Sauvojen,
+unstable spellbook/broad-library outcomes; unfinished pools stay gated.
+
 ## Danmaku grimoire author correction - QUALIFIED READY (25 October 2026)
 
 [Current grimoire contract](agent_notes/DANMAKU_GRIMOIRE_PORT.md).

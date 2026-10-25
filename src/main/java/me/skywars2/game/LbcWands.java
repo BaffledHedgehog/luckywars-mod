@@ -442,6 +442,8 @@ public final class LbcWands {
         if(LbcDanmaku.isGrimoire(stack))return game.items().danmaku().useGrimoire(player,hand);
         if(LbcDanmaku.isItem(stack))return game.items().danmaku().use(player,hand);
         if(LbcSheep.isWand(stack))return game.items().sheep().use(player,hand);
+        if(LbcHedgehogItems.isWand(stack))return game.items().hedgehog().use(player,hand);
+        if(LbcHedgehogItems.spike(stack)!=null)return game.items().hedgehogSpikes().use(player,hand);
         if(LbcHalloweenWind.isWind(stack))return game.items().halloweenWind().use(player,hand);
         if(LbcFartus.isFartus(stack))return game.items().fartus().use(player,hand);
         if(stack.is(FEATHER_GREED)||stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getIntOr("feather_greed",0)==1) return game.items().neutral().feather(player);
@@ -1476,6 +1478,9 @@ public final class LbcWands {
     public boolean allowDamage(Entity victim,DamageSource source) {
         if(LbcGreed.active(victim)) return false;
         if(source instanceof LbcBabylonEffects.OwnerDamageSource) return validTarget(victim);
+        if(LbcGodHedgehog.managed(source.getDirectEntity())
+                || (LbcHedgehog.managed(source.getDirectEntity()) || source.getDirectEntity() instanceof net.minecraft.world.entity.monster.Silverfish)
+                    && LbcIndirectKills.isWildCaptured(source)) return validTarget(victim);
         if(LbcBabylon.managed(source.getDirectEntity())) return game.items().babylon().canAffect((Projectile)source.getDirectEntity(),victim);
         if(LbcNeutral.managed(source.getDirectEntity())) return game.items().neutral().canAffect((Projectile)source.getDirectEntity(),victim);
         if(LbcTransformator.managed(source.getDirectEntity())) return game.items().transformator().canAffect(source.getDirectEntity(),victim);

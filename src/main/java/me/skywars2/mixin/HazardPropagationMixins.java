@@ -35,7 +35,8 @@ public final class HazardPropagationMixins {
             skywars2$skipEmptyBlastBlocks=source instanceof net.minecraft.world.entity.item.PrimedTnt
                     && (source.entityTags().contains(me.skywars2.game.LbcExasperato.EXPLOSIVE)
                         || me.skywars2.game.LbcTntDrops.managed(source)
-                        || me.skywars2.game.LbcDroneDrops.managed(source));
+                        || me.skywars2.game.LbcDroneDrops.managed(source)
+                        || source.entityTags().contains(me.skywars2.game.LbcGodHedgehog.BLAST));
             var game=SkyWars2.game();
             if(game!=null) {
                 var authority=game.items().creeperDrops().owner(source);
@@ -43,9 +44,15 @@ public final class HazardPropagationMixins {
                 if(authority==null) authority=game.items().zombieTntDrops().owner(source);
                 if(authority==null) authority=game.items().droneDrops().owner(source);
                 if(authority==null) authority=game.items().transformator().owner(source);
+                if(authority==null) authority=game.items().godHedgehog().owner(source);
+                if(authority==null) authority=game.items().hedgehog().owner(source);
                 if(authority==null && damageSource.getEntity()==null) authority=game.items().mobgun().owner(source);
                 if(authority!=null) damageSource=new net.minecraft.world.damagesource.DamageSource(
                         damageSource.typeHolder(),source,authority);
+                var godCause=game.items().godHedgehog().cause(source);
+                if(godCause!=null)damageSource=game.items().indirectKills().captureDamage(damageSource,godCause);
+                var hedgehogCause=game.items().hedgehog().cause(source);
+                if(hedgehogCause!=null)damageSource=game.items().indirectKills().captureDamage(damageSource,hedgehogCause);
             }
         }
 
@@ -55,6 +62,7 @@ public final class HazardPropagationMixins {
             var blast=(ServerExplosion)(Object)this;
             var source=blast.getDirectSourceEntity();
             if(!skywars2$skipEmptyBlastBlocks || source.getClass()!=net.minecraft.world.entity.item.PrimedTnt.class
+                    && !source.entityTags().contains(me.skywars2.game.LbcGodHedgehog.BLAST)
                     || damageCalculator.getClass()!=net.minecraft.world.level.EntityBasedExplosionDamageCalculator.class
                     || Boolean.getBoolean("skywars2.disableExplosionCache")) return original.call();
             return me.skywars2.game.LbcExasperato.explosionBlocks(blast,damageCalculator);
@@ -87,6 +95,9 @@ public final class HazardPropagationMixins {
                 entities.removeIf(entity->!game.items().cageDrops().canAffect(source,entity));
                 entities.removeIf(entity->!game.items().zombieTntDrops().canAffect(source,entity));
                 entities.removeIf(entity->!game.items().droneDrops().canAffect(source,entity));
+                entities.removeIf(entity->!game.items().godHedgehog().canAffect(source,entity));
+                entities.removeIf(entity->!game.items().hedgehog().explosionTarget(source,entity)
+                        || !game.items().hedgehog().explosionTarget(level,entity));
                 if(source!=null && source.entityTags().contains(me.skywars2.game.LbcExasperato.EXPLOSIVE))
                     entities.removeIf(entity->!game.items().exasperato().explosionTarget(source,entity));
                 else if(source instanceof net.minecraft.world.entity.projectile.Projectile projectile
@@ -112,6 +123,15 @@ public final class HazardPropagationMixins {
             var game=SkyWars2.game();
             if(game==null) return nativeSource;
             var blast=(ServerExplosion)(Object)this;
+            var hedgehogOwner=game.items().hedgehog().owner(blast.getDirectSourceEntity());
+            if(hedgehogOwner!=null)return hedgehogOwner;
+            var sneezeDamage=blast.getDamageSource();
+            if(sneezeDamage!=null && game.items().hedgehog().executingSneeze(blast.level())) {
+                var author=me.skywars2.game.LbcIndirectKills.playerSource(sneezeDamage.getEntity());
+                if(author!=null)return author;
+            }
+            var godOwner=game.items().godHedgehog().owner(blast.getDirectSourceEntity());
+            if(godOwner!=null)return godOwner;
             var transformatorOwner=game.items().transformator().owner(blast.getDirectSourceEntity());
             if(transformatorOwner!=null) return transformatorOwner;
             var creeperOwner=game.items().creeperDrops().owner(blast.getDirectSourceEntity());
@@ -138,7 +158,10 @@ public final class HazardPropagationMixins {
             if(game!=null && !game.items().transformator().allowExplosion(
                     blast.getDirectSourceEntity(),blast.level(),blast.center(),blast.radius())) return 0;
             if(game==null) return original.call();
-            var savedCause=game.items().babylonEffects().cause(blast.getDirectSourceEntity());
+            var babylonCause=game.items().babylonEffects().cause(blast.getDirectSourceEntity());
+            var godCause=game.items().godHedgehog().cause(blast.getDirectSourceEntity());
+            var savedCause=babylonCause!=null?babylonCause:godCause!=null?godCause
+                    :blast.getDamageSource()==null?null:game.items().indirectKills().babylonCause(blast.getDamageSource());
             if(savedCause!=null) {
                 int[] inheritedResult={0};
                 game.items().indirectKills().trapChanges(blast.level(),savedCause,()->inheritedResult[0]=original.call());
@@ -171,6 +194,9 @@ public final class HazardPropagationMixins {
                 game.items().zombieTntDrops().inheritChild(source,spawned);
                 game.items().droneDrops().inheritChild(source,spawned);
                 game.items().transformator().inheritChild(source,spawned);
+                game.items().godHedgehog().inheritChild(source,spawned);
+                game.items().hedgehog().inheritSneezeChild(source,spawned);
+                game.items().hedgehog().inheritSneezeChild(level,spawned);
             }
             if(game!=null && source!=null && source.entityTags().contains(me.skywars2.game.LbcExasperato.EXPLOSIVE)) {
                 spawned.entityTags().add(me.skywars2.game.LbcExasperato.EXPLOSIVE);

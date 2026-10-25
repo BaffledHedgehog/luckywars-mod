@@ -645,9 +645,19 @@ public final class LbcExasperato {
         nativeBlast(owner,level,at,radius,game.items().epoch(),true,sourceInit);
     }
 
+    /** Encounter fuse0 bursts are native and unprotected, in their actual encounter dimension. */
+    void encounterBlast(LivingEntity owner,ServerLevel level,Vec3 at,float radius,
+            java.util.function.Consumer<PrimedTnt> sourceInit) {
+        nativeBlast(owner,level,at,radius,game.items().epoch(),false,sourceInit,true);
+    }
+
     private void nativeBlast(LivingEntity owner,ServerLevel level,Vec3 at,float radius,String epoch,
             boolean protectedDamage,java.util.function.Consumer<PrimedTnt> sourceInit) {
-        if(level!=game.maps().level() || !level.hasChunkAt(BlockPos.containing(at))
+        nativeBlast(owner,level,at,radius,epoch,protectedDamage,sourceInit,false);
+    }
+    private void nativeBlast(LivingEntity owner,ServerLevel level,Vec3 at,float radius,String epoch,
+            boolean protectedDamage,java.util.function.Consumer<PrimedTnt> sourceInit,boolean encounterDimension) {
+        if(!encounterDimension && level!=game.maps().level() || !level.hasChunkAt(BlockPos.containing(at))
                 || !level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES)
                 || !game.items().currentEpoch(epoch) || game.stage()==GameController.Stage.ENDING) return;
         // A queued blast can outlive its living author; native EntityReference drops removed owners.

@@ -62,4 +62,15 @@ public abstract class GreedGuardMixin {
                 ci.setReturnValue(ProjectileDeflection.REVERSE);
         }
     }
+
+    /** Friendly arrows must reach the absolute Greed deflector before native team rejection. */
+    @Mixin(value=net.minecraft.world.entity.projectile.arrow.AbstractArrow.class,priority=2000)
+    public abstract static class Arrows {
+        @WrapOperation(method="canHitEntity",at=@At(value="INVOKE",target=
+                "Lnet/minecraft/world/entity/player/Player;canHarmPlayer(Lnet/minecraft/world/entity/player/Player;)Z"))
+        private boolean skywars2$greedInterceptsFriendlyArrow(net.minecraft.world.entity.player.Player owner,
+                net.minecraft.world.entity.player.Player target,Operation<Boolean> original) {
+            return LbcGreed.active(target)||original.call(owner,target);
+        }
+    }
 }
