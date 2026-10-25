@@ -70,3 +70,15 @@ requested leaving this build ready, so the main JAR remains `2558af6b`; no resta
 or replacement occurred. This supersedes individual task-agent pending statuses.
 Native fixture checks include explicit tick boundaries, not real client pixels,
 actual disk restart/disconnect or peak-capacity qualification.
+
+## Integrated qualification
+
+Build `63d98904` passed 26 recorded suite results
+in two actual mode1 matches (55.21 seconds), including ordinary
+Soulless, all six metasolas, Soulhunter and actual retained-trial match-stop cleanup.
+Exact 343 Java sources / 939 classes /
+2813 resources match the tested artifact.
+Ready artifact: `build/verification/skywars2-soulless-academy-63d98904.jar`. Evidence: `build/verification/soulless-academy-final/`.
+The main JAR remains unchanged at2558af6b; READY ONLY is the user's existing choice.
+No author RP edits or translation fragments are required. Native fixtures do not
+qualify real client pixels, actual disk restart/disconnect or peak-load performance.

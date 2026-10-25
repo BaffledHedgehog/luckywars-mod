@@ -51,6 +51,7 @@ public final class LbcAcademy {
     private static final CompoundTag TOKEN_DATA = flag("academy_token"), BUILDING_DATA = flag("magic_academy");
     public static final Item TOKEN = registerToken();
     private enum Wand {
+        SOULLESS("soulcorrupter",LbcSoulless.WAND,LbcSoulless.ACADEMY_WAND,"a","upgrade_condition_soulcorrupter","upgrade_succesful_soulcorrupter"),
         VEX_WIND("vex_wand",LbcHalloweenWind.WIND,LbcHalloweenWind.ACADEMY_WIND,"a","upgrade_condition_vex","upgrade_succesful_vex"),
         FARTUS("fartus_nadristailo",LbcFartus.ITEM,LbcFartus.ACADEMY,"x","upgrade_condition_fartus_nadristailo","upgrade_succesful_fartus_nadristailo"),
         ICE("ice_wand",LbcWands.ICE,LbcWands.ACADEMY_ICE,"ss","upgrade_condition_ice","upgrade_succesful_ice"),

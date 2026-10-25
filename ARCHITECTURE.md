@@ -1,5 +1,33 @@
 # Структура переноса игрового цикла
 
+## Soulless Academy - QUALIFIED READY (25 October 2026)
+
+[SOULLESS_ACADEMY_PORT](agent_notes/SOULLESS_ACADEMY_PORT.md),
+[SOULLESS_ACADEMY_RESOURCES](agent_notes/SOULLESS_ACADEMY_RESOURCES.md),
+[SOULLESS_ACADEMY_CHECKS](agent_notes/SOULLESS_ACADEMY_CHECKS.md).
+
+The ordinary Soulless trial now summons16 hostile native Vex and immediately
+readies the actual used stack. Native Academy promotion yields the A-tier
+upgraded wand; token-built Academy is consumed normally. Shift selects two
+independent modes per hand for free. Mode1 retains ordinary WILD ghosting;
+mode2 creates one existing random metasola at the caster's feet. The user
+selected admission/spend1500 without the old1000 refund. Shared antimagic,
+Time Stop, cast hooks and offhand configuration apply. Trial helpers retain
+native hostility/owner attribution and retire quietly with owner/unload/epoch.
+
+Build `63d98904` passed 26 recorded results in
+two actual mode1 matches (55.21s), including real stop cleanup.
+Exact 343 sources / 939 classes /
+2813 resources match the artifact.
+Ready JAR: `build/verification/skywars2-soulless-academy-63d98904.jar`; evidence: `build/verification/soulless-academy-final/`.
+READY ONLY by existing user choice: main remains2558af6b, no replacement or restart.
+Five pre-existing user files and removed applied RP templates are preserved.
+No author RP changes or new RP fragment. Native checks do not qualify real
+client pixels, physical disk restart/disconnect or peak-load performance.
+This supersedes earlier sections deferring Soulless Academy. Next audit:
+remaining source Academy upgrades and acquisition dependencies; no broad
+Halloween pool is enabled by this narrow leaf.
+
 ## Visual, weapon and frozen-world corrections - QUALIFIED READY (25 October 2026)
 
 [ACADEMY_KIUAS_CORRECTIONS_2026_10_25](agent_notes/ACADEMY_KIUAS_CORRECTIONS_2026_10_25.md), [GAYCASTER_PORT](agent_notes/GAYCASTER_PORT.md), [WEAPON_PRESENTATION_FIXES_2026_10_25](agent_notes/WEAPON_PRESENTATION_FIXES_2026_10_25.md), [TIME_STOP_CONTACTS_2026_10_25](agent_notes/TIME_STOP_CONTACTS_2026_10_25.md), [ULTRAPONOS_PARTICLES_2026_10_25](agent_notes/ULTRAPONOS_PARTICLES_2026_10_25.md), [VOID_ARCANUM_MOTION_RADIUS_2026_10_25](agent_notes/VOID_ARCANUM_MOTION_RADIUS_2026_10_25.md).

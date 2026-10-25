@@ -47,11 +47,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Ordinary Soulless, its native Vex consequence and the six deployable rewards. */
+/** Soulless wand, its native Vex consequence and the six deployable rewards. */
 public final class LbcSoulless {
-    private static final String BASE="skywars2.metasola_base",DISPLAY="skywars2.metasola_display",VEX="skywars2.ghost_vex";
+    private static final String BASE="skywars2.metasola_base",DISPLAY="skywars2.metasola_display",VEX="skywars2.ghost_vex",TRIAL="skywars2.soulless_trial_vex";
     private static final TagKey<EntityType<?>> MOBS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:mobs"));
     public static final Item WAND=item(0);
+    public static final Item ACADEMY_WAND=item(-1);
     public static final Item METASOLA_1=item(1),METASOLA_2=item(2),METASOLA_3=item(3),METASOLA_4=item(4),METASOLA_5=item(5),METASOLA_6=item(6);
     public static final Item[] MATERIALS={METASOLA_1,METASOLA_2,METASOLA_3,METASOLA_4,METASOLA_5,METASOLA_6};
     private static final List<Holder<Attribute>> ATTRIBUTES=List.of(Attributes.ARMOR,Attributes.ARMOR_TOUGHNESS,Attributes.ATTACK_DAMAGE,Attributes.GRAVITY,Attributes.FALL_DAMAGE_MULTIPLIER);
@@ -66,16 +67,18 @@ public final class LbcSoulless {
     public LbcSoulless(GameController game,LbcMana mana){this.game=game;this.mana=mana;}
     public static void register(){}
     private static Item item(int type){
-        var key=ResourceKey.create(Registries.ITEM,Identifier.parse(type==0?"skywars2:soulcorruption_wand":"skywars2:metasola_"+type));
-        var model=Identifier.parse(type==0?"lbc:soulcorruptwand":"lbc:metasola_"+type);
+        boolean wand=type<=0,academy=type<0;
+        var key=ResourceKey.create(Registries.ITEM,Identifier.parse(academy?"skywars2:academy_soulcorruption_wand":wand?"skywars2:soulcorruption_wand":"skywars2:metasola_"+type));
+        var model=Identifier.parse(wand?"lbc:soulcorruptwand":"lbc:metasola_"+type);
         var tag=new CompoundTag();
-        if(type==0){for(var name:List.of("craftusable","transformable","staff","magicwand","soulcorrupter"))tag.putInt(name,1);}
+        if(wand){for(var name:List.of("craftusable","transformable","staff","magicwand","soulcorrupter"))tag.putInt(name,1);
+            if(academy){tag.putInt("upgraded",1);tag.putInt("mode",1);}}
         else{tag.putInt("metasola",1);tag.putInt("type",type);tag.putInt("gadget",1);tag.putInt("transformable",1);}
-        var props=new Item.Properties(){@Override public Identifier effectiveModel(){return model;}}.setId(key).stacksTo(type==0?1:16)
-                .overrideDescription(type==0?"soulcorruption_wand":"metasola_"+type).component(DataComponents.ITEM_MODEL,model)
+        var props=new Item.Properties(){@Override public Identifier effectiveModel(){return model;}}.setId(key).stacksTo(wand?1:16)
+                .overrideDescription(wand?"soulcorruption_wand":"metasola_"+type).component(DataComponents.ITEM_MODEL,model)
                 .component(DataComponents.CUSTOM_DATA,CustomData.of(tag));
         props.component(DataComponents.TOOLTIP_STYLE,Identifier.parse(type==0||type==1?"lbc:tier_b":type<5?"lbc:tier_a":"lbc:tier_s"));
-        return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(props,type==0?Items.CARROT_ON_A_STICK:Items.SNOWBALL,true){
+        return Registry.register(BuiltInRegistries.ITEM,key,new SimplePolymerItem(props,wand?Items.CARROT_ON_A_STICK:Items.SNOWBALL,true){
             @Override public InteractionResult use(Level level,Player player,InteractionHand hand){
                 var game=me.skywars2.SkyWars2.game();
                 return game!=null&&player instanceof ServerPlayer p&&game.items().wands().use(p,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
@@ -83,7 +86,8 @@ public final class LbcSoulless {
         });
     }
     private static CompoundTag data(ItemStack stack){return stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();}
-    public static boolean isWand(ItemStack stack){return !stack.isEmpty()&&(stack.is(WAND)||data(stack).getIntOr("soulcorrupter",0)==1);}
+    public static boolean isWand(ItemStack stack){return !stack.isEmpty()&&(stack.is(WAND)||stack.is(ACADEMY_WAND)||data(stack).getIntOr("soulcorrupter",0)==1);}
+    public static boolean isAcademy(ItemStack stack){return stack.is(ACADEMY_WAND)||isWand(stack)&&data(stack).getIntOr("upgraded",0)==1;}
     public static int material(ItemStack stack){for(int i=0;i<MATERIALS.length;i++)if(stack.is(MATERIALS[i]))return i+1;return data(stack).getIntOr("metasola",0)==1?data(stack).getIntOr("type",0):0;}
     private boolean ownerValid(ServerPlayer p){return game.playing()&&game.stage()!=GameController.Stage.ENDING&&p.isAlive()&&!p.isRemoved()&&game.canUseGameplayItems(p)&&p.level()==game.maps().level();}
     private boolean paused(Entity e){return !game.server().tickRateManager().runsNormally()||e.entityTags().contains("time_stopped")||game.items().timeStop().frozen(e)||e.level() instanceof ServerLevel l&&game.items().timeStop().stopped(l);}
@@ -98,9 +102,35 @@ public final class LbcSoulless {
             LbcOverload.sound(p,p.position(),"minecraft:entity.snowball.throw",.5f,.4f/(p.getRandom().nextFloat()*.4f+.8f),0);
             stack.consume(1,p);return true;
         }
+        boolean academy=isAcademy(stack);
+        int mode=Math.clamp(data(stack).getIntOr("mode",1),1,2);
+        if(academy&&p.isShiftKeyDown()){
+            // Mode selection changes only the actual used stack and never enters the paid cast path.
+            var tag=data(stack);mode=mode==1?2:1;tag.putInt("mode",mode);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
+            p.getInventory().setChanged();
+            p.sendSystemMessage(net.minecraft.network.chat.Component.translatable(mode==1?"mode_default":"mode_create_metasola"));
+            return true;
+        }
         int cost=mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("soulcorruption_wand_mana_use"),"lbc.math").get();
         if(!isWand(stack)||cost<0||!mana.trySpendWand(p,cost))return false;
-        cast(p);game.items().wands().wandCasted(p);return true;
+        if(academy&&mode==2){
+            // (user) Creation has the full 1500-mana admission/debit, without the legacy 1000 refund.
+            if(!generate(p)){mana.set(p,mana.get(p)+cost);return false;}
+        }else if(!academy&&p.isShiftKeyDown()&&LbcAcademy.trial(stack)){
+            // These are ordinary hostile Vex, not the ghosting consequence with a wind-charge reward.
+            for(int i=0;i<16;i++)spawnVex(p,p.position().add(0,1.6,0),true);
+            game.items().academy().ready(p,hand,stack);
+        }else cast(p);
+        game.items().wands().wandCasted(p);return true;
+    }
+    private boolean generate(ServerPlayer p){
+        var loot=game.lbc().rollTable(p.level(),p.position(),p,"lbc:metasola");
+        if(loot.isEmpty())return false;
+        for(var stack:loot){
+            var drop=new ItemEntity(p.level(),p.getX(),p.getY(),p.getZ(),stack);drop.setDefaultPickUpDelay();
+            if(!p.level().addFreshEntity(drop))return false;
+        }
+        return true;
     }
     void cast(ServerPlayer p){for(var target:targets(p,p.getEyePosition(),25))apply(p,target);}
     private List<LivingEntity> targets(ServerPlayer p,Vec3 at,double radius){return p.level().getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(radius),e->e.position().distanceToSqr(at)<=radius*radius&&e.getType().builtInRegistryHolder().is(MOBS)&&eligible(e));}
@@ -147,17 +177,22 @@ public final class LbcSoulless {
     }
     public void purify(ServerPlayer target){clear(target);}
     private final class GhostVex extends Vex {
-        final ServerPlayer caster;boolean retired;
-        GhostVex(ServerPlayer caster){super(EntityTypes.VEX,caster.level());this.caster=caster;}
+        final ServerPlayer caster;final boolean trial;boolean retired;
+        GhostVex(ServerPlayer caster,boolean trial){super(EntityTypes.VEX,caster.level());this.caster=caster;this.trial=trial;}
         @Override public boolean shouldBeSaved(){return false;}
         @Override public void tick(){if(!validVex(this)){removeVex(this);return;}if(!paused(this))super.tick();}
-        @Override protected void dropCustomDeathLoot(ServerLevel level,DamageSource damage,boolean byPlayer){if(!retired)spawnAtLocation(level,new ItemStack(Items.WIND_CHARGE));}
+        @Override protected void dropCustomDeathLoot(ServerLevel level,DamageSource damage,boolean byPlayer){
+            if(retired)return;
+            if(trial)super.dropCustomDeathLoot(level,damage,byPlayer);
+            else spawnAtLocation(level,new ItemStack(Items.WIND_CHARGE));
+        }
     }
-    GhostVex spawnVex(ServerPlayer p,Vec3 at){
+    GhostVex spawnVex(ServerPlayer p,Vec3 at){return spawnVex(p,at,false);}
+    private GhostVex spawnVex(ServerPlayer p,Vec3 at,boolean trial){
         if(!p.level().hasChunkAt(BlockPos.containing(at)))return null;
-        var vex=new GhostVex(p);vex.setPos(at);vex.entityTags().add(VEX);game.items().markCurrentItemEpoch(vex);vexes.add(vex);game.items().timeStop().prepareFrozen(vex);
+        var vex=new GhostVex(p,trial);vex.setPos(at);vex.entityTags().add(trial?TRIAL:VEX);game.items().markCurrentItemEpoch(vex);vexes.add(vex);game.items().timeStop().prepareFrozen(vex);
         if(!p.level().addFreshEntity(vex)||vex.isRemoved()){removeVex(vex);return null;}
-        feedback(p,at,"minecraft:item.dye.use",1,0);return vex;
+        if(!trial)feedback(p,at,"minecraft:item.dye.use",1,0);return vex;
     }
     private boolean validVex(GhostVex v){return !v.retired&&!v.isRemoved()&&ownerValid(v.caster)&&v.level()==v.caster.level()&&game.items().currentEpoch(v)&&v.caster.level().hasChunkAt(v.blockPosition());}
     private void removeVex(GhostVex v){v.retired=true;vexes.remove(v);v.discard();}
@@ -230,9 +265,10 @@ public final class LbcSoulless {
     public int count(){return fields.size();}
     public int ghostCount(){return ghosts.size();}
     List<Field> snapshot(){return List.copyOf(fields);}
-    List<? extends Vex> vexSnapshot(){return List.copyOf(vexes);}
+    List<? extends Vex> vexSnapshot(){return vexes.stream().filter(v->!v.trial).toList();}
+    List<? extends Vex> trialSnapshot(){return vexes.stream().filter(v->v.trial).toList();}
     public boolean loaded(Entity e){if(!managed(e))return false;if(find(e)==null&&!vexes.contains(e))e.discard();return true;}
-    public static boolean managed(Entity e){return e!=null&&(e.entityTags().contains(BASE)||e.entityTags().contains(DISPLAY)||e.entityTags().contains(VEX));}
+    public static boolean managed(Entity e){return e!=null&&(e.entityTags().contains(BASE)||e.entityTags().contains(DISPLAY)||e.entityTags().contains(VEX)||e.entityTags().contains(TRIAL));}
     public void unloaded(Entity e){if(e instanceof LivingEntity living&&ghosts.containsKey(living))clear(living);var f=find(e);if(f!=null)remove(f);if(e instanceof GhostVex v)removeVex(v);}
     public void forget(ServerPlayer p){for(var e:List.copyOf(ghosts.entrySet()))if(e.getKey()==p||e.getValue().owner==p)clear(e.getKey());for(var f:List.copyOf(fields))if(f.owner==p)remove(f);for(var v:List.copyOf(vexes))if(v.caster==p)removeVex(v);}
     public void stop(){for(var e:List.copyOf(ghosts.keySet()))clear(e);for(var f:List.copyOf(fields))remove(f);for(var v:List.copyOf(vexes))removeVex(v);}
