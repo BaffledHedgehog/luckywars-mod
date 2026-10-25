@@ -1,5 +1,24 @@
 # Следующие этапы переноса
 
+## Thirteen Erecto/Fireblaze/Stonekivi grimoires - QUALIFIED AND INSTALLED (26 October 2026)
+
+[Source and verification](SHAPING_GRIMOIRES_2026_10_26.md). Library IDs216..224/233..236 expose13 consumed
+modes through shared native wand producers, preserving source models, components
+and red Legendary/adjective rows. Both hands and Shift consume one actual book
+without mana admission/debit, Academy trials or wand-cast bonuses. The library
+sniper retains its separate no-debit/no-refund behavior, including downward shots.
+Erecto ray accumulation and native Fireblaze/Stonekivi terrain jobs retain their
+ownership, timing and cancellation. Broad/random library tables remain gated.
+
+Buildd49c7381 passed16 groups in two actual mode1 matches (96.51s): all13 modes,
+prior ordinary elemental and full Erecto/Fireblaze/Stonekivi regressions, native
+input/count/component/owner checks, zero/negative mana and actual-stop cleanup.
+Exact376 sources/1062 classes/2890 resources match. Installer18888 installed
+d49c7381 over6fb1a606 with rollback and no restart. Evidence:
+`build/verification/shaping-grimoires-final/`. User files/deletions and author RP
+preserved. Client rendering/audio playback and peak TPS were not directly
+observed. The oldest obsolete build archive is retired; recent rollback remains.
+
 ## Twelve Homing/Psychoblind/Boltbolt grimoires - QUALIFIED AND INSTALLED (25 October 2026)
 
 [Source and verification](ADVANCED_GRIMOIRES_2026_10_25.md). Library IDs204..215 now expose12 native

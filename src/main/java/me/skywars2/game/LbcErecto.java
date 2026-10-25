@@ -63,9 +63,7 @@ final class LbcErecto {
         }
         var mana=game.items().mana();int cost=mana.score(net.minecraft.world.scores.ScoreHolder.forNameOnly("erecto_wand_mana_use"),"lbc.math").get();
         if(!mana.trySpendWand(owner,cost))return false;
-        if(!academy||mode==1)volley(owner,hand,stack);
-        else if(mode==2){mana.score(owner,"ray").add(40);rays.put(owner,game.items().epoch());}
-        else if(mode==3){var hit=first(owner,150,true);if(hit!=null)spheres.add(new Sphere(owner,hit.getLocation().subtract(owner.getLookAngle()),game.items().epoch()));}
+        if(!academy||mode!=4)castMode(owner,hand,stack,academy?mode:1);
         else if(owner.getXRot()>=89){
             // Looking straight down is source aim assistance, not a paid sniper discharge.
             mana.set(owner,mana.get(owner)+cost);LivingEntity farthest=null;double distance=-1;
@@ -74,7 +72,21 @@ final class LbcErecto {
             }
             if(farthest!=null)rotate(owner,farthest.getEyePosition().subtract(owner.getEyePosition()),0);
         }else{
-            mana.set(owner,mana.get(owner)-3900);add(owner,owner.getEyePosition(),owner.getYRot(),owner.getXRot(),200,
+            mana.set(owner,mana.get(owner)-3900);sniper(owner,hand,stack);
+        }
+        game.items().wands().wandCasted(owner);return true;
+    }
+    void castMode(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode) {
+        switch(mode) {
+            case 1 -> volley(owner,hand,stack);
+            case 2 -> {game.items().mana().score(owner,"ray").add(40);rays.put(owner,game.items().epoch());}
+            case 3 -> {var hit=first(owner,150,true);if(hit!=null)spheres.add(new Sphere(owner,hit.getLocation().subtract(owner.getLookAngle()),game.items().epoch()));}
+            case 4 -> sniper(owner,hand,stack);
+            default -> throw new IllegalArgumentException("Erecto mode "+mode);
+        }
+    }
+    private void sniper(ServerPlayer owner,InteractionHand hand,ItemStack stack) {
+        add(owner,owner.getEyePosition(),owner.getYRot(),owner.getXRot(),200,
                     new Path(SNIPER,owner.getEyePosition(),null,0,0,owner,hand,stack));
             // Source Slowness CI immobilizes for one second. The uncapped attribute
             // contract would turn its -1515% modifier into negative movement speed.
@@ -84,8 +96,6 @@ final class LbcErecto {
             sniperWindups.put(owner,20);
             rotate(owner,owner.getLookAngle(),-15);LbcOverload.sound(owner,owner.getEyePosition(),"minecraft:item.trident.return",3,1.3f,0);
             owner.level().sendParticles(net.minecraft.core.particles.ColorParticleOption.create(ParticleTypes.FLASH,0xff00ffff),true,false,owner.getEyePosition().x,owner.getEyePosition().y,owner.getEyePosition().z,1,0,0,0,0);
-        }
-        game.items().wands().wandCasted(owner);return true;
     }
     private static void rotate(ServerPlayer owner,Vec3 direction,float recoil){
         float yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));float pitch=Mth.clamp((float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()))+recoil,-90,90);

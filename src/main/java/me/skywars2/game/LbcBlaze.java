@@ -114,9 +114,7 @@ public final class LbcBlaze {
                 game.items().academy().ready(owner,hand,stack);
             }
         } else {
-            if(mode==0) volley(owner,30,false);
-            else if(mode==2) volley(owner,100,true);
-            else global(owner,mode);
+            fireblaze(owner,mode);
             if(!upgraded && owner.isShiftKeyDown() && LbcAcademy.trial(stack)) {
                 // (user) Все 14 шаров и исходные мощности сохраняются, владельца не теряем.
                 for(int i=1;i<=14;i++) {
@@ -135,6 +133,12 @@ public final class LbcBlaze {
         }
         game.items().wands().wandCasted(owner);
         return true;
+    }
+
+    void fireblaze(ServerPlayer owner,int mode) {
+            if(mode==0) volley(owner,30,false);
+            else if(mode==2) volley(owner,100,true);
+            else global(owner,mode);
     }
 
     /** Первое пересечение блок/хитбокс заменяет старую рекурсию из 200 отдельных команд. */

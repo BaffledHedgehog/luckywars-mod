@@ -69,7 +69,20 @@ public final class LbcElementalGrimoires {
         BOLTBOLT(212,"boltbolt","boltbolt",2000,"a","libspell_boltbolt",null,null,"libspell_boltbolt.lore"),
         BOLTBOLT_METEOR(213,"boltbolt_meteor","boltbolt",2000,"a","libspell_boltbolt_1","smart",ChatFormatting.AQUA,"libspell_boltbolt_1.lore"),
         BOLTBOLT_WATERING(214,"boltbolt_watering","boltbolt",2000,"b","libspell_boltbolt_2","smart",ChatFormatting.AQUA,"libspell_boltbolt_2.lore"),
-        BOLTBOLT_RACER(215,"boltbolt_racer","boltbolt",2000,"s","libspell_boltbolt_3","smart",ChatFormatting.AQUA,"libspell_boltbolt_3.lore");
+        BOLTBOLT_RACER(215,"boltbolt_racer","boltbolt",2000,"s","libspell_boltbolt_3","smart",ChatFormatting.AQUA,"libspell_boltbolt_3.lore"),
+        ERECTO(216,"erecto","erecto",1000,"a","libspell_erecto",null,null,"libspell_erecto.lore"),
+        ERECTO_RAY(217,"erecto_ray","erecto",1000,"a","libspell_erecto_1","universal",ChatFormatting.YELLOW,"libspell_erecto_1.lore"),
+        ERECTO_SNIPER(218,"erecto_sniper","erecto",1000,"ss","libspell_erecto_2","powerful",ChatFormatting.DARK_PURPLE,"libspell_erecto_2.lore"),
+        ERECTO_SPHERE(219,"erecto_sphere","erecto",1000,"b","libspell_erecto_3","enhanced",ChatFormatting.GRAY,"libspell_erecto_3.lore"),
+        FIREBLAZE(220,"fireblaze","fireblaze",100,"d","libspell_fireblaze",null,null,"libspell_fireblaze.lore"),
+        FIREBLAZE_KIUAS(221,"fireblaze_kiuas","fireblaze",100,"c","libspell_fireblaze_1","powerful",ChatFormatting.DARK_PURPLE,"libspell_fireblaze_1.lore"),
+        FIREBLAZE_MEGA(222,"fireblaze_mega","fireblaze",100,"b","libspell_fireblaze_2","powerful",ChatFormatting.DARK_PURPLE,"libspell_fireblaze_2.lore"),
+        FIREBLAZE_PILLARS(223,"fireblaze_pillars","fireblaze",100,"d","libspell_fireblaze_3","universal",ChatFormatting.YELLOW,"libspell_fireblaze_3.lore"),
+        FIREBLAZE_WORLD(224,"fireblaze_world","fireblaze",100,"d","libspell_fireblaze_4","overhauled",ChatFormatting.GOLD,"libspell_fireblaze_4.lore"),
+        STONEKIVI(233,"stonekivi","stonestone",2500,"s","libspell_stonestone",null,null,"libspell_stonestone.lore"),
+        STONEKIVI_EARTH(234,"stonekivi_earth","stonestone",2500,"s","libspell_stonestone_1","powerful",ChatFormatting.DARK_PURPLE,"libspell_stonestone_1.lore"),
+        STONEKIVI_SUN(235,"stonekivi_sun","stonestone",2500,"k","libspell_stonestone_2","unreal",ChatFormatting.RED,"libspell_stonestone_2.lore"),
+        STONEKIVI_COMET(236,"stonekivi_comet","stonestone",2500,"ss","libspell_stonestone_3","overhauled",ChatFormatting.GOLD,"libspell_stonestone_3.lore");
 
 
         final int spellId,metadataMana;
@@ -101,6 +114,8 @@ public final class LbcElementalGrimoires {
 
     static List<Kind> advanced() { return java.util.Arrays.stream(Kind.values()).filter(kind->kind.spellId>=204&&kind.spellId<=215).toList(); }
 
+    static List<Kind> shaping() { return java.util.Arrays.stream(Kind.values()).filter(kind->kind.spellId>=216&&kind.spellId<=224||kind.spellId>=233&&kind.spellId<=236).toList(); }
+
     private static Component text(String key,ChatFormatting color) {
         return Component.translatable(key).withStyle(color).withStyle(style->style.withItalic(false));
     }
@@ -115,7 +130,7 @@ public final class LbcElementalGrimoires {
         lore.add(Component.empty());
         for(var row:kind.lore)lore.add(text(row,ChatFormatting.GOLD));
         // These three source library families use Legendary, independently of their tooltip tier.
-        boolean legendary=kind.spellId>=204&&kind.spellId<=215;
+        boolean legendary=kind.spellId>=204;
         var rarity=text("rarity",ChatFormatting.WHITE).copy().append(text(legendary?"legendary":"epic",legendary?ChatFormatting.RED:ChatFormatting.DARK_PURPLE));
         if(kind.modifier!=null)rarity.append(text(kind.modifier,kind.modifierColor));
         lore.add(rarity);
@@ -156,6 +171,15 @@ public final class LbcElementalGrimoires {
                 ||game.items().magic().suppressed(player)
                 ||game.items().magic().suppressedAt(player.level(),player.getEyePosition()))return false;
         switch(kind) {
+            case ERECTO,ERECTO_RAY,ERECTO_SNIPER,ERECTO_SPHERE -> game.items().erecto().castMode(player,hand,ItemStack.EMPTY,
+                    switch(kind){case ERECTO_RAY -> 2;case ERECTO_SNIPER -> 4;case ERECTO_SPHERE -> 3;default -> 1;});
+            case FIREBLAZE,FIREBLAZE_KIUAS,FIREBLAZE_MEGA,FIREBLAZE_PILLARS,FIREBLAZE_WORLD -> game.items().blaze().fireblaze(player,
+                    switch(kind){case FIREBLAZE_KIUAS -> 4;case FIREBLAZE_MEGA -> 2;case FIREBLAZE_PILLARS -> 3;case FIREBLAZE_WORLD -> 1;default -> 0;});
+            case STONEKIVI,STONEKIVI_EARTH,STONEKIVI_SUN,STONEKIVI_COMET -> {
+                if(!game.items().stonekivi().ready())return false;
+                game.items().stonekivi().castMode(player,hand,ItemStack.EMPTY,
+                        switch(kind){case STONEKIVI_EARTH -> 2;case STONEKIVI_SUN -> 3;case STONEKIVI_COMET -> 4;default -> 1;});
+            }
             case EXAHOMING -> game.items().homing().grimoire(player,1);
             case EXAHOMING_CURSE -> game.items().homing().grimoire(player,4);
             case EXAHOMING_DESTINY -> game.items().homing().grimoire(player,3);

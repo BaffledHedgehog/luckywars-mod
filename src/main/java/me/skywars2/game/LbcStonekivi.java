@@ -65,6 +65,9 @@ public final class LbcStonekivi {
     void cast(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean upgraded) {
         int mode=upgraded?Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY)
                 .copyTag().getIntOr("mode",1),1,4):1;
+        castMode(owner,hand,stack,mode);
+    }
+    void castMode(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode) {
         Vec3 from=owner.getEyePosition(),direction=Vec3.directionFromRotation(owner.getXRot(),owner.getYRot());
         Vec3 far=from.add(direction.scale(mode==1?150:250));
         double fraction=game.items().magic().suppressionFraction(owner.level(),from,far);
