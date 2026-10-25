@@ -1,5 +1,25 @@
 # Следующие этапы переноса
 
+## Nine elemental grimoires - QUALIFIED AND INSTALLED (25 October 2026)
+
+[Source and verification](ELEMENTAL_GRIMOIRES_PORT_2026_10_25.md). Direct library spell IDs160/163/165/167/
+171/173/176/181/184 now have native Ruby/Terra/Electro/Air/Acid/Teleport/Stone/
+Fire/Blind consumed grimoires and nine deterministic `lbc:ported/*_grimoire`
+leaves. Ordinary payload engines, owners, sound cues and exact source item
+components are shared/preserved. Both hands and Shift cast without mana
+admission/debit; one successful use consumes one book. Guards reject without
+consumption. Grimoire casts cannot launch wand Academy trials. Broad/random
+library tables remain gated; Sauvojen and unstable-book work remains separate.
+
+Build2159fbe9 passed12 groups in two actual mode1 matches (69.00s): all nine
+kinds, both hands/Shift, zero/negative mana, native sound packets, payload counts/
+ownership, parallel final stacks, blocking guards, prior Danmaku and actual-stop
+cleanup. Exact373 sources/1052 classes/2846 resources match. Main22b646b6 stayed
+unchanged through qualification; installer21172 then installed2159fbe9 with
+22b646b6 rollback, no restart. Client rendering/audio and peak TPS not observed.
+Evidence: build/verification/elemental-grimoires-final/. User files/deletions and
+author RP preserved. Obsolete older archive retired after verified installation.
+
 ## Void Arcanum legacy speed ceilings - QUALIFIED AND INSTALLED (25 October 2026)
 
 [Source and verification](VOID_ARCANUM_LEGACY_SPEED_2026_10_25.md).

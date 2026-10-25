@@ -440,6 +440,7 @@ public final class LbcWands {
         if(LbcSoulhunter.isMace(stack))return game.items().soulhunter().use(player,hand);
         if(LbcSoulless.isWand(stack)||LbcSoulless.material(stack)>0)return game.items().soulless().use(player,hand);
         if(LbcDanmaku.isGrimoire(stack))return game.items().danmaku().useGrimoire(player,hand);
+        if(LbcElementalGrimoires.kind(stack)!=null)return LbcElementalGrimoires.use(game,player,hand);
         if(LbcDanmaku.isItem(stack))return game.items().danmaku().use(player,hand);
         if(LbcSheep.isWand(stack))return game.items().sheep().use(player,hand);
         if(LbcHedgehogItems.isWand(stack))return game.items().hedgehog().use(player,hand);
@@ -780,7 +781,7 @@ public final class LbcWands {
         launchFire(player,projectile,direction.scale(2.5).add(left.scale(side)));
     }
     /** Три исходных Motion-вектора; native fireball выполняет swept collision и затухание скорости. */
-    private void fireVolley(ServerPlayer player) {
+    void fireVolley(ServerPlayer player) {
         smallFire(player,0); smallFire(player,.15); smallFire(player,-.15);
         LbcOverload.sound(player,player.getEyePosition(),"minecraft:item.firecharge.use",1,1,0);
     }
@@ -1022,7 +1023,7 @@ public final class LbcWands {
         }
     }
     /** Три разряда расходятся случайным поворотом при полёте; сроки исходника различаются. */
-    private void electroVolley(ServerPlayer owner) {
+    void electroVolley(ServerPlayer owner) {
         Vec3 origin=owner.getEyePosition(),direction=owner.getLookAngle();
         for(int i=0;i<3;i++)
             electroTraces.add(new ElectroTrace(owner,origin.subtract(direction.scale(i*.01)),game.items().epoch(),40+i*5));

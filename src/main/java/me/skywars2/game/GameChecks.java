@@ -765,6 +765,9 @@ public final class GameChecks {
                                 case "team-colors-stop-probe" -> { TeamColorChecks.stopProbe(game); return; }
                                 case "team-colors-cleanup" -> { TeamColorChecks.cleanup(game); return; }
                                 case "danmaku" -> { DanmakuChecks.run(game); return; }
+                                case "elemental-grimoires" -> { ElementalGrimoireChecks.run(game); return; }
+                                case "elemental-grimoires-stop-probe" -> { ElementalGrimoireChecks.stopProbe(game); return; }
+                                case "elemental-grimoires-cleanup" -> { ElementalGrimoireChecks.cleanup(game); return; }
                                 case "danmaku-grimoire" -> { DanmakuGrimoireChecks.run(game); return; }
                                 case "danmaku-grimoire-stop-probe" -> { DanmakuGrimoireChecks.stopProbe(game); return; }
                                 case "danmaku-grimoire-cleanup" -> { DanmakuGrimoireChecks.cleanup(game); return; }
