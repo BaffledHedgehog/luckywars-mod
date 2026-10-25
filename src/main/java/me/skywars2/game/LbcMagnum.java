@@ -127,6 +127,7 @@ public final class LbcMagnum {
             var tag=gun.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag(); tag.putInt("mode",next);
             gun.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
             gun.set(DataComponents.CUSTOM_NAME,Component.translatable("magnum_mode_"+MODES[next]).withStyle(style->style.withItalic(false)));
+            LbcOverload.sound(owner,"minecraft:ui.button.click",.8f,1.5f,0);
             return true;
         }
         if(game.items().shooters().cooldownRemaining(owner)>0 || bursts.containsKey(owner.getUUID())) return false;

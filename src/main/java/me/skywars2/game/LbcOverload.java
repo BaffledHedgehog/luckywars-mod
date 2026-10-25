@@ -241,12 +241,17 @@ public final class LbcOverload {
     }
     /** Аналог minVolume у playsound: радиус selector и слышимость — разные ограничения. */
     static void sound(ServerPlayer p,Vec3 position,String id,float volume,float pitch,double radius,float minVolume) {
+        sound(p.level(),position,id,volume,pitch,radius,minVolume,p.getRandom().nextLong());
+    }
+    static void sound(net.minecraft.server.level.ServerLevel level,Vec3 position,String id,float volume,float pitch,double radius,float minVolume) {
+        sound(level,position,id,volume,pitch,radius,minVolume,level.getRandom().nextLong());
+    }
+    private static void sound(net.minecraft.server.level.ServerLevel level,Vec3 position,String id,float volume,float pitch,double radius,float minVolume,long seed) {
         var sound=Holder.direct(SoundEvent.createVariableRangeEvent(Identifier.parse(id)));
         double range=sound.value().getRange(volume);
         double rangeSquared=range*range;
-        long seed=p.getRandom().nextLong();
-        for(var viewer:p.level().getServer().getPlayerList().getPlayers()) {
-            if(viewer.level()!=p.level()) continue;
+        for(var viewer:level.getServer().getPlayerList().getPlayers()) {
+            if(viewer.level()!=level) continue;
             double distanceSquared=viewer.position().distanceToSqr(position);
             if(radius>0 && distanceSquared>radius*radius) continue;
             Vec3 heardAt=position; float heardVolume=volume;

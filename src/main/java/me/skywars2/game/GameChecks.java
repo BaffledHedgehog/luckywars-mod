@@ -643,6 +643,7 @@ public final class GameChecks {
                                 case "shooter-pair-menu" -> checkShooterPairMenu(game);
                                 case "magnum" -> { MagnumChecks.run(game); return; }
                                 case "rifle-zoom" -> { RifleZoomChecks.run(game); return; }
+                                case "weapon-sounds" -> { WeaponSoundChecks.run(game); return; }
                                 case "minigun-visual" -> { MinigunVisualChecks.run(game); return; }
                                 case "rifle-zoom-stop-probe" -> { RifleZoomChecks.stopProbe(game); return; }
                                 case "rifle-zoom-cleanup" -> { RifleZoomChecks.cleanup(game); return; }

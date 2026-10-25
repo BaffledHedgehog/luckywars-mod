@@ -104,8 +104,8 @@ public final class LbcHelicopterEncounter {
         if(!level.addFreshEntity(hitbox) || !level.addFreshEntity(display)) { terminal(pair,false);return false; }
         var remaining=token.getItem().copy();remaining.shrink(1);
         if(remaining.isEmpty()) token.discard();else token.setItem(remaining);
-        sound(level,token.position(),"lbcsounds.helicopter",.1f,1);
-        sound(level,token.position(),"lbcsounds.kazahstan",1,1);
+        LbcOverload.sound(level,token.position(),"minecraft:lbcsounds.helicopter",.1f,1,20,.1f);
+        LbcOverload.sound(level,token.position(),"minecraft:lbcsounds.kazahstan",1,1,20,.4f);
         level.sendParticles(new net.minecraft.core.particles.DustParticleOptions(0xff0000,2),token.getX(),token.getY()+10,token.getZ(),1000,0,100,0,0);
         return true;
     }

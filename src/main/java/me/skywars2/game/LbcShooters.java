@@ -617,7 +617,7 @@ public final class LbcShooters {
         var up=forward.cross(left);
         var origin=player.getEyePosition().subtract(left.scale(.2)).subtract(up.scale(.2));
         game.items().indirectKills().trapChanges(player,()->slrRay(player,origin,forward,mode(stack)));
-        LbcOverload.sound(player,origin.add(forward.scale(.5)),"minecraft:lbcsounds.karich",2,2,.5f);
+        LbcOverload.sound(player,origin.add(forward.scale(.5)),"minecraft:lbcsounds.karich",2,2,120,.5f);
         float yaw=player.getYRot()+(player.getRandom().nextInt(1201)-600)*.01f;
         float pitch=player.getXRot()+(player.getRandom().nextInt(1001)-1500)*.01f;
         player.teleportTo(player.level(),player.getX(),player.getY(),player.getZ(),Set.of(),yaw,pitch,true);

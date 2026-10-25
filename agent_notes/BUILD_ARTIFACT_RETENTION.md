@@ -65,3 +65,11 @@ former main2558af6b fallback while the running main JVM's original build remains
 unverified. No main file was replaced. Cumulative removal:288 JARs,
 10,154,755,516bytes/9.46GiB. Receipt:
 `build/verification/hole-erosion-final/build-cleanup-receipt.json`.
+
+## Weapon sound ready checkpoint
+
+After593a39df passed28 results in two matches, verified obsolete Chef4bf4649e
+archive was removed (38,322,316bytes). Keep new Weapon Sound, previous Hole
+Erosion54941d0e, main disk Danmaku04396ca4 and former main2558af6b fallback.
+Main remains unchanged. Cumulative cleanup:289 JARs/10,193,077,832bytes/9.49GiB.
+Receipt: `build/verification/weapon-sound-final/build-cleanup-receipt.json`.

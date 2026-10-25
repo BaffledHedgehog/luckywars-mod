@@ -1,5 +1,25 @@
 # Следующие этапы переноса
 
+## Weapon sound fixes - QUALIFIED READY (25 October 2026)
+
+[Source audit and verification](WEAPON_SOUND_FIX_2026_10_25.md).
+SLR accidentally passed minimum volume0.5 as selector radius, excluding even
+its shooter. Restored source radius120/minimum0.5, MASTER2/pitch2. Restored
+Magnum mode-change click and encounter helicopter spawn radius20/minimum
+volumes0.1/0.4 through the shared source-compatible sound helper. Other audited
+gun firing sounds and eight relevant author-RP events/OGG files are present.
+No author RP, translation or applied-template change.
+
+Build593a39df passed28 results in two actual mode1 matches (58.83s), including
+real item-use/spawn sound packet capture and joint gun/scope/stop regressions.
+Exact353 sources/980 classes/2818 resources match the artifact. Packet delivery
+is qualified; real client audio playback is not directly observed. Ready:
+build/verification/skywars2-weapon-sound-593a39df.jar. Evidence:
+build/verification/weapon-sound-final/. READY ONLY, main remains04396ca4.
+Existing user files/deletions preserved. Chef4bf archive removed after new
+qualification; preceding Hole Erosion and main fallbacks retained. Cumulative
+cleanup289 JARs/9.49GiB. No new broad loot pool or unrelated port was enabled.
+
 ## Black-hole motion and dithered erosion ? QUALIFIED READY (25 October 2026)
 
 [Contract](BLACK_HOLE_EROSION_PORT_2026_10_25.md),
