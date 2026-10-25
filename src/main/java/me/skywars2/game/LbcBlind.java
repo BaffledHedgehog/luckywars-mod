@@ -150,14 +150,17 @@ public final class LbcBlind {
             case 1 -> spread(owner,hand,origin,7,false,30,20,false);
             case 2 -> spread(owner,hand,origin,4,true,30,20,false);
             case 3 -> rain(owner,origin);
-            case 4 -> gatlings.compute(owner,(player,queue)-> {
-                if(queue==null || !game.items().currentEpoch(queue.epoch))
-                    queue=new GatlingQueue(game.items().epoch());
-                else queue.remaining+=20;
-                return queue;
-            });
+            case 4 -> queueGatling(owner);
             default -> { }
         }
+    }
+
+    void queueGatling(ServerPlayer owner) {
+        gatlings.compute(owner,(player,queue)-> {
+            if(queue==null || !game.items().currentEpoch(queue.epoch))queue=new GatlingQueue(game.items().epoch());
+            else queue.remaining+=20;
+            return queue;
+        });
     }
 
     private void spread(ServerPlayer owner,InteractionHand hand,Vec3 origin,int count,
@@ -183,6 +186,13 @@ public final class LbcBlind {
         Vec3 end=origin.add(owner.getLookAngle().scale(100));
         if(!owner.level().hasChunkAt(BlockPos.containing(origin))) return;
         HitResult hit=game.items().wands().firstHit(owner,origin,end);
+        // Source rain preloop draws ink every .4 blocks, including an aim with no terminal hit.
+        double distance=origin.distanceTo(hit==null?end:hit.getLocation());
+        for(double step=0;step<=distance+1e-7;step+=.4) {
+            var trail=origin.add(owner.getLookAngle().scale(Math.min(step,distance)));
+            if(!owner.level().hasChunkAt(BlockPos.containing(trail)))break;
+            owner.level().sendParticles(ParticleTypes.SQUID_INK,true,false,trail.x,trail.y,trail.z,1,0,0,0,0);
+        }
         if(hit==null) return;
         if(hit instanceof BlockHitResult wall && !owner.level().hasChunkAt(wall.getBlockPos())) return;
         Vec3 point=hit.getLocation();

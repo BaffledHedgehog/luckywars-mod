@@ -29,7 +29,7 @@ public final class ElementalGrimoireChecks {
     private static void require(boolean value,String why) {
         if(!value)throw new IllegalStateException("Elemental grimoire: "+why);
     }
-    private static final class Recording extends Connection {
+    static final class Recording extends Connection {
         final ServerPlayer player;final List<Packet<?>> packets=new ArrayList<>();
         Recording(ServerPlayer player){super(PacketFlow.SERVERBOUND);this.player=player;}
         @Override public boolean isMemoryConnection(){return true;}
@@ -38,7 +38,7 @@ public final class ElementalGrimoireChecks {
         @Override public void send(Packet<?> packet,io.netty.channel.ChannelFutureListener listener,boolean flush){packets.add(packet);}
         @Override public void flushChannel(){ }
     }
-    private static final class Fixture implements AutoCloseable {
+    static final class Fixture implements AutoCloseable {
         final GameController game;final LbcMana mana;final ServerPlayer owner;
         final GameChecks.WandThirdPlayerState saved;final boolean offhand,shift,sprint,ground;
         final ServerGamePacketListenerImpl connection;final Recording recording;
@@ -115,6 +115,7 @@ public final class ElementalGrimoireChecks {
                 case STONE -> game.items().stone().snapshot();
                 case FIRE -> fire();
                 case BLIND -> game.items().blind().snapshot();
+                default -> throw new IllegalArgumentException("ordinary fixture kind "+kind);
             };
             int expected=switch(kind){case ELECTRO,FIRE -> 3;case BLIND -> 5;default -> 1;};
             require(count()==expected,"exact source charge count "+kind+" actual="+count());
@@ -139,6 +140,7 @@ public final class ElementalGrimoireChecks {
                 case TELEPORT -> "minecraft:entity.lightning_bolt.thunder";
                 case FIRE -> "minecraft:item.firecharge.use";
                 case BLIND -> "minecraft:entity.squid.squirt";
+                default -> throw new IllegalArgumentException("ordinary fixture sound "+kind);
             };
             require(recording.packets.stream().filter(ClientboundSoundPacket.class::isInstance)
                     .map(ClientboundSoundPacket.class::cast).anyMatch(p->p.getSound().value().location().toString().equals(sound)),"native source sound "+kind);
@@ -149,7 +151,7 @@ public final class ElementalGrimoireChecks {
             fire().forEach(Entity::discard);recording.packets.clear();
         }
         void casts() {
-            for(var kind:LbcElementalGrimoires.Kind.values()) {
+            for(var kind:LbcElementalGrimoires.ordinary()) {
                 presentation(kind);
                 for(var hand:InteractionHand.values())for(boolean sneak:new boolean[]{false,true}) {
                     var stack=held(kind,hand,2);owner.setShiftKeyDown(sneak);mana.set(owner,sneak?-200:0);
@@ -168,7 +170,7 @@ public final class ElementalGrimoireChecks {
                     &&game.items().ruby().count()==1&&game.items().blind().count()==5,"parallel mixed final-stack hands");clear();
         }
         void guards() {
-            for(var kind:LbcElementalGrimoires.Kind.values()) {
+            for(var kind:LbcElementalGrimoires.ordinary()) {
                 var stack=held(kind,InteractionHand.MAIN_HAND,2);
                 owner.entityTags().add("time_stopped");
                 try{require(!input(InteractionHand.MAIN_HAND)&&stack.getCount()==2&&count()==0,"personal stop preserves "+kind);}
@@ -185,7 +187,7 @@ public final class ElementalGrimoireChecks {
                 finally{game.config().offhandWands=true;}
             }
             game.spectators().enter(owner);
-            for(var kind:LbcElementalGrimoires.Kind.values()) {
+            for(var kind:LbcElementalGrimoires.ordinary()) {
                 var stack=held(kind,InteractionHand.MAIN_HAND,2);
                 require(!input(InteractionHand.MAIN_HAND)&&stack.getCount()==2&&count()==0,"observer preserves "+kind);
             }
@@ -208,7 +210,7 @@ public final class ElementalGrimoireChecks {
         require(retained==null,"exclusive retained fixture");
         try(var fixture=new Fixture(game)) {
             fixture.initialize();
-            for(var kind:LbcElementalGrimoires.Kind.values()) {
+            for(var kind:LbcElementalGrimoires.ordinary()) {
                 fixture.held(kind,InteractionHand.MAIN_HAND,1);
                 require(fixture.input(InteractionHand.MAIN_HAND),"retained actual input "+kind);
             }

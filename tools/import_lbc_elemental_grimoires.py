@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Import nine direct ordinary elemental library spells, preserving source components."""
+"""Import28 direct ordinary and variant elemental library spells, preserving source components."""
 from copy import deepcopy
 from pathlib import Path
 import re
@@ -10,7 +10,8 @@ from import_lbc_wands import build_single_entry_table, write_table
 from import_lbc_woodificator import read_json
 
 RP = Path('C:/Users/yarik_temp/AppData/Roaming/FreesmLauncher/instances/26.3(1)/minecraft/resourcepacks/all_in_one_1.21.8')
-SPELLS = {160:'ruby',163:'terra',165:'electro',167:'air',171:'acid',173:'teleport',176:'stone',181:'fire',184:'blind'}
+SPELLS = {160:'ruby',163:'terra',165:'electro',167:'air',171:'acid',173:'teleport',176:'stone',181:'fire',184:'blind',
+          161:'ruby_ray', 162:'ruby_hole', 164:'terra_fast', 166:'electro_ray', 168:'air_burst', 169:'air_fast', 170:'air_homing', 172:'acid_burning', 174:'teleport_inverted', 175:'teleport_cloud', 177:'stone_ray', 178:'stone_spikes', 179:'stone_bridge', 180:'stone_shield', 182:'fire_big', 183:'fire_ray', 185:'blind_gatling', 186:'blind_phantom', 187:'blind_rain'}
 
 def main():
     firearms.RP = RP  # Audit the current author pack; never modify it.

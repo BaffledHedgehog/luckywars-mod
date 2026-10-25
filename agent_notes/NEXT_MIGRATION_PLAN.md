@@ -1,5 +1,26 @@
 # Следующие этапы переноса
 
+## Nineteen elemental grimoire variants - QUALIFIED AND INSTALLED (25 October 2026)
+
+[Source and verification](ELEMENTAL_VARIANT_GRIMOIRES_2026_10_25.md). Direct consumed library IDs161/162/164/166/
+168/169/170/172/174/175/177/178/179/180/182/183/185/186/187 now reuse the native
+wand-mode engines. Nineteen deterministic `lbc:ported/*_grimoire` leaves retain
+exact source components, including adjective rarity rows. Both hands and Shift
+consume one actual book without mana admission/debit. Gatling accumulates20
+shots per book and continues after consumption; cloud mounts an owned native
+arrow. Shield lasts100ticks. The shared Blind rain aim trail is restored at
+source0.4block spacing, stopping at unloaded chunks. Original wand behavior
+remains shared. Author rule: all grimoires are single-use wands, with only a
+few small explicit differences; do not build duplicate spell engines.
+
+Build462ab2c6 passed14 groups in two actual mode1 matches (45.20s): all19
+variants, prior nine ordinary/consumed Danmaku, full Blind rain, native item/
+packet/terrain/count/owner checks and actual-stop cloud/queue/projectile cleanup.
+Exact374 sources/1056 classes/2865 resources match. Installer5248 installed
+462ab2c6 over2159fbe9 with rollback and no restart. Client frame/audio and peak
+TPS not directly observed. Evidence: build/verification/elemental-variants-final/.
+User files/deletions and author RP preserved; broad/random library stays gated.
+
 ## Nine elemental grimoires - QUALIFIED AND INSTALLED (25 October 2026)
 
 [Source and verification](ELEMENTAL_GRIMOIRES_PORT_2026_10_25.md). Direct library spell IDs160/163/165/167/

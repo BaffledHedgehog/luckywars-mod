@@ -105,16 +105,17 @@ public final class LbcStone {
                 charge.entityTags().add("magic"); game.items().markCurrentItemEpoch(charge);
                 if(owner.level().addFreshEntity(charge)) charges.add(charge);
             }
-            case 2 -> {
-                owner.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,100,4),owner);
-                owner.level().sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.BEDROCK.defaultBlockState()),
-                        owner.getX(),owner.getY()+1,owner.getZ(),30,.3,.6,.4,0);
-            }
+            case 2 -> shield(owner);
             case 3 -> bridge(owner);
             default -> ray(owner,mode==4);
         }
     }
-    private void ray(ServerPlayer owner,boolean spike) {
+    void shield(ServerPlayer owner) {
+        owner.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,100,4),owner);
+        owner.level().sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.BEDROCK.defaultBlockState()),
+                owner.getX(),owner.getY()+1,owner.getZ(),30,.3,.6,.4,0);
+    }
+    void ray(ServerPlayer owner,boolean spike) {
         Vec3 from=owner.getEyePosition(),end=from.add(owner.getLookAngle().scale(150));
         var hit=game.items().wands().firstHit(owner,from,end);
         if(hit!=null) end=hit.getLocation();
@@ -170,7 +171,7 @@ public final class LbcStone {
                 target.hurtServer(owner.level(),damage,5);
         }
     }
-    private void bridge(ServerPlayer owner) {
+    void bridge(ServerPlayer owner) {
         Vec3 origin=owner.position().add(0,-1,0),forward=owner.getLookAngle(),left=Vec3.directionFromRotation(0,owner.getYRot()-90);
         for(int i=0;i<BRIDGE.length;i++) {
             var a=BlockPos.containing(origin.add(left.scale(-1)).add(forward.scale(i*2)));

@@ -27,7 +27,7 @@ import net.minecraft.world.level.Level;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Direct consumed library160/163/165/167/171/173/176/181/184, sharing ordinary wand payloads. */
+/** Direct consumed elemental library160..187, sharing native ordinary/Academy payloads. */
 public final class LbcElementalGrimoires {
     public enum Kind {
         RUBY(160,"ruby","swarogia",1200,"c","ruby",1,2,3),
@@ -38,22 +38,54 @@ public final class LbcElementalGrimoires {
         TELEPORT(173,"teleport","arkontas",2000,"b","teleport",2),
         STONE(176,"stone","stone",2000,"c","stone",2),
         FIRE(181,"fire","fire",200,"c","fire",2),
-        BLIND(184,"blind","blind",300,"d","blind",2);
+        BLIND(184,"blind","blind",300,"d","blind",2),
+        RUBY_RAY(161,"ruby_ray","swarogia",1200,"c","libspell_swarogia_1","powerful",ChatFormatting.DARK_PURPLE,"libspell_swarogia_1.lore.1","libspell_swarogia_1.lore.2"),
+        RUBY_HOLE(162,"ruby_hole","swarogia",1200,"b","libspell_swarogia_2","powerful",ChatFormatting.DARK_PURPLE,"libspell_swarogia_2.lore.1","libspell_swarogia_2.lore.2"),
+        TERRA_FAST(164,"terra_fast","terra",1200,"a","libspell_terra_1","powerful",ChatFormatting.DARK_PURPLE,"libspell_terra_1.lore"),
+        ELECTRO_RAY(166,"electro_ray","sosuenerugi",900,"d","libspell_sosuenerugi_1","universal",ChatFormatting.YELLOW,"libspell_sosuenerugi_1.lore"),
+        AIR_BURST(168,"air_burst","explode",1000,"c","libspell_explode_1","universal",ChatFormatting.YELLOW,"libspell_explode_1.lore"),
+        AIR_FAST(169,"air_fast","explode",1000,"a","libspell_explode_2","universal",ChatFormatting.YELLOW,"libspell_explode_2.lore"),
+        AIR_HOMING(170,"air_homing","explode",1000,"b","libspell_explode_3","universal",ChatFormatting.YELLOW,"libspell_explode_3.lore"),
+        ACID_BURNING(172,"acid_burning","lahazor",200,"b","libspell_lahazor_1","enhanced",ChatFormatting.GRAY,"libspell_lahazor_1.lore"),
+        TELEPORT_INVERTED(174,"teleport_inverted","arkontas",2000,"b","libspell_arkontas_1","enhanced",ChatFormatting.GRAY,"libspell_arkontas_1.lore"),
+        TELEPORT_CLOUD(175,"teleport_cloud","arkontas",2000,"b","libspell_arkontas_2","smart",ChatFormatting.AQUA,"libspell_arkontas_2.lore"),
+        STONE_RAY(177,"stone_ray","stone",2000,"b","libspell_stone_1","universal",ChatFormatting.YELLOW,"libspell_stone_1.lore"),
+        STONE_SPIKES(178,"stone_spikes","stone",2000,"b","libspell_stone_2","powerful",ChatFormatting.DARK_PURPLE,"libspell_stone_2.lore"),
+        STONE_BRIDGE(179,"stone_bridge","stone",2000,"b","libspell_stone_3","smart",ChatFormatting.AQUA,"libspell_stone_3.lore"),
+        STONE_SHIELD(180,"stone_shield","stone",2000,"b","libspell_stone_4","smart",ChatFormatting.AQUA,"libspell_stone_4.lore"),
+        FIRE_BIG(182,"fire_big","fire",200,"b","libspell_fire_1","powerful",ChatFormatting.DARK_PURPLE,"libspell_fire_1.lore"),
+        FIRE_RAY(183,"fire_ray","fire",200,"b","libspell_fire_2","universal",ChatFormatting.YELLOW,"libspell_fire_2.lore"),
+        BLIND_GATLING(185,"blind_gatling","blind",300,"c","libspell_blind_1","enhanced",ChatFormatting.GRAY,"libspell_blind_1.lore"),
+        BLIND_PHANTOM(186,"blind_phantom","blind",300,"d","libspell_blind_2","universal",ChatFormatting.YELLOW,"libspell_blind_2.lore"),
+        BLIND_RAIN(187,"blind_rain","blind",300,"c","libspell_blind_3","smart",ChatFormatting.AQUA,"libspell_blind_3.lore");
+
 
         final int spellId,metadataMana;
         final String id,model,name,tier;
         final List<String> lore;
+        final String modifier;
+        final ChatFormatting modifierColor;
         final Item item;
         Kind(int spellId,String id,String model,int metadataMana,String tier,String loreStem,int... rows) {
             this.spellId=spellId;this.id=id+"_grimoire";this.model="lbc:spelllib/"+model;
             this.name="libspell_"+model;this.metadataMana=metadataMana;this.tier="lbc:tier_"+tier;
             this.lore=java.util.Arrays.stream(rows).mapToObj(row->"sauvojen_wand_"+loreStem+".lore."+row).toList();
+            this.modifier=null;this.modifierColor=null;
+            this.item=create(this);
+        }
+        Kind(int spellId,String id,String model,int metadataMana,String tier,String name,
+             String modifier,ChatFormatting modifierColor,String... lore) {
+            this.spellId=spellId;this.id=id+"_grimoire";this.model="lbc:spelllib/"+model;
+            this.name=name;this.metadataMana=metadataMana;this.tier="lbc:tier_"+tier;
+            this.lore=List.of(lore);this.modifier=modifier;this.modifierColor=modifierColor;
             this.item=create(this);
         }
     }
 
     private LbcElementalGrimoires() { }
     public static void register() { Kind.values(); }
+    static List<Kind> ordinary() { return List.of(Kind.RUBY,Kind.TERRA,Kind.ELECTRO,Kind.AIR,Kind.ACID,Kind.TELEPORT,Kind.STONE,Kind.FIRE,Kind.BLIND); }
+    static List<Kind> variants() { return java.util.Arrays.stream(Kind.values()).filter(kind->kind.modifier!=null).toList(); }
 
     private static Component text(String key,ChatFormatting color) {
         return Component.translatable(key).withStyle(color).withStyle(style->style.withItalic(false));
@@ -68,7 +100,9 @@ public final class LbcElementalGrimoires {
         lore.add(text("type",ChatFormatting.AQUA).copy().append(text("libspell",ChatFormatting.AQUA)));
         lore.add(Component.empty());
         for(var row:kind.lore)lore.add(text(row,ChatFormatting.GOLD));
-        lore.add(text("rarity",ChatFormatting.WHITE).copy().append(text("epic",ChatFormatting.DARK_PURPLE)));
+        var rarity=text("rarity",ChatFormatting.WHITE).copy().append(text("epic",ChatFormatting.DARK_PURPLE));
+        if(kind.modifier!=null)rarity.append(text(kind.modifier,kind.modifierColor));
+        lore.add(rarity);
         var properties=new Item.Properties(){@Override public Identifier effectiveModel(){return model;}}
                 .setId(key).stacksTo(99).overrideDescription(kind.name)
                 .component(DataComponents.ITEM_MODEL,model)
@@ -118,6 +152,28 @@ public final class LbcElementalGrimoires {
             case STONE -> game.items().stone().cast(player,0);
             case FIRE -> game.items().wands().fireVolley(player);
             case BLIND -> game.items().blind().cast(player,hand,0,ItemStack.EMPTY);
+            case RUBY_RAY -> game.items().ruby().cast(player,3);
+            case RUBY_HOLE -> game.items().ruby().cast(player,2);
+            case TERRA_FAST -> game.items().terra().cast(player,LbcTerra.Kind.ACADEMY);
+            case ELECTRO_RAY -> game.items().wands().electroRay(player);
+            case AIR_BURST -> game.items().air().cast(player,hand,1,ItemStack.EMPTY);
+            case AIR_FAST -> game.items().air().cast(player,hand,2,ItemStack.EMPTY);
+            case AIR_HOMING -> game.items().air().cast(player,hand,3,ItemStack.EMPTY);
+            case ACID_BURNING -> {
+                game.items().clouds().academyWandAcid(player,true);
+                LbcOverload.sound(player,player.getEyePosition(),"minecraft:entity.zombie_villager.cure",1,2,0);
+            }
+            case TELEPORT_INVERTED -> game.items().teleport().cast(player,hand,2,ItemStack.EMPTY);
+            case TELEPORT_CLOUD -> game.items().teleport().cast(player,hand,3,ItemStack.EMPTY);
+            case STONE_RAY -> game.items().stone().ray(player,false);
+            case STONE_SPIKES -> game.items().stone().ray(player,true);
+            case STONE_BRIDGE -> game.items().stone().bridge(player);
+            case STONE_SHIELD -> game.items().stone().shield(player);
+            case FIRE_BIG -> game.items().wands().bigFire(player);
+            case FIRE_RAY -> game.items().wands().concentratedFire(player);
+            case BLIND_GATLING -> game.items().blind().queueGatling(player);
+            case BLIND_PHANTOM -> game.items().blind().cast(player,hand,2,ItemStack.EMPTY);
+            case BLIND_RAIN -> game.items().blind().cast(player,hand,3,ItemStack.EMPTY);
         }
         player.level().playSound(null,player.getX(),player.getY(),player.getZ(),SoundEvents.SNOWBALL_THROW,
                 SoundSource.NEUTRAL,.5f,.4f/(player.level().getRandom().nextFloat()*.4f+.8f));

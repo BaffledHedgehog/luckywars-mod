@@ -765,6 +765,9 @@ public final class GameChecks {
                                 case "team-colors-stop-probe" -> { TeamColorChecks.stopProbe(game); return; }
                                 case "team-colors-cleanup" -> { TeamColorChecks.cleanup(game); return; }
                                 case "danmaku" -> { DanmakuChecks.run(game); return; }
+                                case "elemental-variant-grimoires" -> { ElementalVariantGrimoireChecks.run(game); return; }
+                                case "elemental-variant-grimoires-stop-probe" -> { ElementalVariantGrimoireChecks.stopProbe(game); return; }
+                                case "elemental-variant-grimoires-cleanup" -> { ElementalVariantGrimoireChecks.cleanup(game); return; }
                                 case "elemental-grimoires" -> { ElementalGrimoireChecks.run(game); return; }
                                 case "elemental-grimoires-stop-probe" -> { ElementalGrimoireChecks.stopProbe(game); return; }
                                 case "elemental-grimoires-cleanup" -> { ElementalGrimoireChecks.cleanup(game); return; }
@@ -20731,7 +20734,8 @@ public final class GameChecks {
                                         && game.items().currentEpoch(drop) && drop.entityTags().contains("shield_blockable2")
                                         && Math.abs(drop.getX()-cow.getBoundingBox().getCenter().x)<=.600001
                                         && Math.abs(drop.getZ()-cow.getBoundingBox().getCenter().z)<=.600001
-                                        && Math.abs(drop.getY()-(owner.getEyeY()+10))<.00001
+                                        // Either tick can emit, depending on the shared service's prior phase.
+                                        && drop.age<=1 && Math.abs(drop.getY()-(owner.getEyeY()+10-drop.age*1.8))<.00001
                                         && drop.getDeltaMovement().equals(new Vec3(0,-1.8,0)),
                                         "Rain keeps native owner/epoch/shield behavior and spawns near the living target at cloud height");
                         drop.setPos(empty); drop.setDeltaMovement(Vec3.ZERO); drop.age=18;

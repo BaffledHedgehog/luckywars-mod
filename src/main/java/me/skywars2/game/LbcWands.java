@@ -785,7 +785,7 @@ public final class LbcWands {
         smallFire(player,0); smallFire(player,.15); smallFire(player,-.15);
         LbcOverload.sound(player,player.getEyePosition(),"minecraft:item.firecharge.use",1,1,0);
     }
-    private void bigFire(ServerPlayer player) {
+    void bigFire(ServerPlayer player) {
         var projectile=new LargeFireball(player.level(),player,player.getLookAngle(),2);
         launchFire(player,projectile,player.getLookAngle().scale(2.5));
         LbcOverload.sound(player,player.getEyePosition(),"minecraft:item.firecharge.use",1,.5f,0);
@@ -848,7 +848,7 @@ public final class LbcWands {
         return entity==null?wall:entity;
     }
     /** Вместо рекурсивных 200 запросов: один native clip и один локальный поиск ближайшей цели. */
-    private void concentratedFire(ServerPlayer player) {
+    void concentratedFire(ServerPlayer player) {
         Vec3 from=player.getEyePosition(),to=from.add(player.getLookAngle().scale(100));
         var level=player.level();
         var hit=firstHit(player,from,to);
@@ -1101,7 +1101,7 @@ public final class LbcWands {
         }
     }
     /** Режим Academy: одна геометрическая проверка пути и хитбоксов вместо рекурсии на 1001 шаг. */
-    private void electroRay(ServerPlayer owner) {
+    void electroRay(ServerPlayer owner) {
         var level=owner.level();
         Vec3 from=owner.getEyePosition(),direction=owner.getLookAngle(),end=from.add(direction.scale(100));
         var wall=LbcTerra.wallHit(level,from,end);
