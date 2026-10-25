@@ -89,6 +89,10 @@ public final class LbcPrism {
                 ||game.items().magic().suppressed(owner)||game.items().magic().suppressedAt(owner.level(),owner.getEyePosition()))return false;
         int cost=game.items().mana().score(ScoreHolder.forNameOnly("unstable_prism_mana_use"),"lbc.math").get();
         if(!game.items().mana().trySpendWand(owner,cost))return false;
+        return cast(owner,hand,stack,academy,true);
+    }
+    boolean cast(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy){return cast(owner,hand,stack,academy,false);}
+    private boolean cast(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy,boolean wandBonus){
         var charge=new Charge(TYPE,owner.level());charge.setOwner(owner);charge.hand=hand;charge.stack=stack;charge.caster=owner.getUUID();
         charge.origin=owner.getEyePosition().add(owner.getLookAngle().scale(hand==InteractionHand.OFF_HAND?.5:0));charge.setPos(charge.origin);charge.setDeltaMovement(owner.getLookAngle());
         charge.entityTags().addAll(List.of("prism","player","slowraycast","magic",game.items().epoch()));
@@ -99,7 +103,7 @@ public final class LbcPrism {
         }else charge.entityTags().add("shield_blockable");
         game.items().timeStop().prepareFrozen(charge);
         if(owner.level().addFreshEntity(charge)&&academy)immediate.addLast(charge);
-        game.items().wands().wandCasted(owner);pump();return true;
+        if(wandBonus)game.items().wands().wandCasted(owner);pump();return true;
     }
     private boolean active(Charge c){return !c.isRemoved()&&game.playing()&&game.stage()!=GameController.Stage.ENDING
             &&c.level()==game.maps().level()&&game.items().currentEpoch(c)&&c.getOwner() instanceof ServerPlayer owner

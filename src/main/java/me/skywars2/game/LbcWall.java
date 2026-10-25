@@ -50,6 +50,11 @@ final class LbcWall {
 
     /** Один native hit завершает луч; препятствие и сущность больше не исполняют форму независимо. */
     static void cast(GameController game,ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean upgraded) {
+        int mode=upgraded?Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY)
+                .copyTag().getIntOr("mode",1),1,4):1;
+        cast(game,owner,hand,stack,upgraded,mode);
+    }
+    static void cast(GameController game,ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean upgraded,int mode){
         Vec3 from=owner.getEyePosition();
         Vec3 direction=Vec3.directionFromRotation(owner.getXRot(),owner.getYRot());
         Vec3 fullEnd=from.add(direction.scale(upgraded?180:100));
@@ -64,8 +69,7 @@ final class LbcWall {
         }
         if(hit==null || hit instanceof BlockHitResult wall && !owner.level().hasChunkAt(wall.getBlockPos())
                 || Double.isFinite(suppression) && end.distanceToSqr(from)>=limit.distanceToSqr(from)-1e-6) return;
-        int mode=upgraded?Math.clamp(stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY)
-                .copyTag().getIntOr("mode",1),1,4):1;
+
         // Точка native clip лежит на грани: небольшое смещение внутрь исключает соседнюю клетку и дрожание floor.
         Vec3 placement=hit instanceof BlockHitResult?end.add(direction.scale(1e-4)):end;
         BlockPos center=hit instanceof BlockHitResult wall?wall.getBlockPos():BlockPos.containing(end);

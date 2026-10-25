@@ -1,0 +1,81 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:badwiki_42_grimoire",
+          "modifier": [
+            {
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_ff",
+                "minecraft:item_model": "lbc:spelllib/potion"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "libspell_effect_15II",
+                  "color": "white",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": "",
+                  "type": "text"
+                },
+                {
+                  "translate": "libspell_effect_lore",
+                  "color": "white",
+                  "italic": false
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "base",
+                    "italic": false,
+                    "color": "gray"
+                  },
+                  {
+                    "translate": "universal",
+                    "italic": false,
+                    "color": "yellow"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,gadget:1,libspell:1,mana:300,unresolved_grimoire:1,spellid:69}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

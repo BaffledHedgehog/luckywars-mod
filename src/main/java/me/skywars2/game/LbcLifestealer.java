@@ -87,7 +87,7 @@ public final class LbcLifestealer {
         return true;
     }
 
-    private void spawn(ServerPlayer owner) {
+    void spawn(ServerPlayer owner) {
         Vec3 origin=owner.getEyePosition().add(owner.getLookAngle());
         LbcOverload.sound(owner,origin,"minecraft:entity.cat.hiss",1,2,0);
         if(!owner.level().hasChunkAt(BlockPos.containing(origin))) return;
@@ -126,7 +126,7 @@ public final class LbcLifestealer {
                 && !game.items().magic().suppressedAt(owner.level(),candidate.position());
     }
 
-    private void cast(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy) {
+    void cast(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy) {
         Vec3 center=owner.position();
         int strength=strength(owner),accepted=0;
         var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)

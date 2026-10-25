@@ -141,7 +141,10 @@ public final class LbcSheep {
         return game.items().wands().projectileTarget(p,e);
     }
     private void cast(ServerPlayer p,InteractionHand hand,ItemStack stack){
-        boolean academy=isAcademy(stack);Vec3 from=p.getEyePosition(),direction=p.getLookAngle().normalize();
+        cast(p,hand,stack,isAcademy(stack));
+    }
+    void cast(ServerPlayer p,InteractionHand hand,ItemStack stack,boolean academy){
+        Vec3 from=p.getEyePosition(),direction=p.getLookAngle().normalize();
         // The generic LivingEntity overload accepts explicit collision eligibility, including dropped potions.
         Vec3 to=from.add(direction.scale(RANGE));
         var hit=game.items().wands().firstHit((LivingEntity)p,from,to,e->rayTarget(p,e,academy));

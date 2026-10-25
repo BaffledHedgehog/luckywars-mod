@@ -45,10 +45,11 @@ public final class ElementalGrimoireChecks {
         final Map<LbcElementalGrimoires.Kind,Integer> stats=new EnumMap<>(LbcElementalGrimoires.Kind.class);
         final Set<Entity> before=Collections.newSetFromMap(new IdentityHashMap<>());
         Marker field;boolean retain;
-        Fixture(GameController game) {
+        Fixture(GameController game) {this(game,false);}
+        Fixture(GameController game,boolean existingStopProbes) {
             this.game=game;mana=game.items().mana();owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
             require(owner!=null&&game.playing()&&game.canUseGameplayItems(owner),"active participant");
-            require(owner.containerMenu==owner.inventoryMenu&&count()==0,"closed inventory and exclusive empty payload services");
+            require(owner.containerMenu==owner.inventoryMenu&&(existingStopProbes||count()==0),"closed inventory and exclusive empty payload services");
             saved=new GameChecks.WandThirdPlayerState(owner,mana);offhand=game.config().offhandWands;
             shift=owner.isShiftKeyDown();sprint=owner.isSprinting();ground=owner.onGround();
             owner.level().getAllEntities().forEach(before::add);

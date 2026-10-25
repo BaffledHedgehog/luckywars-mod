@@ -49,6 +49,10 @@ final class LbcGaycaster {
         if(owner.isShiftKeyDown()&&LbcAcademy.trial(stack))return game.items().gaycasterAcademy().meditate(owner,hand,stack);
         int cost=game.items().mana().score(ScoreHolder.forNameOnly("gaycaster_mana_use"),"lbc.math").get();
         if(!game.items().mana().trySpendWand(owner,cost))return false;
+        cast(game,owner);
+        game.items().wands().wandCasted(owner);return true;
+    }
+    static void cast(GameController game,ServerPlayer owner){
         Vec3 origin=owner.getEyePosition(),direction=owner.getLookAngle();
         LbcOverload.sound(owner,origin,"minecraft:lbcsounds.laser_mg_shot",1,0,0);
         LbcOverload.sound(owner,origin,"minecraft:item.trident.return",1,0,0);
@@ -68,7 +72,6 @@ final class LbcGaycaster {
                         impact(game,owner,point,direction,hue,living);
                     else impact(game,owner,point,direction,hue,null);
                 });
-        game.items().wands().wandCasted(owner);return true;
     }
     static int hue(double distance){return (-20+5*Mth.floor((distance+1e-6)*2))%360;}
     private static DustParticleOptions dust(int hue,float size){return new DustParticleOptions(Mth.hsvToRgb(Math.floorMod(hue,360)/360f,.75f,1),size);}

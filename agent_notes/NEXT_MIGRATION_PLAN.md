@@ -1,5 +1,26 @@
 # Следующие этапы переноса
 
+## Complete240-book grimoire library - QUALIFIED AND INSTALLED (26 October 2026)
+
+[Source and verification](ALL_GRIMOIRES_2026_10_26.md). All167 remaining books are implemented in one
+patch, including84 fixed Badwiki outcomes and both random books. The complete
+weighted240-entry library is now exposed in `/loot`; every deterministic leaf
+has a native registered consumed item. Shared wand payloads retain source
+components/models and both-hand/Shift behavior without a mana gate/debit,
+trial or paid-cast bonus. The53 ordinary random branches and flying Sauvojen
+dependency are covered. Native delayed emitters replace technical spawner
+carts, and WILD phantom arrows retain source targeting through both team gates.
+
+Build0d3733b6 passed54 groups in two actual mode1 matches (58.95s), including
+all167 actual final-stack uses in both hands/Shift, fixed effects, native random
+payload counts/ownership, real self/allied arrow collisions, shared wand
+regressions and actual-stop cleanup. Exact381 sources/1079 classes/
+3076 resources match. Installer21564 installed0d3733b6 overb4aa411f with
+rollback and no restart. Evidence: `build/verification/all-grimoires-final/`.
+Stone discarded-charge tracking is fixed; the older Ruby fixture now respects
+the already agreed friendly-mob impact rule. User files/deletions and author RP
+are preserved. Client pixels/audio playback and peak TPS are not observed.
+
 ## Eight Consuming/Duplicating grimoires - QUALIFIED AND INSTALLED (26 October 2026)
 
 [Source and verification](TERRAIN_GRIMOIRES_2026_10_26.md). Library IDs225..232 expose8 native consumed

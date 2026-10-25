@@ -154,6 +154,7 @@ public final class LbcHoming {
         if(mode==1)LbcOverload.sound(owner,owner.position(),"minecraft:entity.firework_rocket.shoot",1,1,0);
         launch(owner,false,mode,mode!=1,false);
     }
+    void libraryStars(ServerPlayer owner,int mode){launch(owner,true,mode,mode!=1,false);}
     private void launch(ServerPlayer owner,boolean donor,int mode,boolean upgraded,boolean achievement) {
         if(!donor && mode==3) destinies.add(new Effect(owner,owner.getEyePosition(),600,game.items().epoch()));
         else if(!donor && mode==4) curseRay(owner);

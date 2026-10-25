@@ -95,7 +95,7 @@ public final class LbcAir {
         }
     }
 
-    private void spawn(ServerPlayer owner,InteractionHand hand,int mode,ItemStack stack,Vec3 origin,Vec3 direction) {
+    void spawn(ServerPlayer owner,InteractionHand hand,int mode,ItemStack stack,Vec3 origin,Vec3 direction) {
         if(!owner.level().hasChunkAt(BlockPos.containing(origin))) return;
         Charge charge=new Charge(TYPE,owner.level());
         charge.setOwner(owner); charge.setPos(origin); charge.setNoGravity(true);

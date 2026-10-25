@@ -49,6 +49,16 @@ final class LbcCorruption {
         boolean alternating=academy&&mode==5;
         if(alternating)mode=Mth.clamp(data.getIntOr("alternating_next",1),1,4);
         if(!academy)mode=owner.getRandom().nextInt(4)+1;
+        cast(game,owner,hand,stack,academy,mode);
+        if(alternating){
+            var updated=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+            updated.putInt("alternating_next",mode%4+1);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(updated));owner.getInventory().setChanged();
+        }
+        game.items().wands().wandCasted(owner);
+        return true;
+    }
+
+    static void cast(GameController game,ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy,int mode){
         var at=owner.position();
         var targets=owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(15),target->{
             double distance=target.position().distanceToSqr(at);
@@ -79,12 +89,6 @@ final class LbcCorruption {
         owner.level().sendParticles(ParticleTypes.ASH,true,false,at.x,at.y+1,at.z,300,1,1,1,1);
         for(var target:targets)if(target instanceof ServerPlayer player&&target.isAlive())
             player.sendSystemMessage(Component.translatable("player_corrupted").withStyle(ChatFormatting.RED));
-        if(alternating){
-            var updated=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-            updated.putInt("alternating_next",mode%4+1);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(updated));owner.getInventory().setChanged();
-        }
-        game.items().wands().wandCasted(owner);
-        return true;
     }
 
     private static void dust(GameController game,ServerPlayer owner,LivingEntity target){

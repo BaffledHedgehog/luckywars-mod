@@ -98,12 +98,14 @@ public final class LbcTeleport {
     public void cast(ServerPlayer owner,InteractionHand hand,int mode,ItemStack stack) {
         if(!validOwner(owner) || mode<0 || mode>3) return;
         if(mode==3) { castCloud(owner); return; }
-        Vec3 origin=owner.getEyePosition();
+        castAt(owner,hand,mode,stack,owner.getEyePosition(),owner.getLookAngle());
+    }
+    void castAt(ServerPlayer owner,InteractionHand hand,int mode,ItemStack stack,Vec3 origin,Vec3 direction){
         LbcOverload.sound(owner,origin,"minecraft:entity.lightning_bolt.thunder",1,2,0);
         Charge charge=new Charge(TYPE,owner.level());
         charge.setOwner(owner); charge.setPos(origin); charge.setNoGravity(true);
         charge.setYRot(owner.getYRot()); charge.setXRot(owner.getXRot());
-        charge.setDeltaMovement(owner.getLookAngle().normalize().scale(mode==0?1.8:3.0));
+        charge.setDeltaMovement(direction.normalize().scale(mode==0?1.8:3.0));
         charge.mode=mode;
         game.items().markCurrentItemEpoch(charge);
         if(owner.level().addFreshEntity(charge)) {

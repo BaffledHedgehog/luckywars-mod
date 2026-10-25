@@ -88,6 +88,7 @@ processResources {
     include 'data/lbc/loot_table/ported/duplicating_hole_grimoire.json'
     include 'data/lbc/loot_table/ported/duplicating_divide_grimoire.json'
     include 'data/lbc/loot_table/ported/duplicating_expand_grimoire.json'
+    include 'data/lbc/loot_table/ported/*_grimoire.json', 'skywars2/remaining_grimoires.json'
     include 'data/lbc/loot_table/ported/erecto_grimoire.json'
     include 'data/lbc/loot_table/ported/erecto_ray_grimoire.json'
     include 'data/lbc/loot_table/ported/erecto_sniper_grimoire.json'
@@ -415,7 +416,6 @@ processResources {
             'data/lbc/loot_table/op_hoe.json',
             'data/lbc/loot_table/razorpine_with_leaves.json',
             'data/lbc/loot_table/shock_potion.json',
-            'data/lbc/loot_table/spells_library.json',
             'data/lbc/loot_table/succubus_potion.json',
             'data/lbc/loot_table/tnt_chestplate.json',
             'data/lbc/loot_table/transformables_accessory.json',

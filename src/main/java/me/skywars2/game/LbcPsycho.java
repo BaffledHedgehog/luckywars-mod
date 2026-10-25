@@ -205,7 +205,7 @@ public final class LbcPsycho {
             }
     }
 
-    private void psycho(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode) {
+    void psycho(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode) {
         int roll=mode==0?owner.getRandom().nextInt(6)+1:mode==1?1:mode+2;
         boolean trial=false;
         for(var entity:owner.level().getEntities(owner,owner.getBoundingBox().inflate(30),e->target(owner,e)

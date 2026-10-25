@@ -441,6 +441,7 @@ public final class LbcWands {
         if(LbcSoulless.isWand(stack)||LbcSoulless.material(stack)>0)return game.items().soulless().use(player,hand);
         if(LbcDanmaku.isGrimoire(stack))return game.items().danmaku().useGrimoire(player,hand);
         if(LbcElementalGrimoires.kind(stack)!=null)return LbcElementalGrimoires.use(game,player,hand);
+        if(LbcLibrarySpells.kind(stack)!=null)return LbcLibrarySpells.use(game,player,hand);
         if(LbcDanmaku.isItem(stack))return game.items().danmaku().use(player,hand);
         if(LbcSheep.isWand(stack))return game.items().sheep().use(player,hand);
         if(LbcHedgehogItems.isWand(stack))return game.items().hedgehog().use(player,hand);
@@ -1003,6 +1004,14 @@ public final class LbcWands {
     void mechanismElectro(LivingEntity source,Vec3 origin,Vec3 direction) {
         electroTraces.add(new ElectroTrace(source,origin,direction,game.items().epoch()));
     }
+    void libraryFlyingElectro(ServerPlayer owner,Vec3 origin,Vec3 direction){
+        for(int lifetime:new int[]{35,20,25,30}){
+            var trace=new ElectroTrace(owner,origin,game.items().epoch(),lifetime);
+            trace.yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
+            trace.pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));electroTraces.add(trace);
+        }
+        LbcOverload.sound(owner,origin,"minecraft:entity.firework_rocket.twinkle",1,1,0);
+    }
     /** Source Raid Omen124 emits three upward, ten-tick WILD arcs per chained contact. */
     void chainStatusElectro(LivingEntity emitter,ServerPlayer owner,Vec3 at,LbcIndirectKills.Owner cause){
         for(int i=0;i<3;i++)electroTraces.add(new ElectroTrace(emitter,owner,at,game.items().epoch(),cause));
@@ -1447,6 +1456,7 @@ public final class LbcWands {
                 && game.items().electro().canHit(projectile,target);
     }
     public boolean canHit(Projectile projectile,Entity target) {
+        if(LbcVexSword.wild(projectile))return validTarget(target)||LbcGreed.active(target)&&validRoleTarget(target,false);
         if(LbcGreed.active(target) && validRoleTarget(target,false)) return true;
         if(LbcHalloweenWind.managed(projectile))return game.items().halloweenWind().canAffect(projectile,target);
         if(LbcBabylon.managed(projectile)) return game.items().babylon().canAffect(projectile,target);
@@ -1478,7 +1488,7 @@ public final class LbcWands {
     /** Радиус взрыва native firework обходит canHitEntity; союзников защищаем и в финальном уроне. */
     public boolean allowDamage(Entity victim,DamageSource source) {
         if(LbcGreed.active(victim)) return false;
-        if(source instanceof LbcBabylonEffects.OwnerDamageSource) return validTarget(victim);
+        if(source instanceof LbcBabylonEffects.OwnerDamageSource||LbcVexSword.wild(source.getDirectEntity())) return validTarget(victim);
         if(LbcGodHedgehog.managed(source.getDirectEntity())
                 || (LbcHedgehog.managed(source.getDirectEntity()) || source.getDirectEntity() instanceof net.minecraft.world.entity.monster.Silverfish)
                     && LbcIndirectKills.isWildCaptured(source)) return validTarget(victim);

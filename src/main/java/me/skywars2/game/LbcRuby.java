@@ -102,14 +102,15 @@ public final class LbcRuby {
         else if(mode==3) cuttingRay(owner);
     }
 
-    private void castDrill(ServerPlayer owner) {
-        Vec3 origin=owner.getEyePosition();
+    private void castDrill(ServerPlayer owner) { castAt(owner,owner.getEyePosition(),owner.getLookAngle(),true); }
+    void castAt(ServerPlayer owner,Vec3 origin,Vec3 direction){castAt(owner,origin,direction,false);}
+    private void castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,boolean playerPose){
         if(!owner.level().hasChunkAt(BlockPos.containing(origin))) return;
         LbcOverload.sound(owner,origin,"minecraft:block.amethyst_cluster.break",1,1,0);
         var charge=new Charge(TYPE,owner.level());
         charge.setOwner(owner); charge.setPos(origin); charge.setNoGravity(true);
-        charge.setYRot(owner.getYRot()); charge.setXRot(owner.getXRot());
-        charge.setDeltaMovement(owner.getLookAngle().normalize().scale(DRILL_SAMPLES_PER_TICK*DRILL_STEP));
+        charge.setYRot(playerPose?owner.getYRot():(float)Math.toDegrees(Math.atan2(-direction.x,direction.z))); charge.setXRot(playerPose?owner.getXRot():(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance())));
+        charge.setDeltaMovement(direction.normalize().scale(DRILL_SAMPLES_PER_TICK*DRILL_STEP));
         charge.entityTags().add("magic");
         game.items().markCurrentItemEpoch(charge);
         if(owner.level().addFreshEntity(charge)) {

@@ -45,7 +45,7 @@ final class LbcCausticOmega {
         }else omega(game,owner,hand,stack,academy);
         game.items().wands().wandCasted(owner);return true;
     }
-    private static void omega(GameController game,ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy){
+    static void omega(GameController game,ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy){
         int before=Mth.floor(owner.getHealth());
         // Source growl is deliberately global to this dimension, positioned high above the cast.
         LbcOverload.sound(owner,new net.minecraft.world.phys.Vec3(owner.getX(),100000,owner.getZ()),"minecraft:entity.ender_dragon.growl",100000,2,0);

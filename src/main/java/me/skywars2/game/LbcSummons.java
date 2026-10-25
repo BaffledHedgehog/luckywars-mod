@@ -379,7 +379,7 @@ public final class LbcSummons {
         if(spell==2) owner.level().sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.IRON_BLOCK.defaultBlockState()),
                 mob.getX(),mob.getY()+1,mob.getZ(),30,.3,.6,.3,0);
     }
-    private void track(ServerPlayer owner,Entity entity) {
+    void track(ServerPlayer owner,Entity entity) {
         consequences.put(entity,owner.getUUID()); entity.entityTags().add(PROJECTILE); game.items().markCurrentItemEpoch(entity);
     }
     void loaded(Entity entity) {

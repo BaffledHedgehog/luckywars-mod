@@ -54,8 +54,7 @@ public final class LbcEnderWiki {
             int random=academy?0:p.getRandom().nextInt(84);
             var e=academy?ACADEMY[mode-1]:RANDOM[random];
             int amplifier=academy?tier-1+(mode==28?40:0):e.amplifier();
-            var type=BuiltInRegistries.MOB_EFFECT.get(Identifier.withDefaultNamespace(e.id())).orElseThrow();
-            p.addEffect(new MobEffectInstance(type,e.ticks(),amplifier,false,!e.hidden()),p);
+            apply(p,e,amplifier);
             if(!academy&&random==62)game.items().mana().award(p,"lbc:true_advancements/staffs/badwiki");
             if(!academy&&LbcAcademy.trial(stack)&&java.util.Arrays.stream(ACADEMY).filter(v->!Set.of("instant_health","instant_damage","saturation","raid_omen").contains(v.id()))
                     .allMatch(v->p.hasEffect(BuiltInRegistries.MOB_EFFECT.get(Identifier.withDefaultNamespace(v.id())).orElseThrow())))
@@ -64,7 +63,15 @@ public final class LbcEnderWiki {
         }else ender(p,hand,stack,academy);
         game.items().wands().wandCasted(p);return true;
     }
-    private void ender(ServerPlayer p,InteractionHand hand,ItemStack stack,boolean academy){
+    void apply(ServerPlayer p,Effect e,int amplifier){
+        var type=BuiltInRegistries.MOB_EFFECT.get(Identifier.withDefaultNamespace(e.id())).orElseThrow();
+        p.addEffect(new MobEffectInstance(type,e.ticks(),amplifier,false,!e.hidden()),p);
+    }
+    void libraryEffect(ServerPlayer p,Effect effect){
+        apply(p,effect,effect.amplifier());
+        p.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(net.minecraft.core.Holder.direct(net.minecraft.sounds.SoundEvents.BOOK_PAGE_TURN),net.minecraft.sounds.SoundSource.MASTER,p.getX(),p.getY(),p.getZ(),10,1,p.getRandom().nextLong()));
+    }
+    void ender(ServerPlayer p,InteractionHand hand,ItemStack stack,boolean academy){
         Vec3 origin=p.position();
         if(academy)p.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,60,0,false,false),p);
         LbcOverload.sound(p,origin,"minecraft:entity.enderman.teleport",2,1,16);

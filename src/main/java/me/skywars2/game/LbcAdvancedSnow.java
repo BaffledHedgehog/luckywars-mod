@@ -58,6 +58,10 @@ public final class LbcAdvancedSnow {
         if(!snow||!academy)game.items().wands().wandCasted(p);
         return true;
     }
+    void grimoire(ServerPlayer p,InteractionHand hand,boolean snow,boolean academy,int mode){
+        if(snow&&!academy)spawn(p,p.position(),hand,ItemStack.EMPTY);
+        else aim(p,InteractionHand.MAIN_HAND,ItemStack.EMPTY,snow,academy,mode,0);
+    }
     private void aim(ServerPlayer p,InteractionHand hand,ItemStack stack,boolean snow,boolean academy,int mode,int cost){
         Vec3 from=p.getEyePosition().add(p.getLookAngle().scale(hand==InteractionHand.OFF_HAND?.5:0)),direction=p.getLookAngle();
         String epoch=game.items().epoch();boolean clip=!snow&&academy&&mode==3;boolean[] entered={false};

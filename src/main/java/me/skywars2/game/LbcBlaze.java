@@ -142,7 +142,10 @@ public final class LbcBlaze {
     }
 
     /** Первое пересечение блок/хитбокс заменяет старую рекурсию из 200 отдельных команд. */
-    private void turret(ServerPlayer owner,int cost) {
+    void libraryHead(ServerPlayer owner){
+        if(!game.items().magic().rejectCustomEffect(owner)){addHeadCharges(owner,7);LbcOverload.sound(owner,"minecraft:entity.blaze.hurt",1,1,0);}
+    }
+    void turret(ServerPlayer owner,int cost) {
         Vec3 from=owner.getEyePosition(),to=from.add(owner.getLookAngle().scale(200));
         double stop=game.items().magic().suppressionFraction(owner.level(),from,to);
         if(Double.isFinite(stop)) to=from.lerp(to,stop);

@@ -352,6 +352,14 @@ public final class LbcBolts {
         if(hit==null && !items || !owner.level().hasChunkAt(BlockPos.containing(point))) return null;
         return point;
     }
+    void libraryChainArea(ServerPlayer owner,Vec3 at,double radius){
+        var chain=new Chain(owner,at,game.items().epoch());chain.current.addAll(chainTargets(owner,at,radius));
+        if(!chain.current.isEmpty())chains.add(chain);
+    }
+    void libraryDonor(ServerPlayer owner,int mode){
+        donor(owner,InteractionHand.MAIN_HAND,ItemStack.EMPTY,mode,mode!=1);
+        LbcOverload.sound(owner,"minecraft:entity.lightning_bolt.thunder",1,2,0);
+    }
     private void donor(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,boolean upgraded) {
         Vec3 at=ray(owner,hand,mode==2?7:100,mode==2?REFORGE_DUST:ParticleTypes.END_ROD,mode==2,mode==3);
         if(at==null) return;

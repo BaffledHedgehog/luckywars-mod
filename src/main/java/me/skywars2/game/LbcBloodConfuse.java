@@ -72,7 +72,7 @@ public final class LbcBloodConfuse {
     private void particles(ServerPlayer owner,Vec3 at,ParticleOptions type,int count,double dx,double dy,double dz,double speed){
         owner.level().sendParticles(type,true,false,at.x,at.y+1,at.z,count,dx,dy,dz,speed);
     }
-    private void blood(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy){
+    void blood(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy){
         Vec3 at=owner.position();
         LbcOverload.sound(owner,at,"minecraft:entity.ender_dragon.growl",1,2,0);
         particles(owner,at,new BlockParticleOption(ParticleTypes.BLOCK,Blocks.REDSTONE_BLOCK.defaultBlockState()),1500,8,8,8,0);
@@ -100,7 +100,7 @@ public final class LbcBloodConfuse {
             }
         }
     }
-    private void confuse(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy,int mode){
+    void confuse(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean academy,int mode){
         Vec3 at=owner.position();int before=Mth.floor(at.y);
         switch(mode){
             case 1->{effect(owner,owner,MobEffects.INVISIBILITY,200,0,false);

@@ -765,6 +765,10 @@ public final class GameChecks {
                                 case "team-colors-stop-probe" -> { TeamColorChecks.stopProbe(game); return; }
                                 case "team-colors-cleanup" -> { TeamColorChecks.cleanup(game); return; }
                                 case "danmaku" -> { DanmakuChecks.run(game); return; }
+                                case "all-grimoires" -> { AllGrimoireChecks.run(game); return; }
+                                case "all-grimoires-random" -> { AllGrimoireChecks.random(game); return; }
+                                case "all-grimoires-stop-probe" -> { AllGrimoireChecks.stopProbe(game); return; }
+                                case "all-grimoires-cleanup" -> { AllGrimoireChecks.cleanup(game); return; }
                                 case "terrain-grimoires" -> { TerrainGrimoireChecks.run(game); return; }
                                 case "terrain-grimoires-stop-probe" -> { TerrainGrimoireChecks.stopProbe(game); return; }
                                 case "terrain-grimoires-cleanup" -> { TerrainGrimoireChecks.cleanup(game); return; }
@@ -22051,12 +22055,12 @@ public final class GameChecks {
                                         && valid.position().distanceTo(impact)<1e-4
                                         && Math.abs(resistant.getHealth()-resistantHealth)<1e-5
                                         && resistant.position().distanceTo(impact)<1e-4
-                                        && Math.abs(allied.getHealth()-alliedHealth)<1e-5
-                                        && allied.position().distanceTo(new Vec3(x+.5,y+1,z+31.5))<1e-4
+                                        && Math.abs(allied.getHealth()-(alliedHealth-1))<1e-5
+                                        && allied.position().distanceTo(impact)<1e-4
                                         && Math.abs(academyNpc.getHealth()-npcHealth)<1e-5
                                         && academyNpc.position().distanceTo(new Vec3(x+.5,y+1,z+29.5))<1e-4
                                         && Math.abs(owner.getHealth()-state.health)<1e-5,
-                                        "Ruby mode 2 clears the sphere, leaves its bedrock center, pulls only valid enemies and applies one outside-border damage");
+                                        "Ruby mode 2 clears the sphere, retains bedrock, impacts friendly mobs, protects service roles and honors void resistance");
                         mana.score(resistant,"void_resistance").set(oldResistance); resistanceChanged=false;
                         board.removePlayerFromTeam(allied.getScoreboardName());
 

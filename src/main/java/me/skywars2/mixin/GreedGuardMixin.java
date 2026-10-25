@@ -70,7 +70,7 @@ public abstract class GreedGuardMixin {
                 "Lnet/minecraft/world/entity/player/Player;canHarmPlayer(Lnet/minecraft/world/entity/player/Player;)Z"))
         private boolean skywars2$greedInterceptsFriendlyArrow(net.minecraft.world.entity.player.Player owner,
                 net.minecraft.world.entity.player.Player target,Operation<Boolean> original) {
-            return LbcGreed.active(target)||original.call(owner,target);
+            return LbcGreed.active(target)||me.skywars2.game.LbcVexSword.wild((net.minecraft.world.entity.Entity)(Object)this)||original.call(owner,target);
         }
     }
 }

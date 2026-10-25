@@ -98,17 +98,21 @@ public final class LbcStone {
         LbcOverload.sound(owner,owner.getEyePosition(),"minecraft:block.amethyst_cluster.break",1,1,0);
         switch(mode) {
             case 0 -> {
-                var charge=new Charge(TYPE,owner.level());
-                charge.setOwner(owner); charge.setPos(owner.getEyePosition());
-                charge.setYRot(owner.getYRot()); charge.setXRot(owner.getXRot());
-                charge.setNoGravity(true); charge.setDeltaMovement(owner.getLookAngle());
-                charge.entityTags().add("magic"); game.items().markCurrentItemEpoch(charge);
-                if(owner.level().addFreshEntity(charge)) charges.add(charge);
+                castAt(owner,owner.getEyePosition(),owner.getLookAngle(),true);
             }
             case 2 -> shield(owner);
             case 3 -> bridge(owner);
             default -> ray(owner,mode==4);
         }
+    }
+    void castAt(ServerPlayer owner,Vec3 origin,Vec3 direction){castAt(owner,origin,direction,false);}
+    private void castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,boolean playerPose){
+                var charge=new Charge(TYPE,owner.level());
+                charge.setOwner(owner); charge.setPos(origin);
+                charge.setYRot(playerPose?owner.getYRot():(float)Math.toDegrees(Math.atan2(-direction.x,direction.z))); charge.setXRot(playerPose?owner.getXRot():(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance())));
+                charge.setNoGravity(true); charge.setDeltaMovement(direction);
+                charge.entityTags().add("magic"); game.items().markCurrentItemEpoch(charge);
+                if(owner.level().addFreshEntity(charge)) charges.add(charge);
     }
     void shield(ServerPlayer owner) {
         owner.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,100,4),owner);
@@ -154,7 +158,7 @@ public final class LbcStone {
                     if(!(hit instanceof BlockHitResult wall) || owner.level().hasChunkAt(wall.getBlockPos())) impact(owner,to,false);
                 } else if(++charge.age>=200) charge.discard();
             }
-        } finally { batch.clear(); }
+        } finally { batch.clear(); charges.removeIf(Entity::isRemoved); }
     }
     /** Камни сохраняют исходную integrity, шипы ставятся целиком; автор блоков учитывается общим helper. */
     private void impact(ServerPlayer owner,Vec3 point,boolean spike) {

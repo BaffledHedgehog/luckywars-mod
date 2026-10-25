@@ -193,6 +193,14 @@ public final class LbcElementalGrimoires {
                 ||game.items().actionsBlocked(player)||game.items().wands().inputTimeStopped(player)
                 ||game.items().magic().suppressed(player)
                 ||game.items().magic().suppressedAt(player.level(),player.getEyePosition()))return false;
+        if(!cast(game,player,hand,kind))return false;
+        player.level().playSound(null,player.getX(),player.getY(),player.getZ(),SoundEvents.SNOWBALL_THROW,
+                SoundSource.NEUTRAL,.5f,.4f/(player.level().getRandom().nextFloat()*.4f+.8f));
+        player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
+        stack.consume(1,player);
+        return true;
+    }
+    static boolean cast(GameController game,ServerPlayer player,InteractionHand hand,Kind kind){
         switch(kind) {
             case CONSUMING,CONSUMING_AVARICE,CONSUMING_SILENCE,CONSUMING_END -> {
                 if(!game.items().consuming().ready())return false;
@@ -263,10 +271,7 @@ public final class LbcElementalGrimoires {
             case BLIND_PHANTOM -> game.items().blind().cast(player,hand,2,ItemStack.EMPTY);
             case BLIND_RAIN -> game.items().blind().cast(player,hand,3,ItemStack.EMPTY);
         }
-        player.level().playSound(null,player.getX(),player.getY(),player.getZ(),SoundEvents.SNOWBALL_THROW,
-                SoundSource.NEUTRAL,.5f,.4f/(player.level().getRandom().nextFloat()*.4f+.8f));
-        player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
-        stack.consume(1,player);
         return true;
     }
+
 }

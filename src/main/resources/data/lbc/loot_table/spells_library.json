@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:evoker_grimoire",
           "modifier": [
             {
               "components": {
@@ -72,7 +72,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:evoker_spiral_grimoire",
           "modifier": [
             {
               "components": {
@@ -144,7 +144,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:evoker_ring_grimoire",
           "modifier": [
             {
               "components": {
@@ -216,7 +216,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:evoker_fan_grimoire",
           "modifier": [
             {
               "components": {
@@ -288,7 +288,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:bass_grimoire",
           "modifier": [
             {
               "components": {
@@ -370,7 +370,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:bass_weakness_grimoire",
           "modifier": [
             {
               "components": {
@@ -442,7 +442,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:bass_slowness_grimoire",
           "modifier": [
             {
               "components": {
@@ -514,7 +514,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:bass_blindness_grimoire",
           "modifier": [
             {
               "components": {
@@ -586,7 +586,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:bass_fatigue_grimoire",
           "modifier": [
             {
               "components": {
@@ -658,7 +658,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:corruption_grimoire",
           "modifier": [
             {
               "components": {
@@ -740,7 +740,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:corruption_poison_grimoire",
           "modifier": [
             {
               "components": {
@@ -812,7 +812,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:corruption_wither_grimoire",
           "modifier": [
             {
               "components": {
@@ -884,7 +884,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:corruption_hunger_grimoire",
           "modifier": [
             {
               "components": {
@@ -956,7 +956,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:corruption_damage_grimoire",
           "modifier": [
             {
               "components": {
@@ -1028,7 +1028,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:ender_grimoire",
           "modifier": [
             {
               "components": {
@@ -1095,7 +1095,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:ender_safe_grimoire",
           "modifier": [
             {
               "components": {
@@ -1167,7 +1167,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:lifestealer_grimoire",
           "modifier": [
             {
               "components": {
@@ -1249,7 +1249,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:lifestealer_strong_grimoire",
           "modifier": [
             {
               "components": {
@@ -1341,7 +1341,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:lifestealer_charge_grimoire",
           "modifier": [
             {
               "components": {
@@ -1428,7 +1428,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:confuse_grimoire",
           "modifier": [
             {
               "components": {
@@ -1510,7 +1510,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:confuse_invisibility_grimoire",
           "modifier": [
             {
               "components": {
@@ -1582,7 +1582,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:confuse_teleport_grimoire",
           "modifier": [
             {
               "components": {
@@ -1654,7 +1654,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:confuse_speed_grimoire",
           "modifier": [
             {
               "components": {
@@ -1726,7 +1726,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:confuse_levitation_grimoire",
           "modifier": [
             {
               "components": {
@@ -1798,7 +1798,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:blood_grimoire",
           "modifier": [
             {
               "components": {
@@ -1880,7 +1880,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:blood_safe_grimoire",
           "modifier": [
             {
               "components": {
@@ -1962,7 +1962,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_grimoire",
           "modifier": [
             {
               "components": {
@@ -2044,7 +2044,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_01_grimoire",
           "modifier": [
             {
               "components": {
@@ -2116,7 +2116,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_02_grimoire",
           "modifier": [
             {
               "components": {
@@ -2188,7 +2188,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_03_grimoire",
           "modifier": [
             {
               "components": {
@@ -2260,7 +2260,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_04_grimoire",
           "modifier": [
             {
               "components": {
@@ -2332,7 +2332,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_05_grimoire",
           "modifier": [
             {
               "components": {
@@ -2404,7 +2404,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_06_grimoire",
           "modifier": [
             {
               "components": {
@@ -2476,7 +2476,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_07_grimoire",
           "modifier": [
             {
               "components": {
@@ -2548,7 +2548,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_08_grimoire",
           "modifier": [
             {
               "components": {
@@ -2620,7 +2620,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_09_grimoire",
           "modifier": [
             {
               "components": {
@@ -2692,7 +2692,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_10_grimoire",
           "modifier": [
             {
               "components": {
@@ -2764,7 +2764,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_11_grimoire",
           "modifier": [
             {
               "components": {
@@ -2836,7 +2836,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_12_grimoire",
           "modifier": [
             {
               "components": {
@@ -2908,7 +2908,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_13_grimoire",
           "modifier": [
             {
               "components": {
@@ -2980,7 +2980,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_14_grimoire",
           "modifier": [
             {
               "components": {
@@ -3052,7 +3052,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_15_grimoire",
           "modifier": [
             {
               "components": {
@@ -3124,7 +3124,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_16_grimoire",
           "modifier": [
             {
               "components": {
@@ -3196,7 +3196,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_17_grimoire",
           "modifier": [
             {
               "components": {
@@ -3268,7 +3268,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_18_grimoire",
           "modifier": [
             {
               "components": {
@@ -3340,7 +3340,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_19_grimoire",
           "modifier": [
             {
               "components": {
@@ -3412,7 +3412,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_20_grimoire",
           "modifier": [
             {
               "components": {
@@ -3484,7 +3484,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_21_grimoire",
           "modifier": [
             {
               "components": {
@@ -3556,7 +3556,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_22_grimoire",
           "modifier": [
             {
               "components": {
@@ -3628,7 +3628,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_23_grimoire",
           "modifier": [
             {
               "components": {
@@ -3700,7 +3700,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_24_grimoire",
           "modifier": [
             {
               "components": {
@@ -3772,7 +3772,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_25_grimoire",
           "modifier": [
             {
               "components": {
@@ -3844,7 +3844,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_26_grimoire",
           "modifier": [
             {
               "components": {
@@ -3916,7 +3916,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_27_grimoire",
           "modifier": [
             {
               "components": {
@@ -3988,7 +3988,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_28_grimoire",
           "modifier": [
             {
               "components": {
@@ -4060,7 +4060,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_29_grimoire",
           "modifier": [
             {
               "components": {
@@ -4132,7 +4132,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_30_grimoire",
           "modifier": [
             {
               "components": {
@@ -4204,7 +4204,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_31_grimoire",
           "modifier": [
             {
               "components": {
@@ -4276,7 +4276,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_32_grimoire",
           "modifier": [
             {
               "components": {
@@ -4348,7 +4348,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_33_grimoire",
           "modifier": [
             {
               "components": {
@@ -4420,7 +4420,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_34_grimoire",
           "modifier": [
             {
               "components": {
@@ -4492,7 +4492,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_35_grimoire",
           "modifier": [
             {
               "components": {
@@ -4564,7 +4564,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_36_grimoire",
           "modifier": [
             {
               "components": {
@@ -4636,7 +4636,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_37_grimoire",
           "modifier": [
             {
               "components": {
@@ -4708,7 +4708,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_38_grimoire",
           "modifier": [
             {
               "components": {
@@ -4780,7 +4780,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_39_grimoire",
           "modifier": [
             {
               "components": {
@@ -4852,7 +4852,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_40_grimoire",
           "modifier": [
             {
               "components": {
@@ -4924,7 +4924,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_41_grimoire",
           "modifier": [
             {
               "components": {
@@ -4996,7 +4996,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_42_grimoire",
           "modifier": [
             {
               "components": {
@@ -5068,7 +5068,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_43_grimoire",
           "modifier": [
             {
               "components": {
@@ -5140,7 +5140,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_44_grimoire",
           "modifier": [
             {
               "components": {
@@ -5212,7 +5212,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_45_grimoire",
           "modifier": [
             {
               "components": {
@@ -5284,7 +5284,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_46_grimoire",
           "modifier": [
             {
               "components": {
@@ -5356,7 +5356,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_47_grimoire",
           "modifier": [
             {
               "components": {
@@ -5428,7 +5428,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_48_grimoire",
           "modifier": [
             {
               "components": {
@@ -5500,7 +5500,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_49_grimoire",
           "modifier": [
             {
               "components": {
@@ -5572,7 +5572,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_50_grimoire",
           "modifier": [
             {
               "components": {
@@ -5644,7 +5644,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_51_grimoire",
           "modifier": [
             {
               "components": {
@@ -5716,7 +5716,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_52_grimoire",
           "modifier": [
             {
               "components": {
@@ -5788,7 +5788,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_53_grimoire",
           "modifier": [
             {
               "components": {
@@ -5860,7 +5860,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_54_grimoire",
           "modifier": [
             {
               "components": {
@@ -5932,7 +5932,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_55_grimoire",
           "modifier": [
             {
               "components": {
@@ -6004,7 +6004,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_56_grimoire",
           "modifier": [
             {
               "components": {
@@ -6076,7 +6076,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_57_grimoire",
           "modifier": [
             {
               "components": {
@@ -6148,7 +6148,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_58_grimoire",
           "modifier": [
             {
               "components": {
@@ -6220,7 +6220,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_59_grimoire",
           "modifier": [
             {
               "components": {
@@ -6292,7 +6292,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_60_grimoire",
           "modifier": [
             {
               "components": {
@@ -6364,7 +6364,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_61_grimoire",
           "modifier": [
             {
               "components": {
@@ -6436,7 +6436,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_62_grimoire",
           "modifier": [
             {
               "components": {
@@ -6508,7 +6508,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_63_grimoire",
           "modifier": [
             {
               "components": {
@@ -6580,7 +6580,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_64_grimoire",
           "modifier": [
             {
               "components": {
@@ -6652,7 +6652,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_65_grimoire",
           "modifier": [
             {
               "components": {
@@ -6724,7 +6724,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_66_grimoire",
           "modifier": [
             {
               "components": {
@@ -6796,7 +6796,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_67_grimoire",
           "modifier": [
             {
               "components": {
@@ -6868,7 +6868,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_68_grimoire",
           "modifier": [
             {
               "components": {
@@ -6940,7 +6940,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_69_grimoire",
           "modifier": [
             {
               "components": {
@@ -7012,7 +7012,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_70_grimoire",
           "modifier": [
             {
               "components": {
@@ -7084,7 +7084,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_71_grimoire",
           "modifier": [
             {
               "components": {
@@ -7156,7 +7156,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_72_grimoire",
           "modifier": [
             {
               "components": {
@@ -7228,7 +7228,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_73_grimoire",
           "modifier": [
             {
               "components": {
@@ -7300,7 +7300,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_74_grimoire",
           "modifier": [
             {
               "components": {
@@ -7372,7 +7372,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_75_grimoire",
           "modifier": [
             {
               "components": {
@@ -7444,7 +7444,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_76_grimoire",
           "modifier": [
             {
               "components": {
@@ -7516,7 +7516,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_77_grimoire",
           "modifier": [
             {
               "components": {
@@ -7588,7 +7588,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_78_grimoire",
           "modifier": [
             {
               "components": {
@@ -7660,7 +7660,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_79_grimoire",
           "modifier": [
             {
               "components": {
@@ -7732,7 +7732,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_80_grimoire",
           "modifier": [
             {
               "components": {
@@ -7804,7 +7804,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_81_grimoire",
           "modifier": [
             {
               "components": {
@@ -7876,7 +7876,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_82_grimoire",
           "modifier": [
             {
               "components": {
@@ -7948,7 +7948,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_83_grimoire",
           "modifier": [
             {
               "components": {
@@ -8020,7 +8020,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:badwiki_84_grimoire",
           "modifier": [
             {
               "components": {
@@ -8092,7 +8092,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:wall_grimoire",
           "modifier": [
             {
               "components": {
@@ -8169,7 +8169,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:wall_horizontal_grimoire",
           "modifier": [
             {
               "components": {
@@ -8241,7 +8241,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:wall_stair_grimoire",
           "modifier": [
             {
               "components": {
@@ -8313,7 +8313,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:wall_break_grimoire",
           "modifier": [
             {
               "components": {
@@ -8385,7 +8385,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:advanced_ender_grimoire",
           "modifier": [
             {
               "components": {
@@ -8472,7 +8472,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:advanced_ender_safe_grimoire",
           "modifier": [
             {
               "components": {
@@ -8544,7 +8544,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:advanced_ender_top_grimoire",
           "modifier": [
             {
               "components": {
@@ -8616,7 +8616,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:advanced_ender_clip_grimoire",
           "modifier": [
             {
               "components": {
@@ -8688,7 +8688,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:falling_stars_grimoire",
           "modifier": [
             {
               "components": {
@@ -8770,7 +8770,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:falling_stars_rain_grimoire",
           "modifier": [
             {
               "components": {
@@ -8842,7 +8842,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:falling_stars_big_grimoire",
           "modifier": [
             {
               "components": {
@@ -8914,7 +8914,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:prism_grimoire",
           "modifier": [
             {
               "components": {
@@ -8991,7 +8991,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:prism_awakened_grimoire",
           "modifier": [
             {
               "components": {
@@ -9068,7 +9068,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:blaze_grimoire",
           "modifier": [
             {
               "components": {
@@ -9145,7 +9145,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:blaze_head_grimoire",
           "modifier": [
             {
               "components": {
@@ -9222,7 +9222,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:random_grimoire",
           "modifier": [
             {
               "components": {
@@ -9299,7 +9299,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:random_all_grimoire",
           "modifier": [
             {
               "components": {
@@ -9371,7 +9371,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:hedgehog_grimoire",
           "modifier": [
             {
               "components": {
@@ -9453,7 +9453,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:hedgehog_sniper_grimoire",
           "modifier": [
             {
               "components": {
@@ -9525,7 +9525,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:hedgehog_laser_grimoire",
           "modifier": [
             {
               "components": {
@@ -9597,7 +9597,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:hedgehog_tank_grimoire",
           "modifier": [
             {
               "components": {
@@ -9669,7 +9669,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:hedgehog_healer_grimoire",
           "modifier": [
             {
               "components": {
@@ -9741,7 +9741,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:sheep_grimoire",
           "modifier": [
             {
               "components": {
@@ -9813,7 +9813,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:sheep_awakened_grimoire",
           "modifier": [
             {
               "components": {
@@ -9900,7 +9900,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:psycho_grimoire",
           "modifier": [
             {
               "components": {
@@ -9977,7 +9977,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:psycho_sound_grimoire",
           "modifier": [
             {
               "components": {
@@ -10049,7 +10049,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:psycho_screamer_grimoire",
           "modifier": [
             {
               "components": {
@@ -10121,7 +10121,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:psycho_look_back_grimoire",
           "modifier": [
             {
               "components": {
@@ -10193,7 +10193,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:psycho_scare_grimoire",
           "modifier": [
             {
               "components": {
@@ -10265,7 +10265,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:tesla_grimoire",
           "modifier": [
             {
               "components": {
@@ -10352,7 +10352,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:tesla_chain_grimoire",
           "modifier": [
             {
               "components": {
@@ -10424,7 +10424,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:tesla_instant_grimoire",
           "modifier": [
             {
               "components": {
@@ -10496,7 +10496,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:caustic_acid_grimoire",
           "modifier": [
             {
               "components": {
@@ -10578,7 +10578,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:caustic_acid_burning_grimoire",
           "modifier": [
             {
               "components": {
@@ -10650,7 +10650,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:omega_grimoire",
           "modifier": [
             {
               "components": {
@@ -10717,7 +10717,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:omega_safe_grimoire",
           "modifier": [
             {
               "components": {
@@ -10789,7 +10789,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:neutral_grimoire",
           "modifier": [
             {
               "components": {
@@ -10856,7 +10856,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:neutral_skulls_grimoire",
           "modifier": [
             {
               "components": {
@@ -10928,7 +10928,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:neutral_fireballs_grimoire",
           "modifier": [
             {
               "components": {
@@ -11000,7 +11000,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:neutral_big_fireball_grimoire",
           "modifier": [
             {
               "components": {
@@ -11072,7 +11072,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:neutral_fireworks_grimoire",
           "modifier": [
             {
               "components": {
@@ -11144,7 +11144,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:neutral_potion_grimoire",
           "modifier": [
             {
               "components": {
@@ -11216,7 +11216,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:lightning_grimoire",
           "modifier": [
             {
               "components": {
@@ -11283,7 +11283,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:lightning_chain_grimoire",
           "modifier": [
             {
               "components": {
@@ -11355,7 +11355,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:lightning_reforge_grimoire",
           "modifier": [
             {
               "components": {
@@ -11427,7 +11427,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:exoperso_grimoire",
           "modifier": [
             {
               "components": {
@@ -11494,7 +11494,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:exoperso_awakened_grimoire",
           "modifier": [
             {
               "components": {
@@ -11571,7 +11571,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:danmaku_grimoire",
           "modifier": [
             {
               "components": {
@@ -11668,7 +11668,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:ruby_grimoire",
           "modifier": [
             {
               "components": {
@@ -11745,7 +11745,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:ruby_ray_grimoire",
           "modifier": [
             {
               "components": {
@@ -11822,7 +11822,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:ruby_hole_grimoire",
           "modifier": [
             {
               "components": {
@@ -11899,7 +11899,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:terra_grimoire",
           "modifier": [
             {
               "components": {
@@ -11966,7 +11966,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:terra_fast_grimoire",
           "modifier": [
             {
               "components": {
@@ -12038,7 +12038,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:electro_grimoire",
           "modifier": [
             {
               "components": {
@@ -12110,7 +12110,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:electro_ray_grimoire",
           "modifier": [
             {
               "components": {
@@ -12182,7 +12182,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:air_grimoire",
           "modifier": [
             {
               "components": {
@@ -12249,7 +12249,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:air_burst_grimoire",
           "modifier": [
             {
               "components": {
@@ -12321,7 +12321,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:air_fast_grimoire",
           "modifier": [
             {
               "components": {
@@ -12393,7 +12393,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:air_homing_grimoire",
           "modifier": [
             {
               "components": {
@@ -12465,7 +12465,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:acid_grimoire",
           "modifier": [
             {
               "components": {
@@ -12537,7 +12537,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:acid_burning_grimoire",
           "modifier": [
             {
               "components": {
@@ -12609,7 +12609,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:teleport_grimoire",
           "modifier": [
             {
               "components": {
@@ -12676,7 +12676,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:teleport_inverted_grimoire",
           "modifier": [
             {
               "components": {
@@ -12748,7 +12748,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:teleport_cloud_grimoire",
           "modifier": [
             {
               "components": {
@@ -12820,7 +12820,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:stone_grimoire",
           "modifier": [
             {
               "components": {
@@ -12887,7 +12887,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:stone_ray_grimoire",
           "modifier": [
             {
               "components": {
@@ -12959,7 +12959,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:stone_spikes_grimoire",
           "modifier": [
             {
               "components": {
@@ -13031,7 +13031,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:stone_bridge_grimoire",
           "modifier": [
             {
               "components": {
@@ -13103,7 +13103,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:stone_shield_grimoire",
           "modifier": [
             {
               "components": {
@@ -13175,7 +13175,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:fire_grimoire",
           "modifier": [
             {
               "components": {
@@ -13242,7 +13242,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:fire_big_grimoire",
           "modifier": [
             {
               "components": {
@@ -13314,7 +13314,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:fire_ray_grimoire",
           "modifier": [
             {
               "components": {
@@ -13386,7 +13386,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:blind_grimoire",
           "modifier": [
             {
               "components": {
@@ -13453,7 +13453,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:blind_gatling_grimoire",
           "modifier": [
             {
               "components": {
@@ -13525,7 +13525,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:blind_phantom_grimoire",
           "modifier": [
             {
               "components": {
@@ -13597,7 +13597,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:blind_rain_grimoire",
           "modifier": [
             {
               "components": {
@@ -13669,7 +13669,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:awakened_acid_grimoire",
           "modifier": [
             {
               "components": {
@@ -13736,7 +13736,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:awakened_acid_caust_grimoire",
           "modifier": [
             {
               "components": {
@@ -13808,7 +13808,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:awakened_acid_caust_burning_grimoire",
           "modifier": [
             {
               "components": {
@@ -13880,7 +13880,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:awakened_acid_gatling_grimoire",
           "modifier": [
             {
               "components": {
@@ -13952,7 +13952,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:awakened_acid_gatling_burning_grimoire",
           "modifier": [
             {
               "components": {
@@ -14024,7 +14024,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:awakened_acid_rifle_grimoire",
           "modifier": [
             {
               "components": {
@@ -14096,7 +14096,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:acid_corruption_grimoire",
           "modifier": [
             {
               "components": {
@@ -14163,7 +14163,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:acid_corruption_reverse_grimoire",
           "modifier": [
             {
               "components": {
@@ -14235,7 +14235,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:acid_corruption_death_grimoire",
           "modifier": [
             {
               "components": {
@@ -14307,7 +14307,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:acid_corruption_mana_grimoire",
           "modifier": [
             {
               "components": {
@@ -14379,7 +14379,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:exasperato_grimoire",
           "modifier": [
             {
               "components": {
@@ -14446,7 +14446,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:exasperato_triple_grimoire",
           "modifier": [
             {
               "components": {
@@ -14518,7 +14518,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:exasperato_chaos_grimoire",
           "modifier": [
             {
               "components": {
@@ -14590,7 +14590,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:exasperato_ray_grimoire",
           "modifier": [
             {
               "components": {
@@ -14662,7 +14662,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:exasperato_nuke_grimoire",
           "modifier": [
             {
               "components": {
@@ -14734,7 +14734,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:exahoming_grimoire",
           "modifier": [
             {
               "components": {
@@ -14801,7 +14801,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:exahoming_curse_grimoire",
           "modifier": [
             {
               "components": {
@@ -14873,7 +14873,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:exahoming_destiny_grimoire",
           "modifier": [
             {
               "components": {
@@ -14945,7 +14945,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:exahoming_sisyphus_grimoire",
           "modifier": [
             {
               "components": {
@@ -15017,7 +15017,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:psychoblind_grimoire",
           "modifier": [
             {
               "components": {
@@ -15084,7 +15084,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:psychoblind_invisible_grimoire",
           "modifier": [
             {
               "components": {
@@ -15156,7 +15156,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:psychoblind_ray_grimoire",
           "modifier": [
             {
               "components": {
@@ -15228,7 +15228,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:psychoblind_spray_grimoire",
           "modifier": [
             {
               "components": {
@@ -15300,7 +15300,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:boltbolt_grimoire",
           "modifier": [
             {
               "components": {
@@ -15367,7 +15367,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:boltbolt_meteor_grimoire",
           "modifier": [
             {
               "components": {
@@ -15439,7 +15439,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:boltbolt_watering_grimoire",
           "modifier": [
             {
               "components": {
@@ -15511,7 +15511,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:boltbolt_racer_grimoire",
           "modifier": [
             {
               "components": {
@@ -15583,7 +15583,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:erecto_grimoire",
           "modifier": [
             {
               "components": {
@@ -15650,7 +15650,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:erecto_ray_grimoire",
           "modifier": [
             {
               "components": {
@@ -15722,7 +15722,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:erecto_sniper_grimoire",
           "modifier": [
             {
               "components": {
@@ -15794,7 +15794,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:erecto_sphere_grimoire",
           "modifier": [
             {
               "components": {
@@ -15866,7 +15866,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:fireblaze_grimoire",
           "modifier": [
             {
               "components": {
@@ -15933,7 +15933,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:fireblaze_kiuas_grimoire",
           "modifier": [
             {
               "components": {
@@ -16005,7 +16005,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:fireblaze_mega_grimoire",
           "modifier": [
             {
               "components": {
@@ -16077,7 +16077,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:fireblaze_pillars_grimoire",
           "modifier": [
             {
               "components": {
@@ -16149,7 +16149,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:fireblaze_world_grimoire",
           "modifier": [
             {
               "components": {
@@ -16221,7 +16221,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:consuming_grimoire",
           "modifier": [
             {
               "components": {
@@ -16288,7 +16288,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:consuming_avarice_grimoire",
           "modifier": [
             {
               "components": {
@@ -16360,7 +16360,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:consuming_silence_grimoire",
           "modifier": [
             {
               "components": {
@@ -16432,7 +16432,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:consuming_end_grimoire",
           "modifier": [
             {
               "components": {
@@ -16504,7 +16504,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:duplicating_grimoire",
           "modifier": [
             {
               "components": {
@@ -16571,7 +16571,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:duplicating_hole_grimoire",
           "modifier": [
             {
               "components": {
@@ -16643,7 +16643,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:duplicating_divide_grimoire",
           "modifier": [
             {
               "components": {
@@ -16715,7 +16715,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:duplicating_expand_grimoire",
           "modifier": [
             {
               "components": {
@@ -16787,7 +16787,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:stonekivi_grimoire",
           "modifier": [
             {
               "components": {
@@ -16854,7 +16854,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:stonekivi_earth_grimoire",
           "modifier": [
             {
               "components": {
@@ -16926,7 +16926,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:stonekivi_sun_grimoire",
           "modifier": [
             {
               "components": {
@@ -16998,7 +16998,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:stonekivi_comet_grimoire",
           "modifier": [
             {
               "components": {
@@ -17070,7 +17070,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:bedrock_grimoire",
           "modifier": [
             {
               "components": {
@@ -17137,7 +17137,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:bedrock_cube_grimoire",
           "modifier": [
             {
               "components": {
@@ -17209,7 +17209,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:bedrock_clear_cubes_grimoire",
           "modifier": [
             {
               "components": {
@@ -17281,7 +17281,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:bedrock_regen_grimoire",
           "modifier": [
             {
               "components": {
@@ -17353,7 +17353,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:snowball",
+          "name": "skywars2:bedrock_remove_grimoire",
           "modifier": [
             {
               "components": {

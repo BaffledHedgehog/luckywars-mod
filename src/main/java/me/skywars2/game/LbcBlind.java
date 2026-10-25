@@ -207,7 +207,7 @@ public final class LbcBlind {
         LbcOverload.sound(owner,cloud.position,"minecraft:entity.squid.squirt",1,1,0);
     }
 
-    private void spawn(ServerPlayer owner,Vec3 origin,Vec3 velocity,boolean phantom,int lifetime,
+    void spawn(ServerPlayer owner,Vec3 origin,Vec3 velocity,boolean phantom,int lifetime,
                        InteractionHand hand,boolean trial) {
         if(!owner.level().hasChunkAt(BlockPos.containing(origin))) return;
         Charge charge=new Charge(TYPE,owner.level());

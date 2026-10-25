@@ -81,6 +81,7 @@ public final class LbcVexSword {
         return owner!=null && owner.level()==game.maps().level() && game.playing()
                 && game.stage()!=GameController.Stage.ENDING;
     }
+    public static boolean wild(Entity entity){return entity instanceof LbcVexSword.VexArrow arrow&&arrow.wild;}
     public static boolean managed(Entity entity) { return entity instanceof LbcVexSword.VexArrow; }
     private boolean admitted(ServerPlayer owner) {
         return valid(owner) && !game.items().actionsBlocked(owner)
@@ -188,12 +189,13 @@ public final class LbcVexSword {
             if(--zone.remaining<=0) zones.remove(zone);
         }
     }
-    Arrow phantomShot(ServerPlayer owner,LivingEntity target,int direction) {
+    Arrow phantomShot(ServerPlayer owner,LivingEntity target,int direction) {return phantomShot(owner,target,direction,false);}
+    Arrow phantomShot(ServerPlayer owner,LivingEntity target,int direction,boolean wild) {
         if(direction<1 || direction>8) throw new IllegalArgumentException("phantom direction must be 1..8");
-        if(!flightOwner(owner) || !enemy(owner,target) || immune(target)) return null;
+        if(!flightOwner(owner) || (wild?!game.items().wands().validTarget(target):!enemy(owner,target)) || immune(target)) return null;
         var data=PHANTOM[direction-1];
-        var origin=target.position().add(data[0],0,data[1]);
-        var arrow=spawn(owner,origin,new Vec3(data[2],0,data[3]),2.5,100,true);
+        var origin=target.position().add(data[0],wild?1.7:0,data[1]);
+        var arrow=spawn(owner,origin,new Vec3(data[2],0,data[3]),2.5,100,true,wild);
         if(arrow!=null) {
             arrow.setCustomName(Component.translatable("phantom_arrow"));
             owner.level().sendParticles(ParticleTypes.SOUL,origin.x,origin.y,origin.z,5,.5,.5,.5,.1);
@@ -201,9 +203,10 @@ public final class LbcVexSword {
         }
         return arrow;
     }
-    private Arrow spawn(ServerPlayer owner,Vec3 origin,Vec3 motion,double damage,int pierce,boolean groundbreaker) {
+    private Arrow spawn(ServerPlayer owner,Vec3 origin,Vec3 motion,double damage,int pierce,boolean groundbreaker) {return spawn(owner,origin,motion,damage,pierce,groundbreaker,false);}
+    private Arrow spawn(ServerPlayer owner,Vec3 origin,Vec3 motion,double damage,int pierce,boolean groundbreaker,boolean wild) {
         if(!loadedSegment(owner.level(),origin,origin.add(motion))) return null;
-        var arrow=new VexArrow(owner.level(),groundbreaker);
+        var arrow=new VexArrow(owner.level(),groundbreaker,wild);
         arrow.setOwner(owner); arrow.setPos(origin); arrow.setDeltaMovement(motion);
         arrow.setBaseDamage(damage);
         ((me.skywars2.mixin.WandProjectileMixin.ArrowAccess)(Object)arrow).skywars2$setPierceLevel((byte)pierce);
@@ -226,14 +229,19 @@ public final class LbcVexSword {
         return true;
     }
     private final class VexArrow extends Arrow {
-        final boolean groundbreaker;
+        final boolean groundbreaker,wild;
         boolean retired;
-        VexArrow(ServerLevel level,boolean groundbreaker) { super(EntityTypes.ARROW,level); this.groundbreaker=groundbreaker; }
+        VexArrow(ServerLevel level,boolean groundbreaker,boolean wild) { super(EntityTypes.ARROW,level); this.groundbreaker=groundbreaker;this.wild=wild; }
         @Override public boolean shouldBeSaved() { return false; }
         @Override protected boolean canHitEntity(Entity target) {
             return getOwner() instanceof ServerPlayer owner && flightOwner(owner)
-                    && game.items().wands().projectileTarget(owner,target)
+                    && (wild?game.items().wands().canHit(this,target):game.items().wands().projectileTarget(owner,target))
                     && super.canHitEntity(target);
+        }
+        @Override protected void onHitEntity(net.minecraft.world.phys.EntityHitResult hit){
+            if(wild&&hit.getEntity() instanceof LivingEntity target&&getOwner() instanceof ServerPlayer owner)
+                game.items().indirectKills().withCause(target,game.items().indirectKills().wildCause(owner),()->super.onHitEntity(hit));
+            else super.onHitEntity(hit);
         }
         @Override public void tick() {
             if(retired || !(getOwner() instanceof ServerPlayer owner) || !flightOwner(owner)
@@ -253,7 +261,7 @@ public final class LbcVexSword {
     private void groundbreak(VexArrow arrow,ServerPlayer owner,Vec3 at) {
         var level=owner.level();
         try {
-            game.items().indirectKills().worldChanges(level,arrow,()-> {
+            game.items().indirectKills().worldChanges(level,arrow,arrow.wild,()-> {
             for(var pos:BlockPos.betweenClosed(BlockPos.containing(at.add(-.1,-.1,-.1)),BlockPos.containing(at.add(.1,.1,.1))))
                 if(!level.isOutsideBuildHeight(pos) && level.getChunkSource().getChunkNow(pos.getX()>>4,pos.getZ()>>4)!=null)
                     level.destroyBlock(pos,true,arrow);

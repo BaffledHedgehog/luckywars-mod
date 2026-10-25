@@ -79,10 +79,13 @@ public final class LbcNeutral {
             if(combo>=2)game.items().academy().ready(p,hand,stack);
         }
         // Legacy sound targets only the caster, unlike ordinary nearby wand sound broadcasts.
+        librarySound(p);
+        game.items().wands().wandCasted(p);return true;
+    }
+    void librarySound(ServerPlayer p){
         p.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
                 net.minecraft.core.Holder.direct(net.minecraft.sounds.SoundEvents.WITHER_SHOOT),net.minecraft.sounds.SoundSource.MASTER,
                 p.getX(),p.getY(),p.getZ(),1,1,p.getRandom().nextLong()));
-        game.items().wands().wandCasted(p);return true;
     }
     boolean feather(ServerPlayer p){
         if(!active(p))return false;
@@ -92,7 +95,7 @@ public final class LbcNeutral {
         // Its source function has neither mana debit nor cast_wand/mage hooks.
         return true;
     }
-    private void cast(ServerPlayer p,int mode){
+    void cast(ServerPlayer p,int mode){
         int[] sides=mode==3?new int[]{0}:mode==4?new int[]{-1,0,1}:new int[]{0,1,-1};
         Vec3 forward=p.getLookAngle(),left=Vec3.directionFromRotation(0,p.getYRot()-90);
         for(int i=0;i<sides.length;i++){

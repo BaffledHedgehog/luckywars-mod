@@ -446,6 +446,10 @@ public final class LbcConsuming {
     }
     public boolean useScroll(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean destroyer) {
         if(!castable(owner)) return false;
+        if(!castScroll(owner,destroyer))return false;
+        stack.shrink(1);return true;
+    }
+    boolean castScroll(ServerPlayer owner,boolean destroyer){
         Vec3 start=owner.getEyePosition(),direction=owner.getLookAngle().normalize();
         if(destroyer) {
             double suppression=game.items().magic().suppressionFraction(owner.level(),start,start.add(direction.scale(200)));
@@ -472,7 +476,7 @@ public final class LbcConsuming {
             owner.level().sendParticles(ParticleTypes.PORTAL,impact.x,impact.y,impact.z,100,1,1,1,2);
             LbcOverload.sound(owner,impact,"minecraft:block.portal.travel",1,0,0);
         }
-        flushTerrain(); stack.shrink(1); return true;
+        flushTerrain(); return true;
     }
     public void tick() {
         silences.removeIf(state->!valid(state) || state.pending==0 && !paused(state.owner) && --state.settle<=0);

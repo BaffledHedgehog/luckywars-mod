@@ -113,7 +113,16 @@ public final class LbcBedrock {
         return clearCubes(player);
     }
 
-    private boolean toggleRoom(ServerPlayer owner, boolean regen) {
+    boolean grimoire(ServerPlayer owner,int mode){
+        if(stopped||roomTemplate==null)return false;
+        if(mode<=2)toggleRoom(owner,mode==2,false);
+        else if(mode==3)removeBedrock(owner);
+        else if(mode==4)createCube(owner);
+        else clearCubes(owner);
+        return true;
+    }
+    private boolean toggleRoom(ServerPlayer owner, boolean regen) { return toggleRoom(owner,regen,true); }
+    private boolean toggleRoom(ServerPlayer owner, boolean regen,boolean paid) {
         Map<UUID, Room> rooms = regen ? regenRooms : normalRooms;
         Room existing = rooms.get(owner.getUUID());
         if (existing != null) {
@@ -122,7 +131,7 @@ public final class LbcBedrock {
         }
         int cost = game.items().mana().score(
                 net.minecraft.world.scores.ScoreHolder.forNameOnly("bedrock_wand_mana_use"), "lbc.math").get();
-        if (roomTemplate == null || !game.items().mana().trySpendWand(owner, cost)) return false;
+        if (roomTemplate == null || paid && !game.items().mana().trySpendWand(owner, cost)) return false;
         BlockPos origin = owner.blockPosition().offset(-ROOM_RADIUS, -ROOM_HALF_HEIGHT, -ROOM_RADIUS).immutable();
         Room room = new Room(owner.getUUID(), owner, (ServerLevel) owner.level(), origin, regen, game.items().epoch());
         rooms.put(owner.getUUID(), room);
@@ -132,7 +141,7 @@ public final class LbcBedrock {
                 () -> game.maps().placeLoadedTemplate(owner, ROOM, origin, 1.0f));
         if (regen) seedLoadedShell(room, null);
         if (game.items().magic().beaconIntersects(room.bounds())) cancelRoom(room);
-        game.items().wands().wandCasted(owner);
+        if(paid)game.items().wands().wandCasted(owner);
         sound(owner, "minecraft:block.stone.place", 0.5f, 1.0f);
         sound(owner, "minecraft:block.stone.place", 0.5f, 0.0f);
         sound(owner, "minecraft:block.stone.place", 0.5f, 2.0f);

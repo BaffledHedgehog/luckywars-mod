@@ -74,7 +74,7 @@ public final class LbcEvokerBass {
         fang.entityTags().add(FANG);fang.entityTags().add("magic");game.items().markCurrentItemEpoch(fang);
         if(owner.level().addFreshEntity(fang))fangs.add(fang);
     }
-    private void evoker(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode) {
+    void evoker(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode) {
         if(mode==1)for(var mob:mobs(owner,17)) {
             if(mob.position().distanceToSqr(owner.position())<2.25)continue;
             var at=mob.position();spawn(owner,at);spawn(owner,at.add(1.2,0,0));spawn(owner,at.add(-1.2,0,0));spawn(owner,at.add(0,0,1.2));spawn(owner,at.add(0,0,-1.2));
@@ -107,7 +107,7 @@ public final class LbcEvokerBass {
         var source=owner.damageSources().indirectMagic(fang,owner);
         if(victim.hurtServer(owner.level(),source,6))net.minecraft.world.item.enchantment.EnchantmentHelper.doPostAttackEffects(owner.level(),victim,source);
     }
-    private void bass(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,boolean academy) {
+    void bass(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,boolean academy) {
         Holder<MobEffect> effect=switch(mode){case 1->MobEffects.WEAKNESS;case 2->MobEffects.SLOWNESS;case 3->MobEffects.BLINDNESS;default->MobEffects.MINING_FATIGUE;};
         int duration=switch(mode){case 2->240;case 4->180;default->160;};
         for(var mob:owner.level().getEntitiesOfClass(LivingEntity.class,owner.getBoundingBox().inflate(25),e->e.distanceToSqr(owner)<=625&&e.distanceToSqr(owner)>=.0001)) {

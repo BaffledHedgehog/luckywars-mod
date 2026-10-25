@@ -105,7 +105,7 @@ final class LbcAcidCorruption {
         game.items().academy().ready(owner,hand,stack);
     }
     /** One native first contact replaces independent entity/wall terminals in recursive source functions. */
-    private void cast(ServerPlayer owner,int mode){
+    void cast(ServerPlayer owner,int mode){
         double range=mode==1?112.5:mode==3?200:150;var level=owner.level();var from=owner.getEyePosition();
         var to=from.add(owner.getLookAngle().scale(range));var wall=LbcTerra.wallHit(level,from,to);if(wall!=null)to=wall.getLocation();
         var entity=ProjectileUtil.getEntityHitResult(owner,from,to,new AABB(from,to).inflate(1),e->e instanceof LivingEntity
@@ -129,7 +129,7 @@ final class LbcAcidCorruption {
         c.entityTags().addAll(List.of(ball?"hard_acid_ball":"hard_acid","slowraycast","magic",game.items().epoch()));
         game.items().timeStop().prepareFrozen(c);if(!owner.level().addFreshEntity(c))c.discard();return c;
     }
-    private void sacrifice(ServerPlayer owner){
+    void sacrifice(ServerPlayer owner){
         double health=0;var victims=new ArrayList<LivingEntity>();
         owner.level().getAllEntities().forEach(e->{if(e instanceof LivingEntity l&&!(e instanceof ServerPlayer)&&game.items().wands().validTarget(e)&&owner.isAlliedTo(e))victims.add(l);});
         for(var victim:victims){health+=Mth.floor(victim.getHealth());game.items().indirectKills().inheritedKill(victim,game.items().indirectKills().wildCause(owner));}
