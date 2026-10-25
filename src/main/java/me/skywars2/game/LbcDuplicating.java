@@ -93,7 +93,12 @@ public final class LbcDuplicating {
         if(!game.items().mana().trySpendWand(owner,price)) return false;
         if(!upgraded && owner.isShiftKeyDown() && LbcAcademy.trial(stack)) {
             trial(owner); game.items().academy().ready(owner,hand,stack);
-        } else if(mode==3) queue(new Divide(owner));
+        } else castMode(owner,mode);
+        game.items().wands().wandCasted(owner); return true;
+    }
+
+    void castMode(ServerPlayer owner,int mode) {
+        if(mode==3) queue(new Divide(owner));
         else {
             Vec3 direction=owner.getLookAngle().normalize();
             var marker=new MarkerState(owner,game.items().epoch(),owner.getEyePosition().add(direction.scale(mode==2?14:mode==4?8:7)),
@@ -101,7 +106,6 @@ public final class LbcDuplicating {
             if(mode==4) marker.visual=game.items().blackHoleVisuals().create(owner,marker.point,HOLE_SHADER_RADIUS);
             markers.add(marker);
         }
-        game.items().wands().wandCasted(owner); return true;
     }
     public boolean useDivider(ServerPlayer owner,ItemStack stack) {
         if(!castable(owner) || game.items().mana().score(owner,"divider_cd").get()>0) return false;

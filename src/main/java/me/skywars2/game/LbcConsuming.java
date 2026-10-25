@@ -163,13 +163,17 @@ public final class LbcConsuming {
         int price=game.items().mana().score(ScoreHolder.forNameOnly("consuming_wand_mana_use"),"lbc.math").get();
         if(!game.items().mana().trySpendWand(owner,price)) return false;
         if(!upgraded && owner.isShiftKeyDown() && LbcAcademy.trial(stack)) {
-            trial(owner); game.items().academy().ready(owner,hand,stack);
-        } else if(mode==2) silence(owner);
+            trial(owner); game.items().academy().ready(owner,hand,stack); flushTerrain();
+        } else castMode(owner,mode);
+        game.items().wands().wandCasted(owner); return true;
+    }
+
+    void castMode(ServerPlayer owner,int mode) {
+        if(mode==2) silence(owner);
         else if(mode==3) theEnd(owner);
         else if(mode==4) avarice(owner);
         else normal(owner);
         flushTerrain();
-        game.items().wands().wandCasted(owner); return true;
     }
 
     private void normal(ServerPlayer owner) {

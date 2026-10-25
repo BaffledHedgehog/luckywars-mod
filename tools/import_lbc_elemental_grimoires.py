@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Import64 direct ordinary and variant elemental library spells, preserving source components."""
+"""Import72 direct ordinary and variant elemental library spells, preserving source components."""
 from copy import deepcopy
 from pathlib import Path
 import re
@@ -14,7 +14,8 @@ SPELLS = {160:'ruby',163:'terra',165:'electro',167:'air',171:'acid',173:'telepor
           161:'ruby_ray', 162:'ruby_hole', 164:'terra_fast', 166:'electro_ray', 168:'air_burst', 169:'air_fast', 170:'air_homing', 172:'acid_burning', 174:'teleport_inverted', 175:'teleport_cloud', 177:'stone_ray', 178:'stone_spikes', 179:'stone_bridge', 180:'stone_shield', 182:'fire_big', 183:'fire_ray', 185:'blind_gatling', 186:'blind_phantom', 187:'blind_rain',
           204:'exahoming', 205:'exahoming_curse', 206:'exahoming_destiny', 207:'exahoming_sisyphus', 208:'psychoblind', 209:'psychoblind_invisible', 210:'psychoblind_ray', 211:'psychoblind_spray', 212:'boltbolt', 213:'boltbolt_meteor', 214:'boltbolt_watering', 215:'boltbolt_racer',
           216:'erecto', 217:'erecto_ray', 218:'erecto_sniper', 219:'erecto_sphere', 220:'fireblaze', 221:'fireblaze_kiuas', 222:'fireblaze_mega', 223:'fireblaze_pillars', 224:'fireblaze_world', 233:'stonekivi', 234:'stonekivi_earth', 235:'stonekivi_sun', 236:'stonekivi_comet',
-          188:'awakened_acid', 190:'awakened_acid_caust', 191:'awakened_acid_caust_burning', 192:'awakened_acid_gatling', 193:'awakened_acid_gatling_burning', 194:'awakened_acid_rifle', 199:'exasperato', 200:'exasperato_triple', 201:'exasperato_chaos', 202:'exasperato_ray', 203:'exasperato_nuke'}
+          188:'awakened_acid', 190:'awakened_acid_caust', 191:'awakened_acid_caust_burning', 192:'awakened_acid_gatling', 193:'awakened_acid_gatling_burning', 194:'awakened_acid_rifle', 199:'exasperato', 200:'exasperato_triple', 201:'exasperato_chaos', 202:'exasperato_ray', 203:'exasperato_nuke',
+          225:'consuming', 226:'consuming_avarice', 227:'consuming_silence', 228:'consuming_end', 229:'duplicating', 230:'duplicating_hole', 231:'duplicating_divide', 232:'duplicating_expand'}
 
 def main():
     firearms.RP = RP  # Audit the current author pack; never modify it.

@@ -1,5 +1,26 @@
 # Структура переноса игрового цикла
 
+## Eight Consuming/Duplicating grimoires - QUALIFIED AND INSTALLED (26 October 2026)
+
+[Source and verification](agent_notes/TERRAIN_GRIMOIRES_2026_10_26.md). Library IDs225..232 expose8 native consumed
+modes through the shared Consuming/Duplicating producers. Both hands/Shift
+consume one actual book without mana admission/debit, mode switching, Academy
+trials or cast bonuses. Exact source models, tiers, red Legendary/adjective
+rows and metadata remain. The normal/End rays, global Avarice and native Silence
+reuse owned terrain work. Duplicating retains the existing shuffle/Expand/
+Divide/shader-hole engine, launch offsets, lifetimes, containers, cross-dimension
+reads and cancellation. No new terrain budgets or projectile pacing. Broad/
+random library remains gated.
+
+Buildb4aa411f passed24 groups in two actual mode1 matches (62.57s): all8 books,
+earlier ordinary/corrosive books, full Consuming and Duplicating Academy/Expand/
+coalescing regressions, actual no-drop erasure/container changes and actual-stop
+cleanup. Exact378 sources/1068 classes/2909 resources match. Installer7184
+installedb4aa411f over753bcbe3 with rollback and no restart. Evidence:
+`build/verification/terrain-grimoires-final/`. User files/deletions and author RP
+preserved. Client rendering/audio playback and peak TPS are not directly
+observed. Oldest obsolete build archive retired; recent rollback remains.
+
 ## Eleven awakened-acid/Exasperato grimoires - QUALIFIED AND INSTALLED (26 October 2026)
 
 [Source and verification](agent_notes/CORROSIVE_GRIMOIRES_2026_10_26.md). Library IDs188/190..194/199..203 expose11 native
