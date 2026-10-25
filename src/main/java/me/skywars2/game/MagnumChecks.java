@@ -70,6 +70,9 @@ public final class MagnumChecks {
         game.items().magnum().forget(owner); game.items().shooters().resetCooldown(owner);
         owner.getInventory().clearContent(); owner.setItemInHand(hand,gun); owner.getInventory().setItem(9,ammo.copy());
         aim(owner,game);
+        // Payload/attribution fixtures use stationary aimed fire; hip/movement error has its own live checks.
+        game.items().rifleZoom().forget(owner);
+        game.items().rifleZoom().punch(owner);
     }
     public static void run(GameController game) {
         var owner=player(game,"TestAlpha"); var other=player(game,"TestBeta");
@@ -204,6 +207,7 @@ public final class MagnumChecks {
             require(acidVictim.getHealth()==96 && acidVictim.getLastDamageSource().getEntity()==owner,"burning big acid applies four owned native fire damage");
             SkyWars2.LOGGER.info("[check] PASS magnum");
         } finally {
+            game.items().rifleZoom().forget(owner);
             service.forget(owner); service.forget(other); shooters.resetCooldown(owner); shooters.resetCooldown(other);
             game.items().wands().stop(); game.items().clouds().stop(); game.items().blaze().forget(owner); cows.forEach(Entity::discard);
             for(var entity:List.copyOf(level.getEntitiesOfClass(ItemEntity.class,new AABB(Vec3.atLowerCornerOf(BASE.offset(-8,-8,-8)),Vec3.atLowerCornerOf(BASE.offset(8,10,30))))))

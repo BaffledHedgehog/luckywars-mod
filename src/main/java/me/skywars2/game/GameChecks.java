@@ -641,6 +641,7 @@ public final class GameChecks {
                                 case "woodificator-palette-report" -> exportWoodificatorBlockRegistry();
                                 case "woodificator" -> checkWoodificator(game);
                                 case "shooter-pair-menu" -> checkShooterPairMenu(game);
+                                case "gun-accuracy" -> { GunAccuracyChecks.run(game); return; }
                                 case "magnum" -> { MagnumChecks.run(game); return; }
                                 case "rifle-zoom" -> { RifleZoomChecks.run(game); return; }
                                 case "speed-fov" -> { SpeedFovChecks.run(game); return; }
@@ -9512,6 +9513,10 @@ public final class GameChecks {
                 game.items().shooters().forget(owner); owner.setShiftKeyDown(false); owner.setYRot(0); owner.setXRot(0);
                 owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,slrStack(mode));
                 owner.getInventory().setItem(8,new ItemStack(Items.ARROW,8));
+                // Existing payload probes require exact aimed fire; GunAccuracyChecks covers shot error.
+                owner.setKnownMovement(Vec3.ZERO); owner.setDeltaMovement(Vec3.ZERO);
+                game.items().rifleZoom().forget(owner);
+                game.items().rifleZoom().punch(owner);
         }
 
         /** The synchronous SLR fixture may clear only attribution it created itself. */
@@ -16586,7 +16591,8 @@ public final class GameChecks {
                         global.set(2); pineUsePacket(owner,off); require(second.getHealth()==10,"Global time-stop input guard blocks AK"); global.set(0);
                         other.teleportTo(level,.5,281,65.5,java.util.Set.of(),0,0,true); slrReady(game,other,4);
                         owner.damageCooldownTime=0; owner.setInvulnerableTime(0);
-                        require(slrUse(other,main) && game.items().shooters().stunned(owner),"Native SLR shot establishes actual AK owner's stun");
+                        require(slrUse(other,main) && game.items().shooters().stunned(owner),"Native aimed SLR shot establishes actual AK owner's stun"
+                                +" scoped="+game.items().rifleZoom().scoped(other)+" movement="+LbcGunAccuracy.movementDegrees(other));
                         pineUsePacket(owner,off); require(second.getHealth()==10,"Actual SLR stun blocks AK activation"); game.items().shooters().clearStun(owner);
                         gun.setAmmo(owner,0); gun.receivedDamage(owner,3.44f); require(gun.ammo(owner)==0,"Below35 native damage-stat units grants no round");
                         gun.receivedDamage(owner,3.45f); gun.receivedDamage(owner,100); require(gun.ammo(owner)==2,"Native stat quantization and large hits grant one round per event");

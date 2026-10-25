@@ -92,7 +92,7 @@ public final class LbcAk47 {
                 && game.stage()!=GameController.Stage.ENDING;
     }
     private void nativeRay(ServerPlayer owner) {
-        nativeRay(owner,owner.getLookAngle(),null);
+        nativeRay(owner,LbcGunAccuracy.ak47(owner),null);
     }
     /** One gun engine: NPC collision is supplied explicitly; player policy is unchanged. */
     void nativeRay(net.minecraft.world.entity.LivingEntity owner,Vec3 direction,

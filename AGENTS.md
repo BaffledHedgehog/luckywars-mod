@@ -1,5 +1,24 @@
 # Проект SkyWars
 
+## Speed-dependent gun accuracy - QUALIFIED, AUTO INSTALL QUEUED (25 October 2026)
+
+Magnum and SLG-88/SLR have a5-degree hip-fire cone; actual scope removes that
+base error. Both player AK variants have only movement error. Movement penalty
+scales linearly with native speed to20 degrees at0.3 blocks/tick. TOTAL error
+is capped at20, including hip fire. Jump/fall/push motion counts; ground jitter
+is ignored. Every Magnum burst shot samples current scope/motion. Existing
+recoil, muzzle/sound origins, payloads, ammo and NPC AK rays remain unchanged.
+
+[Author contract and balance](agent_notes/GUN_ACCURACY_2026_10_25.md).
+Build7682f8c0 passed24 results in two actual mode1 matches (45.13s), including
+120 real uses covering both hands/five speeds/scope/both AK variants and native
+tracer direction capture. Existing Magnum/SLR payloads, AK ammo/guards, scope
+reconnect, FOV, sounds and actual-stop cleanup pass. Client feel/peak TPS are
+not observed. Evidence: build/verification/gun-accuracy-final/.
+Main95c3db2f unchanged at qualification; installer adopts this newest update
+for normal shutdown with rollback. User files/RP and ready loot stay unchanged.
+
+
 ## Rifle scope reconnect repair - QUALIFIED, AUTO INSTALL QUEUED (25 October 2026)
 
 Native player data persists `post_effects`, including scope snapshots made before

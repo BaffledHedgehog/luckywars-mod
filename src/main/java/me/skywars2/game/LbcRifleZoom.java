@@ -93,6 +93,10 @@ public final class LbcRifleZoom {
             syncAbilities(player);
         }
     }
+    boolean scoped(ServerPlayer player) {
+        var state=states.get(player.getUUID());
+        return state!=null && state.player==player && state.active && current(state);
+    }
     private static boolean rifle(ItemStack stack) {
         return LbcShooters.isSlr(stack) || LbcMagnum.isMagnum(stack);
     }

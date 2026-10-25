@@ -616,7 +616,8 @@ public final class LbcShooters {
         var left=new Vec3(Math.cos(Math.toRadians(player.getYRot())),0,Math.sin(Math.toRadians(player.getYRot())));
         var up=forward.cross(left);
         var origin=player.getEyePosition().subtract(left.scale(.2)).subtract(up.scale(.2));
-        game.items().indirectKills().trapChanges(player,()->slrRay(player,origin,forward,mode(stack)));
+        var direction=LbcGunAccuracy.rifle(game,player);
+        game.items().indirectKills().trapChanges(player,()->slrRay(player,origin,direction,mode(stack)));
         LbcOverload.sound(player,origin.add(forward.scale(.5)),"minecraft:lbcsounds.karich",2,2,120,.5f);
         float yaw=player.getYRot()+(player.getRandom().nextInt(1201)-600)*.01f;
         float pitch=player.getXRot()+(player.getRandom().nextInt(1001)-1500)*.01f;

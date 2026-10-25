@@ -174,7 +174,7 @@ public final class LbcMagnum {
     }
     private void ray(Burst burst) {
         var owner=burst.owner;
-        Vec3 origin=owner.getEyePosition(),direction=owner.getLookAngle(),end=origin.add(direction.scale(200));
+        Vec3 origin=owner.getEyePosition(),direction=LbcGunAccuracy.rifle(game,owner),end=origin.add(direction.scale(200));
         double suppression=game.items().magic().mechanismSuppressionFraction(owner.level(),origin,end);
         if(suppression<=1) end=origin.lerp(end,Math.max(0,suppression));
         int mode=burst.mode;
