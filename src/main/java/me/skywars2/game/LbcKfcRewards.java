@@ -148,8 +148,8 @@ public final class LbcKfcRewards {
     ItemEntity spawnBomb(ServerPlayer owner,Vec3 position,int variant) {
         if(variant<1 || variant>6) throw new IllegalArgumentException("Unknown cultus variant "+variant);
         var bat=new CultBat(owner.level()); bat.setPos(position); bat.setSilent(true); bat.entityTags().add("no_penis");
-        bat.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY,-1,0,false,false));
-        bat.addEffect(new MobEffectInstance(MobEffects.WITHER,-1,0,false,false),owner);
+        bat.addEffect(ItemEffectLevels.create(MobEffects.INVISIBILITY,-1,0,false,false));
+        bat.addEffect(ItemEffectLevels.create(MobEffects.WITHER,-1,0,false,false),owner);
         var stack=new ItemStack(Items.REPEATING_COMMAND_BLOCK);
         stack.set(DataComponents.ITEM_MODEL,Identifier.parse("lbc:penis_"+variant));
         stack.set(DataComponents.ITEM_NAME,Component.translatable("penis"));
@@ -272,9 +272,9 @@ public final class LbcKfcRewards {
         switch(variant) {
             case 1 -> { damage(owner,victim,6); level.sendParticles(ParticleTypes.CLOUD,at.x,at.y+1,at.z,10,2,2,2,.1); }
             case 2 -> {
-                victim.addEffect(new MobEffectInstance(MobEffects.SLOWNESS,160,5,false,false),owner);
-                victim.addEffect(new MobEffectInstance(MobEffects.WEAKNESS,80,5,false,false),owner);
-                victim.addEffect(new MobEffectInstance(MobEffects.NAUSEA,120,5,false,false),owner);
+                victim.addEffect(ItemEffectLevels.create(MobEffects.SLOWNESS,160,5,false,false),owner);
+                victim.addEffect(ItemEffectLevels.create(MobEffects.WEAKNESS,80,5,false,false),owner);
+                victim.addEffect(ItemEffectLevels.create(MobEffects.NAUSEA,120,5,false,false),owner);
                 damage(owner,victim,4);
                 level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.DIRT.defaultBlockState()),at.x,at.y+1,at.z,100,.2,.2,.2,1);
             }
@@ -282,8 +282,8 @@ public final class LbcKfcRewards {
                 game.items().exasperato().protectedBlast(owner,level,at,4,null);
             }
             case 4 -> {
-                victim.addEffect(new MobEffectInstance(MobEffects.BLINDNESS,160,1,false,false),owner);
-                victim.addEffect(new MobEffectInstance(MobEffects.LEVITATION,20,15,false,false),owner);
+                victim.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,160,1,false,false),owner);
+                victim.addEffect(ItemEffectLevels.create(MobEffects.LEVITATION,20,15,false,false),owner);
                 LightningBolt bolt;
                 if(owner instanceof ServerPlayer player) bolt=game.items().electro().lightning(player,at);
                 else {
@@ -300,7 +300,7 @@ public final class LbcKfcRewards {
             }
             case 5 -> {
                 String effectEpoch=game.items().epoch();
-                victim.addEffect(new MobEffectInstance(MobEffects.SLOWNESS,20,127,false,false),owner); damage(owner,victim,10);
+                victim.addEffect(ItemEffectLevels.create(MobEffects.SLOWNESS,20,127,false,false),owner); damage(owner,victim,10);
                 if(!victim.isAlive() || !game.items().currentEpoch(effectEpoch) || game.stage()==GameController.Stage.ENDING) return;
                 var destination=at.add(victim.getLookAngle().scale(-5)).add(0,5,0);
                 if(owner instanceof ServerPlayer player) game.items().indirectKills().displaced(victim,player);

@@ -79,7 +79,7 @@ final class LbcGaycasterAcademy {
         switch(color){
             case 1->{boolean accepted=false;
                 for(var e:nearby)accepted=e.hurtServer(owner.level(),LbcGaycaster.damage(owner,DamageTypes.MAGIC),6)||accepted;
-                if(accepted){owner.addEffect(new MobEffectInstance(MobEffects.INSTANT_HEALTH,1,1,false,false,false),owner);
+                if(accepted){owner.addEffect(ItemEffectLevels.create(MobEffects.INSTANT_HEALTH,1,1,false,false,false),owner);
                     particles(owner,ParticleTypes.HEART,owner.position(),5,.3,.5,.3,0);}
                 particles(owner,ParticleTypes.DAMAGE_INDICATOR,point,direct==null?10:5,.3,.5,.3,0);
             }
@@ -233,7 +233,7 @@ final class LbcGaycasterAcademy {
             case 3->{
                 trialParticles(t.owner,ParticleTypes.SNEEZE,h.at,1,0,0,0,.1);
                 LbcOverload.sound(t.owner,h.at,"minecraft:block.fire.extinguish",.5f,1,0);
-                for(var e:living)if(e.position().distanceToSqr(h.at)<=4){e.addEffect(new MobEffectInstance(MobEffects.POISON,100,1),t.owner);failed(t,e);}
+                for(var e:living)if(e.position().distanceToSqr(h.at)<=4){e.addEffect(ItemEffectLevels.create(MobEffects.POISON,100,1),t.owner);failed(t,e);}
                 if(t.level.getBlockState(BlockPos.containing(h.at.add(0,-1,0))).is(AIRS))h.at=h.at.add(0,-.5,0);
                 paint(t,h.at.add(-1,-2,-1),h.at.add(1,-1,1),Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.LIME));
             }

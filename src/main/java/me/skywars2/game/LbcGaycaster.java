@@ -93,12 +93,12 @@ final class LbcGaycaster {
                 case 0->{
                     // (user) Every target is processed; any accepted hit permits one heal.
                     for(var e:nearby)accepted=e.hurtServer(owner.level(),damage(owner,DamageTypes.MAGIC),6)||accepted;
-                    if(accepted){owner.addEffect(new MobEffectInstance(MobEffects.INSTANT_HEALTH,1,1,false,false,false),owner);
+                    if(accepted){owner.addEffect(ItemEffectLevels.create(MobEffects.INSTANT_HEALTH,1,1,false,false,false),owner);
                         particles(owner,ParticleTypes.HEART,owner.position(),5,.3,.5,.3,0);}
                     particles(owner,ParticleTypes.DAMAGE_INDICATOR,point,block?10:5,block?.5:.3,.5,block?.5:.3,0);
                 }
                 case 1->{
-                    for(var e:nearby)accepted=game.items().kiuas().acceptCurse(e,new MobEffectInstance(MobEffects.RAID_OMEN,100,111,false,false,false),owner)||accepted;
+                    for(var e:nearby)accepted=game.items().kiuas().acceptCurse(e,ItemEffectLevels.create(MobEffects.RAID_OMEN,100,111,false,false,false),owner)||accepted;
                     if(block)game.items().indirectKills().trapChanges(owner.level(),owner,()->{
                         for(var p:BlockPos.betweenClosed(BlockPos.containing(point.add(-.5,-.5,-.5)),BlockPos.containing(point.add(.5,.5,.5))))
                             if(owner.level().hasChunkAt(p)&&owner.level().getBlockState(p).is(FIRE_AIRS))owner.level().setBlock(p,Blocks.FIRE.defaultBlockState(),3);
@@ -120,7 +120,7 @@ final class LbcGaycaster {
                     particles(owner,ParticleTypes.ELECTRIC_SPARK,point,20,block?.5:.3,.5,block?.5:.3,0);
                 }
                 case 5->{
-                    for(var e:nearby){accepted=e.addEffect(new MobEffectInstance(MobEffects.CONDUIT_POWER,20,1),owner)||accepted;
+                    for(var e:nearby){accepted=e.addEffect(ItemEffectLevels.create(MobEffects.CONDUIT_POWER,20,1),owner)||accepted;
                         LbcOverload.sound(owner,e.position(),"minecraft:lbcsounds.yametekudasai",block?2:3,1,0);}
                     if(block)particles(owner,ParticleTypes.SPLASH,point,30,.4,.4,.4,0);
                 }

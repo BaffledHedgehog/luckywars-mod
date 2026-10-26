@@ -300,11 +300,11 @@ public final class LbcStand {
             }
             if(overheaven(player)>0) {
                 if(state==null) state=state(player);
-                if(ticks%100==0 && player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,-1,0,true,false))) state.resistanceOwned=true;
+                if(ticks%100==0 && player.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,-1,0,true,false))) state.resistanceOwned=true;
                 if(player.onGround()) state.falling=0;
                 else if(state.falling++>=16 && !player.isInWater()
                         && !game.items().magic().suppressedAt(player.level(),player.getEyePosition()))
-                    player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,20,4,true,false));
+                    player.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,20,4,true,false));
             }
             if(ticks%10!=0 || !player.entityTags().contains("have_stand") || !hasClocks(player)
                     || game.items().magic().suppressedAt(player.level(),player.getEyePosition())) continue;
@@ -387,9 +387,9 @@ public final class LbcStand {
                 || game.items().wands().inputTimeStopped(owner) || game.items().actionsBlocked(owner)
                 || game.items().magic().suppressedAt(owner.level(),owner.getEyePosition())) return false;
         bursts.put(owner.getUUID(),new Burst(owner,game.items().epoch(),BURST_FISTS));
-        owner.addEffect(new MobEffectInstance(MobEffects.SPEED,1200,4));
-        owner.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST,1200,4));
-        owner.addEffect(new MobEffectInstance(MobEffects.HEALTH_BOOST,1200,9));
+        owner.addEffect(ItemEffectLevels.create(MobEffects.SPEED,1200,4));
+        owner.addEffect(ItemEffectLevels.create(MobEffects.JUMP_BOOST,1200,4));
+        owner.addEffect(ItemEffectLevels.create(MobEffects.HEALTH_BOOST,1200,9));
         LbcOverload.sound(owner,owner.position(),"minecraft:lbcsounds.oraora",10,1,0);
         return true;
     }
@@ -429,7 +429,7 @@ public final class LbcStand {
             burst.delay=2; burst.remaining--;
             if(game.items().actionsBlocked(burst.owner)
                     || game.items().magic().suppressedAt(burst.owner.level(),burst.owner.getEyePosition())) continue;
-            burst.owner.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,20,4,true,false));
+            burst.owner.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,20,4,true,false));
             createFist(burst.owner);
         }
         for(var fist:List.copyOf(fists)) tickFist(fist);

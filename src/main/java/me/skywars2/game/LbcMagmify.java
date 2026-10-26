@@ -235,7 +235,7 @@ public final class LbcMagmify {
             DamageSource source = new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
                     .getOrThrow(DamageTypes.FALLING_BLOCK), owner);
             target.hurtServer(level, source, SURFACE_DAMAGE);
-            target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, SURFACE_SLOWNESS_TICKS,
+            target.addEffect(ItemEffectLevels.create(MobEffects.SLOWNESS, SURFACE_SLOWNESS_TICKS,
                     SURFACE_SLOWNESS_AMPLIFIER, false, true, true), owner);
             level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, Items.IRON_NUGGET), true, false,
                     center.x, center.y, center.z, SURFACE_PARTICLES,

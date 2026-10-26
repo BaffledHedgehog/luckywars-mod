@@ -215,7 +215,7 @@ public final class LbcGovnomet {
         for(var target:targets) {
             if(!active(charge,owner)) break;
             if(target instanceof ServerPlayer && !(target instanceof ServerPlayer player && game.items().magic().rejectEffect(player,MobEffects.NAUSEA)))
-                target.addEffect(new MobEffectInstance(MobEffects.NAUSEA,300,0),charge);
+                target.addEffect(ItemEffectLevels.create(MobEffects.NAUSEA,300,0),charge);
             applyWither(target,charge);
         }
     }
@@ -259,7 +259,7 @@ public final class LbcGovnomet {
         };
     }
     private void applyWither(LivingEntity target,Charge charge) {
-        target.addEffect(new MobEffectInstance(MobEffects.WITHER,charge.mega?60:20,10),charge);
+        target.addEffect(ItemEffectLevels.create(MobEffects.WITHER,charge.mega?60:20,10),charge);
     }
 
     private boolean validOwner(ServerPlayer owner) {

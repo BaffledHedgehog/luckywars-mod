@@ -249,7 +249,7 @@ public final class LbcBlaze {
             }
         }
         if(!areas.isEmpty()) terrain.add(new Terrain(owner,owner.level(),areas));
-        if(mode==3 || mode==4) owner.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE,-1,0));
+        if(mode==3 || mode==4) owner.addEffect(ItemEffectLevels.create(MobEffects.FIRE_RESISTANCE,-1,0));
         if(mode!=4) LbcOverload.sound(owner,mode==3?"minecraft:block.lava.ambient":"minecraft:item.firecharge.use",1,1,0);
     }
 
@@ -351,7 +351,7 @@ public final class LbcBlaze {
             Vec3 velocity=target==null?owner.getLookAngle().scale(.7):target.getEyePosition().subtract(owner.getEyePosition()).normalize().scale(.7);
             game.items().wands().launchFire(owner,new SmallFireball(EntityTypes.SMALL_FIREBALL,owner.level()),owner.getEyePosition(),velocity);
             owner.level().sendParticles(ParticleTypes.FLAME,owner.getX(),owner.getEyeY(),owner.getZ(),5,.4,.4,.4,0);
-            owner.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE,40,0,false,false));
+            owner.addEffect(ItemEffectLevels.create(MobEffects.FIRE_RESISTANCE,40,0,false,false));
             game.items().mana().score(owner,"blaze").add(-1);
             LbcOverload.sound(owner,"minecraft:entity.blaze.shoot",1,1,0);
             if(headCharges(owner)<=0) heads.remove(owner.getUUID());

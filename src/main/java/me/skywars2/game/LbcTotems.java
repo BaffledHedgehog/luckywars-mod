@@ -123,7 +123,7 @@ public final class LbcTotems {
         // Native vanilla protection immediately clears the user's transient source potion effects.
         // No one-tick Resistance workaround is needed; only other entities retain the source WitherII.
         for(var target:level.getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(10),t->wild(t)&&t.position().distanceToSqr(at)<=100)){
-            if(target!=p)game.items().indirectKills().wildEffect(target,new MobEffectInstance(MobEffects.WITHER,1_200_000,1,true,false),cause);
+            if(target!=p)game.items().indirectKills().wildEffect(target,ItemEffectLevels.create(MobEffects.WITHER,1_200_000,1,true,false),cause);
             harm(p,target);
         }
         game.items().indirectKills().trapChanges(level,cause,()->{

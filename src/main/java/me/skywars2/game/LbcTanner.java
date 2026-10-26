@@ -162,7 +162,7 @@ public final class LbcTanner {
             if (emittingHands != 0) {
                 boolean dual = emittingHands == 3;
                 updateBounds(aura, dual);
-                player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, dual ? 40 : 20, 0), player);
+                player.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE, dual ? 40 : 20, 0), player);
                 player.level().sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.DIRT.defaultBlockState()),
                         player.getX(),player.getY()+1,player.getZ(),dual?20:10,.5,1,.5,0);
                 transmuteProjectiles(aura, dual ? 20 : 6);

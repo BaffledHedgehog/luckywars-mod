@@ -115,7 +115,7 @@ public final class LbcIslandDrops {
                 game.items().indirectKills().teleported(living,author,true);
         }
         if(kind==LbcIslandDropItem.Kind.LOWER_OLD && copied.get())
-            target.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,40,4,false,false,false),cause);
+            target.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,40,4,false,false,false),cause);
         return true;
     }
 

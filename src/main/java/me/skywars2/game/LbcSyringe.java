@@ -117,7 +117,7 @@ public final class LbcSyringe {
             if(p==null||!eligible(p,mob)||mob.level().getEntity(mob.getUUID())!=mob){end(mob);continue;}
             if(mob.entityTags().contains("time_stopped")||game.items().timeStop().stopped(p.level()))continue;
             ((net.minecraft.server.level.ServerLevel)mob.level()).sendParticles(ParticleTypes.NOTE,mob.getX(),mob.getY()+1,mob.getZ(),10,.3,.6,.3,0);
-            mob.addEffect(new MobEffectInstance(MobEffects.GLOWING,20,0),p);
+            mob.addEffect(ItemEffectLevels.create(MobEffects.GLOWING,20,0),p);
             if(mob instanceof Blaze blaze&&mob.getRandom().nextFloat()<.1f)blaze(blaze);
         }
     }

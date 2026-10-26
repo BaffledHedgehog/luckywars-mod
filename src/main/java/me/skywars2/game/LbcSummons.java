@@ -310,7 +310,7 @@ public final class LbcSummons {
                     if(ticks%5==0) { var enemy=attackTarget(mob,owner,mob.getEyePosition(),12);
                         if(enemy!=null) arrow(owner,mob,mob.getEyePosition(),enemy.getEyePosition().subtract(mob.getEyePosition()),mob.entityTags().contains("syringe_buffed")?1.5:.5,2); }
                 }
-                case "hypocrisy" -> { if(ticks%40==0) mob.addEffect(new MobEffectInstance(MobEffects.INSTANT_DAMAGE,1,0)); }
+                case "hypocrisy" -> { if(ticks%40==0) mob.addEffect(ItemEffectLevels.create(MobEffects.INSTANT_DAMAGE,1,0)); }
                 case "chaos" -> { if(ticks%40==0 && nearest(owner,mob.position(),50)!=null) chaos(owner,mob); }
                 case "strangeness" -> {
                     if(ticks%60==0 && nearest(owner,mob.position(),20)!=null) {
@@ -398,9 +398,9 @@ public final class LbcSummons {
         Vec3 origin=mob.getEyePosition(),direction=enemy.getEyePosition().subtract(origin).normalize();
         chaosEffects(owner,mob,spell);
         switch(spell) {
-            case 0 -> mob.addEffect(new MobEffectInstance(MobEffects.STRENGTH,160,3));
-            case 1 -> mob.addEffect(new MobEffectInstance(MobEffects.SPEED,160,4));
-            case 2 -> mob.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,160,3));
+            case 0 -> mob.addEffect(ItemEffectLevels.create(MobEffects.STRENGTH,160,3));
+            case 1 -> mob.addEffect(ItemEffectLevels.create(MobEffects.SPEED,160,4));
+            case 2 -> mob.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,160,3));
             case 3 -> game.items().wands().launchFire(owner,new LargeFireball(owner.level(),owner,direction,2),origin.add(direction.scale(.5)),direction.scale(2));
             case 4 -> {
                 var damage=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW),mob,owner);
@@ -426,7 +426,7 @@ public final class LbcSummons {
                     owner.level().setBlock(pos,Blocks.STONE.defaultBlockState(),2|16|32);
                     owner.level().setBlock(pos.above(),Blocks.STONE.defaultBlockState(),2|16|32);
                 });
-                enemy.addEffect(new MobEffectInstance(MobEffects.SLOWNESS,100,127));
+                enemy.addEffect(ItemEffectLevels.create(MobEffects.SLOWNESS,100,127));
             }
             case 8 -> game.items().terra().castAt(owner,origin,direction,LbcTerra.Kind.REGULAR);
             case 9 -> {

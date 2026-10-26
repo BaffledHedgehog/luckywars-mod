@@ -212,7 +212,7 @@ public final class LbcKfcFood {
     }
     private void effect(ServerPlayer p,Holder<MobEffect> type,int seconds,int amplifier,boolean hidden) {
         // Matches EffectCommands: instantaneous durations use ticks, all other durations use seconds.
-        p.addEffect(new MobEffectInstance(type,type.value().isInstantaneous()?seconds:seconds*20,amplifier,false,!hidden),p);
+        p.addEffect(ItemEffectLevels.create(type,type.value().isInstantaneous()?seconds:seconds*20,amplifier,false,!hidden),p);
     }
     private void mega(ServerPlayer p) {
         effect(p,MobEffects.REGENERATION,10,10,false); effect(p,MobEffects.INSTANT_HEALTH,10,10,false);

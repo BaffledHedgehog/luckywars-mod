@@ -179,7 +179,7 @@ public final class LbcHedgehog {
             var point=at.add(left.scale(side)).add(forward);Fish previous=null;
             for(int i=0;i<13;i++){
                 var next=spawn(author,level,point,Kind.WALL);if(next==null)break;count++;
-                if(previous==null)next.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,-1,1,false,false),author);
+                if(previous==null)next.addEffect(ItemEffectLevels.create(MobEffects.SLOW_FALLING,-1,1,false,false),author);
                 else next.startRiding(previous,true,true);previous=next;
             }
         }

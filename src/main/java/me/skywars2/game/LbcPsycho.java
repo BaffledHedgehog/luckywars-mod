@@ -320,7 +320,7 @@ public final class LbcPsycho {
     private void impact(Charge charge,ServerPlayer owner,LivingEntity target) {
         var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.ARROW),charge,owner);
         target.hurtServer(owner.level(),source,4);
-        target.addEffect(new MobEffectInstance(MobEffects.DARKNESS,400,0),owner);
+        target.addEffect(ItemEffectLevels.create(MobEffects.DARKNESS,400,0),owner);
         afflict(target,owner,15,5,10,0);
         privateSound(target,"minecraft:ambient.cave",2,0,target.position());
         privateSound(target,"minecraft:ambient.cave",2,2,target.position());
@@ -370,8 +370,8 @@ public final class LbcPsycho {
                 for(var viewer:game.maps().level().players()) if(viewer!=entity && viewer.position().distanceToSqr(particleOrigin)>=.01)
                     game.maps().level().sendParticles(viewer,new ItemParticleOption(ParticleTypes.ITEM,Items.STAINED_GLASS.pick(net.minecraft.world.item.DyeColor.YELLOW)),true,false,
                             particleOrigin.x,particleOrigin.y,particleOrigin.z,3,.2,.2,.2,0);
-                entity.addEffect(new MobEffectInstance(MobEffects.BLINDNESS,20,0,false,false),effect.owner);
-                entity.addEffect(new MobEffectInstance(MobEffects.SLOWNESS,20,0,false,false),effect.owner);
+                entity.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,20,0,false,false),effect.owner);
+                entity.addEffect(ItemEffectLevels.create(MobEffects.SLOWNESS,20,0,false,false),effect.owner);
                 if(entity instanceof Mob mob && mob.getAttribute(Attributes.FOLLOW_RANGE)!=null) {
                     var range=mob.getAttribute(Attributes.FOLLOW_RANGE);
                     if(effect.previousFollowRange==null) effect.previousFollowRange=range.getBaseValue();

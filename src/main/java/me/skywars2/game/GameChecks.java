@@ -763,6 +763,11 @@ public final class GameChecks {
                                 case "negative-attributes" -> { NegativeAttributeChecks.run(game); return; }
                                 case "attack-knockback" -> { AttackKnockbackChecks.run(game); return; }
                                 case "signed-effect-levels" -> { SignedEffectLevelChecks.run(game); return; }
+                                case "signed-effects-math" -> { SignedEffectMathChecks.run(game); return; }
+                                case "signed-effects-cleanup" -> { require(game.inLobby() && SignedEnvironmentalEffects.queuedSpawns()==0 && SignedGlowVisuals.carrierCount()==0,"signed effect queues and carriers clear at actual match stop"); for(var p:game.server().getPlayerList().getPlayers())require(p.getPostEffects().stream().noneMatch(SignedEffectVisuals::owned),"owned effect shaders clear at actual match stop"); SkyWars2.LOGGER.info("[check] PASS signed-effects-cleanup"); return; }
+                                case "shadow-absorption" -> { ShadowAbsorptionChecks.run(game); return; }
+                                case "signed-environment" -> { SkyWars2.LOGGER.info("[check] PASS signed-environment ("+SignedEnvironmentalChecks.verify(game)+")"); return; }
+                                case "signed-visuals" -> { SignedEffectVisualChecks.verify(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"))); SkyWars2.LOGGER.info("[check] PASS signed-visuals (native signed presentation and packets)"); return; }
                                 case "operator-settings" -> { OperatorSettingsChecks.run(game); return; }
                                 case "team-colors" -> { TeamColorChecks.run(game); return; }
                                 case "team-colors-stop-probe" -> { TeamColorChecks.stopProbe(game); return; }
@@ -31471,6 +31476,7 @@ public final class GameChecks {
                 int targetXpLevel = target.experienceLevel, targetXpTotal = target.totalExperience;
                 float targetXpProgress = target.experienceProgress;
                 float holderHealth = holder.getHealth();
+                int holderAir = holder.getAirSupply();
                 int holderFood = holder.getFoodData().getFoodLevel();
                 float holderSaturation = holder.getFoodData().getSaturationLevel();
                 int oldMana = colors.mana(holder), oldFood = colors.foodCount(holder);
@@ -31745,12 +31751,18 @@ public final class GameChecks {
                                         "Enhanced breathing clears Wither and gives the source in-water bonuses");
                         holder.removeEffect(net.minecraft.world.effect.MobEffects.CONDUIT_POWER);
                         put.accept(feet, net.minecraft.world.level.block.Blocks.AIR);
+                        holder.setAirSupply(holder.getMaxAirSupply());
+                        colors.tickWater();
+                        require(!holder.hasEffect(net.minecraft.world.effect.MobEffects.WITHER)
+                                        && !holder.hasEffect(net.minecraft.world.effect.MobEffects.POISON),
+                                        "Enhanced breathing waits for air bubbles to run out before outside debuffs");
+                        holder.setAirSupply(0);
                         colors.tickWater();
                         require(holder.getEffect(net.minecraft.world.effect.MobEffects.WITHER).getAmplifier() == 3
                                         && holder.getEffect(net.minecraft.world.effect.MobEffects.POISON)
                                                         .getAmplifier() == 3
                                         && !holder.getEffect(net.minecraft.world.effect.MobEffects.POISON).isVisible(),
-                                        "Enhanced breathing applies hidden source Wither/Poison when outside water");
+                                        "Enhanced breathing applies hidden source Wither/Poison only after air is empty");
                         game.items().clearEffects(holder);
                         colors.tickWater();
                         require(holder.getActiveEffects().isEmpty(),
@@ -31875,6 +31887,7 @@ public final class GameChecks {
                         target.totalExperience = targetXpTotal;
                         target.experienceProgress = targetXpProgress;
                         holder.setHealth(Math.min(holderHealth, holder.getMaxHealth()));
+                        holder.setAirSupply(holderAir);
                         holder.getFoodData().setFoodLevel(holderFood);
                         holder.getFoodData().setSaturation(holderSaturation);
                         colors.mana(holder, oldMana);

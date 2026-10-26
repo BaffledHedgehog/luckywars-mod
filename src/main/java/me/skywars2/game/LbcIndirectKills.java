@@ -160,6 +160,7 @@ public final class LbcIndirectKills {
 
     /** Общая атрибуция призванных мобов; используется также до нативного смертельного удара. */
     private static ServerPlayer summonedOwner(Entity source) {
+        var effectOwner=SignedEnvironmentalEffects.spawnedOwner(source);if(effectOwner!=null)return effectOwner;
         var game=me.skywars2.SkyWars2.game();
         if(game==null) return null;
         if(game.items().wtf().owner(source) instanceof ServerPlayer player) return player;

@@ -75,7 +75,7 @@ public final class ScareDropChecks {
             for(var vanilla:List.of(Items.BARRIER,Items.REPEATING_COMMAND_BLOCK,Items.PAPER))require(LbcScareDropItem.kind(new ItemStack(vanilla))==null,"vanilla lookalike rejected");
         }
         void effect(ServerPlayer p,int duration){
-            var e=p.getEffect(MobEffects.BLINDNESS);require(e!=null && e.getDuration()==duration && e.getAmplifier()==10 && !e.isAmbient() && !e.isVisible() && !e.showIcon(),"exact hidden blindness duration/amplifier "+duration);
+            var e=p.getEffect(MobEffects.BLINDNESS);require(e!=null && e.getDuration()==duration && e.getAmplifier()==2 && !e.isAmbient() && !e.isVisible() && !e.showIcon(),"exact hidden blindness duration and approved capIII "+duration);
         }
         void dispatch(LbcScareDropItem.Kind kind){
             beta.removeEffect(MobEffects.BLINDNESS);alpha.removeEffect(MobEffects.BLINDNESS);

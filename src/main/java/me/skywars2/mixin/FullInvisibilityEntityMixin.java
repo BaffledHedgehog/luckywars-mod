@@ -17,5 +17,6 @@ public abstract class FullInvisibilityEntityMixin {
     @Inject(method = "remove", at = @At("TAIL"))
     private void skywars2$invisibleRemoved(Entity.RemovalReason reason, CallbackInfo ci) {
         FullInvisibility.removed((Entity) (Object) this);
+        me.skywars2.game.SignedEffectVisuals.removed((Entity) (Object) this);
     }
 }

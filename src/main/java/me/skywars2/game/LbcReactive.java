@@ -44,7 +44,7 @@ public final class LbcReactive {
         if(LbcReactiveItems.isReactive(stack)) {
             if(cooldownTicks(player)>0) return false;
             cooldowns.put(player,125);
-            player.addEffect(new MobEffectInstance(MobEffects.LEVITATION,20,15),player);
+            player.addEffect(ItemEffectLevels.create(MobEffects.LEVITATION,20,15),player);
             game.items().wands().wandCasted(player);
             return true;
         }

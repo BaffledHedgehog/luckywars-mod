@@ -86,7 +86,7 @@ public final class NegativeAttributeEffects {
     /** Native effective fall distance is supplied after impulse/grace adjustment. */
     public static int fallDamage(LivingEntity target,double distance,float modifier){
         if(target.is(EntityTypeTags.FALL_DAMAGE_IMMUNE))return 0;
-        double power=distance+1e-6-target.getAttributeValue(Attributes.SAFE_FALL_DISTANCE);
+        double power=distance+1e-6-SignedEffectMath.safeJumpFallDistance(target,SignedEffectMath.finite(target.getAttributeValue(Attributes.SAFE_FALL_DISTANCE)));
         if(!(power>0)||!(modifier>0))return 0;
         double signed=Math.floor(power*modifier*target.getAttributeValue(Attributes.FALL_DAMAGE_MULTIPLIER));
         if(signed<0&&active(target)&&!paused(target)&&!LbcGreed.active(target))heal(target,-signed);

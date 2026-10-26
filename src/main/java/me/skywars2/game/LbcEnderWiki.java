@@ -65,7 +65,7 @@ public final class LbcEnderWiki {
     }
     void apply(ServerPlayer p,Effect e,int amplifier){
         var type=BuiltInRegistries.MOB_EFFECT.get(Identifier.withDefaultNamespace(e.id())).orElseThrow();
-        p.addEffect(new MobEffectInstance(type,e.ticks(),amplifier,false,!e.hidden()),p);
+        p.addEffect(ItemEffectLevels.create(type,e.ticks(),amplifier,false,!e.hidden()),p);
     }
     void libraryEffect(ServerPlayer p,Effect effect){
         apply(p,effect,effect.amplifier());
@@ -73,7 +73,7 @@ public final class LbcEnderWiki {
     }
     void ender(ServerPlayer p,InteractionHand hand,ItemStack stack,boolean academy){
         Vec3 origin=p.position();
-        if(academy)p.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,60,0,false,false),p);
+        if(academy)p.addEffect(ItemEffectLevels.create(MobEffects.SLOW_FALLING,60,0,false,false),p);
         LbcOverload.sound(p,origin,"minecraft:entity.enderman.teleport",2,1,16);
         p.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(net.minecraft.core.Holder.direct(net.minecraft.sounds.SoundEvents.ENDERMAN_TELEPORT),net.minecraft.sounds.SoundSource.MASTER,origin.x,origin.y,origin.z,200,1,p.getRandom().nextLong()));
         p.level().sendParticles(ParticleTypes.PORTAL,true,false,origin.x,origin.y,origin.z+1,100,.2,.5,.2,.5);

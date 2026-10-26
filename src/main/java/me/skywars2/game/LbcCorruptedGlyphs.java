@@ -156,7 +156,7 @@ public final class LbcCorruptedGlyphs {
             // Movement is leased in Mob.serverAiStep, where competing Goal/Brain writes are suspended.
         }else if(glyph.kind==Kind.LAMASHTU){
             for(var target:targets)if(affect(glyph,target)&&!target.getType().builtInRegistryHolder().is(UNHOLY))
-                target.addEffect(new MobEffectInstance(MobEffects.WITHER,-1,0),glyph.owner);
+                target.addEffect(ItemEffectLevels.create(MobEffects.WITHER,-1,0),glyph.owner);
         }else if(glyph.kind==Kind.BELIAL){
             for(var target:targets)if(!(target instanceof ServerPlayer)){
                 leaveTeam(target);
@@ -182,7 +182,7 @@ public final class LbcCorruptedGlyphs {
         var at=glyph.display.position();
         if(glyph.kind==Kind.BAFOMET){
             for(var target:targets(glyph,1))if(!target.getType().builtInRegistryHolder().is(UNHOLY))
-                target.addEffect(new MobEffectInstance(MobEffects.WITHER,100,4),glyph.owner);
+                target.addEffect(ItemEffectLevels.create(MobEffects.WITHER,100,4),glyph.owner);
         }else if(glyph.kind==Kind.LAMASHTU){
             for(var target:targets(glyph,16))target.removeEffect(MobEffects.WITHER);
         }else if(glyph.kind==Kind.AHRIMAN){

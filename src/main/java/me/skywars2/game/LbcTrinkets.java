@@ -185,7 +185,7 @@ public final class LbcTrinkets {
             if (ice > 0 && player.getRandom().nextFloat() < (90 + 10 * ice) * .001f) iceTargets(player);
             int copies = count(player, GNEISS_STONE, GNEISS_DATA);
             if (copies > 0 && player.getRandom().nextFloat() < (80 + 20 * copies) * .001f) {
-                player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 40, 4));
+                player.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE, 40, 4));
                 player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.STONE_BREAK, SoundSource.BLOCKS, 1, 1);
                 player.level().sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.STONE.defaultBlockState()),
                         player.getX(), player.getY() + 1, player.getZ(), 30, .3, .6, .3, 0);
@@ -205,9 +205,9 @@ public final class LbcTrinkets {
                         && (!(entity instanceof ServerPlayer player) || game.allowDamage(player)))) {
             double distance = attacker.distanceToSqr(target);
             if (distance < .000001 || distance > 100) continue;
-            target.addEffect(new MobEffectInstance(MobEffects.WITHER, 200, 0), attacker);
+            target.addEffect(ItemEffectLevels.create(MobEffects.WITHER, 200, 0), attacker);
             // Как две исходные effect give: короткий IV скрывает I, затем нативная цепочка возвращает I.
-            if (upgraded) target.addEffect(new MobEffectInstance(MobEffects.WITHER, 60, 3), attacker);
+            if (upgraded) target.addEffect(ItemEffectLevels.create(MobEffects.WITHER, 60, 3), attacker);
         }
         attacker.level().playSound(null, attacker.getX(), attacker.getY(), attacker.getZ(), SoundEvents.WITHER_AMBIENT, SoundSource.MASTER, 1, 1);
     }

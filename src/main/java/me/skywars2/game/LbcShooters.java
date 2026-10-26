@@ -680,16 +680,16 @@ public final class LbcShooters {
             target.hurtServer(owner.level(),damage,10);
         } else if(mode==2) {
             target.hurtServer(owner.level(),damage,8);
-            if(target.addEffect(new MobEffectInstance(MobEffects.POISON,200,0),owner)) game.items().indirectKills().poisoned(target,owner);
-            target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS,200,0),owner);
-            target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS,200,0),owner);
-            target.addEffect(new MobEffectInstance(MobEffects.HUNGER,200,1),owner);
+            if(target.addEffect(ItemEffectLevels.create(MobEffects.POISON,200,0),owner)) game.items().indirectKills().poisoned(target,owner);
+            target.addEffect(ItemEffectLevels.create(MobEffects.SLOWNESS,200,0),owner);
+            target.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,200,0),owner);
+            target.addEffect(ItemEffectLevels.create(MobEffects.HUNGER,200,1),owner);
         } else if(mode==3) target.hurtServer(owner.level(),damage,5);
         else {
             if(!stun(owner,target,80))return;
             for(var effect:List.of(MobEffects.SLOWNESS,MobEffects.WEAKNESS,MobEffects.MINING_FATIGUE)){
                 var before=target.getEffect(effect);var previous=before==null?null:new MobEffectInstance(before);
-                if(target.addEffect(new MobEffectInstance(effect,80,127,false,false),owner)){
+                if(target.addEffect(ItemEffectLevels.create(effect,80,127,false,false),owner)){
                     var installed=target.getEffect(effect);
                     if(installed!=null&&installed.getAmplifier()==127)
                         stuns.get(target).effects.put(effect,new StunEffect(installed,previous,target.tickCount));

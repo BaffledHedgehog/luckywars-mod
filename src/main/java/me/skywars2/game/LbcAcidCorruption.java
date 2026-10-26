@@ -97,10 +97,10 @@ final class LbcAcidCorruption {
         game.items().wands().wandCasted(owner);return true;
     }
     private void meditate(ServerPlayer owner,InteractionHand hand,ItemStack stack){
-        owner.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,600,4,false,false),owner);
+        owner.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,600,4,false,false),owner);
         for(var effect:List.of(MobEffects.BLINDNESS,MobEffects.DARKNESS,MobEffects.HUNGER,MobEffects.INSTANT_DAMAGE,
                 MobEffects.NAUSEA,MobEffects.POISON,MobEffects.SLOWNESS,MobEffects.WEAKNESS,MobEffects.WITHER))
-            owner.addEffect(new MobEffectInstance(effect,-1,effect==MobEffects.INSTANT_DAMAGE?99:0),owner);
+            owner.addEffect(ItemEffectLevels.create(effect,-1,effect==MobEffects.INSTANT_DAMAGE?99:0),owner);
         var at=owner.position();owner.level().sendParticles(new DustParticleOptions(0x0d332d,.365f),true,false,at.x,at.y+10,at.z,15,.3,10,.3,1000);
         game.items().academy().ready(owner,hand,stack);
     }
@@ -134,7 +134,7 @@ final class LbcAcidCorruption {
         owner.level().getAllEntities().forEach(e->{if(e instanceof LivingEntity l&&!(e instanceof ServerPlayer)&&game.items().wands().validTarget(e)&&owner.isAlliedTo(e))victims.add(l);});
         for(var victim:victims){health+=Mth.floor(victim.getHealth());game.items().indirectKills().inheritedKill(victim,game.items().indirectKills().wildCause(owner));}
         int duration=(int)Math.min(Integer.MAX_VALUE,Math.floor(health/10)*20);
-        if(duration>0)owner.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,duration,4),owner);
+        if(duration>0)owner.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,duration,4),owner);
     }
     void flight(Charge c){
         if(c.isRemoved())return;var level=(ServerLevel)c.level();
@@ -173,13 +173,13 @@ final class LbcAcidCorruption {
                 |Block.UPDATE_SUPPRESS_DROPS|Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS|Block.UPDATE_SKIP_ON_PLACE);
     }
     private boolean target(ServerPlayer owner,Entity e){return game.items().wands().projectileTarget(owner,e)&&!game.items().magic().suppressedAt((ServerLevel)e.level(),e.position());}
-    void debuff(ServerPlayer owner,LivingEntity target,int index){target.addEffect(new MobEffectInstance(DEBUFFS.get(index),DURATIONS[index],AMPLIFIERS[index]),owner);}
+    void debuff(ServerPlayer owner,LivingEntity target,int index){target.addEffect(ItemEffectLevels.create(DEBUFFS.get(index),DURATIONS[index],AMPLIFIERS[index]),owner);}
     int deathRemaining(LivingEntity target){return Math.max(0,game.items().mana().hudValue(target,"delayed_death"));}
     void applyDeath(ServerPlayer owner,LivingEntity target,int seconds){
         if(seconds<=0||!wild(target)||target.entityTags().contains("sin_greed_active")||target instanceof ServerPlayer p&&game.items().magic().rejectCustomEffect(p))return;
         game.items().mana().score(target,"delayed_death").set((int)Math.min(Integer.MAX_VALUE,(long)deathRemaining(target)+seconds));
         deaths.put(target,game.items().indirectKills().wildCause(owner));
-        target.addEffect(new MobEffectInstance(MobEffects.NAUSEA,20,0),owner);
+        target.addEffect(ItemEffectLevels.create(MobEffects.NAUSEA,20,0),owner);
         if(target instanceof ServerPlayer p)for(int i=0;i<4;i++)p.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
                 net.minecraft.sounds.SoundEvents.AMBIENT_CAVE,net.minecraft.sounds.SoundSource.MASTER,
                 p.getX(),p.getY(),p.getZ(),1,1,p.getRandom().nextLong()));

@@ -1,3 +1,19 @@
+## Signed status effects - qualified 26 October 2026
+
+Run `python tools/smoke_signed_effects_gameplay.py --server-dir build/verification/key-reuse-server`.
+Build1a8a3825 passed68 recorded results /two real matches in123.13s. Dedicated
+native suites cover full signed storage/commands/codecs, math/travel/falling and
+item grant boundaries, shadow absorption including food/Greed/Time Stop and
+persistence, environmental native callbacks and per-viewer metadata/carriers.
+Operator/team/attribute/combat/firearm/artifact regressions and actual-stop
+cleanup pass. The two known Carpet fixture packet-context log lines remain;
+there are no failed checks. Exact433 sources/1203 classes/3139 resources match.
+`python tools/check_signed_effect_shaders.py` passed83 standalone real GPU
+checks; `python tools/check_item_effect_levels.py` checks127 production grants.
+Evidence: build/verification/signed-effects-gameplay/ and
+build/verification/signed-effect-visual-gpu/. No actual Minecraft frame capture,
+physical reconnect or peak-TPS claim is made. Author files/live overrides stay.
+
 # Проверка игрового цикла на Fabric
 
 ## Transformator / base Academy acquisition - QUALIFIED (23 October 2026)

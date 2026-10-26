@@ -199,7 +199,7 @@ public final class LbcTeleport {
         }
         for(var target:targets) {
             if(charge.mode==2) { inverted(owner,target); continue; }
-            if(target.addEffect(new MobEffectInstance(MobEffects.LEVITATION,20,50),owner))
+            if(target.addEffect(ItemEffectLevels.create(MobEffects.LEVITATION,20,50),owner))
                 game.items().indirectKills().levitated(target,owner);
             game.items().electro().lightning(owner,target.position());
             placeCobweb(owner,target.position());

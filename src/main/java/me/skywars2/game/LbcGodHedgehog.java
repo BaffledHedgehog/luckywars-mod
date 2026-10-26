@@ -174,10 +174,10 @@ public final class LbcGodHedgehog {
     private void bossTick(Encounter e,int phase){
         var boss=e.boss;
         if(Math.floor(boss.getY())<=0&&resident(e.level,new Vec3(0,250,0)))boss.setPos(0,250,0);
-        boss.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,2000,0,false,false));
+        boss.addEffect(ItemEffectLevels.create(MobEffects.SLOW_FALLING,2000,0,false,false));
         // (user) Continuous native spawn rejection replaces the old 500-tick silverfish sweep.
         if(phase>=10&&phase<=50&&phase%10==0){
-            boss.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,20,4,false,false));
+            boss.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,20,4,false,false));
             var victim=nearest(e.level,boss.getEyePosition(),200);
             if(victim!=null)lasers.add(new Laser(e,boss.getEyePosition(),victim.getEyePosition().subtract(boss.getEyePosition()).normalize()));
             boss.setDeltaMovement(Vec3.ZERO);

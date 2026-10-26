@@ -184,7 +184,7 @@ public final class LbcColors {
         }
     }
     private static void effect(Entity entity, Holder<MobEffect> effect, int ticks, int amplifier, boolean hidden) {
-        if(entity instanceof LivingEntity living) living.addEffect(new MobEffectInstance(effect,ticks,amplifier,false,!hidden,!hidden));
+        if(entity instanceof LivingEntity living) living.addEffect(ItemEffectLevels.create(effect,ticks,amplifier,false,!hidden,!hidden));
     }
     private void ignite(Entity target) {
         fillAir(target,Blocks.FIRE.defaultBlockState(),1);
@@ -247,7 +247,7 @@ public final class LbcColors {
         var owner=LbcIndirectKills.playerSource(source);if(owner!=null)game.items().indirectKills().displaced(target,owner);
         return true;
     }
-    private void curse(LivingEntity target,int ticks,ServerPlayer owner) { acceptTeleport(target,new MobEffectInstance(MobEffects.RAID_OMEN,ticks,40,false,false,false),owner); }
+    private void curse(LivingEntity target,int ticks,ServerPlayer owner) { acceptTeleport(target,ItemEffectLevels.create(MobEffects.RAID_OMEN,ticks,40,false,false,false),owner); }
     public int teleportTicks(LivingEntity target) { return score(target,RTP[0]).get(); }
     void addPlayerCounters(ServerPlayer player) {
         for(var key:RTP){int remaining=score(player,key).get();
@@ -273,24 +273,29 @@ public final class LbcColors {
     }
     private static int enhanced(LivingEntity target,Holder<MobEffect> effect) {
         var current=target.getEffect(effect);
-        return current!=null && (current.getAmplifier()==1 || current.getAmplifier()==2) ? current.getAmplifier() : 0;
+        return current!=null && current.getAmplifier()>=1 ? current.getAmplifier() : 0;
     }
     void tickWater() {
         for(var target:List.copyOf(waterEffects)) {
             if(!eligible(target) || target.level()!=game.maps().level()) { waterEffects.remove(target); continue; }
+            if(SignedEnvironmentalEffects.protectedTarget(target))continue;
             int conduit=enhanced(target,MobEffects.CONDUIT_POWER), breathing=enhanced(target,MobEffects.WATER_BREATHING);
             if(conduit==0 && breathing==0) { waterEffects.remove(target); continue; }
             // Source waterpower precedes drown: синий артефакт создаёт воду до проверки дыхания.
-            if(conduit>0) fillAir(target,Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL,conduit==1 ? 1 : 0),2);
+            if(conduit>0) {
+                int radius=SignedEnvironmentalEffects.radius((long)conduit+1,1,15);
+                if(conduit<=2)fillAir(target,Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL,conduit==1 ? 1 : 0),2);
+                else SignedEnvironmentalEffects.conduitFill(target,radius);
+            }
             if(breathing==0) continue;
             var feet=target.level().getBlockState(target.blockPosition());
             if(feet.is(Blocks.WATER)) {
                 target.removeEffect(MobEffects.WITHER);
                 effect(target,MobEffects.STRENGTH,20,breathing,false);
-                effect(target,MobEffects.RESISTANCE,20,breathing+1,false);
-            } else if(feet.is(Blocks.AIR)) {
+                effect(target,MobEffects.RESISTANCE,20,(int)Math.min(Integer.MAX_VALUE,(long)breathing+1),false);
+            } else if(feet.is(Blocks.AIR)&&target.getAirSupply()<=0) {
                 effect(target,MobEffects.WITHER,60,3,true);
-                if(breathing==2) effect(target,MobEffects.POISON,60,3,true);
+                if(breathing>=2) effect(target,MobEffects.POISON,60,3,true);
             }
         }
     }

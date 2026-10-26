@@ -89,7 +89,7 @@ public final class LbcNeutral {
     }
     boolean feather(ServerPlayer p){
         if(!active(p))return false;
-        p.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,1200,0),p);
+        p.addEffect(ItemEffectLevels.create(MobEffects.SLOW_FALLING,1200,0),p);
         LbcOverload.sound(p,p.position(),"minecraft:entity.ender_dragon.flap",1,2,0);
         p.level().sendParticles(new DustParticleOptions(0xFFFFFF,1),p.getX(),p.getY(),p.getZ(),10,.3,.1,.3,0);
         // Its source function has neither mana debit nor cast_wand/mage hooks.

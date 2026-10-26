@@ -1406,7 +1406,7 @@ public final class LbcWands {
                 for(var entity:player.level().getEntitiesOfClass(LivingEntity.class,new AABB(point,point).inflate(12),e->projectileTarget(player,e)))
                     if(entity.getType().builtInRegistryHolder().is(MOBS) && (entity.position().distanceToSqr(point)<=4
                             || entity.position().distanceToSqr(point)<=144 && entity.getBoundingBox().intersects(cell)))
-                        if(entity.addEffect(new MobEffectInstance(MobEffects.LEVITATION,20,30),player))
+                        if(entity.addEffect(ItemEffectLevels.create(MobEffects.LEVITATION,20,30),player))
                             game.items().indirectKills().levitated(entity,player);
             }
             case ACID -> {
@@ -1426,7 +1426,7 @@ public final class LbcWands {
     }
     private void blindEnd(ServerPlayer player,Vec3 point,Entity hit) {
         if(hit!=null) {
-            if(hit instanceof LivingEntity living) living.addEffect(new MobEffectInstance(MobEffects.BLINDNESS,80,0));
+            if(hit instanceof LivingEntity living) living.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,80,0));
             hit.hurtServer(player.level(),new DamageSource(player.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
                     .getOrThrow(DamageTypes.ARROW),player),.25f);
         }

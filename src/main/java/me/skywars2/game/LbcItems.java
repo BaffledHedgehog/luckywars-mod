@@ -1373,7 +1373,7 @@ public final class LbcItems {
     public void screamer(LivingEntity target, ServerPlayer owner, boolean old) {
         int duration=old ? 200 : 120;
         if (!(target instanceof ServerPlayer player)) {
-            target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS,duration,10,false,false),owner);
+            target.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,duration,10,false,false),owner);
             return;
         }
         float volume=old ? 100000 : 1; // Explicitly retained by the author for the old trap.
@@ -1387,7 +1387,7 @@ public final class LbcItems {
         if (!old) sound(player, SoundEvents.WITHER_SPAWN, 0);
         player.level().sendParticles(player, old ? ParticleTypes.CAMPFIRE_SIGNAL_SMOKE : ParticleTypes.CAMPFIRE_COSY_SMOKE, old, false,
                 player.getX(), player.getY() + 1.62, player.getZ(), 5000, 0.5, 0.3, 0.5, 0.05);
-        player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, duration, 10, false, false),owner);
+        player.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS, duration, 10, false, false),owner);
     }
 
     private static void sound(ServerPlayer player, net.minecraft.sounds.SoundEvent sound, float pitch) {
@@ -1628,7 +1628,7 @@ public final class LbcItems {
 
     private static void punish(ServerPlayer player) {
         player.hurtServer(player.level(), player.damageSources().generic(), 1);
-        player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 40, 0));
+        player.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS, 40, 0));
     }
 
     /** Only gameplay counts/deadlines; published HUD caches and tick clocks are never incremented. */
@@ -1712,6 +1712,7 @@ public final class LbcItems {
         if(hudStates.remove(player.getUUID())!=null) player.connection.send(new ClientboundSetActionBarTextPacket(Component.empty()));
     }
     public void stop() {
+        SignedEnvironmentalEffects.clear();
         timeStop.stop();
         academy.stop();
         indirectKills.stop();

@@ -129,7 +129,7 @@ public final class LbcFrost {
         }
         if(state.frozen>0){
             game.items().mana().award(player,"lbc:true_advancements/accesories/jaakivi");
-            player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,500,4),player);
+            player.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,500,4),player);
         }
         save(state);
     }
@@ -186,7 +186,7 @@ public final class LbcFrost {
         effect(entity,effect,ticks,amplifier,null);
     }
     private void effect(LivingEntity entity,Holder<MobEffect> effect,int ticks,int amplifier,LbcIndirectKills.Owner source){
-        game.items().indirectKills().coldEffect(entity,new MobEffectInstance(effect,ticks,amplifier,false,false,false),source);
+        game.items().indirectKills().coldEffect(entity,ItemEffectLevels.create(effect,ticks,amplifier,false,false,false),source);
     }
 
     void tick() {

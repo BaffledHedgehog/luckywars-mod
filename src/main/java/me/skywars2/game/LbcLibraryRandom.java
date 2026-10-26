@@ -87,7 +87,7 @@ final class LbcLibraryRandom {
             for(var target:p.level().getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(type==13?16:15),
                     e->game.items().wands().validTarget(e)&&e.position().distanceToSqr(at)<=(type==13?256:225))){
                 if(type==13){continue;}
-                else target.addEffect(new MobEffectInstance(type==18?MobEffects.WITHER:MobEffects.INSTANT_HEALTH,type==18?1200:200,type==18?0:4,false,false),p);
+                else target.addEffect(ItemEffectLevels.create(type==18?MobEffects.WITHER:MobEffects.INSTANT_HEALTH,type==18?1200:200,type==18?0:4,false,false),p);
             }
             p.level().sendParticles(type==13?ParticleTypes.ELECTRIC_SPARK:type==18?ParticleTypes.SMOKE:ParticleTypes.HEART,at.x,at.y,at.z,type==13?200:type==18?100:300,10,10,10,0);
             if(type!=13)LbcOverload.sound(p,at,type==18?"minecraft:entity.wither.ambient":"minecraft:entity.player.levelup",1,type==18?1:1.5f,0);

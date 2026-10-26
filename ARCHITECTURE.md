@@ -1,3 +1,47 @@
+## Signed status effects - QUALIFIED AND INSTALLED (26 October 2026)
+
+[Approved forty-effect contract](agent_notes/SIGNED_EFFECT_LEVELS.md).
+Full signed-int amplifiers now work through native constructors, persistent and
+wire codecs and both /effect branches. Widen before arithmetic. Native low-level
+cadence remains; high periodic rates scale amounts, negative effects reverse as
+approved. Resistance aboveV heals. Jump safe falling covers ballistic height.
+Player levitation keeps native amplifier0..255 simulation; no correction packets.
+Negative player slow falling stays neutral. Dolphin uses synchronized attributes.
+
+ItemEffectLevels caps item-issued regen/wither5, poison/resistance4 and
+blindness/darkness2 (amplifiers); commands retain full levels. The read-only grant
+checker covers127 production calls and native potion/food paths. Exact stun
+snapshots and duration-only extension preserve previously applied command levels.
+Shadow absorption has additive signed independent clocks, healable hidden HP,
+native food healing and current healed-heart restoration on expiration.
+
+Legacy enhanced fire/water/conduit fields retainII/III; higher spheres cap15,
+sqrt growth and bounded work. Signed air, omens/prices and death effects retain
+roles, Greed, ownership, Time Stop and silverfish blockade. Negative blindness
+reveals invisibility per viewer through actual metadata/type retracking. Shader
+variants add signed visual responses; client-only glow carriers preserve team
+colors and old zone/black-hole/nuclear markers. Enhanced halos are analytic
+capsules for eight nearest actors/viewer; native outlines remain for everyone.
+III+ full proxy invisibility retains the existing player scope.
+
+Build1a8a3825 passed68 recorded results in two actual mode1 matches (123.13s),
+plus83 real RTX4080SUPER GPU checks. Exact433 sources /1203 classes /3139 resources
+match the tested JAR. Native storage/commands, signed formulas, actual travel,
+ballistic falling, potions, shadow health/food, environmental deaths/fields,
+per-viewer packets/carriers and actual-stop cleanup pass, alongside operator,
+team/attribute/combat/projectile/firearm/artifact regressions. Shader GPU validation
+is standalone; actual Minecraft client frames/reconnects and peak TPS are unobserved.
+
+Installer19140 installed1a8a3825 after normal main shutdown/world unlock, preserving
+b2c91dcf rollback and not restarting. Evidence/immutable qualification/receipt:
+build/verification/signed-effects-gameplay/. Ready artifact:
+build/verification/skywars2-signed-effects-1a8a3825.jar.
+Author RP stays unchanged; apply resourcepack_template/SIGNED_EFFECTS_README.md
+assets manually. Protected author files/deletions and live grimoire overrides
+are unchanged. Retain1a8a3825,b2c91dcf,875fed3a; obsolete6e648580 retired.
+Cumulative cleanup322 JARs /11471312079 bytes. Pending/unregistered statements
+in older checkpoints below are historical and superseded by this release.
+
 ## Operator live settings and gamemode return - QUALIFIED AND INSTALLED (26 October 2026)
 
 See [contract and native verification](agent_notes/OPERATOR_LIVE_SETTINGS.md). Operator /settings reads/writes

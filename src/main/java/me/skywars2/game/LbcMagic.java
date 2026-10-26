@@ -868,7 +868,7 @@ public final class LbcMagic {
             // Сохраняем это условие напрямую, без scoreboard-записей и их задержки обновления.
             if ((types & METABOLISM) != 0 && Mth.ceil(player.getHealth()+player.getAbsorptionAmount())
                     < (int)player.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH)) {
-                player.addEffect(new MobEffectInstance(MobEffects.HUNGER,20,2));
+                player.addEffect(ItemEffectLevels.create(MobEffects.HUNGER,20,2));
                 sustainRegeneration(player);
             }
             // Исходный порядок 8 → 5 → 6: выборочная очистка убирает Hunger, полная — также Regen.
@@ -915,7 +915,7 @@ public final class LbcMagic {
             if (duration <= 20) duration += 25;
         }
         // Нативное слияние сохраняет приоритет сильного эффекта и скрытые более слабые эффекты.
-        player.addEffect(new MobEffectInstance(MobEffects.REGENERATION,duration,1));
+        player.addEffect(ItemEffectLevels.create(MobEffects.REGENERATION,duration,1));
     }
     void pulse() {
         var level = game.maps().level();

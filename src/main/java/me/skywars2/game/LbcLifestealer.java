@@ -112,13 +112,13 @@ public final class LbcLifestealer {
         if(count<=0) return;
         int tier=Math.min(3,(count-1)/3);
         if(strength==0 && tier<3) {
-            owner.addEffect(new MobEffectInstance(MobEffects.REGENERATION,20,tier+2),owner);
+            owner.addEffect(ItemEffectLevels.create(MobEffects.REGENERATION,20,tier+2),owner);
             return;
         }
         int amplifier=strength==0?4:strength==1?switch(tier) { case 0->0; case 1->1; case 2->5; default->20; }
                 :switch(tier) { case 0->1; case 1->2; case 2->10; default->40; };
         // /effect give ... instant_health 1 задаёт один тик для мгновенного эффекта.
-        owner.addEffect(new MobEffectInstance(MobEffects.INSTANT_HEALTH,1,amplifier),owner);
+        owner.addEffect(ItemEffectLevels.create(MobEffects.INSTANT_HEALTH,1,amplifier),owner);
     }
     private boolean target(ServerPlayer owner,Entity candidate) {
         return game.items().lifetimes().target(owner,candidate)

@@ -330,8 +330,8 @@ public final class LbcConsuming {
     }
     private void silence(ServerPlayer owner) {
         Vec3 center=owner.getEyePosition();
-        owner.addEffect(new MobEffectInstance(MobEffects.LEVITATION,60,30));
-        owner.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,1200));
+        owner.addEffect(ItemEffectLevels.create(MobEffects.LEVITATION,60,30));
+        owner.addEffect(ItemEffectLevels.create(MobEffects.SLOW_FALLING,1200));
         var stop=new net.minecraft.network.protocol.game.ClientboundStopSoundPacket(null,null);
         for(var player:game.server().getPlayerList().getPlayers()) player.connection.send(stop);
         var erasure=new SilenceErase(owner,game.items().epoch(),center);
@@ -441,8 +441,8 @@ public final class LbcConsuming {
             summons.put(mob,new Owned(owner,game.items().epoch()));
             if(!owner.level().addFreshEntity(mob)) { summons.remove(mob); mob.discard(); }
         }
-        owner.addEffect(new MobEffectInstance(MobEffects.DARKNESS,400,3,false,false));
-        owner.addEffect(new MobEffectInstance(MobEffects.BLINDNESS,400,3,false,false));
+        owner.addEffect(ItemEffectLevels.create(MobEffects.DARKNESS,400,3,false,false));
+        owner.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,400,3,false,false));
     }
     public boolean useScroll(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean destroyer) {
         if(!castable(owner)) return false;

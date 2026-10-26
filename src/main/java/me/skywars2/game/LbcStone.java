@@ -115,7 +115,7 @@ public final class LbcStone {
                 if(owner.level().addFreshEntity(charge)) charges.add(charge);
     }
     void shield(ServerPlayer owner) {
-        owner.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,100,4),owner);
+        owner.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,100,4),owner);
         owner.level().sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.BEDROCK.defaultBlockState()),
                 owner.getX(),owner.getY()+1,owner.getZ(),30,.3,.6,.4,0);
     }

@@ -51,10 +51,10 @@ public final class OperatorSettingsChecks {
             game.config().vanillaKits=false;game.config().vanillaSkills=false;game.config().lbcKits=false;game.config().lbcSkills=false;game.config().lbcLevelups=false;game.config().lbcChallenges=false;
         }
         void settings(){
-            // Release guard until the user has selected the extended per-effect formulas.
-            require(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.GLOWING,20,-2).getAmplifier()==0
-                    &&new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.GLOWING,20,Integer.MAX_VALUE).getAmplifier()==255,
-                    "pending signed-effect formulas are not activated by this unrelated release");
+            // Storage remains signed when live operator controls rebuild effect instances.
+            require(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.GLOWING,20,-2).getAmplifier()==-2
+                    &&new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.GLOWING,20,Integer.MAX_VALUE).getAmplifier()==Integer.MAX_VALUE,
+                    "operator controls preserve approved full signed effect storage");
             var modeRoot=game.server().getCommands().getDispatcher().getRoot().getChild("gamemode");
             for(String number:List.of("0","1","2","3"))require(modeRoot.getChild(number) instanceof com.mojang.brigadier.tree.LiteralCommandNode<?>,"numeric alias is a vanilla-client-readable literal: "+number);
             require(command(game,alpha,"settings",true)==1,"operator can read settings during a real match");

@@ -313,18 +313,18 @@ public final class LbcClouds {
         level.sendParticles(ParticleTypes.SNEEZE, cloud.getX(), cloud.getY(), cloud.getZ(), 10, 4, 4, 4, 0);
         if (level.getRandom().nextFloat() < .03f) spawnAcid(cloud);
         for (var entity : targets(level, cloud.position(), 6)) if (entity.onGround()) {
-            entity.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 40, 4),cloud);
-            entity.addEffect(new MobEffectInstance(MobEffects.WITHER, 200, 0),cloud);
+            entity.addEffect(ItemEffectLevels.create(MobEffects.SLOWNESS, 40, 4),cloud);
+            entity.addEffect(ItemEffectLevels.create(MobEffects.WITHER, 200, 0),cloud);
         }
     }
 
     private void phosphine(AreaEffectCloud cloud) {
         var level = (ServerLevel) cloud.level();
         for (var entity : targets(level, cloud.position(), 8)) {
-            entity.addEffect(new MobEffectInstance(MobEffects.POISON, 200, 0),cloud);
-            entity.addEffect(new MobEffectInstance(MobEffects.WITHER, 200, 0),cloud);
-            entity.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 200, 0),cloud);
-            entity.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 200, 0),cloud);
+            entity.addEffect(ItemEffectLevels.create(MobEffects.POISON, 200, 0),cloud);
+            entity.addEffect(ItemEffectLevels.create(MobEffects.WITHER, 200, 0),cloud);
+            entity.addEffect(ItemEffectLevels.create(MobEffects.WEAKNESS, 200, 0),cloud);
+            entity.addEffect(ItemEffectLevels.create(MobEffects.SLOWNESS, 200, 0),cloud);
         }
     }
 
@@ -584,7 +584,7 @@ public final class LbcClouds {
                 entity.hurtServer(level, damage, great ? 7 : ordinary ? 4 : 3);
                 level.sendParticles(ParticleTypes.FLAME, entity.getX(), entity.getY() + 1, entity.getZ(), 1, .3, .6, .3, .05);
             } else if (ordinary || great || !entity.entityTags().contains("muravei")) {
-                var poison=new MobEffectInstance(MobEffects.POISON,great ? 1200 : ordinary ? 600 : 300,0);
+                var poison=ItemEffectLevels.create(MobEffects.POISON,great ? 1200 : ordinary ? 600 : 300,0);
                 if(wand) {
                     if(entity.addEffect(poison,projectile.getOwner()) && projectile.getOwner() instanceof ServerPlayer owner)
                         game.items().indirectKills().poisoned(entity,owner);
@@ -621,8 +621,8 @@ public final class LbcClouds {
             for(var e:nearby)if(e.position().distanceToSqr(at)<=radius*radius&&hit.add(e)){
                 if(burning)e.hurtServer(level,ownedDamage(level,DamageTypes.ON_FIRE,shot,shot.getOwner()),variant==1?15:25);
                 else{
-                    e.addEffect(new MobEffectInstance(MobEffects.POISON,variant==1?2400:1000,10),shot.getOwner());
-                    if(variant==2)e.addEffect(new MobEffectInstance(MobEffects.WITHER,200,10),shot.getOwner());
+                    e.addEffect(ItemEffectLevels.create(MobEffects.POISON,variant==1?2400:1000,10),shot.getOwner());
+                    if(variant==2)e.addEffect(ItemEffectLevels.create(MobEffects.WITHER,200,10),shot.getOwner());
                 }
             }
             if(level.getRandom().nextFloat()<(variant==1?.2f:.7f))sound(level,at,SoundEvents.FIRE_EXTINGUISH,variant==1?2:.5f,2,Double.POSITIVE_INFINITY,0);

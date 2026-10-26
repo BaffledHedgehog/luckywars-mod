@@ -67,7 +67,7 @@ public final class LbcBloodConfuse {
                 e->e.position().distanceToSqr(center)<=radius*radius&&game.items().wands().target(owner,e));
     }
     private void effect(LivingEntity target,ServerPlayer owner,Holder<MobEffect> type,int ticks,int amplifier,boolean visible){
-        target.addEffect(new MobEffectInstance(type,ticks,amplifier,false,visible),owner);
+        target.addEffect(ItemEffectLevels.create(type,ticks,amplifier,false,visible),owner);
     }
     private void particles(ServerPlayer owner,Vec3 at,ParticleOptions type,int count,double dx,double dy,double dz,double speed){
         owner.level().sendParticles(type,true,false,at.x,at.y+1,at.z,count,dx,dy,dz,speed);

@@ -162,12 +162,12 @@ public final class LbcOverload {
             });
         }
         if(p.isAlive() && (mask&2)!=0)
-            p.addEffect(new MobEffectInstance(MobEffects.RESISTANCE,20,stage-1,false,false,false));
+            p.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,20,stage-1,false,false,false));
         if(p.isAlive() && mana.get(p)<0 && mana.regeneration(p)<0 && mana.maximum(p)<0)
             mana.award(p,"lbc:true_advancements/potions/oh_no_mana");
     }
     private static void effect(ServerPlayer p,Holder<net.minecraft.world.effect.MobEffect> effect,int ticks,int amplifier) {
-        p.addEffect(new MobEffectInstance(effect,ticks,amplifier,false,true,true));
+        p.addEffect(ItemEffectLevels.create(effect,ticks,amplifier,false,true,true));
     }
     private boolean target(ServerPlayer owner,LivingEntity target) {
         return target!=owner && target.isAlive() && !target.isRemoved() && !target.entityTags().contains("spectator")
@@ -202,9 +202,9 @@ public final class LbcOverload {
                 e.hurtServer(level,damage,(float)amount);
                 if(!big && mana.overloadArmor(p)==15 && p.isAlive()) {
                     // EffectCommands treats the instant-effect duration argument as ticks, not seconds.
-                    p.addEffect(new MobEffectInstance(MobEffects.SATURATION,1,0,false,false,false));
+                    p.addEffect(ItemEffectLevels.create(MobEffects.SATURATION,1,0,false,false,false));
                     if(p.getRandom().nextFloat()<.005f)
-                        p.addEffect(new MobEffectInstance(MobEffects.INSTANT_HEALTH,1,0,false,false,false));
+                        p.addEffect(ItemEffectLevels.create(MobEffects.INSTANT_HEALTH,1,0,false,false,false));
                 }
                 if(++hits==(big ? 2 : 1)) break;
             }

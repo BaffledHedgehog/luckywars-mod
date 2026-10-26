@@ -16,7 +16,7 @@ import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
 
-/** Storage and real command coverage without assuming unapproved effect-specific formulas. */
+/** Storage and real command coverage; approved effect-specific formulas have separate native suites. */
 public final class SignedEffectLevelChecks {
     private static final int[] AMPLIFIERS = {
             Integer.MIN_VALUE, -257, -2, -1, 0, 1, 254, 255, 256, Integer.MAX_VALUE
@@ -138,6 +138,6 @@ public final class SignedEffectLevelChecks {
         commandTree(game);
         codecs(owner.level());
         commandsAndEntitySave(game, owner.level());
-        SkyWars2.LOGGER.info("[check] PASS signed-effect-levels (40 effects across signed/intmax constructor, copy, recursive persistent/stream codecs and native effect packets; both real /effect branches, actual entity save/load, clear and hidden negative precedence; formulas pending user choices)");
+        SkyWars2.LOGGER.info("[check] PASS signed-effect-levels (40 effects across signed/intmax constructor, copy, recursive persistent/stream codecs and native effect packets; both real /effect branches, actual entity save/load, clear and hidden negative precedence; approved gameplay formulas covered by dedicated native suites)");
     }
 }

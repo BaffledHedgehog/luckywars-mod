@@ -134,9 +134,9 @@ public final class LbcVexSword {
                 || hand==InteractionHand.OFF_HAND && !game.config().offhandWands
                 || !loadedSegment(owner.level(),owner.position(),owner.position())) return false;
         mana.score(owner,CHARGED).add(-1);
-        owner.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY,1200,1,true,false),owner);
-        owner.addEffect(new MobEffectInstance(MobEffects.LEVITATION,20,30,true,false),owner);
-        owner.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,400,0),owner);
+        owner.addEffect(ItemEffectLevels.create(MobEffects.INVISIBILITY,1200,1,true,false),owner);
+        owner.addEffect(ItemEffectLevels.create(MobEffects.LEVITATION,20,30,true,false),owner);
+        owner.addEffect(ItemEffectLevels.create(MobEffects.SLOW_FALLING,400,0),owner);
         zones.add(new Zone(owner,owner.position(),game.items().epoch()));
         var p=owner.position();
         var marker=new BlockParticleOption(ParticleTypes.BLOCK_MARKER,Blocks.WOOL.pick(net.minecraft.world.item.DyeColor.WHITE).defaultBlockState());

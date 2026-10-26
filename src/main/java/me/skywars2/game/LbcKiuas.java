@@ -235,7 +235,7 @@ public final class LbcKiuas {
 
     private void kiuPulse(Aura aura,int pulses,boolean dual) {
         var player=aura.owner;
-        player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE,600,0),player);
+        player.addEffect(ItemEffectLevels.create(MobEffects.FIRE_RESISTANCE,600,0),player);
         aura.level.sendParticles(ParticleTypes.FLAME,player.getX(),player.getY()+1,player.getZ(),pulses*10,.5,1,.5,0);
         // Execute fill coordinates are relative to the precise position, including fractional block edges.
         var lo=BlockPos.containing(player.getX()-1.5,player.getY()-1.5,player.getZ()-1.5);
@@ -251,7 +251,7 @@ public final class LbcKiuas {
 
     private void sunPulse(Aura aura,int pulses,boolean dual) {
         var player=aura.owner;
-        player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE,2400,0),player);
+        player.addEffect(ItemEffectLevels.create(MobEffects.FIRE_RESISTANCE,2400,0),player);
         aura.level.sendParticles(ParticleTypes.FLAME,player.getX(),player.getY()+1,player.getZ(),pulses*40,.5,1,.5,2);
         for(int i=0;i<pulses;i++) LbcOverload.sound(player,"minecraft:block.fire.ambient",3,0,0);
         if(dual) for(int i=0;i<pulses;i++)

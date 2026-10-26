@@ -99,7 +99,7 @@ public final class LbcHedgehogSpikes {
         var cause=game.items().indirectKills().coldCause(author,true);
         switch(arrow.kind){
             case BLIND->game.items().psycho().afflict(target,author,0,0,0,6000);
-            case WITHER->{var effect=new MobEffectInstance(MobEffects.WATER_BREATHING,600,1);if(target.addEffect(effect,author)){
+            case WITHER->{var effect=ItemEffectLevels.create(MobEffects.WATER_BREATHING,600,1);if(target.addEffect(effect,author)){
                 var current=target.getEffect(MobEffects.WATER_BREATHING);if(current!=null&&current.getAmplifier()==1)water.put(target,new Water(current,author,cause,game.items().epoch()));
                 game.items().magic().colors().effectsChanged(target);}}
             case CONFUSE,POISON,BOOM->pending.add(new Pending(target,arrow.kind,author,cause,game.items().epoch()));

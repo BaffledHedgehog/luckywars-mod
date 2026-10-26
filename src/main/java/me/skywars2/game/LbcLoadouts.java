@@ -367,7 +367,7 @@ public final class LbcLoadouts {
         if (config.lbcSkills && skill != null && allowed(player, skill)) {
             // Native hidden-effect chain reproduces I -> II -> III -> IV application order.
             for (int amplifier = 0; amplifier < 4; amplifier++) {
-                player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, (50 - amplifier * 10) * 20, amplifier));
+                player.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE, (50 - amplifier * 10) * 20, amplifier));
             }
             resistanceOwners.put(player.getUUID(), player);
         }

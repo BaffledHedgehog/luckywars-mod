@@ -1,0 +1,23 @@
+Root qualification: build1a8a3825 passed the dedicated native suite and broader
+regressions in two actual matches (68 results total); installed by worker19140.
+Evidence: build/verification/signed-effects-gameplay/.
+
+# Signed environmental effects candidate
+
+Scope: effects23-26 and33-40. This is an implementation record, not gameplay qualification. The environmental agent did not run a build or server.
+
+Levels use `(long) amplifier + 1`. Bad/raid omen consumers cap mechanics to V without changing stored levels. Nonpositive bad/raid/trial omens are inert. Bad Omen conversion caps its consumer value before constructing Raid Omen, avoiding accidental creation of existing40-42 teleport markers. Existing marker interception remains.
+
+Fire Resistance negatives multiply fire damage by `1 + .2 * abs(L)`; nonpositives grant no immunity. II fills its exact position, III its3x3x3 cube, matching legacy `mobs_2t.mcfunction`. AboveIII a sphere grows as `ceil(sqrt(L-2))`, capped15. The nearby cube is immediate; the extended sphere advances128 candidate cells per actor every2 ticks. IV+ fire damage has radiusL, deals2 every2 ticks, and iterates loaded entities only. Fire damage and wind displacement retain WILD effect-author attribution. Greed, roles and actual Time Stop/frost/manual freeze guard new work.
+
+Only positive Water Breathing, Conduit or Nautilus grant the native underwater breathing guard. Positive Nautilus refills underwater air. Negatives add `abs(L)` depletion per native loss tick and compose with negative oxygen attributes through an outer WrapMethod. Loss saturates at native drowning threshold-20 instead of wrapping. Water BreathingII outside water drains half an air/tick; III drains1/tick, subsequent levels use `(L-1)/2`. Native outside refill is suppressed, with no position correction. Legacy Water Breathing debuffs wait until air0. Underwater Strength/Resistance remain and use the shared production item-effect grant caps.
+
+ConduitII retains non-source water andIII+ source water. The exact legacy3x4x3 box remains atII/III. AboveIII a sphere grows `ceil(sqrt(L/3))`, capped15. Nearby water stays immediate; an ownership-preserving queue advances128 candidates/actor/tick under a global2048 candidate budget. Negative mining/vision consumers belong to shared numeric/visual code.
+
+Wind death radius is `4*abs(L)` and force scales with magnitude and distance falloff; negatives pull. It scans loaded entities without native large explosion block scans. Weaving creates/removes up to `2*abs(L)` eligible blocks in a cube of radius `ceil(sqrt(abs(L)))`, capped50, processing2048 candidate cells/tick. Its finite volume can exhaust before its requested count. Oozing creates two slime/magma cube offspring of size `2 + floor(log2(abs(L)))`. This grows across the signed range without native size127 saturation, integer-square health overflow, or huge landing particle loops. Infestation grants one guaranteed mob for each full100% chance plus a native1-2 mob batch on fractional success. Positive silverfish/negative endermite work retains an exact long remainder and processes32 mobs/tick. God Hedgehog's silverfish blockade takes precedence. Queues pause with source freeze state and clear at match stop.
+
+Root integration: register eight `SignedEnvironmental*Mixin` classes: Living, Breathing, Death, Infested, Omen, Raid, Trial, Hero. Call `SignedEnvironmentalEffects.tick()` once per server tick and `clear()` at stop. Tick includes weaving. Add `spawnedOwner(Entity)` to summoned-owner resolution. Author capture binds to the exact active native effect instance. Hero price adjustments use symmetric signed native discount magnitude bounded to offer stack size, before native merchant update packets.
+
+`SignedEnvironmentalChecks.verify(GameController)` wraps reflection errors and checks signed endpoints, actual native fire damage/immunity, native air guards/refill and negative oxygen composition. Its isolated fixture exercises actual native KILLED removals for positive/negative wind, real weaving blocks and queue processing, actual slime/magma offspring sizes, native hurt infestation callbacks including both1/2 fractional outcomes and guaranteed high-level signed types, and native baseTick fire sphere boundaries. The fixture restores blocks and entity velocities and removes spawned actors.
+
+Audit evidence: native per-effect Java and reference JSON in `build/verification/effect-level-audit`, plus extracted LivingEntity, Villager, Raid, TrialSpawnerStateData, Slime, AbstractCubeMob and MerchantOffer. Read-only javap confirmed invocation owners and Entity.syncVelocity. Client bubbles/vision pixels, extreme population throughput and peak TPS require root qualification.

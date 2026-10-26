@@ -221,7 +221,7 @@ final class LbcErecto {
         var damage=new DamageSource(owner.level().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.ELECTRO_BOLT),owner);
         var affected=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());
         LbcDamage.hurtSegment(owner.level(),damage,from,end,Vec3.ZERO,.5,.5f,1,e->e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(owner,e),false,e->{
-            if(affected.add(e)&&e instanceof LivingEntity living){living.addEffect(new MobEffectInstance(MobEffects.GLOWING,20,0),owner);living.addEffect(new MobEffectInstance(MobEffects.SLOWNESS,20,100),owner);}
+            if(affected.add(e)&&e instanceof LivingEntity living){living.addEffect(ItemEffectLevels.create(MobEffects.GLOWING,20,0),owner);living.addEffect(ItemEffectLevels.create(MobEffects.SLOWNESS,20,100),owner);}
         },null);
     }
     void clearRay(ServerPlayer owner){rays.remove(owner);game.items().mana().score(owner,"ray").set(0);clearSniperWindup(owner);}

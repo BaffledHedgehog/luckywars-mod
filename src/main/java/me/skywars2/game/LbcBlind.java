@@ -200,7 +200,7 @@ public final class LbcBlind {
         for(ServerPlayer target:owner.level().getEntitiesOfClass(ServerPlayer.class,
                 new AABB(point,point).inflate(5),player->player!=owner && game.items().wands().target(owner,player)
                         && player.position().distanceToSqr(point)<=25))
-            target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS,200,0,false,false),owner);
+            target.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,200,0,false,false),owner);
         LbcOverload.sound(owner,point,"minecraft:entity.squid.squirt",1,1,0);
         var cloud=new RainCloud(owner,point.add(0,10,0),game.items().epoch());
         clouds.add(cloud);
@@ -295,8 +295,8 @@ public final class LbcBlind {
         var damage=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
                 .getOrThrow(DamageTypes.GENERIC),charge,owner);
         living.hurtServer(owner.level(),damage,.5f);
-        living.addEffect(new MobEffectInstance(MobEffects.BLINDNESS,200,0),owner);
-        living.addEffect(new MobEffectInstance(MobEffects.WITHER,80,0),owner);
+        living.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,200,0),owner);
+        living.addEffect(ItemEffectLevels.create(MobEffects.WITHER,80,0),owner);
         if(charge.trial && charge.trialHand!=null && charge.trialOwner==owner)
             game.items().academy().blindTrial(owner,charge.trialHand,previouslyBlind);
     }

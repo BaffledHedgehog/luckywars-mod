@@ -101,7 +101,7 @@ public final class LbcSpecialTools {
         var start=p.position();
         // The old /tp lunges through the actual victim, ending four blocks beyond it.
         for(int i=0;i<=16;i++)if(!resident(level,BlockPos.containing(start.lerp(destination,i/16.0))))return;
-        p.addEffect(new MobEffectInstance(MobEffects.REGENERATION,20,2,true,false),p);
+        p.addEffect(ItemEffectLevels.create(MobEffects.REGENERATION,20,2,true,false),p);
         p.teleportTo(destination.x,destination.y,destination.z);
         var dust=new DustParticleOptions(0x4c0000,4);
         for(int n=-4;n<=4;n++){

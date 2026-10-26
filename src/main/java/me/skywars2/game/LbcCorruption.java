@@ -69,9 +69,9 @@ final class LbcCorruption {
             // The source's undead replacement is an authored tag, not vanilla's broader undead classification.
             if(mode==1){
                 boolean unholy=target.getType().builtInRegistryHolder().is(UNHOLY);
-                target.addEffect(new MobEffectInstance(unholy?MobEffects.WITHER:MobEffects.POISON,200,unholy?1:0,false,false),owner);
-            }else if(mode==2)target.addEffect(new MobEffectInstance(MobEffects.WITHER,140,1,false,false),owner);
-            else if(mode==3)target.addEffect(new MobEffectInstance(MobEffects.HUNGER,40,255,false,false),owner);
+                target.addEffect(ItemEffectLevels.create(unholy?MobEffects.WITHER:MobEffects.POISON,200,unholy?1:0,false,false),owner);
+            }else if(mode==2)target.addEffect(ItemEffectLevels.create(MobEffects.WITHER,140,1,false,false),owner);
+            else if(mode==3)target.addEffect(ItemEffectLevels.create(MobEffects.HUNGER,40,255,false,false),owner);
         }
         // Ordinary dust is rolled on every cast. Academy narrows that same per-target chance to damage mode.
         if(!academy||mode==4)for(var target:targets)

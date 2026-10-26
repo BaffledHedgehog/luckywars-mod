@@ -112,7 +112,7 @@ public final class LbcEvokerBass {
         int duration=switch(mode){case 2->240;case 4->180;default->160;};
         for(var mob:owner.level().getEntitiesOfClass(LivingEntity.class,owner.getBoundingBox().inflate(25),e->e.distanceToSqr(owner)<=625&&e.distanceToSqr(owner)>=.0001)) {
             if(!game.items().wands().target(owner,mob) || academy&&mode==3&&!(mob instanceof ServerPlayer))continue;
-            mob.addEffect(new MobEffectInstance(effect,duration,mode==2?3:0,false,false),owner);
+            mob.addEffect(ItemEffectLevels.create(effect,duration,mode==2?3:0,false,false),owner);
             if(mob instanceof ServerPlayer p)p.sendSystemMessage(net.minecraft.network.chat.Component.translatable("player_stunned"));
         }
         combo(owner);

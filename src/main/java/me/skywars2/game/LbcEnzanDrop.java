@@ -23,7 +23,7 @@ public final class LbcEnzanDrop {
         var target = game.items().cageDrops().target(token);
         if (target != null) {
             // Native effect hooks decide acceptance and retain the actual thrower's causal source.
-            target.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 60, 127),
+            target.addEffect(ItemEffectLevels.create(MobEffects.LEVITATION, 60, 127),
                     game.items().specialDrops().owner(token));
             var reward = bucket();
             // A bucket cannot merge; bypass add's full-Creative deletion when no slot is available.

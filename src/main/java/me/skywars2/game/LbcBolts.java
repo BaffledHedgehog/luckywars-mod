@@ -571,8 +571,8 @@ public final class LbcBolts {
         }
     }
     private void watering(ServerPlayer owner) {
-        owner.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING,4800,0));
-        owner.addEffect(new MobEffectInstance(MobEffects.STRENGTH,4800,2));
+        owner.addEffect(ItemEffectLevels.create(MobEffects.WATER_BREATHING,4800,0));
+        owner.addEffect(ItemEffectLevels.create(MobEffects.STRENGTH,4800,2));
         waters.add(new Water(owner,owner.position(),game.items().epoch()));
         for(int i=0;i<4;i++) waters.add(new Water(owner,owner.position().add(OFFSETS[i].scale(.5)),game.items().epoch()));
     }

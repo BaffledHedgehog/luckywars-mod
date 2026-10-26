@@ -93,9 +93,9 @@ public final class LbcAdvancedSnow {
             }
             LbcOverload.sound(p,p.position(),"minecraft:entity.enderman.teleport",1,1,0);
             p.teleportTo(p.level(),destination.x,destination.y,destination.z,Set.of(),p.getYRot(),p.getXRot(),true);
-            if(academy)p.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,20,0),p);
+            if(academy)p.addEffect(ItemEffectLevels.create(MobEffects.SLOW_FALLING,20,0),p);
             else{
-                p.addEffect(new MobEffectInstance(MobEffects.INSTANT_DAMAGE,1,0),p);
+                p.addEffect(ItemEffectLevels.create(MobEffects.INSTANT_DAMAGE,1,0),p);
                 if(p.getItemInHand(hand)==stack&&LbcAcademy.trial(stack)&&!p.level().getBlockState(p.blockPosition().above()).is(AIRS))game.items().academy().ready(p,hand,stack);
                 double distance=from.distanceTo(hit.getLocation());if(distance>=89.5&&distance<100)game.items().mana().award(p,"lbc:true_advancements/staffs/teleport");
             }

@@ -227,7 +227,7 @@ public final class LbcElectro {
         if (target instanceof ServerPlayer player && game.items().magic().rejectEffect(player, effect)) {
             return;
         }
-        target.addEffect(new MobEffectInstance(effect, 20, 10, false, true, true), owner);
+        target.addEffect(ItemEffectLevels.create(effect, 20, 10, false, true, true), owner);
     }
 
     private void yellowHit(ServerPlayer owner) {

@@ -51,11 +51,11 @@ public final class LbcOverloadArmor {
 
         int amplifier = mana.get(player) <= -20001 ? 127 : 76;
         clearOwnedLevitation(player);
-        if (player.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 20, amplifier, false, false, false))) {
+        if (player.addEffect(ItemEffectLevels.create(MobEffects.LEVITATION, 20, amplifier, false, false, false))) {
             var effect = player.getEffect(MobEffects.LEVITATION);
             if (effect != null && effect.getAmplifier() == amplifier) ownedLevitation.put(player.getUUID(), amplifier);
         }
-        player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 40, 4, false, false, false));
+        player.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE, 40, 4, false, false, false));
         if (!game.items().magic().rejectCustomEffect(player)) mana.score(player, JUMP_TIMER).set(20);
 
         drainNearbyPlayers(player, 4, 2500, true, false);
@@ -103,7 +103,7 @@ public final class LbcOverloadArmor {
                 player.getX() + localRight.x, player.getY(), player.getZ() + localRight.z, 1, 0, 0, 0, 1);
         player.level().sendParticles(PowerParticleOption.create(ParticleTypes.DRAGON_BREATH,1),
                 player.getX() - localRight.x, player.getY(), player.getZ() - localRight.z, 1, 0, 0, 0, 1);
-        player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 20, 4, false, false, false));
+        player.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE, 20, 4, false, false, false));
         slamTicks += 2;
         slam.set(slamTicks);
 

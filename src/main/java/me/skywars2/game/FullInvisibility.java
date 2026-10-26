@@ -43,6 +43,7 @@ public final class FullInvisibility implements PolymerEntity {
     private final ServerPlayer owner;
     // Кодировщик Polymer может работать вне server thread: ему доступен только неизменяемый снимок.
     private volatile View view = NORMAL;
+    private volatile long invisibilityLevel;
     private volatile Set<UUID> cameraViewers = Set.of();
 
     private FullInvisibility(ServerPlayer owner) { this.owner = owner; }
@@ -56,7 +57,13 @@ public final class FullInvisibility implements PolymerEntity {
     public static void effectsChanged(LivingEntity entity) {
         if (entity instanceof ServerPlayer player && PolymerEntity.get(player) instanceof FullInvisibility overlay) {
             var effect = player.getEffect(MobEffects.INVISIBILITY);
-            overlay.update(effect != null && effect.getAmplifier() >= 2);
+            long previous = overlay.invisibilityLevel;
+            overlay.invisibilityLevel = effect == null ? 0 : (long) effect.getAmplifier() + 1;
+            overlay.update(overlay.invisibilityLevel >= 3);
+            if (previous != overlay.invisibilityLevel && previous >= 3 && overlay.invisibilityLevel >= 3)
+                for (var viewer : List.copyOf(PlayerLookup.tracking(player)))
+                    if (viewer != player && !overlay.cameraViewers.contains(viewer.getUUID()))
+                        PolymerEntityUtils.refreshEntity(viewer, player);
         }
     }
 
@@ -152,7 +159,22 @@ public final class FullInvisibility implements PolymerEntity {
     }
 
     private boolean hiddenFor(ServerPlayer viewer) {
-        return view.hidden && viewer != owner && (viewer == null || !cameraViewers.contains(viewer.getUUID()));
+        return view.hidden && SignedEffectVisuals.effectiveInvisibility(invisibilityLevel, viewer) >= 3
+                && viewer != owner && (viewer == null || !cameraViewers.contains(viewer.getUUID()));
+    }
+
+    /** Refresh a viewer when negative blindness crosses an invisibility threshold. */
+    public static void viewerChanged(ServerPlayer viewer) {
+        for (var overlay : List.copyOf(HIDDEN.values())) {
+            if (overlay.owner != viewer && !overlay.cameraViewers.contains(viewer.getUUID())
+                    && PlayerLookup.tracking(overlay.owner).contains(viewer))
+                PolymerEntityUtils.refreshEntity(viewer, overlay.owner);
+        }
+    }
+
+    public static boolean proxyFor(int id, ServerPlayer viewer) {
+        var overlay = HIDDEN.get(id);
+        return overlay != null && overlay.hiddenFor(viewer);
     }
 
     private static <T> SynchedEntityData.DataValue<T> value(Interaction proxy, EntityDataAccessor<T> accessor) {
@@ -171,7 +193,7 @@ public final class FullInvisibility implements PolymerEntity {
     @Override public void modifyRawTrackedData(List<SynchedEntityData.DataValue<?>> data,
                                                ServerPlayer viewer, boolean initial) {
         View snapshot = view;
-        if (snapshot.hidden && viewer != owner && (viewer == null || !cameraViewers.contains(viewer.getUUID()))) {
+        if (hiddenFor(viewer)) {
             data.clear();
             data.addAll(snapshot.metadata);
         }

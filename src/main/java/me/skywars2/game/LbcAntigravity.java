@@ -220,7 +220,7 @@ public final class LbcAntigravity {
                 double speed=Math.max(0,top+lifted.speed-living.getBoundingBox().minY);
                 lift(living,speed,storm.author);
                 passenger.appliedSpeed=speed;passenger.controlled=true;carried.add(living);
-                living.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING,30,0,true,false,false),storm.author);
+                living.addEffect(ItemEffectLevels.create(MobEffects.SLOW_FALLING,30,0,true,false,false),storm.author);
             }
             display.setPos(next);
             boolean nearby=false;

@@ -96,6 +96,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
         });
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             if (game != null) { game.tick(); GameChecks.tick(game); }
+            me.skywars2.game.SignedEnvironmentalEffects.tick();
+            me.skywars2.game.SignedEffectVisuals.tick(server);
         });
         ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
             if(game!=null) game.cancelQueuedEntityUnload(entity);
@@ -120,11 +122,14 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null && level == game.maps().level()) game.items().magic().chunkUnloaded(chunk);
         });
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
+            me.skywars2.game.SignedEnvironmentalEffects.clear();
+            me.skywars2.game.SignedEffectVisuals.stop(server);
             if (game != null) { game.shutdown(); game = null; }
         });
-        ServerPlayerEvents.JOIN.register(player -> { if (game != null) game.join(player); });
+        ServerPlayerEvents.JOIN.register(player -> { if (game != null) game.join(player); me.skywars2.game.SignedEffectVisuals.joined(player); });
         ServerPlayerEvents.LEAVE.register(player -> {
             FullInvisibility.cameraChanging(player, null);
+            me.skywars2.game.SignedEffectVisuals.clear(player);
             if (game != null) game.leave(player);
         });
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, player, alive) -> {
@@ -133,6 +138,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             // При респауне объект игрока заменяется, а UUID остаётся: старый доступ камеры не переносится.
             FullInvisibility.cameraChanging(oldPlayer, null);
             if (game != null) game.respawned(player);
+            me.skywars2.game.SignedEffectVisuals.joined(player);
         });
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, damage) -> {
             // Fabric пропускает AFTER_DAMAGE при смертельном ударе; испытания должны учитывать и такие попадания.
