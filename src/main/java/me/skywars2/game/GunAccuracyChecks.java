@@ -77,6 +77,21 @@ public final class GunAccuracyChecks {
             var zoom=game.items().rifleZoom();zoom.forget(owner);game.items().magnum().forget(owner);game.items().shooters().resetCooldown(owner);
             owner.getInventory().clearContent();var gun=loot(game,owner,leaf);owner.setItemInHand(hand,gun);
             owner.getInventory().setItem(9,leaf.equals("magnum")?round(game,owner):new ItemStack(Items.ARROW,8));
+            if(!ak && hand==InteractionHand.OFF_HAND) {
+                var before=gun.copy();var ammo=owner.getInventory().getItem(9).copy();
+                var position=owner.position();var motion=owner.getDeltaMovement();
+                float yaw=owner.getYRot(),pitch=owner.getXRot();int mana=game.items().mana().get(owner);
+                zoom.punch(owner);recording.packets.clear();
+                require(!zoom.scoped(owner)&&!gun.getItem().use(owner.level(),owner,hand).consumesAction(),"offhand rifle rejects scope and native fire");
+                require(recording.packets.stream().noneMatch(packet->packet instanceof ClientboundLevelParticlesPacket
+                        ||packet instanceof net.minecraft.network.protocol.game.ClientboundPlayerRotationPacket)
+                        &&ItemStack.matches(gun,before)&&ItemStack.matches(owner.getInventory().getItem(9),ammo)
+                        &&game.items().mana().get(owner)==mana&&game.items().magnum().queued(owner)==0
+                        &&game.items().shooters().cooldownRemaining(owner)==0&&owner.position().equals(position)
+                        &&owner.getDeltaMovement().equals(motion)&&owner.getYRot()==yaw&&owner.getXRot()==pitch,
+                        "offhand rifle produces no trace/recoil or resource/position mutation");
+                continue;
+            }
             if(ak)game.items().ak47().setAmmo(owner,10);else zoom.punch(owner);
             owner.setOnGround(true);owner.setKnownMovement(Vec3.ZERO);owner.setDeltaMovement(new Vec3(0,-.0784,0));
             int count=leaf.equals("magnum")?5:1;
@@ -132,7 +147,7 @@ public final class GunAccuracyChecks {
             for(String leaf:List.of("slr","magnum","ak47","ak47_finite"))
                 for(var hand:InteractionHand.values())for(boolean scoped:List.of(false,true))for(double speed:new double[]{0,.075,.15,.3,1.5}) {
                     boolean ak=leaf.startsWith("ak47");
-                    if(ak&&scoped)continue;
+                    if(ak&&scoped || !ak&&hand==InteractionHand.OFF_HAND)continue;
                     zoom.forget(owner);game.items().magnum().forget(owner);game.items().shooters().resetCooldown(owner);
                     owner.getInventory().clearContent();owner.setYRot(37);owner.setXRot(-15);
                     owner.setKnownMovement(new Vec3(speed,0,0));owner.setDeltaMovement(Vec3.ZERO);
@@ -163,7 +178,7 @@ public final class GunAccuracyChecks {
                 var shot=LbcGunAccuracy.sample(look,20,RandomSource.create(i));
                 require(Math.abs(shot.lengthSqr()-1)<1e-10&&shot.dot(look)>=Math.cos(Math.toRadians(20))-1e-10,"vertical and horizontal cone bounds");
             }
-            SkyWars2.LOGGER.info("[check] PASS gun-accuracy (native teleport-ACK regression, camera-only recoil and full aimed five-shot Magnum bursts, rapid rotation, 60 speed/scope uses, both hands/AK variants and cone bounds)");
+            SkyWars2.LOGGER.info("[check] PASS gun-accuracy (native teleport-ACK regression, camera-only recoil and full aimed five-shot Magnum bursts, rapid rotation, 40 speed/scope uses, rifle offhand rejection and both AK hands/variants and cone bounds)");
         } finally {
             zoom.forget(owner);game.items().magnum().forget(owner);game.items().shooters().resetCooldown(owner);
             game.items().ak47().setAmmo(owner,ammunition);

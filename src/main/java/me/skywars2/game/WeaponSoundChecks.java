@@ -101,6 +101,13 @@ public final class WeaponSoundChecks {
                 viewer.teleportTo(viewer.level(),origin.x+distance,origin.y,origin.z,Set.of(),0,0,true);
                 clear(own,other);
                 int mode=LbcMagnum.mode(gun);
+                if(hand==InteractionHand.OFF_HAND) {
+                    var before=gun.copy();int mana=game.items().mana().get(shooter);
+                    require(!use(shooter,hand)&&ItemStack.matches(gun,before)&&game.items().mana().get(shooter)==mana,
+                            "offhand Magnum mode input rejected without stack/mana mutation");
+                    require(own.sounds(click).isEmpty()&&other.sounds(click).isEmpty(),"offhand Magnum emits no mode click at "+distance);
+                    continue;
+                }
                 require(use(shooter,hand) && LbcMagnum.mode(gun)==(mode+1)%6,"native Magnum sneak mode input / "+hand);
                 var clicks=own.sounds(click);var heard=other.sounds(click);
                 require(clicks.size()==1 && heard.size()==(distance==15?1:0),"Magnum click uses native range16 without minimum volume at "+distance);
@@ -207,6 +214,15 @@ public final class WeaponSoundChecks {
                     var at=source(shooter);
                     clear(shooterSwap.recording,viewerSwap.recording);
                     int ammo=shooter.getInventory().getItem(9).getCount();
+                    if(hand==InteractionHand.OFF_HAND) {
+                        var before=gun.copy();int mana=game.items().mana().get(shooter);
+                        require(!use(shooter,hand)&&shooter.getInventory().getItem(9).getCount()==ammo
+                                &&game.items().shooters().cooldownRemaining(shooter)==0
+                                &&game.items().mana().get(shooter)==mana&&ItemStack.matches(gun,before),
+                                "offhand SLR mode"+mode+" rejects without ammo/mana/stack/cooldown mutation");
+                        silent(shooterSwap.recording,viewerSwap.recording,"offhand SLR rejection");
+                        continue;
+                    }
                     require(use(shooter,hand),"native item.use accepts mode"+mode+" / "+hand);
                     require(game.items().shooters().cooldownRemaining(shooter)==15
                             && shooter.getInventory().getItem(9).getCount()==ammo-1,"accepted native shot pays ammo and starts cooldown");
@@ -230,14 +246,16 @@ public final class WeaponSoundChecks {
                 require(!use(shooter,hand),"empty ammo rejects native shot");
                 silent(shooterSwap.recording,viewerSwap.recording,"no-ammo rejection");
                 shooter.setShiftKeyDown(true);
-                require(use(shooter,hand) && LbcShooters.mode(gun)==mode%4+1,"native sneak input switches mode without ammo");
+                if(hand==InteractionHand.MAIN_HAND)
+                    require(use(shooter,hand)&&LbcShooters.mode(gun)==mode%4+1,"native main-hand sneak input switches mode without ammo");
+                else require(!use(shooter,hand)&&LbcShooters.mode(gun)==mode,"offhand sneak input preserves SLR mode");
                 silent(shooterSwap.recording,viewerSwap.recording,"mode switch");
                 shooter.setShiftKeyDown(false);
             }
             magnum(game,shooter,viewer,origin,shooterSwap.recording,viewerSwap.recording);
             helicopter(game,shooter,viewer,origin,shooterSwap.recording,viewerSwap.recording);
             require(shooter.getHealth()==shooterState.health && viewer.getHealth()==viewerState.health,"sound fixture deals no participant damage");
-            SkyWars2.LOGGER.info("[check] PASS weapon-sounds (SLR native item.use, both hands/all4modes, MASTER2/pitch2, minVolume.5 at60, selector120, silent rejection/switch; Magnum native mode click MASTER.8/pitch1.5 range16; actual helicopter spawn selector20/minVolume.1/.4)");
+            SkyWars2.LOGGER.info("[check] PASS weapon-sounds (SLR native item.use, main-hand/all4modes and silent offhand rejection, MASTER2/pitch2, minVolume.5 at60, selector120, silent rejection/switch; Magnum native mode click MASTER.8/pitch1.5 range16; actual helicopter spawn selector20/minVolume.1/.4)");
         } finally {
             game.config().offhandWands=offhand;
             blocks.forEach((pos,saved)->game.maps().restoreSnapshot(pos,saved));

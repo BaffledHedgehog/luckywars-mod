@@ -6,6 +6,8 @@ import net.minecraft.network.PacketListener;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
+import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerLoadedPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
@@ -32,8 +34,18 @@ public final class SpeedFovChecks {
         @Override public PacketListener getPacketListener(){return player.connection;}
         @Override public void send(Packet<?> packet,io.netty.channel.ChannelFutureListener listener,boolean flush){packets.add(packet);}
         @Override public void flushChannel(){}
+        private ClientboundPlayerAbilitiesPacket abilities(Packet<?> packet) {
+            if(packet instanceof ClientboundPlayerAbilitiesPacket p)return p;
+            ClientboundPlayerAbilitiesPacket last=null;
+            if(packet instanceof ClientboundBundlePacket bundle)for(var child:bundle.subPackets()) {
+                var found=abilities(child);if(found!=null)last=found;
+            }
+            return last;
+        }
         ClientboundPlayerAbilitiesPacket latest(int start){
-            for(int i=packets.size()-1;i>=start;i--)if(packets.get(i) instanceof ClientboundPlayerAbilitiesPacket p)return p;
+            for(int i=packets.size()-1;i>=start;i--) {
+                var found=abilities(packets.get(i));if(found!=null)return found;
+            }
             throw new IllegalStateException("Speed FOV: missing native abilities packet");
         }
     }
@@ -42,7 +54,16 @@ public final class SpeedFovChecks {
                 &&packet.canFly()==nativePacket.canFly()&&packet.canInstabuild()==nativePacket.canInstabuild()
                 &&packet.getFlyingSpeed()==nativePacket.getFlyingSpeed(),"all flags and flying speed unchanged");
     }
+    private static void movementPacket(ServerPlayer player) {
+        player.connection.send(new ClientboundUpdateAttributesPacket(player.getId(),List.of(player.getAttribute(Attributes.MOVEMENT_SPEED))));
+    }
     private static void math(){
+        close(LbcRifleZoom.speedFov(.2,.1,LbcRifleZoom.SPEED_FOV_POLICY),1.025,"existing speed gain remains five percent");
+        close(LbcRifleZoom.speedFov(.6999,.1,LbcRifleZoom.SPEED_FOV_POLICY),1.149975,"continuous growth just below fifteen-percent cap");
+        for(double speed:new double[]{.7,.7001,1024,1_000_000_000})
+            close(LbcRifleZoom.speedFov(speed,.1,LbcRifleZoom.SPEED_FOV_POLICY),1.15,"ordinary speed FOV never exceeds115 percent");
+        for(double speed:new double[]{-.5,-1000,-1_000_000_000})
+            close(LbcRifleZoom.speedFov(speed,.1,LbcRifleZoom.SPEED_FOV_POLICY),.85,"signed speed contribution never lowers FOV below85 percent");
         for(var policy:LbcRifleZoom.SpeedFovPolicy.values())for(float speed:new float[]{-1000,-.1f,0,.1f,.2f,1000}){
             float walk=LbcRifleZoom.projectedWalking(speed,.1f,false,policy);
             close(speedFactor(speed,walk),speed==0?1:LbcRifleZoom.speedFov(speed,.1,policy),"signed/zero/normal/extreme pure projection "+policy);
@@ -65,30 +86,36 @@ public final class SpeedFovChecks {
             abilities.setWalkingSpeed(.1f);abilities.setFlyingSpeed(.137f);
             var nativePacket=new ClientboundPlayerAbilitiesPacket(abilities);var snapshot=abilities.pack();
             var position=player.position();var velocity=player.getDeltaMovement();
-            for(double input:new double[]{0,.1,.2,1000,1024,1_000_000_000}){
+            for(double input:new double[]{0,.1,.2,.6999,.7,.7001,1000,1024,1_000_000_000}){
                 attr.setBaseValue(input);double speed=player.getAttributeValue(Attributes.MOVEMENT_SPEED);float movement=player.getSpeed();
-                int start=recording.packets.size();zoom.tick(game.server().getTickCount());player.onUpdateAbilities();
+                int start=recording.packets.size();movementPacket(player);zoom.tick(game.server().getTickCount());player.onUpdateAbilities();
                 var projected=recording.latest(start);flags(projected,nativePacket);
                 float clientSpeed=(float)Math.clamp(speed,0,1024);
                 double target=clientSpeed==0?1:LbcRifleZoom.speedFov(clientSpeed,.1f,LbcRifleZoom.SPEED_FOV_POLICY);
                 close(speedFactor(clientSpeed,projected.getWalkingSpeed()),target,"actual native baseline packet including client attribute limit");
+                require(speedFactor(clientSpeed,projected.getWalkingSpeed())>=.85-1e-6
+                        &&speedFactor(clientSpeed,projected.getWalkingSpeed())<=1.15+1e-6,"actual native speed contribution stays within fifteen percent");
                 // The native client applies flight1.1 and a fully drawn bow0.85 after the speed term.
                 close(speedFactor(clientSpeed,projected.getWalkingSpeed())*1.1*.85,target*1.1*.85,"flight/bow multipliers remain independent");
                 require(attr.getBaseValue()==input&&player.getSpeed()==movement&&abilities.pack().equals(snapshot)
                         &&player.position().equals(position)&&player.getDeltaMovement().equals(velocity),"projection leaves authoritative movement/abilities/position/velocity unchanged");
             }
-            attr.setBaseValue(.2);zoom.tick();player.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcShooters.SLR));
-            int start=recording.packets.size();zoom.punch(player,game.server().getTickCount()+100);
-            close(speedFactor((float)player.getAttributeValue(Attributes.MOVEMENT_SPEED),recording.latest(start).getWalkingSpeed()),.25,"scope has full strength at client FOV Effects100%");
-            start=recording.packets.size();zoom.forget(player);var outside=recording.latest(start);
-            close(speedFactor((float)player.getAttributeValue(Attributes.MOVEMENT_SPEED),outside.getWalkingSpeed()),LbcRifleZoom.speedFov((float)player.getAttributeValue(Attributes.MOVEMENT_SPEED),.1f,LbcRifleZoom.SPEED_FOV_POLICY),"scope exit restores attenuated baseline");
-            // Off-thread projection must need only the immutable tick-published speed snapshot.
+            ClientboundPlayerAbilitiesPacket outside=null;
+            for(double input:new double[]{.2,1_000_000_000})for(var rifle:List.of(LbcShooters.SLR,LbcMagnum.ITEM)){
+                attr.setBaseValue(input);movementPacket(player);zoom.tick();player.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(rifle));
+                float speed=(float)Math.clamp(player.getAttributeValue(Attributes.MOVEMENT_SPEED),0,1024);
+                int start=recording.packets.size();zoom.punch(player,game.server().getTickCount()+100);
+                close(speedFactor(speed,recording.latest(start).getWalkingSpeed()),.25,"both scopes bypass ordinary FOV cap even at extreme speed");
+                start=recording.packets.size();zoom.forget(player);outside=recording.latest(start);
+                close(speedFactor(speed,outside.getWalkingSpeed()),LbcRifleZoom.speedFov(speed,.1f,LbcRifleZoom.SPEED_FOV_POLICY),"scope exit restores attenuated/capped baseline");
+            }
+            // Off-thread projection needs only immutable published wire/ability snapshots.
             var concurrent=java.util.concurrent.CompletableFuture.supplyAsync(()->zoom.projectAbilities(player.getUUID(),nativePacket)).join();
-            require(concurrent.getWalkingSpeed()==outside.getWalkingSpeed(),"off-thread ability resend uses published immutable speed");
-            SkyWars2.LOGGER.info("[check] PASS speed-fov");
+            require(concurrent.getWalkingSpeed()==outside.getWalkingSpeed(),"off-thread ability resend uses published immutable wire speed");
+            SkyWars2.LOGGER.info("[check] PASS speed-fov (five-percent gain plus fifteen-percent cap, boundary/extreme native packets, independent flight/bow and full-strength scope)");
         }finally{
             zoom.forget(player);abilities.apply(packed);attr.setBaseValue(base);saved.restore(game);
-            player.connection=previous;previous.resetPosition();zoom.tick();player.onUpdateAbilities();
+            player.connection=previous;previous.resetPosition();movementPacket(player);zoom.tick();player.onUpdateAbilities();
         }
     }
 }

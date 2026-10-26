@@ -5,6 +5,8 @@
     "EffectLevelsMixin",
     "EffectLevelsMixin$Details",
     "EffectCommandLevelsMixin",
+    "EffectLayersMixin$Instance",
+    "EffectLayersMixin$Living",
     "SignedEffectFormulaMixin$Periodic",
     "SignedEffectFormulaMixin$Instant",
     "SignedEffectFormulaMixin$Hunger",

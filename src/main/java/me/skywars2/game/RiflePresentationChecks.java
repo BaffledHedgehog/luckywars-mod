@@ -91,6 +91,20 @@ public final class RiflePresentationChecks {
                 var original=gun.copy();var model=gun.get(DataComponents.ITEM_MODEL);
                 var name=leaf.equals("slr")?"slg":"magnum";
                 var active=Identifier.parse("lbc:zoom_"+name);var out=Identifier.parse("lbc:zoom_"+name+"_out");
+                if(hand==InteractionHand.OFF_HAND) {
+                    var beforeEffects=List.copyOf(owner.getPostEffects());var ammo=owner.getInventory().getItem(9).copy();
+                    int mana=game.items().mana().get(owner);
+                    zoom.punch(owner,game.server().getTickCount()+100);
+                    require(!zoom.scoped(owner)&&owner.getPostEffects().equals(beforeEffects),"offhand rifle leaves scope overlays unchanged");
+                    local.model(gun,model);observer.model(gun,model);
+                    local.packets.clear();observer.packets.clear();
+                    require(!gun.getItem().use(owner.level(),owner,hand).consumesAction(),"native offhand rifle use rejected");
+                    require(local.trail().isEmpty()&&observer.trail().isEmpty()
+                            &&ItemStack.matches(owner.getInventory().getItem(9),ammo)&&ItemStack.matches(gun,original)
+                            &&game.items().mana().get(owner)==mana&&game.items().magnum().queued(owner)==0
+                            &&game.items().shooters().cooldownRemaining(owner)==0,"offhand rejection preserves native gun/ammo/mana and emits no tracer");
+                    continue;
+                }
                 owner.addPostEffect(Identifier.parse("lbc:zoom"));owner.addPostEffect(Identifier.parse("lbc:zoom_magnum_out"));
                 int now=game.server().getTickCount()+100;
                 zoom.punch(owner,now);
@@ -126,7 +140,7 @@ public final class RiflePresentationChecks {
                 require(total==1&&moved!=null&&!zoom.scoped(owner)&&owner.getPostEffects().isEmpty(),"native shift-click leaves one normal gun and clears scope");
                 local.model(moved,model);
             }
-            SkyWars2.LOGGER.info("[check] PASS rifle-presentation (both rifles/hands, matching overlays, Polymer model roundtrip, native shift-click, shooter-only near tracers and exact far/world ray)");
+            SkyWars2.LOGGER.info("[check] PASS rifle-presentation (main-hand rifles/offhand rejection, matching overlays, Polymer model roundtrip, native shift-click, shooter-only near tracers and exact far/world ray)");
         } finally {
             zoom.forget(owner);game.items().magnum().forget(owner);game.items().shooters().resetCooldown(owner);
             saved.restore(game);savedOther.restore(game);owner.setKnownMovement(known);owner.setOnGround(ground);game.config().offhandWands=offhand;

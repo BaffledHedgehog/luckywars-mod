@@ -10,6 +10,7 @@ import sys
 import time
 
 import smoke_game_cycle as cycle
+from smoke_antigravity_support import next_server_tick
 
 
 def run(server_dir: Path) -> None:
@@ -76,12 +77,14 @@ def run(server_dir: Path) -> None:
                 active.prepare_map(1)
             cursor = active.send("sw start")
             active.expect("-> PLAYING", cursor)
-            for suite in ("rifle-zoom", "magnum", "slr", "rifle-zoom-stop-probe"):
+            for suite in ("speed-fov", "speed-fov-transitions", "rifle-main-hand", "rifle-zoom", "magnum", "slr", "gun-accuracy", "rifle-presentation", "weapon-sounds", "effect-layers", "signed-effect-levels", "signed-effects-math", "shadow-absorption", "player-rules", "friendly-projectiles", "time-stop", "rifle-zoom-stop-probe"):
+                next_server_tick(active)
                 active.check(suite)
                 completed.append({"match": match, "suite": suite})
             cursor = active.send("sw stop")
             active.expect("LOADING -> LOBBY", cursor)
-            for suite in ("rifle-zoom-cleanup",):
+            for suite in ("rifle-zoom-cleanup", "signed-effects-cleanup"):
+                next_server_tick(active)
                 active.check(suite)
                 completed.append({"match": match, "suite": suite})
         success = True
@@ -122,7 +125,7 @@ def run(server_dir: Path) -> None:
             "sourceArtifactSha256": source_sha256, "serverDirectory": str(allowed),
             "serverPort": 25576,
             "cleanupErrors": [str(error) for error in cleanup_errors],
-            "measurementLimit": "Native punch, scope toggle and cleanup plus firearm regressions. Real client shader pixels and mouse input capture are not qualified. Elapsed wall time includes boot and regressions, not per-tick CPU.",
+            "measurementLimit": "Native attribute/ability pairing, scope/input/firearm regressions and independent signed effect clocks/commands/persistence. Real client shader pixels and mouse input capture are not qualified. Elapsed wall time includes boot and regressions, not per-tick CPU.",
             "elapsedSeconds": round(time.monotonic() - started, 2)
         }, indent=2) + "\n", encoding="utf-8"))
         if original_error is None and cleanup_errors:

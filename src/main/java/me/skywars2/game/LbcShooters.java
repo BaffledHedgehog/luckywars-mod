@@ -572,7 +572,7 @@ public final class LbcShooters {
                         .component(DataComponents.ITEM_MODEL,Identifier.parse("lbc:super_rifle")),Items.CARROT_ON_A_STICK,true) {
             @Override public InteractionResult use(Level level,Player player,InteractionHand hand) {
                 var controller=me.skywars2.SkyWars2.game();
-                return controller!=null && player instanceof ServerPlayer owner
+                return hand==InteractionHand.MAIN_HAND && controller!=null && player instanceof ServerPlayer owner
                         && controller.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             }
         });
@@ -590,7 +590,7 @@ public final class LbcShooters {
     }
     void resetCooldown(ServerPlayer player) { setCooldown(player,0); }
     private boolean useSlr(ServerPlayer player,InteractionHand hand) {
-        if(hand==InteractionHand.OFF_HAND && !game.config().offhandWands || !canFire(player)) return false;
+        if(hand!=InteractionHand.MAIN_HAND || !canFire(player)) return false;
         var stack=player.getItemInHand(hand);
         if(player.isShiftKeyDown()) {
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();

@@ -651,6 +651,9 @@ public final class GameChecks {
                                 case "magnum" -> { MagnumChecks.run(game); return; }
                                 case "rifle-zoom" -> { RifleZoomChecks.run(game); return; }
                                 case "speed-fov" -> { SpeedFovChecks.run(game); return; }
+                                case "speed-fov-transitions" -> { SpeedFovTransitionChecks.run(game); return; }
+                                case "rifle-main-hand" -> { RifleMainHandChecks.run(game); return; }
+                                case "effect-layers" -> { EffectLayerChecks.run(game); return; }
                                 case "hedgehog-dimensions" -> { HedgehogDimensionChecks.run(game); return; }
                                 case "weapon-sounds" -> { WeaponSoundChecks.run(game); return; }
                                 case "item-sounds" -> { ItemSoundAuditChecks.run(game); return; }
@@ -9776,7 +9779,7 @@ public final class GameChecks {
                         other.teleportTo(level,20.5,270,20.5,java.util.Set.of(),0,0,true);
                         slrReady(game,owner,1); owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,slrStack(1)); owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,ItemStack.EMPTY);
                         require(!slrUse(owner,net.minecraft.world.InteractionHand.OFF_HAND) && owner.getInventory().getItem(8).getCount()==8,"Disabled offhand preserves ammo");
-                        game.config().offhandWands=true; require(slrUse(owner,net.minecraft.world.InteractionHand.OFF_HAND) && owner.getInventory().getItem(8).getCount()==7,"Enabled offhand native item route fires");
+                        game.config().offhandWands=true; require(!slrUse(owner,net.minecraft.world.InteractionHand.OFF_HAND) && owner.getInventory().getItem(8).getCount()==8,"SLR rejects offhand even when offhand wands are enabled");
                         slrReady(game,owner,1); owner.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND,ItemStack.EMPTY);
                         var legacy=new ItemStack(Items.CARROT_ON_A_STICK); legacy.set(DataComponents.CUSTOM_DATA,owner.getMainHandItem().get(DataComponents.CUSTOM_DATA));
                         owner.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND,legacy);

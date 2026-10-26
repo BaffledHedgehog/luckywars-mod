@@ -6,6 +6,43 @@ options in [agent_notes/PENDING_QUESTIONS.md](agent_notes/PENDING_QUESTIONS.md);
 prior author choices and exact notes. The author will answer after returning.
 This does not authorize guessing unresolved choices or forcing main shutdown.
 
+## FOV transitions, rifle hands and effect layers - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
+
+[Speed FOV and rifle contract](agent_notes/SPEED_FOV_LIMIT.md), [independent effect layers](agent_notes/EFFECT_LAYERS.md).
+Speed contribution remains x0.05 and now caps at+/-15%; full scope0.25 remains.
+Self movement snapshots and their matching abilities are sent in one flat native
+bundle. Raw abilities follow the last wire value, including F/slot changes,
+source modifier removal/readdition and stale constructed snapshots. Login uses
+the fresh client base; respawn follows native base/modifier copy flags instead
+of injecting the removed player's attributes before connection rebinding.
+Authoritative movement, ability flags, other entities and flight/bow stay native.
+SLR/Magnum scope, fire, mode input and Magnum queued fire require the main hand;
+AK/minigun hand behavior is retained.
+
+Every admitted ordinary effect amplifier can be granted in either order,
+including finite/infinite signed /effect. Each amplifier keeps an independent
+remaining-duration clock; the strongest acts. Same-level grants retain maximum
+duration. Expired intermediate layers are skipped; hidden grants do not restart
+active behavior, flags or modifiers. Recursive native save/stream codecs and
+force replacement remain; shadow absorption keeps its separate additive ledger.
+
+Build72ea985d passed38 recorded results in two actual mode1 matches (54.28s):
+native source equipment, packet codec/arithmetic, F/slot/reset and offthread
+sends, both scopes/offhand rejection, queued fire, sound/accuracy/presentation,
+real effect commands/codecs/entity save, signed formulas/shadow HP, shared player/
+projectile/Time Stop and actual-stop cleanup. Exact449 sources /1236 classes /
+3140 resources match the tested JAR. Physical client frames/latency and full
+PlayerList reconnect/respawn are unobserved. TPS compensation is feasible but
+was only a side question; it is not implemented by this batch.
+
+Installer11424 adopted72ea985d instead of pending9d2591dc and waits for normal
+main shutdown/world unlock (24566, RCON off). Main disk remains1a8a3825; no forced
+stop/restart. Evidence/live receipt:build/verification/speed-fov-limit/.
+Ready:build/verification/skywars2-fov-layers-72ea985d.jar. Keep72ea985d,9d2591dc,
+1a8a3825; obsoletecc460bf8 retired. Cumulative cleanup329 JARs /11746632427 bytes.
+All175 protected author paths and31 live grimoire files are unchanged. No RP
+update required. Combined Academy Sauvojen remains next migration work.
+
 ## Antigravity player support - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
 
 [Current support, duration and evidence](agent_notes/ANTIGRAVITY_SUPPORT.md). One captured cube now shares

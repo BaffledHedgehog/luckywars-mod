@@ -46,7 +46,15 @@ public final class RifleZoomChecks {
         @Override public PacketListener getPacketListener(){return player.connection;}
         @Override public void send(Packet<?> packet,io.netty.channel.ChannelFutureListener listener,boolean flush){packets.add(packet);}
         @Override public void flushChannel(){ }
-        ClientboundPlayerAbilitiesPacket latest(int start){for(int i=packets.size()-1;i>=start;i--)if(packets.get(i) instanceof ClientboundPlayerAbilitiesPacket packet)return packet;throw new IllegalStateException("Rifle zoom: missing native outbound abilities packet");}
+        private ClientboundPlayerAbilitiesPacket abilities(Packet<?> packet){
+            if(packet instanceof ClientboundPlayerAbilitiesPacket p)return p;
+            ClientboundPlayerAbilitiesPacket latest=null;
+            if(packet instanceof net.minecraft.network.protocol.game.ClientboundBundlePacket bundle)for(var child:bundle.subPackets()){
+                var found=abilities(child);if(found!=null)latest=found;
+            }
+            return latest;
+        }
+        ClientboundPlayerAbilitiesPacket latest(int start){for(int i=packets.size()-1;i>=start;i--){var found=abilities(packets.get(i));if(found!=null)return found;}throw new IllegalStateException("Rifle zoom: missing native outbound abilities packet");}
     }
     private static final class Swap implements AutoCloseable {
         final ServerPlayer player;final ServerGamePacketListenerImpl previous;final Recording recording;
@@ -73,12 +81,15 @@ public final class RifleZoomChecks {
         require(Math.abs(clientFov(player,packet,1)-(packet.isFlying()?.275f:.25f))<.00001f,"native client FOV math gives fourfold scope with flying multiplier preserved");
         require(clientFov(player,packet,0)==1,"client FOV Effects zero disables native scope projection");
     }
+    private static void movementPacket(ServerPlayer player){
+        player.connection.send(new net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket(player.getId(),List.of(player.getAttribute(Attributes.MOVEMENT_SPEED))));
+    }
     private static void projection(GameController game,ServerPlayer player,Recording recording){
         var zoom=game.items().rifleZoom();var abilities=player.getAbilities();var packed=abilities.pack();
         var attribute=player.getAttribute(Attributes.MOVEMENT_SPEED);double base=attribute.getBaseValue();
         var position=player.position();var velocity=player.getDeltaMovement();float movement=player.getSpeed();
         try{
-            zoom.forget(player);player.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcShooters.SLR));
+            zoom.forget(player);movementPacket(player);player.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcShooters.SLR));
             abilities.invulnerable=false;abilities.flying=false;abilities.mayfly=false;abilities.instabuild=false;
             var original=new ClientboundPlayerAbilitiesPacket(abilities);var unscoped=abilities.pack();float walking=abilities.getWalkingSpeed();
             int start=recording.packets.size();zoom.punch(player,game.server().getTickCount()+100);
@@ -88,13 +99,13 @@ public final class RifleZoomChecks {
             abilities.invulnerable=true;abilities.flying=true;abilities.mayfly=true;abilities.instabuild=true;abilities.setFlyingSpeed(.137f);abilities.setWalkingSpeed(.073f);
             var latestNative=new ClientboundPlayerAbilitiesPacket(abilities);var latestPacked=abilities.pack();start=recording.packets.size();player.onUpdateAbilities();
             projected(player,recording.latest(start),latestNative);
-            attribute.setBaseValue(base==0?.13:base*1.6);float changedMovement=player.getSpeed();start=recording.packets.size();zoom.tick(game.server().getTickCount()+101);
+            attribute.setBaseValue(base==0?.13:base*1.6);float changedMovement=player.getSpeed();start=recording.packets.size();movementPacket(player);zoom.tick(game.server().getTickCount()+101);
             projected(player,recording.latest(start),latestNative);
             require(attribute.getBaseValue()==(base==0?.13:base*1.6)&&abilities.pack().equals(latestPacked)&&player.getSpeed()==changedMovement&&player.position().equals(position)&&player.getDeltaMovement().equals(velocity),"refresh changes only outbound FOV denominator");
             start=recording.packets.size();zoom.forget(player);var restored=recording.latest(start);flags(restored,latestNative);
             require(restored.getWalkingSpeed()==LbcRifleZoom.projectedWalking((float)player.getAttributeValue(Attributes.MOVEMENT_SPEED),latestNative.getWalkingSpeed(),false,LbcRifleZoom.SPEED_FOV_POLICY)&&!zoomed(player)&&!exiting(player),"hard cleanup restores attenuated baseline and removes both overlays");
             require(zoom.projectAbilities(player.getUUID(),latestNative).getWalkingSpeed()==restored.getWalkingSpeed(),"inactive projection preserves attenuated baseline across native resends");
-        }finally{zoom.forget(player);abilities.apply(packed);attribute.setBaseValue(base);}
+        }finally{zoom.forget(player);abilities.apply(packed);attribute.setBaseValue(base);movementPacket(player);}
     }
     private static void attackAnimation(GameController game,ServerPlayer player,ItemStack gun,Recording recording) {
         require(gun.getAttackAnimation().equals(LbcRifleZoom.SCOPE_ATTACK_ANIMATION),
@@ -146,24 +157,28 @@ public final class RifleZoomChecks {
                 player.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
                 player.setItemInHand(hand,new ItemStack(LbcShooters.SLR));
                 if(active)zoom.punch(player,now-4);
+                boolean expected=active && hand==InteractionHand.MAIN_HAND;
+                require(zoom.scoped(player)==expected,"only main-hand SLG admits initial scope");
                 victim.setHealth(victim.getMaxHealth());victim.setInvulnerableTime(0);victim.damageCooldownTime=0;
                 player.connection.handleAttack(new net.minecraft.network.protocol.game.ServerboundAttackPacket(victim.getId()));
                 player.connection.handlePunch(ServerboundPunchPacket.INSTANCE);
-                require(zoom.scoped(player)==active,"SLG Attack+Punch preserves scope instead of opening/closing it: "+hand+" active="+active);
+                require(zoom.scoped(player)==expected,"SLG Attack+Punch preserves scope instead of opening/closing it: "+hand+" active="+active);
                 // A rejected damage attempt is still a melee click, never a scope command.
                 victim.setPermanentlyInvulnerable(true);
                 player.connection.handleAttack(new net.minecraft.network.protocol.game.ServerboundAttackPacket(victim.getId()));
                 player.connection.handlePunch(ServerboundPunchPacket.INSTANCE);
-                require(zoom.scoped(player)==active,"invulnerable target attack also preserves SLG scope");
+                require(zoom.scoped(player)==expected,"invulnerable target attack also preserves SLG scope");
                 victim.setPermanentlyInvulnerable(false);
                 player.connection.handlePunch(ServerboundPunchPacket.INSTANCE);
-                require(zoom.scoped(player)!=active,"next separate air punch still toggles SLG after consuming attack swing");
+                require(zoom.scoped(player)==(hand==InteractionHand.MAIN_HAND && !expected),
+                        "next air punch toggles main-hand SLG and cannot scope offhand SLG");
                 // An absent swing cannot suppress an unrelated click in a later client tick.
                 zoom.forget(player);
                 player.connection.handleAttack(new net.minecraft.network.protocol.game.ServerboundAttackPacket(victim.getId()));
                 player.connection.handleClientTickEnd(net.minecraft.network.protocol.game.ServerboundClientTickEndPacket.INSTANCE);
                 player.connection.handlePunch(ServerboundPunchPacket.INSTANCE);
-                require(zoom.scoped(player),"client tick end expires an unmatched attack marker");
+                require(zoom.scoped(player)==(hand==InteractionHand.MAIN_HAND),
+                        "client tick end expires unmatched attack marker while offhand SLG stays unscoped");
             }
         } finally {
             player.connection.handleClientTickEnd(net.minecraft.network.protocol.game.ServerboundClientTickEndPacket.INSTANCE);
@@ -252,12 +267,21 @@ public final class RifleZoomChecks {
             require(!zoomed(player),"unrelated main hand cannot enable zoom");
             player.setItemInHand(InteractionHand.OFF_HAND,new ItemStack(LbcMagnum.ITEM));
             player.connection.handlePunch(ServerboundPunchPacket.INSTANCE);
-            require(zoomed(player),"rifle in offhand supports the same left-click toggle");
+            require(!zoomed(player)&&!exiting(player)&&!zoom.scoped(player),"offhand rifle cannot enable scope from native punch");
             player.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY); zoom.tick();
             require(!zoomed(player)&&!exiting(player),"unholding offhand rifle clears old scope immediately");
             player.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(LbcShooters.SLR));
             player.connection.handlePunch(ServerboundPunchPacket.INSTANCE);
             require(zoomed(player),"native give prototype is supported");
+            var held=player.getMainHandItem();
+            player.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.STICK));
+            player.setItemInHand(InteractionHand.OFF_HAND,held);zoom.tick();
+            require(!zoom.scoped(player)&&!zoomed(player)&&!exiting(player)&&player.getOffhandItem()==held,
+                    "moving exact scoped main-hand gun into offhand clears scope without replacing the gun");
+            player.connection.handlePunch(ServerboundPunchPacket.INSTANCE);
+            require(!zoom.scoped(player)&&!zoomed(player)&&!exiting(player),"moved offhand gun cannot reopen scope");
+            player.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+            player.setItemInHand(InteractionHand.MAIN_HAND,held);
             zoom.forget(player);
             require(!zoomed(player) && !exiting(player) && player.getPostEffects().contains(OTHER),"disconnect cleanup clears both rifle effects and retains other effects");
             game.items().timeStop().begin(player.level(),40);

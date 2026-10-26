@@ -138,7 +138,7 @@ public final class MagnumChecks {
             var main=gun(game,owner,0); ready(game,owner,main,ammo[0],InteractionHand.MAIN_HAND);
             var spare=gun(game,owner,3); owner.setItemInHand(InteractionHand.OFF_HAND,spare);
             require(service.use(owner,InteractionHand.MAIN_HAND),"starts five-shot batch"); int shots=service.shots(owner);
-            require(!service.use(owner,InteractionHand.OFF_HAND),"other hand shares cooldown");
+            require(!service.use(owner,InteractionHand.OFF_HAND),"offhand Magnum is rejected even with offhand setting enabled");
             mode(main,1); // Queued shots retain the original standard profile even if the held stack changes mode.
             var target=cow(game,cows,5.5); aim(owner,game); service.tick();
             require(target.getHealth()==84 && !target.isOnFire(),"queued mode snapshot survives mode mutation");
@@ -150,12 +150,17 @@ public final class MagnumChecks {
             owner.setItemInHand(InteractionHand.MAIN_HAND,main);
             cows.forEach(Entity::discard); cows.clear();
             owner.setShiftKeyDown(true); int cooldown=shooters.cooldownRemaining(owner),balance=game.items().mana().get(owner);
-            for(int i=0;i<6;i++) require(service.use(owner,InteractionHand.OFF_HAND),"free offhand cycle during cooldown");
-            require(LbcMagnum.mode(spare)==3 && shooters.cooldownRemaining(owner)==cooldown && game.items().mana().get(owner)==balance,"six cycles preserve cooldown/mana and correct stack");
+            require(!service.use(owner,InteractionHand.OFF_HAND) && LbcMagnum.mode(spare)==3,"offhand mode cycling is rejected");
+            for(int i=0;i<6;i++) require(service.use(owner,InteractionHand.MAIN_HAND),"free main-hand cycle during cooldown");
+            require(LbcMagnum.mode(main)==1 && LbcMagnum.mode(spare)==3 && shooters.cooldownRemaining(owner)==cooldown
+                    && game.items().mana().get(owner)==balance,"six main-hand cycles preserve cooldown/mana and spare stack");
             owner.setShiftKeyDown(false); shooters.setCooldown(owner,25); shooters.setCooldown(other,25); shooters.tick();
             require(shooters.cooldownRemaining(owner)==24 && shooters.cooldownRemaining(other)==24,"shared cooldown decrements once per player");
             ready(game,owner,gun(game,owner,0),ammo[0],InteractionHand.OFF_HAND);
-            require(service.use(owner,InteractionHand.OFF_HAND) && service.queued(owner)==4,"correct offhand round starts batch");
+            require(!service.use(owner,InteractionHand.OFF_HAND) && service.queued(owner)==0
+                    && owner.getInventory().getItem(9).getCount()==1,"correct offhand round cannot start batch or debit ammo");
+            ready(game,owner,gun(game,owner,0),ammo[0],InteractionHand.MAIN_HAND);
+            require(service.use(owner,InteractionHand.MAIN_HAND) && service.queued(owner)==4,"main-hand round starts batch");
             service.purify(owner); require(shooters.cooldownRemaining(owner)==0 && service.queued(owner)==4,"Purify resets cooldown while preserving original batch");
             service.stop(); require(service.queued(owner)==0,"stop clears batch");
             // TECHNO gun admission ignores magic beacon, but obeys mechanism beacon.

@@ -96,7 +96,7 @@ public final class LbcMagnum {
                         line("magnum_lore_3",ChatFormatting.AQUA)))),Items.CARROT_ON_A_STICK,true) {
             @Override public InteractionResult use(Level level,Player player,InteractionHand hand) {
                 var controller=me.skywars2.SkyWars2.game();
-                return controller!=null && player instanceof ServerPlayer owner
+                return hand==InteractionHand.MAIN_HAND && controller!=null && player instanceof ServerPlayer owner
                         && controller.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             }
         });
@@ -118,7 +118,7 @@ public final class LbcMagnum {
                 || game.items().magic().mechanismSuppressedAt(owner.level(),owner.position());
     }
     public boolean use(ServerPlayer owner,InteractionHand hand) {
-        if(!valid(owner) || hand==InteractionHand.OFF_HAND && !game.config().offhandWands
+        if(hand!=InteractionHand.MAIN_HAND || !valid(owner)
                 || !isMagnum(owner.getItemInHand(hand)) || blocked(owner)) return false;
         var gun=owner.getItemInHand(hand);
         int mode=mode(gun);
@@ -142,7 +142,7 @@ public final class LbcMagnum {
     }
     private boolean retained(Burst burst) {
         return valid(burst.owner) && game.items().currentEpoch(burst.epoch)
-                && (burst.hand!=InteractionHand.OFF_HAND || game.config().offhandWands)
+                && burst.hand==InteractionHand.MAIN_HAND
                 && burst.owner.getItemInHand(burst.hand)==burst.gun && isMagnum(burst.gun);
     }
     public void tick() {
@@ -271,8 +271,7 @@ public final class LbcMagnum {
         if(burst!=null && retained(burst)) { burst.remaining++; return; }
         bursts.remove(owner.getUUID());
         if(!valid(owner)) return;
-        InteractionHand hand=isMagnum(owner.getMainHandItem())?InteractionHand.MAIN_HAND:
-                game.config().offhandWands && isMagnum(owner.getOffhandItem())?InteractionHand.OFF_HAND:null;
+        InteractionHand hand=isMagnum(owner.getMainHandItem())?InteractionHand.MAIN_HAND:null;
         if(hand!=null) {
             var gun=owner.getItemInHand(hand);
             bursts.put(owner.getUUID(),new Burst(owner,hand,gun,mode(gun),game.items().epoch(),1));

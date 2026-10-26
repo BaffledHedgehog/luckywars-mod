@@ -1,5 +1,9 @@
 package me.skywars2.game;
 
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
+import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -39,10 +43,13 @@ public final class LbcRifleZoom {
     private final Map<UUID,State> states=new HashMap<>();
     // Outbound packets may originate outside the simulation thread. Publish only immutable FOV inputs.
     private final Map<UUID,Float> scopedMovement=new ConcurrentHashMap<>();
-    private final Map<UUID,Float> movementViews=new ConcurrentHashMap<>();
+    private record MovementView(float speed,float base) {}
+    private final Map<UUID,MovementView> movementViews=new ConcurrentHashMap<>();
+    private final Map<UUID,ClientboundPlayerAbilitiesPacket> abilityViews=new ConcurrentHashMap<>();
     private final Map<UUID,Scope> modelViews=new ConcurrentHashMap<>();
     enum SpeedFovPolicy { GAIN_FIVE_PERCENT, CLAMP_FIVE_PERCENT }
     static final SpeedFovPolicy SPEED_FOV_POLICY=SpeedFovPolicy.GAIN_FIVE_PERCENT;
+    private static final double SPEED_FOV_LIMIT=.15;
 
     /** Attenuates only the speed term; flight and held-item FOV remain client-native. */
     static double speedFov(double speed,double walking,SpeedFovPolicy policy) {
@@ -50,7 +57,8 @@ public final class LbcRifleZoom {
         double original=(speed/walking+1)/2;
         if(!Double.isFinite(original))return 1;
         double delta=original-1;
-        return 1+(policy==SpeedFovPolicy.CLAMP_FIVE_PERCENT?Math.clamp(delta,-.05,.05):delta*.05);
+        double contribution=policy==SpeedFovPolicy.CLAMP_FIVE_PERCENT?Math.clamp(delta,-.05,.05):delta*.05;
+        return 1+Math.clamp(contribution,-SPEED_FOV_LIMIT,SPEED_FOV_LIMIT);
     }
 
     static float projectedWalking(float speed,float walking,boolean scoped,SpeedFovPolicy policy) {
@@ -115,8 +123,7 @@ public final class LbcRifleZoom {
     // Explicit tick permits deterministic checks of duplicate/continuous mining packets.
     void punch(ServerPlayer player,int tick) {
         if(!allowed(player)) return;
-        InteractionHand hand=rifle(player.getMainHandItem()) ? InteractionHand.MAIN_HAND
-                : rifle(player.getOffhandItem()) ? InteractionHand.OFF_HAND : null;
+        InteractionHand hand=rifle(player.getMainHandItem()) ? InteractionHand.MAIN_HAND : null;
         if(hand==null) return;
         State state=states.get(player.getUUID());
         if(state!=null && !current(state)) { forget(player); state=null; }
@@ -150,7 +157,7 @@ public final class LbcRifleZoom {
                 && game.canUseGameplayItems(player) && !game.items().actionsBlocked(player);
     }
     private boolean current(State state) {
-        return allowed(state.player) && state.player.level()==state.level
+        return state.hand==InteractionHand.MAIN_HAND && allowed(state.player) && state.player.level()==state.level
                 && state.player.getItemInHand(state.hand)==state.gun && rifle(state.gun);
     }
     private static float movement(ServerPlayer player) {
@@ -176,40 +183,99 @@ public final class LbcRifleZoom {
         }
     }
 
-    /** Client-only walking-speed denominator. Native movement uses MOVEMENT_SPEED, not this packet field. */
-    public ClientboundPlayerAbilitiesPacket projectAbilities(ServerPlayer player,ClientboundPlayerAbilitiesPacket packet) {
-        // Login can send abilities before PlayerList publishes this player to the global list.
-        if(game.server().isSameThread())movementViews.put(player.getUUID(),movement(player));
-        return projectAbilities(player.getUUID(),packet);
+    /** Reproduce the unmodified client's synchronized movement value, including packet modifiers. */
+    static float packetMovement(ClientboundUpdateAttributesPacket.AttributeSnapshot snapshot) {
+        double base=snapshot.base();
+        for(var modifier:snapshot.modifiers())if(modifier.operation()==net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE)
+            base+=modifier.amount();
+        double result=base;
+        for(var modifier:snapshot.modifiers())if(modifier.operation()==net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_MULTIPLIED_BASE)
+            result+=base*modifier.amount();
+        for(var modifier:snapshot.modifiers())if(modifier.operation()==net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)
+            result*=1+modifier.amount();
+        return Double.isNaN(result)?0:(float)Math.clamp(result,0,1024);
     }
-    public ClientboundPlayerAbilitiesPacket projectAbilities(UUID player,ClientboundPlayerAbilitiesPacket packet) {
-        // Join/native sync can precede the first global tick. Read entities only on the server thread.
-        if(game.server().isSameThread()) {
-            var current=game.server().getPlayerList().getPlayer(player);
-            if(current!=null)movementViews.put(player,movement(current));
-        }
-        Float speed=movementViews.get(player);
-        if(speed==null)return packet;
-        float walking=projectedWalking(speed,packet.getWalkingSpeed(),scopedMovement.containsKey(player),SPEED_FOV_POLICY);
+    private boolean scopeView(ServerPlayer player) {
+        return game.server().isSameThread()?scoped(player):scopedMovement.containsKey(player.getUUID());
+    }
+    private static ClientboundPlayerAbilitiesPacket project(ClientboundPlayerAbilitiesPacket packet,float speed,boolean scoped) {
+        float walking=projectedWalking(speed,packet.getWalkingSpeed(),scoped,SPEED_FOV_POLICY);
         if(Float.floatToIntBits(walking)==Float.floatToIntBits(packet.getWalkingSpeed()))return packet;
         var view=new Abilities();
         view.invulnerable=packet.isInvulnerable(); view.flying=packet.isFlying();
         view.mayfly=packet.canFly(); view.instabuild=packet.canInstabuild();
         view.setFlyingSpeed(packet.getFlyingSpeed()); view.setWalkingSpeed(walking);
-        // 26.3 AbstractClientPlayer: (MOVEMENT_SPEED/walkingSpeed+1)/2.
-        // The client's FOV Effects preference remains authoritative; no gameplay ability is modified.
         return new ClientboundPlayerAbilitiesPacket(view);
+    }
+    /** Client-only denominator always matches the last movement attribute sent to that client. */
+    public ClientboundPlayerAbilitiesPacket projectAbilities(ServerPlayer player,ClientboundPlayerAbilitiesPacket packet) {
+        abilityViews.put(player.getUUID(),packet);
+        var movement=movementViews.get(player.getUUID());
+        return movement==null?packet:project(packet,movement.speed(),scopeView(player));
+    }
+    public ClientboundPlayerAbilitiesPacket projectAbilities(UUID id,ClientboundPlayerAbilitiesPacket packet) {
+        if(game.server().isSameThread()) {
+            var player=game.server().getPlayerList().getPlayer(id);
+            if(player!=null)return projectAbilities(player,packet);
+        }
+        abilityViews.put(id,packet);
+        var movement=movementViews.get(id);
+        return movement==null?packet:project(packet,movement.speed(),scopedMovement.containsKey(id));
+    }
+    /** Bundle movement snapshots with their denominator so a rendered frame never sees only one half. */
+    @SuppressWarnings("unchecked")
+    public Packet<?> projectPacket(ServerPlayer player,Packet<?> packet) {
+        if(packet instanceof net.minecraft.network.protocol.game.ClientboundLoginPacket
+                ||packet instanceof net.minecraft.network.protocol.game.ClientboundRespawnPacket) {
+            var previous=movementViews.get(player.getUUID());
+            boolean login=packet instanceof net.minecraft.network.protocol.game.ClientboundLoginPacket;
+            float base=login||previous==null?.1f:previous.base();
+            float speed=!login&&previous!=null
+                    &&((net.minecraft.network.protocol.game.ClientboundRespawnPacket)packet).shouldKeep(
+                            net.minecraft.network.protocol.game.ClientboundRespawnPacket.KEEP_ATTRIBUTE_MODIFIERS)
+                    ?previous.speed():base;
+            movementViews.put(player.getUUID(),new MovementView(speed,base));
+            // Native respawn sends this before connection.player is rebound. Follow the client's
+            // actual base/modifier copy flags instead of injecting the removed player's attributes.
+            var source=login?null:abilityViews.get(player.getUUID());
+            if(source==null&&game.server().isSameThread())source=new ClientboundPlayerAbilitiesPacket(player.getAbilities());
+            if(source==null)return packet;
+            abilityViews.put(player.getUUID(),source);
+            return new ClientboundBundlePacket(java.util.List.of(
+                    (Packet<? super ClientGamePacketListener>)packet,project(source,speed,scopeView(player))));
+        }
+        if(packet instanceof ClientboundPlayerAbilitiesPacket abilities)return projectAbilities(player,abilities);
+        if(packet instanceof ClientboundBundlePacket bundle) {
+            var children=new java.util.ArrayList<Packet<? super ClientGamePacketListener>>();
+            boolean changed=false;
+            for(var child:bundle.subPackets()) {
+                var projected=projectPacket(player,child);changed|=projected!=child;
+                if(projected instanceof ClientboundBundlePacket nested)for(var entry:nested.subPackets())children.add(entry);
+                else children.add((Packet<? super ClientGamePacketListener>)projected);
+            }
+            return changed?new ClientboundBundlePacket(children):packet;
+        }
+        if(!(packet instanceof ClientboundUpdateAttributesPacket attributes)||attributes.getEntityId()!=player.getId())return packet;
+        for(var snapshot:attributes.getValues())if(snapshot.attribute().equals(Attributes.MOVEMENT_SPEED)) {
+            float speed=packetMovement(snapshot);
+            float base=Double.isNaN(snapshot.base())?0:(float)Math.clamp(snapshot.base(),0,1024);
+            movementViews.put(player.getUUID(),new MovementView(speed,base));
+            var source=game.server().isSameThread()?new ClientboundPlayerAbilitiesPacket(player.getAbilities()):abilityViews.get(player.getUUID());
+            if(source==null)return packet;
+            abilityViews.put(player.getUUID(),source);
+            return new ClientboundBundlePacket(java.util.List.of(attributes,project(source,speed,scopeView(player))));
+        }
+        return packet;
     }
     public void tick() { tick(game.server().getTickCount()); }
     void tick(int now) {
         var online=new java.util.HashSet<UUID>();
         for(var player:game.server().getPlayerList().getPlayers()) {
             online.add(player.getUUID());
-            float speed=movement(player);
-            Float previous=movementViews.put(player.getUUID(),speed);
-            if(previous==null||Float.floatToIntBits(previous)!=Float.floatToIntBits(speed))syncAbilities(player);
+            abilityViews.put(player.getUUID(),new ClientboundPlayerAbilitiesPacket(player.getAbilities()));
         }
         movementViews.keySet().retainAll(online);
+        abilityViews.keySet().retainAll(online);
         for(var iterator=states.values().iterator();iterator.hasNext();) {
             State state=iterator.next();
             if(!state.player.isAlive() || state.player.isRemoved() || state.player.level()!=state.level
