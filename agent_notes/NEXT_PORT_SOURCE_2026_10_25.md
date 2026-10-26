@@ -1,5 +1,34 @@
 ﻿# Next complete port source assessment — 25 October 2026
 
+## Chef-label advancement - QUALIFIED AND INSTALLED (26 October 2026)
+
+See [contract and native verification](CHEF_LABEL_ADVANCEMENT.md).
+New lbc:true_advancements/legends/chef_label is a goal child of the Stand glove
+(lbc:true_advancements/legends/stand). Icon is the real label's vanilla backing,
+lbc:banan model and wtf_item custom data. RP-only RU/EN title/description keys:
+lbc.adv.legends.chef_label and .lore; merge template updates/chef_label.*.json.
+Accepted label application to a native Chef awards only the applying player.
+Chef's infinite-HP accepted-damage boundary handles this once; generic callbacks
+skip Chef to avoid duplicate consumption/spawn. A deliberate hit can label one's
+own Chef, while automatic homing remains protected. The newly summoned Chef is
+bound to exactly that struck Chef, with the correct owner. Other target rules,
+nonmelee/rejected/knock/Greed/role guards remain.
+
+Build 6e648580 passed 22 recorded results in two mode1 matches (92.95 seconds):
+all 24 Chef fixture groups, naturally ticking pursuit, previous family/rule/
+Time-Stop regressions and actual-stop cleanup. Parent/frame/icon, own/other Chef
+labels, single consumption/new bound actor, award recipient and negative cases
+pass. Exact 401 sources / 1130 classes / 3139 resources match the tested JAR.
+Protected author changes/deletions and live grimoire overrides are preserved.
+
+Installer 24628 installed 6e648580 after normal main shutdown/world unlock,
+retaining 1265875f rollback and not restarting main. Ready artifact and immutable
+qualification/live receipt: build/verification/chef-label-final/ and
+build/verification/skywars2-chef-label-6e648580.jar. Retain installed 6e648580,
+rollback 1265875f and fallback 385f9f11; old 7da14e96 archive retired. Cumulative
+cleanup: 319 JARs / 11353865397 bytes. Client toast/icon pixels and peak TPS
+are not directly observed; the author RP was read only.
+
 ## Firearm recoil and SLG bayonet input - QUALIFIED AND INSTALLED (26 October 2026)
 
 See [cause, native behavior and evidence](RIFLE_RECOIL_AND_MELEE_2026_10_26.md).

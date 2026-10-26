@@ -163,6 +163,39 @@ public final class ChefChecks {
             advance(chef,179);require(service.stasis(chef)==1&&victim.getHealth()==targetHp&&chef.getPose()==Pose.SWIMMING,"199 active ticks retain prone harmless knock");
             advance(chef,1);require(service.stasis(chef)==0&&chef.getHealth()==hp,"wake exactly at200 active ticks");var landed=chef.position();advance(chef,30);require(chef.position().distanceToSqr(landed)>.01||victim.getHealth()<targetHp,"native pursuit resumes after wake");clear();remove(victim);
         }
+        void labelAchievement(){
+            var id=Identifier.parse("lbc:true_advancements/legends/chef_label");
+            var achievement=game.server().getAdvancements().get(id);
+            require(achievement!=null,"Chef label advancement is loaded");
+            require(achievement.value().parent().orElseThrow().equals(Identifier.parse("lbc:true_advancements/legends/stand")),"Chef label follows the Stand glove");
+            var display=achievement.value().display().orElseThrow();var icon=display.icon().create();
+            require(display.type()==net.minecraft.advancements.AdvancementType.GOAL&&LbcFartus.isMaterial(icon)
+                    &&Identifier.parse("lbc:banan").equals(icon.get(DataComponents.ITEM_MODEL)),"goal frame with actual label's vanilla-backed icon/model");
+            for(var p:List.of(owner,other))for(var key:achievement.value().criteria().keySet())p.getAdvancements().revoke(achievement,key);
+            var material=game.lbc().rollTable(owner.level(),at,owner,"lbc:ported/wtf_item").getFirst();
+            owner.setItemInHand(InteractionHand.MAIN_HAND,material.copyWithCount(4));
+            var victim=cow(at.add(0,0,6));
+            require(victim.hurtServer(owner.level(),victim.damageSources().playerAttack(owner),.5f)&&service.count()==1
+                    &&!owner.getAdvancements().getOrStartProgress(achievement).isDone(),"ordinary label application summons Chef without awarding Chef-on-Chef goal");
+            var chef=service.snapshot().getFirst();
+            require(chef.hurtServer(owner.level(),chef.damageSources().playerAttack(owner),.5f),"native accepted label strike on one's own infinite-HP Chef");
+            require(service.count()==2&&owner.getMainHandItem().getCount()==2
+                    &&service.snapshot().stream().anyMatch(c->c!=chef&&c.target==chef&&c.owner==owner),"exactly one label consumed and one new Chef bound to the struck Chef");
+            require(owner.getAdvancements().getOrStartProgress(achievement).isDone()
+                    &&!other.getAdvancements().getOrStartProgress(achievement).isDone(),"only the player applying the label receives the goal");
+            other.setItemInHand(InteractionHand.MAIN_HAND,material.copyWithCount(2));chef.setInvulnerableTime(0);chef.damageCooldownTime=0;
+            require(chef.hurtServer(owner.level(),chef.damageSources().playerAttack(other),.5f)&&service.count()==3
+                    &&other.getMainHandItem().getCount()==1&&other.getAdvancements().getOrStartProgress(achievement).isDone()
+                    &&service.snapshot().stream().anyMatch(c->c.target==chef&&c.owner==other),"another player's Chef also accepts the label and awards its actual caster");
+            for(var key:achievement.value().criteria().keySet())owner.getAdvancements().revoke(achievement,key);
+            chef.setInvulnerableTime(0);chef.damageCooldownTime=0;
+            require(chef.hurtServer(owner.level(),chef.damageSources().indirectMagic(owner,owner),.5f)&&service.count()==3
+                    &&owner.getMainHandItem().getCount()==2&&!owner.getAdvancements().getOrStartProgress(achievement).isDone(),"indirect damage while holding label never grants the goal or summons a duplicate");
+            chef.receive(20);
+            require(!chef.hurtServer(owner.level(),chef.damageSources().playerAttack(owner),1)&&service.count()==3
+                    &&owner.getMainHandItem().getCount()==2&&!owner.getAdvancements().getOrStartProgress(achievement).isDone(),"rejected hit during knock neither consumes a label nor awards the goal");
+            clear();remove(victim);
+        }
         Map<BlockPos,net.minecraft.world.level.block.state.BlockState> terrain(){var result=new LinkedHashMap<BlockPos,net.minecraft.world.level.block.state.BlockState>();for(var p:blocks.keySet())result.put(p,owner.level().getBlockState(p));return result;}
         void directSword(){
             var victim=cow(at.add(0,0,3));var outsider=cow(at.add(1.5,0,3));var chef=spawn(owner,victim);chef.setPos(victim.position().add(0,0,-1.5));chef.setDeltaMovement(Vec3.ZERO);chef.setOnGround(true);
@@ -530,7 +563,7 @@ public final class ChefChecks {
     public static void run(GameController game){
         require(natural==null,"explicit checks cannot overlap natural Chef fixture");
         var failures=new ArrayList<String>();
-        for(var test:List.of(new Case("material/ownership",Fixture::nativeMaterialAndOwnership),new Case("stasis",Fixture::infiniteHealthAndStasis),
+        for(var test:List.of(new Case("material/ownership",Fixture::nativeMaterialAndOwnership),new Case("label achievement",Fixture::labelAchievement),new Case("stasis",Fixture::infiniteHealthAndStasis),
                 new Case("sword",Fixture::directSword),new Case("shapes",Fixture::shapeTraversal),new Case("terrain",Fixture::boundedTerrain),new Case("long detour",Fixture::longDetour),new Case("long parkour",Fixture::longParkour),new Case("parkour chain",Fixture::parkourChain),new Case("stair corner",Fixture::stairCorner),new Case("diagonal building",Fixture::diagonalBuilding),new Case("rejected feedback",Fixture::rejectedSwingFeedback),
                 new Case("diagonal staircase",Fixture::diagonalStaircase),new Case("noisy ground",Fixture::noisyGround),new Case("build shortcut",Fixture::buildShortcut),new Case("pillar facing",Fixture::pillarFacing),new Case("moving takeoff",Fixture::movingTakeoff),new Case("airborne approach",Fixture::airborneApproach),
                 new Case("void",Fixture::voidRecovery),new Case("knocked void/ceiling",Fixture::knockedVoidAndLowCeiling),new Case("hunger/food",Fixture::hungerAndConsumption),new Case("fall water",Fixture::fallWater),new Case("fire water",Fixture::fireWater),new Case("guards",Fixture::guards))){

@@ -156,6 +156,9 @@ public final class LbcWtf {
             float accepted=getDamageAfterMagicAbsorb(source,getDamageAfterArmorAbsorb(source,amount));
             if(!(accepted>0))return;
             receive(accepted);
+            // Infinite HP does not decrease, so the generic Fabric damage delta is
+            // not a reliable accepted-hit callback for this native actor.
+            service.attachLabel(this,source);
             // Keep vanilla hurt cooldown, animation, sound and responsible attacker, but never enter death.
         }
         void receive(float accepted){damage+=accepted;if(damage>=20){
@@ -263,17 +266,29 @@ public final class LbcWtf {
 
     }
     public void melee(LivingEntity victim,DamageSource source){
+        // The native Chef invokes this at its own accepted-damage boundary exactly once.
+        if(victim instanceof Chef)return;
+        attachLabel(victim,source);
+    }
+    private boolean labelTarget(ServerPlayer owner,LivingEntity target){
+        // A deliberate label hit may select one's own Chef; automatic homing stays protected.
+        return target instanceof Chef?game.items().wands().projectileTarget(owner,target):game.items().wands().target(owner,target);
+    }
+    private void attachLabel(LivingEntity victim,DamageSource source){
         if(!(source.getEntity() instanceof ServerPlayer owner)||!LbcDamage.isMeleeAttack(source,owner)
-                ||!LbcFartus.isMaterial(owner.getMainHandItem())||!eligible(owner)||!game.items().wands().target(owner,victim))return;
+                ||!LbcFartus.isMaterial(owner.getMainHandItem())||!eligible(owner)||!labelTarget(owner,victim))return;
         Chef chef=spawn(owner,victim);
-        if(chef!=null){owner.getMainHandItem().shrink(1);owner.getInventory().setChanged();}
+        if(chef!=null){
+            owner.getMainHandItem().shrink(1);owner.getInventory().setChanged();
+            if(victim instanceof Chef)game.items().mana().award(owner,"lbc:true_advancements/legends/chef_label");
+        }
     }
     private boolean livingOwner(ServerPlayer owner){return owner.isAlive()&&game.canUseGameplayItems(owner)
             &&owner.level()==game.maps().level();}
     private boolean eligible(ServerPlayer owner){return livingOwner(owner)&&!game.items().actionsBlocked(owner);}
     Chef spawn(ServerPlayer owner,LivingEntity target){
         if(!eligible(owner)||target==null||!target.isAlive()||target.level()!=owner.level()
-                ||!game.items().wands().target(owner,target))return null;
+                ||!labelTarget(owner,target))return null;
         Vec3 at=target.position().subtract(target.getLookAngle().multiply(1,0,1).normalize().scale(10));
         if(!owner.level().hasChunkAt(BlockPos.containing(at)))return null;
         Chef chef=new Chef(this,owner,target);chef.setPos(at);
@@ -291,7 +306,7 @@ public final class LbcWtf {
         if(chef.stasis>0){chef.halt();chef.survival.cancel();chef.stasis--;chef.restorePose();return;}
         chef.restorePose();
         if(game.items().actionsBlocked(chef)){chef.halt();chef.survival.cancel();return;}
-        if(!game.items().wands().target(chef.owner,chef.target)){chef.halt();chef.survival.cancel();return;}
+        if(!labelTarget(chef.owner,chef.target)){chef.halt();chef.survival.cancel();return;}
         if(!chef.level().hasChunkAt(chef.blockPosition())){chef.halt();return;}
         if(chef.owner.getRandom().nextFloat()<.005f)LbcOverload.sound(chef.owner,chef.position(),SOUNDS[chef.owner.getRandom().nextInt(SOUNDS.length)],2,1,0);
         if(chef.attackDelay>0)chef.attackDelay--;
