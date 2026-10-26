@@ -1,0 +1,80 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:snow_academy_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:item_model": "lbc:spelllib/snow_academy"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_snow_academy",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_snow_academy.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "rare",
+                    "italic": false,
+                    "color": "yellow"
+                  },
+                  {
+                    "translate": "enhanced",
+                    "italic": false,
+                    "color": "gray"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:279}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

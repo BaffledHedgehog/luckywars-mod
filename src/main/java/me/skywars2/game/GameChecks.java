@@ -1002,6 +1002,9 @@ public final class GameChecks {
                                 case "exahoming-menu" -> checkExahomingMenu(game);
                                 case "exahoming-crafting" -> checkExahomingCrafting(game);
                                 case "summons-menu" -> checkSummonsMenu(game);
+                                case "ordinary-summoners" -> { OrdinarySummonerChecks.run(game); return; }
+                                case "ordinary-summoners-stop-probe" -> { OrdinarySummonerChecks.stopProbe(game); return; }
+                                case "ordinary-summoners-cleanup" -> { OrdinarySummonerChecks.cleanup(game); return; }
                                 case "summons-crafting" -> checkSummonsCrafting(game);
                                 case "summons" -> checkSummons(game);
                                 case "summons-stop-probe" -> checkSummonsStopProbe(game);

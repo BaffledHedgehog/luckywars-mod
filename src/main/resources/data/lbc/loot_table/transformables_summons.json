@@ -7,7 +7,7 @@
           "type": "minecraft:item",
           "weight": 10,
           "quality": 8,
-          "name": "minecraft:carrot_on_a_stick",
+          "name": "skywars2:summoner_skeletons",
           "modifier": [
             {
               "count": 1,
@@ -124,7 +124,7 @@
           "type": "minecraft:item",
           "weight": 10,
           "quality": 8,
-          "name": "minecraft:carrot_on_a_stick",
+          "name": "skywars2:summoner_ravager",
           "modifier": [
             {
               "count": 1,
@@ -241,7 +241,7 @@
           "type": "minecraft:item",
           "weight": 10,
           "quality": 8,
-          "name": "minecraft:carrot_on_a_stick",
+          "name": "skywars2:summoner_vexes_wand",
           "modifier": [
             {
               "count": 1,
@@ -363,7 +363,7 @@
           "type": "minecraft:item",
           "weight": 10,
           "quality": 8,
-          "name": "minecraft:carrot_on_a_stick",
+          "name": "skywars2:summoner_elite_skeletons",
           "modifier": [
             {
               "count": 1,
@@ -480,7 +480,7 @@
           "type": "minecraft:item",
           "weight": 10,
           "quality": 8,
-          "name": "minecraft:carrot_on_a_stick",
+          "name": "skywars2:summoner_ghost_rider",
           "modifier": [
             {
               "count": 1,
@@ -597,7 +597,7 @@
           "type": "minecraft:item",
           "weight": 10,
           "quality": 8,
-          "name": "minecraft:carrot_on_a_stick",
+          "name": "skywars2:summoner_ghasts",
           "modifier": [
             {
               "count": 1,
@@ -714,7 +714,7 @@
           "type": "minecraft:item",
           "weight": 10,
           "quality": 8,
-          "name": "minecraft:carrot_on_a_stick",
+          "name": "skywars2:summoner_blazes",
           "modifier": [
             {
               "count": 1,
@@ -831,7 +831,7 @@
           "type": "minecraft:item",
           "weight": 10,
           "quality": 8,
-          "name": "minecraft:carrot_on_a_stick",
+          "name": "skywars2:summoner_guardians",
           "modifier": [
             {
               "count": 1,

@@ -61,7 +61,7 @@ final class LbcGaycasterAcademy {
         cast(owner,color);game.items().wands().wandCasted(owner);return true;
     }
     private int cost(){return game.items().mana().score(ScoreHolder.forNameOnly("gaycaster_mana_use"),"lbc.math").get();}
-    private void cast(ServerPlayer owner,int color){
+    void cast(ServerPlayer owner,int color){
         Vec3 from=owner.getEyePosition(),direction=owner.getLookAngle();double[] next={0};
         LbcOverload.sound(owner,from,"minecraft:lbcsounds.laser_mg_shot",1,0,0);
         LbcOverload.sound(owner,from,"minecraft:item.trident.return",1,0,0);

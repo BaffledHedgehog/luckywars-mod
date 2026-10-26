@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "lbc:item/spelllib/summoner_vexes"
+    "layer0": "lbc:item/spelllib/gaycaster_red"
   }
 }

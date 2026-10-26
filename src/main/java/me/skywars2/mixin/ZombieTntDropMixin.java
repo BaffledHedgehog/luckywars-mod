@@ -43,7 +43,8 @@ public abstract class ZombieTntDropMixin {
     @Inject(method="doHurtTarget", at=@At("HEAD"), cancellable=true)
     private void skywars2$trapMelee(ServerLevel level, Entity target, CallbackInfoReturnable<Boolean> ci) {
         var game=SkyWars2.game();
-        if(game!=null && (!game.items().zombieTntDrops().canMelee((Entity)(Object)this,target)
+        if(game!=null && (!game.items().summons().canMelee((Entity)(Object)this,target)
+                || !game.items().zombieTntDrops().canMelee((Entity)(Object)this,target)
                 || !game.items().luckyPigs().canAffect((Entity)(Object)this,target)
                 || !game.items().slabDrops().canAffect((Entity)(Object)this,target)
                 || !game.items().creatureDrops().canAffect((Entity)(Object)this,target)
@@ -57,6 +58,7 @@ public abstract class ZombieTntDropMixin {
     private boolean skywars2$trapConversion(ServerLevel level, Entity converted, Operation<Boolean> original) {
         var game=SkyWars2.game();
         if(game!=null) {
+            game.items().summons().inheritConversion((Entity)(Object)this,converted);
             game.items().zombieTntDrops().inheritConversion((Entity)(Object)this,converted);
             game.items().luckyPigs().inheritConversion((Entity)(Object)this,converted);
             game.items().slabDrops().inheritConversion((Entity)(Object)this,converted);

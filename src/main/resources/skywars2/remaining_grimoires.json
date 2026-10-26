@@ -10317,14 +10317,14 @@
       "data": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:261}"
     },
     {
-      "spellId": 262,
-      "id": "summoner_vexes_grimoire",
-      "model": "lbc:spelllib/summoner_vexes",
-      "tooltip": "lbc:tier_a",
+      "spellId": 271,
+      "id": "gaycaster_red_grimoire",
+      "model": "lbc:spelllib/gaycaster_red",
+      "tooltip": "lbc:tier_s",
       "count": 99,
       "name": [
         {
-          "translate": "libspell_summoner_vexes",
+          "translate": "libspell_gaycaster_red",
           "italic": false,
           "color": "white"
         }
@@ -10346,7 +10346,385 @@
           "text": ""
         },
         {
-          "translate": "libspell_summoner_vexes.lore",
+          "translate": "libspell_gaycaster_red.lore",
+          "italic": false,
+          "color": "gold"
+        },
+        [
+          {
+            "translate": "rarity",
+            "italic": false,
+            "color": "white"
+          },
+          {
+            "translate": "legendary",
+            "italic": false,
+            "color": "red"
+          },
+          {
+            "translate": "enhanced",
+            "italic": false,
+            "color": "gray"
+          }
+        ]
+      ],
+      "data": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:271}"
+    },
+    {
+      "spellId": 272,
+      "id": "gaycaster_orange_grimoire",
+      "model": "lbc:spelllib/gaycaster_orange",
+      "tooltip": "lbc:tier_s",
+      "count": 99,
+      "name": [
+        {
+          "translate": "libspell_gaycaster_orange",
+          "italic": false,
+          "color": "white"
+        }
+      ],
+      "lore": [
+        [
+          {
+            "translate": "type",
+            "italic": false,
+            "color": "aqua"
+          },
+          {
+            "translate": "libspell",
+            "italic": false,
+            "color": "aqua"
+          }
+        ],
+        {
+          "text": ""
+        },
+        {
+          "translate": "libspell_gaycaster_orange.lore",
+          "italic": false,
+          "color": "gold"
+        },
+        [
+          {
+            "translate": "rarity",
+            "italic": false,
+            "color": "white"
+          },
+          {
+            "translate": "legendary",
+            "italic": false,
+            "color": "red"
+          },
+          {
+            "translate": "enhanced",
+            "italic": false,
+            "color": "gray"
+          }
+        ]
+      ],
+      "data": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:272}"
+    },
+    {
+      "spellId": 273,
+      "id": "gaycaster_yellow_grimoire",
+      "model": "lbc:spelllib/gaycaster_yellow",
+      "tooltip": "lbc:tier_s",
+      "count": 99,
+      "name": [
+        {
+          "translate": "libspell_gaycaster_yellow",
+          "italic": false,
+          "color": "white"
+        }
+      ],
+      "lore": [
+        [
+          {
+            "translate": "type",
+            "italic": false,
+            "color": "aqua"
+          },
+          {
+            "translate": "libspell",
+            "italic": false,
+            "color": "aqua"
+          }
+        ],
+        {
+          "text": ""
+        },
+        {
+          "translate": "libspell_gaycaster_yellow.lore",
+          "italic": false,
+          "color": "gold"
+        },
+        [
+          {
+            "translate": "rarity",
+            "italic": false,
+            "color": "white"
+          },
+          {
+            "translate": "legendary",
+            "italic": false,
+            "color": "red"
+          },
+          {
+            "translate": "enhanced",
+            "italic": false,
+            "color": "gray"
+          }
+        ]
+      ],
+      "data": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:273}"
+    },
+    {
+      "spellId": 274,
+      "id": "gaycaster_green_grimoire",
+      "model": "lbc:spelllib/gaycaster_green",
+      "tooltip": "lbc:tier_s",
+      "count": 99,
+      "name": [
+        {
+          "translate": "libspell_gaycaster_green",
+          "italic": false,
+          "color": "white"
+        }
+      ],
+      "lore": [
+        [
+          {
+            "translate": "type",
+            "italic": false,
+            "color": "aqua"
+          },
+          {
+            "translate": "libspell",
+            "italic": false,
+            "color": "aqua"
+          }
+        ],
+        {
+          "text": ""
+        },
+        {
+          "translate": "libspell_gaycaster_green.lore",
+          "italic": false,
+          "color": "gold"
+        },
+        [
+          {
+            "translate": "rarity",
+            "italic": false,
+            "color": "white"
+          },
+          {
+            "translate": "legendary",
+            "italic": false,
+            "color": "red"
+          },
+          {
+            "translate": "enhanced",
+            "italic": false,
+            "color": "gray"
+          }
+        ]
+      ],
+      "data": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:274}"
+    },
+    {
+      "spellId": 275,
+      "id": "gaycaster_cyan_grimoire",
+      "model": "lbc:spelllib/gaycaster_cyan",
+      "tooltip": "lbc:tier_s",
+      "count": 99,
+      "name": [
+        {
+          "translate": "libspell_gaycaster_cyan",
+          "italic": false,
+          "color": "white"
+        }
+      ],
+      "lore": [
+        [
+          {
+            "translate": "type",
+            "italic": false,
+            "color": "aqua"
+          },
+          {
+            "translate": "libspell",
+            "italic": false,
+            "color": "aqua"
+          }
+        ],
+        {
+          "text": ""
+        },
+        {
+          "translate": "libspell_gaycaster_cyan.lore",
+          "italic": false,
+          "color": "gold"
+        },
+        [
+          {
+            "translate": "rarity",
+            "italic": false,
+            "color": "white"
+          },
+          {
+            "translate": "legendary",
+            "italic": false,
+            "color": "red"
+          },
+          {
+            "translate": "enhanced",
+            "italic": false,
+            "color": "gray"
+          }
+        ]
+      ],
+      "data": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:275}"
+    },
+    {
+      "spellId": 276,
+      "id": "gaycaster_blue_grimoire",
+      "model": "lbc:spelllib/gaycaster_blue",
+      "tooltip": "lbc:tier_s",
+      "count": 99,
+      "name": [
+        {
+          "translate": "libspell_gaycaster_blue",
+          "italic": false,
+          "color": "white"
+        }
+      ],
+      "lore": [
+        [
+          {
+            "translate": "type",
+            "italic": false,
+            "color": "aqua"
+          },
+          {
+            "translate": "libspell",
+            "italic": false,
+            "color": "aqua"
+          }
+        ],
+        {
+          "text": ""
+        },
+        {
+          "translate": "libspell_gaycaster_blue.lore",
+          "italic": false,
+          "color": "gold"
+        },
+        [
+          {
+            "translate": "rarity",
+            "italic": false,
+            "color": "white"
+          },
+          {
+            "translate": "legendary",
+            "italic": false,
+            "color": "red"
+          },
+          {
+            "translate": "enhanced",
+            "italic": false,
+            "color": "gray"
+          }
+        ]
+      ],
+      "data": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:276}"
+    },
+    {
+      "spellId": 277,
+      "id": "gaycaster_purple_grimoire",
+      "model": "lbc:spelllib/gaycaster_purple",
+      "tooltip": "lbc:tier_s",
+      "count": 99,
+      "name": [
+        {
+          "translate": "libspell_gaycaster_purple",
+          "italic": false,
+          "color": "white"
+        }
+      ],
+      "lore": [
+        [
+          {
+            "translate": "type",
+            "italic": false,
+            "color": "aqua"
+          },
+          {
+            "translate": "libspell",
+            "italic": false,
+            "color": "aqua"
+          }
+        ],
+        {
+          "text": ""
+        },
+        {
+          "translate": "libspell_gaycaster_purple.lore",
+          "italic": false,
+          "color": "gold"
+        },
+        [
+          {
+            "translate": "rarity",
+            "italic": false,
+            "color": "white"
+          },
+          {
+            "translate": "legendary",
+            "italic": false,
+            "color": "red"
+          },
+          {
+            "translate": "enhanced",
+            "italic": false,
+            "color": "gray"
+          }
+        ]
+      ],
+      "data": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:277}"
+    },
+    {
+      "spellId": 278,
+      "id": "snow_grimoire",
+      "model": "lbc:spelllib/snow",
+      "tooltip": "lbc:tier_d",
+      "count": 99,
+      "name": [
+        {
+          "translate": "libspell_snow",
+          "italic": false,
+          "color": "white"
+        }
+      ],
+      "lore": [
+        [
+          {
+            "translate": "type",
+            "italic": false,
+            "color": "aqua"
+          },
+          {
+            "translate": "libspell",
+            "italic": false,
+            "color": "aqua"
+          }
+        ],
+        {
+          "text": ""
+        },
+        {
+          "translate": "libspell_snow.lore",
           "italic": false,
           "color": "gold"
         },
@@ -10363,17 +10741,17 @@
           }
         ]
       ],
-      "data": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:262}"
+      "data": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:278}"
     },
     {
-      "spellId": 263,
-      "id": "psychovex_grimoire",
-      "model": "lbc:spelllib/psychovex",
-      "tooltip": "lbc:tier_s",
+      "spellId": 279,
+      "id": "snow_academy_grimoire",
+      "model": "lbc:spelllib/snow_academy",
+      "tooltip": "lbc:tier_b",
       "count": 99,
       "name": [
         {
-          "translate": "libspell_psychovex",
+          "translate": "libspell_snow_academy",
           "italic": false,
           "color": "white"
         }
@@ -10395,7 +10773,7 @@
           "text": ""
         },
         {
-          "translate": "libspell_psychovex.lore",
+          "translate": "libspell_snow_academy.lore",
           "italic": false,
           "color": "gold"
         },
@@ -10406,13 +10784,18 @@
             "color": "white"
           },
           {
-            "translate": "legendary",
+            "translate": "rare",
             "italic": false,
-            "color": "red"
+            "color": "yellow"
+          },
+          {
+            "translate": "enhanced",
+            "italic": false,
+            "color": "gray"
           }
         ]
       ],
-      "data": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:263}"
+      "data": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:279}"
     }
   ],
   "wiki": {

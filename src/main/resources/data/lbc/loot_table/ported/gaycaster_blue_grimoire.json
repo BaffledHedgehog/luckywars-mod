@@ -5,21 +5,21 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "skywars2:summoner_vexes_grimoire",
+          "name": "skywars2:gaycaster_blue_grimoire",
           "modifier": [
             {
               "type": "minecraft:set_components",
               "components": {
                 "minecraft:max_stack_size": 99,
-                "minecraft:tooltip_style": "lbc:tier_a",
-                "minecraft:item_model": "lbc:spelllib/summoner_vexes"
+                "minecraft:tooltip_style": "lbc:tier_s",
+                "minecraft:item_model": "lbc:spelllib/gaycaster_blue"
               }
             },
             {
               "type": "minecraft:set_name",
               "name": [
                 {
-                  "translate": "libspell_summoner_vexes",
+                  "translate": "libspell_gaycaster_blue",
                   "italic": false,
                   "color": "white"
                 }
@@ -45,7 +45,7 @@
                   "text": ""
                 },
                 {
-                  "translate": "libspell_summoner_vexes.lore",
+                  "translate": "libspell_gaycaster_blue.lore",
                   "italic": false,
                   "color": "gold"
                 },
@@ -56,16 +56,21 @@
                     "color": "white"
                   },
                   {
-                    "translate": "rare",
+                    "translate": "legendary",
                     "italic": false,
-                    "color": "yellow"
+                    "color": "red"
+                  },
+                  {
+                    "translate": "enhanced",
+                    "italic": false,
+                    "color": "gray"
                   }
                 ]
               ]
             },
             {
               "type": "minecraft:set_custom_data",
-              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:262}"
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:276}"
             }
           ]
         }

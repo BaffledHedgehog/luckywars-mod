@@ -54,7 +54,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/** Одна семья нативных призывов: Soul Vex и шесть культистов Psychovex. */
+/** Shared native summons: ordinary formations, Soul Vex and six Psychovex cultists. */
 public final class LbcSummons {
     public static final String PROJECTILE="skywars2.summons.projectile";
     private final Map<Entity,UUID> consequences=new IdentityHashMap<>();
@@ -75,7 +75,10 @@ public final class LbcSummons {
     }
     private final ArrayDeque<StrangeRay> activeRays=new ArrayDeque<>();
 
-    LbcSummons(GameController game) { this.game=game; }
+    LbcSummons(GameController game,LbcMana mana) {
+        this.game=game;
+        for(var kind:LbcSummonerItems.kinds())mana.score(ScoreHolder.forNameOnly(kind.cost()),"lbc.math").set(kind.price());
+    }
 
     /** DFU выполняется один раз: игровые тики читают только готовые неизменяемые шаблоны. */
     public void prepare() {
@@ -92,6 +95,12 @@ public final class LbcSummons {
                 result.put(entry.getKey(),(CompoundTag)fixer.update(References.ENTITY,new Dynamic<>(NbtOps.INSTANCE,tag),version,
                         SharedConstants.getCurrentVersion().dataVersion().version()).getValue());
             }
+            var ordinary=LbcSummonerItems.SOURCE;
+            for(var entry:ordinary.getAsJsonObject("presets").entrySet()){
+                var tag=TagParser.parseCompoundFully(entry.getValue().getAsString());
+                result.put(entry.getKey(),(CompoundTag)fixer.update(References.ENTITY,new Dynamic<>(NbtOps.INSTANCE,tag),
+                        ordinary.get("originalDataVersion").getAsInt(),SharedConstants.getCurrentVersion().dataVersion().version()).getValue());
+            }
         } catch(Exception error) { throw new IllegalStateException("Invalid original summons presets",error); }
         return Map.copyOf(result);
         });
@@ -102,6 +111,7 @@ public final class LbcSummons {
     }
     public int count() { return mobs.size(); }
     List<Mob> snapshot() { return List.copyOf(mobs.keySet()); }
+    List<Mob> ordinarySnapshot(String kind){return mobs.entrySet().stream().filter(e->e.getValue().kind.equals("ordinary_"+kind)).map(Map.Entry::getKey).toList();}
     private boolean valid(ServerPlayer owner) { return owner!=null && game.items().mana().visible(owner); }
     private boolean paused(ServerPlayer owner) {
         return game.items().wands().timeStopped() || owner.entityTags().contains("time_stopped")
@@ -137,6 +147,14 @@ public final class LbcSummons {
         var owner=owner(mob);
         return valid(owner) && !paused(mob) && mob.level()==owner.level() && target(owner,target);
     }
+    public boolean canMelee(Entity actor,Entity target){
+        return !(actor instanceof Mob mob)||!mobs.containsKey(mob)||target instanceof LivingEntity living&&canAttack(mob,living);
+    }
+    public void inheritConversion(Entity original,Entity converted){
+        if(!(original instanceof Mob source)||!(converted instanceof Mob mob))return;
+        var state=mobs.remove(source);if(state==null)return;
+        mobs.put(mob,state);mob.entityTags().addAll(source.entityTags());mob.entityTags().add("skywars2.summons.actor");game.items().markCurrentItemEpoch(mob);
+    }
     /** Callback общего Mob.setTarget: ванильный AI остаётся владельцем движения и ударов. */
     public void targetChanged(Mob mob,LivingEntity target) {
         if(target!=null && mobs.containsKey(mob) && !canAttack(mob,target)) mob.setTarget(null);
@@ -152,16 +170,53 @@ public final class LbcSummons {
                 .min(Comparator.comparingDouble(owner::distanceToSqr)).orElse(null):null;
         // Исходный допуск 1000 сохраняется и при реальном расходе 3000 возле врага.
         if(!mana.trySpendWand(owner,price,psycho && !down && destination!=null?price*3:price)) return false;
-        return castSummon(owner,psycho,down,destination,true);
+        return castSummon(owner,psycho,down,destination);
     }
-    boolean grimoire(ServerPlayer owner,boolean psycho){
+    boolean useOrdinary(ServerPlayer owner,InteractionHand hand,LbcSummonerItems.Kind kind){
+        if(!valid(owner)||paused(owner)||!ready()||game.items().actionsBlocked(owner)
+                ||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands
+                ||game.items().magic().suppressedAt(owner.level(),owner.getEyePosition()))return false;
+        if(owner.isShiftKeyDown()){anger(owner);return true;}
+        int price=game.items().mana().score(ScoreHolder.forNameOnly(kind.cost()),"lbc.math").get();
+        if(!game.items().mana().trySpendWand(owner,price))return false;
+        castOrdinary(owner,kind);game.items().trinkets().summoned(owner);return true;
+    }
+    boolean castOrdinary(ServerPlayer owner,LbcSummonerItems.Kind kind){
         if(!ready())return false;
-        boolean down=owner.getXRot()>=85;
-        var destination=psycho&&!down?owner.level().players().stream().filter(player->target(owner,player))
-                .min(Comparator.comparingDouble(owner::distanceToSqr)).orElse(null):null;
-        return castSummon(owner,psycho,down,destination,false);
+        String family="ordinary_"+kind.kind();
+        // Direct owner/group handles replace the source's32 team selectors; unrelated casts stay intact.
+        for(var mob:List.copyOf(mobs.keySet())){var state=mobs.get(mob);
+            if(state!=null&&state.kind.equals(family)&&state.owner.equals(owner.getUUID()))remove(mob);
+        }
+        Vec3 forward=horizontal(owner),left=new Vec3(forward.z,0,-forward.x);
+        for(var root:kind.roots()){
+            var v=root.offset();var offset=root.local()?left.scale(v.x).add(0,v.y,0).add(forward.scale(v.z)):v;
+            var position=owner.position().add(offset);
+            if(owner.level().hasChunkAt(BlockPos.containing(position)))ordinaryTree(owner,family,presets.get(family),position,null);
+        }
+        effects(owner,false);return true;
     }
-    private boolean castSummon(ServerPlayer owner,boolean psycho,boolean down,ServerPlayer destination,boolean bonus){
+    private Mob ordinaryTree(ServerPlayer owner,String family,CompoundTag tag,Vec3 at,Mob vehicle){
+        Mob mob=switch(tag.getStringOr("id","")){
+            case "minecraft:skeleton"->new CultSkeleton(owner.level());
+            case "minecraft:ravager"->new SoulRavager(owner.level());
+            case "minecraft:ghast"->new SoulGhast(owner.level());
+            case "minecraft:blaze"->new SoulBlaze(owner.level());
+            case "minecraft:guardian"->new SoulGuardian(owner.level());
+            case "minecraft:bat"->new SoulBat(owner.level());
+            case "minecraft:skeleton_horse"->new SoulHorse(owner.level());
+            default->throw new IllegalArgumentException("Unsupported summon tree "+tag);
+        };
+        mob.load(TagValueInput.create(ProblemReporter.DISCARDING,owner.registryAccess(),tag.copy()));
+        mob.setPos(at);mob.entityTags().add("summactivated");mob.entityTags().add("skywars2.summons.actor");game.items().markCurrentItemEpoch(mob);
+        mobs.put(mob,new Summon(owner.getUUID(),game.items().epoch(),family));
+        if(owner.getTeam()!=null)owner.level().getScoreboard().addPlayerToTeam(mob.getStringUUID(),owner.getTeam());
+        if(!owner.level().addFreshEntity(mob)){remove(mob);return null;}
+        if(vehicle!=null)mob.startRiding(vehicle,true,true);
+        for(var child:tag.getListOrEmpty("Passengers"))if(child instanceof CompoundTag passenger)ordinaryTree(owner,family,passenger,at,mob);
+        return mob;
+    }
+    private boolean castSummon(ServerPlayer owner,boolean psycho,boolean down,ServerPlayer destination){
         if(!psycho) {
             for(var mob:List.copyOf(mobs.keySet())) {
                 var state=mobs.get(mob);
@@ -174,14 +229,14 @@ public final class LbcSummons {
             if(down) point=owner.position().add(horizontal(owner).scale(2));
             else {
                 var enemy=destination;
-                if(enemy==null) { effects(owner,true); if(bonus)game.items().trinkets().summoned(owner); return true; }
+                if(enemy==null) { effects(owner,true); game.items().trinkets().summoned(owner); return true; }
                 int direction=owner.getRandom().nextInt(4);
                 Vec3 forward=horizontal(owner),right=new Vec3(-forward.z,0,forward.x);
                 point=enemy.position().add((direction<2?forward:right).scale(direction%2==0?2:-2));
             }
             spawnPreset(owner,CULTISTS[owner.getRandom().nextInt(6)],point);
         }
-        effects(owner,psycho); if(bonus)game.items().trinkets().summoned(owner); return true;
+        effects(owner,psycho); game.items().trinkets().summoned(owner); return true;
     }
     private static Vec3 horizontal(LivingEntity entity) {
         double yaw=Math.toRadians(entity.getYRot()); return new Vec3(-Math.sin(yaw),0,Math.cos(yaw));
@@ -208,6 +263,7 @@ public final class LbcSummons {
     /** Sneak призыва назначает ближайшего врага существующим союзным призывам без фиктивного урона. */
     private void anger(ServerPlayer owner) {
         for(var mob:List.copyOf(mobs.keySet())) if(friendly(owner,mob) && mob.distanceToSqr(owner)<=900) {
+            if(mob instanceof net.minecraft.world.entity.monster.Guardian||mob instanceof net.minecraft.world.entity.monster.Ghast)continue;
             var enemy=nearest(owner,mob.position(),50); if(enemy!=null) mob.setTarget(enemy);
         }
     }
@@ -234,7 +290,7 @@ public final class LbcSummons {
             if(paused(mob)) { mob.setTarget(null); continue; }
             if(mob.getTarget()!=null && !canAttack(mob,mob.getTarget())) mob.setTarget(null);
             // Ближайшая подходящая цель дополняет vanilla goals, не заменяя native навигацию.
-            if(ticks%20==0 && mob.getTarget()==null) mob.setTarget(nearest(owner,mob.position(),state.kind.equals("vex")?200:100));
+            if(ticks%20==0 && mob.getTarget()==null) mob.setTarget(nearest(owner,mob.position(),state.kind.equals("vex")||state.kind.startsWith("ordinary_")?200:100));
             switch(state.kind) {
                 case "obsession" -> {
                     for(var enemy:enemies(owner,mob.position(),2.5))
@@ -393,6 +449,7 @@ public final class LbcSummons {
         consequences.put(entity,owner.getUUID()); entity.entityTags().add(PROJECTILE); game.items().markCurrentItemEpoch(entity);
     }
     void loaded(Entity entity) {
+        if(entity instanceof Mob mob&&entity.entityTags().contains("skywars2.summons.actor")&&!mobs.containsKey(mob)){entity.discard();return;}
         if(entity.entityTags().contains(PROJECTILE)) {
             if(!game.items().currentEpoch(entity)) { entity.discard(); return; }
             var actor=owner(entity);
@@ -400,7 +457,12 @@ public final class LbcSummons {
         }
         if(entity instanceof Projectile projectile) {
             var owner=owner(projectile.getOwner());
-            if(owner!=null) { projectile.setOwner(owner); track(owner,projectile); }
+            if(owner!=null) {
+                var pickup=projectile instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow arrow?arrow.pickup:null;
+                projectile.setOwner(owner);
+                if(projectile instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow arrow)arrow.pickup=pickup;
+                track(owner,projectile);
+            }
         }
     }
     void unloaded(Entity entity) {
@@ -437,6 +499,42 @@ public final class LbcSummons {
     }
     private final class CultZombie extends Zombie {
         CultZombie(ServerLevel level) { super(EntityTypes.ZOMBIE,level); }
+        @Override public boolean shouldBeSaved() { return false; }
+        @Override public boolean canAttack(LivingEntity target) { return LbcSummons.this.canAttack(this,target) && super.canAttack(target); }
+        @Override public boolean doHurtTarget(ServerLevel level,Entity target) { return target instanceof LivingEntity living && canAttack(living) && super.doHurtTarget(level,target); }
+    }
+    private final class SoulRavager extends net.minecraft.world.entity.monster.Ravager {
+        SoulRavager(ServerLevel level) { super(EntityTypes.RAVAGER,level); }
+        @Override public boolean shouldBeSaved() { return false; }
+        @Override public boolean canAttack(LivingEntity target) { return LbcSummons.this.canAttack(this,target) && super.canAttack(target); }
+        @Override public boolean doHurtTarget(ServerLevel level,Entity target) { return target instanceof LivingEntity living && canAttack(living) && super.doHurtTarget(level,target); }
+    }
+    private final class SoulGhast extends net.minecraft.world.entity.monster.Ghast {
+        SoulGhast(ServerLevel level) { super(EntityTypes.GHAST,level); }
+        @Override public boolean shouldBeSaved() { return false; }
+        @Override public boolean canAttack(LivingEntity target) { return LbcSummons.this.canAttack(this,target) && super.canAttack(target); }
+        @Override public boolean doHurtTarget(ServerLevel level,Entity target) { return target instanceof LivingEntity living && canAttack(living) && super.doHurtTarget(level,target); }
+    }
+    private final class SoulBlaze extends net.minecraft.world.entity.monster.Blaze {
+        SoulBlaze(ServerLevel level) { super(EntityTypes.BLAZE,level); }
+        @Override public boolean shouldBeSaved() { return false; }
+        @Override public boolean canAttack(LivingEntity target) { return LbcSummons.this.canAttack(this,target) && super.canAttack(target); }
+        @Override public boolean doHurtTarget(ServerLevel level,Entity target) { return target instanceof LivingEntity living && canAttack(living) && super.doHurtTarget(level,target); }
+    }
+    private final class SoulGuardian extends net.minecraft.world.entity.monster.Guardian {
+        SoulGuardian(ServerLevel level) { super(EntityTypes.GUARDIAN,level); }
+        @Override public boolean shouldBeSaved() { return false; }
+        @Override public boolean canAttack(LivingEntity target) { return LbcSummons.this.canAttack(this,target) && super.canAttack(target); }
+        @Override public boolean doHurtTarget(ServerLevel level,Entity target) { return target instanceof LivingEntity living && canAttack(living) && super.doHurtTarget(level,target); }
+    }
+    private final class SoulBat extends net.minecraft.world.entity.ambient.Bat {
+        SoulBat(ServerLevel level) { super(EntityTypes.BAT,level); }
+        @Override public boolean shouldBeSaved() { return false; }
+        @Override public boolean canAttack(LivingEntity target) { return LbcSummons.this.canAttack(this,target) && super.canAttack(target); }
+        @Override public boolean doHurtTarget(ServerLevel level,Entity target) { return target instanceof LivingEntity living && canAttack(living) && super.doHurtTarget(level,target); }
+    }
+    private final class SoulHorse extends net.minecraft.world.entity.animal.equine.SkeletonHorse {
+        SoulHorse(ServerLevel level) { super(EntityTypes.SKELETON_HORSE,level); }
         @Override public boolean shouldBeSaved() { return false; }
         @Override public boolean canAttack(LivingEntity target) { return LbcSummons.this.canAttack(this,target) && super.canAttack(target); }
         @Override public boolean doHurtTarget(ServerLevel level,Entity target) { return target instanceof LivingEntity living && canAttack(living) && super.doHurtTarget(level,target); }

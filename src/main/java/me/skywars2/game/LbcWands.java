@@ -442,6 +442,8 @@ public final class LbcWands {
         if(LbcDanmaku.isGrimoire(stack))return game.items().danmaku().useGrimoire(player,hand);
         if(LbcElementalGrimoires.kind(stack)!=null)return LbcElementalGrimoires.use(game,player,hand);
         if(LbcLibrarySpells.kind(stack)!=null)return LbcLibrarySpells.use(game,player,hand);
+        var ordinarySummon=LbcSummonerItems.kind(stack);
+        if(ordinarySummon!=null)return game.items().summons().useOrdinary(player,hand,ordinarySummon);
         if(LbcDanmaku.isItem(stack))return game.items().danmaku().use(player,hand);
         if(LbcSheep.isWand(stack))return game.items().sheep().use(player,hand);
         if(LbcHedgehogItems.isWand(stack))return game.items().hedgehog().use(player,hand);

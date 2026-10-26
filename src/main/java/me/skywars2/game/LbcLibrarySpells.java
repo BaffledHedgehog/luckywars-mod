@@ -109,8 +109,8 @@ public final class LbcLibrarySpells {
             case 126 -> g.items().blaze().libraryHead(p);
             case 127 -> LbcLibraryRandom.castRandom(g,p,hand,p.getRandom().nextInt(53)+1);
             case 128 -> {
-                int selected=128;for(int attempt=0;attempt<5&&selected==128;attempt++)selected=p.getRandom().nextInt(LbcExtraGrimoires.LAST)+1;
-                if(selected!=128)return cast(g,p,hand,selected);
+                int selected=128;for(int attempt=0;attempt<5&&(selected==128||LbcExtraGrimoires.retired(selected));attempt++)selected=p.getRandom().nextInt(LbcExtraGrimoires.LAST)+1;
+                if(selected!=128&&!LbcExtraGrimoires.retired(selected))return cast(g,p,hand,selected);
             }
             case 129,130,131,132,133 -> {
                 if(g.items().godHedgehog().blocksSilverfish(p.level()))return false;

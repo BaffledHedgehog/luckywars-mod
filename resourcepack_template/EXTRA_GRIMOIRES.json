@@ -152,19 +152,75 @@
     "mode": null
   },
   {
-    "spellId": 262,
-    "id": "summoner_vexes_grimoire",
-    "wand": "summoner_vexes_wand",
-    "tier": "lbc:tier_a",
+    "spellId": 271,
+    "id": "gaycaster_red_grimoire",
+    "wand": "academy_gaycaster",
+    "tier": "lbc:tier_s",
+    "rarity": "legendary",
+    "mode": "mode_red"
+  },
+  {
+    "spellId": 272,
+    "id": "gaycaster_orange_grimoire",
+    "wand": "academy_gaycaster",
+    "tier": "lbc:tier_s",
+    "rarity": "legendary",
+    "mode": "mode_orange"
+  },
+  {
+    "spellId": 273,
+    "id": "gaycaster_yellow_grimoire",
+    "wand": "academy_gaycaster",
+    "tier": "lbc:tier_s",
+    "rarity": "legendary",
+    "mode": "mode_yellow"
+  },
+  {
+    "spellId": 274,
+    "id": "gaycaster_green_grimoire",
+    "wand": "academy_gaycaster",
+    "tier": "lbc:tier_s",
+    "rarity": "legendary",
+    "mode": "mode_green"
+  },
+  {
+    "spellId": 275,
+    "id": "gaycaster_cyan_grimoire",
+    "wand": "academy_gaycaster",
+    "tier": "lbc:tier_s",
+    "rarity": "legendary",
+    "mode": "mode_light_blue"
+  },
+  {
+    "spellId": 276,
+    "id": "gaycaster_blue_grimoire",
+    "wand": "academy_gaycaster",
+    "tier": "lbc:tier_s",
+    "rarity": "legendary",
+    "mode": "mode_blue"
+  },
+  {
+    "spellId": 277,
+    "id": "gaycaster_purple_grimoire",
+    "wand": "academy_gaycaster",
+    "tier": "lbc:tier_s",
+    "rarity": "legendary",
+    "mode": "mode_purple"
+  },
+  {
+    "spellId": 278,
+    "id": "snow_grimoire",
+    "wand": "snow_wand",
+    "tier": "lbc:tier_d",
     "rarity": "rare",
     "mode": null
   },
   {
-    "spellId": 263,
-    "id": "psychovex_grimoire",
-    "wand": "psychovex_wand",
-    "tier": "lbc:tier_s",
-    "rarity": "legendary",
+    "spellId": 279,
+    "id": "snow_academy_grimoire",
+    "wand": "academy_snow_wand",
+    "tier": "lbc:tier_b",
+    "rarity": "rare",
     "mode": null
   }
 ]

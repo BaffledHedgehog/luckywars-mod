@@ -1,3 +1,24 @@
+## Native ordinary summoners and corrected grimoire catalog - QUALIFIED AND INSTALLED (26 October2026)
+
+See [implementation and source verification](ORDINARY_SUMMONERS_PORT.md).
+Seven remaining ordinary summoners now use native mobs, formations, passengers,
+AI and owned attacks; the eight-entry ordinary summon pool is ready in /loot.
+The author excludes summoners from grimoires: all9 summon books are removed,
+IDs262..270 retired. Seven Academy Gaycaster rainbow books use271..277;
+ordinary/aimed Academy Snow books use278/279, with source tier D/B. Collection268.
+Shared wand producers preserve cyan electricity/blue water and distinct Snow
+cast origins. RP additions are in resourcepack_template; author pack read-only.
+
+Build41395417 passed24 groups in two actual mode1 matches (114.91s).
+Exact385 sources/1094 classes/3112 resources verified; installer8624 installed
+it over081a2f7a with rollback and no restart. Both hands/Shift, mana/Overload,
+native AI/kill/conversion/projectile ownership, no-pickup arrows, all new books,
+real collection predicates, shared family regressions and actual stop pass.
+Protected user files/prior deletions and applied author translations preserved.
+Evidence: build/verification/summoners-final/. Oldestb4aa411f archive retired.
+This checkpoint supersedes the earlier21-book catalog including two summoners.
+Client frames/audio playback and peak TPS are not directly observed.
+
 ## Additional21 grimoire families - QUALIFIED AND INSTALLED (26 October2026)
 
 See [implementation and qualification](EXTRA_GRIMOIRES_2026_10_26.md).

@@ -18699,21 +18699,21 @@
         },
         {
           "type": "minecraft:item",
-          "name": "skywars2:summoner_vexes_grimoire",
+          "name": "skywars2:gaycaster_red_grimoire",
           "modifier": [
             {
               "type": "minecraft:set_components",
               "components": {
                 "minecraft:max_stack_size": 99,
-                "minecraft:tooltip_style": "lbc:tier_a",
-                "minecraft:item_model": "lbc:spelllib/summoner_vexes"
+                "minecraft:tooltip_style": "lbc:tier_s",
+                "minecraft:item_model": "lbc:spelllib/gaycaster_red"
               }
             },
             {
               "type": "minecraft:set_name",
               "name": [
                 {
-                  "translate": "libspell_summoner_vexes",
+                  "translate": "libspell_gaycaster_red",
                   "italic": false,
                   "color": "white"
                 }
@@ -18739,7 +18739,504 @@
                   "text": ""
                 },
                 {
-                  "translate": "libspell_summoner_vexes.lore",
+                  "translate": "libspell_gaycaster_red.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "legendary",
+                    "italic": false,
+                    "color": "red"
+                  },
+                  {
+                    "translate": "enhanced",
+                    "italic": false,
+                    "color": "gray"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:271}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:gaycaster_orange_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_s",
+                "minecraft:item_model": "lbc:spelllib/gaycaster_orange"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_gaycaster_orange",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_gaycaster_orange.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "legendary",
+                    "italic": false,
+                    "color": "red"
+                  },
+                  {
+                    "translate": "enhanced",
+                    "italic": false,
+                    "color": "gray"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:272}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:gaycaster_yellow_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_s",
+                "minecraft:item_model": "lbc:spelllib/gaycaster_yellow"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_gaycaster_yellow",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_gaycaster_yellow.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "legendary",
+                    "italic": false,
+                    "color": "red"
+                  },
+                  {
+                    "translate": "enhanced",
+                    "italic": false,
+                    "color": "gray"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:273}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:gaycaster_green_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_s",
+                "minecraft:item_model": "lbc:spelllib/gaycaster_green"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_gaycaster_green",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_gaycaster_green.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "legendary",
+                    "italic": false,
+                    "color": "red"
+                  },
+                  {
+                    "translate": "enhanced",
+                    "italic": false,
+                    "color": "gray"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:274}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:gaycaster_cyan_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_s",
+                "minecraft:item_model": "lbc:spelllib/gaycaster_cyan"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_gaycaster_cyan",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_gaycaster_cyan.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "legendary",
+                    "italic": false,
+                    "color": "red"
+                  },
+                  {
+                    "translate": "enhanced",
+                    "italic": false,
+                    "color": "gray"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:275}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:gaycaster_blue_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_s",
+                "minecraft:item_model": "lbc:spelllib/gaycaster_blue"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_gaycaster_blue",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_gaycaster_blue.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "legendary",
+                    "italic": false,
+                    "color": "red"
+                  },
+                  {
+                    "translate": "enhanced",
+                    "italic": false,
+                    "color": "gray"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:276}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:gaycaster_purple_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_s",
+                "minecraft:item_model": "lbc:spelllib/gaycaster_purple"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_gaycaster_purple",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_gaycaster_purple.lore",
+                  "italic": false,
+                  "color": "gold"
+                },
+                [
+                  {
+                    "translate": "rarity",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "legendary",
+                    "italic": false,
+                    "color": "red"
+                  },
+                  {
+                    "translate": "enhanced",
+                    "italic": false,
+                    "color": "gray"
+                  }
+                ]
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:277}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "skywars2:snow_grimoire",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:max_stack_size": 99,
+                "minecraft:tooltip_style": "lbc:tier_d",
+                "minecraft:item_model": "lbc:spelllib/snow"
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": [
+                {
+                  "translate": "libspell_snow",
+                  "italic": false,
+                  "color": "white"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "libspell",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "text": ""
+                },
+                {
+                  "translate": "libspell_snow.lore",
                   "italic": false,
                   "color": "gold"
                 },
@@ -18759,27 +19256,27 @@
             },
             {
               "type": "minecraft:set_custom_data",
-              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:262}"
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:278}"
             }
           ]
         },
         {
           "type": "minecraft:item",
-          "name": "skywars2:psychovex_grimoire",
+          "name": "skywars2:snow_academy_grimoire",
           "modifier": [
             {
               "type": "minecraft:set_components",
               "components": {
                 "minecraft:max_stack_size": 99,
-                "minecraft:tooltip_style": "lbc:tier_s",
-                "minecraft:item_model": "lbc:spelllib/psychovex"
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:item_model": "lbc:spelllib/snow_academy"
               }
             },
             {
               "type": "minecraft:set_name",
               "name": [
                 {
-                  "translate": "libspell_psychovex",
+                  "translate": "libspell_snow_academy",
                   "italic": false,
                   "color": "white"
                 }
@@ -18805,7 +19302,7 @@
                   "text": ""
                 },
                 {
-                  "translate": "libspell_psychovex.lore",
+                  "translate": "libspell_snow_academy.lore",
                   "italic": false,
                   "color": "gold"
                 },
@@ -18816,16 +19313,21 @@
                     "color": "white"
                   },
                   {
-                    "translate": "legendary",
+                    "translate": "rare",
                     "italic": false,
-                    "color": "red"
+                    "color": "yellow"
+                  },
+                  {
+                    "translate": "enhanced",
+                    "italic": false,
+                    "color": "gray"
                   }
                 ]
               ]
             },
             {
               "type": "minecraft:set_custom_data",
-              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:263}"
+              "tag": "{transformable:1,gadget:1,libspell:1,spellwithcooldown:0,spellid:279}"
             }
           ]
         }
