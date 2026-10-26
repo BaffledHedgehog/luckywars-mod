@@ -1,3 +1,34 @@
+## High-level effect terrain latency - QUALIFIED, AUTOMATIC INSTALL QUEUED (26 October2026)
+
+[Contract, user clarification and evidence](EFFECT_TERRAIN_LATENCY.md).
+Fire/conduit fields use cached center-first spheres; weaving uses lazy unique
+center-first cube shells. Moving fields retain progress. Fair shared work uses
+current-tick headroom to54ms with2ms tail reserve, honoring the user's priority
+of short18-19TPS dips over seconds-long filling. This replaces both tiny old
+quotas and the initial fixed6ms draft. LegacyII/III, radius caps, native portal
+ignition/water notifications, WILD attribution and pause/cleanup guards remain.
+FireIV+ aura uses native inFire1 with normal cooldown/immunity; damage no longer
+exceeds ordinary fire contact and does not scale with level. Radius still scales.
+
+Buildcbbb82ee passed44 recorded results in two actual mode1 matches (84.37s).
+All14,147 cells in two concurrent dense radius15 fields filled as source water
+in2/1native ticks; immediate center at submission. Sparse/moving field boundaries
+appeared in2ticks; nearest radius50 web removal in1tick. Max queue work49.76/
+43.96ms. Exact439 sources /1218 classes /3140 resources match the tested JAR.
+Signed command/math/environment/shadow health, player/operator, projectile,
+Time Stop, scope/SLR, map-lighting/artifact and actual-stop regressions pass.
+These are controlled native results, not physical client timing or peak TPS.
+
+Installer11424 adopted this build instead of pendingff96bdee and waits for main
+normal shutdown/world unlock (24566, RCON off). Main disk remains1a8a3825; no
+forced stop/restart. Immutable evidence/live receipt:build/verification/effect-terrain/.
+Ready:build/verification/skywars2-effect-terrain-cbbb82ee.jar. Keepcbbb82ee,ff96bdee,
+1a8a3825; obsoletec9e36258 removed. Cumulative cleanup325 JARs /11589053338 bytes.
+All175 protected author paths and31 live grimoire overrides remain unchanged.
+No RP/template changes. Native infestation entity spawning is unchanged.
+Ordinary Sauvojen and map-lighting fixes are included; combined Academy remains
+next migration work. Older checkpoints below retain historical release state.
+
 ## Map loading light synchronization - QUALIFIED, AUTOMATIC INSTALL QUEUED (26 October2026)
 
 [Contract and evidence](MAP_LIGHTING_FIX.md). Bulk map writes now gate

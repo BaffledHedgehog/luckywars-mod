@@ -763,12 +763,13 @@ public final class GameChecks {
                                 case "negative-attributes" -> { NegativeAttributeChecks.run(game); return; }
                                 case "attack-knockback" -> { AttackKnockbackChecks.run(game); return; }
                                 case "map-lighting" -> { MapLightingChecks.run(game); return; }
+                                case "effect-terrain" -> { EffectTerrainChecks.run(game); return; }
                                 case "sauvojen" -> { SauvojenChecks.run(game); return; }
                                 case "sauvojen-stop-probe" -> { SauvojenChecks.stopProbe(game); return; }
                                 case "sauvojen-cleanup" -> { SauvojenChecks.cleanup(game); return; }
                                 case "signed-effect-levels" -> { SignedEffectLevelChecks.run(game); return; }
                                 case "signed-effects-math" -> { SignedEffectMathChecks.run(game); return; }
-                                case "signed-effects-cleanup" -> { require(game.inLobby() && SignedEnvironmentalEffects.queuedSpawns()==0 && SignedGlowVisuals.carrierCount()==0,"signed effect queues and carriers clear at actual match stop"); for(var p:game.server().getPlayerList().getPlayers())require(p.getPostEffects().stream().noneMatch(SignedEffectVisuals::owned),"owned effect shaders clear at actual match stop"); SkyWars2.LOGGER.info("[check] PASS signed-effects-cleanup"); return; }
+                                case "signed-effects-cleanup" -> { require(game.inLobby() && SignedEnvironmentalEffects.queuedSpawns()==0 && SignedEnvironmentalEffects.queuedTerrain()==0 && SignedGlowVisuals.carrierCount()==0,"signed effect queues and carriers clear at actual match stop"); for(var p:game.server().getPlayerList().getPlayers())require(p.getPostEffects().stream().noneMatch(SignedEffectVisuals::owned),"owned effect shaders clear at actual match stop"); SkyWars2.LOGGER.info("[check] PASS signed-effects-cleanup"); return; }
                                 case "shadow-absorption" -> { ShadowAbsorptionChecks.run(game); return; }
                                 case "signed-environment" -> { SkyWars2.LOGGER.info("[check] PASS signed-environment ("+SignedEnvironmentalChecks.verify(game)+")"); return; }
                                 case "signed-visuals" -> { SignedEffectVisualChecks.verify(game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"))); SkyWars2.LOGGER.info("[check] PASS signed-visuals (native signed presentation and packets)"); return; }
@@ -1250,6 +1251,7 @@ public final class GameChecks {
         /** Called once per server tick after the controller tick. */
         public static void tick(GameController game) {
             MapLightingChecks.tick(game);
+            EffectTerrainChecks.tick(game);
             DanmakuChecks.tick(game);
             SheepChecks.tick(game);
             HedgehogChecks.tick(game);

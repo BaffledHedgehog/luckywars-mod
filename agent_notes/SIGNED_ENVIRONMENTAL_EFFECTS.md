@@ -1,3 +1,10 @@
+Current terrain/aura behavior (26 October2026): see [EFFECT_TERRAIN_LATENCY.md](EFFECT_TERRAIN_LATENCY.md).
+The qualified cbbb82ee update replaces the old128/2048 corner-first work limits
+with center-first shared current-tick headroom (54ms soft target,2ms reserve),
+retains movement progress and changes the high fire aura to native inFire1.
+The candidate scan/damage descriptions below are historical, superseded by that
+release. Signed levels, radii, breathing, omens and spawn semantics still apply.
+
 Root qualification: build1a8a3825 passed the dedicated native suite and broader
 regressions in two actual matches (68 results total); installed by worker19140.
 Evidence: build/verification/signed-effects-gameplay/.

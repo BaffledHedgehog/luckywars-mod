@@ -117,6 +117,7 @@ public final class SignedEnvironmentalChecks {
             level.setBlock(center.offset(2,-1,0),Blocks.STONE.defaultBlockState(),2);
             level.setBlock(center.offset(2,1,2),Blocks.STONE.defaultBlockState(),2);
             source=cow(level,at,false);source.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE,200,3));source.baseTick();
+            SignedEnvironmentalEffects.tick();
             require(level.getBlockState(center.offset(2,0,0)).is(Blocks.FIRE),"native fire IV sphere reaches radial boundary");
             require(level.getBlockState(center.offset(2,2,2)).isAir(),"extended fire fill excludes cube corner outside sphere");source.discard();
             for(int x=-3;x<=3;x++)for(int y=-3;y<=3;y++)for(int z=-3;z<=3;z++)level.setBlock(center.offset(x,y,z),Blocks.AIR.defaultBlockState(),2);

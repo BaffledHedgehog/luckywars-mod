@@ -94,6 +94,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                 game.items().mobgun().prepare();
             }
         });
+        ServerTickEvents.START_SERVER_TICK.register(server -> me.skywars2.game.SignedEnvironmentalEffects.beginTick());
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             if (game != null) { game.tick(); GameChecks.tick(game); }
             me.skywars2.game.SignedEnvironmentalEffects.tick();
