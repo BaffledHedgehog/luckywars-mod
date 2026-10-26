@@ -1,0 +1,89 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "quality": 8,
+          "name": "minecraft:shield",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:base_color": "light_blue",
+                "minecraft:banner_patterns": [
+                  {
+                    "color": "yellow",
+                    "pattern": "stripe_middle"
+                  },
+                  {
+                    "color": "yellow",
+                    "pattern": "stripe_center"
+                  },
+                  {
+                    "color": "yellow",
+                    "pattern": "flower"
+                  }
+                ],
+                "tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:base_color",
+                    "minecraft:banner_patterns"
+                  ]
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "holy_shield",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "shield.lbc",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ],
+                {
+                  "translate": "holy_shield.lore",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "holy_shield.lore.2",
+                  "color": "gold",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,shield:1,holyshield:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

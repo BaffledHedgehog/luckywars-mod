@@ -104,6 +104,7 @@ processResources {
     include 'data/lbc/loot_table/ported/stonekivi_comet_grimoire.json'
     include 'data/lbc/loot_table/ported/random_enchanted_shovel.json', 'data/lbc/loot_table/ported/efficient_shovel.json', 'data/lbc/loot_table/ported/mortis.json', 'data/lbc/loot_table/ported/death_scythe.json', 'data/lbc/loot_table/ported/banhammer.json', 'data/lbc/loot_table/transformables_shovel_all.json', 'data/lbc/loot_table/halloween/transformables_shovel.json', 'data/lbc/loot_table/halloween/soulhunter_mace.json'
     include 'data/lbc/loot_table/ported/infinite_totem.json', 'data/lbc/loot_table/ported/devil_totem.json'
+    include 'data/lbc/loot_table/ported/sea_legend.json', 'data/lbc/loot_table/ported/harpoon.json', 'data/lbc/loot_table/ported/hylian_shield.json', 'data/lbc/loot_table/ported/holy_shield.json', 'data/lbc/loot_table/transformables_trident.json', 'data/lbc/loot_table/transformables_shield.json', 'data/lbc/loot_table/electro_shield.json'
     include 'skywars2/ordinary_summoners.json', 'data/lbc/loot_table/ported/summoner_*.json'
     include 'skywars2/syringe.json', 'data/lbc/loot_table/ported/siggewinne_syringe.json'
     include 'data/lbc/loot_table/ported/random_enchanted_axe.json',

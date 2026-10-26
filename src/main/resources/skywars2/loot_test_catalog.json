@@ -35,6 +35,9 @@
     "lbc:transformables_totem",
     "lbc:death_loot",
     "lbc:halloween/transformables_shovel",
-    "lbc:halloween/soulhunter_mace"
+    "lbc:halloween/soulhunter_mace",
+    "lbc:transformables_trident",
+    "lbc:transformables_shield",
+    "lbc:electro_shield"
   ]
 }

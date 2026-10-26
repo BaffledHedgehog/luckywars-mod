@@ -107,6 +107,12 @@ public final class LbcCorruptedGlyphs {
         return glyph;
     }
     public int count(){return glyphs.size();}
+    /** Direct purification removes fields and AI leases without their terminal curses. */
+    int dispelAt(net.minecraft.server.level.ServerLevel level,Vec3 at,double radius){
+        int removed=0;
+        for(var glyph:List.copyOf(glyphs))if(glyph.display.level()==level&&glyph.display.position().distanceToSqr(at)<=radius*radius){remove(glyph);removed++;}
+        return removed;
+    }
     public void loaded(net.minecraft.world.entity.Entity entity){
         if(entity.entityTags().contains("skywars2.corrupted_glyph")&&glyphs.stream().noneMatch(glyph->glyph.display==entity))entity.discard();
     }

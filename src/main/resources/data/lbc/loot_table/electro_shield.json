@@ -5,7 +5,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:shield",
+          "name": "skywars2:electro_shield",
           "modifier": [
             {
               "count": 1,

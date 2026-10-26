@@ -1005,6 +1005,9 @@ public final class GameChecks {
                                 case "summon-orders" -> { SummonOrderChecks.run(game); return; }
                                 case "summon-orders-stop-probe" -> { SummonOrderChecks.stopProbe(game); return; }
                                 case "summon-orders-cleanup" -> { SummonOrderChecks.cleanup(game); return; }
+                                case "native-gear" -> { NativeGearChecks.run(game); return; }
+                                case "native-gear-stop-probe" -> { NativeGearChecks.stopProbe(game); return; }
+                                case "native-gear-cleanup" -> { NativeGearChecks.cleanup(game); return; }
                                 case "totems" -> { TotemChecks.run(game); return; }
                                 case "totems-stop-probe" -> { TotemChecks.stopProbe(game); return; }
                                 case "totems-cleanup" -> { TotemChecks.cleanup(game); return; }
@@ -5509,6 +5512,7 @@ public final class GameChecks {
                 var arrows = new java.util.ArrayList<net.minecraft.world.entity.Entity>();
                 var initial = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<net.minecraft.world.entity.Entity, Boolean>());
                 for (var entity : level.getAllEntities()) initial.add(entity);
+                var initialVirtual = game.items().wands().electroSnapshot();
                 boolean allyObserver = false;
                 net.minecraft.core.BlockPos katanaBeacon = null;
                 net.minecraft.world.level.block.state.BlockState previousKatanaBeacon = null;
@@ -5637,6 +5641,10 @@ public final class GameChecks {
                                         "Repeated native reflection reverses both arrows again while preserving owner and ally protection");
                 } finally {
                         player.stopUsingItem();
+                        // Retire only this fixture's virtual traces; preserve any earlier trace objects.
+                        var keepVirtual = game.items().wands().electroSnapshot().stream().filter(initialVirtual::contains).toList();
+                        game.items().wands().stop();
+                        for (var trace : keepVirtual) game.items().wands().higherElectro(trace);
                         if (katanaBeacon != null) {
                                 level.setBlock(katanaBeacon, previousKatanaBeacon, 3);
                                 game.items().magic().blockChanged(katanaBeacon, previousKatanaBeacon);

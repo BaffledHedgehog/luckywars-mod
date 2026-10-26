@@ -1,3 +1,33 @@
+## Native shields and tridents - QUALIFIED, AUTO INSTALL QUEUED (26 October 2026)
+
+See [source, behavior and evidence](agent_notes/NATIVE_GEAR_PORT.md).
+Four ready leaves add Sea Legend/RiptideX, Harpoon/LoyaltyI+ImpalingX,
+Hylian unbreakable shield and Holy shield with original banner patterns.
+Both complete source pools are public. The original Electro shield alias now
+returns its already native item. Holy uses native using-item callbacks from
+both hands: source eye+look3/radius4 sphere,6 magic with ordinary cooldown,
+owned undead/terrain passage, role/Greed protection and free mana-independent
+use. Direct powder purification releases field AI without terminal curses.
+No new RP assets or translations; live grimoire authoring remains untouched.
+
+Build a82498d0 passed 30 groups in two actual mode1 matches (57.88 seconds).
+Exact 401 sources / 1130 classes / 3138 resources match the tested artifact.
+Real shield blocking/direction/durability, charged trident throw/impact/Loyalty
+pickup, wet/dry Riptide, stopped projectile velocity and actual-stop cleanup
+pass. Glyph AI, Electro, real totem death/respawn, integer anvil, earlier tools,
+summons/Guardian/Syringe/projectile/KFC/egg/indirect-kill regressions pass.
+An older Electro fixture now retires only its own virtual traces and preserves
+earlier trace objects; production reflection behavior is unchanged.
+
+Installer 13420 waits for normal shutdown/world unlock on the running main
+server (port24566, RCON disabled). Main disk remains 7da14e96 until then;
+never overwrite a running server JAR or kill/restart it. Live status is in
+build/verification/native-gear-final/main-install.json. Evidence is in the
+same directory; immutable qualification-a82498d0.json names the ready JAR.
+Protected author files/deletions and live grimoire overrides are unchanged.
+Oldest da260679 archive retired; retain ready a82498d0, installed7da14e96 and
+preceding7dc0342b. Client pixels/audio and peak TPS are not directly observed.
+
 ## Native special totems and integer enchantments - QUALIFIED AND INSTALLED (26 October 2026)
 
 See [source, author decisions and evidence](agent_notes/TOTEMS_PORT.md).

@@ -1,0 +1,96 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "quality": 8,
+          "name": "minecraft:shield",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:unbreakable": {},
+                "minecraft:enchantments": {
+                  "minecraft:unbreaking": 10
+                },
+                "minecraft:base_color": "blue",
+                "minecraft:banner_patterns": [
+                  {
+                    "color": "light_gray",
+                    "pattern": "curly_border"
+                  },
+                  {
+                    "color": "red",
+                    "pattern": "flower"
+                  },
+                  {
+                    "color": "blue",
+                    "pattern": "half_horizontal"
+                  },
+                  {
+                    "color": "yellow",
+                    "pattern": "triangle_top"
+                  },
+                  {
+                    "color": "blue",
+                    "pattern": "stripe_top"
+                  },
+                  {
+                    "color": "light_gray",
+                    "pattern": "border"
+                  }
+                ],
+                "tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:banner_patterns",
+                    "minecraft:base_color"
+                  ]
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "hylian_shield",
+                  "color": "aqua",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "shield.lbc",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{hylianshield:1,transformable:1,shield:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
