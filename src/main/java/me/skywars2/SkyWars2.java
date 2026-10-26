@@ -352,7 +352,6 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             dispatcher.register(Commands.literal("settings").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                     .executes(ctx -> {
                         if (game == null) { ctx.getSource().sendFailure(text("message.starting")); return 0; }
-                        if (!game.inLobby()) { ctx.getSource().sendFailure(text("settings.lobby_only")); return 0; }
                         ctx.getSource().sendSuccess(() -> game.settingsSummary(), false);
                         return 1;
                     })
@@ -376,7 +375,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                     .then(Commands.argument("parameter", StringArgumentType.word())
                             .suggests((ctx, builder) -> SharedSuggestionProvider.suggest(List.of(
                                     "lives", "health", "countdownSeconds", "stageOneSeconds", "stageTwoSeconds", "endingSeconds",
-                                    "stageOneEvent", "stageTwoEvent", "pvpMode", "tntProtection", "luckyModifier", "cfg_lucky_modifier", "day", "ranked", "vanillaKits", "vanillaSkills", "lbcChallenges", "offhandWands", "lefthandWands", "noBorders", "map", "broken"), builder))
+                                    "stageOneEvent", "stageTwoEvent", "pvpMode", "tntProtection", "luckyModifier", "cfg_lucky_modifier", "day", "ranked", "vanillaKits", "vanillaSkills", "lbcKits", "lbcSkills", "lbcLevelups", "lbcLevelupLimit", "lbcTrinketLimit", "lbcChallenges", "offhandWands", "lefthandWands", "noBorders", "gameMode", "map", "broken"), builder))
                             .then(Commands.argument("value", StringArgumentType.word())
                                     .suggests((ctx, builder) -> settingValueSuggestions(
                                             StringArgumentType.getString(ctx, "parameter"), builder))
@@ -402,7 +401,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             String parameter, com.mojang.brigadier.suggestion.SuggestionsBuilder builder) {
         if (game == null) return builder.buildFuture();
         String key = parameter.toLowerCase(java.util.Locale.ROOT);
-        if (List.of("ranked", "vanillakits", "vanillaskills", "offhandwands", "lefthandwands", "noborders", "broken").contains(key))
+        if (List.of("ranked", "vanillakits", "vanillaskills", "lbckits", "lbcskills", "lbclevelups", "lbcchallenges", "offhandwands", "lefthandwands", "noborders", "broken").contains(key))
             return SharedSuggestionProvider.suggest(List.of("true", "false"), builder);
         if (key.equals("map") || key.equals("mapid"))
             return SharedSuggestionProvider.suggest(game.maps().catalog().stream().filter(MapManager.MapInfo::available)

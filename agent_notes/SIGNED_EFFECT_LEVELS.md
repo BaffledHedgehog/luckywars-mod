@@ -68,3 +68,9 @@ No installer was launched and no release archive was added. Main stays875fed3a;
 existing ready archives875fed3a/6e648580/1265875f remain. Protected author changes,
 all four intentional template deletions and live grimoire overrides are preserved.
 Current build/libs contains the core-only candidate, not a live-ready release.
+
+Operator-settings releaseb2c91dcf deliberately unregisters the three pending
+signed-effect mixins, while retaining their source preparation. Main is safely
+updated for operator controls with native0..255 effect behavior. Future completed
+signed-effect integration must register the policies and update the temporary
+native-limit release assertion in OperatorSettingsChecks before qualification.

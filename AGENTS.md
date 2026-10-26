@@ -7,6 +7,34 @@ world/datapacks/grimoire_overrides edits during migration/build/install.
 Do not run the historical generate_extra_grimoires/check_extra_grimoires
 scripts over manual author edits; the old checker also regenerates files.
 
+## Operator live settings and gamemode return - QUALIFIED AND INSTALLED (26 October 2026)
+
+See [contract and native verification](agent_notes/OPERATOR_LIVE_SETTINGS.md). Operator /settings reads/writes
+all supported values and event flags at every stage; native permission and
+validation remain. Map/broken edits during a match save the next selection;
+existing consumers retain their application timing. Numeric0/1/2/3 are actual
+vanilla-client-readable /gamemode literals with optional player targets.
+0/1/2 and named playable modes restore eligible match participation, at least
+one life and team, including same-mode adventure, camera viewers, reconnects
+and late targets. Internal setGameMode calls never enroll. Active participants
+retain items/lives when only changing mode. Viewer copies/abilities clear.
+
+Match-scoped team departure snapshots restore original match membership on
+operator return, recreate deleted owned teams and preserve ordinary stop cleanup.
+Pending signed-effect code is preserved with its three mixins UNREGISTERED;
+its per-effect answers remain pending, and native0..255 constructor behavior is
+explicitly checked. This release publishes none of the unfinished formulas.
+
+Buildb2c91dcf passed34 results in two real mode1 matches (54.29s), exact409 sources /
+1147 classes /3139 resources. Native operator/stage/persistence/permission,
+role/lifecycle/team and gameplay/actual-stop regressions pass. Protected author
+files/deletions and live grimoire overrides are preserved. Installer11640 installed
+b2c91dcf after normal main shutdown/world unlock, backing up875fed3a, without restart.
+Evidence: build/verification/operator-controls-final/; ready artifact:
+build/verification/skywars2-operator-controls-b2c91dcf.jar. Retainb2c91dcf,875fed3a,
+6e648580; old1265875f retired. Cumulative cleanup321 JARs /11432160601 bytes.
+Physical reconnect/client frames/full main restart and peak TPS are not observed.
+
 ## Signed effect levels - CORE VERIFIED, USER DECISIONS PENDING (26 October 2026)
 
 See [scope, pending effect IDs and limits](agent_notes/SIGNED_EFFECT_LEVELS.md). User requests full signed-int

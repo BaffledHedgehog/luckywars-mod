@@ -183,8 +183,10 @@ def run():
         active.send("give TestAlpha minecraft:compass", "give TestBeta minecraft:compass")
         active.expect("PHASE_ONE -> PHASE_TWO", cursor)
         cursor = active.send("settings health 19")
-        active.expect(console_text("settings.lobby_only"), cursor)
-        assert json.loads(settings.read_text(encoding="utf-8"))["health"] == original_health
+        active.expect(console_text("settings.saved", "health", 19), cursor)
+        assert json.loads(settings.read_text(encoding="utf-8"))["health"] == 19
+        cursor = active.send(f"settings health {original_health}")
+        active.expect(console_text("settings.saved", "health", original_health), cursor)
         for check in ["playing", "inventory-unlocked", "phases", "tracker", "chests", "late", "bridge"]:
             active.check(check)
         active.check("kill-reward")

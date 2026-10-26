@@ -20,8 +20,10 @@ final class LbcTeamColors {
             TeamColor.GRAY,TeamColor.GREEN,TeamColor.LIGHT_PURPLE,TeamColor.RED,
             TeamColor.WHITE,TeamColor.YELLOW);
     private record Assignment(PlayerTeam original,PlayerTeam temporary){}
+    private record Departure(Assignment assignment,PlayerTeam actual){}
     private final Scoreboard board;
     private final Map<String,Assignment> assignments=new LinkedHashMap<>();
+    private final Map<String,Departure> departed=new LinkedHashMap<>();
     private final Set<PlayerTeam> temporaryTeams=new LinkedHashSet<>();
 
     LbcTeamColors(Scoreboard board){this.board=board;}
@@ -55,7 +57,49 @@ final class LbcTeamColors {
     PlayerTeam assigned(ServerPlayer player){var assignment=assignments.get(player.getScoreboardName());return assignment==null?null:assignment.temporary();}
     PlayerTeam original(ServerPlayer player){var assignment=assignments.get(player.getScoreboardName());return assignment==null?null:assignment.original();}
     boolean active(){return !assignments.isEmpty();}
-    void leave(ServerPlayer player){restore(player.getScoreboardName());removeEmptyTemporaryTeams();}
+    void leave(ServerPlayer player){
+        String name=player.getScoreboardName();
+        if(!assignments.isEmpty()||!departed.isEmpty())
+            departed.put(name,new Departure(assignments.get(name),board.getPlayersTeam(name)));
+        restore(name);removeEmptyTemporaryTeams();
+    }
+    /** Reattach the match team after elimination or a deliberate operator return after reconnect. */
+    void rejoin(ServerPlayer player){
+        String name=player.getScoreboardName();var previous=departed.remove(name);
+        var assignment=previous==null?assignments.get(name):previous.assignment();
+        PlayerTeam wanted=previous==null?board.getPlayersTeam(name):previous.actual();
+        if(wanted==null&&assignment!=null)wanted=assignment.temporary();
+        if(wanted!=null){
+            var restored=residentTeam(wanted);
+            board.addPlayerToTeam(name,restored);
+            if(assignment!=null&&wanted==assignment.temporary())
+                assignments.put(name,new Assignment(assignment.original(),restored));
+            return;
+        }
+        // A late operator has no previous solo team; allocate one without joining another player.
+        ensurePalette();PlayerTeam team=null;
+        for(int number=1;number<=32;number++)if(board.getPlayerTeam(Integer.toString(number)).getPlayers().isEmpty()){
+            team=board.getPlayerTeam(Integer.toString(number));break;
+        }
+        if(team==null){
+            String base="swrg_s"+player.getUUID().toString().replace("-","").substring(0,8),candidate=base;
+            for(int suffix=1;board.getPlayerTeam(candidate)!=null;suffix++)candidate=base+suffix;
+            team=board.addPlayerTeam(candidate);sourceMetadata(team);team.setColor(Optional.of(color(assignments.size()+1)));temporaryTeams.add(team);
+        }
+        assignments.put(name,new Assignment(null,team));board.addPlayerToTeam(name,team);
+    }
+    private PlayerTeam residentTeam(PlayerTeam previous){
+        if(board.getPlayerTeam(previous.getName())==previous)return previous;
+        String name=previous.getName(),base=name;
+        for(int suffix=1;board.getPlayerTeam(name)!=null;suffix++)name=base+"_"+suffix;
+        var restored=board.addPlayerTeam(name);
+        restored.setColor(previous.getColor());restored.setDisplayName(previous.getDisplayName());
+        restored.setPlayerPrefix(previous.getPlayerPrefix());restored.setPlayerSuffix(previous.getPlayerSuffix());
+        restored.setAllowFriendlyFire(previous.isAllowFriendlyFire());restored.setSeeFriendlyInvisibles(previous.canSeeFriendlyInvisibles());
+        restored.setDeathMessageVisibility(previous.getDeathMessageVisibility());restored.setNameTagVisibility(previous.getNameTagVisibility());
+        restored.setCollisionRule(previous.getCollisionRule());
+        temporaryTeams.add(restored);return restored;
+    }
     private void restore(String name){
         var assignment=assignments.remove(name);if(assignment==null)return;
         // Preserve a deliberate external reassignment made during the match.
@@ -69,5 +113,5 @@ final class LbcTeamColors {
             if(board.getPlayerTeam(team.getName())==team)board.removePlayerTeam(team);temporaryTeams.remove(team);
         }
     }
-    void stop(){for(String name:List.copyOf(assignments.keySet()))restore(name);removeEmptyTemporaryTeams();temporaryTeams.clear();}
+    void stop(){for(String name:List.copyOf(assignments.keySet()))restore(name);removeEmptyTemporaryTeams();temporaryTeams.clear();departed.clear();}
 }

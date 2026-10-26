@@ -284,15 +284,15 @@ public final class GameController {
         });
     }
 
-    /** Op command entry point: every accepted mutation is validated and saved while still in the lobby. */
+    /** Operator command configuration is validated and persisted at every match stage. */
     public Component configureLobbySetting(ServerPlayer player, String parameter, String value) {
-        if (!inLobby()) throw new GameConfig.SettingError(text("settings.lobby_only"));
+        if (stopped) throw new GameConfig.SettingError(text("message.starting"));
         String key = parameter == null ? "" : parameter.trim().toLowerCase(java.util.Locale.ROOT);
         if (key.equals("map") || key.equals("mapid")) {
             MapManager.MapInfo map = maps.info(value);
             if (map == null) throw new GameConfig.SettingError(text("game.map_unknown", value));
             if (!map.available()) throw new GameConfig.SettingError(text("game.map_unavailable", map.displayName(), map.unavailableReason()));
-            if (!selectMapAuthorized(player, map.id(), config.broken)) throw new GameConfig.SettingError(text("settings.map_failed"));
+            if (!configureSelectedMap(player, map.id(), config.broken)) throw new GameConfig.SettingError(text("settings.map_failed"));
             return text("game.map_selected", map.displayName(), text(config.broken ? "common.broken" : "common.normal"));
         }
         if (key.equals("broken")) {
@@ -303,7 +303,7 @@ public final class GameController {
             if (map == null || !map.available())
                 throw new GameConfig.SettingError(text("settings.map_first"));
             boolean brokenVariant = Boolean.parseBoolean(normalized);
-            if (!selectMapAuthorized(player, config.mapId, brokenVariant)) throw new GameConfig.SettingError(text("settings.map_failed"));
+            if (!configureSelectedMap(player, config.mapId, brokenVariant)) throw new GameConfig.SettingError(text("settings.map_failed"));
             return text("settings.broken", text(brokenVariant ? "common.enabled" : "common.disabled"));
         }
         var result = config.setSetting(parameter, value);
@@ -314,9 +314,21 @@ public final class GameController {
         return result;
     }
 
+    /** During a match, changing selection must not paste over the active arena. */
+    private boolean configureSelectedMap(ServerPlayer player, String id, boolean broken) {
+        if (inLobby()) return selectMapAuthorized(player, id, broken);
+        if (broken && !maps.brokenAvailable(id)) return false;
+        config.mapId = id;
+        config.broken = broken;
+        config.save();
+        readyMap = null;
+        selectionVersion++;
+        return true;
+    }
+
     /** Service event flags are persistent configuration; their seasonal mechanics are a later port. */
     public Component configureLobbyEvent(String event, String value) {
-        if (!inLobby()) throw new GameConfig.SettingError(text("settings.lobby_only"));
+        if (stopped) throw new GameConfig.SettingError(text("message.starting"));
         return config.setEvent(event, value);
     }
 
@@ -605,6 +617,47 @@ public final class GameController {
         } else if (stage == Stage.LOBBY && lobbyReady) lobbyPlayer(player);
         else if (stage == Stage.LOADING) loadingPlayer(player);
         else { if (p != null) p.awaitingRespawn = false; spectators.enter(player); teleport(player, maps.look(), 0, 0); }
+    }
+
+    /** Only the authorized /gamemode command calls this; internal mode changes do not enroll observers. */
+    public boolean returnFromGameModeCommand(ServerPlayer player, GameType requested) {
+        if (stopped || !playing() || requested == GameType.SPECTATOR || !player.isAlive()) return false;
+        Participant member = participants.get(player.getUUID());
+        if (!isObserver(player) && member != null && member.lives > 0
+                && !member.disconnected && !member.awaitingRespawn) return false;
+        if (member == null) {
+            var spawn = maps.spawns().stream().min(java.util.Comparator.comparingDouble(s ->
+                    s.position().distanceToSqr(player.position()))).orElse(null);
+            if (spawn == null) return false;
+            member = new Participant(spawn, 1);
+            participants.put(player.getUUID(), member);
+        }
+        spectators.remove(player);
+        member.lives = Math.max(1, member.lives);
+        member.disconnected = false;
+        member.awaitingRespawn = false;
+        pendingLobby.remove(player.getUUID());
+        resetPlayer(player, config.health, false);
+        player.setCamera(player);
+        player.setInvisible(false);
+        player.noPhysics = false;
+        player.setNoGravity(false);
+        // Adventure may already be the viewer's native mode: setGameMode then returns false.
+        requested.updatePlayerAbilities(player.getAbilities());
+        player.onUpdateAbilities();
+        teamColors.rejoin(player);
+        player.setRespawnPosition(new ServerPlayer.RespawnConfig(LevelData.RespawnData.of(
+                maps.level().dimension(), net.minecraft.core.BlockPos.containing(member.spawn.position()),
+                member.spawn.yaw(), member.spawn.pitch()), true), false);
+        teleport(player, member.spawn.position(), member.spawn.yaw(), member.spawn.pitch());
+        if (config.vanillaKits) events.giveKit(player);
+        if (config.vanillaSkills) events.giveSkill(player);
+        lbc.apply(player, false);
+        items.stand().respawned(player);
+        bar.addPlayer(player);
+        lastAliveTicks = 5;
+        player.inventoryMenu.sendAllDataToRemote();
+        return true;
     }
 
     public void stopMatch() {
