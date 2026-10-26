@@ -62,6 +62,44 @@ public final class GunAccuracyChecks {
     private static void near(Vec3 actual,Vec3 expected,String message) {
         require(actual.distanceTo(expected)<1e-8,message+": "+actual+" expected "+expected);
     }
+    private static void recoilAndTurning(GameController game,ServerPlayer owner,Recording recording) {
+        // Complete the fixture's real teleport before sending native camera-only input.
+        var setup=recording.packets.stream().filter(net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket.class::isInstance)
+                .map(net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket.class::cast).reduce((a,b)->b).orElseThrow();
+        owner.connection.handleAcceptTeleportPacket(new net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket(
+                setup.id(),owner.getX(),owner.getY(),owner.getZ(),owner.getYRot(),owner.getXRot()));
+        // Reproduce the old failure: even a same-position teleport ACK clears onGround.
+        require(!owner.onGround(),"native teleport acknowledgement reproduces the old false airborne state");
+        owner.setDeltaMovement(new Vec3(0,-.0784,0));
+        require(LbcGunAccuracy.movementDegrees(owner)>0,"false airborne contact gravity would add unwanted spread");
+        for(String leaf:List.of("slr","magnum","ak47","ak47_finite"))for(var hand:InteractionHand.values()) {
+            boolean ak=leaf.startsWith("ak47");
+            var zoom=game.items().rifleZoom();zoom.forget(owner);game.items().magnum().forget(owner);game.items().shooters().resetCooldown(owner);
+            owner.getInventory().clearContent();var gun=loot(game,owner,leaf);owner.setItemInHand(hand,gun);
+            owner.getInventory().setItem(9,leaf.equals("magnum")?round(game,owner):new ItemStack(Items.ARROW,8));
+            if(ak)game.items().ak47().setAmmo(owner,10);else zoom.punch(owner);
+            owner.setOnGround(true);owner.setKnownMovement(Vec3.ZERO);owner.setDeltaMovement(new Vec3(0,-.0784,0));
+            int count=leaf.equals("magnum")?5:1;
+            for(int shot=0;shot<count;shot++) {
+                // Rapid yaw/pitch changes are real input packets, with no coordinate change.
+                owner.connection.handleMovePlayer(new net.minecraft.network.protocol.game.ServerboundMovePlayerPacket.Rot(
+                        37+shot*41,-15+shot*3,true,false));
+                require(LbcGunAccuracy.movementDegrees(owner)==0,"camera rotation alone never adds spread: "+leaf+" shot="+shot);
+                Vec3 look=owner.getLookAngle(),position=owner.position(),motion=owner.getDeltaMovement(),known=owner.getKnownMovement();
+                recording.packets.clear();
+                if(shot==0)require(gun.getItem().use(owner.level(),owner,hand).consumesAction(),"native recoil use "+leaf+"/"+hand);
+                else game.items().magnum().tick();
+                near(recording.direction(ak),look.normalize(),"stationary aimed/native AK shot follows current camera: "+leaf+" shot="+shot);
+                require(owner.position().equals(position)&&owner.getDeltaMovement().equals(motion)&&owner.getKnownMovement().equals(known)
+                        &&owner.onGround(),"recoil preserves native position, contact velocity and grounded state: "+leaf);
+                require(recording.packets.stream().noneMatch(net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket.class::isInstance),
+                        "recoil sends no teleport requiring a false-airborne ACK: "+leaf);
+                require(recording.packets.stream().filter(net.minecraft.network.protocol.game.ClientboundPlayerRotationPacket.class::isInstance).count()==1,
+                        "one native camera-only rotation packet per shot: "+leaf);
+                require(LbcGunAccuracy.movementDegrees(owner)==0,"later burst shots remain accurate after native recoil: "+leaf);
+            }
+        }
+    }
     public static void run(GameController game) {
         var owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));
         require(owner!=null&&game.playing()&&game.allowDamage(owner),"requires live participant");
@@ -81,6 +119,7 @@ public final class GunAccuracyChecks {
             for(var pos:BlockPos.betweenClosed(owner.blockPosition().offset(-2,-1,-2),owner.blockPosition().offset(2,4,2))) {
                 var cell=pos.immutable();cells.put(cell,game.maps().snapshot(cell));owner.level().setBlock(cell,Blocks.AIR.defaultBlockState(),2);
             }
+            recoilAndTurning(game,owner,recording);
             // Grounded downward contact motion must not count as running. Airborne ascent/descent does.
             owner.setKnownMovement(new Vec3(0,-.0784,0));owner.setDeltaMovement(Vec3.ZERO);
             require(LbcGunAccuracy.movementDegrees(owner)==0,"standing gravity jitter has no penalty");
@@ -124,7 +163,7 @@ public final class GunAccuracyChecks {
                 var shot=LbcGunAccuracy.sample(look,20,RandomSource.create(i));
                 require(Math.abs(shot.lengthSqr()-1)<1e-10&&shot.dot(look)>=Math.cos(Math.toRadians(20))-1e-10,"vertical and horizontal cone bounds");
             }
-            SkyWars2.LOGGER.info("[check] PASS gun-accuracy (60 actual uses, both hands, scope and five speeds through cap, both AK variants, queued Magnum and cone bounds)");
+            SkyWars2.LOGGER.info("[check] PASS gun-accuracy (native teleport-ACK regression, camera-only recoil and full aimed five-shot Magnum bursts, rapid rotation, 60 speed/scope uses, both hands/AK variants and cone bounds)");
         } finally {
             zoom.forget(owner);game.items().magnum().forget(owner);game.items().shooters().resetCooldown(owner);
             game.items().ak47().setAmmo(owner,ammunition);

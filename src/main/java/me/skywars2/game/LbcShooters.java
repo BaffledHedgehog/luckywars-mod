@@ -621,7 +621,7 @@ public final class LbcShooters {
         LbcOverload.sound(player,origin.add(forward.scale(.5)),"minecraft:lbcsounds.karich",2,2,120,.5f);
         float yaw=player.getYRot()+(player.getRandom().nextInt(1201)-600)*.01f;
         float pitch=player.getXRot()+(player.getRandom().nextInt(1001)-1500)*.01f;
-        player.teleportTo(player.level(),player.getX(),player.getY(),player.getZ(),Set.of(),yaw,pitch,true);
+        player.forceSetRotation(yaw,false,pitch,false);
         return true;
     }
     private void slrRay(ServerPlayer owner,Vec3 origin,Vec3 direction,int mode) {

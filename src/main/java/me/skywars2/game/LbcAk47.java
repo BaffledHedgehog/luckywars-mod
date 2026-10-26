@@ -80,7 +80,7 @@ public final class LbcAk47 {
         if(valid(owner) && game.items().currentEpoch(epoch)) {
             float yaw=owner.getYRot()+owner.getRandom().nextInt(9)-4;
             float pitch=owner.getXRot()+owner.getRandom().nextInt(5)-6;
-            owner.teleportTo(owner.level(),owner.getX(),owner.getY(),owner.getZ(),Set.of(),yaw,pitch,true);
+            owner.forceSetRotation(yaw,false,pitch,false);
             LbcOverload.sound(owner,owner.position(),"minecraft:lbcsounds.shot",.5f,1,200,.05f);
         }
         if(finite && valid(owner) && game.items().currentEpoch(epoch)) setAmmo(owner,ammo(owner)-1);

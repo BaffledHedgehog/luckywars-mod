@@ -131,8 +131,44 @@ public final class RifleZoomChecks {
             float health=victim.getHealth();
             player.connection.handleAttack(new net.minecraft.network.protocol.game.ServerboundAttackPacket(victim.getId()));
             require(victim.getHealth()<health,"NONE scope animation preserves genuine native entity attack damage");
+            player.connection.handlePunch(ServerboundPunchPacket.INSTANCE);
         } finally {victim.discard();}
         game.items().rifleZoom().forget(player);
+    }
+    private static void bayonetInput(GameController game,ServerPlayer player) {
+        var zoom=game.items().rifleZoom();int now=game.server().getTickCount();
+        var victim=new net.minecraft.world.entity.animal.cow.Cow(net.minecraft.world.entity.EntityTypes.COW,player.level());
+        victim.setNoAi(true);victim.setNoGravity(true);victim.setPos(player.position().add(0,0,1.5));
+        require(player.level().addFreshEntity(victim),"bayonet packet victim admitted");
+        try {
+            for(var hand:InteractionHand.values())for(boolean active:List.of(false,true)) {
+                zoom.forget(player);player.setItemInHand(InteractionHand.MAIN_HAND,new ItemStack(Items.STICK));
+                player.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+                player.setItemInHand(hand,new ItemStack(LbcShooters.SLR));
+                if(active)zoom.punch(player,now-4);
+                victim.setHealth(victim.getMaxHealth());victim.setInvulnerableTime(0);victim.damageCooldownTime=0;
+                player.connection.handleAttack(new net.minecraft.network.protocol.game.ServerboundAttackPacket(victim.getId()));
+                player.connection.handlePunch(ServerboundPunchPacket.INSTANCE);
+                require(zoom.scoped(player)==active,"SLG Attack+Punch preserves scope instead of opening/closing it: "+hand+" active="+active);
+                // A rejected damage attempt is still a melee click, never a scope command.
+                victim.setPermanentlyInvulnerable(true);
+                player.connection.handleAttack(new net.minecraft.network.protocol.game.ServerboundAttackPacket(victim.getId()));
+                player.connection.handlePunch(ServerboundPunchPacket.INSTANCE);
+                require(zoom.scoped(player)==active,"invulnerable target attack also preserves SLG scope");
+                victim.setPermanentlyInvulnerable(false);
+                player.connection.handlePunch(ServerboundPunchPacket.INSTANCE);
+                require(zoom.scoped(player)!=active,"next separate air punch still toggles SLG after consuming attack swing");
+                // An absent swing cannot suppress an unrelated click in a later client tick.
+                zoom.forget(player);
+                player.connection.handleAttack(new net.minecraft.network.protocol.game.ServerboundAttackPacket(victim.getId()));
+                player.connection.handleClientTickEnd(net.minecraft.network.protocol.game.ServerboundClientTickEndPacket.INSTANCE);
+                player.connection.handlePunch(ServerboundPunchPacket.INSTANCE);
+                require(zoom.scoped(player),"client tick end expires an unmatched attack marker");
+            }
+        } finally {
+            player.connection.handleClientTickEnd(net.minecraft.network.protocol.game.ServerboundClientTickEndPacket.INSTANCE);
+            victim.discard();zoom.forget(player);player.setItemInHand(InteractionHand.OFF_HAND,ItemStack.EMPTY);
+        }
     }
     private static void reconnect(GameController game) {
         var profile=new com.mojang.authlib.GameProfile(java.util.UUID.randomUUID(),"ScopeReconnect");
@@ -184,6 +220,7 @@ public final class RifleZoomChecks {
             zoom.forget(player); player.removePostEffect(ZOOM); player.addPostEffect(OTHER);
             player.getInventory().clearContent();
             projection(game,player,swap.recording);
+            bayonetInput(game,player);
             for(String table:List.of("lbc:ported/slr","lbc:ported/magnum")) {
                 var gun=game.lbc().rollTable(player.level(),player.position(),player,table).getFirst();
                 player.setItemInHand(InteractionHand.MAIN_HAND,gun);

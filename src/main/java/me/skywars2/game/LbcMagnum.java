@@ -170,7 +170,7 @@ public final class LbcMagnum {
         if(burst.mode==3) LbcOverload.sound(owner,"minecraft:entity.zombie_villager.cure",.5f,2,0);
         if(burst.mode==4) LbcOverload.sound(owner,"minecraft:ui.toast.out",1,0,0);
         int recoil=burst.mode==4?1:burst.mode==0 || burst.mode==5?3:2;
-        owner.teleportTo(owner.level(),owner.getX(),owner.getY(),owner.getZ(),Set.of(),owner.getYRot(),owner.getXRot()-recoil,true);
+        owner.forceSetRotation(0,true,-recoil,true);
     }
     private void ray(Burst burst) {
         var owner=burst.owner;

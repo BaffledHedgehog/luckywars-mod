@@ -1,3 +1,35 @@
+## Firearm recoil and SLG bayonet input - QUALIFIED AND INSTALLED (26 October 2026)
+
+See [cause, native behavior and evidence](agent_notes/RIFLE_RECOIL_AND_MELEE_2026_10_26.md).
+Magnum, SLG and both AK variants now use native camera-only rotation for recoil.
+Same-position teleport recoil formerly required an ACK that marks onGround false
+in 26.3, making contact gravity look like falling to movement accuracy. Recoil
+angles/random selection remain; position, velocity and grounded state survive.
+No angular spread penalty. Existing hip5/speed20-degree accuracy policy remains.
+SLG Attack+Punch entity-melee pairs preserve open/closed scope while retaining
+native damage/swing/timing. Only the scope toggle is skipped for that matching
+punch; an unmatched marker expires at native client tick end. Air/mining toggle,
+both-hand selection, Magnum priority, overlays/models and FOV remain.
+
+Build 1265875f passed 34 recorded suite results in two actual mode1 matches
+(62.30 seconds). Native teleport-ACK regression, sharp camera input and complete
+stationary scoped Magnum bursts pass, as do speed/scope and both AK variants,
+SLG accepted/rejected melee input, rifle presentation/FOV, gun payload/sound,
+friendly-projectile/Time-Stop and actual scope/SLG match-stop cleanup checks.
+Exact 401 sources / 1130 classes / 3138 resources match the tested release.
+Protected author files/deletions and live grimoire overrides are unchanged.
+
+The preceding safe installer installed Chef 385f9f11 during this isolated run;
+its receipt/artifact/main hash verified the legitimate baseline advance from
+7da14e96. New installer 23352 then installed 1265875f after checking normal
+main shutdown/world unlock, retaining 385f9f11 rollback and not restarting it.
+Evidence: build/verification/rifle-input-final/, immutable qualification and
+main-install.json. Ready: build/verification/skywars2-rifle-input-1265875f.jar.
+All Chef/native gear/totem changes are included. Retain installed 1265875f,
+rollback 385f9f11 and fallback 7da14e96. Old a82498d0 archive retired; cumulative
+cleanup 318 JARs / 11314742084 bytes. Client frames/mouse capture and peak TPS
+are not directly observed.
+
 ## Chef route selection and compact takeoff - QUALIFIED, AUTO INSTALL QUEUED (26 October 2026)
 
 See [behavior, native fixtures and evidence](agent_notes/CHEF_ROUTE_SELECTION_2026_10_26.md).

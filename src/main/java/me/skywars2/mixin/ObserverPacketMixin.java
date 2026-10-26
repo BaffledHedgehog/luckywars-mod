@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ServerGamePacketListenerImpl.class)
 public abstract class ObserverPacketMixin {
     @Shadow public ServerPlayer player;
+    @org.spongepowered.asm.mixin.Unique private boolean skywars2$slrEntityAttack;
 
     @Inject(method = "handleUseItem", at = @At(value = "INVOKE", target =
             "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;ackBlockChangesUpTo(I)V",
@@ -61,9 +62,30 @@ public abstract class ObserverPacketMixin {
         if (player.containerMenu != player.inventoryMenu) player.inventoryMenu.sendAllDataToRemote();
     }
 
-    /** Every ordinary left click, including entity attacks, ends with one punch packet. */
+    /** Vanilla sends Attack then Punch for one melee click; the latter is only its swing. */
+    @Inject(method = "handleAttack", at = @At(value = "INVOKE", target =
+            "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V",
+            shift = At.Shift.AFTER))
+    private void skywars2$rememberSlrAttack(CallbackInfo ci) {
+        var main=player.getMainHandItem();
+        skywars2$slrEntityAttack=me.skywars2.game.LbcShooters.isSlr(main)
+                || !me.skywars2.game.LbcMagnum.isMagnum(main)
+                && me.skywars2.game.LbcShooters.isSlr(player.getOffhandItem());
+    }
+
+    @Inject(method = "handleClientTickEnd", at = @At(value = "INVOKE", target =
+            "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V",
+            shift = At.Shift.AFTER))
+    private void skywars2$expireSlrAttack(CallbackInfo ci) {
+        skywars2$slrEntityAttack=false;
+    }
+
+    /** Air/mining clicks toggle scope; SLG entity attacks retain ordinary melee semantics. */
     @Inject(method = "handlePunch", at = @At("TAIL"))
     private void skywars2$toggleRifleZoom(CallbackInfo ci) {
+        boolean melee=skywars2$slrEntityAttack;
+        skywars2$slrEntityAttack=false;
+        if(melee)return;
         var game = SkyWars2.game();
         if (game != null) game.items().rifleZoom().punch(player);
     }
