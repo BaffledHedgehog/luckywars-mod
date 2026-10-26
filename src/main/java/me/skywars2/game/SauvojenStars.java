@@ -89,15 +89,32 @@ final class SauvojenStars {
     private boolean target(ServerPlayer owner,LivingEntity target){return target.getType().builtInRegistryHolder().is(MOBS)
             &&game.items().wands().projectileTarget(owner,target)&&!game.items().magic().suppressedAt(owner.level(),target.position());}
     /** Missing Health on the source item_display stores result zero, as established by native command callbacks. */
-    private void beam(ServerPlayer owner,Vec3 origin,Vec3 direction){
+    private void beam(ServerPlayer owner,Vec3 origin,Vec3 direction){beam(owner,origin,direction,false);}
+    /** The standalone sword executes as its player; the Academy display deliberately retains zero Health. */
+    void playerBeam(ServerPlayer owner,Vec3 origin,Vec3 direction){
+        if(validOwner(owner)&&resident(owner.level(),origin)&&!game.items().magic().suppressedAt(owner.level(),origin))
+            beam(owner,origin,direction,true);
+    }
+    private void beam(ServerPlayer owner,Vec3 origin,Vec3 direction,boolean playerHealth){
         var level=owner.level();Vec3 previous=origin;
+        var focus=playerHealth?LbcFevgaleaStar.focus(owner):null;
+        var cause=playerHealth?game.items().indirectKills().coldCause(owner,true):null;
         for(int sample=0;sample<=120;sample++){
             Vec3 at=origin.add(direction.scale(sample));
             if(!resident(level,at)||game.items().magic().suppressedAt(level,at))return;
             if(sample>0&&game.items().wands().shieldHit(owner,previous,at)!=null)return;
             level.sendParticles(ParticleTypes.ELECTRIC_SPARK,true,false,at.x,at.y,at.z,10,1.5,1.5,1.5,2);
             if(owner.getRandom().nextFloat()<.15f)LbcOverload.sound(owner,at,"minecraft:block.amethyst_cluster.fall",1,2,0);
-            // /damage zero outside_border has no positive damage payload; never substitute owner Health here.
+            // Source stores caster Health once per contact sample, then uses that same integer for all its targets.
+            if(playerHealth){
+                float amount=Math.max(0,Mth.floor(owner.getHealth()));
+                if(amount>0)for(var victim:level.getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(4),e->target(owner,e)))
+                    if(victim.position().distanceToSqr(at)<=16){
+                        var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+                                .getOrThrow(DamageTypes.OUTSIDE_BORDER),focus,owner);
+                        victim.hurtServer(level,game.items().indirectKills().captureDamage(source,cause),amount);
+                    }
+            }
             if(!level.getBlockState(BlockPos.containing(at)).is(AIRS))return;
             previous=at;
         }
@@ -170,7 +187,7 @@ final class SauvojenStars {
         int hits=0;
         for(var target:level.getEntitiesOfClass(LivingEntity.class,new AABB(at,at.add(1,1,1)),e->target(actor.owner,e))){
             if(hits++>=2)break;
-            // The source helper's name says nocd, but its body is ordinary /damage arrow, without iframe reset.
+            // The imported arrow damage tag bypasses hurt cooldown natively; no manual iframe reset is needed.
             hurt(actor,target,3,DamageTypes.ARROW);
         }
     }

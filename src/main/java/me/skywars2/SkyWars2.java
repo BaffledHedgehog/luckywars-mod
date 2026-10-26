@@ -148,6 +148,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null) game.items().stand().onAcceptedDamage(entity, damage);
             if (game != null) game.items().academy().damaged(entity, damage);
             if (game != null) game.items().vexSword().damaged(entity, damage, 1);
+            if (game != null) game.items().fevgaleaStar().damaged(entity, damage);
             if (game != null && damage.getEntity() instanceof ServerPlayer owner) game.items().fartus().melee(owner,entity,damage);
             if (game != null) game.items().wtf().melee(entity,damage);
             if (game != null) { game.items().specialTools().melee(entity,damage); game.items().specialTools().died(entity,damage); }
@@ -175,6 +176,9 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return allowed;
         });
         UseItemCallback.EVENT.register((player, level, hand) -> {
+            if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcFevgaleaStar.isSword(player.getItemInHand(hand))
+                    &&!player.getItemInHand(hand).is(me.skywars2.game.LbcFevgaleaStar.SWORD))
+                return game.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer owner && (me.skywars2.game.LbcSpecialTools.isLegacyScythe(player.getItemInHand(hand)) || me.skywars2.game.LbcSpecialTools.isLegacyHammer(player.getItemInHand(hand))))
                 return game.items().wands().use(owner,hand) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
             if (game != null && game.items().actionsBlocked(player)) return InteractionResult.FAIL;

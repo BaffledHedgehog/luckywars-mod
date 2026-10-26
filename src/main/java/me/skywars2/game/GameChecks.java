@@ -768,6 +768,10 @@ public final class GameChecks {
                                 case "map-lighting" -> { MapLightingChecks.run(game); return; }
                                 case "effect-terrain" -> { EffectTerrainChecks.run(game); return; }
                                 case "sauvojen" -> { SauvojenChecks.run(game); return; }
+                                case "fevgalea-star" -> { FevgaleaStarChecks.run(game); return; }
+                                case "fevgalea-craft" -> { FevgaleaCraftChecks.run(game); return; }
+                                case "fevgalea-star-stop-probe" -> { FevgaleaStarChecks.stopProbe(game); return; }
+                                case "fevgalea-star-cleanup" -> { FevgaleaStarChecks.cleanup(game); return; }
                                 case "sauvojen-academy" -> { SauvojenAcademyChecks.run(game); return; }
                                 case "sauvojen-meditation" -> { SauvojenMeditationChecks.run(game); return; }
                                 case "sauvojen-stars" -> { SauvojenStarChecks.run(game); return; }

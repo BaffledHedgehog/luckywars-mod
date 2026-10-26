@@ -26,6 +26,7 @@ dependencies {
 }
 
 processResources {
+    include 'data/lbc/loot_table/ported/fevgalea_star.json', 'data/skywars2/recipe/fevgalea_star.json'
     include 'data/lbc/loot_table/ported/sauvojen_wand.json', 'data/lbc/loot_table/ported/academy_sauvojen_wand.json', 'data/lbc/structure/stone_cylinder.nbt'
     include 'data/lbc/loot_table/ported/sheep_wand.json', 'data/lbc/loot_table/ported/academy_sheep_wand.json'
     include 'data/lbc/loot_table/ported/danmaku_staff.json', 'data/lbc/loot_table/ported/academy_danmaku_staff.json'

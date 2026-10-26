@@ -474,6 +474,7 @@ public final class LbcWands {
         if (LbcKfcRewards.isCultus(stack)) return game.items().kfcRewards().useCultus(player);
         if (LbcElectro.isAnyKatana(stack)) return game.items().electro().use(player,hand);
         if (LbcVexSword.isSword(stack)) return game.items().vexSword().use(player,hand);
+        if (LbcFevgaleaStar.isSword(stack)) return game.items().fevgaleaStar().use(player,hand);
         var scrollData=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
         if(isDivider(stack)) return game.items().duplicating().useDivider(player,hand,stack);
         if(stack.is(DESTROYER_SPELL) || scrollData.getIntOr("trap2",0)==1)

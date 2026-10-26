@@ -1,3 +1,41 @@
+## Standalone Fevgalea Star - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
+
+[Port contract](FEVGALEA_STAR_PORT.md), [exact source audit](FEVGALEA_STAR_SOURCE.md).
+All four source mainhand input branches, exact tierX item, native1+1 craft,
+shared charge score/HUD, accepted non-arrow damage including fatal hits and
+rain/three-star helper closure are active. The player beam reads real floored
+Health per source contact; Academy item displays retain their verified zero.
+Native attribution cannot recursively charge the original unowned child hits.
+Paid1000/5000 branches respect full Overload/actual debit without Mage growth;
+charged1/7 branches are free. Independent offhand wand casting remains.
+
+Buildb8140165 passed80 recorded results in two actual mode1 matches (70.85s),
+exact457sources /1263classes /3144resources. Real inputs, native melee/fatal and
+external non-arrow hooks, imported cooldown tags/repeated beam samples, native
+craft take/quickmove/full inventory, source presentation, paid hands, guards,
+purify and actual-stop cleanup pass. Shared Sauvojen80/trial/stars, grimoire,
+projectile/player, Time Stop, signed effects/FOV/layers and firearm regressions
+pass. Physical client pixels/audio, internet latency and peakTPS are unobserved.
+Two rejected fixture assumptions were corrected without changing production
+source behavior; failed logs and exact restoration receipts are retained.
+
+Installer11424 adoptedb8140165 over pendingc6815dec and waits for normal main
+shutdown/world unlock (24566, RCON off). Main disk remains1a8a3825; no forced
+stop/restart. Evidence/live receipt:build/verification/fevgalea-star/.
+Ready:build/verification/skywars2-fevgalea-star-b8140165.jar. Keepb8140165,c6815dec,
+installed1a8a3825. Obsolete72ea985d retired; cumulative331JARs /11825523396bytes.
+All175 protected author paths and31 live grimoire overrides are byte-exact.
+No RP/template changes needed. Optional beam/allied-player preference is in
+PENDING_QUESTIONS.md; the existing allied-player protection remains authoritative.
+TPS compensation remains a feasibility question and is not implemented.
+
+Next source audit: remaining sword families (`piston_sword`,
+`triple_golden_sword`, `blazefire_sword`, `chaos_swo`, `kara`). Current Java
+has no handlers for these flags; the imported triple-golden loot alone does
+not implement its behavior. Audit the complete helper/craft closures before
+choosing the next bounded group. Hedgehog, the240-book library and Academy
+Sauvojen are already qualified; historical notes below are not current gaps.
+
 ## Combined Academy Sauvojen - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
 
 [Complete port](SAUVOJEN_ACADEMY.md), [meditation](SAUVOJEN_MEDITATION.md).

@@ -56,6 +56,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         AWAKENED_ACID("awakened_acid_combine","awakened_acid_wand"),
         STAND_CLOCKS("stand_clocks","stand_clocks"),
         SHISH_WALL("shish_wall","shish_wall_wand"),
+        FEVGALEA("fevgalea_star","fevgalea_star"),
         SWORD("terra_sword_awakening","true_terra_sword"),
         RAZOR("terra_razorpine_awakening","terra_razorpine");
         final String id,loot;
@@ -91,6 +92,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         var result=game.lbc().rollTable(game.maps().level(),net.minecraft.world.phys.Vec3.ZERO,null,"lbc:ported/"+kind.loot);
         if(result.isEmpty()) return ItemStack.EMPTY;
         var stack=result.getFirst().copyWithCount(1);
+        if(kind==Kind.FEVGALEA&&!stack.is(LbcFevgaleaStar.SWORD))return ItemStack.EMPTY;
         var lore=stack.get(net.minecraft.core.component.DataComponents.LORE);
         if(lore!=null) {
             // У recipe preview нет THIS_ENTITY: разрешаем исходные mana-score строки через сервер,
@@ -191,6 +193,13 @@ public final class LbcCraftingRecipe extends CustomRecipe {
                     net.minecraft.world.item.component.CustomData.EMPTY).matchedBy(TIME_STOPPER_DONOR)) timeStopper++;
         }
         if(standArrow==1 && timeStopper==1) return Kind.STAND_CLOCKS;
+        int trueTerra=0,trueStars=0;
+        for(var stack:input.items())if(!stack.isEmpty()){
+            var data=LbcFartus.data(stack);
+            if(stack.is(LbcTerra.TRUE_SWORD)||data.getIntOr("true_terra",0)==1)trueTerra++;
+            else if(stack.is(LbcWands.FALLING_STARS_WAND)||stack.is(LbcWands.ACADEMY_FALLING_STARS)||data.getIntOr("truefallingstars",0)==1)trueStars++;
+        }
+        if(trueTerra==1&&trueStars==1)return Kind.FEVGALEA;
         var tiny=tinyPair(input);
         if(tiny!=null) return tiny;
         if(LbcTinyReforge.matches(input)) return Kind.TINY_REFORGE;
@@ -337,6 +346,8 @@ public final class LbcCraftingRecipe extends CustomRecipe {
     /** (user) 60% сохранения донора: случайность только при настоящем расходе, не при preview. */
     @Override
     public net.minecraft.core.NonNullList<ItemStack> getRemainingItems(CraftingInput input) {
+        if(kind==Kind.FEVGALEA&&craftingKind(input)==kind)
+            return net.minecraft.core.NonNullList.withSize(input.size(),ItemStack.EMPTY);
         var result=net.minecraft.world.item.crafting.CraftingRecipe.defaultCraftingReminder(input);
         var game=SkyWars2.game();
         if(neutralCriterion(kind)!=null&&game!=null&&craftingKind(input)==kind){
@@ -376,6 +387,12 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         }
         if(kind==Kind.FARTUS){game.items().wtf().crafted(player);return;}
         if(kind==Kind.SOULHUNTER){game.items().soulhunter().crafted(player);return;}
+        if(kind==Kind.FEVGALEA){
+            player.level().sendParticles(new net.minecraft.core.particles.DustParticleOptions(
+                            net.minecraft.util.ARGB.colorFromFloat(1,.129f,.82f,.43932f)&0xffffff,1),
+                    true,false,player.getX(),player.getY()+1,player.getZ(),100,1,1,1,1);
+            LbcOverload.sound(player,player.position(),"minecraft:block.enchantment_table.use",1,1,0);return;
+        }
         if(neutralCriterion(kind)!=null){
             var advancement=game.server().getAdvancements().get(Identifier.parse("lbc:true_advancements/staffs/neutral"));
             if(advancement!=null)player.getAdvancements().award(advancement,neutralCriterion(kind));
