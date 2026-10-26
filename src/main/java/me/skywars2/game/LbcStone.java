@@ -65,6 +65,7 @@ public final class LbcStone {
     /** Нативный Projectile хранит owner и velocity, поэтому электроотражение не требует адаптера. */
     public static final class Charge extends Projectile implements PolymerEntity {
         int age;
+        int lifetime=200;
         Charge(EntityType<? extends Charge> type,Level level) { super(type,level); }
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder) { }
         @Override public EntityType<?> getPolymerEntityType(PacketContext context) { return EntityTypes.MARKER; }
@@ -106,13 +107,20 @@ public final class LbcStone {
         }
     }
     void castAt(ServerPlayer owner,Vec3 origin,Vec3 direction){castAt(owner,origin,direction,false);}
+    Charge flying(ServerPlayer owner,Vec3 origin,Vec3 direction) {
+        return castAt(owner,origin,direction,false,80);
+    }
     private void castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,boolean playerPose){
+        castAt(owner,origin,direction,playerPose,200);
+    }
+    private Charge castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,boolean playerPose,int lifetime){
                 var charge=new Charge(TYPE,owner.level());
-                charge.setOwner(owner); charge.setPos(origin);
+                charge.setOwner(owner); charge.setPos(origin); charge.lifetime=lifetime;
                 charge.setYRot(playerPose?owner.getYRot():(float)Math.toDegrees(Math.atan2(-direction.x,direction.z))); charge.setXRot(playerPose?owner.getXRot():(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance())));
-                charge.setNoGravity(true); charge.setDeltaMovement(direction);
+                charge.setNoGravity(true); charge.setDeltaMovement(lifetime==80?direction.normalize().scale(1.6):direction);
                 charge.entityTags().add("magic"); game.items().markCurrentItemEpoch(charge);
                 if(owner.level().addFreshEntity(charge)) charges.add(charge);
+                return charge;
     }
     void shield(ServerPlayer owner) {
         owner.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,100,4),owner);
@@ -150,13 +158,28 @@ public final class LbcStone {
                 var hit=game.items().wands().firstHit(owner,from,to);
                 if(hit!=null) to=hit.getLocation();
                 charge.setPos(to);
-                owner.level().sendParticles(STONE_PARTICLES,true,false,to.x,to.y,to.z,1,.2,.2,.2,0);
-                owner.level().sendParticles(STONE_PARTICLES,to.x,to.y,to.z,10,.2,.2,.2,0);
-                LbcOverload.sound(owner,to,"minecraft:block.stone.break",.1f,1,0);
+                if(charge.lifetime==80) {
+                    double distance=from.distanceTo(to);Vec3 direction=to.subtract(from).normalize();
+                    for(double step=0;step<=distance+1e-7;step+=.4) {
+                        Vec3 point=from.add(direction.scale(Math.min(step,distance)));
+                        owner.level().sendParticles(new BlockParticleOption(ParticleTypes.BLOCK_MARKER,Blocks.STONE.defaultBlockState()),
+                                true,false,point.x,point.y,point.z,1,.1,.1,.1,0);
+                    }
+                } else {
+                    owner.level().sendParticles(STONE_PARTICLES,true,false,to.x,to.y,to.z,1,.2,.2,.2,0);
+                    owner.level().sendParticles(STONE_PARTICLES,to.x,to.y,to.z,10,.2,.2,.2,0);
+                    LbcOverload.sound(owner,to,"minecraft:block.stone.break",.1f,1,0);
+                }
                 if(hit!=null) {
                     charge.discard(); // Повторное попадание в собственные созданные блоки исключено.
-                    if(!(hit instanceof BlockHitResult wall) || owner.level().hasChunkAt(wall.getBlockPos())) impact(owner,to,false);
-                } else if(++charge.age>=200) charge.discard();
+                    if(!(hit instanceof BlockHitResult wall) || owner.level().hasChunkAt(wall.getBlockPos())) {
+                        if(charge.lifetime==80) {
+                            game.items().indirectKills().fillTrap(owner,BlockPos.containing(to.add(-1.5,-1.5,-1.5)),
+                                    BlockPos.containing(to.add(1.5,1.5,1.5)),Blocks.STONE.defaultBlockState());
+                            LbcOverload.sound(owner,to,"minecraft:block.stone.place",1,1,0);
+                        } else impact(owner,to,false);
+                    }
+                } else if(++charge.age>=charge.lifetime) charge.discard();
             }
         } finally { batch.clear(); charges.removeIf(Entity::isRemoved); }
     }

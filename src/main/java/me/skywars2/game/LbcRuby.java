@@ -65,6 +65,7 @@ public final class LbcRuby {
 
     public static final class Charge extends Projectile implements PolymerEntity {
         int age;
+        int sourceLifetime;
         Charge(EntityType<? extends Charge> type,Level level) { super(type,level); }
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder) { }
         @Override public EntityType<?> getPolymerEntityType(PacketContext context) { return EntityTypes.MARKER; }
@@ -86,7 +87,7 @@ public final class LbcRuby {
                     || !(charge.getOwner() instanceof ServerPlayer)) cleanup(charge);
             else {
                 charges.add(charge);
-                game.items().lifetimes().track(charge,true);
+                if(charge.sourceLifetime==0) game.items().lifetimes().track(charge,true);
             }
         }
     }
@@ -104,20 +105,27 @@ public final class LbcRuby {
 
     private void castDrill(ServerPlayer owner) { castAt(owner,owner.getEyePosition(),owner.getLookAngle(),true); }
     void castAt(ServerPlayer owner,Vec3 origin,Vec3 direction){castAt(owner,origin,direction,false);}
+    Charge flying(ServerPlayer owner,Vec3 origin,Vec3 direction) {
+        return castAt(owner,origin,direction,false,50);
+    }
     private void castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,boolean playerPose){
-        if(!owner.level().hasChunkAt(BlockPos.containing(origin))) return;
+        castAt(owner,origin,direction,playerPose,0);
+    }
+    private Charge castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,boolean playerPose,int lifetime){
+        if(!owner.level().hasChunkAt(BlockPos.containing(origin))) return null;
         LbcOverload.sound(owner,origin,"minecraft:block.amethyst_cluster.break",1,1,0);
         var charge=new Charge(TYPE,owner.level());
-        charge.setOwner(owner); charge.setPos(origin); charge.setNoGravity(true);
+        charge.setOwner(owner); charge.setPos(origin); charge.setNoGravity(true); charge.sourceLifetime=lifetime;
         charge.setYRot(playerPose?owner.getYRot():(float)Math.toDegrees(Math.atan2(-direction.x,direction.z))); charge.setXRot(playerPose?owner.getXRot():(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance())));
         charge.setDeltaMovement(direction.normalize().scale(DRILL_SAMPLES_PER_TICK*DRILL_STEP));
         charge.entityTags().add("magic");
         game.items().markCurrentItemEpoch(charge);
         if(owner.level().addFreshEntity(charge)) {
             charges.add(charge);
-            game.items().lifetimes().track(charge,true);
+            if(lifetime==0) game.items().lifetimes().track(charge,true);
         }
         else charge.discard();
+        return charge;
     }
 
     void tick() {
@@ -147,7 +155,8 @@ public final class LbcRuby {
                 } finally { game.items().indirectKills().finishSupportRemoval(); }
                 if(!loaded) { remove(charge); continue; }
                 charge.setPos(from.add(charge.getDeltaMovement()));
-                game.items().lifetimes().advance(charge,++charge.age);
+                if(charge.sourceLifetime>0) { if(++charge.age>=charge.sourceLifetime) remove(charge); }
+                else game.items().lifetimes().advance(charge,++charge.age);
             }
         } finally { batch.clear(); }
     }

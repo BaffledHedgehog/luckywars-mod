@@ -186,6 +186,7 @@ public final class LbcItems {
     private final LbcSoulhunter soulhunter;
     private final LbcSoulless soulless;
     private final LbcDanmaku danmaku;
+    private final LbcSauvojen sauvojen;
     private final LbcSheep sheep;
     private final LbcHedgehog hedgehog;
     private final LbcGodHedgehog godHedgehog;
@@ -746,6 +747,7 @@ public final class LbcItems {
         this.soulhunter = new LbcSoulhunter(game,mana);
         this.soulless = new LbcSoulless(game,mana);
         this.danmaku = new LbcDanmaku(game,mana);
+        this.sauvojen = new LbcSauvojen(game);
         this.sheep = new LbcSheep(game,mana);
         this.hedgehog = new LbcHedgehog(game,mana);
         this.godHedgehog = new LbcGodHedgehog(game);
@@ -920,6 +922,7 @@ public final class LbcItems {
     public LbcSoulhunter soulhunter() { return soulhunter; }
     public LbcSoulless soulless() { return soulless; }
     public LbcDanmaku danmaku() { return danmaku; }
+    public LbcSauvojen sauvojen() { return sauvojen; }
     public LbcSheep sheep() { return sheep; }
     public LbcHedgehog hedgehog() { return hedgehog; }
     public LbcGodHedgehog godHedgehog() { return godHedgehog; }
@@ -1019,6 +1022,7 @@ public final class LbcItems {
         halloweenWind.loaded(entity);
         soulless.loaded(entity);
         danmaku.loaded(entity);
+        sauvojen.loaded(entity);
         sheep.loaded(entity);
         hedgehog.loaded(entity);
         godHedgehog.loaded(entity);
@@ -1123,6 +1127,7 @@ public final class LbcItems {
         halloweenWind.unloaded(entity);
         soulless.unloaded(entity);
         danmaku.unloaded(entity);
+        sauvojen.unloaded(entity);
         sheep.unloaded(entity);
         hedgehog.unloaded(entity);
         godHedgehog.unloaded(entity);
@@ -1235,7 +1240,7 @@ public final class LbcItems {
         return false;
     }
 
-    void markCurrentItemEpoch(Entity entity) { entity.entityTags().add(entityEpochTag); if(libraryRandom!=null)libraryRandom.captured(entity); }
+    void markCurrentItemEpoch(Entity entity) { entity.entityTags().add(entityEpochTag); }
 
     private void tickNanoTraps() {
         if (nanoTraps.isEmpty()) return;
@@ -1522,6 +1527,7 @@ public final class LbcItems {
         soulhunter.tick();
         soulless.tick();
         danmaku.tick();
+        sauvojen.tick();
         sheep.tick();
         hedgehog.tick();
         godHedgehog.tick();
@@ -1660,6 +1666,7 @@ public final class LbcItems {
         soulhunter.forget(player);
         soulless.forget(player);
         danmaku.forget(player);
+        sauvojen.forget(player);
         sheep.forget(player.getUUID());
         hedgehog.forget(player);
         hedgehogSpikes.forget(player);
@@ -1729,6 +1736,7 @@ public final class LbcItems {
         soulhunter.stop();
         soulless.stop();
         danmaku.stop();
+        sauvojen.stop();
         sheep.stop();
         hedgehog.stop();
         godHedgehog.stop();

@@ -27,19 +27,13 @@ import java.util.*;
 final class LbcLibraryRandom {
     private final GameController game;
     private final List<Emitter> emitters=new ArrayList<>();
-    private final List<Flying> flying=new ArrayList<>();
     private final Set<Entity> actors=Collections.newSetFromMap(new IdentityHashMap<>());
-    private record Expiry(ServerPlayer owner,int[] remaining) { }
-    private final Map<Entity,Expiry> expiries=new IdentityHashMap<>();
-    private ServerPlayer launching;private int sourceLifetime;
     private static final int[] BASIC={5,25,10,15,1,20,17,0,112,116,125,120,0,123,0,0,0,0,0,0,0,0,134,0,136,141,0,148,154,171,167,184,165,181,160,176,173,163,157,188,195,229,212,225,216,204,199,220,0,233,0,0,159};
     private static final class Emitter {
         final ServerPlayer owner;final ServerLevel level;final String epoch;final Vec3 at;final int type,lifetime;int age;
         Emitter(ServerPlayer owner,Vec3 at,int type,int lifetime){this.owner=owner;level=owner.level();epoch=me.skywars2.SkyWars2.game().items().epoch();this.at=at;this.type=type;this.lifetime=lifetime;}
     }
-    private record Flying(ServerPlayer owner,ServerLevel level,String epoch,Display.ItemDisplay display,int kind,int[] age) { }
     LbcLibraryRandom(GameController game){this.game=game;}
-    void captured(Entity entity){if(launching!=null&&sourceLifetime>0)expiries.put(entity,new Expiry(launching,new int[]{sourceLifetime}));}
     static void castRandom(GameController g,ServerPlayer p,InteractionHand hand,int roll){
         if(roll<1||roll>53)throw new IllegalArgumentException("Random spell "+roll);
         try{
@@ -122,40 +116,14 @@ final class LbcLibraryRandom {
     private static net.minecraft.world.level.block.state.BlockState BuiltInBlock(String name){return net.minecraft.core.registries.BuiltInRegistries.BLOCK.get(Identifier.withDefaultNamespace(name)).orElseThrow().value().defaultBlockState();}
     static void flyingWand(GameController g,ServerPlayer p){g.items().libraryRandom().fly(p,p.getRandom().nextInt(9));}
     void fly(ServerPlayer p,int kind){
-        String model=new String[]{"ruby","terra","electro","air","acid","teleport","stone","fire","blind"}[kind];
-        var display=new Display.ItemDisplay(EntityTypes.ITEM_DISPLAY,p.level());
-        try{display.load(TagValueInput.create(ProblemReporter.DISCARDING,p.registryAccess(),TagParser.parseCompoundFully("{teleport_duration:1,interpolation_duration:1,item_display:'fixed',transformation:[0f,0f,2.5f,0f,1.7678f,-1.7678f,0f,0f,1.7678f,1.7678f,0f,0f,0f,0f,0f,1f],item:{id:'minecraft:carrot_on_a_stick',count:1,components:{'minecraft:item_model':'lbc:st/"+model+"'}}}")));}catch(Exception e){throw new IllegalStateException(e);}
-        display.entityTags().add("magic");display.setPos(p.getEyePosition().add(p.getLookAngle().scale(2)));insert(p,display);
-        flying.add(new Flying(p,p.level(),game.items().epoch(),display,kind,new int[]{0}));
-        LbcOverload.sound(p,p.position(),"minecraft:block.enchantment_table.use",2,1,0);
+        game.items().sauvojen().cast(p,InteractionHand.MAIN_HAND,ItemStack.EMPTY,kind);
     }
     void flyingPayload(ServerPlayer p,Vec3 at,Vec3 direction,int kind){
-        var empty=ItemStack.EMPTY;
-        var previous=launching;int previousLifetime=sourceLifetime;launching=p;sourceLifetime=new int[]{50,200,0,120,300,60,80,0,100}[kind];
-        try{
-        switch(kind){
-            case 0->game.items().ruby().castAt(p,at,direction);
-            case 1->game.items().terra().castAt(p,at,direction,LbcTerra.Kind.REGULAR);
-            case 2->game.items().wands().libraryFlyingElectro(p,at,direction);
-            case 3->game.items().air().spawn(p,InteractionHand.MAIN_HAND,0,empty,at,direction);
-            case 4->captured(game.items().clouds().sourceAcid(p.level(),at,(float)Math.toDegrees(Math.atan2(-direction.x,direction.z)),(float)-Math.toDegrees(Math.asin(direction.y)),300,false,p));
-            case 5->game.items().teleport().castAt(p,InteractionHand.MAIN_HAND,0,empty,at,direction);
-            case 6->game.items().stone().castAt(p,at,direction);
-            case 7->{var ball=new net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball(EntityTypes.SMALL_FIREBALL,p.level());game.items().wands().launchFire(p,ball,at,direction.scale(2.5));LbcOverload.sound(p,at,"minecraft:item.firecharge.use",1,1,0);}
-            case 8->game.items().blind().spawn(p,at,direction,false,100,InteractionHand.MAIN_HAND,false);
-            default->throw new IllegalArgumentException("Flying wand kind "+kind);
-        }
-        }finally{launching=previous;sourceLifetime=previousLifetime;}
+        if(kind<0||kind>=LbcSauvojen.Kind.values().length)throw new IllegalArgumentException("Flying wand kind "+kind);
+        game.items().sauvojen().emit(p,InteractionHand.MAIN_HAND,ItemStack.EMPTY,LbcSauvojen.Kind.values()[kind],at,direction);
     }
     void tick(){
         actors.removeIf(Entity::isRemoved);
-        for(var entry:List.copyOf(expiries.entrySet())){
-            var entity=entry.getKey();var expiry=entry.getValue();
-            if(entity.isRemoved()){expiries.remove(entity);continue;}
-            if(!active(expiry.owner,game.items().epoch(),(ServerLevel)entity.level())){entity.discard();expiries.remove(entity);continue;}
-            if(game.items().timeStop().frozen(entity)||game.items().timeStop().stopped((ServerLevel)entity.level()))continue;
-            if(--expiry.remaining[0]<=0){entity.discard();expiries.remove(entity);}
-        }
         for(var e:List.copyOf(emitters)){
             if(!active(e.owner,e.epoch,e.level)||e.age>=e.lifetime){emitters.remove(e);continue;}
             if(e.type==17&&game.items().magic().suppressedAt(e.level,e.at)){emitters.remove(e);continue;}
@@ -176,21 +144,8 @@ final class LbcLibraryRandom {
             }}
             e.age++;
         }
-        for(var f:List.copyOf(flying)){
-            var at=f.display.position();
-            if(!active(f.owner,f.epoch,f.level)||f.display.isRemoved()||f.age[0]>=200||!f.level.hasChunkAt(BlockPos.containing(at))||!f.level.getBlockState(BlockPos.containing(at)).is(TagKey.create(Registries.BLOCK,Identifier.withDefaultNamespace("airs")))){f.display.discard();flying.remove(f);continue;}
-            if(game.items().magic().suppressedAt(f.level,at)){f.display.discard();flying.remove(f);continue;}
-            if(game.items().timeStop().stopped(f.level))continue;
-            var target=f.level.getEntitiesOfClass(LivingEntity.class,new AABB(at,at).inflate(150),t->t!=f.owner&&game.items().wands().target(f.owner,t)&&t.position().distanceToSqr(at)<=22500).stream().min(Comparator.comparingDouble(t->t.position().distanceToSqr(at))).orElse(null);
-            var direction=target==null?f.owner.getLookAngle():target.getEyePosition().subtract(at).normalize();
-            f.display.setYRot((float)Math.toDegrees(Math.atan2(-direction.x,direction.z)));f.display.setXRot((float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance())));
-            int period=new int[]{60,20,20,60,20,80,60,5,10}[f.kind];
-            if(f.age[0]%period==1)flyingPayload(f.owner,at,direction,f.kind);
-            var away=at.subtract(f.owner.getEyePosition()).normalize();f.display.setPos(at.add(away.scale(.1)));f.age[0]++;
-            f.level.sendParticles(ParticleTypes.WITCH,at.x,at.y,at.z,2,.5,.5,.5,1);
-        }
     }
-    int count(){return emitters.size()+flying.size()+actors.size()+expiries.size();}
-    void forget(ServerPlayer p){emitters.removeIf(e->e.owner==p);for(var f:List.copyOf(flying))if(f.owner==p){f.display.discard();flying.remove(f);}for(var e:List.copyOf(actors))if(game.items().summons().owner(e)==p){e.discard();actors.remove(e);}for(var e:List.copyOf(expiries.entrySet()))if(e.getValue().owner==p){e.getKey().discard();expiries.remove(e.getKey());}}
-    void stop(){emitters.clear();flying.clear();var old=List.copyOf(actors);actors.clear();old.forEach(Entity::discard);var children=List.copyOf(expiries.keySet());expiries.clear();children.forEach(Entity::discard);}
+    int count(){return emitters.size()+game.items().sauvojen().count()+actors.size();}
+    void forget(ServerPlayer p){emitters.removeIf(e->e.owner==p);game.items().sauvojen().forget(p);for(var e:List.copyOf(actors))if(game.items().summons().owner(e)==p){e.discard();actors.remove(e);}}
+    void stop(){emitters.clear();game.items().sauvojen().stop();var old=List.copyOf(actors);actors.clear();old.forEach(Entity::discard);}
 }

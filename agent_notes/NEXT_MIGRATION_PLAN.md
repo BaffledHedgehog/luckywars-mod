@@ -1,3 +1,34 @@
+## Ordinary Sauvojen - QUALIFIED, AUTOMATIC INSTALL QUEUED (26 October2026)
+
+[Contract and evidence](SAUVOJEN_PORT.md). Native ordinary combined staff exposes
+lbc:ported/sauvojen_wand, exact nine source drones, both hands/configured2500
+mana and Mage/trinket hooks, authored models/matrix/trails/aim/motion/cadences,
+source lifetimes and nine-criterion advancement. Source-specific Air triple
+native blasts, Stone strict fractional cube, persistent Teleport trail and
+unshielded constant-speed nogravity acid use local producer adapters. Random-only
+library242 shares the engine; duplicate visuals and ambient lifetime capture
+are removed. Time Stop, suppression, roles/Greed/ownership, epoch/unload/forget,
+manual world-reset repair and actual-stop cleanup remain authoritative.
+
+Buildc9e36258 passed46 recorded results in two real mode1 matches (59.25s),
+exact435 sources /1208 classes /3140 resources, plus128-grant read-only policy.
+Actual Air/Stone/Teleport impacts and native acid motion/hostile shield passage
+pass, alongside shared grimoire/projectile/player/effect/firearm regressions.
+Physical reconnect, client pixels and peak TPS remain unobserved.
+
+Installer11424 waits for main normal shutdown/world unlock (24566, RCON off).
+Main disk remains1a8a3825; no forced stop or restart. Live receipt/immutable
+qualification: build/verification/sauvojen/. Ready artifact:
+build/verification/skywars2-sauvojen-c9e36258.jar. Keepc9e36258,1a8a3825,b2c91dcf;
+obsolete875fed3a removed. Cumulative cleanup323 JARs /11510486943 bytes.
+All174 protected author paths and31 live grimoire overrides are unchanged.
+Author RP was read only; no new template files are needed for this leaf.
+
+Combined Academy payloads/meditation remain gated, including imported upgraded
+or upgradable stacks. User approved all ten upgraded ruby attacks sequentially;
+implement that when enabling the combined Academy family. Detailed native
+source audit: SAUVOJEN_ADVANCED_SOURCE_2026_10_26.md. Its unused blind_check is not an active trial bug.
+
 ## Signed status effects - QUALIFIED AND INSTALLED (26 October 2026)
 
 [Approved forty-effect contract](SIGNED_EFFECT_LEVELS.md).

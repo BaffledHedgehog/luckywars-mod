@@ -78,9 +78,12 @@ public final class LbcClouds {
         private Vec3 shieldFrom;
         private Vec3 sweptFrom;
         AcidProjectile(EntityType<? extends AcidProjectile> type, Level level) { super(type, level); }
+        @Override protected float getAirDrag() {
+            return entityTags().contains(FLYING_WAND_ACID)?1:super.getAirDrag();
+        }
         @Override public void tick() {
             // The awakened acid seed flies straight; its children use the shared reactive acid physics.
-            boolean great=entityTags().contains(GREAT_ACID)||awakenedVariant(this)>0;Vec3 velocity=getDeltaMovement();
+            boolean constantMotion=entityTags().contains(GREAT_ACID)||entityTags().contains(FLYING_WAND_ACID)||awakenedVariant(this)>0;Vec3 velocity=getDeltaMovement();
             if(awakenedVariant(this)==2)sweptFrom=position();
             if (entityTags().contains(ACID_STUCK)) {
                 // Прилипший заряд использует только базовый тик сущности, без повторного sweep/блочных callbacks.
@@ -90,8 +93,10 @@ public final class LbcClouds {
             }
             shieldFrom = position();
             try {
+                // ThrowableProjectile applies water inertia before moving; source nogravity acid moves the full segment.
+                if(entityTags().contains(FLYING_WAND_ACID)&&isInWater())setDeltaMovement(velocity.scale(1.0/.8F));
                 super.tick();
-                if(great&&!isRemoved()&&!entityTags().contains(ACID_STUCK)
+                if(constantMotion&&!isRemoved()&&!entityTags().contains(ACID_STUCK)
                         && !entityTags().remove(LbcGreed.REFLECTED))setDeltaMovement(velocity);
                 if (!isRemoved()) stopAtShield(position());
             } finally { shieldFrom = null; }
@@ -99,7 +104,7 @@ public final class LbcClouds {
         /** Check the actual native gravity/drag segment, already clipped at its first collision. */
         private boolean stopAtShield(Vec3 end) {
             var game = SkyWars2.game();
-            if(entityTags().contains(GREAT_ACID)||entityTags().contains(GREAT_CHILD)||awakenedVariant(this)>0)return false;
+            if(entityTags().contains(GREAT_ACID)||entityTags().contains(GREAT_CHILD)||entityTags().contains(FLYING_WAND_ACID)||awakenedVariant(this)>0)return false;
             if (sourceAcidManaged(this) && !entityTags().contains("shield_blockable2"))return false;
             if (shieldFrom == null || game == null || !(getOwner() instanceof ServerPlayer owner)
                     || !(level() instanceof ServerLevel level)
@@ -159,6 +164,7 @@ public final class LbcClouds {
     private static final String ACID = "skywars2.acid";
     private static final String WAND_ACID = "skywars2.wand.acid";
     private static final String ORDINARY_WAND_ACID = "skywars2.wand.acid.regular";
+    private static final String FLYING_WAND_ACID = "skywars2.wand.acid.flying";
     private static final String GREAT_ACID="skywars2.acid.great";
     private static final String GREAT_CHILD="skywars2.acid.great_child";
     private static final String CAUST_ACID="skywars2.acid.caust",BURST_ACID="skywars2.acid.burst";
@@ -439,6 +445,9 @@ public final class LbcClouds {
     }
 
     private AcidProjectile aimedWandAcid(ServerPlayer owner,Vec3 origin,float yaw,float pitch,boolean big) {
+        return aimedWandAcid(owner,origin,yaw,pitch,big,null);
+    }
+    private AcidProjectile aimedWandAcid(ServerPlayer owner,Vec3 origin,float yaw,float pitch,boolean big,Vec3 flyingDirection) {
         var level=owner.level();
         var projectile=new AcidProjectile(ACID_PROJECTILE,level);
         projectile.setOwner(owner);
@@ -451,8 +460,24 @@ public final class LbcClouds {
         projectile.entityTags().addAll(List.of(ACID,WAND_ACID,big?"raycastacidbig":"raycastacid",
                 "player","slowraycast","shield_blockable2","magic","actived",game.items().epoch()));
         if(big) projectile.entityTags().add(ORDINARY_WAND_ACID);
+        if(flyingDirection!=null) {
+            projectile.entityTags().remove("shield_blockable2");
+            projectile.entityTags().addAll(List.of("nogravity",FLYING_WAND_ACID));
+            projectile.setNoGravity(true);
+            // Native Projectile.shoot uses a different yaw/pitch convention from Entity look vectors.
+            projectile.setYRot(yaw);projectile.setXRot(pitch);
+            projectile.setDeltaMovement(flyingDirection.normalize().scale(1.6));
+        }
         level.addFreshEntity(projectile);
         return projectile;
+    }
+
+    AcidProjectile flyingWandAcid(ServerPlayer owner,Vec3 origin,Vec3 direction) {
+        float yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
+        float pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));
+        var shot=aimedWandAcid(owner,origin,yaw,pitch,false,direction);
+        LbcOverload.sound(owner,origin,"minecraft:entity.zombie_villager.cure",1,2,0);
+        return shot;
     }
 
     /** Exact source variants share acid movement, collision, reactivity and effect code. */
@@ -536,7 +561,7 @@ public final class LbcClouds {
         boolean great=projectile.entityTags().contains(GREAT_ACID);
         boolean air = level.getBlockState(projectile.blockPosition()).is(AIRS);
         // shield_block_2 выполняется на блок впереди защищающегося игрока, без углового сектора.
-        if (air && !great && !projectile.entityTags().contains(GREAT_CHILD) && (!sourceAcidManaged(projectile) || projectile.entityTags().contains("shield_blockable2"))
+        if (air && !great && !projectile.entityTags().contains(GREAT_CHILD) && !projectile.entityTags().contains(FLYING_WAND_ACID) && (!sourceAcidManaged(projectile) || projectile.entityTags().contains("shield_blockable2"))
                 && !level.getEntitiesOfClass(ServerPlayer.class, projectile.getBoundingBox().inflate(3), player ->
                 game.allowDamage(player) && player.isBlocking()
                         && (!wand || wandAcidTarget(projectile,player))

@@ -762,6 +762,9 @@ public final class GameChecks {
                                 case "negative-mining" -> { NegativeMiningChecks.run(game); return; }
                                 case "negative-attributes" -> { NegativeAttributeChecks.run(game); return; }
                                 case "attack-knockback" -> { AttackKnockbackChecks.run(game); return; }
+                                case "sauvojen" -> { SauvojenChecks.run(game); return; }
+                                case "sauvojen-stop-probe" -> { SauvojenChecks.stopProbe(game); return; }
+                                case "sauvojen-cleanup" -> { SauvojenChecks.cleanup(game); return; }
                                 case "signed-effect-levels" -> { SignedEffectLevelChecks.run(game); return; }
                                 case "signed-effects-math" -> { SignedEffectMathChecks.run(game); return; }
                                 case "signed-effects-cleanup" -> { require(game.inLobby() && SignedEnvironmentalEffects.queuedSpawns()==0 && SignedGlowVisuals.carrierCount()==0,"signed effect queues and carriers clear at actual match stop"); for(var p:game.server().getPlayerList().getPlayers())require(p.getPostEffects().stream().noneMatch(SignedEffectVisuals::owned),"owned effect shaders clear at actual match stop"); SkyWars2.LOGGER.info("[check] PASS signed-effects-cleanup"); return; }

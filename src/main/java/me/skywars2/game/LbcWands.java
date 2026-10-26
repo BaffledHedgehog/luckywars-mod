@@ -151,6 +151,7 @@ public final class LbcWands {
     public static final Item TINY_ELECTRO=register("skywars2:tiny_electro_wand","wand_electro_tiny","lbc:st/electro_tiny");
     public static final Item ELECTRO=register("skywars2:electro_wand","sauvojen_wand_electro","lbc:st/electro");
     public static final Item ACADEMY_ELECTRO=register("skywars2:academy_electro_wand","sauvojen_wand_electro","lbc:st/electro");
+    public static final Item SAUVOJEN=register("skywars2:sauvojen_wand","sauvojen_wand","lbc:sauvojen_wand");
     public static final Item EXASPERATO=register("skywars2:exasperato_wand","exasperato_wand","lbc:exasperato");
     public static final Item EXOPERSO=register("skywars2:exoperso_wand","megumin_wand","lbc:exoperso");
     public static final Item BEDROCK=register("skywars2:bedrock_wand","bedrock_wand","lbc:bedrock_wand");
@@ -263,6 +264,7 @@ public final class LbcWands {
         REGULAR_WALL(LbcWands.WALL,"wall","wall_wand_mana_use",1500),
         ACADEMY_STONEKIVI(LbcWands.ACADEMY_STONEKIVI,"stonekivi_wand","stonekivi_wand_mana_use",2500),
         REGULAR_STONEKIVI(LbcWands.STONEKIVI,"stonekivi_wand","stonekivi_wand_mana_use",2500),
+        SAUVOJEN(LbcWands.SAUVOJEN,"sauvojen_wand","sauvojen_wand_mana_use",2500),
         EXASPERATO(LbcWands.EXASPERATO,"exasperato_wand","exasperato_wand_mana_use",1500);
         final Item item;
         final CompoundTag flag;
@@ -479,6 +481,14 @@ public final class LbcWands {
         Spell spell=null;
         for(var candidate:SPELLS) if(matches(stack,candidate.item,candidate.flag)) { spell=candidate; break; }
         if(spell==null) return false;
+        // The combined Academy payloads and meditation stay gated until their complete port.
+        if(spell==Spell.SAUVOJEN) {
+            var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+            if(data.getIntOr("upgraded",0)==1 || data.getIntOr("upgradable",0)==1
+                    || timeStopped() || player.entityTags().contains("time_stopped")
+                    || game.items().magic().suppressedAt(player.level(),player.getEyePosition())
+                    || !player.level().hasChunkAt(BlockPos.containing(player.getEyePosition().add(player.getLookAngle().scale(2))))) return false;
+        }
         if(spell==Spell.ICE||spell==Spell.ACADEMY_ICE)return game.items().iceWand().use(player,hand,stack,spell==Spell.ACADEMY_ICE);
         if(spell==Spell.CORRUPTION||spell==Spell.ACADEMY_CORRUPTION)return LbcCorruption.use(game,player,hand,stack,spell==Spell.ACADEMY_CORRUPTION);
         if(spell==Spell.ACID_CORRUPTION||spell==Spell.ACADEMY_ACID_CORRUPTION)return game.items().acidCorruption().use(player,hand,stack,spell==Spell.ACADEMY_ACID_CORRUPTION);
@@ -688,6 +698,7 @@ public final class LbcWands {
         int spentMana=spell==Spell.REGULAR_EXOPERSO?25000:spell==Spell.ACADEMY_EXOPERSO?10000:requiredMana;
         if(!mana.trySpendWand(player,requiredMana,spentMana)) return false;
         switch(spell) {
+            case SAUVOJEN -> game.items().sauvojen().cast(player,hand,stack);
             case REGULAR_STONEKIVI -> game.items().stonekivi().cast(player,hand,stack,false);
             case ACADEMY_STONEKIVI -> game.items().stonekivi().cast(player,hand,stack,true);
             case REGULAR_WALL -> LbcWall.cast(game,player,hand,stack,false);

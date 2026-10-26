@@ -60,6 +60,7 @@ public final class LbcTeleport {
 
     public static final class Charge extends Projectile implements PolymerEntity {
         int age;
+        int sourceLifetime;
         int mode;
         Charge(EntityType<? extends Charge> type,Level level) { super(type,level); }
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder) { }
@@ -79,7 +80,7 @@ public final class LbcTeleport {
             if(!game.items().currentEpoch(charge) || charge.level()!=game.maps().level()
                     || !(charge.getOwner() instanceof ServerPlayer)) { cleanup(charge); return; }
             charges.add(charge);
-            game.items().lifetimes().track(charge);
+            if(charge.sourceLifetime==0) game.items().lifetimes().track(charge);
         }
         if(entity instanceof Arrow arrow && arrow.entityTags().contains(CLOUD)) {
             if(!game.items().currentEpoch(arrow) || arrow.level()!=game.maps().level()
@@ -100,18 +101,26 @@ public final class LbcTeleport {
         if(mode==3) { castCloud(owner); return; }
         castAt(owner,hand,mode,stack,owner.getEyePosition(),owner.getLookAngle());
     }
+    Charge flying(ServerPlayer owner,InteractionHand hand,ItemStack stack,Vec3 origin,Vec3 direction){
+        return castAt(owner,hand,0,ItemStack.EMPTY,origin,direction,60);
+    }
     void castAt(ServerPlayer owner,InteractionHand hand,int mode,ItemStack stack,Vec3 origin,Vec3 direction){
+        castAt(owner,hand,mode,stack,origin,direction,0);
+    }
+    private Charge castAt(ServerPlayer owner,InteractionHand hand,int mode,ItemStack stack,Vec3 origin,Vec3 direction,int lifetime){
         LbcOverload.sound(owner,origin,"minecraft:entity.lightning_bolt.thunder",1,2,0);
         Charge charge=new Charge(TYPE,owner.level());
         charge.setOwner(owner); charge.setPos(origin); charge.setNoGravity(true);
-        charge.setYRot(owner.getYRot()); charge.setXRot(owner.getXRot());
-        charge.setDeltaMovement(direction.normalize().scale(mode==0?1.8:3.0));
-        charge.mode=mode;
+        charge.setYRot(lifetime>0?(float)Math.toDegrees(Math.atan2(-direction.x,direction.z)):owner.getYRot());
+        charge.setXRot(lifetime>0?(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance())):owner.getXRot());
+        charge.setDeltaMovement(direction.normalize().scale(lifetime>0?1.2:mode==0?1.8:3.0));
+        charge.mode=mode; charge.sourceLifetime=lifetime;
         game.items().markCurrentItemEpoch(charge);
         if(owner.level().addFreshEntity(charge)) {
             charges.add(charge);
-            game.items().lifetimes().track(charge);
+            if(lifetime==0) game.items().lifetimes().track(charge);
         }
+        return charge;
     }
 
     private void castCloud(ServerPlayer owner) { castRideableArrow(owner,.5,false); }
@@ -153,7 +162,7 @@ public final class LbcTeleport {
                         remove(charge); continue;
                     }
                     Vec3 to=from.add(charge.getDeltaMovement());
-                    HitResult hit=game.items().wands().firstHit(owner,from,to);
+                    HitResult hit=charge.sourceLifetime>0?LbcTerra.wallHit(owner.level(),from,to):game.items().wands().firstHit(owner,from,to);
                     var shield=game.items().wands().shieldHit(owner,from,hit==null?to:hit.getLocation());
                     if(shield!=null && !charge.level().getBlockState(BlockPos.containing(shield.getLocation())).isAir()) shield=null;
                     boolean shieldBlocked=shield!=null && (hit==null
@@ -162,7 +171,8 @@ public final class LbcTeleport {
                     if(hit instanceof BlockHitResult wall && !charge.level().hasChunkAt(wall.getBlockPos())) { remove(charge); continue; }
                     Vec3 end=hit==null?to:hit.getLocation();
                     charge.setPos(end);
-                    emitTrail(owner,charge,from,end);
+                    if(charge.sourceLifetime>0) flyingTrail(owner,from,end,shieldBlocked);
+                    else emitTrail(owner,charge,from,end);
                     if(hit!=null) {
                         remove(charge);
                         if(hit instanceof EntityHitResult entityHit && !shieldBlocked)
@@ -170,11 +180,27 @@ public final class LbcTeleport {
                         continue;
                     }
                     charge.age++;
-                    game.items().lifetimes().advance(charge,charge.age);
+                    if(charge.sourceLifetime>0) { if(charge.age>=charge.sourceLifetime) remove(charge); }
+                    else game.items().lifetimes().advance(charge,charge.age);
                 }
             } finally { batch.clear(); }
         }
         tickClouds();
+    }
+
+    private void flyingTrail(ServerPlayer owner,Vec3 from,Vec3 end,boolean shieldBlocked) {
+        double distance=from.distanceTo(end);Vec3 direction=end.subtract(from).normalize();
+        for(double step=0;step<=distance+1e-7;step+=.3) {
+            Vec3 point=from.add(direction.scale(Math.min(step,distance)));
+            owner.level().sendParticles(ParticleTypes.ANGRY_VILLAGER,true,false,point.x,point.y,point.z,2,.1,.1,.1,0);
+            if(shieldBlocked&&step>=distance-1e-7)break;
+            var area=new AABB(point,point.add(1,1,1));
+            for(var target:owner.level().getEntitiesOfClass(LivingEntity.class,area,
+                    candidate->candidate.position().distanceToSqr(point)<=225&&game.items().lifetimes().target(owner,candidate))) {
+                if(target.addEffect(ItemEffectLevels.create(MobEffects.LEVITATION,20,40),owner))
+                    game.items().indirectKills().levitated(target,owner);
+            }
+        }
     }
 
     private void emitTrail(ServerPlayer owner,Charge charge,Vec3 from,Vec3 end) {

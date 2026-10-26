@@ -222,6 +222,7 @@ public final class LbcTerra {
         private ItemDisplayElement display;
         private Kind kind = Kind.REGULAR;
         private int age;
+        int sourceLifetime;
         private boolean modelPaused;
         TerraProjectile(EntityType<? extends TerraProjectile> type, Level level) { super(type, level); }
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder) { }
@@ -306,11 +307,17 @@ public final class LbcTerra {
         castAt(owner,owner.getEyePosition(),owner.getLookAngle(),kind);
     }
     /** Общий запуск жезла и призванного культиста: модель, попадания и lifecycle совпадают. */
+    TerraProjectile flying(ServerPlayer owner,Vec3 origin,Vec3 direction) {
+        return castAt(owner,origin,direction,Kind.REGULAR,200);
+    }
     void castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,Kind kind) {
+        castAt(owner,origin,direction,kind,0);
+    }
+    private TerraProjectile castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,Kind kind,int lifetime) {
         var level = owner.level();
-        if (level != game.maps().level() || !game.canUseGameplayItems(owner)) return;
+        if (level != game.maps().level() || !game.canUseGameplayItems(owner)) return null;
         var projectile = new TerraProjectile(TYPE, level);
-        projectile.kind = kind;
+        projectile.kind = kind; projectile.sourceLifetime=lifetime;
         projectile.setOwner(owner);
         projectile.setPos(origin);
         projectile.setDeltaMovement(direction.normalize().scale(kind.speed));
@@ -325,7 +332,7 @@ public final class LbcTerra {
         projectile.entityTags().add(game.items().epoch());
         if (level.addFreshEntity(projectile)) {
             projectiles.add(projectile);
-            if (kind.lifetime == 0) game.items().lifetimes().track(projectile);
+            if (kind.lifetime == 0 && lifetime==0) game.items().lifetimes().track(projectile);
             projectile.attachModel();
             projectile.syncModel(visualEnd(projectile, owner));
             if (kind == Kind.TRUE_BEAM)
@@ -334,8 +341,9 @@ public final class LbcTerra {
                 LbcOverload.sound(owner, owner.getEyePosition(), "minecraft:block.amethyst_block.break", 1, 1, 0);
             else if (kind == Kind.SWORD)
                 LbcOverload.sound(owner, owner.getEyePosition(), "minecraft:block.amethyst_cluster.break", 1, 0, 0);
-            else LbcOverload.sound(owner, owner.getEyePosition(), "minecraft:block.amethyst_cluster.break", 1, 1, 0);
+            else LbcOverload.sound(owner, origin, "minecraft:block.amethyst_cluster.break", 1, 1, 0);
         }
+        return projectile;
     }
 
     /** Один swept отрезок на рабочий tick; мир никогда не читается из фонового потока. */
@@ -363,8 +371,8 @@ public final class LbcTerra {
                 projectile.modelPaused = false;
                 if (!step(projectile, owner)) { remove(projectile); continue; }
                 projectile.age++;
-                if (projectile.kind.lifetime > 0) {
-                    if (projectile.age >= projectile.kind.lifetime) {
+                if (projectile.sourceLifetime>0 || projectile.kind.lifetime > 0) {
+                    if (projectile.age >= (projectile.sourceLifetime>0?projectile.sourceLifetime:projectile.kind.lifetime)) {
                         finishModel(projectile);
                         remove(projectile);
                     }

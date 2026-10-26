@@ -52,6 +52,7 @@ public final class LbcAir {
 
     public static final class Charge extends Projectile implements PolymerEntity {
         int age;
+        int sourceLifetime;
         int mode;
         InteractionHand trialHand;
         Vec3 origin;
@@ -73,7 +74,7 @@ public final class LbcAir {
             if(!game.items().currentEpoch(charge) || charge.level()!=game.maps().level()
                     || !(charge.getOwner() instanceof ServerPlayer)) { cleanup(charge); return; }
             charges.add(charge);
-            game.items().lifetimes().track(charge,true);
+            if(charge.sourceLifetime==0) game.items().lifetimes().track(charge,true);
         }
     }
     void unloaded(Entity entity) {
@@ -95,12 +96,19 @@ public final class LbcAir {
         }
     }
 
+    Charge flying(ServerPlayer owner,InteractionHand hand,ItemStack stack,Vec3 origin,Vec3 direction) {
+        return spawn(owner,hand,0,ItemStack.EMPTY,origin,direction,120);
+    }
     void spawn(ServerPlayer owner,InteractionHand hand,int mode,ItemStack stack,Vec3 origin,Vec3 direction) {
-        if(!owner.level().hasChunkAt(BlockPos.containing(origin))) return;
+        spawn(owner,hand,mode,stack,origin,direction,0);
+    }
+    private Charge spawn(ServerPlayer owner,InteractionHand hand,int mode,ItemStack stack,Vec3 origin,Vec3 direction,int lifetime) {
+        if(!owner.level().hasChunkAt(BlockPos.containing(origin))) return null;
         Charge charge=new Charge(TYPE,owner.level());
         charge.setOwner(owner); charge.setPos(origin); charge.setNoGravity(true);
-        charge.setDeltaMovement(direction.normalize().scale(speed(mode))); charge.setYRot(owner.getYRot()); charge.setXRot(owner.getXRot());
-        charge.mode=mode; charge.origin=origin;
+        charge.setDeltaMovement(direction.normalize().scale(lifetime>0?.8:speed(mode))); charge.setYRot(lifetime>0?(float)Math.toDegrees(Math.atan2(-direction.x,direction.z)):owner.getYRot());
+        charge.setXRot(lifetime>0?(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance())):owner.getXRot());
+        charge.mode=mode; charge.origin=origin; charge.sourceLifetime=lifetime;
         if(mode==0 && LbcAcademy.trial(stack)) {
             charge.trial=true; charge.trialHand=hand; charge.trialOwner=owner;
         }
@@ -108,8 +116,9 @@ public final class LbcAir {
         game.items().markCurrentItemEpoch(charge);
         if(owner.level().addFreshEntity(charge)) {
             charges.add(charge);
-            game.items().lifetimes().track(charge,true);
+            if(lifetime==0) game.items().lifetimes().track(charge,true);
         }
+        return charge;
     }
 
     private double speed(int mode) { return switch(mode) { case 2 -> 6.3; case 3 -> 1.6; default -> 1; }; }
@@ -143,12 +152,21 @@ public final class LbcAir {
                 }
                 if(charge.mode==3) home(charge,owner);
                 charge.age++;
-                game.items().lifetimes().advance(charge,charge.age);
+                if(charge.sourceLifetime>0) { if(charge.age>=charge.sourceLifetime) remove(charge); }
+                else game.items().lifetimes().advance(charge,charge.age);
             }
         } finally { batch.clear(); }
     }
 
     private void emitTrail(ServerPlayer owner,Charge charge,Vec3 from,Vec3 end) {
+        if(charge.sourceLifetime>0) {
+            double distance=from.distanceTo(end);Vec3 direction=end.subtract(from).normalize();
+            for(double step=0;step<=distance+1e-7;step+=.2) {
+                Vec3 point=from.add(direction.scale(Math.min(step,distance)));
+                owner.level().sendParticles(ParticleTypes.SMOKE,true,false,point.x,point.y,point.z,1,.1,.1,.1,0);
+            }
+            return;
+        }
         if(charge.mode==0 || charge.mode==1) {
             owner.level().sendParticles(ParticleTypes.EXPLOSION,true,false,end.x,end.y,end.z,1,0,0,0,0);
         } else {
@@ -179,6 +197,13 @@ public final class LbcAir {
 
     private void detonate(Charge charge,ServerPlayer owner,Vec3 point) {
         if(!validOwner(owner) || !game.items().currentEpoch(charge) || !owner.level().hasChunkAt(BlockPos.containing(point))) return;
+        if(charge.sourceLifetime>0) {
+            for(int i=0;i<3;i++) {
+                if(!validOwner(owner)||!game.items().currentEpoch(charge))break;
+                game.items().exasperato().protectedBlast(owner,owner.level(),point,4,source->{});
+            }
+            return;
+        }
         float[] offsets=charge.mode==2?new float[]{1,0,-1}:new float[]{0};
         var trial=charge.mode==0 ? game.items().academy().airTrial(owner,charge) : null;
         for(float y:offsets) {

@@ -102,3 +102,14 @@ qualified95c3db2f archive as rollback instead of making another duplicate.
 User now requests automatic qualified installs; install_when_stopped waits
 for normal shutdown, and newer qualified requests supersede pending builds.
 Live receipt: build/verification/hedgehog-final/main-install.json.
+
+## Ordinary Sauvojen qualification (26 October2026)
+
+Qualified c9e36258 passed46 results in two actual matches. Preserve its ready
+archive, installed signed-effects1a8a3825 and operator-controlsb2c91dcf rollback.
+Main remains running on1a8a3825; installer11424 waits for normal shutdown.
+After exact old/new qualification hashes, resolved parent, symlink, inventory
+size and timestamp checks, obsolete875fed3a was removed (39174864 bytes).
+Latest cumulative receipt supersedes the historical checkpoints above:
+323 JARs /11510486943 bytes. Evidence and receipt:
+`build/verification/sauvojen/build-cleanup-receipt.json`.
