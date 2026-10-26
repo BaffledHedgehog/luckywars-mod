@@ -7,6 +7,36 @@ world/datapacks/grimoire_overrides edits during migration/build/install.
 Do not run the historical generate_extra_grimoires/check_extra_grimoires
 scripts over manual author edits; the old checker also regenerates files.
 
+## Chef route selection and compact takeoff - QUALIFIED, AUTO INSTALL QUEUED (26 October 2026)
+
+See [behavior, native fixtures and evidence](agent_notes/CHEF_ROUTE_SELECTION_2026_10_26.md).
+Chef compares walking, parkour, mining and construction in one frontier;
+there is no exhaustive terrain-only pass before building. Supported short
+approaches to clear columns beneath airborne victims are validated directly.
+Retains forward speed at takeoff; fallback runway is 0.75 blocks. Small rising
+landings use ordinary jumps; noisy walk/drop routes can retain sprinting.
+Pillars hold actual downward camera/head aim through placement and landing;
+vertical action yaw is stable. Strict two-degree action facing, gravity,
+main-hand dwell, native sounds, knock, water and fixed-victim ownership remain.
+
+Build 385f9f11 passed 22 recorded suite results in two actual mode1 matches
+(98.01 seconds). Each passed all 23 Chef fixture groups, a real-world-tick
+chase, sheep/Danmaku/player-rule/Time-Stop regressions and actual-stop cleanup.
+New fixtures cover diagonal full-block stairs, noisy partial-block terrain,
+short bridge versus a long detour, stable pillar facing, moving takeoff and
+prompt construction toward an offset airborne target. Exact 401 sources,
+1130 classes and 3138 resources match the tested release. Protected author
+files/deletions, live grimoire overrides and the author RP are unchanged.
+
+Ready: build/verification/skywars2-chef-routing-385f9f11.jar; immutable evidence
+and live receipt: build/verification/chef-routing-final/. Existing installer 13420
+adopted this build, superseding queued a82498d0; all preceding native gear/totem
+changes are included. It waits for normal main shutdown/world unlock (port 24566,
+RCON disabled), without killing/restarting the server. Main remains 7da14e96.
+Retain ready 385f9f11, preceding a82498d0 and installed 7da14e96. Old 7dc0342b
+archive retired; cumulative cleanup 317 JARs/11275598510 bytes. Rendered frames,
+subjective human likeness, arbitrary map routes and peak TPS are not qualified.
+
 ## Native shields and tridents - QUALIFIED, AUTO INSTALL QUEUED (26 October 2026)
 
 See [source, behavior and evidence](agent_notes/NATIVE_GEAR_PORT.md).

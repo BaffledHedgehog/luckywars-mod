@@ -204,7 +204,7 @@ public final class LbcWtf {
         }
         private void turnLook(Vec3 at,float yawStep,float pitchStep){
             Vec3 delta=at.subtract(getEyePosition());
-            float yaw=(float)(Math.atan2(-delta.x,delta.z)*180/Math.PI);
+            float yaw=delta.horizontalDistanceSqr()<1.0e-8?getYRot():(float)(Math.atan2(-delta.x,delta.z)*180/Math.PI);
             float pitch=(float)(-Math.atan2(delta.y,Math.max(.01,delta.horizontalDistance()))*180/Math.PI);
             float head=net.minecraft.util.Mth.approachDegrees(getYHeadRot(),yaw,yawStep);
             head=getYRot()+net.minecraft.util.Mth.clamp(net.minecraft.util.Mth.wrapDegrees(head-getYRot()),-75,75);
@@ -221,7 +221,7 @@ public final class LbcWtf {
         boolean aimAction(Vec3 at){
             actionAim=at;aimUntil=tickCount+2;
             Vec3 offset=at.subtract(getEyePosition());
-            float yaw=(float)Math.toDegrees(Math.atan2(-offset.x,offset.z));
+            float yaw=offset.horizontalDistanceSqr()<1.0e-8?getYRot():(float)Math.toDegrees(Math.atan2(-offset.x,offset.z));
             setYRot(net.minecraft.util.Mth.approachDegrees(getYRot(),yaw,25));
             setYBodyRot(net.minecraft.util.Mth.approachDegrees(yBodyRot,getYRot(),20));
             turnLook(at,25,20);

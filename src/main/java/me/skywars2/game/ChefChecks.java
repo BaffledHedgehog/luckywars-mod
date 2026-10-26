@@ -320,6 +320,77 @@ public final class ChefChecks {
             }
             clear();remove(victim);
         }
+        void diagonalStaircase(){
+            for(int i=0;i<=5;i++)for(int y=0;y<i;y++)block(center.offset(i,y,i),Blocks.STONE);
+            var unchanged=terrain();var victim=cow(at.add(5,5,5));var chef=spawn(owner,victim);
+            chef.setPos(at.add(-1,0,-1));chef.setDeltaMovement(Vec3.ZERO);chef.setOnGround(true);
+            int ticks;for(ticks=0;ticks<210&&!chef.isRemoved()&&victim.getHealth()==20;ticks++)advance(chef,1);
+            require(victim.getHealth()<20&&terrain().equals(unchanged),"five full-block diagonal stair rises without edits or stationary hopping; ticks="+ticks+" pos="+chef.position()+" "+chef.brain.diagnostics());
+            clear();remove(victim);
+        }
+        void noisyGround(){
+            for(int x=-6;x<=6;x++)for(int z=-8;z<=8;z++){
+                int h=Math.floorMod(x*13+z*7,5);
+                if(h==1||h==3)block(center.offset(x,0,z),Blocks.STONE_SLAB);
+                if(h==2)block(center.offset(x,0,z),Blocks.STONE);
+                if(h==4)block(center.offset(x,0,z),Blocks.STONE_STAIRS);
+            }
+            var unchanged=terrain();var victim=cow(at.add(4,1,8));var chef=spawn(owner,victim);
+            chef.setPos(at.add(-4,1,-8));chef.setDeltaMovement(Vec3.ZERO);chef.setOnGround(true);
+            int ticks;for(ticks=0;ticks<220&&!chef.isRemoved()&&victim.getHealth()==20;ticks++)advance(chef,1);
+            require(victim.getHealth()<20&&terrain().equals(unchanged),"continuous pursuit across deterministic noisy slabs/full blocks/stairs without edits; ticks="+ticks+" pos="+chef.position()+" "+chef.brain.diagnostics());
+            clear();remove(victim);
+        }
+        void buildShortcut(){
+            // A safe surface detour exists at x=+/-13. Four quick blocks are much faster.
+            for(int x=-12;x<=12;x++)for(int z=0;z<4;z++)block(center.offset(x,-1,z),Blocks.AIR);
+            for(int x=-12;x<=12;x++)for(int z=-5;z<=8;z++)block(center.offset(x,2,z),Blocks.BEDROCK);
+            var victim=cow(at.add(0,0,7));var chef=spawn(owner,victim);chef.setPos(at.add(0,0,-4));chef.setOnGround(true);
+            int first=-1,ticks;double lateral=0;
+            for(ticks=0;ticks<160&&!chef.isRemoved()&&victim.getHealth()==20;ticks++){
+                advance(chef,1);lateral=Math.max(lateral,Math.abs(chef.getX()-at.x));
+                if(first<0)for(int z=0;z<4;z++)if(owner.level().getBlockState(center.offset(0,-1,z)).is(Blocks.COBBLESTONE))first=ticks;
+            }
+            require(first>=0&&first<40&&lateral<3&&victim.getHealth()<20,"construction competes immediately with long surface detour; first="+first+" ticks="+ticks+" lateral="+lateral+" "+chef.brain.diagnostics());
+            clear();remove(victim);
+        }
+        void pillarFacing(){
+            var victim=cow(at.add(0,8,0));var chef=spawn(owner,victim);
+            chef.setPos(at);chef.setDeltaMovement(Vec3.ZERO);chef.setOnGround(true);
+            boolean building=false;int first=-1,ticks;float yaw=chef.getYRot();
+            for(ticks=0;ticks<180&&!chef.isRemoved()&&chef.getY()<at.y+5;ticks++){
+                advance(chef,1);
+                if(chef.actionSerial>0){
+                    if(!building){building=true;first=ticks;}
+                    require(Math.abs(net.minecraft.util.Mth.wrapDegrees(chef.getYRot()-yaw))<3,"vertical column keeps yaw instead of facing the victim between floors: "+chef.getYRot()+" previous="+yaw+" "+chef.brain.diagnostics());
+                    require(chef.getXRot()>75,"column keeps looking down between placements: "+chef.getXRot());
+                }
+                yaw=chef.getYRot();
+            }
+            require(building&&first<25&&chef.getY()>=at.y+5,"airborne target starts a stable pillar promptly; first="+first+" ticks="+ticks+" "+chef.brain.diagnostics());clear();remove(victim);
+        }
+        void movingTakeoff(){
+            corridor(false);for(int z=-5;z<=8;z++)block(center.offset(0,2,z),Blocks.AIR);
+            for(int z=0;z<4;z++)block(center.offset(0,-1,z),Blocks.AIR);
+            var unchanged=terrain();var victim=cow(at.add(0,0,8));var chef=spawn(owner,victim);
+            chef.setPos(at.add(0,0,-1.1));chef.setDeltaMovement(new Vec3(0,0,.15));chef.setOnGround(true);
+            double previous=chef.getZ(),back=0;int ticks;boolean crossed=false;
+            for(ticks=0;ticks<90&&!chef.isRemoved();ticks++){
+                advance(chef,1);back+=Math.max(0,previous-chef.getZ());previous=chef.getZ();
+                if(chef.getZ()>at.z+4.2&&chef.onGround()){crossed=true;break;}
+            }
+            require(crossed&&back<.8&&terrain().equals(unchanged),"existing sprint momentum crosses four-block gap without multi-block run-up; ticks="+ticks+" retreat="+back+" "+chef.brain.diagnostics());clear();remove(victim);clearCorridor();
+        }
+        void airborneApproach(){
+            var victim=cow(at.add(3,7,3));var chef=spawn(owner,victim);
+            chef.setPos(at);chef.setDeltaMovement(Vec3.ZERO);chef.setOnGround(true);
+            int first=-1,ticks;
+            for(ticks=0;ticks<180&&!chef.isRemoved()&&victim.getHealth()==20;ticks++){
+                advance(chef,1);if(first<0&&chef.actionSerial>0)first=ticks;
+            }
+            require(first>=0&&first<40&&victim.getHealth()<20,"short supported approach to airborne victim constructs promptly instead of scanning whole arena; first="+first+" ticks="+ticks+" pos="+chef.position()+" "+chef.brain.diagnostics());
+            clear();remove(victim);
+        }
         void voidRecovery(){
             var victim=cow(at.add(0,0,5));var chef=spawn(owner,victim);chef.setPos(at.x,owner.level().getMinY()-24,at.z);service.step(chef);
             require(!chef.isRemoved()&&owner.level().hasChunkAt(chef.blockPosition())&&owner.level().getBlockState(chef.blockPosition().below()).isSolidRender()&&chef.target==victim,"void Chef returns to real loaded solid surface retaining fixed victim");if(!blocks.containsKey(chef.blockPosition()))chef.setPos(at.add(0,0,-4));var pos=chef.position();advance(chef,30);require(chef.position().distanceToSqr(pos)>.01||victim.getHealth()<20,"after rescue live fixed-victim pursuit continues inside saved fixture");clear();remove(victim);
@@ -461,6 +532,7 @@ public final class ChefChecks {
         var failures=new ArrayList<String>();
         for(var test:List.of(new Case("material/ownership",Fixture::nativeMaterialAndOwnership),new Case("stasis",Fixture::infiniteHealthAndStasis),
                 new Case("sword",Fixture::directSword),new Case("shapes",Fixture::shapeTraversal),new Case("terrain",Fixture::boundedTerrain),new Case("long detour",Fixture::longDetour),new Case("long parkour",Fixture::longParkour),new Case("parkour chain",Fixture::parkourChain),new Case("stair corner",Fixture::stairCorner),new Case("diagonal building",Fixture::diagonalBuilding),new Case("rejected feedback",Fixture::rejectedSwingFeedback),
+                new Case("diagonal staircase",Fixture::diagonalStaircase),new Case("noisy ground",Fixture::noisyGround),new Case("build shortcut",Fixture::buildShortcut),new Case("pillar facing",Fixture::pillarFacing),new Case("moving takeoff",Fixture::movingTakeoff),new Case("airborne approach",Fixture::airborneApproach),
                 new Case("void",Fixture::voidRecovery),new Case("knocked void/ceiling",Fixture::knockedVoidAndLowCeiling),new Case("hunger/food",Fixture::hungerAndConsumption),new Case("fall water",Fixture::fallWater),new Case("fire water",Fixture::fireWater),new Case("guards",Fixture::guards))){
             try(var f=new Fixture(game)){f.init();test.action.accept(f);}
             catch(RuntimeException failure){failures.add(test.name+": "+failure.getMessage());}
