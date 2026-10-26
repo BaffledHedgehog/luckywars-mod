@@ -1,5 +1,29 @@
 ﻿# Next complete port source assessment — 25 October 2026
 
+## Look-directed attack knockback - QUALIFIED AND INSTALLED (26 October 2026)
+
+See [behavior and native verification](DIRECTIONAL_ATTACK_KNOCKBACK.md). Attack_knockback now contributes
+force along full native yaw/pitch, including vertical force on airborne targets;
+the attribute remains0..10. Preserve ordinary damage push, sprint/enchantment
+remainder, signed resistance, native target overrides, Greed and Time Stop.
+Native player attacker slowdown and actual PvP packet/restoration remain.
+Nonliving native extra push also directs only its attribute contribution.
+
+Build875fed3a passed32 recorded results in two fresh mode1 matches (60.94s):
+actual player/mob attacks, pitch/yaw/airborne/attribute10, signed resistance,
+real sprint/KnockbackII remainder, zero-attribute/base behavior, watched Creaking
+immunity, frozen/resumed velocity and an actual upward PvP motion packet.
+Signed attributes, armor, player rules, projectiles, Time Stop, rifle accuracy
+and actual match-stop cleanup regressions pass. Exact404 sources /1138 classes /
+3139 resources match the tested JAR; protected user edits and live overrides stay.
+
+Installer6808 installed875fed3a after normal main shutdown/world unlock,
+retaining6e648580 rollback and not restarting it. Ready artifact and immutable
+qualification/live receipt: build/verification/directional-knockback-final/ and
+build/verification/skywars2-directional-knockback-875fed3a.jar. Retain875fed3a,
+6e648580 and1265875f; old385f9f11 retired. Cumulative cleanup:320 JARs /
+11393011558 bytes. Client-rendered trajectories and peak TPS are not observed.
+
 ## Chef-label advancement - QUALIFIED AND INSTALLED (26 October 2026)
 
 See [contract and native verification](CHEF_LABEL_ADVANCEMENT.md).

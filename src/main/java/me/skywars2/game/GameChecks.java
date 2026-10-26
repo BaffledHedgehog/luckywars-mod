@@ -761,6 +761,7 @@ public final class GameChecks {
                                 case "armor-calculation" -> { ArmorCalculationChecks.run(game); return; }
                                 case "negative-mining" -> { NegativeMiningChecks.run(game); return; }
                                 case "negative-attributes" -> { NegativeAttributeChecks.run(game); return; }
+                                case "attack-knockback" -> { AttackKnockbackChecks.run(game); return; }
                                 case "team-colors" -> { TeamColorChecks.run(game); return; }
                                 case "team-colors-stop-probe" -> { TeamColorChecks.stopProbe(game); return; }
                                 case "team-colors-cleanup" -> { TeamColorChecks.cleanup(game); return; }

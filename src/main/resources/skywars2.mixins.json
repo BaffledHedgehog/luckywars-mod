@@ -14,6 +14,8 @@
     "ArenaChunkAccess",
     "CreativeBlockDropsMixin",
     "AttributeLimitsMixin",
+    "DirectionalKnockbackMixin",
+    "DirectionalKnockbackMixin$Nonliving",
     "ArmorCalculationMixin",
     "NegativeMiningMixin",
     "NegativePlayerAttackMixin",
