@@ -7,6 +7,31 @@ world/datapacks/grimoire_overrides edits during migration/build/install.
 Do not run the historical generate_extra_grimoires/check_extra_grimoires
 scripts over manual author edits; the old checker also regenerates files.
 
+## Free summon focus/spreading and native Guardian targeting - QUALIFIED AND INSTALLED (26 October2026)
+
+See [author requirement and implementation](agent_notes/SUMMON_ORDERS_PORT.md).
+All10 active summoner items support free Shift-use before mana admission/debit,
+including both hands and real entity-interaction callbacks. Own loaded combat
+summons share aimed-enemy focus without the old30-block owner restriction;
+empty aim distributes nearby enemies relative to each actor and target load.
+Native priority0 target goals preserve navigation/attacks and replace the
+Guardian's player/squid/axolotl-only target selector for managed summons.
+Native Guardian beams really damage ordinary mobs and reacquire after death.
+Cultist/bonus-Blaze directed attacks respect assignments; conversion and owner
+changes preserve or release orders correctly. The redundant old per-mob world
+query is removed. No loot/components/RP changes.
+
+Buildda260679 passed24 groups in two actual mode1 matches (51.76s).
+Exact393 sources/1112 classes/3124 resources match the tested artifact.
+Installer12032 installed it overf086522d with rollback and no restart.
+All10 item inputs and entity callbacks with negative mana, focus/occlusion/
+roles/ownership,20-soldier spreading, native200-tick Guardian focus and automatic
+reacquisition, existing cross-family regressions and actual-stop40-order/
+42-actor/three-buff cleanup pass. User files/deletions and live grimoire edits
+are unchanged. Evidence: build/verification/summon-orders-final/.
+Superseded41395417/7bcadc7c archives retired; retain da260679,f086522d,ad9c6155.
+Client pixels/audio playback and peak TPS are not directly observed.
+
 ## Ordinary tools and native Hammer + Sickle - QUALIFIED AND INSTALLED (26 October2026)
 
 See [source, behavior and evidence](agent_notes/ORDINARY_TOOLS_PORT.md).

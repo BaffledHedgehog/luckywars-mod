@@ -136,7 +136,9 @@ public final class LbcKfcRewards {
         return true;
     }
     public boolean useCultus(ServerPlayer owner) {
-        if(!mayUse(owner) || !game.items().mana().trySpend(owner,250)) return false;
+        if(!mayUse(owner))return false;
+        if(owner.isShiftKeyDown())return game.items().summons().command(owner);
+        if(!game.items().mana().trySpend(owner,250))return false;
         owner.level().sendParticles(ParticleTypes.SOUL,owner.getX(),owner.getEyeY()+2,owner.getZ(),10,.5,.2,.5,0);
         for(var player:List.copyOf(owner.level().players())) if(game.items().wands().target(owner,player))
             spawnBomb(owner,player.position().add(0,5,0),1+owner.getRandom().nextInt(6));

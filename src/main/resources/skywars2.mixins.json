@@ -129,6 +129,7 @@
     "GlyphAiMixin",
     "GlyphAiMixin$NavigationAccess",
     "GlyphAiMixin$AttributeAccess",
+    "SummonTargetAccess",
     "SyringeMobAccess$DeathLoot",
     "SyringeMobAccess$GhastPower",
     "SyringeMobAccess$CreeperRadius"

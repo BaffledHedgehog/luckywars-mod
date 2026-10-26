@@ -65,18 +65,27 @@ public final class LbcSummons {
     private java.util.concurrent.CompletableFuture<Map<String,CompoundTag>> preparation;
     private final List<StrangeRay> rays=new ArrayList<>();
     private int ticks;
+    private final LbcSummonOrders orders;
+    LbcSummonOrders orders(){return orders;}
+    boolean command(ServerPlayer owner){return orders.command(owner);}
+    public static boolean commandItem(ItemStack stack){
+        var data=LbcFartus.data(stack);
+        return LbcSummonerItems.kind(stack)!=null||stack.is(LbcWands.SUMMONER_VEXES)||stack.is(LbcWands.PSYCHOVEX)
+                ||data.getIntOr("summonervexes",0)==1||data.getIntOr("psychovex_wand",0)==1||LbcKfcRewards.isCultus(stack);
+    }
     private record Summon(UUID owner,String epoch,String kind) { }
     private static final class StrangeRay {
-        final UUID owner; final String epoch; final ServerLevel level; final Vec3 origin; final int due;
+        final UUID owner; final String epoch; final ServerLevel level; final Vec3 origin; final int due; final Mob actor;
         Vec3 direction; int step;
-        StrangeRay(UUID owner,String epoch,ServerLevel level,Vec3 origin,int due) {
-            this.owner=owner; this.epoch=epoch; this.level=level; this.origin=origin; this.due=due;
+        StrangeRay(UUID owner,String epoch,ServerLevel level,Vec3 origin,int due,Mob actor) {
+            this.owner=owner; this.epoch=epoch; this.level=level; this.origin=origin; this.due=due; this.actor=actor;
         }
     }
     private final ArrayDeque<StrangeRay> activeRays=new ArrayDeque<>();
 
     LbcSummons(GameController game,LbcMana mana) {
         this.game=game;
+        orders=new LbcSummonOrders(game,this);
         for(var kind:LbcSummonerItems.kinds())mana.score(ScoreHolder.forNameOnly(kind.cost()),"lbc.math").set(kind.price());
     }
 
@@ -142,10 +151,11 @@ public final class LbcSummons {
         var owner=owner(entity); return owner!=null && (owner==player || player.isAlliedTo(owner));
     }
     void ownerChanged(Entity entity,ServerPlayer owner) {
+        orders.changedOwner(entity);
         if(consequences.containsKey(entity)) consequences.put(entity,owner.getUUID());
         if(entity instanceof Mob mob){var state=mobs.get(mob);if(state!=null)mobs.put(mob,new Summon(owner.getUUID(),state.epoch,state.kind));}
     }
-    private boolean canAttack(Mob mob,LivingEntity target) {
+    boolean canAttack(Mob mob,LivingEntity target) {
         var owner=owner(mob);
         return valid(owner) && !paused(mob) && mob.level()==owner.level() && target(owner,target);
     }
@@ -155,7 +165,7 @@ public final class LbcSummons {
     public void inheritConversion(Entity original,Entity converted){
         if(!(original instanceof Mob source)||!(converted instanceof Mob mob))return;
         var state=mobs.remove(source);if(state==null)return;
-        mobs.put(mob,state);mob.entityTags().addAll(source.entityTags());mob.entityTags().add("skywars2.summons.actor");game.items().markCurrentItemEpoch(mob);
+        mobs.put(mob,state);orders.converted(source,mob);mob.entityTags().addAll(source.entityTags());mob.entityTags().add("skywars2.summons.actor");game.items().markCurrentItemEpoch(mob);
     }
     /** Callback общего Mob.setTarget: ванильный AI остаётся владельцем движения и ударов. */
     public void targetChanged(Mob mob,LivingEntity target) {
@@ -163,8 +173,9 @@ public final class LbcSummons {
     }
 
     public boolean use(ServerPlayer owner,InteractionHand hand,ItemStack stack,boolean psycho) {
-        if(!valid(owner) || paused(owner) || !ready() || game.items().magic().suppressedAt(owner.level(),owner.getEyePosition())) return false;
-        if(owner.isShiftKeyDown()) { anger(owner); return true; }
+        if(!valid(owner) || paused(owner) || game.items().magic().suppressedAt(owner.level(),owner.getEyePosition())) return false;
+        if(owner.isShiftKeyDown()) return command(owner);
+        if(!ready())return false;
         var mana=game.items().mana();
         int price=mana.score(ScoreHolder.forNameOnly(psycho?"psychovex_wand_mana_use":"vex_soul_mana_use"),"lbc.math").get();
         boolean down=owner.getXRot()>=85;
@@ -175,10 +186,11 @@ public final class LbcSummons {
         return castSummon(owner,psycho,down,destination);
     }
     boolean useOrdinary(ServerPlayer owner,InteractionHand hand,LbcSummonerItems.Kind kind){
-        if(!valid(owner)||paused(owner)||!ready()||game.items().actionsBlocked(owner)
+        if(!valid(owner)||paused(owner)||game.items().actionsBlocked(owner)
                 ||hand==InteractionHand.OFF_HAND&&!game.config().offhandWands
                 ||game.items().magic().suppressedAt(owner.level(),owner.getEyePosition()))return false;
-        if(owner.isShiftKeyDown()){anger(owner);return true;}
+        if(owner.isShiftKeyDown())return command(owner);
+        if(!ready())return false;
         int price=game.items().mana().score(ScoreHolder.forNameOnly(kind.cost()),"lbc.math").get();
         if(!game.items().mana().trySpendWand(owner,price))return false;
         castOrdinary(owner,kind);game.items().trinkets().summoned(owner);return true;
@@ -211,7 +223,7 @@ public final class LbcSummons {
         };
         mob.load(TagValueInput.create(ProblemReporter.DISCARDING,owner.registryAccess(),tag.copy()));
         mob.setPos(at);mob.entityTags().add("summactivated");mob.entityTags().add("skywars2.summons.actor");game.items().markCurrentItemEpoch(mob);
-        mobs.put(mob,new Summon(owner.getUUID(),game.items().epoch(),family));
+        mobs.put(mob,new Summon(owner.getUUID(),game.items().epoch(),family));orders.attach(mob);
         if(owner.getTeam()!=null)owner.level().getScoreboard().addPlayerToTeam(mob.getStringUUID(),owner.getTeam());
         if(!owner.level().addFreshEntity(mob)){remove(mob);return null;}
         if(vehicle!=null)mob.startRiding(vehicle,true,true);
@@ -257,17 +269,14 @@ public final class LbcSummons {
         };
         mob.load(TagValueInput.create(ProblemReporter.DISCARDING,owner.registryAccess(),presets.get(kind).copy()));
         mob.setPos(position); game.items().markCurrentItemEpoch(mob);
-        mobs.put(mob,new Summon(owner.getUUID(),game.items().epoch(),kind));
+        mobs.put(mob,new Summon(owner.getUUID(),game.items().epoch(),kind));orders.attach(mob);
         if(owner.getTeam()!=null) owner.level().getScoreboard().addPlayerToTeam(mob.getStringUUID(),owner.getTeam());
         if(!owner.level().addFreshEntity(mob)) { remove(mob); return null; }
         return mob;
     }
-    /** Sneak призыва назначает ближайшего врага существующим союзным призывам без фиктивного урона. */
-    private void anger(ServerPlayer owner) {
-        for(var mob:List.copyOf(mobs.keySet())) if(friendly(owner,mob) && mob.distanceToSqr(owner)<=900) {
-            if(mob instanceof net.minecraft.world.entity.monster.Guardian||mob instanceof net.minecraft.world.entity.monster.Ghast)continue;
-            var enemy=nearest(owner,mob.position(),50); if(enemy!=null) mob.setTarget(enemy);
-        }
+    LivingEntity attackTarget(Mob mob,ServerPlayer owner,Vec3 origin,double radius){
+        var selected=orders.assigned(mob);
+        return selected!=null ? selected.distanceToSqr(origin)<=radius*radius&&target(owner,selected)?selected:null : nearest(owner,origin,radius);
     }
     private List<LivingEntity> enemies(ServerPlayer owner,Vec3 position,double radius) {
         var area=new AABB(position,position).inflate(radius);
@@ -279,6 +288,7 @@ public final class LbcSummons {
     }
     public void tick() {
         ++ticks;
+        orders.tick();
         for(var entity:List.copyOf(consequences.keySet())) {
             var owner=game.server().getPlayerList().getPlayer(consequences.get(entity));
             if(entity.isRemoved()) consequences.remove(entity);
@@ -291,22 +301,20 @@ public final class LbcSummons {
                     || !game.items().currentEpoch(state.epoch)) { remove(mob); continue; }
             if(paused(mob)) { mob.setTarget(null); continue; }
             if(mob.getTarget()!=null && !canAttack(mob,mob.getTarget())) mob.setTarget(null);
-            // Ближайшая подходящая цель дополняет vanilla goals, не заменяя native навигацию.
-            if(ticks%20==0 && mob.getTarget()==null) mob.setTarget(nearest(owner,mob.position(),state.kind.equals("vex")||state.kind.startsWith("ordinary_")?200:100));
             switch(state.kind) {
                 case "obsession" -> {
                     for(var enemy:enemies(owner,mob.position(),2.5))
                         game.items().psycho().afflict(enemy,owner,0,0,mob.entityTags().contains("syringe_buffed")?15:5,0);
                 }
                 case "luck" -> {
-                    if(ticks%5==0) { var enemy=nearest(owner,mob.getEyePosition(),12);
+                    if(ticks%5==0) { var enemy=attackTarget(mob,owner,mob.getEyePosition(),12);
                         if(enemy!=null) arrow(owner,mob,mob.getEyePosition(),enemy.getEyePosition().subtract(mob.getEyePosition()),mob.entityTags().contains("syringe_buffed")?1.5:.5,2); }
                 }
                 case "hypocrisy" -> { if(ticks%40==0) mob.addEffect(new MobEffectInstance(MobEffects.INSTANT_DAMAGE,1,0)); }
                 case "chaos" -> { if(ticks%40==0 && nearest(owner,mob.position(),50)!=null) chaos(owner,mob); }
                 case "strangeness" -> {
                     if(ticks%60==0 && nearest(owner,mob.position(),20)!=null) {
-                        rays.add(new StrangeRay(state.owner,state.epoch,owner.level(),mob.position().add(0,2.5,0),ticks+20));
+                        rays.add(new StrangeRay(state.owner,state.epoch,owner.level(),mob.position().add(0,2.5,0),ticks+20,mob));
                         owner.level().sendParticles(ParticleTypes.SOUL,mob.getX(),mob.getY()+2.5,mob.getZ(),50,.2,.2,.2,0);
                         LbcOverload.sound(owner,mob.position(),"minecraft:block.beacon.activate",1.5f,2,0);
                     }
@@ -319,7 +327,7 @@ public final class LbcSummons {
             if(!valid(owner) || owner.level()!=ray.level || !game.items().currentEpoch(ray.epoch)) { rays.remove(i); continue; }
             if(ticks<ray.due || game.items().wands().timeStopped()) continue;
             rays.remove(i);
-            var enemy=nearest(owner,ray.origin,20);
+            var enemy=attackTarget(ray.actor,owner,ray.origin,20);
             if(enemy!=null) { ray.direction=enemy.getEyePosition().subtract(ray.origin).normalize(); activeRays.addLast(ray); }
         }
         // Принятые лучи выполняются порциями; число призывов и ожидающих лучей не ограничивается.
@@ -344,7 +352,7 @@ public final class LbcSummons {
                 arrow(owner,mob,mob.position().add(0,1,0),new Vec3(Math.cos(yaw)*Math.cos(pitch),Math.sin(pitch),Math.sin(yaw)*Math.cos(pitch)),2,.5);
             }
         } else if(state.kind.equals("omnipresence")) {
-            var enemy=nearest(owner,mob.position(),50);
+            var enemy=attackTarget(mob,owner,mob.position(),50);
             if(enemy==null) return;
             for(int attempt=0;attempt<24;attempt++) {
                 double x=enemy.getX()+owner.getRandom().nextDouble()*20-10,z=enemy.getZ()+owner.getRandom().nextDouble()*20-10;
@@ -386,7 +394,7 @@ public final class LbcSummons {
     }
     /** Общий исполнитель выбранной способности; случайный выбор остаётся у обычного импульса. */
     void chaosCast(ServerPlayer owner,Mob mob,int spell) {
-        var enemy=nearest(owner,mob.position(),50); if(enemy==null) return;
+        var enemy=attackTarget(mob,owner,mob.position(),50); if(enemy==null) return;
         Vec3 origin=mob.getEyePosition(),direction=enemy.getEyePosition().subtract(origin).normalize();
         chaosEffects(owner,mob,spell);
         switch(spell) {
@@ -471,14 +479,14 @@ public final class LbcSummons {
         if(entity instanceof Mob mob && mobs.containsKey(mob)) remove(mob);
         if(consequences.remove(entity)!=null && !entity.isRemoved()) entity.discard();
     }
-    private void remove(Mob mob) { mobs.remove(mob); if(!mob.isRemoved()) mob.discard(); }
+    private void remove(Mob mob) { orders.removed(mob); mobs.remove(mob); if(!mob.isRemoved()) mob.discard(); }
     public void forget(ServerPlayer player) {
         for(var mob:List.copyOf(mobs.keySet())) if(mobs.get(mob).owner.equals(player.getUUID())) remove(mob);
         rays.removeIf(ray->ray.owner.equals(player.getUUID()));
         activeRays.removeIf(ray->ray.owner.equals(player.getUUID()));
         for(var entity:List.copyOf(consequences.keySet())) if(consequences.get(entity).equals(player.getUUID())) { consequences.remove(entity); entity.discard(); }
     }
-    public void stop() { for(var mob:List.copyOf(mobs.keySet())) remove(mob); rays.clear(); activeRays.clear(); for(var entity:List.copyOf(consequences.keySet())) entity.discard(); consequences.clear(); }
+    public void stop() { orders.stop(); for(var mob:List.copyOf(mobs.keySet())) remove(mob); rays.clear(); activeRays.clear(); for(var entity:List.copyOf(consequences.keySet())) entity.discard(); consequences.clear(); }
 
     // Узкие подклассы сохраняют native тип/AI и проверяют роль до настоящего melee удара.
     private final class SoulVex extends Vex {

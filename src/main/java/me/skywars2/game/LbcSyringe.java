@@ -123,7 +123,8 @@ public final class LbcSyringe {
     }
     public void blaze(Mob mob){var b=buffs.get(mob);if(b==null||!(mob instanceof Blaze))return;
         var p=game.server().getPlayerList().getPlayer(b.owner);if(p==null||!active(p))return;
-        var target=game.items().lifetimes().loadedTargets().stream().filter(e->e.level()==mob.level()&&game.items().wands().target(p,e)
+        var target=game.items().summons().orders().assigned(mob);
+        if(target==null)target=game.items().lifetimes().loadedTargets().stream().filter(e->e.level()==mob.level()&&game.items().wands().target(p,e)
                 &&!game.items().magic().suppressedAt(p.level(),e.position())).min(Comparator.comparingDouble(mob::distanceToSqr)).orElse(null);
         if(target==null)return;var at=mob.getEyePosition();var direction=target.getEyePosition().subtract(at).normalize();
         var shot=new BonusFireball(p,mob,direction);shot.accelerationPower=.05;shot.setPos(at);shot.setDeltaMovement(direction.scale(.7));

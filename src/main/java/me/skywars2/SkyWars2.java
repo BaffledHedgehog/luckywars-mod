@@ -284,6 +284,10 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null && player instanceof ServerPlayer serverPlayer && game.isObserver(serverPlayer)) {
                 game.spectators().watch(serverPlayer, entity); return InteractionResult.SUCCESS;
             }
+            // A summon order takes priority over feeding, sitting, mounting or opening a mob UI.
+            if(game!=null && player instanceof ServerPlayer serverPlayer && player.isShiftKeyDown()
+                    && me.skywars2.game.LbcSummons.commandItem(player.getItemInHand(hand)))
+                return game.items().wands().use(serverPlayer,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if (game != null && player instanceof ServerPlayer serverPlayer
                     && game.items().academy().interact(serverPlayer, hand, entity)) return InteractionResult.SUCCESS;
             if (game != null && game.inLobby() && player instanceof ServerPlayer serverPlayer
