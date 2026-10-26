@@ -98,9 +98,10 @@ public final class BlackHoleVisuals {
         dirty=true;
     }
     private boolean valid(Handle hole) {
-        return game.items().currentEpoch(hole.epoch) && hole.owner.isAlive() && !hole.owner.isRemoved()
-                && hole.owner.level()==hole.level && game.canUseGameplayItems(hole.owner)
-                && !game.isObserver(hole.owner);
+        // Producers own gameplay lifetime and remove their handles explicitly. A UUID-based
+        // producer can survive player replacement or pause before rebinding during Time Stop.
+        // Retiring its still-live handle using the old ServerPlayer makes it invisible forever.
+        return game.items().currentEpoch(hole.epoch);
     }
     public void tick() {
         if(!game.server().tickRateManager().runsNormally()) return;
@@ -171,7 +172,7 @@ public final class BlackHoleVisuals {
         // The resource-pack shader retains a 0.2-second collapse in this slot.
         slot.availableAt=clock+TAIL;
     }
-    public void forget(ServerPlayer owner) { if(holes.removeIf(hole->hole.owner==owner)) refresh(); }
+    public void forget(ServerPlayer owner) { if(holes.removeIf(hole->hole.owner.getUUID().equals(owner.getUUID()))) refresh(); }
     public void stop() {
         holes.clear();
         for(var slots:viewers.values()) for(var slot:slots) release(slot);

@@ -1,3 +1,38 @@
+## Black-hole owner lifetime and visual replay - QUALIFIED, AUTOMATIC INSTALL QUEUED (26 October2026)
+
+[Confirmed cause, contract and evidence](agent_notes/MANUAL_VISUAL_ACK_REPAIR.md). The user confirms holes keep
+working after death while old visuals disappear; foreign Carpet player deaths
+leave the local view intact. The shared renderer independently pruned a live
+producer's handle using the stale pre-death ServerPlayer. Producers now own
+visual lifetime; renderer epoch/removal/stop guards and UUID disconnect cleanup
+remain. Late geometry updates cannot revive explicitly removed handles.
+
+Manual replay waits for the actual native client-load ACK, including direct
+and nested bundled resets; native loaded timeout alone cannot consume a reset.
+Current full spawn/metadata preserves IDs, slots, scale, age and other viewers.
+A newer reset revokes an earlier ACK; destroyed holders and duplicate ACKs are
+ignored. One INFO line reports the number of restored holders per pending ACK.
+
+Build1b68c82a passed52 recorded results in two actual mode1 matches (52.13s).
+Actual owner death/replacement retains the same hole/slot without rebinding;
+geometry updates, five original carriers, native timeout/no ACK, current/late
+metadata, direct/nested bundles, dimension ACK gates, explicit removal and UUID
+cleanup pass. Sheep/arcanum/terrain-grimoire source gameplay, nuclear/minigun,
+signed visuals, scopes/firearms/player/Time Stop and actual-stop regressions
+pass. Exact440 sources /1219 classes /3140 resources match the tested JAR.
+Tests capture native packets; physical Minecraft client pixels and real-network
+reconnect are not observed. The old same-dimension reset explanation is corrected.
+
+Installer11424 adopted this release instead of pendingcbbb82ee and waits for
+main normal shutdown/world unlock (24566, RCON off). Main disk remains1a8a3825;
+no forced stop/restart. Immutable qualification/live receipt:
+build/verification/visual-replay/. Ready artifact:
+build/verification/skywars2-visual-replay-1b68c82a.jar. Keep1b68c82a,cbbb82ee,
+1a8a3825; obsoleteff96bdee removed. Cumulative cleanup326 JARs /11628428419 bytes.
+All175 protected author paths and31 live grimoire overrides remain unchanged.
+No RP/template changes. Combined Academy Sauvojen remains next migration work;
+this turn addresses the user's continuing visual defect only.
+
 ## High-level effect terrain latency - QUALIFIED, AUTOMATIC INSTALL QUEUED (26 October2026)
 
 [Contract, user clarification and evidence](agent_notes/EFFECT_TERRAIN_LATENCY.md).

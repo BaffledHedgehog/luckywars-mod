@@ -37,6 +37,7 @@
     "SignedEnvironmentalTrialMixin",
     "SignedEnvironmentalHeroMixin",
     "ManualVisualResetMixin",
+    "ManualVisualLoadMixin",
     "GreedGuardMixin",
     "GreedGuardMixin$Players",
     "GreedGuardMixin$Collision",

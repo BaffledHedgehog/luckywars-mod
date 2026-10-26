@@ -1,3 +1,14 @@
+## Superseded lifetime and acknowledgement details (26 October2026)
+
+The user reports surviving gameplay with missing old-hole rendering. The first
+repair below did not cover the dying visual owner: renderer pruning could
+permanently unregister a live producer's handle using its stale ServerPlayer.
+Native hasClientLoaded also permits timeout-only completion; the old test
+acknowledged immediately. Same-dimension respawn does not recreate the whole
+client level. See [the corrected owner/ACK contract and evidence](MANUAL_VISUAL_ACK_REPAIR.md)
+and [exact native/Polymer source audit](VISUAL_RESET_AUDIT_2026_10_26.md).
+Historical qualification, wording and the user's original quote below remain.
+
 # Manual visual recovery after client world reset
 
 Author report (user):
