@@ -762,6 +762,7 @@ public final class GameChecks {
                                 case "negative-mining" -> { NegativeMiningChecks.run(game); return; }
                                 case "negative-attributes" -> { NegativeAttributeChecks.run(game); return; }
                                 case "attack-knockback" -> { AttackKnockbackChecks.run(game); return; }
+                                case "map-lighting" -> { MapLightingChecks.run(game); return; }
                                 case "sauvojen" -> { SauvojenChecks.run(game); return; }
                                 case "sauvojen-stop-probe" -> { SauvojenChecks.stopProbe(game); return; }
                                 case "sauvojen-cleanup" -> { SauvojenChecks.cleanup(game); return; }
@@ -1248,6 +1249,7 @@ public final class GameChecks {
 
         /** Called once per server tick after the controller tick. */
         public static void tick(GameController game) {
+            MapLightingChecks.tick(game);
             DanmakuChecks.tick(game);
             SheepChecks.tick(game);
             HedgehogChecks.tick(game);

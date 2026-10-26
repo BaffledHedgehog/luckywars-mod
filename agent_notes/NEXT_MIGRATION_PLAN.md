@@ -1,3 +1,31 @@
+## Map loading light synchronization - QUALIFIED, AUTOMATIC INSTALL QUEUED (26 October2026)
+
+[Contract and evidence](MAP_LIGHTING_FIX.md). Bulk map writes now gate
+initial chunk sends, await resident-chunk native sky/block light propagation
+without blocking the game thread, then send full light snapshots to every
+tracked viewer, including interior chunks. Keep map loading/tickets until this
+finishes. Removing/repairing the lobby overlay uses the same final refresh.
+Late writes, cancellation/shutdown, absent chunks and pending viewers retain
+native chunk behavior; no world-wide relight or remote terrain generation.
+
+Buildff96bdee passed49 recorded results in two actual mode1 matches (89.19s),
+including real light values/packet masks and nibbles across chunk borders,
+interior/excluded viewers, send gating/cancellation, normal map1/map35 and
+broken-map1 loading, fluid/weather transitions and shared gameplay/actual-stop
+regressions. Exact437 sources /1213 classes /3140 resources match the tested JAR.
+Physical client pixels, reconnect and peak TPS are not observed; F3+A behavior
+on the user's affected client remains untested.
+
+Installer11424 adopted this release in place of pendingc9e36258 and waits for
+main normal shutdown/world unlock (24566, RCON off). Main disk remains1a8a3825;
+no forced stop/restart. Immutable qualification/live receipt:
+build/verification/map-lighting/. Ready artifact:
+build/verification/skywars2-map-lighting-ff96bdee.jar. Keepff96bdee,c9e36258,1a8a3825;
+obsoleteb2c91dcf removed. Cumulative cleanup324 JARs /11549691952 bytes.
+All175 protected author paths and31 live grimoire overrides remain unchanged.
+No resource-pack/template changes. The ordinary Sauvojen port is included;
+its combined Academy continuation remains the next migration work.
+
 ## Ordinary Sauvojen - QUALIFIED, AUTOMATIC INSTALL QUEUED (26 October2026)
 
 [Contract and evidence](SAUVOJEN_PORT.md). Native ordinary combined staff exposes
