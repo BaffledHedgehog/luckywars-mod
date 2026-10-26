@@ -7,6 +7,30 @@ world/datapacks/grimoire_overrides edits during migration/build/install.
 Do not run the historical generate_extra_grimoires/check_extra_grimoires
 scripts over manual author edits; the old checker also regenerates files.
 
+## Signed effect levels - CORE VERIFIED, USER DECISIONS PENDING (26 October 2026)
+
+See [scope, pending effect IDs and limits](agent_notes/SIGNED_EFFECT_LEVELS.md). User requests full signed-int
+amplifiers, including /effect, and agreement on every effect. Forty questions
+were sent in three groups; no formula choices have been received. Constructor,
+recursive persistent codec and finite/infinite command amplifier ranges now
+retain Integer.MIN_VALUE..Integer.MAX_VALUE. Duration syntax, native precedence
+and effect-specific formulas remain unchanged. Vanilla clients still clamp
+received effect instances0..255 locally.
+
+Core candidate d7687511 passed34 results in two fresh mode1 matches (118.05s),
+with exact407 sources /1142 classes /3139 resources, including forty-effect
+codecs, real /effect execution and entity persistence, old effect-marker/combat
+regressions and actual stop cleanup. Evidence: build/verification/signed-effects-final/.
+Babylon passes alone/before the long prism fixture; the reverse-order vanilla
+lightning assertion failure remains a documented fixture-order limitation.
+
+This core-only candidate is NOT a gameplay-qualified release: int overflow,
+shift formulas and client-local behavior need the user's selections and tests.
+Do not silently install it with an unrelated port. No installer was launched;
+main remains875fed3a. Preserve current875fed3a, rollback6e648580, fallback1265875f;
+no new release archive or stale archive deletion. Author edits/live overrides
+are untouched. Current build/libs is the unreleased core candidate.
+
 ## Look-directed attack knockback - QUALIFIED AND INSTALLED (26 October 2026)
 
 See [behavior and native verification](agent_notes/DIRECTIONAL_ATTACK_KNOCKBACK.md). Attack_knockback now contributes
