@@ -1,3 +1,12 @@
+## Live grimoire rarity authoring (user) - 26 October2026
+
+The author edits the external primary-server datapack directly and applies
+changes with /reload, without mod builds. See [live paths and behavior](agent_notes/LIVE_GRIMOIRE_LOOT.md).
+The temporary EXTRA_GRIMOIRES.json is not a permanent config. Preserve live
+world/datapacks/grimoire_overrides edits during migration/build/install.
+Do not run the historical generate_extra_grimoires/check_extra_grimoires
+scripts over manual author edits; the old checker also regenerates files.
+
 ## Native ordinary summoners and corrected grimoire catalog - QUALIFIED AND INSTALLED (26 October2026)
 
 See [implementation and source verification](agent_notes/ORDINARY_SUMMONERS_PORT.md).
