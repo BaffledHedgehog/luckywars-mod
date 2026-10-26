@@ -1,3 +1,31 @@
+## Native special totems and integer enchantments - QUALIFIED AND INSTALLED (26 October 2026)
+
+See [source, author decisions and evidence](agent_notes/TOTEMS_PORT.md).
+Infinite and Devil Totems retain real vanilla death protection, hand choice,
+consumption, advancements, presentation and both complete source loot pools.
+Infinity N returns N identical consumed-stack copies with all enchantments
+(user); very large counts retain bounded counted work instead of mass allocation.
+Native hostile skeletons, WILD magic/Wither/lava and the ten-tick death debt
+retain author credit; source Greed/void exemptions and time-stop pauses pass.
+Authoritative enchantment levels/anvil/persistence support Integer.MAX_VALUE;
+vanilla-client projection retains the true numeric tooltip and server stack.
+Table/loot level generation is unchanged. No new resource-pack files are needed.
+
+Build 7da14e96 passed 26 groups in two actual mode1 matches (59.21 seconds).
+Exact 398 sources / 1127 classes / 3134 resources match the tested artifact.
+Installer 16176 installed it over 7dc0342b with rollback and no restart.
+Actual death and replacement-player respawn exposed the 26.3 listener binding
+order; the AFTER_RESPAWN callback now binds the replacement before spawn
+teleports. Following projectile, egg and ray regressions pass with that real
+replacement. Native refund tests cover both hands, above/below build height,
+levels 2/7/300/IntMax and unchanged components. Real stop cancels skeletons,
+unfinished lava, death debt and IntMax refunds. Syringe checks use an explicit
+local enemy to isolate the fireball payload from unrelated participant state.
+Protected author files/deletions and live grimoire overrides are unchanged.
+Evidence: build/verification/totems-final/. Retired oldest f086522d archive;
+retain 7da14e96, 7dc0342b and da260679. Client pixels/audio and peak TPS remain
+outside these native checks.
+
 ## Native Mortis, Death Scythe and Banhammer - QUALIFIED AND INSTALLED (26 October2026)
 
 See [source, author decisions and evidence](agent_notes/SPECIAL_TOOLS_PORT.md).

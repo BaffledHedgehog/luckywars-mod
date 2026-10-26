@@ -67,6 +67,7 @@
     "LbcInventoryTriggerMixin",
     "LbcCursorCraftingMixin",
     "LbcTotemTriggerMixin",
+    "LbcTotemContextMixin",
     "LbcEquipmentMixin",
     "LbcCraftingResultMixin",
     "LbcTinyReforgeMixin",

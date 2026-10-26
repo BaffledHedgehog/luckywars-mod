@@ -216,6 +216,7 @@ public final class LbcItems {
     private final LbcSyringe syringe;
     private final LbcCommunism communism;
     private final LbcSpecialTools specialTools;
+    private final LbcTotems totems;
     private final LbcHoming homing;
     private final LbcBolts bolts;
     private final LbcLightningAcquisition lightningAcquisition;
@@ -785,6 +786,7 @@ public final class LbcItems {
         this.syringe = new LbcSyringe(game);
         this.communism = new LbcCommunism(game);
         this.specialTools = new LbcSpecialTools(game);
+        this.totems = new LbcTotems(game);
         this.homing = new LbcHoming(game);
         this.bolts = new LbcBolts(game);
         this.lightningAcquisition = new LbcLightningAcquisition(game);
@@ -815,6 +817,7 @@ public final class LbcItems {
     public LbcSyringe syringe() { return syringe; }
     public LbcCommunism communism() { return communism; }
     public LbcSpecialTools specialTools() { return specialTools; }
+    public LbcTotems totems() { return totems; }
     public LbcHoming homing() { return homing; }
     public LbcBolts bolts() { return bolts; }
     public LbcLightningAcquisition lightningAcquisition() { return lightningAcquisition; }
@@ -998,6 +1001,7 @@ public final class LbcItems {
         homes.loaded(entity);
         lightningAcquisition.loaded(entity);
         terra.loaded(entity);
+        totems.loaded(entity);
         lifetimes.loaded(entity);
         exasperato.loaded(entity);
         exoperso.loaded(entity);
@@ -1101,6 +1105,7 @@ public final class LbcItems {
         lightningAcquisition.unloaded(entity);
         govnomet.unloaded(entity);
         academy.unloaded(entity);
+        totems.unloaded(entity);
         lifetimes.unloaded(entity);
         exasperato.unloaded(entity);
         exoperso.unloaded(entity);
@@ -1351,6 +1356,7 @@ public final class LbcItems {
 
     /** Native used_totem runs before vanilla death-protection effects clear all potions. */
     public void usedTotem(ServerPlayer player, ItemStack used) {
+        totems.used(player,used);
         var data = used.get(DataComponents.CUSTOM_DATA);
         if (data == null || !data.matchedBy(BROKEN_TOTEM) || !active(player)) return;
         screamer(player,null);
@@ -1559,6 +1565,7 @@ public final class LbcItems {
         shooters.tick();
         vexSword.tick();
         specialTools.tick();
+        totems.tick();
         laserMinigun.tick();
         magnum.tick();
         govnomet.tick();
@@ -1642,7 +1649,7 @@ public final class LbcItems {
         return curse == null ? 0 : curse.remaining;
     }
 
-    public void clear(ServerPlayer player) { specialTools.clear(player); halloweenWind.purify(player); soulhunter.purify(player); soulless.purify(player); fartus.purify(player); babylonEffects.clear(player); acidCorruption.clear(player); erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
+    public void clear(ServerPlayer player) { specialTools.clear(player); totems.clear(player); halloweenWind.purify(player); soulhunter.purify(player); soulless.purify(player); fartus.purify(player); babylonEffects.clear(player); acidCorruption.clear(player); erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
     public void forget(ServerPlayer player) {
         corruptedGlyphs.forget(player);
         iceWand.forget(player);
@@ -1687,6 +1694,7 @@ public final class LbcItems {
         laserMinigun.forget(player);
         ak47.forget(player);
         vexSword.forget(player);
+        totems.clear(player);
         magnum.forget(player);
         rifleZoom.forget(player);
         govnomet.forget(player);
@@ -1743,6 +1751,7 @@ public final class LbcItems {
         syringe.stop();
         communism.stop();
         specialTools.stop();
+        totems.stop();
         summons.stop();
         homing.stop();
         libraryRandom.stop();

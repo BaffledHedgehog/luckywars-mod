@@ -128,6 +128,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null) game.leave(player);
         });
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, player, alive) -> {
+            // 26.3 assigns the listener after PlayerList.respawn returns; callbacks teleport now.
+            player.connection.player = player;
             // При респауне объект игрока заменяется, а UUID остаётся: старый доступ камеры не переносится.
             FullInvisibility.cameraChanging(oldPlayer, null);
             if (game != null) game.respawned(player);

@@ -1005,6 +1005,9 @@ public final class GameChecks {
                                 case "summon-orders" -> { SummonOrderChecks.run(game); return; }
                                 case "summon-orders-stop-probe" -> { SummonOrderChecks.stopProbe(game); return; }
                                 case "summon-orders-cleanup" -> { SummonOrderChecks.cleanup(game); return; }
+                                case "totems" -> { TotemChecks.run(game); return; }
+                                case "totems-stop-probe" -> { TotemChecks.stopProbe(game); return; }
+                                case "totems-cleanup" -> { TotemChecks.cleanup(game); return; }
                                 case "special-tools" -> { SpecialToolChecks.run(game); return; }
                                 case "special-tools-stop-probe" -> { SpecialToolChecks.stopProbe(game); return; }
                                 case "special-tools-cleanup" -> { SpecialToolChecks.cleanup(game); return; }
@@ -7666,7 +7669,7 @@ public final class GameChecks {
                                 spawned.add(splash); splash.setPos(1.5,241,56.5); ally.setHealth(10);
                                 splash.onHitAsPotion(level,potion,new net.minecraft.world.phys.EntityHitResult(ally));
                                 if(harmful) require(!ally.hasEffect(MobEffects.POISON) && friend.hasEffect(MobEffects.POISON)
-                                        && owner.hasEffect(MobEffects.POISON),"Actual native poison splash protects allied players, affects friendly mobs and preserves self application");
+                                        && owner.hasEffect(MobEffects.POISON),"Actual native poison splash protects allied players, affects friendly mobs and preserves self application; owner="+owner.hasEffect(MobEffects.POISON)+" friend="+friend.hasEffect(MobEffects.POISON)+" ally="+ally.hasEffect(MobEffects.POISON)+" ownerBox="+owner.getBoundingBox()+" friendBox="+friend.getBoundingBox()+" ownerRole="+wands.validTarget(owner)+" removed="+owner.isRemoved());
                                 else {
                                         require(ally.hasEffect(MobEffects.REGENERATION),"Actual beneficial native splash still applies regeneration to an allied player");
                                         ally.doTick(); require(ally.getHealth()>10,"Accepted beneficial native splash regeneration actually heals the allied player");
@@ -32124,7 +32127,7 @@ public final class GameChecks {
                                         new ItemStack(LbcWands.TINY_TELEPORT));
                         require(game.items().wands().use(owner, net.minecraft.world.InteractionHand.MAIN_HAND)
                                         && levitated.hasEffect(net.minecraft.world.effect.MobEffects.LEVITATION),
-                                        "Native Tiny Teleport cast accepts levitation on a LivingEntity mob");
+                                        "Native Tiny Teleport cast accepts levitation on a LivingEntity mob; eye="+owner.getEyePosition()+" target="+levitated.position()+" box="+levitated.getBoundingBox()+" mana="+mana.get(owner)+" shift="+owner.isShiftKeyDown());
                         levitated.removeEffect(net.minecraft.world.effect.MobEffects.LEVITATION);
                         levitated.setNoGravity(true); levitated.setOnGround(false);
                         for (int tick = 0; tick < 105; tick++) manager.tick();

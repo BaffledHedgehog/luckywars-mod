@@ -31,6 +31,8 @@
     "lbc:transformables_shovel_all",
     "lbc:transformables_hoe_all",
     "lbc:transformables_axe_all",
+    "lbc:infinite_totem",
+    "lbc:transformables_totem",
     "lbc:death_loot",
     "lbc:halloween/transformables_shovel",
     "lbc:halloween/soulhunter_mace"

@@ -109,6 +109,15 @@ public final class LbcIndirectKills {
     private Owner owner(ServerPlayer player) { return owner(player,false); }
     private Owner owner(ServerPlayer player,boolean friendlyFire) { return new Owner(player.getUUID(),++order,friendlyFire,false); }
 
+    /** WILD totem Wither keeps its author and allegiance policy through real effect ticks. */
+    void wildEffect(LivingEntity target,MobEffectInstance effect,Owner cause){
+        var player=cause==null?null:game.server().getPlayerList().getPlayer(cause.player);
+        if(target.addEffect(effect,player)&&cause!=null){
+            var active=target.getEffect(effect.getEffect());
+            if(active!=null)statuses.computeIfAbsent(target,ignored->new HashMap<>()).put(effect.getEffect(),new Status(cause,active));
+        }
+    }
+
     /** Deferred Frost processing retains the original impact's order, rather than becoming a new hit. */
     Owner wildCause(ServerPlayer player){return owner(player,true);}
     /** The original cause travels with Time Stop's saved DamageSource; later accepted hits can supersede it. */
@@ -154,6 +163,7 @@ public final class LbcIndirectKills {
         var game=me.skywars2.SkyWars2.game();
         if(game==null) return null;
         if(game.items().wtf().owner(source) instanceof ServerPlayer player) return player;
+        var totemOwner=game.items().totems().owner(source);if(totemOwner!=null)return totemOwner;
         if(game.items().soulless().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().danmaku().owner(source) instanceof ServerPlayer player) return player;
         if(game.items().sheep().owner(source) instanceof ServerPlayer player) return player;
@@ -237,7 +247,7 @@ public final class LbcIndirectKills {
             effectRemoved(target,effect);
             if(player!=null && player!=target) statuses.computeIfAbsent(target,ignored->new HashMap<>())
                     .put(effect.getEffect(),new Status(effect.is(MobEffects.CONDUIT_POWER)?
-                            new Owner(player.getUUID(),++order,false,true):owner(player),effect));
+                            new Owner(player.getUUID(),++order,false,true):owner(player,LbcTotems.managed(source)),effect));
         }
         if(effect.is(MobEffects.RAID_OMEN) && effect.getAmplifier()==20) {
             pendingMana.remove(target);
@@ -596,7 +606,7 @@ public final class LbcIndirectKills {
         var player=playerSource(source.getEntity());
         if(player==null && source.getEntity()==null)player=playerSource(source.getDirectEntity());
         if(player!=null && player!=target) {
-            displaced(target,player,source instanceof LbcVoidArcanum.WildDamage);
+            displaced(target,player,source instanceof LbcVoidArcanum.WildDamage || LbcTotems.managed(source.getEntity()));
         }
     }
     /** Перемещение жезлом без прямого урона также может окончиться падением; более поздний удар перебьёт автора. */

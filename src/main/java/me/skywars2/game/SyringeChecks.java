@@ -65,10 +65,12 @@ public final class SyringeChecks {
         f.base.owner.getInventory().clearContent();service.refresh();require(ghast.getExplosionPower()==2&&((SyringeMobAccess.CreeperRadius)creeper).skywars2$syringeRadius()==4,"exact explosion field rollback");
         reset(f);var blaze=spawn(f,new Blaze(EntityTypes.BLAZE,f.level),1,true);equip(f,InteractionHand.MAIN_HAND);
         f.beta.teleportTo(f.level,f.at.x+20,f.at.y,f.at.z,Set.of(),0,0,true);f.beta.setNoGravity(true);
+        // An explicit local enemy makes this emission independent of the other participant state.
+        spawn(f,new net.minecraft.world.entity.animal.cow.Cow(EntityTypes.COW,f.level),8,false);
         // Equip refresh legitimately has its own10% automatic shot; isolate the explicit emission.
         var beforeShot=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());f.level.getAllEntities().forEach(beforeShot::add);
         service.blaze(blaze);var shots=new ArrayList<LargeFireball>();for(var e:f.level.getAllEntities())if(!beforeShot.contains(e)&&e instanceof LargeFireball shot&&!shot.isRemoved())shots.add(shot);
-        require(shots.size()==1&&shots.getFirst().getOwner()==f.base.owner,"one owned native bonus large fireball");
+        require(shots.size()==1&&shots.getFirst().getOwner()==f.base.owner,"one owned native bonus large fireball; count="+shots.size()+" buffed="+service.buffed(blaze)+" visible="+f.base.mana.visible(f.base.owner)+" ownerAlive="+f.base.owner.isAlive());
         var fireData=net.minecraft.world.level.storage.TagValueOutput.createWithContext(net.minecraft.util.ProblemReporter.DISCARDING,f.level.registryAccess());shots.getFirst().saveWithoutId(fireData);
         require(fireData.buildResult().getByteOr("ExplosionPower",(byte)0)==2,"source native fireball explosion power");near(shots.getFirst().accelerationPower,.05,"source fireball acceleration");near(shots.getFirst().getDeltaMovement().length(),.7,"source initial velocity");
         for(int tick=0;tick<3;tick++)f.level.tickNonPassenger(shots.getFirst());require(!shots.getFirst().isRemoved()&&shots.getFirst().getX()>blaze.getX()+1,"native bonus fireball leaves its launch mob without self-impact");

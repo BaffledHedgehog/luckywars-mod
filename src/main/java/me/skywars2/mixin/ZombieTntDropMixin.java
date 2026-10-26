@@ -19,7 +19,8 @@ public abstract class ZombieTntDropMixin {
     @Inject(method="canAttack", at=@At("HEAD"), cancellable=true)
     private void skywars2$trapTarget(LivingEntity target, CallbackInfoReturnable<Boolean> ci) {
         var game=SkyWars2.game();
-        if(game!=null && (!game.items().zombieTntDrops().canTarget((Entity)(Object)this,target)
+        if(game!=null && (!game.items().totems().canAffect((Entity)(Object)this,target)
+                || !game.items().zombieTntDrops().canTarget((Entity)(Object)this,target)
                 || !game.items().luckyPigs().canTarget((Entity)(Object)this,target)
                 || !game.items().beeDrops().canTarget((Entity)(Object)this,target)
                 || !game.items().slabDrops().canTarget((Entity)(Object)this,target)
@@ -31,7 +32,8 @@ public abstract class ZombieTntDropMixin {
     @Inject(method="setTarget", at=@At("HEAD"), cancellable=true)
     private void skywars2$trapSetTarget(LivingEntity target, CallbackInfo ci) {
         var game=SkyWars2.game();
-        if(game!=null && (!game.items().zombieTntDrops().canTarget((Entity)(Object)this,target)
+        if(game!=null && (!game.items().totems().canAffect((Entity)(Object)this,target)
+                || !game.items().zombieTntDrops().canTarget((Entity)(Object)this,target)
                 || !game.items().luckyPigs().canTarget((Entity)(Object)this,target)
                 || !game.items().beeDrops().canTarget((Entity)(Object)this,target)
                 || !game.items().slabDrops().canTarget((Entity)(Object)this,target)
@@ -43,7 +45,8 @@ public abstract class ZombieTntDropMixin {
     @Inject(method="doHurtTarget", at=@At("HEAD"), cancellable=true)
     private void skywars2$trapMelee(ServerLevel level, Entity target, CallbackInfoReturnable<Boolean> ci) {
         var game=SkyWars2.game();
-        if(game!=null && (!game.items().summons().canMelee((Entity)(Object)this,target)
+        if(game!=null && (!game.items().totems().canAffect((Entity)(Object)this,target)
+                || !game.items().summons().canMelee((Entity)(Object)this,target)
                 || !game.items().zombieTntDrops().canMelee((Entity)(Object)this,target)
                 || !game.items().luckyPigs().canAffect((Entity)(Object)this,target)
                 || !game.items().slabDrops().canAffect((Entity)(Object)this,target)
