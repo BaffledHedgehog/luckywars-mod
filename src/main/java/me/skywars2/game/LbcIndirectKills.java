@@ -134,6 +134,8 @@ public final class LbcIndirectKills {
     /** Нативное зелье передаёт source как игрока, снаряд или облако — разворачиваем владельца. */
     public static ServerPlayer playerSource(Entity source) {
         var original=source;
+        var controller=me.skywars2.SkyWars2.game();
+        if(controller!=null && controller.items().communism().owner(source) instanceof ServerPlayer player)return player;
         var game=me.skywars2.SkyWars2.game();
         if(game!=null && game.items().cageDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().clouds().sourceAcidOwner(source) instanceof ServerPlayer player) return player;

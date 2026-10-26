@@ -16,6 +16,7 @@ import net.minecraft.world.level.Level;
 public final class LbcCraftingRecipe extends CustomRecipe {
     public enum Kind {
         ROCKET("rocket_boots_transfer",null),
+        COMMUNISM("communism_combine","communism"),
         TINY_REFORGE("tiny_reforge",null),
         REROLL_MACHINE("reroll_machine",null),
         TERRA("terra_combine","terra_wand"),
@@ -115,6 +116,11 @@ public final class LbcCraftingRecipe extends CustomRecipe {
     /** Общее распознавание семейств: ровно два занятых слота, без расхода и случайности в preview. */
     public static Kind craftingKind(CraftingInput input) {
         if(input.ingredientCount()!=2) return LbcRerollCrafting.matches(input) ? Kind.REROLL_MACHINE : null;
+        int hammer=0,sickle=0;
+        for(var stack:input.items())if(!stack.isEmpty()){
+            var data=LbcFartus.data(stack);if(data.getIntOr("socializm",0)==1){if(data.getIntOr("hammer",0)==1)hammer++;else if(data.getIntOr("sickle",0)==1)sickle++;}
+        }
+        if(hammer==1&&sickle==1)return Kind.COMMUNISM;
         int soulMace=0,soulWand=0;
         for(var stack:input.items())if(!stack.isEmpty()){
             if(LbcHalloweenWind.isMace(stack))soulMace++;
@@ -364,6 +370,10 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         game.items().rocketCraftTaken(player,input);
         var kind=craftingKind(input);
         if(kind==null) return;
+        if(kind==Kind.COMMUNISM){
+            player.level().sendParticles(net.minecraft.core.particles.ParticleTypes.FIREWORK,player.getX(),player.getY(),player.getZ(),300,0,0,0,1);
+            LbcOverload.sound(player,player.position(),"minecraft:entity.player.levelup",1,0,0);return;
+        }
         if(kind==Kind.FARTUS){game.items().wtf().crafted(player);return;}
         if(kind==Kind.SOULHUNTER){game.items().soulhunter().crafted(player);return;}
         if(neutralCriterion(kind)!=null){

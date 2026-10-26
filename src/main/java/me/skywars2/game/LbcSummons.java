@@ -128,6 +128,7 @@ public final class LbcSummons {
                 && !target.entityTags().contains("nomagic_active");
     }
     ServerPlayer owner(Entity entity) {
+        var subdued=game.items().communism().owner(entity);if(subdued!=null)return subdued;
         if(LbcWtf.owner(entity) instanceof ServerPlayer chefOwner)return chefOwner;
         var consequence=consequences.get(entity);
         if(consequence!=null) return game.items().currentEpoch(entity)?game.server().getPlayerList().getPlayer(consequence):null;
@@ -142,6 +143,7 @@ public final class LbcSummons {
     }
     void ownerChanged(Entity entity,ServerPlayer owner) {
         if(consequences.containsKey(entity)) consequences.put(entity,owner.getUUID());
+        if(entity instanceof Mob mob){var state=mobs.get(mob);if(state!=null)mobs.put(mob,new Summon(owner.getUUID(),state.epoch,state.kind));}
     }
     private boolean canAttack(Mob mob,LivingEntity target) {
         var owner=owner(mob);

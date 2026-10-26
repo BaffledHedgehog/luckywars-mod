@@ -104,6 +104,15 @@ processResources {
     include 'data/lbc/loot_table/ported/stonekivi_comet_grimoire.json'
     include 'skywars2/ordinary_summoners.json', 'data/lbc/loot_table/ported/summoner_*.json'
     include 'skywars2/syringe.json', 'data/lbc/loot_table/ported/siggewinne_syringe.json'
+    include 'data/lbc/loot_table/ported/random_enchanted_axe.json',
+            'data/lbc/loot_table/ported/tomahawk.json',
+            'data/lbc/loot_table/ported/poleaxe.json',
+            'data/lbc/loot_table/ported/hammer.json',
+            'data/lbc/loot_table/ported/op_hoe.json',
+            'data/lbc/loot_table/ported/sickle.json',
+            'data/lbc/loot_table/ported/random_enchanted_pickaxe.json',
+            'data/lbc/loot_table/ported/silk_pickaxe.json',
+            'data/lbc/loot_table/ported/communism.json'
     include 'data/lbc/loot_table/ported/academy_acid_wand.json'
     include 'data/lbc/loot_table/ported/academy_soulcorruption_wand.json', 'data/lbc/loot_table/ported/soulcorruption_wand.json', 'data/lbc/loot_table/ported/soulhunter_mace.json', 'data/lbc/loot_table/metasola.json', 'data/skywars2/recipe/soulhunter_combine.json', 'data/lbc/loot_table/ported/metasola_1.json', 'data/lbc/loot_table/ported/metasola_2.json', 'data/lbc/loot_table/ported/metasola_3.json', 'data/lbc/loot_table/ported/metasola_4.json', 'data/lbc/loot_table/ported/metasola_5.json', 'data/lbc/loot_table/ported/metasola_6.json', 'data/lbc/structure/light_sphere_21x21.nbt'
     include 'data/lbc/loot_table/ported/vex_wind_wand.json', 'data/lbc/loot_table/ported/academy_vex_wind_wand.json', 'data/lbc/loot_table/ported/halloween_mace.json', 'data/lbc/structure/air_sphere_11x11x11.nbt'

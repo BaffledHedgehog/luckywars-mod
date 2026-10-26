@@ -22,6 +22,10 @@
     "lbc:transformables_summons",
     "lbc:transformables_summons_all",
     "lbc:siggewinne_syringe",
-    "lbc:tuntijaa_blind_vex"
+    "lbc:tuntijaa_blind_vex",
+    "lbc:transformables_axe",
+    "lbc:transformables_hoe",
+    "lbc:transformables_pickaxe",
+    "lbc:op_hoe"
   ]
 }

@@ -1002,6 +1002,7 @@ public final class GameChecks {
                                 case "exahoming-menu" -> checkExahomingMenu(game);
                                 case "exahoming-crafting" -> checkExahomingCrafting(game);
                                 case "summons-menu" -> checkSummonsMenu(game);
+                                case "ordinary-tools" -> { OrdinaryToolChecks.run(game); return; }
                                 case "syringe" -> { SyringeChecks.run(game); return; }
                                 case "syringe-stop-probe" -> { SyringeChecks.stopProbe(game); return; }
                                 case "syringe-cleanup" -> { SyringeChecks.cleanup(game); return; }

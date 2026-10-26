@@ -7,6 +7,27 @@ world/datapacks/grimoire_overrides edits during migration/build/install.
 Do not run the historical generate_extra_grimoires/check_extra_grimoires
 scripts over manual author edits; the old checker also regenerates files.
 
+## Ordinary tools and native Hammer + Sickle - QUALIFIED AND INSTALLED (26 October2026)
+
+See [source, behavior and evidence](agent_notes/ORDINARY_TOOLS_PORT.md).
+Eight source axe/hoe/pickaxe outcomes retain real vanilla mining tools,
+attributes, enchantments and exact presentation. Three ordinary weighted pools
+are now ready in /loot; expanded pools remain gated. Native2x2/3x3 Hammer +
+Sickle crafting produces the reusable Communism ray: original201 immediate
+one-block samples, source airs tag/hand origins, mob-only allegiance, shared
+summon/cultist owner transfer and future projectile credit. No new RP assets.
+A syringe fixture now isolates the explicit Blaze shot from its legitimate
+random equip-time shot; gameplay probabilities are unchanged.
+
+Buildad9c6155 passed24 groups in two actual mode1 matches (56.51s).
+Exact390 sources/1107 classes/3124 resources verified; installer22752 installed
+it over7bcadc7c with rollback and no restart. Native loot/menus, both hands,
+beam/plants/terrain, role/Greed guards, cultist AI and future arrows, prior
+summon/Syringe/KFC/creeper/egg regressions and actual-stop cleanup pass.
+Protected user files/deletions and live grimoire override pack are unchanged.
+Evidence: build/verification/tools-final/. Oldest081a2f7a archive retired;
+retain ad9c6155,7bcadc7c,41395417. Client pixels/audio and peak TPS unobserved.
+
 ## Siggewinne Syringe and complete expanded summon acquisition - QUALIFIED AND INSTALLED (26 October2026)
 
 See [source, behavior and evidence](agent_notes/SYRINGE_PORT.md). Native passive syringe selects up to

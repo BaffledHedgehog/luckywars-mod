@@ -65,7 +65,9 @@ public final class SyringeChecks {
         f.base.owner.getInventory().clearContent();service.refresh();require(ghast.getExplosionPower()==2&&((SyringeMobAccess.CreeperRadius)creeper).skywars2$syringeRadius()==4,"exact explosion field rollback");
         reset(f);var blaze=spawn(f,new Blaze(EntityTypes.BLAZE,f.level),1,true);equip(f,InteractionHand.MAIN_HAND);
         f.beta.teleportTo(f.level,f.at.x+20,f.at.y,f.at.z,Set.of(),0,0,true);f.beta.setNoGravity(true);
-        service.blaze(blaze);var shots=new ArrayList<LargeFireball>();for(var e:f.level.getAllEntities())if(!f.base.before.contains(e)&&e instanceof LargeFireball shot&&!shot.isRemoved())shots.add(shot);
+        // Equip refresh legitimately has its own10% automatic shot; isolate the explicit emission.
+        var beforeShot=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());f.level.getAllEntities().forEach(beforeShot::add);
+        service.blaze(blaze);var shots=new ArrayList<LargeFireball>();for(var e:f.level.getAllEntities())if(!beforeShot.contains(e)&&e instanceof LargeFireball shot&&!shot.isRemoved())shots.add(shot);
         require(shots.size()==1&&shots.getFirst().getOwner()==f.base.owner,"one owned native bonus large fireball");
         var fireData=net.minecraft.world.level.storage.TagValueOutput.createWithContext(net.minecraft.util.ProblemReporter.DISCARDING,f.level.registryAccess());shots.getFirst().saveWithoutId(fireData);
         require(fireData.buildResult().getByteOr("ExplosionPower",(byte)0)==2,"source native fireball explosion power");near(shots.getFirst().accelerationPower,.05,"source fireball acceleration");near(shots.getFirst().getDeltaMovement().length(),.7,"source initial velocity");

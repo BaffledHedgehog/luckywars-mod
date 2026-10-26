@@ -60,6 +60,7 @@ public abstract class ZombieTntDropMixin {
         if(game!=null) {
             game.items().summons().inheritConversion((Entity)(Object)this,converted);
             game.items().syringe().converted((Entity)(Object)this,converted);
+            game.items().communism().converted((Entity)(Object)this,converted);
             game.items().zombieTntDrops().inheritConversion((Entity)(Object)this,converted);
             game.items().luckyPigs().inheritConversion((Entity)(Object)this,converted);
             game.items().slabDrops().inheritConversion((Entity)(Object)this,converted);
