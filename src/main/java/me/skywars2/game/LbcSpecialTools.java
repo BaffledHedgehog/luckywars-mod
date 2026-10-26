@@ -4,6 +4,7 @@ import eu.pb4.polymer.core.api.item.SimplePolymerItem;
 import me.skywars2.SkyWars2;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -32,6 +33,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
 import java.util.*;
 
 /** Real Mortis melee victims and the charged, immediate Death Scythe ray. */
@@ -197,10 +199,10 @@ public final class LbcSpecialTools {
         hammers.add(new Hammer(p,hit));game.items().wands().wandCasted(p);return true;
     }
     final class Hammer {
-        final ServerPlayer author;final ServerLevel level;final String epoch;final Vec3 impact;
+        final ServerPlayer author;final ServerLevel level;final String epoch;
         final eu.pb4.polymer.virtualentity.api.ElementHolder holder=new eu.pb4.polymer.virtualentity.api.ElementHolder();
         final eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement display;
-        Vec3 point;int age;boolean impacted;
+        Vec3 point,impact;int age;boolean impacted;
         Hammer(ServerPlayer p,Vec3 at){author=p;level=p.level();epoch=game.items().epoch();impact=new Vec3(at.x,Math.floor(at.y),at.z);point=impact.add(0,200,0);
             var stack=new ItemStack(Items.CARROT_ON_A_STICK);stack.set(DataComponents.ITEM_MODEL,Identifier.parse("lbc:banhammer3d"));
             display=new eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement(stack);display.setItemDisplayContext(net.minecraft.world.item.ItemDisplayContext.NONE);
@@ -212,23 +214,58 @@ public final class LbcSpecialTools {
             for(var p:players)if(p.level()==level&&p.position().distanceToSqr(point)<=409600)holder.startWatching(p);
         }
         void destroy(){holder.destroy();hammers.remove(this);}
+        // The authored NONE-context model is centered at (8,8,8), then scaled4:
+        // its head occupies x[-2,2], y[-2,-.25], z[-1,1] relative to the display.
+        AABB head(){return new AABB(point.x-2,point.y-2,point.z-1,point.x+2,point.y-.25,point.z+1);}
+        boolean residentColumn(){
+            var bounds=head();
+            for(int x=net.minecraft.util.Mth.floor(bounds.minX)>>4;x<=net.minecraft.util.Mth.floor(Math.nextDown(bounds.maxX))>>4;x++)
+                for(int z=net.minecraft.util.Mth.floor(bounds.minZ)>>4;z<=net.minecraft.util.Mth.floor(Math.nextDown(bounds.maxZ))>>4;z++)
+                    if(level.getChunkSource().getChunkNow(x,z)==null)return false;
+            return true;
+        }
+        void fall(){
+            var bounds=head();
+            // Sweep the entire two-block step, including thin/partial blocks and the head's
+            // edges. A tiny extension detects contact exactly at the step endpoint too.
+            double requested=-2.000001;
+            double dy=Shapes.collide(Direction.Axis.Y,bounds,level.getBlockCollisions(null,bounds.expandTowards(0,requested,0)),requested);
+            point=point.add(0,Math.max(-2,dy),0);
+            if(dy>requested+1e-8){impact=point.add(0,-2,0);impact(this);}
+        }
     }
     boolean immuneToHammer(ServerPlayer p){return LbcGreed.active(p)||game.config().lbcSkills&&game.players().get(p.getUUID()).lbcSkill==12;}
-    /** One native disconnect per affected player; the source's client-hanging particle flood is deliberately gone. */
+    /** WILD ban: disconnect players and discard mobs without death loot. Never spam client-hanging particles. */
     void impact(Hammer hammer){
         if(hammer.impacted)return;hammer.impacted=true;
         var targets=hammer.level.players().stream().filter(p->p.position().distanceToSqr(hammer.impact)<=30.25&&game.items().wands().validRoleTarget(p,false)).toList();
         if(!targets.isEmpty()&&game.server().getPlayerList().getPlayer(hammer.author.getUUID())==hammer.author)
             game.items().mana().award(hammer.author,"lbc:true_advancements/axes/banhammer");
-        for(var p:targets)if(!immuneToHammer(p))p.connection.disconnect(Component.translatable("skywars2.banhammer.kick"));
+        for(var p:targets)if(!immuneToHammer(p))kick(p);
+        var area=new AABB(hammer.impact,hammer.impact).inflate(5.5);
+        for(var mob:hammer.level.getEntitiesOfClass(LivingEntity.class,area,e->!(e instanceof ServerPlayer)
+                &&e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().validTarget(e)
+                &&e.position().distanceToSqr(hammer.impact)<=30.25))mob.discard();
         hammer.level.sendParticles(ParticleTypes.EXPLOSION,hammer.impact.x,hammer.impact.y,hammer.impact.z,1000,5,.5,5,0);
         hammer.level.sendParticles(net.minecraft.core.particles.ColorParticleOption.create(ParticleTypes.FLASH,0xffff1919),hammer.impact.x,hammer.impact.y,hammer.impact.z,1000,1,1,1,0);
     }
+    private void kick(ServerPlayer player){
+        var reason=Component.translatable("skywars2.banhammer.kick");
+        // Carpet's socketless connection drops disconnect packets and never invokes the
+        // native cleanup callback. Its own API shakes off riders and schedules that callback.
+        if(player.getClass().getName().equals("carpet.patches.EntityPlayerMPFake")){
+            try{player.getClass().getMethod("kill",Component.class).invoke(player,reason);}
+            catch(ReflectiveOperationException failure){
+                SkyWars2.LOGGER.warn("Carpet Banhammer removal API failed; using native disconnect cleanup",failure);
+                player.connection.onDisconnect(new net.minecraft.network.DisconnectionDetails(reason));
+            }
+        }else player.connection.disconnect(reason);
+    }
     void tick(){for(var h:List.copyOf(hammers)){
         if(!game.items().currentEpoch(h.epoch)||!game.playing()||game.stage()==GameController.Stage.ENDING){h.destroy();continue;}
-        h.viewers();if(game.items().timeStop().stopped(h.level)||!resident(h.level,BlockPos.containing(h.impact)))continue;
-        if(h.age<100)h.point=h.impact.add(0,200-2*(h.age+1),0);
-        if(++h.age==100)impact(h);h.holder.tick();if(h.age>=200)h.destroy();
+        h.viewers();if(game.items().timeStop().stopped(h.level)||!h.residentColumn())continue;
+        if(!h.impacted)h.fall();
+        h.age++;h.holder.tick();if(h.age>=200||h.head().maxY<h.level.getMinY())h.destroy();
     }}
     Component hud(ServerPlayer p){
         var hud=Component.empty();

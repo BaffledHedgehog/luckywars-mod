@@ -1,3 +1,35 @@
+## Banhammer collision and bans - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
+
+[Contract, exact model/Carpet audit and evidence](BANHAMMER_COLLISION_FIX.md). Banhammer now sweeps
+its actual scale4 head against native block collision shapes through each2-block
+step. It stops on the first surface, including slabs/thin blocks and head edges;
+the centered model bottom remains on that surface, pivot2 blocks higher. Impact
+uses the actual contact and never repeats. Resident footprint guards avoid
+terrain loads; Time Stop and match-stop/epoch/age200 cleanup remain authoritative.
+
+WILD impact discards eligible mobs in radius5.5 without damage, death loot/XP or
+kill rewards. Greed/technical-role/radius guards remain. Normal player disconnect,
+self/allies, skill12 and reason remain; real Carpet fake players use their own
+kill(Component) API to schedule native removal instead of sending to a no-op
+fake socket. No client-hanging legacy particle flood is restored.
+
+Buildcc460bf8 passed28 recorded results in two actual mode1 matches (54.76s),
+including actual Carpet list/world removal, no-drop invulnerable/allied mobs,
+first full/slab/thin/elevated/edge contact, model bottom/unchanging landed pose,
+normal disconnect packets, source weapons/charge/expiry, shared player/projectile
+and summon rules, Time Stop, previous visual-owner respawn repair and actual-stop
+cleanup. Exact441 sources /1220 classes /3140 resources match the tested JAR.
+Native geometry and packets are tested; physical client pixels/audio are not.
+
+Installer11424 adopted this release instead of pending1b68c82a and waits for
+main normal shutdown/world unlock (24566, RCON off). Main disk remains1a8a3825;
+no forced stop/restart. Immutable evidence/live receipt:build/verification/banhammer/.
+Ready:build/verification/skywars2-banhammer-cc460bf8.jar. Keepcc460bf8,1b68c82a,
+1a8a3825; obsoletecbbb82ee removed. Cumulative cleanup327 JARs /11667821568 bytes.
+All175 protected author paths and31 live grimoire overrides remain unchanged.
+No RP/template update needed. Combined Academy Sauvojen remains next migration
+work; this turn implements the user's Banhammer corrections only.
+
 ## Black-hole owner lifetime and visual replay - QUALIFIED, AUTOMATIC INSTALL QUEUED (26 October2026)
 
 [Confirmed cause, contract and evidence](MANUAL_VISUAL_ACK_REPAIR.md). The user confirms holes keep

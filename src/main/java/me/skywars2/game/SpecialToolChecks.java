@@ -123,13 +123,16 @@ public final class SpecialToolChecks {
             f.level.setBlock(BlockPos.containing(p.getEyePosition().add(p.getLookAngle().scale(3))),Blocks.STONE.defaultBlockState(),2|16|32);
             require(f.base.input(InteractionHand.MAIN_HAND)&&service.hammerCount()==1&&mana.get(p)==-10000&&mana.hudValue(p,"swordcharged7")==0,"actual hammer cast, one charge and no mana gate");
             var h=service.hammerSnapshot().getFirst();require(h.point.subtract(h.impact).equals(new Vec3(0,200,0))&&h.display.getScale().equals(new org.joml.Vector3f(4)),"source200-block fall and4x display scale");
-            for(int i=0;i<99;i++)service.tick();require(!h.impacted&&betaCapture.kicks()==0&&h.point.distanceToSqr(h.impact.add(0,2,0))<1e-8,"no early impact, exactly2 blocks per tick");
-            f.beta.setPos(h.impact.add(1,0,0));p.setPos(h.impact.add(-1,0,0));service.tick();require(h.impacted&&h.point.equals(h.impact)&&capture.kicks()==0&&betaCapture.kicks()==1,"native disconnect hits ally, skill12 protects caster at100ticks");
+            var spawn=h.point;for(int i=0;i<10;i++)service.tick();
+            require(!h.impacted&&betaCapture.kicks()==0&&h.point.equals(spawn.add(0,-20,0)),"unobstructed native fall remains exactly2 blocks per tick");
+            f.beta.setPos(h.impact.add(1,0,0));p.setPos(h.impact.add(-1,0,0));
+            for(int i=0;i<100&&!h.impacted;i++)service.tick();
+            require(h.impacted&&h.point.equals(h.impact.add(0,2,0))&&capture.kicks()==0&&betaCapture.kicks()==1,"native first-surface disconnect hits ally, skill12 protects caster, display bottom rests on contact");
             service.impact(h);require(betaCapture.kicks()==1,"one disconnect per impact");
             var disconnect=betaCapture.packets.stream().filter(k->k instanceof net.minecraft.network.protocol.common.ClientboundDisconnectPacket).map(k->(net.minecraft.network.protocol.common.ClientboundDisconnectPacket)k).findFirst().orElseThrow();
             require(disconnect.reason().getContents() instanceof net.minecraft.network.chat.contents.TranslatableContents tr&&tr.getKey().equals("skywars2.banhammer.kick"),"translated native disconnect reason");
             p.entityTags().add("sin_greed_active");g.players().get(p.getUUID()).lbcSkill=0;require(service.immuneToHammer(p),"absolute active Greed protection");p.entityTags().remove("sin_greed_active");
-            for(int i=0;i<100;i++)service.tick();require(service.hammerCount()==0,"source200-tick display expiry");
+            for(int i=0;i<200&&h.age<200;i++)service.tick();require(h.age==200&&service.hammerCount()==0,"source200-tick display expiry");
             g.config().lbcSkills=false;require(!service.immuneToHammer(p),"disabled skills do not confer hammer immunity");
             // The same native impact must be able to disconnect its own author.
             p.setItemInHand(InteractionHand.MAIN_HAND,ItemStack.EMPTY);p.setItemInHand(InteractionHand.OFF_HAND,weapon);p.setPos(f.at);p.setXRot(25);mana.score(p,"swordcharged7").set(1);

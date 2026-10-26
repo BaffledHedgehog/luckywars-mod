@@ -1,3 +1,11 @@
+## Banhammer correction (27 October2026)
+
+The latest user request extends impact to no-drop mob bans and actual Carpet
+removal, and replaces fixed-height falling with first native surface contact.
+The centered scale4 model bottom is2 blocks below its pivot; collision now
+rests that bottom on terrain. See [updated contract and evidence](BANHAMMER_COLLISION_FIX.md).
+The original port qualification and author decisions below remain historical.
+
 # Mortis, Death Scythe and Banhammer — 26 October 2026
 
 ## Source and author decisions

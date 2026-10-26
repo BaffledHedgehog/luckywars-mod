@@ -1025,6 +1025,11 @@ public final class GameChecks {
                                 case "totems-stop-probe" -> { TotemChecks.stopProbe(game); return; }
                                 case "totems-cleanup" -> { TotemChecks.cleanup(game); return; }
                                 case "special-tools" -> { SpecialToolChecks.run(game); return; }
+                                case "banhammer" -> {
+                                        require(deferredCheck==null,"No earlier asynchronous Banhammer check");
+                                        BanhammerChecks.run(game);BanhammerChecks.begin(game);
+                                        deferredTicks=3;deferredCheck=()->BanhammerChecks.finish(game);return;
+                                }
                                 case "special-tools-stop-probe" -> { SpecialToolChecks.stopProbe(game); return; }
                                 case "special-tools-cleanup" -> { SpecialToolChecks.cleanup(game); return; }
                                 case "ordinary-tools" -> { OrdinaryToolChecks.run(game); return; }
