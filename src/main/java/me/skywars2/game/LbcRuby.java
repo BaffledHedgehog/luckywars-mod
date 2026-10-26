@@ -103,6 +103,14 @@ public final class LbcRuby {
         else if(mode==3) cuttingRay(owner);
     }
 
+    void emitAt(ServerPlayer owner,int mode,Vec3 origin,Vec3 direction){
+        switch(mode){
+            case 0->castAt(owner,origin,direction,false,70);
+            case 1->holeRay(owner,origin,direction.normalize());
+            case 2->cuttingRay(owner,origin,direction.normalize());
+            default->throw new IllegalArgumentException("Ruby producer mode "+mode);
+        }
+    }
     private void castDrill(ServerPlayer owner) { castAt(owner,owner.getEyePosition(),owner.getLookAngle(),true); }
     void castAt(ServerPlayer owner,Vec3 origin,Vec3 direction){castAt(owner,origin,direction,false);}
     Charge flying(ServerPlayer owner,Vec3 origin,Vec3 direction) {
@@ -172,9 +180,10 @@ public final class LbcRuby {
     }
 
     /** Academy mode 2: нативный первый hit, а .5-блоковые samples задают trail/длину. */
-    private void holeRay(ServerPlayer owner) {
+    private void holeRay(ServerPlayer owner) {holeRay(owner,owner.getEyePosition(),owner.getLookAngle().normalize());}
+    private void holeRay(ServerPlayer owner,Vec3 from,Vec3 direction) {
         var level=owner.level();
-        Vec3 from=owner.getEyePosition(),direction=owner.getLookAngle().normalize(),limit=from.add(direction.scale(HOLE_RANGE));
+        Vec3 limit=from.add(direction.scale(HOLE_RANGE));
         HitResult hit=game.items().wands().firstHit(owner,from,limit);
         LbcOverload.sound(owner,from,"minecraft:block.amethyst_cluster.break",1,.1f,0);
         Vec3 end=hit==null?limit:hit.getLocation();
@@ -213,9 +222,9 @@ public final class LbcRuby {
     }
 
     /** Academy mode 3 удаляет все блоки по лучу, включая bedrock, без урона существам. */
-    private void cuttingRay(ServerPlayer owner) {
+    private void cuttingRay(ServerPlayer owner) {cuttingRay(owner,owner.getEyePosition(),owner.getLookAngle().normalize());}
+    private void cuttingRay(ServerPlayer owner,Vec3 origin,Vec3 direction) {
         var level=owner.level();
-        Vec3 origin=owner.getEyePosition(),direction=owner.getLookAngle().normalize();
         LbcOverload.sound(owner,origin,"minecraft:block.amethyst_cluster.break",1,.1f,0);
         var visited=new LongOpenHashSet(256);
         try {

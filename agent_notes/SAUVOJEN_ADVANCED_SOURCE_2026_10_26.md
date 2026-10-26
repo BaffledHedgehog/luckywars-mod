@@ -194,3 +194,16 @@ Read-only review of in-progress LbcSauvojen and detached flying overloads; produ
 - Current native drone snapshot holds actual owner,used hand,copy of stack,epoch,carrier; stopped/removed/dead/observer/foreign-level owners clean up; global and owner TimeStop pause before lifetime/movement. Native target filtering through lifetimes and wands adds required role/team/Greed protections. No runtime or final integration/readiness assertion is made by this source-only review.
 
 Matrix verification evidence: read-only `javap -p -c` against cached mapped `minecraft-merged-deobf-26.3.jar`, class net.minecraft.util.ExtraCodecs, MATRIX4F decoder lambda$static$19. It decodes flat index i via Matrix4f.setRowColumn(i>>2,i&3,value), and encoder lambda$static$20 uses getRowColumn with same indexing. Thus four explicit setRow calls match source NBT16 values exactly; no transpose is needed. This is actual native bytecode evidence, not a guessed JOML float-array convention.
+
+## Subsequent complete-source correction -27 October2026
+
+The earlier83-mode count and toward-owner upgraded motion were audit errors.
+The exact dispatch has80 rows (10/10/6/13/10/5/9/8/9); upgraded movement is
+horizontal0.1 away from the owner's eyes plus0.04 upward. The Ruby approval
+above remains unchanged. Its Silence row removes the source carrier itself.
+Electro meditation faces a multi-entity selector with no limit, so warning and
+damage rays fork to every previously active node, giving6/120 edges for4/16
+nodes. Each damage ray terminates at its first target. Native failed data-get
+store is verified independently after command-context drainage; drone Health
+must not be replaced with caster Health. Current implementation and release
+qualification are tracked in [the combined port](SAUVOJEN_ACADEMY.md).

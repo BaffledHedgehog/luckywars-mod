@@ -205,6 +205,22 @@ public final class LbcPsycho {
             }
     }
 
+    void emitAt(ServerPlayer owner,int mode,Vec3 origin,Vec3 direction){
+        if(mode==2){rayAt(owner,origin,direction,39);return;}
+        if(mode==3)spawn(owner,origin,direction,false,true,100);
+        else{
+            int count=mode==1?4:3;
+            float yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
+            float pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));
+            for(int i=0;i<count;i++){
+                Vec3 aim=Vec3.directionFromRotation(pitch+(owner.getRandom().nextFloat()*2-1)*20,
+                        yaw+(owner.getRandom().nextFloat()*2-1)*30);
+                spawn(owner,origin.add(direction.scale(i*.01)),aim.scale(2),mode==4,false,100);
+            }
+        }
+        LbcOverload.sound(owner,origin,"minecraft:item.trident.riptide_1",.7f,0,0);
+        LbcOverload.sound(owner,origin,"minecraft:item.trident.riptide_1",.7f,1,0);
+    }
     void psycho(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode) {
         int roll=mode==0?owner.getRandom().nextInt(6)+1:mode==1?1:mode+2;
         boolean trial=false;
@@ -441,26 +457,7 @@ public final class LbcPsycho {
             if(paused(owner)) continue;
             int remaining=rays.get(owner)-1;
             Vec3 from=owner.getEyePosition(),direction=owner.getLookAngle(),to=from.add(direction.scale(99));
-            double suppression=game.items().magic().suppressionFraction(owner.level(),from,to);
-            if(Double.isFinite(suppression)) to=from.lerp(to,suppression);
-            var wall=LbcTerra.wallHit(owner.level(),from,to);
-            if(wall!=null) to=wall.getLocation();
-            double length=from.distanceTo(to);
-            for(var target:owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(from,to).inflate(3.5),e->projectileTarget(owner,e)
-                    && game.items().lifetimes().target(owner,e))) {
-                double projection=Math.clamp(target.position().subtract(from).dot(direction),0,length);
-                if(target.position().distanceToSqr(from.add(direction.scale(projection)))>12.25) continue;
-                // (user) Каждая подходящая цель получает действие один раз за тик луча.
-                afflict(target,owner,1,1,0,1); game.items().screamer(target,owner);
-                var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.GENERIC),owner);
-                target.hurtServer(owner.level(),source,.01f);
-                if(remaining%40==39) LbcOverload.sound(owner,target.position(),"minecraft:lbcsounds.scream",3,2,10);
-            }
-            for(double d=0;d<=length;d+=.33) {
-                var p=from.add(direction.scale(d));
-                owner.level().sendParticles(RAY_DUST,true,false,p.x,p.y,p.z,1,1,1,1,0);
-            }
-            if(remaining%40==39) LbcOverload.sound(owner,"minecraft:lbcsounds.scream",.5f,2,30);
+            rayAt(owner,from,direction,remaining);
             if(remaining<=0) rays.remove(owner); else rays.put(owner,remaining);
         }
     }
@@ -476,6 +473,29 @@ public final class LbcPsycho {
             case 14->right.scale(5).add(look.scale(-5)); default->right.scale(-5).add(look.scale(-5));
         });
         privateSound(player,sound,1,1,position);
+    }
+    private void rayAt(ServerPlayer owner,Vec3 from,Vec3 direction,int remaining){
+        Vec3 to=from.add(direction.scale(99));
+        double suppression=game.items().magic().suppressionFraction(owner.level(),from,to);
+        if(Double.isFinite(suppression)) to=from.lerp(to,suppression);
+        var wall=LbcTerra.wallHit(owner.level(),from,to);
+        if(wall!=null) to=wall.getLocation();
+        double length=from.distanceTo(to);
+        for(var target:owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(from,to).inflate(3.5),e->projectileTarget(owner,e)
+                && game.items().lifetimes().target(owner,e))) {
+            double projection=Math.clamp(target.position().subtract(from).dot(direction),0,length);
+            if(target.position().distanceToSqr(from.add(direction.scale(projection)))>12.25) continue;
+            // (user) Каждая подходящая цель получает действие один раз за тик луча.
+            afflict(target,owner,1,1,0,1); game.items().screamer(target,owner);
+            var source=new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.GENERIC),owner);
+            target.hurtServer(owner.level(),source,.01f);
+            if(remaining%40==39) LbcOverload.sound(owner,target.position(),"minecraft:lbcsounds.scream",3,2,10);
+        }
+        for(double d=0;d<=length;d+=.33) {
+            var p=from.add(direction.scale(d));
+            owner.level().sendParticles(RAY_DUST,true,false,p.x,p.y,p.z,1,1,1,1,0);
+        }
+        if(remaining%40==39) LbcOverload.sound(owner,"minecraft:lbcsounds.scream",.5f,2,30);
     }
     private void privateSound(LivingEntity target,String id,float volume,float pitch,Vec3 position) {
         if(target instanceof ServerPlayer player) player.connection.send(new ClientboundSoundPacket(

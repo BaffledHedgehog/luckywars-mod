@@ -60,7 +60,7 @@ public final class LbcTeleport {
 
     public static final class Charge extends Projectile implements PolymerEntity {
         int age;
-        int sourceLifetime;
+        int sourceLifetime;boolean flyingStyle;
         int mode;
         Charge(EntityType<? extends Charge> type,Level level) { super(type,level); }
         @Override protected void defineSynchedData(SynchedEntityData.Builder builder) { }
@@ -101,6 +101,9 @@ public final class LbcTeleport {
         if(mode==3) { castCloud(owner); return; }
         castAt(owner,hand,mode,stack,owner.getEyePosition(),owner.getLookAngle());
     }
+    void emitAt(ServerPlayer owner,InteractionHand hand,int mode,Vec3 origin,Vec3 direction){
+        castAt(owner,hand,mode,ItemStack.EMPTY,origin,direction,200);
+    }
     Charge flying(ServerPlayer owner,InteractionHand hand,ItemStack stack,Vec3 origin,Vec3 direction){
         return castAt(owner,hand,0,ItemStack.EMPTY,origin,direction,60);
     }
@@ -113,8 +116,8 @@ public final class LbcTeleport {
         charge.setOwner(owner); charge.setPos(origin); charge.setNoGravity(true);
         charge.setYRot(lifetime>0?(float)Math.toDegrees(Math.atan2(-direction.x,direction.z)):owner.getYRot());
         charge.setXRot(lifetime>0?(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance())):owner.getXRot());
-        charge.setDeltaMovement(direction.normalize().scale(lifetime>0?1.2:mode==0?1.8:3.0));
-        charge.mode=mode; charge.sourceLifetime=lifetime;
+        charge.setDeltaMovement(direction.normalize().scale(lifetime==60?1.2:mode==0?1.8:3.0));
+        charge.mode=mode; charge.sourceLifetime=lifetime;charge.flyingStyle=lifetime==60;
         game.items().markCurrentItemEpoch(charge);
         if(owner.level().addFreshEntity(charge)) {
             charges.add(charge);
@@ -162,7 +165,7 @@ public final class LbcTeleport {
                         remove(charge); continue;
                     }
                     Vec3 to=from.add(charge.getDeltaMovement());
-                    HitResult hit=charge.sourceLifetime>0?LbcTerra.wallHit(owner.level(),from,to):game.items().wands().firstHit(owner,from,to);
+                    HitResult hit=charge.flyingStyle?LbcTerra.wallHit(owner.level(),from,to):game.items().wands().firstHit(owner,from,to);
                     var shield=game.items().wands().shieldHit(owner,from,hit==null?to:hit.getLocation());
                     if(shield!=null && !charge.level().getBlockState(BlockPos.containing(shield.getLocation())).isAir()) shield=null;
                     boolean shieldBlocked=shield!=null && (hit==null
@@ -171,7 +174,7 @@ public final class LbcTeleport {
                     if(hit instanceof BlockHitResult wall && !charge.level().hasChunkAt(wall.getBlockPos())) { remove(charge); continue; }
                     Vec3 end=hit==null?to:hit.getLocation();
                     charge.setPos(end);
-                    if(charge.sourceLifetime>0) flyingTrail(owner,from,end,shieldBlocked);
+                    if(charge.flyingStyle) flyingTrail(owner,from,end,shieldBlocked);
                     else emitTrail(owner,charge,from,end);
                     if(hit!=null) {
                         remove(charge);

@@ -135,6 +135,7 @@ public final class LbcItems {
         syringe.damaged(victim,source);
         specialTools.melee(victim,source);
         shooters.damaged(victim,source);
+        sauvojen.meditation().damaged(victim,source);
         if (!game.playing() && !debugItemUseWindow() || !inArena(victim) || LbcDamage.isArrowDamage(source)
                 || !(source.getEntity() instanceof ServerPlayer owner) || !active(owner)
                 || !owner.isAlive() || !inArena(owner)) return;
@@ -847,7 +848,7 @@ public final class LbcItems {
                         || LbcCageDrops.managed(source.getDirectEntity()) || LbcPotionSpawnerDrops.managed(source.getDirectEntity())
                         || LbcTransformator.managed(source.getDirectEntity()) || LbcVexSword.managed(source.getDirectEntity())
                         || LbcDroneDrops.managed(source.getDirectEntity()) || LbcGodHedgehog.managed(source.getDirectEntity())
-                        || LbcHedgehog.managed(source.getDirectEntity()))
+                        || LbcHedgehog.managed(source.getDirectEntity()) || SauvojenMeditation.managed(source.getDirectEntity()))
                         && currentEpoch(source.getDirectEntity()))
                 && (!(victim instanceof ServerPlayer player) || game.allowDamage(player))
                 && wands.allowDamage(victim,source) && kfcRewards.allowDamage(victim,source)
@@ -1078,6 +1079,7 @@ public final class LbcItems {
     /** Массовые заклинания затрагивают и лёгкие снаряды, у которых нет отдельной native entity. */
     void transformSpellOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform) {
         wands.transformOrigins(level,transform);
+        sauvojen.transformOrigins(level,transform);
         electro.transformOrigins(level,transform);
         bolts.transformOrigins(level,transform);
         blaze.transformOrigins(level,transform);

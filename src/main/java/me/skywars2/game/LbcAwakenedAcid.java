@@ -53,6 +53,21 @@ final class LbcAwakenedAcid {
             game.items().mana().score(owner,"acid_rifle").add(10);rifles.put(owner,new Rifle(stack,hand,game.items().epoch()));
         }
     }
+    /** Detached helper release: rifle is one shot, never the paid ten-release queue. */
+    void emitAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 origin,Vec3 direction){
+        Vec3 aim=direction.normalize();
+        if(mode==3){
+            // Gatling explicitly selects the marked owner Rotation before universal_razbros.
+            float yaw=owner.getYRot();
+            float pitch=owner.getXRot();
+            for(int i=0;i<8;i++)game.items().clouds().awakenedAcid(owner,origin,
+                    Vec3.directionFromRotation((Mth.floor(pitch*100)+owner.getRandom().nextInt(4001)-2000)*.01f,
+                            (Mth.floor(yaw*100)+owner.getRandom().nextInt(6001)-3000)*.01f),2,false,i==0);
+        }else{
+            game.items().clouds().awakenedAcid(owner,origin,aim,mode==2?1:mode==4?2:0,false,mode!=4);
+            if(mode==4)LbcOverload.sound(owner,origin,"minecraft:entity.item.break",1,2,0);
+        }
+    }
     int pending(ServerPlayer owner){return Math.max(0,game.items().mana().hudValue(owner,"acid_rifle"));}
     void addPlayerCounter(ServerPlayer owner){
         game.items().mana().score(owner,"acid_rifle").add(1);

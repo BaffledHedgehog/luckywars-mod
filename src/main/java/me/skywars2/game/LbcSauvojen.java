@@ -37,6 +37,19 @@ public final class LbcSauvojen {
         RUBY(60),TERRA(20),ELECTRO(20),AIR(60),ACID(20),TELEPORT(80),STONE(60),FIRE(5),BLIND(10);
         final int cadence;
         Kind(int cadence){this.cadence=cadence;}
+        int academyCadence(){return switch(this){case RUBY,AIR->10;case TERRA->1;case STONE->40;default->5;};}
+        int modes(){return switch(this){case RUBY,TERRA,ACID->10;case ELECTRO->6;case AIR->13;case TELEPORT->5;case STONE,BLIND->9;case FIRE->8;};}
+        List<String> models(){return switch(this){
+            case RUBY->List.of("st/ruby","consuming_wand","dublicating_wand");
+            case TERRA->List.of("st/terra","terra_razorpine","terrasword_true","fevgalea_star");
+            case ELECTRO->List.of("st/electro","erecto","electroblocker");
+            case AIR->List.of("st/air","exasperato","homing");
+            case ACID->List.of("st/acid","acidacidwand","acidcorrupt");
+            case TELEPORT->List.of("st/teleport","boltbolt_wand","infbolt");
+            case STONE->List.of("st/stone","stonekivi","bedrock_wand");
+            case FIRE->List.of("st/fire","blazefire","the_sun");
+            case BLIND->List.of("st/blind","psychoblind","blindvex");
+        };}
     }
     /** Native-check inspection is deliberately detached from input admission and random choice. */
     static final class Drone {
@@ -44,6 +57,8 @@ public final class LbcSauvojen {
         final InteractionHand hand;
         final ItemStack usedStack;
         final Kind kind;
+        final boolean academy;
+        int nextMode;
         final String epoch;
         final Marker carrier;
         final ElementHolder holder;
@@ -51,7 +66,8 @@ public final class LbcSauvojen {
         Vec3 position,direction=Vec3.directionFromRotation(0,0);
         int lifetime;
         Drone(ServerPlayer owner,InteractionHand hand,ItemStack stack,Kind kind,String epoch,Marker carrier) {
-            this.owner=owner;this.hand=hand;usedStack=stack.copy();this.kind=kind;this.epoch=epoch;this.carrier=carrier;
+            this.owner=owner;this.hand=hand;usedStack=stack.copy();this.kind=kind;
+            academy=upgraded(stack);this.epoch=epoch;this.carrier=carrier;
             position=carrier.position();
             var model=new ItemStack(Items.CARROT_ON_A_STICK);
             model.set(DataComponents.ITEM_MODEL,Identifier.parse("lbc:st/"+kind.name().toLowerCase(java.util.Locale.ROOT)));
@@ -68,7 +84,14 @@ public final class LbcSauvojen {
     }
     private final GameController game;
     private final Map<Marker,Drone> drones=new LinkedHashMap<>();
-    public LbcSauvojen(GameController game){this.game=game;}
+    private final SauvojenStars stars;
+    private final SauvojenMeditation meditation;
+    public LbcSauvojen(GameController game){this.game=game;meditation=new SauvojenMeditation(game);stars=new SauvojenStars(game);}
+    public SauvojenMeditation meditation(){return meditation;}
+    public SauvojenStars stars(){return stars;}
+    static boolean upgraded(ItemStack stack){return stack.is(LbcWands.ACADEMY_SAUVOJEN)
+            ||LbcFartus.data(stack).getIntOr("upgraded",0)==1;}
+    public void prepare(){game.server().getStructureTemplateManager().get(SauvojenMeditation.STONE);}
     public int count(){return drones.size();}
     List<Drone> snapshot(){return List.copyOf(drones.values());}
 
@@ -97,6 +120,7 @@ public final class LbcSauvojen {
         sync(drone);
     }
     public void tick(){
+        meditation.tick();stars.tick();
         for(var drone:snapshot()){
             if(!drones.containsKey(drone.carrier))continue;
             if(drone.carrier.isRemoved()||!validOwner(drone.owner)||drone.owner.level()!=drone.carrier.level()
@@ -110,7 +134,7 @@ public final class LbcSauvojen {
             if(game.items().magic().suppressedAt(owner.level(),drone.position)){remove(drone,false);continue;}
             // raycastselector increments first; the helper changes Lifetime=1 to2 before checking modulo.
             if(++drone.lifetime==1)drone.lifetime=2;
-            if(drone.lifetime>=200||!owner.level().getBlockState(cell).is(AIRS)){
+            if(drone.lifetime>=(drone.academy?400:200)||!drone.academy&&!owner.level().getBlockState(cell).is(AIRS)){
                 remove(drone,true);continue;
             }
             LivingEntity nearest=null;double best=150*150;
@@ -123,13 +147,28 @@ public final class LbcSauvojen {
                 Vec3 aim=nearest.getEyePosition().subtract(drone.position);
                 if(aim.lengthSqr()>1e-12)drone.direction=aim.normalize();
             }
-            if(drone.lifetime%drone.kind.cadence==1)
+            if(drone.academy){
+                if(nearest!=null&&(drone.kind==Kind.TERRA||drone.lifetime%drone.kind.academyCadence()==1)){
+                    int mode=drone.nextMode;drone.nextMode=(mode+1)%drone.kind.modes();
+                    if(drone.kind==Kind.AIR&&mode==12){
+                        var next=game.items().exasperato().emitNukeTickAt(owner,drone.position);
+                        if(next==null){remove(drone,false);continue;}
+                        drone.position=next;drone.carrier.setPos(next);
+                    }else emitAcademy(owner,drone.hand,drone.usedStack,drone.kind,mode,drone.position,drone.direction);
+                }
+                var models=drone.kind.models();
+                var model=new ItemStack(Items.CARROT_ON_A_STICK);
+                model.set(DataComponents.ITEM_MODEL,Identifier.parse("lbc:"+models.get(owner.getRandom().nextInt(models.size()))));
+                drone.display.setItem(model);
+            }else if(drone.lifetime%drone.kind.cadence==1)
                 emit(owner,drone.hand,drone.usedStack,drone.kind,drone.position,drone.direction);
             if(!drones.containsKey(drone.carrier)||!validOwner(owner))continue;
             owner.level().sendParticles(ParticleTypes.WITCH,drone.position.x,drone.position.y,drone.position.z,2,.5,.5,.5,1);
             // Move away from the owner's eyes without changing the aimed firing rotation.
-            Vec3 away=drone.position.subtract(owner.getEyePosition()).normalize().scale(.1);
-            drone.position=drone.position.add(away);drone.carrier.setPos(drone.position);
+            Vec3 away=drone.position.subtract(owner.getEyePosition());
+            if(drone.academy)away=new Vec3(away.x,0,away.z);
+            away=away.normalize().scale(.1);
+            drone.position=drone.position.add(away).add(0,drone.academy?.04:0,0);drone.carrier.setPos(drone.position);
             sync(drone);
         }
     }
@@ -161,6 +200,69 @@ public final class LbcSauvojen {
             }
         }
     }
+    void emitAcademy(ServerPlayer owner,InteractionHand hand,ItemStack stack,Kind kind,int mode,Vec3 origin,Vec3 direction){
+        if(mode<0||mode>=kind.modes())throw new IllegalArgumentException("Sauvojen "+kind+" mode "+mode);
+        if(!validOwner(owner)||!owner.level().hasChunkAt(BlockPos.containing(origin)))return;
+        switch(kind){
+            case RUBY->{
+                if(mode<=2)game.items().ruby().emitAt(owner,mode,origin,direction);
+                else if(mode<=6)game.items().duplicating().emitAt(owner,switch(mode){case 4->4;case 5->3;case 6->2;default->1;},origin,direction);
+                else{
+                    game.items().consuming().emitAt(owner,hand,stack,switch(mode){case 7->4;case 8->3;default->2;},origin,direction);
+                    if(mode==9){
+                        owner.addEffect(ItemEffectLevels.create(net.minecraft.world.effect.MobEffects.LEVITATION,60,30),owner);
+                        owner.addEffect(ItemEffectLevels.create(net.minecraft.world.effect.MobEffects.SLOW_FALLING,1200,0),owner);
+                    }
+                }
+            }
+            case TERRA->{
+                if(mode>=5)stars.castAt(owner,hand,stack,mode,origin,direction);
+                else game.items().terra().castAt(owner,origin,direction,switch(mode){
+                    case 1->LbcTerra.Kind.ACADEMY;case 2->LbcTerra.Kind.TRUE_CHARGE;
+                    case 3->LbcTerra.Kind.RAZOR;case 4->LbcTerra.Kind.TRUE_BEAM;default->LbcTerra.Kind.REGULAR;
+                },switch(mode){case 1,2->20;case 3->10;case 4->50;default->200;});
+            }
+            case ELECTRO->{
+                if(mode<=1)game.items().wands().sauvojenElectro(owner,origin,direction,mode==1);
+                else game.items().erecto().emitAt(owner,hand,stack,switch(mode){case 2->1;case 3->2;case 4->4;default->3;},origin,direction);
+            }
+            case AIR->{
+                if(mode<=3)game.items().air().emitAt(owner,hand,stack,mode,origin,direction);
+                else if(mode<=7)game.items().homing().emitAt(owner,hand,stack,switch(mode){case 4->1;case 5->2;case 6->3;default->4;},origin,direction);
+                else game.items().exasperato().emitAt(owner,hand,stack,mode-8,origin,direction);
+            }
+            case ACID->{
+                if(mode==0)game.items().clouds().sauvojenAcid(owner,origin,direction);
+                else if(mode<=5)game.items().awakenedAcid().emitAt(owner,hand,stack,switch(mode){case 2->2;case 4->3;case 5->4;default->1;},origin,direction);
+                else game.items().acidCorruption().emitAt(owner,hand,stack,switch(mode){case 6->1;case 7->2;case 8->4;default->3;},origin,direction);
+            }
+            case TELEPORT->{
+                if(mode<=1)game.items().teleport().emitAt(owner,hand,mode==0?0:2,origin,direction);
+                else game.items().bolts().emitAt(owner,hand,stack,switch(mode){case 2->1;case 3->3;default->4;},origin,direction);
+            }
+            case STONE->{
+                if(mode<=4)game.items().stone().emitAt(owner,mode,origin,direction);
+                else game.items().stonekivi().emitAt(owner,hand,stack,switch(mode){case 5->1;case 6->2;case 7->4;default->3;},origin,direction);
+            }
+            case FIRE->{
+                if(mode<=2)game.items().wands().sauvojenFire(owner,origin,direction,mode);
+                else game.items().blaze().emitAt(owner,hand,stack,switch(mode){case 3->0;case 4->4;case 5->2;case 6->3;default->1;},origin,direction);
+            }
+            case BLIND->{
+                if(mode<=2)game.items().blind().emitAt(owner,hand,mode,origin,direction);
+                else if(mode==8)game.items().summons().sauvojenCultist(owner,origin,direction);
+                else game.items().psycho().emitAt(owner,switch(mode){case 3->0;case 4->1;case 5->4;case 6->2;default->3;},origin,direction);
+            }
+        }
+    }
+    public void transformOrigins(ServerLevel level,java.util.function.UnaryOperator<Vec3> transform){
+        stars.transformOrigins(level,transform);
+        for(var drone:snapshot())if(drone.owner.level()==level){
+            var point=transform.apply(drone.position);
+            if(point==null)remove(drone,false);
+            else{drone.position=point;drone.carrier.setPos(point);sync(drone);}
+        }
+    }
     private void sync(Drone drone){
         drone.display.setYaw((float)Math.toDegrees(Math.atan2(-drone.direction.x,drone.direction.z)));
         drone.display.setPitch((float)-Math.toDegrees(Math.atan2(drone.direction.y,drone.direction.horizontalDistance())));
@@ -180,12 +282,14 @@ public final class LbcSauvojen {
                 &&game.canUseGameplayItems(owner)&&!game.isObserver(owner)&&game.stage()!=GameController.Stage.ENDING;
     }
     public void loaded(Entity entity){
+        meditation.loaded(entity);stars.loaded(entity);
         if(entity.entityTags().contains(DRONE)&&(!(entity instanceof Marker marker)||!drones.containsKey(marker)))entity.discard();
     }
     public void unloaded(Entity entity){
+        meditation.unloaded(entity);stars.unloaded(entity);
         if(entity instanceof Marker marker){var drone=drones.get(marker);if(drone!=null)remove(drone,false);}
     }
-    public void forget(ServerPlayer owner){for(var drone:snapshot())if(drone.owner==owner)remove(drone,false);}
+    public void forget(ServerPlayer owner){meditation.forget(owner);stars.forget(owner);for(var drone:snapshot())if(drone.owner==owner)remove(drone,false);}
     private void remove(Drone drone,boolean effects){
         if(drones.remove(drone.carrier)==null)return;
         drone.holder.destroy();
@@ -196,5 +300,5 @@ public final class LbcSauvojen {
         }
         if(!drone.carrier.isRemoved())drone.carrier.discard();
     }
-    public void stop(){for(var drone:snapshot())remove(drone,false);}
+    public void stop(){meditation.stop();stars.stop();for(var drone:snapshot())remove(drone,false);}
 }

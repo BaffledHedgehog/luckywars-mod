@@ -106,14 +106,22 @@ final class LbcAcidCorruption {
     }
     /** One native first contact replaces independent entity/wall terminals in recursive source functions. */
     void cast(ServerPlayer owner,int mode){
-        double range=mode==1?112.5:mode==3?200:150;var level=owner.level();var from=owner.getEyePosition();
-        var to=from.add(owner.getLookAngle().scale(range));var wall=LbcTerra.wallHit(level,from,to);if(wall!=null)to=wall.getLocation();
+        rayAt(owner,mode,owner.getEyePosition(),owner.getLookAngle());
+    }
+    /** Reverse intentionally resolves at the owner; other helper rays use the detached pose. */
+    void emitAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 from,Vec3 direction){
+        if(mode==2){sacrifice(owner);return;}
+        rayAt(owner,mode,from,direction.normalize());
+    }
+    private void rayAt(ServerPlayer owner,int mode,Vec3 from,Vec3 direction){
+        double range=mode==1?112.5:mode==3?200:150;var level=owner.level();
+        var to=from.add(direction.scale(range));var wall=LbcTerra.wallHit(level,from,to);if(wall!=null)to=wall.getLocation();
         var entity=ProjectileUtil.getEntityHitResult(owner,from,to,new AABB(from,to).inflate(1),e->e instanceof LivingEntity
                 &&(mode==1?game.items().wands().projectileTarget(owner,e):wild(e)),from.distanceToSqr(to));
         HitResult hit=entity!=null?entity:wall;Vec3 end=hit==null?to:hit.getLocation();
         double spacing=mode==1?.75:.5;int samples=(int)Math.floor(from.distanceTo(end)/spacing);
         for(int i=0;i<=samples;i++){
-            var at=from.add(owner.getLookAngle().scale(i*spacing));if(!level.hasChunkAt(BlockPos.containing(at))||game.items().magic().suppressedAt(level,at))return;
+            var at=from.add(direction.scale(i*spacing));if(!level.hasChunkAt(BlockPos.containing(at))||game.items().magic().suppressedAt(level,at))return;
             if(mode==1)level.sendParticles(ParticleTypes.SNEEZE,true,false,at.x,at.y,at.z,1,.1,.1,.1,0);
             else level.sendParticles(new DustParticleOptions(mode==3?0:0x1ce9f8,.8f),true,false,at.x,at.y,at.z,1,.1,.1,.1,0);
         }

@@ -313,7 +313,7 @@ public final class LbcTerra {
     void castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,Kind kind) {
         castAt(owner,origin,direction,kind,0);
     }
-    private TerraProjectile castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,Kind kind,int lifetime) {
+    TerraProjectile castAt(ServerPlayer owner,Vec3 origin,Vec3 direction,Kind kind,int lifetime) {
         var level = owner.level();
         if (level != game.maps().level() || !game.canUseGameplayItems(owner)) return null;
         var projectile = new TerraProjectile(TYPE, level);
@@ -323,8 +323,8 @@ public final class LbcTerra {
         projectile.setDeltaMovement(direction.normalize().scale(kind.speed));
         LbcShooters.orient(projectile);
         if(kind==Kind.RAZOR) {
-            float yaw=owner.getYRot()+(level.getRandom().nextInt(601)-300)*.01f;
-            float pitch=owner.getXRot()+(level.getRandom().nextInt(601)-300)*.01f;
+            float yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z))+(level.getRandom().nextInt(601)-300)*.01f;
+            float pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()))+(level.getRandom().nextInt(601)-300)*.01f;
             projectile.setYRot(yaw); projectile.setXRot(pitch);
             projectile.setDeltaMovement(Vec3.directionFromRotation(pitch,yaw).scale(kind.speed));
         }
@@ -336,11 +336,11 @@ public final class LbcTerra {
             projectile.attachModel();
             projectile.syncModel(visualEnd(projectile, owner));
             if (kind == Kind.TRUE_BEAM)
-                LbcOverload.sound(owner, owner.getEyePosition(), "minecraft:block.beacon.activate", .5f, 2, 0);
+                LbcOverload.sound(owner, origin, "minecraft:block.beacon.activate", .5f, 2, 0);
             else if (kind == Kind.TRUE_CHARGE || kind == Kind.RAZOR)
-                LbcOverload.sound(owner, owner.getEyePosition(), "minecraft:block.amethyst_block.break", 1, 1, 0);
+                LbcOverload.sound(owner, origin, "minecraft:block.amethyst_block.break", 1, 1, 0);
             else if (kind == Kind.SWORD)
-                LbcOverload.sound(owner, owner.getEyePosition(), "minecraft:block.amethyst_cluster.break", 1, 0, 0);
+                LbcOverload.sound(owner, origin, "minecraft:block.amethyst_cluster.break", 1, 0, 0);
             else LbcOverload.sound(owner, origin, "minecraft:block.amethyst_cluster.break", 1, 1, 0);
         }
         return projectile;

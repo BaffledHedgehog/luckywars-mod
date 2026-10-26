@@ -252,6 +252,17 @@ public final class LbcSummons {
         }
         effects(owner,psycho); game.items().trinkets().summoned(owner); return true;
     }
+    void sauvojenCultist(ServerPlayer owner,Vec3 origin,Vec3 direction){
+        var target=owner.level().players().stream().filter(p->p!=owner&&!p.isSpectator()&&!game.isObserver(p)&&p.isAlive())
+                .min(Comparator.comparingDouble(p->p.position().distanceToSqr(origin))).orElse(null);
+        if(target==null)return;
+        float yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
+        Vec3 forward=Vec3.directionFromRotation(0,yaw),left=new Vec3(forward.z,0,-forward.x);
+        int side=owner.getRandom().nextInt(4);
+        Vec3 at=target.position().add((side<2?forward:left).scale(side%2==0?2:-2));
+        if(spawnPreset(owner,CULTISTS[owner.getRandom().nextInt(6)],at)==null)return;
+        for(float pitch:new float[]{2,1})LbcOverload.sound(owner,at,"minecraft:entity.warden.agitated",1,pitch,0);
+    }
     private static Vec3 horizontal(LivingEntity entity) {
         double yaw=Math.toRadians(entity.getYRot()); return new Vec3(-Math.sin(yaw),0,Math.cos(yaw));
     }

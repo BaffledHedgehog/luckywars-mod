@@ -1,3 +1,42 @@
+## Combined Academy Sauvojen - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
+
+[Complete port](agent_notes/SAUVOJEN_ACADEMY.md), [meditation](agent_notes/SAUVOJEN_MEDITATION.md).
+All80 source attack branches now use explicit-origin native producers without
+moving/rotating the owner or re-entering payment. Nine400-tick drone kinds retain
+source cadence, target gating, model lottery and horizontal away motion/rise.
+The approved Ruby fix reaches all ten variants; final Silence consumes its own
+drone. Full Fevgalea helper closure retains native failed-Health zero for drones.
+The tierX Academy leaf, exact styled lore,2500mana per hand, native Academy route
+and source nine-stage620-countdown trial are active. Trial terrain retains8725
+Ruby cells, the complete47x19x47 stone template and42510lava/20181air footprint.
+Web rays form the complete6/120-edge graph and stop at first damaging contact;
+source particles, fear stalls, WILD native TNT/credit and scoped cleanup remain.
+
+Buildc6815dec passed94 recorded results in two actual mode1 matches (127.35s),
+exact454 Java sources /1256 classes /3142 resources. All80 attack rows, source
+scheduling/presentation/payment, native failed-command semantics, full trial
+terrain/helpers/complete web graph/allied TNT damage, owner isolation and actual
+stop pass. Shared grimoire/projectile/terrain/player/TimeStop/signed effect/FOV/
+firearm/visual regressions pass. SLR's test now isolates and restores preexisting
+participant attribution instead of assuming it empty; gameplay is unchanged.
+Controlled explicit service ticks and native packets are checked; physical
+client pixels/audio, complete stochastic survival and peak TPS are unobserved.
+
+Installer11424 adoptedc6815dec instead of pending72ea985d and waits for normal
+main shutdown/world unlock (24566, RCON off). Main disk remains1a8a3825; no
+forced stop/restart. Evidence/live receipt:build/verification/academy-sauvojen/.
+Ready:build/verification/skywars2-academy-sauvojen-c6815dec.jar. Keepc6815dec,
+72ea985d,1a8a3825. Obsolete9d2591dc retired; cumulative330 JARs /11786058439bytes.
+All175 protected author paths retain their original bytes after excluding the
+single owned Sauvojen Academy enum row;31 live grimoire override files unchanged.
+No RP/template changes needed. TPS compensation remains a feasibility question.
+
+Next concrete missing family: standalone Fevgalea Star sword item/craft, melee
+charge and four input routes. Academy already supplies its detached rain/charge
+closure; the player's beam must use actual Health rather than the drone's zero.
+Hedgehog and the complete240-book library are already qualified; older remainder
+notes below are historical and must not cause those families to be re-ported.
+
 ## Deferred user questions (user, 27 October2026)
 
 The author is going to sleep and requests no clarification questions directly

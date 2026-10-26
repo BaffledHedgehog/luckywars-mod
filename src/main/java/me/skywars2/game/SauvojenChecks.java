@@ -329,9 +329,11 @@ public final class SauvojenChecks {
             finally{game.config().offhandWands=true;}
             for(String flag:List.of("upgraded","upgradable")) {
                 var unsupported=held(InteractionHand.MAIN_HAND);var legacy=LbcFartus.data(unsupported);legacy.putInt(flag,1);unsupported.set(DataComponents.CUSTOM_DATA,CustomData.of(legacy));base.mana.set(owner,5000);
-                require(!base.input(InteractionHand.MAIN_HAND)&&service.count()==0&&base.mana.get(owner)==5000,"unported legacy "+flag+" input remains explicitly gated");
+                require(base.input(InteractionHand.MAIN_HAND)&&service.count()==1&&base.mana.get(owner)==2500,"ported legacy "+flag+" input uses one paid producer");
+                require(service.snapshot().getFirst().academy==flag.equals("upgraded"),"only upgraded imported stack selects Academy payloads");clear();
             }
             held(InteractionHand.MAIN_HAND);
+            base.mana.set(owner,5000);
             base.field=new Marker(EntityTypes.MARKER,owner.level());base.field.setPos(owner.getEyePosition());base.field.entityTags().add("stopper_magic");
             require(owner.level().addFreshEntity(base.field),"native input antimagic field");game.items().magic().loaded(base.field);
             try{require(!base.input(InteractionHand.MAIN_HAND)&&base.mana.get(owner)==5000&&service.count()==0,"antimagic admission rejects before payment");}

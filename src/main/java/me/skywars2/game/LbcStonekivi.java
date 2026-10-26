@@ -68,7 +68,12 @@ public final class LbcStonekivi {
         castMode(owner,hand,stack,mode);
     }
     void castMode(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode) {
-        Vec3 from=owner.getEyePosition(),direction=Vec3.directionFromRotation(owner.getXRot(),owner.getYRot());
+        castAt(owner,hand,stack,mode,owner.getEyePosition(),Vec3.directionFromRotation(owner.getXRot(),owner.getYRot()),true);
+    }
+    void emitAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 origin,Vec3 direction){
+        castAt(owner,hand,stack,mode,origin,direction,false);
+    }
+    private void castAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 from,Vec3 direction,boolean trial){
         Vec3 far=from.add(direction.scale(mode==1?150:250));
         double fraction=game.items().magic().suppressionFraction(owner.level(),from,far);
         Vec3 limit=Double.isFinite(fraction)?from.lerp(far,fraction):far;
@@ -84,7 +89,7 @@ public final class LbcStonekivi {
             owner.level().sendParticles(primary,true,false,p.x,p.y,p.z,2,.1,.1,.1,0);
             owner.level().sendParticles(secondary,true,false,p.x,p.y,p.z,1,.1,.1,.1,0);
         }
-        LbcOverload.sound(owner,"minecraft:block.deepslate.place",1,1,0);
+        LbcOverload.sound(owner,from,"minecraft:block.deepslate.place",1,1,0);
         if(hit==null || hit instanceof BlockHitResult block && !owner.level().hasChunkAt(block.getBlockPos())
                 || Double.isFinite(fraction) && point.distanceToSqr(from)>=limit.distanceToSqr(from)-1e-6) return;
         BlockPos center=hit instanceof BlockHitResult block?block.getBlockPos():BlockPos.containing(point);
@@ -98,7 +103,7 @@ public final class LbcStonekivi {
                     sequence.add(template(owner,LAYERS[i],center.offset(-radius,-radius,-radius),.678f));
                 }
                 BlockPos impact=center;
-                sequence.add(()-> { game.items().academy().stonekiviTrial(owner,hand,stack,impact); return true; });
+                if(trial)sequence.add(()-> { game.items().academy().stonekiviTrial(owner,hand,stack,impact); return true; });
                 work.add(new Sequence(sequence));
             }
             case 2 -> work.add(template(owner,EARTH,center.offset(-22,-22,-22),1));

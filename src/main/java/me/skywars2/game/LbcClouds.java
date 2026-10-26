@@ -472,6 +472,13 @@ public final class LbcClouds {
         return projectile;
     }
 
+    AcidProjectile sauvojenAcid(ServerPlayer owner,Vec3 origin,Vec3 direction){
+        float yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z))+(owner.getRandom().nextFloat()*2-1)*30;
+        float pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()))+(owner.getRandom().nextFloat()*2-1)*20;
+        var shot=aimedWandAcid(owner,origin,yaw,pitch,true);
+        LbcOverload.sound(owner,origin,"minecraft:entity.zombie_villager.cure",1,2,0);
+        return shot;
+    }
     AcidProjectile flyingWandAcid(ServerPlayer owner,Vec3 origin,Vec3 direction) {
         float yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
         float pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));

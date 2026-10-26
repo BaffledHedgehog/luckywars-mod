@@ -135,6 +135,13 @@ public final class LbcBlaze {
         return true;
     }
 
+    /** Mode zero is the single at_random_fireball helper, rather than the paid nearby volley. */
+    void emitAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 origin,Vec3 direction){
+        if(mode==0)randomFire(owner,origin,false);
+        else if(mode==2)volleyAt(owner,origin,100,true);
+        else global(owner,mode,false,origin);
+    }
+
     void fireblaze(ServerPlayer owner,int mode) {
             if(mode==0) volley(owner,30,false);
             else if(mode==2) volley(owner,100,true);
@@ -198,10 +205,13 @@ public final class LbcBlaze {
         return nearest;
     }
     private void volley(ServerPlayer owner,int radius,boolean mega) {
-        for(var target:owner.level().getEntitiesOfClass(LivingEntity.class,owner.getBoundingBox().inflate(radius),
-                e->target(owner,e) && e.position().distanceToSqr(owner.position())<=radius*(double)radius))
+        volleyAt(owner,owner.position(),radius,mega);
+    }
+    private void volleyAt(ServerPlayer owner,Vec3 origin,int radius,boolean mega){
+        for(var target:owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(origin,origin).inflate(radius),
+                e->target(owner,e) && e.position().distanceToSqr(origin)<=radius*(double)radius))
             randomFire(owner,target.position().add(0,1,0),mega);
-        LbcOverload.sound(owner,"minecraft:item.firecharge.use",1,1,0);
+        LbcOverload.sound(owner,origin,"minecraft:item.firecharge.use",1,1,0);
     }
     private void randomFire(ServerPlayer owner,Vec3 point,boolean mega) {
         int direction=owner.getRandom().nextInt(9);
@@ -219,6 +229,9 @@ public final class LbcBlaze {
 
     /** Глобальные режимы выбирают живые цели один раз на каст; отдельного тикового обхода мира нет. */
     private void global(ServerPlayer owner,int mode) {
+        global(owner,mode,true,owner.position());
+    }
+    private void global(ServerPlayer owner,int mode,boolean ownerEffects,Vec3 origin) {
         var areas=new ArrayDeque<BlockAreaWork>();
         var targets=new ArrayList<LivingEntity>();
         for(var entity:owner.level().getAllEntities()) if(entity instanceof LivingEntity living && target(owner,living)) targets.add(living);
@@ -249,8 +262,8 @@ public final class LbcBlaze {
             }
         }
         if(!areas.isEmpty()) terrain.add(new Terrain(owner,owner.level(),areas));
-        if(mode==3 || mode==4) owner.addEffect(ItemEffectLevels.create(MobEffects.FIRE_RESISTANCE,-1,0));
-        if(mode!=4) LbcOverload.sound(owner,mode==3?"minecraft:block.lava.ambient":"minecraft:item.firecharge.use",1,1,0);
+        if(ownerEffects && (mode==3 || mode==4)) owner.addEffect(ItemEffectLevels.create(MobEffects.FIRE_RESISTANCE,-1,0));
+        if(mode!=4) LbcOverload.sound(owner,origin,mode==3?"minecraft:block.lava.ambient":"minecraft:item.firecharge.use",1,1,0);
     }
 
     /** Magnum's exact 3x3x3 incendiary fill, using the shared queued fire conversion. */

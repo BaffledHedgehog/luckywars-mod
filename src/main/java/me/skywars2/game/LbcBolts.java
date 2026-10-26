@@ -309,6 +309,13 @@ public final class LbcBolts {
         if(mode==1)LbcOverload.sound(owner,"minecraft:entity.lightning_bolt.thunder",1,2,0);
         return true;
     }
+    /** Academy dispatch calls loop/snow_meteor/watering directly; no rideable-arrow input branch. */
+    void emitAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 origin,Vec3 direction){
+        if(mode==4){wateringAt(owner,origin);return;}
+        Vec3 at=rayAt(owner,origin,direction.normalize(),150,mode==3?ParticleTypes.SNOWFLAKE:ParticleTypes.CLOUD,false,false);
+        if(at!=null){if(mode==3)meteor(owner,at.add(0,50,0));else terminal(owner,hand,stack,at,false);}
+    }
+
     private void boltbolt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode) {
         if(mode==2) game.items().teleport().castRideableArrow(owner,2,true);
         else if(mode==4) watering(owner);
@@ -327,7 +334,10 @@ public final class LbcBolts {
     private Vec3 ray(ServerPlayer owner,InteractionHand hand,double range,net.minecraft.core.particles.ParticleOptions particle,boolean items,boolean wild) {
         Vec3 from=owner.getEyePosition();
         if(hand==InteractionHand.OFF_HAND) from=from.add(owner.getLookAngle().scale(.5));
-        Vec3 direction=owner.getLookAngle().normalize(),to=from.add(direction.scale(range));
+        return rayAt(owner,from,owner.getLookAngle().normalize(),range,particle,items,wild);
+    }
+    private Vec3 rayAt(ServerPlayer owner,Vec3 from,Vec3 direction,double range,net.minecraft.core.particles.ParticleOptions particle,boolean items,boolean wild){
+        Vec3 to=from.add(direction.scale(range));
         double suppressed=game.items().magic().suppressionFraction(owner.level(),from,to);
         if(Double.isFinite(suppressed)) to=from.lerp(to,suppressed);
         var hit=wild ? game.items().wands().firstHit(owner,from,to,entity->entity instanceof LivingEntity living && chainTarget(owner,living),true)
@@ -553,11 +563,14 @@ public final class LbcBolts {
     int pendingReforgeCount() { return reforgeJobs.size(); }
     void flushReforgeJobs() { game.items().stonekivi().tick(); }
     private void terminal(ServerPlayer owner,InteractionHand hand,ItemStack stack,Vec3 at) {
+        terminal(owner,hand,stack,at,true);
+    }
+    private void terminal(ServerPlayer owner,InteractionHand hand,ItemStack stack,Vec3 at,boolean trial) {
         game.items().electro().lightning(owner,at);
         for(var offset:OFFSETS) bolts.add(new Bolt(owner,at.add(offset),game.items().epoch()));
         for(var target:projectileTargets(owner,at,5)) {
             game.items().electro().shock(target,owner,10);
-            if(LbcAcademy.trial(stack) && game.items().electro().shocks(target)>=60) game.items().academy().ready(owner,hand,stack);
+            if(trial && LbcAcademy.trial(stack) && game.items().electro().shocks(target)>=60) game.items().academy().ready(owner,hand,stack);
         }
         game.server().setWeatherParameters(0,1200,true,true);
     }
@@ -573,8 +586,11 @@ public final class LbcBolts {
     private void watering(ServerPlayer owner) {
         owner.addEffect(ItemEffectLevels.create(MobEffects.WATER_BREATHING,4800,0));
         owner.addEffect(ItemEffectLevels.create(MobEffects.STRENGTH,4800,2));
-        waters.add(new Water(owner,owner.position(),game.items().epoch()));
-        for(int i=0;i<4;i++) waters.add(new Water(owner,owner.position().add(OFFSETS[i].scale(.5)),game.items().epoch()));
+        wateringAt(owner,owner.position());
+    }
+    private void wateringAt(ServerPlayer owner,Vec3 origin){
+        waters.add(new Water(owner,origin,game.items().epoch()));
+        for(int i=0;i<4;i++) waters.add(new Water(owner,origin.add(OFFSETS[i].scale(.5)),game.items().epoch()));
     }
     private void meteor(ServerPlayer owner,Vec3 at) {
         if(!owner.level().hasChunkAt(BlockPos.containing(at))) return;

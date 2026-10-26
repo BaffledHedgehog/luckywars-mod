@@ -176,6 +176,14 @@ public final class LbcConsuming {
         flushTerrain();
     }
 
+    void emitAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 origin,Vec3 direction){
+        if(mode==2)silence(owner,origin,false);
+        else if(mode==3)theEnd(owner,origin,direction,true);
+        else if(mode==4)avarice(owner,origin,direction.normalize());
+        else throw new IllegalArgumentException("Detached consuming mode "+mode);
+        flushTerrain();
+    }
+
     private void normal(ServerPlayer owner) {
         Vec3 start=owner.getEyePosition(),direction=owner.getLookAngle().normalize(),end=start;
         double suppression=game.items().magic().suppressionFraction(owner.level(),start,start.add(direction.scale(50)));
@@ -273,9 +281,14 @@ public final class LbcConsuming {
         }
     }
     private void theEnd(ServerPlayer owner) {
-        Vec3 start=owner.getEyePosition().add(owner.getLookAngle().normalize().scale(8));
-        for(int angle:new int[]{0,20,-20,-10,10}) {
-            Vec3 direction=Vec3.directionFromRotation(owner.getXRot(),owner.getYRot()+angle);
+        theEnd(owner,owner.getEyePosition(),owner.getLookAngle(),false);
+    }
+    private void theEnd(ServerPlayer owner,Vec3 origin,Vec3 aim,boolean detached) {
+        Vec3 start=detached?origin:origin.add(aim.normalize().scale(8));
+        float yaw=detached?(float)Math.toDegrees(Math.atan2(-aim.x,aim.z)):owner.getYRot();
+        float pitch=detached?(float)-Math.toDegrees(Math.atan2(aim.y,aim.horizontalDistance())):owner.getXRot();
+        for(int angle:detached?new int[]{0}:new int[]{0,20,-20,-10,10}) {
+            Vec3 direction=Vec3.directionFromRotation(pitch,yaw+angle);
             Vec3 end=start;
             double suppression=game.items().magic().suppressionFraction(owner.level(),start,start.add(direction.scale(400)));
             for(int sample=0;sample<201;sample++) {
@@ -329,9 +342,13 @@ public final class LbcConsuming {
         return new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(type),owner);
     }
     private void silence(ServerPlayer owner) {
-        Vec3 center=owner.getEyePosition();
-        owner.addEffect(ItemEffectLevels.create(MobEffects.LEVITATION,60,30));
-        owner.addEffect(ItemEffectLevels.create(MobEffects.SLOW_FALLING,1200));
+        silence(owner,owner.getEyePosition(),true);
+    }
+    private void silence(ServerPlayer owner,Vec3 center,boolean ownerEffects) {
+        if(ownerEffects){
+            owner.addEffect(ItemEffectLevels.create(MobEffects.LEVITATION,60,30));
+            owner.addEffect(ItemEffectLevels.create(MobEffects.SLOW_FALLING,1200));
+        }
         var stop=new net.minecraft.network.protocol.game.ClientboundStopSoundPacket(null,null);
         for(var player:game.server().getPlayerList().getPlayers()) player.connection.send(stop);
         var erasure=new SilenceErase(owner,game.items().epoch(),center);
@@ -381,11 +398,14 @@ public final class LbcConsuming {
         for(var player:owner.level().players()) if(player.position().distanceToSqr(center)<=48*48
                 && target(owner,player) && game.items().mana().hudValue(player,"void_resistance")<=0)
             player.hurtServer(owner.level(),outside,20);
-        if(hedgehog!=null) owner.hurtServer(owner.level(),new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+        if(ownerEffects && hedgehog!=null) owner.hurtServer(owner.level(),new DamageSource(owner.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
                 .getOrThrow(DamageTypes.OUTSIDE_BORDER),hedgehog),10_000_000_000f);
     }
     private void avarice(ServerPlayer owner) {
-        Vec3 start=owner.getEyePosition(),direction=owner.getLookAngle().normalize(),limit=start.add(direction.scale(140));
+        avarice(owner,owner.getEyePosition(),owner.getLookAngle().normalize());
+    }
+    private void avarice(ServerPlayer owner,Vec3 start,Vec3 direction) {
+        Vec3 limit=start.add(direction.scale(140));
         double suppression=game.items().magic().suppressionFraction(owner.level(),start,limit);
         if(Double.isFinite(suppression)) limit=start.lerp(limit,suppression);
         var hit=game.items().wands().firstHit(owner,start,limit,entity->entity instanceof LivingEntity
@@ -553,6 +573,8 @@ public final class LbcConsuming {
         if(summons.remove(entity)!=null && !entity.isRemoved()) entity.discard();
     }
     public int count() { return partitions.size()+areas.size()+summons.size()+work.size()+silences.size(); }
+    record SilenceView(ServerPlayer owner,String epoch,Vec3 center,int pending,int settle){}
+    List<SilenceView> silenceSnapshot(){return silences.stream().map(e->new SilenceView(e.owner,e.epoch,e.center,e.pending,e.settle)).toList();}
     record PartitionView(ServerPlayer owner,String epoch,Vec3 point,int age) { }
     record AreaView(ServerPlayer owner,String epoch,Vec3 point,int age) { }
     List<PartitionView> partitionSnapshot() { return partitions.stream().map(part->new PartitionView(part.owner,part.epoch,part.point,part.age)).toList(); }

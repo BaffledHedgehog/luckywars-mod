@@ -52,7 +52,7 @@ public final class LbcAir {
 
     public static final class Charge extends Projectile implements PolymerEntity {
         int age;
-        int sourceLifetime;
+        int sourceLifetime;boolean flyingStyle;
         int mode;
         InteractionHand trialHand;
         Vec3 origin;
@@ -96,6 +96,14 @@ public final class LbcAir {
         }
     }
 
+    void emitAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 origin,Vec3 direction){
+        LbcOverload.sound(owner,origin,"minecraft:entity.generic.explode",1,1.3f,0);
+        if(mode==1)for(int i=0;i<4;i++){
+            float yaw=owner.getYRot()+(owner.getRandom().nextFloat()*2-1)*30;
+            float pitch=owner.getXRot()+(owner.getRandom().nextFloat()*2-1)*20;
+            spawn(owner,hand,mode,ItemStack.EMPTY,origin,Vec3.directionFromRotation(pitch,yaw),200);
+        }else spawn(owner,hand,mode,ItemStack.EMPTY,origin,direction,200);
+    }
     Charge flying(ServerPlayer owner,InteractionHand hand,ItemStack stack,Vec3 origin,Vec3 direction) {
         return spawn(owner,hand,0,ItemStack.EMPTY,origin,direction,120);
     }
@@ -106,9 +114,9 @@ public final class LbcAir {
         if(!owner.level().hasChunkAt(BlockPos.containing(origin))) return null;
         Charge charge=new Charge(TYPE,owner.level());
         charge.setOwner(owner); charge.setPos(origin); charge.setNoGravity(true);
-        charge.setDeltaMovement(direction.normalize().scale(lifetime>0?.8:speed(mode))); charge.setYRot(lifetime>0?(float)Math.toDegrees(Math.atan2(-direction.x,direction.z)):owner.getYRot());
+        charge.setDeltaMovement(direction.normalize().scale(lifetime==120?.8:speed(mode))); charge.setYRot(lifetime>0?(float)Math.toDegrees(Math.atan2(-direction.x,direction.z)):owner.getYRot());
         charge.setXRot(lifetime>0?(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance())):owner.getXRot());
-        charge.mode=mode; charge.origin=origin; charge.sourceLifetime=lifetime;
+        charge.mode=mode; charge.origin=origin; charge.sourceLifetime=lifetime;charge.flyingStyle=lifetime==120;
         if(mode==0 && LbcAcademy.trial(stack)) {
             charge.trial=true; charge.trialHand=hand; charge.trialOwner=owner;
         }
@@ -159,7 +167,7 @@ public final class LbcAir {
     }
 
     private void emitTrail(ServerPlayer owner,Charge charge,Vec3 from,Vec3 end) {
-        if(charge.sourceLifetime>0) {
+        if(charge.flyingStyle) {
             double distance=from.distanceTo(end);Vec3 direction=end.subtract(from).normalize();
             for(double step=0;step<=distance+1e-7;step+=.2) {
                 Vec3 point=from.add(direction.scale(Math.min(step,distance)));
@@ -197,7 +205,7 @@ public final class LbcAir {
 
     private void detonate(Charge charge,ServerPlayer owner,Vec3 point) {
         if(!validOwner(owner) || !game.items().currentEpoch(charge) || !owner.level().hasChunkAt(BlockPos.containing(point))) return;
-        if(charge.sourceLifetime>0) {
+        if(charge.flyingStyle) {
             for(int i=0;i<3;i++) {
                 if(!validOwner(owner)||!game.items().currentEpoch(charge))break;
                 game.items().exasperato().protectedBlast(owner,owner.level(),point,4,source->{});

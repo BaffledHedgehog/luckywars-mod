@@ -768,6 +768,11 @@ public final class GameChecks {
                                 case "map-lighting" -> { MapLightingChecks.run(game); return; }
                                 case "effect-terrain" -> { EffectTerrainChecks.run(game); return; }
                                 case "sauvojen" -> { SauvojenChecks.run(game); return; }
+                                case "sauvojen-academy" -> { SauvojenAcademyChecks.run(game); return; }
+                                case "sauvojen-meditation" -> { SauvojenMeditationChecks.run(game); return; }
+                                case "sauvojen-stars" -> { SauvojenStarChecks.run(game); return; }
+                                case "sauvojen-academy-stop-probe" -> { SauvojenAcademyChecks.stopProbe(game); return; }
+                                case "sauvojen-academy-cleanup" -> { SauvojenAcademyChecks.cleanup(game); require(game.items().sauvojen().meditation().count()==0 && game.items().sauvojen().stars().count()==0,"combined Sauvojen meditation and star helpers clear after actual stop"); return; }
                                 case "sauvojen-stop-probe" -> { SauvojenChecks.stopProbe(game); return; }
                                 case "sauvojen-cleanup" -> { SauvojenChecks.cleanup(game); return; }
                                 case "signed-effect-levels" -> { SignedEffectLevelChecks.run(game); return; }
@@ -9628,8 +9633,13 @@ public final class GameChecks {
                 var other=game.server().getPlayerList().getPlayer(offlineUuid("TestBeta"));
                 require(owner!=null && other!=null && game.allowDamage(owner) && game.allowDamage(other),"SLR participants active");
                 var mana=game.items().mana(); var service=game.items().shooters(); var level=game.maps().level();
-                for(var player:java.util.List.of(owner,other))require(slrAttributionFields(game,player).isEmpty(),
-                                "SLR fixture requires no pending attribution for "+player.getScoreboardName()+": "+slrAttributionFields(game,player));
+                var attribution=new SauvojenMeditationChecks.Attribution(game,java.util.List.of(owner,other));
+                var priorAttribution=new java.util.IdentityHashMap<ServerPlayer,java.util.Set<String>>();
+                for(var player:java.util.List.of(owner,other)){
+                        priorAttribution.put(player,java.util.Set.copyOf(slrAttributionFields(game,player)));
+                        if(!priorAttribution.get(player).isEmpty())SkyWars2.LOGGER.info("[check] slr preserving prior attribution: player={}, fields={}, damage={}",player.getScoreboardName(),priorAttribution.get(player),player.getLastDamageSource());
+                        game.items().indirectKills().clear(player);
+                }
                 var ownerCombat=slrCombatSnapshot(owner);var otherCombat=slrCombatSnapshot(other);
                 var saved=new WandThirdPlayerState(owner,mana); var savedOther=new WandThirdPlayerState(other,mana);
                 boolean shift=owner.isShiftKeyDown(),offhand=game.config().offhandWands;
@@ -9792,7 +9802,7 @@ public final class GameChecks {
                 } finally {
                         service.clearStun(other); service.forget(owner); owner.setShiftKeyDown(shift); game.config().offhandWands=offhand;
                         // Stun/knockback leave falls and laterAttacks after their input lock ends.
-                        // The admission check proves these player-keyed entries belong to this fixture.
+                        // Admission isolated these entries; original participant state is restored below.
                         SkyWars2.LOGGER.info("[check] slr attribution cleanup: owner={}, other={}",slrAttributionFields(game,owner),slrAttributionFields(game,other));
                         for(var player:java.util.List.of(owner,other)){player.removeAllEffects();game.items().indirectKills().clear(player);}
                         for(var mob:mobs){service.clearStun(mob);game.items().indirectKills().clear(mob);}
@@ -9802,9 +9812,10 @@ public final class GameChecks {
                         cells.forEach((pos,snapshot)->game.maps().restoreSnapshot(pos,snapshot));
                         board.removePlayerFromTeam(owner.getScoreboardName()); for(var mob:mobs) board.removePlayerFromTeam(mob.getScoreboardName()); board.removePlayerTeam(team);
                         if(previousTeam!=null) board.addPlayerToTeam(owner.getScoreboardName(),previousTeam);
+                        for(var player:java.util.List.of(owner,other))require(slrAttributionFields(game,player).isEmpty(),"SLR removes fixture attribution before restoring original participants");
                         saved.restore(game); savedOther.restore(game);
-                        slrCombatRestore(owner,ownerCombat);slrCombatRestore(other,otherCombat);
-                        for(var player:java.util.List.of(owner,other))require(slrAttributionFields(game,player).isEmpty(),"SLR restores players without fixture attribution residue");
+                        slrCombatRestore(owner,ownerCombat);slrCombatRestore(other,otherCombat);attribution.close();
+                        for(var player:java.util.List.of(owner,other))require(java.util.Set.copyOf(slrAttributionFields(game,player)).equals(priorAttribution.get(player)),"SLR restores original participant attribution without fixture residue");
                 }
                 SkyWars2.LOGGER.info("[check] PASS slr");
         }

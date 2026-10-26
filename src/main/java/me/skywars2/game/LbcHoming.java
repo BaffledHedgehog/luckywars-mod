@@ -89,6 +89,8 @@ public final class LbcHoming {
     }
 
     public int count() { return fireballs.size()+rains.size()+destinies.size()+curses.size(); }
+    record EffectView(ServerPlayer owner,String epoch,Vec3 position,int remaining){}
+    List<EffectView> destinySnapshot(){return destinies.stream().map(e->new EffectView(e.owner,e.epoch,e.position,e.remaining)).toList();}
     List<LargeFireball> snapshot() { return List.copyOf(fireballs); }
     public int rainCount() { return rains.size(); }
     public int destinyCount() { return destinies.size(); }
@@ -156,10 +158,15 @@ public final class LbcHoming {
     }
     void libraryStars(ServerPlayer owner,int mode){launch(owner,true,mode,mode!=1,false);}
     private void launch(ServerPlayer owner,boolean donor,int mode,boolean upgraded,boolean achievement) {
-        if(!donor && mode==3) destinies.add(new Effect(owner,owner.getEyePosition(),600,game.items().epoch()));
-        else if(!donor && mode==4) curseRay(owner);
+        launchAt(owner,donor,mode,upgraded,achievement,owner.getEyePosition(),owner.getLookAngle());
+    }
+    void emitAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 origin,Vec3 direction){
+        launchAt(owner,false,mode,mode!=1,false,origin,direction);
+    }
+    private void launchAt(ServerPlayer owner,boolean donor,int mode,boolean upgraded,boolean achievement,Vec3 origin,Vec3 direction){
+        if(!donor && mode==3) destinies.add(new Effect(owner,origin,600,game.items().epoch()));
+        else if(!donor && mode==4) curseRay(owner,origin,direction);
         else {
-            Vec3 origin=owner.getEyePosition(),direction=owner.getLookAngle();
             requestRay(owner,origin,direction,true,(from,to)->trail(owner,from,to,donor&&!upgraded?.5:1,!donor),hit->{
                 if(hit==null) return;
                 Vec3 point=hit.getLocation();
@@ -349,8 +356,8 @@ public final class LbcHoming {
     }
 
     /** Curse проходит блоки, но не границы незагруженных чанков и подавления магии. */
-    private void curseRay(ServerPlayer owner) {
-        requestRay(owner,owner.getEyePosition(),owner.getLookAngle(),false,null,hit->{
+    private void curseRay(ServerPlayer owner,Vec3 origin,Vec3 direction) {
+        requestRay(owner,origin,direction,false,null,hit->{
             if(!(hit instanceof EntityHitResult entityHit) || !(entityHit.getEntity() instanceof LivingEntity living)
                     || !projectileTarget(owner,living)) return;
             if(living instanceof ServerPlayer player && game.items().magic().rejectCustomEffect(player)) return;

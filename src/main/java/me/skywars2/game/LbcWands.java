@@ -152,6 +152,7 @@ public final class LbcWands {
     public static final Item ELECTRO=register("skywars2:electro_wand","sauvojen_wand_electro","lbc:st/electro");
     public static final Item ACADEMY_ELECTRO=register("skywars2:academy_electro_wand","sauvojen_wand_electro","lbc:st/electro");
     public static final Item SAUVOJEN=register("skywars2:sauvojen_wand","sauvojen_wand","lbc:sauvojen_wand");
+    public static final Item ACADEMY_SAUVOJEN=register("skywars2:academy_sauvojen_wand","sauvojen_wand","lbc:sauvojen_wand");
     public static final Item EXASPERATO=register("skywars2:exasperato_wand","exasperato_wand","lbc:exasperato");
     public static final Item EXOPERSO=register("skywars2:exoperso_wand","megumin_wand","lbc:exoperso");
     public static final Item BEDROCK=register("skywars2:bedrock_wand","bedrock_wand","lbc:bedrock_wand");
@@ -265,6 +266,7 @@ public final class LbcWands {
         ACADEMY_STONEKIVI(LbcWands.ACADEMY_STONEKIVI,"stonekivi_wand","stonekivi_wand_mana_use",2500),
         REGULAR_STONEKIVI(LbcWands.STONEKIVI,"stonekivi_wand","stonekivi_wand_mana_use",2500),
         SAUVOJEN(LbcWands.SAUVOJEN,"sauvojen_wand","sauvojen_wand_mana_use",2500),
+        ACADEMY_SAUVOJEN(LbcWands.ACADEMY_SAUVOJEN,"sauvojen_wand","sauvojen_wand_mana_use",2500),
         EXASPERATO(LbcWands.EXASPERATO,"exasperato_wand","exasperato_wand_mana_use",1500);
         final Item item;
         final CompoundTag flag;
@@ -288,7 +290,7 @@ public final class LbcWands {
             if(item==LbcWands.ACADEMY_LIGHTNING_BOLTS || item==LbcWands.ACADEMY_BOLTBOLT) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_FALLING_STARS || item==LbcWands.ACADEMY_EXAHOMING) this.flag.putInt("upgraded",1);
             if(item==LbcWands.ACADEMY_BEDROCK || item==LbcWands.ACADEMY_WALL || item==LbcWands.ACADEMY_STONEKIVI) this.flag.putInt("upgraded",1);
-            if(item==LbcWands.ACADEMY_EXOPERSO || item==LbcWands.ACADEMY_RUBY || item==LbcWands.ACADEMY_TELEPORT || item==LbcWands.ACADEMY_AIR || item==LbcWands.ACADEMY_BLIND || item==LbcWands.ACADEMY_STONE || item==LbcWands.ACADEMY_FIRE || item==LbcWands.ACADEMY_TERRA || item==LbcWands.ACADEMY_ELECTRO || item==LbcWands.ACADEMY_EXASPERATO)
+            if(item==LbcWands.ACADEMY_SAUVOJEN || item==LbcWands.ACADEMY_EXOPERSO || item==LbcWands.ACADEMY_RUBY || item==LbcWands.ACADEMY_TELEPORT || item==LbcWands.ACADEMY_AIR || item==LbcWands.ACADEMY_BLIND || item==LbcWands.ACADEMY_STONE || item==LbcWands.ACADEMY_FIRE || item==LbcWands.ACADEMY_TERRA || item==LbcWands.ACADEMY_ELECTRO || item==LbcWands.ACADEMY_EXASPERATO)
                 this.flag.putInt("upgraded",1);
         }
     }
@@ -481,11 +483,10 @@ public final class LbcWands {
         Spell spell=null;
         for(var candidate:SPELLS) if(matches(stack,candidate.item,candidate.flag)) { spell=candidate; break; }
         if(spell==null) return false;
-        // The combined Academy payloads and meditation stay gated until their complete port.
-        if(spell==Spell.SAUVOJEN) {
+        // Detached producers and the trial share ordinary admission/payment, once per real hand.
+        if(spell==Spell.SAUVOJEN || spell==Spell.ACADEMY_SAUVOJEN) {
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-            if(data.getIntOr("upgraded",0)==1 || data.getIntOr("upgradable",0)==1
-                    || timeStopped() || player.entityTags().contains("time_stopped")
+            if(timeStopped() || player.entityTags().contains("time_stopped")
                     || game.items().magic().suppressedAt(player.level(),player.getEyePosition())
                     || !player.level().hasChunkAt(BlockPos.containing(player.getEyePosition().add(player.getLookAngle().scale(2))))) return false;
         }
@@ -698,7 +699,10 @@ public final class LbcWands {
         int spentMana=spell==Spell.REGULAR_EXOPERSO?25000:spell==Spell.ACADEMY_EXOPERSO?10000:requiredMana;
         if(!mana.trySpendWand(player,requiredMana,spentMana)) return false;
         switch(spell) {
-            case SAUVOJEN -> game.items().sauvojen().cast(player,hand,stack);
+            case SAUVOJEN, ACADEMY_SAUVOJEN -> {
+                if(!game.items().sauvojen().meditation().start(player,hand,stack))
+                    game.items().sauvojen().cast(player,hand,stack);
+            }
             case REGULAR_STONEKIVI -> game.items().stonekivi().cast(player,hand,stack,false);
             case ACADEMY_STONEKIVI -> game.items().stonekivi().cast(player,hand,stack,true);
             case REGULAR_WALL -> LbcWall.cast(game,player,hand,stack,false);
@@ -872,15 +876,16 @@ public final class LbcWands {
         return entity==null?wall:entity;
     }
     /** Вместо рекурсивных 200 запросов: один native clip и один локальный поиск ближайшей цели. */
-    void concentratedFire(ServerPlayer player) {
-        Vec3 from=player.getEyePosition(),to=from.add(player.getLookAngle().scale(100));
+    void concentratedFire(ServerPlayer player) {concentratedFireAt(player,player.getEyePosition(),player.getLookAngle());}
+    private void concentratedFireAt(ServerPlayer player,Vec3 from,Vec3 direction) {
+        Vec3 to=from.add(direction.scale(100));
         var level=player.level();
         var hit=firstHit(player,from,to);
         boolean terminal=hit!=null && (!(hit instanceof net.minecraft.world.phys.BlockHitResult wall) || level.hasChunkAt(wall.getBlockPos()));
         if(hit!=null) to=hit.getLocation();
         double distance=from.distanceTo(to);
         for(double step=0;step<=distance;step+=.5) {
-            var point=from.add(player.getLookAngle().scale(step));
+            var point=from.add(direction.scale(step));
             level.sendParticles(ParticleTypes.FALLING_LAVA,true,false,point.x,point.y,point.z,1,.05,.05,.05,0);
             LbcOverload.sound(player,point,"minecraft:block.lava.ambient",1,.1f,0);
         }
@@ -1035,6 +1040,30 @@ public final class LbcWands {
         }
         LbcOverload.sound(owner,origin,"minecraft:entity.firework_rocket.twinkle",1,1,0);
     }
+    void sauvojenElectro(ServerPlayer owner,Vec3 origin,Vec3 direction,boolean ray){
+        if(ray){electroRayAt(owner,origin,direction);return;}
+        float yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
+        float pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));
+        for(int i=0;i<3;i++){
+            var trace=new ElectroTrace(owner,origin.subtract(direction.scale(i*.01)),game.items().epoch(),40+i*5);
+            trace.yaw=yaw;trace.pitch=pitch;electroTraces.add(trace);
+        }
+        LbcOverload.sound(owner,origin,"minecraft:entity.firework_rocket.twinkle",1,1,0);
+    }
+    void sauvojenFire(ServerPlayer owner,Vec3 origin,Vec3 direction,int mode){
+        if(mode==2){concentratedFireAt(owner,origin,direction);return;}
+        if(mode==1){
+            var shot=new LargeFireball(owner.level(),owner,direction,2);
+            launchFire(owner,shot,origin.add(direction),direction.scale(2.5));
+        }else{
+            Vec3 left=new Vec3(direction.z,0,-direction.x).normalize();
+            for(double side:new double[]{0,.15,-.15}){
+                var shot=new SmallFireball(EntityTypes.SMALL_FIREBALL,owner.level());
+                launchFire(owner,shot,origin.add(direction),direction.scale(2.5).add(left.scale(side)));
+            }
+        }
+        LbcOverload.sound(owner,origin,"minecraft:item.firecharge.use",1,mode==1?.5f:1,0);
+    }
     /** Source Raid Omen124 emits three upward, ten-tick WILD arcs per chained contact. */
     void chainStatusElectro(LivingEntity emitter,ServerPlayer owner,Vec3 at,LbcIndirectKills.Owner cause){
         for(int i=0;i<3;i++)electroTraces.add(new ElectroTrace(emitter,owner,at,game.items().epoch(),cause));
@@ -1133,9 +1162,10 @@ public final class LbcWands {
         }
     }
     /** Режим Academy: одна геометрическая проверка пути и хитбоксов вместо рекурсии на 1001 шаг. */
-    void electroRay(ServerPlayer owner) {
+    void electroRay(ServerPlayer owner) {electroRayAt(owner,owner.getEyePosition(),owner.getLookAngle());}
+    private void electroRayAt(ServerPlayer owner,Vec3 from,Vec3 direction) {
         var level=owner.level();
-        Vec3 from=owner.getEyePosition(),direction=owner.getLookAngle(),end=from.add(direction.scale(100));
+        Vec3 end=from.add(direction.scale(100));
         var wall=LbcTerra.wallHit(level,from,end);
         if(wall!=null) end=wall.getLocation();
         var shield=shieldHit(owner,from,end);
@@ -1278,7 +1308,7 @@ public final class LbcWands {
         else trace.level.playSound(null,at.x,at.y,at.z,net.minecraft.sounds.SoundEvent.createVariableRangeEvent(
                 Identifier.parse(id)),net.minecraft.sounds.SoundSource.MASTER,volume,pitch);
     }
-    private EntityHitResult shieldHit(LivingEntity owner,Vec3 from,Vec3 to,boolean meditation) {
+    EntityHitResult shieldHit(LivingEntity owner,Vec3 from,Vec3 to,boolean meditation) {
         Vec3 delta=to.subtract(from);
         double lengthSquared=delta.lengthSqr();
         EntityHitResult nearest=null;
@@ -1511,6 +1541,7 @@ public final class LbcWands {
     /** Радиус взрыва native firework обходит canHitEntity; союзников защищаем и в финальном уроне. */
     public boolean allowDamage(Entity victim,DamageSource source) {
         if(LbcGreed.active(victim)) return false;
+        if(SauvojenMeditation.managed(source.getDirectEntity())) return validTarget(victim);
         if(source instanceof LbcBabylonEffects.OwnerDamageSource||LbcVexSword.wild(source.getDirectEntity())) return validTarget(victim);
         if(LbcGodHedgehog.managed(source.getDirectEntity())
                 || (LbcHedgehog.managed(source.getDirectEntity()) || source.getDirectEntity() instanceof net.minecraft.world.entity.monster.Silverfish)

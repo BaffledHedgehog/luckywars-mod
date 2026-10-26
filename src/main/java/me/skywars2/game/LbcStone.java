@@ -106,6 +106,16 @@ public final class LbcStone {
             default -> ray(owner,mode==4);
         }
     }
+    void emitAt(ServerPlayer owner,int mode,Vec3 origin,Vec3 direction){
+        switch(mode){
+            case 0->castAt(owner,origin,direction,false,200);
+            case 1->rayAt(owner,origin,direction,false);
+            case 2->bridgeAt(owner,origin,direction);
+            case 3->shield(owner);
+            case 4->rayAt(owner,origin,direction,true);
+            default->throw new IllegalArgumentException("Stone producer mode "+mode);
+        }
+    }
     void castAt(ServerPlayer owner,Vec3 origin,Vec3 direction){castAt(owner,origin,direction,false);}
     Charge flying(ServerPlayer owner,Vec3 origin,Vec3 direction) {
         return castAt(owner,origin,direction,false,80);
@@ -127,13 +137,14 @@ public final class LbcStone {
         owner.level().sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.BEDROCK.defaultBlockState()),
                 owner.getX(),owner.getY()+1,owner.getZ(),30,.3,.6,.4,0);
     }
-    void ray(ServerPlayer owner,boolean spike) {
-        Vec3 from=owner.getEyePosition(),end=from.add(owner.getLookAngle().scale(150));
+    void ray(ServerPlayer owner,boolean spike) {rayAt(owner,owner.getEyePosition(),owner.getLookAngle(),spike);}
+    private void rayAt(ServerPlayer owner,Vec3 from,Vec3 direction,boolean spike) {
+        Vec3 end=from.add(direction.scale(150));
         var hit=game.items().wands().firstHit(owner,from,end);
         if(hit!=null) end=hit.getLocation();
         double distance=from.distanceTo(end);
         for(double step=0;step<=distance;step+=.5) {
-            Vec3 point=from.add(owner.getLookAngle().scale(step));
+            Vec3 point=from.add(direction.scale(step));
             owner.level().sendParticles(spike ? SPIKE_PARTICLES : STONE_PARTICLES,true,false,point.x,point.y,point.z,1,.05,.05,.05,0);
             LbcOverload.sound(owner,point,"minecraft:block.amethyst_cluster.break",1,.1f,0);
         }
@@ -198,8 +209,10 @@ public final class LbcStone {
                 target.hurtServer(owner.level(),damage,5);
         }
     }
-    void bridge(ServerPlayer owner) {
-        Vec3 origin=owner.position().add(0,-1,0),forward=owner.getLookAngle(),left=Vec3.directionFromRotation(0,owner.getYRot()-90);
+    void bridge(ServerPlayer owner) {bridgeAt(owner,owner.position().add(0,-1,0),owner.getLookAngle());}
+    private void bridgeAt(ServerPlayer owner,Vec3 origin,Vec3 forward) {
+        float yaw=(float)Math.toDegrees(Math.atan2(-forward.x,forward.z));
+        Vec3 left=Vec3.directionFromRotation(0,yaw-90);
         for(int i=0;i<BRIDGE.length;i++) {
             var a=BlockPos.containing(origin.add(left.scale(-1)).add(forward.scale(i*2)));
             var b=BlockPos.containing(origin.add(left).add(forward.scale(i*2+2.9)));

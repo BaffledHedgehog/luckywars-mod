@@ -155,6 +155,11 @@ public final class LbcBlind {
         }
     }
 
+    void emitAt(ServerPlayer owner,InteractionHand hand,int mode,Vec3 origin,Vec3 direction){
+        LbcOverload.sound(owner,origin,"minecraft:entity.squid.squirt",1,1,0);
+        if(mode==2)rainAt(owner,origin,direction);
+        else spreadAt(owner,hand,origin,mode==1?4:5,mode==1,30,20,false,direction,owner.getLookAngle());
+    }
     void queueGatling(ServerPlayer owner) {
         gatlings.compute(owner,(player,queue)-> {
             if(queue==null || !game.items().currentEpoch(queue.epoch))queue=new GatlingQueue(game.items().epoch());
@@ -165,7 +170,12 @@ public final class LbcBlind {
 
     private void spread(ServerPlayer owner,InteractionHand hand,Vec3 origin,int count,
                         boolean phantom,int yawSpread,int pitchSpread,boolean trial) {
-        Vec3 look=owner.getLookAngle();
+        spreadAt(owner,hand,origin,count,phantom,yawSpread,pitchSpread,trial,owner.getLookAngle(),owner.getLookAngle());
+    }
+    private void spreadAt(ServerPlayer owner,InteractionHand hand,Vec3 origin,int count,
+            boolean phantom,int yawSpread,int pitchSpread,boolean trial,Vec3 look,Vec3 aim){
+        float aimYaw=(float)Math.toDegrees(Math.atan2(-aim.x,aim.z));
+        float aimPitch=(float)-Math.toDegrees(Math.atan2(aim.y,aim.horizontalDistance()));
         Vec3 right=new Vec3(look.z,0,-look.x).normalize();
         if(right.lengthSqr()<1e-8) right=new Vec3(1,0,0);
         Vec3 up=look.cross(right).normalize();
@@ -175,21 +185,22 @@ public final class LbcBlind {
         if(count==5 || count>=7) offsets.add(up.scale(-.1));
         if(count>=7) { offsets.add(look.scale(.1)); offsets.add(look.scale(-.1)); }
         for(Vec3 offset:offsets) {
-            float yaw=owner.getYRot()+(owner.getRandom().nextFloat()*2-1)*yawSpread;
-            float pitch=owner.getXRot()+(owner.getRandom().nextFloat()*2-1)*pitchSpread;
+            float yaw=aimYaw+(owner.getRandom().nextFloat()*2-1)*yawSpread;
+            float pitch=aimPitch+(owner.getRandom().nextFloat()*2-1)*pitchSpread;
             spawn(owner,origin.add(offset),Vec3.directionFromRotation(pitch,yaw).scale(1.8),
                     phantom,ORDINARY_LIFETIME,trial?hand:null,trial);
         }
     }
 
-    private void rain(ServerPlayer owner,Vec3 origin) {
-        Vec3 end=origin.add(owner.getLookAngle().scale(100));
+    private void rain(ServerPlayer owner,Vec3 origin) {rainAt(owner,origin,owner.getLookAngle());}
+    private void rainAt(ServerPlayer owner,Vec3 origin,Vec3 direction) {
+        Vec3 end=origin.add(direction.scale(100));
         if(!owner.level().hasChunkAt(BlockPos.containing(origin))) return;
         HitResult hit=game.items().wands().firstHit(owner,origin,end);
         // Source rain preloop draws ink every .4 blocks, including an aim with no terminal hit.
         double distance=origin.distanceTo(hit==null?end:hit.getLocation());
         for(double step=0;step<=distance+1e-7;step+=.4) {
-            var trail=origin.add(owner.getLookAngle().scale(Math.min(step,distance)));
+            var trail=origin.add(direction.scale(Math.min(step,distance)));
             if(!owner.level().hasChunkAt(BlockPos.containing(trail)))break;
             owner.level().sendParticles(ParticleTypes.SQUID_INK,true,false,trail.x,trail.y,trail.z,1,0,0,0,0);
         }

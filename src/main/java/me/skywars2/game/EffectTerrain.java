@@ -38,6 +38,7 @@ final class EffectTerrain {
     static long tickNanos() { return tickNanos; }
     static int queued() { return pending.size(); }
     static void beginTick() { tickStarted=System.nanoTime(); }
+    static long deadlineNanos() { return (tickStarted==0?System.nanoTime():tickStarted)+TICK_TARGET_NANOS-TAIL_RESERVE_NANOS; }
 
     static void fire(LivingEntity source,int radius) { field(source,radius,false); }
     static void water(LivingEntity source,int radius) { field(source,radius,true); }
@@ -66,7 +67,7 @@ final class EffectTerrain {
     }
     static void tick() {
         long started=System.nanoTime();ticks++;
-        long deadline=(tickStarted==0?started:tickStarted)+TICK_TARGET_NANOS-TAIL_RESERVE_NANOS;
+        long deadline=deadlineNanos();
         var budget=new Budget(deadline);
         int paused=0;
         while(!pending.isEmpty()&&budget.available()) {

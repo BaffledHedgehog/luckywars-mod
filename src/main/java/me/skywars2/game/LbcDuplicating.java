@@ -107,6 +107,16 @@ public final class LbcDuplicating {
             markers.add(marker);
         }
     }
+    void emitAt(ServerPlayer owner,int mode,Vec3 origin,Vec3 direction){
+        direction=direction.normalize();
+        if(mode==3)queue(new Divide(owner,origin,direction));
+        else{
+            var marker=new MarkerState(owner,game.items().epoch(),origin.add(direction.scale(mode==2?14:mode==4?8:7)),
+                    direction,mode,mode==2?100:mode==4?300:200);
+            if(mode==4)marker.visual=game.items().blackHoleVisuals().create(owner,marker.point,HOLE_SHADER_RADIUS);
+            markers.add(marker);
+        }
+    }
     public boolean useDivider(ServerPlayer owner,ItemStack stack) {
         if(!castable(owner) || game.items().mana().score(owner,"divider_cd").get()>0) return false;
         var job=new Job(owner); grid(job,owner.position(),12,true); queue(job);
@@ -430,8 +440,9 @@ public final class LbcDuplicating {
     }
     private final class Divide extends Job {
         final Vec3 start,direction; int sample;
-        Divide(ServerPlayer owner) {
-            super(owner); start=owner.getEyePosition(); direction=owner.getLookAngle().normalize();
+        Divide(ServerPlayer owner) {this(owner,owner.getEyePosition(),owner.getLookAngle().normalize());}
+        Divide(ServerPlayer owner,Vec3 origin,Vec3 look) {
+            super(owner); start=origin; direction=look;
             operations.add((job,deadline,budget)-> {
                 while(sample<=250 && budget[0]>0 && System.nanoTime()<deadline) {
                     Vec3 point=start.add(direction.scale(sample*.4));

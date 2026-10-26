@@ -411,12 +411,13 @@ public final class LbcIndirectKills {
     public void worldChanges(ServerLevel level, Entity source, Runnable writes) {
         worldChanges(level,source,source instanceof net.minecraft.world.entity.LightningBolt || game.items().cageDrops().wild(source)
                 || game.items().zombieTntDrops().wild(source) || game.items().droneDrops().wild(source)
-                || game.items().creeperDrops().wild(source) || LbcTransformator.managed(source),writes);
+                || game.items().creeperDrops().wild(source) || LbcTransformator.managed(source) || SauvojenMeditation.managed(source),writes);
     }
     /** Terrain traps retain WILD consequences after their source item has been consumed. */
     public void worldChanges(ServerLevel level, Entity source, boolean friendlyFire, Runnable writes) {
         var player=playerSource(source);
-        var inherited=game.items().babylonEffects().cause(source);
+        var inherited=SauvojenMeditation.cause(source);
+        if(inherited==null)inherited=game.items().babylonEffects().cause(source);
         blockWrites(level,inherited!=null ? inherited : player==null ? null : new Owner(player.getUUID(),++order,friendlyFire,
                 source instanceof Projectile || source instanceof net.minecraft.world.entity.LightningBolt),writes);
     }
@@ -598,6 +599,8 @@ public final class LbcIndirectKills {
     public Owner babylonCause(DamageSource source) {
         if (source instanceof CapturedDamage captured) return captured.cause;
         if (source instanceof LbcBabylonEffects.OwnerDamageSource owned) return owned.cause;
+        var trialCause=SauvojenMeditation.cause(source.getDirectEntity());
+        if(trialCause!=null)return trialCause;
         var bossCause=game.items().godHedgehog().cause(source.getDirectEntity());
         return bossCause!=null ? bossCause : game.items().babylonEffects().cause(source.getDirectEntity());
     }

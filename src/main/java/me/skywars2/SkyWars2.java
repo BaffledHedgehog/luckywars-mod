@@ -72,6 +72,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             game.items().stonekivi().prepare();
             game.items().kiuas().prepare();
             game.items().ruby().prepare();
+            game.items().sauvojen().prepare();
             game.items().consuming().prepare();
             game.items().duplicating().prepare();
             game.items().bolts().prepare();
@@ -88,6 +89,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
                 game.items().stonekivi().prepare();
                 game.items().kiuas().prepare();
                 game.items().ruby().prepare();
+                game.items().sauvojen().prepare();
                 game.items().consuming().prepare();
                 game.items().duplicating().prepare();
                 game.items().bolts().prepare();

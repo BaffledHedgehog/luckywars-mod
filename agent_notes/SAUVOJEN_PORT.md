@@ -51,17 +51,13 @@ stop retire captured state and viewers. Owned manual visuals use the existing
 client-world-reset tracking repair. Already-paid producers continue after
 their original item moves; the captured stack never writes back into inventory.
 
-## Remaining combined Academy work
+## Combined Academy continuation
 
-The combined Academy version and destructive multistage meditation remain gated.
-Neither an Academy leaf nor a fake upgrade route is published. Legacy stacks
-with `upgraded` or `upgradable` are rejected before payment until that work lands.
-Broad enclosing source pools and live grimoire overrides remain untouched.
-
-The user approved a sequential cycle of all ten upgraded ruby attacks (user).
-That replaces its accidental odd-only legacy counter behavior when the combined
-Academy implementation is enabled. This ordinary release does not claim it.
-The inactive incomplete `blind_check` helper is not an active trial defect.
+The complete upgraded producer family and destructive meditation are implemented
+in the [combined port](SAUVOJEN_ACADEMY.md). Its qualification record supersedes
+the earlier ordinary-only gate once native checks pass. Imported upgraded stacks
+use the same80-branch family; admitted upgradable originals can meditate with
+main-hand Shift use. The inactive incomplete `blind_check` remains unused.
 
 ## Validation
 

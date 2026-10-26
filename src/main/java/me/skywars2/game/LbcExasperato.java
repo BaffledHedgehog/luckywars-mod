@@ -186,17 +186,52 @@ public final class LbcExasperato {
         }
     }
 
+    /** Direct helper producers retain source counts and lifetimes, without input/trial hooks. */
+    void emitAt(ServerPlayer owner,net.minecraft.world.InteractionHand hand,net.minecraft.world.item.ItemStack stack,int mode,Vec3 origin,Vec3 direction){
+        Vec3 aim=direction.normalize();
+        float yaw=(float)Math.toDegrees(Math.atan2(-aim.x,aim.z));
+        float pitch=(float)-Math.toDegrees(Math.atan2(aim.y,aim.horizontalDistance()));
+        switch(mode){
+            case 0 -> spawnChargeAt(owner,0,200,0,origin,aim,yaw,pitch);
+            // This helper explicitly copies the marked player's Rotation, unlike ordinary click2.
+            case 1 -> {for(int lifetime:new int[]{200,100,50})spawnChargeAt(owner,1,lifetime,0,origin,owner.getLookAngle(),owner.getYRot(),owner.getXRot());}
+            case 2 -> spawnChargeAt(owner,2,200,0,origin,aim,yaw,pitch);
+            case 3 -> chaosAt(owner,origin,aim);
+            case 4 -> emitNukeTickAt(owner,origin);
+            default -> throw new IllegalArgumentException("Detached exasperato mode "+mode);
+        }
+        if(mode<=2)for(int soundPitch=0;soundPitch<=2;soundPitch++)
+            LbcOverload.sound(owner,origin,"minecraft:entity.generic.explode",1,soundPitch,0);
+    }
+
+    /** Five source downward samples. Null consumes the drone; otherwise teleport its carrier to the result. */
+    Vec3 emitNukeTickAt(ServerPlayer owner,Vec3 origin){
+        var level=owner.level();
+        for(int sample=0;sample<5;sample++){
+            Vec3 at=origin.add(0,-sample*.25,0);
+            var block=BlockPos.containing(at);
+            if(!level.hasChunkAt(block)||game.items().magic().suppressedAt(level,at))return origin;
+            level.sendParticles(NUKE_PARTICLE,true,false,at.x,at.y,at.z,3,0,0,0,.2);
+            if(block.getY()>=0&&block.getY()<=319&&!level.getBlockState(block).is(AIRS)){
+                nuclearBurst(owner,at);return null;
+            }
+        }
+        return origin.add(0,-1,0);
+    }
+
     private void launchSound(ServerPlayer owner) {
         for(int pitch=0;pitch<=2;pitch++)
             LbcOverload.sound(owner,owner.getEyePosition(),"minecraft:entity.generic.explode",1,pitch,0);
     }
 
     private void spawnCharge(ServerPlayer owner,int mode,int lifetime,double offset) {
+        spawnChargeAt(owner,mode,lifetime,offset,owner.getEyePosition(),owner.getLookAngle(),owner.getYRot(),owner.getXRot());
+    }
+    private void spawnChargeAt(ServerPlayer owner,int mode,int lifetime,double offset,Vec3 origin,Vec3 direction,float yaw,float pitch) {
         Charge charge=TYPE.create(owner.level(),net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
         if(charge==null) return;
-        Vec3 direction=owner.getLookAngle();
         charge.mode=mode; charge.lifetime=lifetime;
-        Vec3 origin=owner.getEyePosition(),start=origin.add(direction.scale(offset));
+        Vec3 start=origin.add(direction.scale(offset));
         // Передние заряды не появляются за стеной: сначала ограничиваем сдвиг ближайшим препятствием.
         var wall=offset>0 ? LbcTerra.wallHit(owner.level(),origin,start) : null;
         if(wall!=null) start=wall.getLocation();
@@ -204,7 +239,7 @@ public final class LbcExasperato {
         if(shield!=null) start=shield.getLocation();
         charge.setOwner(owner); charge.setPos(start); charge.entityTags().add("magic");
         charge.setNoGravity(true); charge.setDeltaMovement(direction.scale(mode==2 ? 4.5 : 1));
-        charge.setYRot(owner.getYRot()); charge.setXRot(owner.getXRot());
+        charge.setYRot(yaw); charge.setXRot(pitch);
         game.items().markCurrentItemEpoch(charge);
         if(owner.level().addFreshEntity(charge)) {
             charges.add(charge);
@@ -529,8 +564,11 @@ public final class LbcExasperato {
     }
 
     private void chaos(ServerPlayer owner) {
+        chaosAt(owner,owner.getEyePosition(),owner.getLookAngle());
+    }
+    private void chaosAt(ServerPlayer owner,Vec3 origin,Vec3 direction) {
         ServerLevel level=owner.level(); String epoch=game.items().epoch();
-        Vec3 target=owner.getEyePosition().add(owner.getLookAngle().scale(60));
+        Vec3 target=origin.add(direction.scale(60));
         Vec3 base=new Vec3((int)target.x,(int)target.y,(int)target.z);
         for(int i=0;i<80;i++) {
             if(!game.items().currentEpoch(epoch) || game.stage()==GameController.Stage.ENDING || !owner.isAlive() || !game.canUseGameplayItems(owner)) return;

@@ -85,6 +85,21 @@ final class LbcErecto {
             default -> throw new IllegalArgumentException("Erecto mode "+mode);
         }
     }
+    void emitAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode,Vec3 origin,Vec3 direction){
+        float yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
+        float pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));
+        switch(mode){
+            case 1->volleyAt(owner,hand,ItemStack.EMPTY,origin,direction);
+            case 2->rayAt(owner,origin,direction);
+            case 3->{var hit=firstAt(owner,origin,direction,150,true);if(hit!=null)spheres.add(new Sphere(owner,hit.getLocation().subtract(direction),game.items().epoch()));}
+            case 4->{
+                add(owner,origin,yaw,pitch,200,new Path(SNIPER,origin,null,0,0,owner,hand,ItemStack.EMPTY));
+                LbcOverload.sound(owner,origin,"minecraft:item.trident.return",3,1.3f,0);
+                owner.level().sendParticles(net.minecraft.core.particles.ColorParticleOption.create(ParticleTypes.FLASH,0xff00ffff),true,false,origin.x,origin.y,origin.z,1,0,0,0,0);
+            }
+            default->throw new IllegalArgumentException("Erecto producer mode "+mode);
+        }
+    }
     private void sniper(ServerPlayer owner,InteractionHand hand,ItemStack stack) {
         add(owner,owner.getEyePosition(),owner.getYRot(),owner.getXRot(),200,
                     new Path(SNIPER,owner.getEyePosition(),null,0,0,owner,hand,stack));
@@ -102,17 +117,21 @@ final class LbcErecto {
         owner.teleportTo(owner.level(),owner.getX(),owner.getY(),owner.getZ(),Set.of(),yaw,pitch,true);
     }
     /** Shared resident DDA and native entity boxes resolve a cast-local focus without allocating a marker. */
-    private HitResult first(ServerPlayer owner,double range,boolean entities){
-        Vec3 from=owner.getEyePosition(),to=from.add(owner.getLookAngle().scale(range));var wall=LbcTerra.wallHit(owner.level(),from,to);
+    private HitResult first(ServerPlayer owner,double range,boolean entities){return firstAt(owner,owner.getEyePosition(),owner.getLookAngle(),range,entities);}
+    private HitResult firstAt(ServerPlayer owner,Vec3 from,Vec3 direction,double range,boolean entities){
+        Vec3 to=from.add(direction.scale(range));var wall=LbcTerra.wallHit(owner.level(),from,to);
         if(wall!=null)to=wall.getLocation();
         var entity=entities?ProjectileUtil.getEntityHitResult(owner,from,to,new AABB(from,to).inflate(1),e->e.getType().builtInRegistryHolder().is(MOBS)&&game.items().wands().projectileTarget(owner,e),from.distanceToSqr(to)):null;
         if(entity!=null)return entity;
         return wall!=null&&owner.level().hasChunkAt(BlockPos.containing(wall.getLocation()))?wall:null;
     }
-    private void volley(ServerPlayer owner,InteractionHand hand,ItemStack stack){
-        Vec3 origin=owner.getEyePosition();var hit=first(owner,200,true);Vec3 focus=hit==null?null:hit.getLocation();int steps=hit==null?401:Math.min(401,1+Mth.ceil(origin.distanceTo(focus)*2));
-        add(owner,origin,owner.getYRot(),owner.getXRot(),200,new Path(CENTRAL,origin,focus,steps,0,owner,hand,stack));
-        for(int side:new int[]{1,-1,2,-2,3,-3,4,-4})add(owner,origin,owner.getYRot()+side*10,owner.getXRot(),200,new Path(SIDE,origin,focus,steps,side,owner,hand,stack));
+    private void volley(ServerPlayer owner,InteractionHand hand,ItemStack stack){volleyAt(owner,hand,stack,owner.getEyePosition(),owner.getLookAngle());}
+    private void volleyAt(ServerPlayer owner,InteractionHand hand,ItemStack stack,Vec3 origin,Vec3 direction){
+        float yaw=(float)Math.toDegrees(Math.atan2(-direction.x,direction.z));
+        float pitch=(float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));
+        var hit=firstAt(owner,origin,direction,200,true);Vec3 focus=hit==null?null:hit.getLocation();int steps=hit==null?401:Math.min(401,1+Mth.ceil(origin.distanceTo(focus)*2));
+        add(owner,origin,yaw,pitch,200,new Path(CENTRAL,origin,focus,steps,0,owner,hand,stack));
+        for(int side:new int[]{1,-1,2,-2,3,-3,4,-4})add(owner,origin,yaw+side*10,pitch,200,new Path(SIDE,origin,focus,steps,side,owner,hand,stack));
     }
     private void add(ServerPlayer owner,Vec3 at,float yaw,float pitch,int lifetime,Path path){
         var trace=new LbcWands.ElectroTrace(owner,at,game.items().epoch(),lifetime);trace.yaw=yaw;trace.pitch=pitch;trace.erecto=path;game.items().wands().higherElectro(trace);
@@ -215,8 +234,9 @@ final class LbcErecto {
         }
     }
     private boolean active(ServerPlayer owner,String epoch){return owner.isAlive()&&!owner.isRemoved()&&game.items().currentEpoch(epoch)&&game.canUseGameplayItems(owner);}
-    private void ray(ServerPlayer owner){
-        Vec3 from=owner.getEyePosition(),direction=owner.getLookAngle(),end=from.add(direction.scale(50));var wall=LbcTerra.wallHit(owner.level(),from,end);if(wall!=null)end=wall.getLocation();
+    private void ray(ServerPlayer owner){rayAt(owner,owner.getEyePosition(),owner.getLookAngle());}
+    private void rayAt(ServerPlayer owner,Vec3 from,Vec3 direction){
+        Vec3 end=from.add(direction.scale(50));var wall=LbcTerra.wallHit(owner.level(),from,end);if(wall!=null)end=wall.getLocation();
         for(int i=0;i<=100&&i*.5<=from.distanceTo(end)+1e-7;i++)if(owner.getRandom().nextFloat()<.35f){var point=from.add(direction.scale(i*.5));owner.level().sendParticles(DUST,true,false,point.x,point.y,point.z,1,.1,.1,.1,0);owner.level().sendParticles(ParticleTypes.ELECTRIC_SPARK,point.x,point.y,point.z,1,.1,.1,.1,1);LbcOverload.sound(owner,point,"minecraft:entity.firework_rocket.twinkle",.03f,2,0);}
         var damage=new DamageSource(owner.level().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.ELECTRO_BOLT),owner);
         var affected=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());
