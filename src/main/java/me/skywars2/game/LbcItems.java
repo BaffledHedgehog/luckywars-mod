@@ -132,6 +132,7 @@ public final class LbcItems {
     public void damaged(LivingEntity victim, DamageSource source) {
         stand.onAcceptedDamage(victim,source);
         summons.damaged(victim,source);
+        syringe.damaged(victim,source);
         shooters.damaged(victim,source);
         if (!game.playing() && !debugItemUseWindow() || !inArena(victim) || LbcDamage.isArrowDamage(source)
                 || !(source.getEntity() instanceof ServerPlayer owner) || !active(owner)
@@ -147,7 +148,7 @@ public final class LbcItems {
     }
 
     /** Загружаем регистрацию до freeze реестров и чтения loot tables, а не при первом обращении к предмету. */
-    public static void register() { EnchantmentRules.register(); LbcSkills.register(); LbcClouds.register(); LbcPrism.register(); LbcAcidCorruption.register(); LbcIceWand.register(); LbcVoidArcanum.register(); LbcDefensiveArcanums.register(); LbcBabylon.register(); LbcFartus.register(); LbcHalloweenWind.register(); LbcSoulhunter.register(); LbcSoulless.register(); LbcDanmaku.register(); LbcElementalGrimoires.register(); LbcLibrarySpells.register(); LbcSummonerItems.register(); LbcSheep.register(); LbcHedgehogItems.register(); LbcWtf.register(); LbcIceMaterials.register(); LbcCorruptedGlyphs.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcVexSword.register(); LbcSpecialEggs.register(); LbcHohlopitek.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcTntDropItem.register(); LbcCreeperDropItem.register(); LbcCageDropItem.register(); LbcHoleDropItem.register(); LbcCorrosionDropItem.register(); LbcZombieTntDropItem.register(); LbcFallingNetheriteDropItem.register(); LbcHomeItems.register(); LbcScareDropItem.register(); LbcLuckyPigDropItem.register(); LbcLevitationDropItem.register(); LbcLibraryDropItem.register(); LbcBeeDropItem.register(); LbcOpAnvilDropItem.register(); LbcSlabDropItem.register(); LbcFeedbackDropItem.register(); LbcCreatureDropItem.register(); LbcPotionSpawnerDropItem.register(); LbcIslandDropItem.register(); LbcDroneDropItem.register(); LbcAntDropItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
+    public static void register() { EnchantmentRules.register(); LbcSkills.register(); LbcClouds.register(); LbcPrism.register(); LbcAcidCorruption.register(); LbcIceWand.register(); LbcVoidArcanum.register(); LbcDefensiveArcanums.register(); LbcBabylon.register(); LbcFartus.register(); LbcHalloweenWind.register(); LbcSoulhunter.register(); LbcSoulless.register(); LbcDanmaku.register(); LbcElementalGrimoires.register(); LbcLibrarySpells.register(); LbcSummonerItems.register(); LbcSyringe.register(); LbcSheep.register(); LbcHedgehogItems.register(); LbcWtf.register(); LbcIceMaterials.register(); LbcCorruptedGlyphs.register(); LbcTrinkets.register(); LbcFrost.register(); LbcMagic.register(); LbcMana.register(); LbcWands.register(); LbcLifestealer.register(); LbcMobgun.register(); LbcTerra.register(); LbcShooters.register(); LbcLaserMinigun.register(); LbcAk47.register(); LbcVexSword.register(); LbcSpecialEggs.register(); LbcHohlopitek.register(); LbcMagnum.register(); LbcGovnomet.register(); LbcStand.register(); LbcKfcFood.register(); LbcKfcRewards.register(); LbcReforgeMachineItem.register(); LbcHelicopterTriggerItem.register(); LbcChestDropItem.register(); LbcTntDropItem.register(); LbcCreeperDropItem.register(); LbcCageDropItem.register(); LbcHoleDropItem.register(); LbcCorrosionDropItem.register(); LbcZombieTntDropItem.register(); LbcFallingNetheriteDropItem.register(); LbcHomeItems.register(); LbcScareDropItem.register(); LbcLuckyPigDropItem.register(); LbcLevitationDropItem.register(); LbcLibraryDropItem.register(); LbcBeeDropItem.register(); LbcOpAnvilDropItem.register(); LbcSlabDropItem.register(); LbcFeedbackDropItem.register(); LbcCreatureDropItem.register(); LbcPotionSpawnerDropItem.register(); LbcIslandDropItem.register(); LbcDroneDropItem.register(); LbcAntDropItem.register(); LbcElectro.register(); LbcExasperato.register(); LbcExoperso.register(); LbcStone.register(); LbcBlind.register(); LbcPsycho.register(); LbcAir.register(); LbcTeleport.register(); LbcRuby.register(); LbcBolts.register(); LbcAcademy.register(); LbcTanner.register(); LbcKiuas.register(); }
 
     private static final CompoundTag BROKEN_TOTEM = new CompoundTag();
     private static final CompoundTag DYNAMITE = new CompoundTag();
@@ -211,6 +212,7 @@ public final class LbcItems {
     private final LbcBlaze blaze;
     private final LbcPsycho psycho;
     private final LbcSummons summons;
+    private final LbcSyringe syringe;
     private final LbcHoming homing;
     private final LbcBolts bolts;
     private final LbcLightningAcquisition lightningAcquisition;
@@ -776,6 +778,7 @@ public final class LbcItems {
         this.blaze = new LbcBlaze(game);
         this.psycho = new LbcPsycho(game);
         this.summons = new LbcSummons(game,mana);
+        this.syringe = new LbcSyringe(game);
         this.homing = new LbcHoming(game);
         this.bolts = new LbcBolts(game);
         this.lightningAcquisition = new LbcLightningAcquisition(game);
@@ -803,6 +806,7 @@ public final class LbcItems {
     public LbcBlaze blaze() { return blaze; }
     public LbcPsycho psycho() { return psycho; }
     public LbcSummons summons() { return summons; }
+    public LbcSyringe syringe() { return syringe; }
     public LbcHoming homing() { return homing; }
     public LbcBolts bolts() { return bolts; }
     public LbcLightningAcquisition lightningAcquisition() { return lightningAcquisition; }
@@ -1027,6 +1031,7 @@ public final class LbcItems {
         blaze.loaded(entity);
         psycho.loaded(entity);
         summons.loaded(entity);
+        syringe.loaded(entity);
         homing.loaded(entity);
         bolts.loaded(entity);
         stand.loaded(entity);
@@ -1134,6 +1139,7 @@ public final class LbcItems {
         trinkets.unloaded(entity);
         blaze.unloaded(entity);
         psycho.unloaded(entity);
+        syringe.unloaded(entity);
         summons.unloaded(entity);
         homing.unloaded(entity);
         bolts.unloaded(entity);
@@ -1520,6 +1526,7 @@ public final class LbcItems {
         blaze.tick();
         psycho.tick();
         summons.tick();
+        syringe.tick();
         homing.tick();
         libraryRandom.tick();
         bolts.tick();
@@ -1648,6 +1655,7 @@ public final class LbcItems {
         hohlopitek.forget(player);
         blind.forget(player);
         psycho.forget(player);
+        syringe.forget(player);
         summons.forget(player);
         homing.forget(player);
         libraryRandom.forget(player);
@@ -1722,6 +1730,7 @@ public final class LbcItems {
         kiuas.stop();
         blaze.stop();
         psycho.stop();
+        syringe.stop();
         summons.stop();
         homing.stop();
         libraryRandom.stop();

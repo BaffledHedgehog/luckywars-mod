@@ -128,7 +128,10 @@
     "ChefMannequinAccess",
     "GlyphAiMixin",
     "GlyphAiMixin$NavigationAccess",
-    "GlyphAiMixin$AttributeAccess"
+    "GlyphAiMixin$AttributeAccess",
+    "SyringeMobAccess$DeathLoot",
+    "SyringeMobAccess$GhastPower",
+    "SyringeMobAccess$CreeperRadius"
   ],
   "injectors": {
     "defaultRequire": 1

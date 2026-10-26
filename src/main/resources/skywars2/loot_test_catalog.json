@@ -19,6 +19,9 @@
     "lbc:trinket/ice_gem",
     "lbc:kit/reroll_machine",
     "lbc:metasola",
-    "lbc:transformables_summons"
+    "lbc:transformables_summons",
+    "lbc:transformables_summons_all",
+    "lbc:siggewinne_syringe",
+    "lbc:tuntijaa_blind_vex"
   ]
 }

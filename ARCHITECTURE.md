@@ -1,3 +1,24 @@
+## Siggewinne Syringe and complete expanded summon acquisition - QUALIFIED AND INSTALLED (26 October2026)
+
+See [source, behavior and evidence](agent_notes/SYRINGE_PORT.md). Native passive syringe selects up to
+three nearest owned source-tag actors on equip, including mannequins. Both
+hands share one activation. Source HP/attack/speed/explosion/bow multipliers,
+three cultist synergies, extra Blaze fireballs and Guardian accepted-hit arrow
+damage are preserved with causal ownership. Author approved exact rollback;
+thirty swaps cannot heal or corrupt Power. Persistence, conversion and native
+pre-death equipment cleanup retain original stats. No new RP assets/keys.
+The full11-outcome lbc:transformables_summons_all pool is now ready in /loot.
+
+Build7bcadc7c passed22 groups in two actual mode1 matches (52.15s).
+Exact388 sources/1103 classes/3114 resources verified; installer18748 installed
+it over41395417 with rollback and no restart. Native source-tag/hand/role/stats/
+Power/explosion/fireball/Guardian/cultist/mannequin/save/load/conversion/death/
+loot and actual-stop42-actor cleanup pass alongside earlier summon/Cultus/
+creeper/egg/friendly-projectile regressions. Protected user edits/deletions,
+grimoire authoring files, template and external live override pack are preserved.
+Evidence: build/verification/syringe-final/. Oldest0d3733b6 archive retired.
+Client frames/audio playback and peak TPS are not directly observed.
+
 ## Native ordinary summoners and corrected grimoire catalog - QUALIFIED AND INSTALLED (26 October2026)
 
 See [implementation and source verification](agent_notes/ORDINARY_SUMMONERS_PORT.md).
