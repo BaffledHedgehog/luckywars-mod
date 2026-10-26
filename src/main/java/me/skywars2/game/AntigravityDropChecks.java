@@ -353,8 +353,8 @@ public final class AntigravityDropChecks {
                     && beta.getDeltaMovement().equals(new Vec3(-.2,2,.1))
                     && floating.getDeltaMovement().equals(Vec3.ZERO) && !floating.hasEffect(MobEffects.SLOW_FALLING),
                     "empty pulse never lifts unsupported caster, ally or floating mob");
-            ticks(289); require(game.items().antigravity().stormCount()==1,"finite storm retained through active tick299");
-            ticks(1); require(game.items().antigravity().stormCount()==0,"exact30 pulses end at active tick300");
+            ticks(589); require(game.items().antigravity().stormCount()==1,"30-second storm retained through active tick599");
+            ticks(1); require(game.items().antigravity().stormCount()==0,"exact60 pulses end at active tick600");
             ticks(20);
             require(floating.getDeltaMovement().equals(Vec3.ZERO) && !floating.hasEffect(MobEffects.SLOW_FALLING),
                     "no perpetual gravity or extra pulses");
@@ -363,7 +363,7 @@ public final class AntigravityDropChecks {
             reset(); set(center,Blocks.STONE.defaultBlockState()); activate();
             var d=game.items().antigravity().snapshot().getFirst();
             var start=d.position(); double speed=0,distance=0;
-            for(int i=0;i<320;i++) {
+            for(int i=0;i<620;i++) {
                 alpha.setPos(d.position().add(5,0,0));
                 if(speed<3)speed+=.04; distance+=speed;
                 ticks(1);
@@ -416,7 +416,7 @@ public final class AntigravityDropChecks {
                     require(stack.isRemoved() && game.items().antigravity().stormCount()==2,"actual next tick final unit debit");
                     frozen=new IdentityHashMap<>(); for(var d:game.items().antigravity().snapshot())frozen.put(d,d.position());
                     game.items().timeStop().begin(level,200); paused=drop(2); wait=0;
-                    ticks(350);
+                    ticks(650);
                     require(game.items().antigravity().stormCount()==2,"dimension pause freezes storm age past nominal duration"); phase++;
                 }
                 case 3 -> {

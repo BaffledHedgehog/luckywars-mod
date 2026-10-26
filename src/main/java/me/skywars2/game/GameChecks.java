@@ -1030,6 +1030,7 @@ public final class GameChecks {
                                         BanhammerChecks.run(game);BanhammerChecks.begin(game);
                                         deferredTicks=3;deferredCheck=()->BanhammerChecks.finish(game);return;
                                 }
+                                case "antigravity-support" -> { AntigravitySupportChecks.run(game);return; }
                                 case "special-tools-stop-probe" -> { SpecialToolChecks.stopProbe(game); return; }
                                 case "special-tools-cleanup" -> { SpecialToolChecks.cleanup(game); return; }
                                 case "ordinary-tools" -> { OrdinaryToolChecks.run(game); return; }

@@ -8,6 +8,8 @@ import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
+import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -20,11 +22,16 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.PositionMoveRotation;
+import net.minecraft.world.entity.Relative;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -34,24 +41,34 @@ import java.util.Map;
 /** The finite Paper storm, driven by one shared update rather than one scheduled task per block. */
 public final class LbcAntigravity {
     public static final String ACTOR="skywars2.antigravity_block";
+    public static final int DURATION_TICKS=600;
     private final GameController game;
     private final List<Storm> storms=new ArrayList<>();
     private final Map<Display.BlockDisplay,Lifted> displays=new LinkedHashMap<>();
+    private final List<Platform> platforms=new ArrayList<>();
+    private final Map<LivingEntity,Passenger> riders=new java.util.IdentityHashMap<>();
     private record Storm(ServerLevel level,Vec3 origin,ServerPlayer author,String epoch,int[] age,
                          List<BlockPos> columns,boolean[] indexed) { }
     private static final class Lifted {
-        final Storm storm;
-        final List<Passenger> passengers;
-        double speed;
+        final Platform platform;
+        final Vec3 origin;
+        final List<AABB> surfaces;
         int stale;
-        Lifted(Storm storm,List<Passenger> passengers) { this.storm=storm; this.passengers=passengers; }
+        Lifted(Platform platform,Vec3 origin,List<AABB> surfaces) {this.platform=platform;this.origin=origin;this.surfaces=surfaces;}
+    }
+    private static final class Platform {
+        final Storm storm;
+        final List<Display.BlockDisplay> cells=new ArrayList<>();
+        final List<Passenger> passengers=new ArrayList<>();
+        double speed,offset;
+        Platform(Storm storm){this.storm=storm;}
     }
     private static final class Passenger {
         final LivingEntity entity;
-        final List<AABB> surfaces;
+        final Platform platform;
         boolean controlled,detached;
         double appliedSpeed;
-        Passenger(LivingEntity entity,List<AABB> surfaces) {this.entity=entity;this.surfaces=surfaces;}
+        Passenger(LivingEntity entity,Platform platform) {this.entity=entity;this.platform=platform;}
     }
     public LbcAntigravity(GameController game) { this.game=game; }
     private boolean active(ServerLevel level,String epoch) {
@@ -155,6 +172,7 @@ public final class LbcAntigravity {
         // Snapshot actual support before any block is cleared. One broad query per cube, not per display/tick.
         var candidates=storm.level.getEntitiesOfClass(LivingEntity.class,
                 new AABB(Vec3.atLowerCornerOf(center.offset(-1,-1,-1)),Vec3.atLowerCornerOf(center.offset(2,4,2))),this::eligible);
+        var platform=new Platform(storm);
         Runnable changes=()->{
             for(var mutable:BlockPos.betweenClosed(center.offset(-1,-1,-1),center.offset(1,1,1))) {
                 var pos=mutable.immutable();
@@ -170,14 +188,11 @@ public final class LbcAntigravity {
                 // Native BlockDisplay renders the unit model from its lower corner.
                 display.snapTo(pos.getX(),pos.getY(),pos.getZ(),0,0);
                 display.entityTags().add(ACTOR); game.items().markCurrentItemEpoch(display);
-                var passengers=new ArrayList<Passenger>();
-                for(var living:candidates) {
-                    var surfaces=state.getCollisionShape(storm.level,pos,CollisionContext.of(living)).toAabbs();
-                    if(touches(living,display.position(),surfaces)) passengers.add(new Passenger(living,surfaces));
-                }
-                displays.put(display,new Lifted(storm,passengers));
+                var surfaces=state.getCollisionShape(storm.level,pos,CollisionContext.empty()).toAabbs();
+                displays.put(display,new Lifted(platform,display.position(),surfaces));
                 game.items().timeStop().prepareFrozen(display);
                 if(!storm.level.addFreshEntity(display)) { displays.remove(display); display.discard(); continue; }
+                platform.cells.add(display);
                 // CraftBlock.setType(AIR,false) removes the BE before its no-physics replacement.
                 // Reproduce that source behavior instead of triggering native inventory spills.
                 storm.level.removeBlockEntity(pos);
@@ -186,56 +201,88 @@ public final class LbcAntigravity {
         };
         if(storm.author!=null) game.items().indirectKills().trapChanges(storm.level,storm.author,true,changes);
         else changes.run();
+        if(!platform.cells.isEmpty()) {
+            platforms.add(platform);
+            for(var living:candidates)if(Math.abs(living.getBoundingBox().minY-supportTop(living,platform,0,living.getBoundingBox()))<=.0625)
+                platform.passengers.add(new Passenger(living,platform));
+        }
     }
     public void tick() {
-        // Existing displays move first: a cube emitted below starts moving next tick, like the source scheduler.
+        // All blocks of one captured cube share motion and one union of supporting surfaces.
         var carried=java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<LivingEntity,Boolean>());
-        for(var entry:List.copyOf(displays.entrySet())) {
-            var display=entry.getKey(); var lifted=entry.getValue(); var storm=lifted.storm;
-            if(display.isRemoved()) { displays.remove(display); continue; }
-            if(!active(storm.level,storm.epoch)) { displays.remove(display); display.discard(); continue; }
-            if(game.items().timeStop().stopped(storm.level)) continue;
-            if(lifted.speed<3) lifted.speed+=.04;
-            var previous=display.position();
-            var next=previous.add(0,lifted.speed,0);
-            for(var passenger:lifted.passengers) {
+        for(var platform:List.copyOf(platforms)) {
+            var storm=platform.storm;
+            platform.cells.removeIf(d->d.isRemoved()||!displays.containsKey(d));
+            if(!active(storm.level,storm.epoch)||platform.cells.isEmpty()) {
+                for(var d:List.copyOf(platform.cells)){displays.remove(d);d.discard();}
+                platforms.remove(platform);continue;
+            }
+            if(game.items().timeStop().stopped(storm.level))continue;
+            if(platform.speed<3)platform.speed+=.04;
+            for(var passenger:platform.passengers) {
                 var living=passenger.entity;
-                if(passenger.detached || carried.contains(living))continue;
-                if(living.level()!=storm.level || !eligible(living) || game.items().frost().isFrozen(living)
-                        || living.isJumping() || living.isPassenger()
-                        || (passenger.controlled && (living.getDeltaMovement().y>passenger.appliedSpeed+.125
-                        || living.verticalCollision && !living.onGround()))) {
-                    passenger.detached=true;continue;
+                if(passenger.detached||carried.contains(living))continue;
+                if(living.level()!=storm.level||!eligible(living)||game.items().frost().isFrozen(living)
+                        ||jumping(living)||living.isPassenger()
+                        ||passenger.controlled&&(living.getDeltaMovement().y>passenger.appliedSpeed+.125
+                        ||living.verticalCollision&&!living.onGround())) {
+                    detach(passenger);continue;
                 }
-                double top=supportTop(living,previous,passenger.surfaces);
+                double top=supportTop(living,platform,platform.offset,living.getBoundingBox());
                 double gap=living.getBoundingBox().minY-top;
-                // A captured passenger may lag one native movement step, but never rejoin from above/at distance.
-                double below=passenger.controlled?lifted.speed+.125:.0625;
-                if(!Double.isFinite(top) || gap>.0625 || gap< -below
-                        || (!passenger.controlled && living.getDeltaMovement().y>lifted.speed+.125)) {
-                    passenger.detached=true;continue;
+                double below=passenger.controlled?platform.speed+.5:.0625;
+                if(!Double.isFinite(top)||gap>.0625||gap< -below
+                        ||!passenger.controlled&&living.getDeltaMovement().y>platform.speed+.125) {
+                    detach(passenger);continue;
                 }
-                // Air travel moves first, then applies gravity/drag. Targeting the next top needs no teleport,
-                // onGround forgery or .2 launch: the following native move reaches the same moving surface.
-                double speed=Math.max(0,top+lifted.speed-living.getBoundingBox().minY);
-                lift(living,speed,storm.author);
-                passenger.appliedSpeed=speed;passenger.controlled=true;carried.add(living);
+                double speed=Math.max(0,top+platform.speed-living.getBoundingBox().minY);
+                passenger.controlled=true;riders.put(living,passenger);
+                if(living instanceof ServerPlayer player)carryPlayer(player,top+platform.speed,passenger);
+                else {lift(living,speed,storm.author);passenger.appliedSpeed=speed;}
+                carried.add(living);
                 living.addEffect(ItemEffectLevels.create(MobEffects.SLOW_FALLING,30,0,true,false,false),storm.author);
             }
-            display.setPos(next);
-            boolean nearby=false;
-            var range=box(next,80,110,80);
-            for(var player:storm.level.players()) if(eligible(player) && range.intersects(player.getBoundingBox())) { nearby=true; break; }
-            lifted.stale=nearby?0:lifted.stale+1;
-            if(lifted.stale>=20) { displays.remove(display); display.discard(); }
+            platform.offset+=platform.speed;
+            for(var display:List.copyOf(platform.cells)) {
+                var lifted=displays.get(display);if(lifted==null)continue;
+                var next=lifted.origin.add(0,platform.offset,0);display.setPos(next);
+                boolean nearby=false;var range=box(next,80,110,80);
+                for(var player:storm.level.players())if(eligible(player)&&range.intersects(player.getBoundingBox())){nearby=true;break;}
+                lifted.stale=nearby?0:lifted.stale+1;
+                if(lifted.stale>=20){displays.remove(display);display.discard();}
+            }
         }
+        riders.entrySet().removeIf(e->!supported(e.getKey()));
         for(var storm:List.copyOf(storms)) {
-            if(!active(storm.level,storm.epoch)) { storms.remove(storm); continue; }
-            if(game.items().timeStop().stopped(storm.level)) continue;
+            if(!active(storm.level,storm.epoch)){storms.remove(storm);continue;}
+            if(game.items().timeStop().stopped(storm.level))continue;
             int age=++storm.age[0];
-            if(age%10==0) pulse(storm);
-            if(age>=300) storms.remove(storm);
+            if(age%10==0)pulse(storm);
+            if(age>=DURATION_TICKS)storms.remove(storm);
         }
+    }
+    private static boolean jumping(LivingEntity living) {
+        return living.isJumping()||living instanceof ServerPlayer player&&player.getLastClientInput().jump();
+    }
+    private void detach(Passenger passenger) {
+        passenger.detached=true;
+        if(riders.get(passenger.entity)==passenger)riders.remove(passenger.entity);
+    }
+    private void carryPlayer(ServerPlayer player,double top,Passenger passenger) {
+        double oldY=player.getY();var motion=player.getDeltaMovement();
+        player.move(MoverType.SHULKER,new Vec3(0,top-player.getBoundingBox().minY,0));
+        if(Math.abs(player.getBoundingBox().minY-top)>1e-5){detach(passenger);return;}
+        player.setDeltaMovement(motion.x,0,motion.z);passenger.appliedSpeed=0;
+        player.setOnGround(true);player.fallDistance=0;
+        // Only the vertical axis is authoritative. Relative zero X/Z, momentum and angles
+        // preserve the client's current walk/strafe/look, including input newer than the server.
+        // Entity transport has no teleport ACK lock and does not reset block breaking.
+        player.connection.send(new ClientboundTeleportEntityPacket(player.getId(),
+                new PositionMoveRotation(new Vec3(0,player.getY(),0),Vec3.ZERO,0,0),
+                java.util.Set.of(Relative.X,Relative.Z,Relative.Y_ROT,Relative.X_ROT,Relative.DELTA_X,Relative.DELTA_Z),true));
+        player.connection.resetPosition();player.level().getChunkSource().move(player);
+        if(passenger.platform.storm.author!=null&&player.getY()!=oldY)
+            game.items().indirectKills().displaced(player,passenger.platform.storm.author,true);
     }
     private void pulse(Storm storm) {
         var random=storm.level.getRandom();
@@ -247,17 +294,54 @@ public final class LbcAntigravity {
         storm.level.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE,at.x+.5,at.y+1,at.z+.5,25,1,1,1,0);
         sound(storm.level,at,SoundEvents.PARROT_FLY); sound(storm.level,at,SoundEvents.STONE_BREAK);
     }
-    private static double supportTop(LivingEntity living,Vec3 origin,List<AABB> surfaces) {
-        var feet=living.getBoundingBox();
+    private double supportTop(LivingEntity living,Platform platform,double offset,AABB feet) {
         double best=Double.NEGATIVE_INFINITY;
-        for(var shape:surfaces) if(feet.maxX>origin.x+shape.minX+1e-6 && feet.minX<origin.x+shape.maxX-1e-6
-                && feet.maxZ>origin.z+shape.minZ+1e-6 && feet.minZ<origin.z+shape.maxZ-1e-6)
-            best=Math.max(best,origin.y+shape.maxY);
+        for(var display:platform.cells) {
+            var cell=displays.get(display);if(cell==null||display.isRemoved())continue;
+            for(var shape:cell.surfaces) {
+                double top=cell.origin.y+offset+shape.maxY;
+                if(top>living.getBoundingBox().minY+Math.max(.0625,living.maxUpStep())+1e-6)continue;
+                if(feet.maxX>cell.origin.x+shape.minX+1e-6&&feet.minX<cell.origin.x+shape.maxX-1e-6
+                        &&feet.maxZ>cell.origin.z+shape.minZ+1e-6&&feet.minZ<cell.origin.z+shape.maxZ-1e-6)
+                    best=Math.max(best,top);
+            }
+        }
         return best;
     }
-    /** Initial admission requires real feet contact, before any terrain is cleared. */
-    private static boolean touches(LivingEntity living,Vec3 origin,List<AABB> surfaces) {
-        return Math.abs(living.getBoundingBox().minY-supportTop(living,origin,surfaces))<=.0625;
+    public boolean supported(Entity entity) {
+        if(!(entity instanceof LivingEntity living))return false;
+        var rider=riders.get(living);
+        if(rider==null||rider.detached||!rider.controlled||!platforms.contains(rider.platform)
+                ||living.level()!=rider.platform.storm.level||!eligible(living)||jumping(living)
+                ||living.isPassenger()||!active(rider.platform.storm.level,rider.platform.storm.epoch))return false;
+        double top=supportTop(living,rider.platform,rider.platform.offset,living.getBoundingBox());
+        return Double.isFinite(top)&&Math.abs(living.getBoundingBox().minY-top)<=.625;
+    }
+    /** Add real server collision surfaces only for admitted riders, preserving native terrain. */
+    public List<VoxelShape> collisions(Entity entity,AABB area,List<VoxelShape> original) {
+        if(!supported(entity))return original;
+        var platform=riders.get((LivingEntity)entity).platform;List<VoxelShape> out=null;
+        for(var display:platform.cells) {
+            var cell=displays.get(display);if(cell==null||display.isRemoved())continue;
+            for(var shape:cell.surfaces) {
+                var world=shape.move(cell.origin.add(0,platform.offset,0));
+                if(area.intersects(world)){if(out==null)out=new ArrayList<>(original);out.add(Shapes.create(world));}
+            }
+        }
+        return out==null?original:out;
+    }
+    /** Delayed client Y must not trigger a vanilla correction back through an externally rising floor. */
+    public ServerboundMovePlayerPacket supportInput(ServerPlayer player,ServerboundMovePlayerPacket packet) {
+        var rider=riders.get(player);
+        if(rider==null||!supported(player)||!packet.hasPosition())return packet;
+        double x=packet.getX(player.getX()),z=packet.getZ(player.getZ()),y=packet.getY(player.getY());
+        if(!Double.isFinite(x)||!Double.isFinite(y)||!Double.isFinite(z))return packet;
+        var feet=player.getBoundingBox().move(x-player.getX(),0,z-player.getZ());
+        double top=supportTop(player,rider.platform,rider.platform.offset,feet);
+        if(!Double.isFinite(top)){detach(rider);return packet;}
+        if(y>top+.0625)return packet;
+        return new ServerboundMovePlayerPacket.PosRot(x,top,z,packet.getYRot(player.getYRot()),
+                packet.getXRot(player.getXRot()),true,packet.horizontalCollision());
     }
     private void lift(LivingEntity living,double speed,ServerPlayer author) {
         if(game.items().frost().isFrozen(living)) return;
@@ -280,7 +364,7 @@ public final class LbcAntigravity {
     }
     public void unloaded(Entity entity) { displays.remove(entity); }
     public void stop() {
-        storms.clear(); var old=List.copyOf(displays.keySet()); displays.clear(); old.forEach(Entity::discard);
+        storms.clear();platforms.clear();riders.clear();var old=List.copyOf(displays.keySet());displays.clear();old.forEach(Entity::discard);
     }
     public int stormCount() { return storms.size(); }
     public int displayCount() { return displays.size(); }

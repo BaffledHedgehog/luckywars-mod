@@ -1,3 +1,12 @@
+## Current moving support and duration (27 October2026)
+
+The latest user request increases the finite storm to30seconds and requires
+stable player support across the whole rising piece while preserving horizontal
+input. See [the current implementation and evidence](ANTIGRAVITY_SUPPORT.md).
+Existing terrain/alignment corrections remain; the initial unsupported-radius
+lift and half-block alignment described below are historical. Original user
+choices and qualification evidence are preserved below, superseded where noted.
+
 # Antigravity native storm port
 
 Current correction20210f2b: [Global sky hazards](SKY_HAZARDS_PORT.md) removes

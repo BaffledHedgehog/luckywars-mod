@@ -38,6 +38,8 @@
     "SignedEnvironmentalHeroMixin",
     "ManualVisualResetMixin",
     "ManualVisualLoadMixin",
+    "AntigravitySupportMixin",
+    "AntigravityPlayerSupportMixin",
     "GreedGuardMixin",
     "GreedGuardMixin$Players",
     "GreedGuardMixin$Collision",

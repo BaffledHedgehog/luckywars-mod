@@ -1,3 +1,39 @@
+## Deferred user questions (user, 27 October2026)
+
+The author is going to sleep and requests no clarification questions directly
+in chat for current/subsequent accumulated work. Record questions and relevant
+options in [PENDING_QUESTIONS.md](PENDING_QUESTIONS.md); continue work that does not depend on an answer. Preserve
+prior author choices and exact notes. The author will answer after returning.
+This does not authorize guessing unresolved choices or forcing main shutdown.
+
+## Antigravity player support - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
+
+[Current support, duration and evidence](ANTIGRAVITY_SUPPORT.md). One captured cube now shares
+motion and the union of its live collision surfaces. Walking between cells and
+partial feet overlap retain support; full departure/jump releases it. Native
+vertical player transport and server collision preserve X/Z input/momentum/look,
+including newer client input. Supported movement handles stale client Y without
+PlayerPosition teleport ACK locks. No hovering admission or native terrain
+validation is removed. Mob travel, source attribution, Time Stop and cleanup
+remain; duration is now600 active ticks/60 pulses instead of300/30.
+
+Build9d2591dc passed22 recorded results in two actual mode1 matches (53.27s),
+including actual native movement/collision, cross-cell/edge walking, wire decode
+against newer client input, jump/Greed/pause and exact599/600 duration, native
+mob physics/ceilings, previous visual owner death, Banhammer/Carpet removal and
+actual-stop cleanup. Exact444 sources /1225 classes /3140 resources match.
+Physical client interpolation/latency/pixels are unobserved; follow-up is in
+[PENDING_QUESTIONS.md](PENDING_QUESTIONS.md). Original LF source formatting was restored; the tested binary
+remains byte-identical. All175 protected author paths and31 live grimoire files
+remain unchanged. No RP/template changes or extra collider entities.
+
+Installer11424 adopted this release instead of pendingcc460bf8 and waits for
+main normal shutdown/world unlock (24566, RCON off). Main disk remains1a8a3825;
+no forced stop/restart. Evidence/live receipt:build/verification/antigravity-support/.
+Ready:build/verification/skywars2-antigravity-support-9d2591dc.jar. Keep9d2591dc,
+cc460bf8,1a8a3825; obsolete1b68c82a removed. Cumulative cleanup328 JARs /
+11707221536 bytes. Combined Academy Sauvojen remains next migration work.
+
 ## Banhammer collision and bans - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
 
 [Contract, exact model/Carpet audit and evidence](BANHAMMER_COLLISION_FIX.md). Banhammer now sweeps
