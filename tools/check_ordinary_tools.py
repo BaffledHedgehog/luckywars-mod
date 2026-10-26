@@ -13,7 +13,8 @@ def main():
     catalog = json.loads((ROOT / 'src/main/resources/skywars2/loot_test_catalog.json').read_text())
     for family in ('axe', 'hoe', 'pickaxe'):
         assert f'lbc:transformables_{family}' in catalog['tables']
-        assert f'lbc:transformables_{family}_all' not in catalog['tables']
+        if family == 'pickaxe': assert f'lbc:transformables_{family}_all' not in catalog['tables']
+        # The special-tools follow-up closes expanded axe/hoe pools with native abilities.
     ray = (SOURCE.parent / 'lbcr/function/communism.mcfunction').read_text(encoding='utf-8')
     assert 'Distance 1' in ray and 'Distance=..200' in ray and '^ ^ ^1' in ray
     subordinate = (SOURCE.parent / 'lbcr/function/podchinenie_communism.mcfunction').read_text(encoding='utf-8')

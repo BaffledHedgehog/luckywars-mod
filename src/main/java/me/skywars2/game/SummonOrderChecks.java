@@ -60,11 +60,13 @@ public final class SummonOrderChecks {
     }
     private static void guardians(AllGrimoireChecks.Fixture f){reset(f);var service=f.base.game.items().summons();require(service.castOrdinary(f.base.owner,LbcSummonerItems.kinds().get(6)),"four native Guardians");
         var guardian=service.ordinarySnapshot("guardians").getFirst();var at=guardian.position();for(var other:service.snapshot())if(other!=guardian)other.setNoAi(true);
+        // Beam qualification requires a visible lane, independent of earlier terrain-changing suites.
+        for(var pos:BlockPos.betweenClosed(BlockPos.containing(at.add(-2,-1,-2)),BlockPos.containing(at.add(2,3,15))))f.level.setBlock(pos,Blocks.AIR.defaultBlockState(),2|16|32);
         var chosen=cow(f,at.add(0,0,12));aim(f,chosen.getBoundingBox().getCenter());order(f,LbcSummonerItems.kinds().get(6).item(),InteractionHand.MAIN_HAND);
         require(guardian.getTarget()==chosen,"Shift assigns nonplayer enemy to Guardian");
         f.beta.setPos(at.add(5,0,0));f.beta.getInventory().clearContent();f.beta.removeAllEffects();f.beta.setHealth(1000);float betaHp=f.beta.getHealth();
         for(int tick=0;tick<200;tick++)f.level.tickNonPassenger(guardian);
-        require(chosen.getHealth()<1000&&f.beta.getHealth()==betaHp&&service.orders().assigned(guardian)==chosen,"real native beam damages Cow, retaining commanded focus despite closer native player candidate");
+        require(chosen.getHealth()<1000&&f.beta.getHealth()==betaHp&&service.orders().assigned(guardian)==chosen,"real native beam damages Cow, retaining commanded focus despite closer native player candidate; cow="+chosen.getHealth()+" beta="+f.beta.getHealth()+" expected="+betaHp+" guardian="+guardian.position()+" target="+guardian.getTarget()+" assigned="+service.orders().assigned(guardian)+" cowPos="+chosen.position()+" canSee="+guardian.getSensing().hasLineOfSight(chosen));
         chosen.discard();f.beta.setPos(f.at.add(12,500,0));var automatic=cow(f,at.add(0,0,10));for(int tick=0;tick<20;tick++)service.tick();
         for(int tick=0;tick<130;tick++)f.level.tickNonPassenger(guardian);
         require(automatic.getHealth()<1000&&service.orders().assigned(guardian)==automatic,"Guardian automatically acquires and attacks ordinary mob after previous target dies");

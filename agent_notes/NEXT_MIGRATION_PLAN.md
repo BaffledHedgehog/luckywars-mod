@@ -1,3 +1,29 @@
+## Native Mortis, Death Scythe and Banhammer - QUALIFIED AND INSTALLED (26 October2026)
+
+See [source, author decisions and evidence](SPECIAL_TOOLS_PORT.md).
+Three native shovel outcomes, real-victim Mortis melee lunges/passages, charged
+Death Scythe cactus ray/dithered terrain and Banhammer are complete. The author
+retains Banhammer's WILD native disconnect and removes the intentional client
+particle hang; enabled skill12 and absolute active Greed remain immune.
+Charge/progress HUD and literal KFC source counters are shared. Four complete
+ordinary/expanded shovel, expanded hoe and expanded axe pools are now public;
+raw Halloween/Soulhunter mace aliases return their already native items.
+Only a new translated disconnect reason requires an RP template merge.
+
+Build7dc0342b passed24 groups in two actual mode1 matches (53.70s).
+Exact395 sources/1121 classes/3132 resources match the qualified artifact.
+Installer18292 installed it overda260679 with rollback and no restart.
+Real damage/death/environmental credit, both hands/no mana, source effects/
+sounds/attributes/pools/advancement, native cactus cooldown, blocked-role/Greed/
+time-stop guards, actual disconnect packets/skill/self/ally/radius, both mace
+families and previous tool/summon/Guardian/Syringe/KFC/egg regressions pass.
+Actual stop cancels an unfinished terrain batch and falling hammer. A clear
+Guardian fixture lane prevents unrelated terrain from obstructing beam checks;
+production Guardian AI is unchanged. Author files/deletions and live grimoire
+edits are preserved. Evidence: build/verification/special-tools-final/.
+Oldad9c6155 archive retired; retain7dc0342b,da260679,f086522d.
+Client pixels/audio, physical disconnect and peak TPS are not directly observed.
+
 ## Free summon focus/spreading and native Guardian targeting - QUALIFIED AND INSTALLED (26 October2026)
 
 See [author requirement and implementation](SUMMON_ORDERS_PORT.md).

@@ -1005,6 +1005,9 @@ public final class GameChecks {
                                 case "summon-orders" -> { SummonOrderChecks.run(game); return; }
                                 case "summon-orders-stop-probe" -> { SummonOrderChecks.stopProbe(game); return; }
                                 case "summon-orders-cleanup" -> { SummonOrderChecks.cleanup(game); return; }
+                                case "special-tools" -> { SpecialToolChecks.run(game); return; }
+                                case "special-tools-stop-probe" -> { SpecialToolChecks.stopProbe(game); return; }
+                                case "special-tools-cleanup" -> { SpecialToolChecks.cleanup(game); return; }
                                 case "ordinary-tools" -> { OrdinaryToolChecks.run(game); return; }
                                 case "syringe" -> { SyringeChecks.run(game); return; }
                                 case "syringe-stop-probe" -> { SyringeChecks.stopProbe(game); return; }

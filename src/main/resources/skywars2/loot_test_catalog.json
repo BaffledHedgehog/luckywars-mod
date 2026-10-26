@@ -26,6 +26,13 @@
     "lbc:transformables_axe",
     "lbc:transformables_hoe",
     "lbc:transformables_pickaxe",
-    "lbc:op_hoe"
+    "lbc:op_hoe",
+    "lbc:transformables_shovel",
+    "lbc:transformables_shovel_all",
+    "lbc:transformables_hoe_all",
+    "lbc:transformables_axe_all",
+    "lbc:death_loot",
+    "lbc:halloween/transformables_shovel",
+    "lbc:halloween/soulhunter_mace"
   ]
 }

@@ -1,0 +1,61 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "quality": 0,
+          "name": "minecraft:iron_shovel",
+          "modifier": [
+            {
+              "entity": "this",
+              "name": {
+                "translate": "randchanted_shovel",
+                "italic": false
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "levels": {
+                "min": 1,
+                "max": 30,
+                "type": "minecraft:uniform"
+              },
+              "type": "minecraft:enchant_with_levels"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_d"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "aqua"
+                  },
+                  {
+                    "translate": "shovel",
+                    "italic": false,
+                    "color": "aqua"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{transformable:1,shovel:1,randchanted:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

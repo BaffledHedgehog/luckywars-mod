@@ -1,4 +1,8 @@
 # Ordinary tools and Hammer + Sickle — 26 October 2026
+Follow-up: [native special tools](SPECIAL_TOOLS_PORT.md) now closes expanded
+axe/hoe and ordinary/expanded shovel pools, including native mace aliases.
+The gated status below describes the earlier ordinary-only milestone.
+
 
 Eight source outcomes now have narrow test leaves: random enchanted iron axe,
 Tomahawk, Poleaxe, Hammer, OP Hoe, Sickle, random enchanted iron pickaxe and
