@@ -795,6 +795,9 @@ public final class GameChecks {
                                 case "ordinary-accessories" -> { OrdinaryAccessoryChecks.run(game); return; }
                                 case "entity-merging" -> { CoreEntityMergeChecks.run(game); return; }
                                 case "armor-sets" -> { ArmorSetChecks.run(game); return; }
+                                case "shulker-armor" -> { ShulkerArmorChecks.run(game); return; }
+                                case "shulker-armor-stop-probe" -> { ShulkerArmorChecks.stopProbe(game); return; }
+                                case "shulker-armor-cleanup" -> { ShulkerArmorChecks.cleanup(game); return; }
                                 case "inventory-hazards" -> { InventoryHazardChecks.run(game); return; }
                                 case "passive-consumables" -> { PassiveConsumableChecks.run(game); return; }
                                 case "pending-combat" -> { PendingCombatChecks.run(game); return; }
@@ -1329,6 +1332,7 @@ public final class GameChecks {
             OrdinaryAccessoryChecks.tick(game);
             CoreEntityMergeChecks.tick(game);
             ArmorSetChecks.tick(game);
+            ShulkerArmorChecks.tick(game);
             InventoryHazardChecks.tick(game);
             PassiveConsumableChecks.tick(game);
             PendingCombatChecks.tick(game);

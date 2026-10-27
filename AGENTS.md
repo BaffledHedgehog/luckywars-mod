@@ -1,3 +1,29 @@
+## Complete Shulker armor - QUALIFIED, INSTALLED (27 October 2026)
+
+[Port, author correction and native proof](agent_notes/SHULKER_ARMOR_PORT_2026_10_27.md),
+[source/resource review](agent_notes/SHULKER_ARMOR_SOURCE_2026_10_27.md).
+All four original pieces now work: helmet native owned shell every200ticks,
+chest20percent actual incoming criterion, leggings Levitation clear every2ticks,
+full ResistanceII/single source speed modifier/noarrows16 and real jump teleport.
+Author corrected the legacy omission: Magic Stopper gates helmet and leggings
+as well as chest/full/jump. Personal no-magic remains distinct from that beacon.
+Shared creature transport/current projectile owner, native arrow erasure,
+resident surface search and actual incoming/jump hooks are reused. All inventory
+changes remove owned speed; beacon entry alone retains it until inventory change.
+No RP updates. Original1/5/4loot outputs and normal/Ultra acquisition preserve
+stats/design/weights; seven test leaves include the two previously unpackaged
+pre/full roots. Wider Lucky Block/full-set parent pools remain unenabled.
+Build154cc3a7 passed28results in2actual mode1matches (124.78s), exact525sources/
+1490classes/3226resources;195author paths/31live overrides unchanged. Native
+shield/environmental inputs, swept shell/reflection,2/200cadence and real stop
+pass. Initial lobby-clock bug fixed; failed sound/ACK fixture evidence retained.
+Fatal criterion admission/Nether ceiling are code-reviewed, not native-death/
+Nether-case claims. Normal child stop/exact snapshots restored. Installer14244
+installed over a4683fe2 without restart; main hash matches tested JAR. Receipt:
+build/verification/shulker-armor/main-install.json. Retain154cc3a7, a4683fe2rollback,
+46034d3cfallback; obsolete23a25d43ready JAR hash/path verified and removed.
+Earlier status/artifact lists below remain historical.
+
 ## God Hedgehog warning lines and elevated spawn - QUALIFIED, INSTALLED (27 October 2026)
 
 [Behavior, fixture corrections and native evidence](agent_notes/GOD_HEDGEHOG_WARNINGS_2026_10_27.md).

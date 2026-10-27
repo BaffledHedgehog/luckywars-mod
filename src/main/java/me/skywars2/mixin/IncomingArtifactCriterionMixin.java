@@ -21,7 +21,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class IncomingArtifactCriterionMixin {
     @Inject(method="trigger(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/damagesource/DamageSource;FFZ)V",at=@At("HEAD"))
     private void skywars2$incoming(ServerPlayer player,DamageSource source,float originalDamage,float actualDamage,boolean blocked,CallbackInfo ci){
-        var game=SkyWars2.game();if(game!=null)game.items().incomingArtifacts().incoming(player,source,originalDamage,actualDamage,blocked);
+        var game=SkyWars2.game();if(game!=null){
+            game.items().incomingArtifacts().incoming(player,source,originalDamage,actualDamage,blocked);
+            game.items().shulkerArmor().incoming(player);
+        }
     }
     @Mixin(LivingEntity.class)
     public static abstract class HurtAttempt {
@@ -29,7 +32,8 @@ public abstract class IncomingArtifactCriterionMixin {
         private boolean skywars2$incomingAttempt(ServerLevel level,DamageSource source,float amount,Operation<Boolean> nativeHurt){
             var game=SkyWars2.game();
             if(game!=null&&(Object)this instanceof ServerPlayer player)
-                return game.items().incomingArtifacts().withIncomingAttempt(player,()->nativeHurt.call(level,source,amount));
+                return game.items().incomingArtifacts().withIncomingAttempt(player,
+                        ()->game.items().shulkerArmor().withIncomingAttempt(player,()->nativeHurt.call(level,source,amount)));
             return nativeHurt.call(level,source,amount);
         }
     }

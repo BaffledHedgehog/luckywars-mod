@@ -42,6 +42,8 @@ public final class LbcCreatureDrops {
             {CustomNameVisible:1b,PersistenceRequired:1b,IsBaby:0b,CustomName:{"color":"green","italic":false,"translate":"bob"},equipment:{mainhand:{id:"minecraft:netherite_sword",components:{"minecraft:enchantments":{"minecraft:sharpness":5,"minecraft:smite":5,"minecraft:bane_of_arthropods":5,"minecraft:knockback":2,"minecraft:fire_aspect":2,"minecraft:looting":3,"minecraft:sweeping_edge":3,"minecraft:unbreaking":3},"minecraft:custom_name":{"italic":false,"translate":"bob_sword"}},count:1},offhand:{id:"minecraft:enchanted_golden_apple",components:{"minecraft:custom_name":{"italic":false,"translate":"bob_apple"}},count:6},feet:{id:"minecraft:netherite_boots",components:{"minecraft:enchantments":{"minecraft:protection":4,"minecraft:fire_protection":4,"minecraft:feather_falling":4,"minecraft:blast_protection":4,"minecraft:projectile_protection":4,"minecraft:thorns":3,"minecraft:depth_strider":3,"minecraft:frost_walker":2,"minecraft:unbreaking":3,"minecraft:soul_speed":3},"minecraft:custom_name":{"italic":false,"translate":"bob_boots"}},count:1},legs:{id:"minecraft:netherite_leggings",components:{"minecraft:enchantments":{"minecraft:protection":4,"minecraft:fire_protection":4,"minecraft:blast_protection":4,"minecraft:projectile_protection":4,"minecraft:thorns":3,"minecraft:unbreaking":3},"minecraft:custom_name":{"italic":false,"translate":"bob_leggings"}},count:1},chest:{id:"minecraft:netherite_chestplate",components:{"minecraft:enchantments":{"minecraft:protection":4,"minecraft:fire_protection":4,"minecraft:blast_protection":4,"minecraft:projectile_protection":4,"minecraft:thorns":3,"minecraft:unbreaking":3},"minecraft:custom_name":{"italic":false,"translate":"bob_chestplate"}},count:1},head:{id:"minecraft:netherite_helmet",components:{"minecraft:enchantments":{"minecraft:protection":4,"minecraft:fire_protection":4,"minecraft:blast_protection":4,"minecraft:projectile_protection":4,"minecraft:respiration":3,"minecraft:aqua_affinity":1,"minecraft:thorns":1,"minecraft:unbreaking":1},"minecraft:custom_name":{"italic":false,"translate":"bob_helmet"}},count:1}},drop_chances:{mainhand:0.5f,offhand:0.5f,head:0.5f,chest:0.5f,legs:0.5f,feet:0.5f},attributes:[{id:"minecraft:follow_range",base:400}]}
             """);
     private static final CompoundTag BULLET=preset("{Tags:[\"angry\"],Steps:40}");
+    static final String ARMOR_SHELL="skywars2.shulker_armor_shell";
+    private static final CompoundTag ARMOR_SHELL_DATA=preset("{Tags:[\"shell\",\"skywars2.shulker_armor_shell\"],Motion:[0d,5d,0d],Steps:40}");
     private static final int[][] BULLET_OFFSETS={{0,1},{0,-1},{1,1},{1,-1},{-1,1},{-1,-1},{1,0},{-1,0},{0,0}};
     private final GameController game;
     private final Set<Entity> tracked=Collections.newSetFromMap(new IdentityHashMap<>());
@@ -122,6 +124,17 @@ public final class LbcCreatureDrops {
         prepare(actor,author);
         if(!level.addFreshEntity(actor)){tracked.remove(actor);actor.discard();}
     }
+    /** Same native Shulker transport/lifecycle as the trap, with the helmet's real projectile owner. */
+    ShulkerBullet launchArmorShell(ServerPlayer owner,ServerPlayer target){
+        var level=owner.level();var at=owner.position().add(0,3,0);
+        if(!Level.isInSpawnableBounds(BlockPos.containing(at))||!level.hasChunkAt(BlockPos.containing(at)))return null;
+        var bullet=EntityTypes.SHULKER_BULLET.create(level,EntitySpawnReason.COMMAND);if(bullet==null)return null;
+        var data=ARMOR_SHELL_DATA.copy();
+        data.put("Owner",UUIDUtil.CODEC.encodeStart(NbtOps.INSTANCE,owner.getUUID()).getOrThrow());
+        if(target!=null)data.put("Target",UUIDUtil.CODEC.encodeStart(NbtOps.INSTANCE,target.getUUID()).getOrThrow());
+        bullet.load(TagValueInput.create(ProblemReporter.DISCARDING,level.registryAccess(),data));
+        admit(level,bullet,at,owner);return bullet.isRemoved()?null:bullet;
+    }
     /** Keep native egg finalization and data, then remove the unwanted vanilla sword before insertion. */
     void adoptEggVex(Vex actor,ServerPlayer author){
         actor.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND,net.minecraft.world.item.ItemStack.EMPTY);
@@ -144,6 +157,7 @@ public final class LbcCreatureDrops {
     public LivingEntity owner(Entity actor){
         if(actor instanceof ItemEntity token && LbcCreatureDropItem.matches(token.getItem()))return game.items().specialDrops().owner(token);
         if(!managed(actor))return null;
+        if(actor instanceof ShulkerBullet bullet&&actor.entityTags().contains(ARMOR_SHELL)&&bullet.getOwner() instanceof LivingEntity current)return current;
         for(var tag:actor.entityTags())if(tag.startsWith(OWNER))try{
             var id=UUID.fromString(tag.substring(OWNER.length()));var online=game.server().getPlayerList().getPlayer(id);return online==null?authors.get(id):online;
         }catch(IllegalArgumentException ignored){}
@@ -153,6 +167,10 @@ public final class LbcCreatureDrops {
     public boolean canAffect(Entity actor,Entity target){
         if(!managed(actor))return true;
         if(target==null || !active(actor) || !game.items().wands().validTarget(target))return false;
+        if(actor instanceof ShulkerBullet&&actor.entityTags().contains(ARMOR_SHELL)){
+            var current=owner(actor);
+            return target!=current&&(!(current instanceof ServerPlayer author)||game.items().wands().projectileTarget(author,target));
+        }
         if(actor instanceof ShulkerBullet || actor instanceof Vex && actor.entityTags().contains(NORMAL_VEX))return true; // WILD trap: self, allies and enemies are all eligible.
         return !(owner(actor) instanceof ServerPlayer author) || target==author || game.items().wands().target(author,target);
     }

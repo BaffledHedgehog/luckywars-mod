@@ -297,6 +297,7 @@ public final class LbcMagic {
     public void inventoryChanged(ServerPlayer player) {
         dirtyInventories.add(player.getUUID()); pendingCleansing.add(player.getUUID());
         game.items().mana().inventoryChanged(player);
+        game.items().shulkerArmor().inventoryChanged(player);
     }
     public void clear(ServerPlayer player) {
         game.items().electro().inventory(player,false);
@@ -652,6 +653,16 @@ public final class LbcMagic {
     /** Обходим меньший набор: редкие стрелы либо локальные области носителей, используя индекс Minecraft. */
     void tickArrows() {
         intercept(IS_ARROW, arrowArtifacts, arrows, 16, NO_ARROWS);
+    }
+    /** Full Shulker armor invokes the same noarrows operation every active tick. */
+    void eraseArmorArrows(ServerPlayer player) {
+        if(stopping || arrows.isEmpty() || !interceptorHolder(player,NO_ARROWS))return;
+        var at=player.position();
+        for(var arrow:player.level().getEntities((Entity)null,new AABB(at,at).inflate(16),
+                entity->IS_ARROW.test(entity)&&entity.isAlive()&&entity.distanceToSqr(at)<=256)){
+            eraseIntercepted(arrow,NO_ARROWS);
+            if(!arrow.isAlive())arrows.remove(arrow);
+        }
     }
     /** Исходный players_2t: очищаем всю группу unstable, включая криперов и фейерверки. */
     void tickExplosions() {

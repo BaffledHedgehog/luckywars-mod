@@ -292,6 +292,8 @@ processResources {
             'data/lbc/loot_table/neko_set_shitty.json',
             'data/lbc/loot_table/neko_set_shitty_full.json',
             'data/lbc/loot_table/neko_set_shulker.json',
+            'data/lbc/loot_table/neko_set_shulker_pre.json',
+            'data/lbc/loot_table/neko_set_shulker_full.json',
             'data/lbc/loot_table/neko_set_steampunk/boots_spectral.json',
             'data/lbc/loot_table/neko_set_steampunk_andboots.json',
             'data/lbc/loot_table/neko_set_techno.json',

@@ -212,6 +212,7 @@ public final class LbcItems {
     private final LbcPopit popit;
     private final LbcOrdinaryAccessories ordinaryAccessories;
     private final LbcArmorSets armorSets;
+    private final LbcShulkerArmor shulkerArmor;
     private final LbcInventoryHazards inventoryHazards;
     private final LbcCannedFood cannedFood;
     private final LbcDeathCompass deathCompass;
@@ -810,6 +811,7 @@ public final class LbcItems {
         this.popit = new LbcPopit(game);
         this.ordinaryAccessories = new LbcOrdinaryAccessories(game);
         this.armorSets = new LbcArmorSets(game);
+        this.shulkerArmor = new LbcShulkerArmor(game);
         this.inventoryHazards = new LbcInventoryHazards(game);
         this.cannedFood = new LbcCannedFood(game);
         this.deathCompass = new LbcDeathCompass(game);
@@ -1013,6 +1015,7 @@ public final class LbcItems {
     public LbcPopit popit() { return popit; }
     public LbcOrdinaryAccessories ordinaryAccessories() { return ordinaryAccessories; }
     public LbcArmorSets armorSets() { return armorSets; }
+    public LbcShulkerArmor shulkerArmor() { return shulkerArmor; }
     public LbcInventoryHazards inventoryHazards() { return inventoryHazards; }
     public LbcCannedFood cannedFood() { return cannedFood; }
     public LbcDeathCompass deathCompass() { return deathCompass; }
@@ -1682,6 +1685,7 @@ public final class LbcItems {
         traveller.tick();
         ordinaryAccessories.tick();
         armorSets.tick();
+        shulkerArmor.tick();
         classicMelee.tick();
         pendingCombat.tick();
         pendingSwords.tick();
@@ -1863,6 +1867,7 @@ public final class LbcItems {
         pendingCombat.forget(player);
         pendingSwords.forget(player);
         incomingArtifacts.forget(player);
+        shulkerArmor.forget(player);
         moiseiBoots.forget(player);
         regenerationBelt.forget(player);
         quiver.forget(player);
@@ -1918,6 +1923,7 @@ public final class LbcItems {
         traveller.stop();
         ordinaryAccessories.stop();
         armorSets.stop();
+        shulkerArmor.stop();
         classicMelee.stop();
         pendingCombat.stop();
         pendingSwords.stop();

@@ -21,6 +21,7 @@ public abstract class LbcEquipmentMixin {
             game.items().soulhunter().jump(player);
             game.items().mana().overload().armor().jump(player);
             game.items().jumpArtifacts().jump(player);
+            game.items().shulkerArmor().jump(player);
         }
     }
     /** Normalize old miniguns before vanilla snapshots and applies equipment attribute modifiers. */
@@ -35,6 +36,7 @@ public abstract class LbcEquipmentMixin {
         if(game!=null && (Object)this instanceof ServerPlayer player) {
             game.items().mana().inventoryChanged(player);
             game.items().refreshMinigunMovement(player);
+            game.items().shulkerArmor().inventoryChanged(player);
         }
         if (slot == EquipmentSlot.FEET && game != null && (Object) this instanceof ServerPlayer player) {
             game.items().rocketEquipment(player, next);

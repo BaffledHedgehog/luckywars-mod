@@ -58,6 +58,13 @@
     "lbc:neko_set_erosion/boots",
     "lbc:neko_set_paladin_full",
     "lbc:neko_set_shitty_full",
-    "lbc:neko_set_erosion_full"
+    "lbc:neko_set_erosion_full",
+    "lbc:neko_set_shulker",
+    "lbc:neko_set_shulker/helmet",
+    "lbc:neko_set_shulker/chestplate",
+    "lbc:neko_set_shulker/leggings",
+    "lbc:neko_set_shulker/boots",
+    "lbc:neko_set_shulker_pre",
+    "lbc:neko_set_shulker_full"
   ]
 }
