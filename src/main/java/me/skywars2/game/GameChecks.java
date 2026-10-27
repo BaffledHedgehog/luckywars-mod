@@ -779,6 +779,7 @@ public final class GameChecks {
                                 case "popit" -> { PopitChecks.run(game); return; }
                                 case "ordinary-accessories" -> { OrdinaryAccessoryChecks.run(game); return; }
                                 case "inventory-hazards" -> { InventoryHazardChecks.run(game); return; }
+                                case "passive-consumables" -> { PassiveConsumableChecks.run(game); return; }
                                 case "late-swords" -> { LateSwordChecks.run(game); return; }
                                 case "late-swords-stop-probe" -> { LateSwordChecks.stopProbe(game); return; }
                                 case "late-swords-cleanup" -> { LateSwordChecks.cleanup(game); return; }
@@ -1288,6 +1289,7 @@ public final class GameChecks {
             PopitChecks.tick(game);
             OrdinaryAccessoryChecks.tick(game);
             InventoryHazardChecks.tick(game);
+            PassiveConsumableChecks.tick(game);
             MapLightingChecks.tick(game);
             EffectTerrainChecks.tick(game);
             DanmakuChecks.tick(game);

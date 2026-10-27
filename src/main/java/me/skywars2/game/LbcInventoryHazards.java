@@ -95,7 +95,9 @@ public final class LbcInventoryHazards {
             // Source tick function dispatches instants before the independent scheduled two-second callback.
             if(!armored(player)&&inventory(player,INSTANT)&&inventory(player,BOMB))bombs(player);
             if(phase==0&&admitted(player)){
-                if(container(player,LIQUID))liquid(player);
+                // Source players_2s consumes cans before either Liquid Abyss probe.
+                game.items().cannedFood().pulse(player);
+                if(admitted(player)&&container(player,LIQUID))liquid(player);
                 if(admitted(player)&&hands(player,LIQUID))liquid(player);
             }
         }

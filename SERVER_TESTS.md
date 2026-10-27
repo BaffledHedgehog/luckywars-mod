@@ -6008,3 +6008,37 @@ All children stopped normally and restored exact snapshots. Immutable evidence:
 `build/verification/inventory-hazards/qualification-b8cb2647.json`.
 Installer11424 adopted the artifact, waits for normal shutdown; main1a8a3825
 unchanged. No RP update;175author paths and31live overrides byte-exact.
+
+
+## Passive consumables - qualified27 October2026
+
+See [port contract](agent_notes/PASSIVE_CONSUMABLE_PORT_2026_10_27.md),
+[source timing](agent_notes/CANNED_FOOD_TIMING_2026_10_27.md) and
+[independent review](agent_notes/PASSIVE_CONSUMABLE_REVIEW_2026_10_27.md).
+Build95d0ec18: 90 suite results,8 preparation and2 setup/cleanup results in
+two actual mode1 matches (177.56s). Exact476sources/1348classes/
+3171resources match the tested JAR. Runner:
+tools/smoke_passive_consumables.py. Evidence: build/verification/passive-consumables/.
+
+All11 Canned outcomes, slot/probe/native-clear/counter behavior, source presentation,
+NORMAL32-block particles versus16-block burp, actual native EffectCommands
+instant timing/layers, real FOOD criterion and unchanged compatibility ledger,
+Greed self-source controls, role/stun/ice/Time Stop boundaries and actual40-tick
+Canned-before-Liquid absorption20->16 pass. Hylian's real original weighted
+normal reforge, exact44-entry monster tag including allied Bee, sphere7/mainhand/
+beacon-only gates, real5-tick refresh and40-tick expiry pass. Shared two-match
+inventory/accessory/weapon/grimoire/Time Stop/effect/FOV/firearm regressions pass.
+
+Four rejected fixture-only assumptions are retained: restoring a read-only FOOD
+score needs native forceWritable; HP must be set before Greed protects reductions;
+dimension return needs actual loaded/teleport ACK; measurement packet windows
+must retain the latest real teleport separately. No payload assertions were
+weakened and no production bodies changed to accommodate these failures.
+The final focus passed before the unchanged full two-match candidate ran.
+Every child stopped normally and exact saved fixture bytes were restored.
+
+Canned normal LuckyWars acquisition is explicitly unfinished; its scoped leaf
+is operator/staging only. No whole unresolved pool/mode2 enabled. Physical client
+pixels/audio, internet latency and peak TPS remain unobserved. No RP update.
+TPS compensation remains a feasibility discussion. Installer11424 waits for
+normal main shutdown; main disk remains1a8a3825. No restart forced.

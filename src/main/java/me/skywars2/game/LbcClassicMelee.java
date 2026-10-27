@@ -1,6 +1,8 @@
 package me.skywars2.game;
 
 import net.minecraft.core.registries.Registries;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
@@ -9,11 +11,18 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.phys.AABB;
 
 /** Source accepted-hit passives on ordinary vanilla sword stacks; all effect state stays native. */
 public final class LbcClassicMelee {
     private static final TagKey<DamageType> ARROW_ONLY=TagKey.create(Registries.DAMAGE_TYPE,Identifier.parse("minecraft:arrow_only"));
+    private static final TagKey<EntityType<?>> MONSTERS=TagKey.create(Registries.ENTITY_TYPE,Identifier.parse("minecraft:monsters"));
+    private static final CompoundTag HYLIAN=new CompoundTag();
+    static {HYLIAN.putInt("hylian",1);}
     private final GameController game;
+    private int phase;
     public LbcClassicMelee(GameController game){this.game=game;}
 
     private boolean admitted(ServerPlayer owner){
@@ -53,6 +62,28 @@ public final class LbcClassicMelee {
             else if(owner.getRandom().nextInt(4)==0)guardian(owner,false);
         }
     }
+    /** Hylian's equipped passive continues under active-input stun/ice; accepted-hit admission above is unchanged. */
+    public void tick(){
+        var level=game.maps().level();
+        if(level==null||game.stage()==GameController.Stage.ENDING||game.items().wands().timeStopped())return;
+        phase=(phase+1)%5;if(phase!=0)return;
+        for(var owner:game.server().getPlayerList().getPlayers()){
+            if(!owner.isAlive()||owner.isRemoved()||owner.level()!=level||!game.canUseGameplayItems(owner)
+                    ||game.isObserver(owner)||!game.items().wands().validRoleTarget(owner,false)
+                    ||game.items().wands().inputTimeStopped(owner)||game.items().timeStop().stopped(level))continue;
+            var dimension=level.dimension().identifier();
+            if(dimension.equals(Identifier.parse("minecraft:nexus"))||dimension.equals(Identifier.parse("minecraft:imprinted")))continue;
+            var data=owner.getMainHandItem().get(DataComponents.CUSTOM_DATA);
+            if(owner.getMainHandItem().isEmpty()||data==null||!data.matchedBy(HYLIAN)
+                    ||game.items().magic().beaconSuppressed(owner.position()))continue;
+            var at=owner.position();
+            // Witnesses are a tag/range presence test, not harm targets: retain own/allied/technical monsters.
+            boolean nearby=!level.getEntitiesOfClass(Entity.class,new AABB(at,at).inflate(8),
+                    entity->entity.getType().builtInRegistryHolder().is(MONSTERS)&&entity.position().distanceToSqr(at)<=49).isEmpty();
+            if(nearby)owner.addEffect(ItemEffectLevels.create(MobEffects.STRENGTH,40,2),owner);
+        }
+    }
+    public void stop(){phase=0;}
     private void guardian(ServerPlayer owner,boolean swimming){
         var level=owner.level();var origin=owner.position();
         var targets=level.getEntitiesOfClass(LivingEntity.class,owner.getBoundingBox().inflate(7),entity->{

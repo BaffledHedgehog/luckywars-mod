@@ -203,6 +203,7 @@ public final class LbcItems {
     private final LbcPopit popit;
     private final LbcOrdinaryAccessories ordinaryAccessories;
     private final LbcInventoryHazards inventoryHazards;
+    private final LbcCannedFood cannedFood;
     private final LbcSheep sheep;
     private final LbcHedgehog hedgehog;
     private final LbcGodHedgehog godHedgehog;
@@ -781,6 +782,7 @@ public final class LbcItems {
         this.popit = new LbcPopit(game);
         this.ordinaryAccessories = new LbcOrdinaryAccessories(game);
         this.inventoryHazards = new LbcInventoryHazards(game);
+        this.cannedFood = new LbcCannedFood(game);
         this.sheep = new LbcSheep(game,mana);
         this.hedgehog = new LbcHedgehog(game,mana);
         this.godHedgehog = new LbcGodHedgehog(game);
@@ -967,6 +969,7 @@ public final class LbcItems {
     public LbcPopit popit() { return popit; }
     public LbcOrdinaryAccessories ordinaryAccessories() { return ordinaryAccessories; }
     public LbcInventoryHazards inventoryHazards() { return inventoryHazards; }
+    public LbcCannedFood cannedFood() { return cannedFood; }
     public LbcSheep sheep() { return sheep; }
     public LbcHedgehog hedgehog() { return hedgehog; }
     public LbcGodHedgehog godHedgehog() { return godHedgehog; }
@@ -1611,6 +1614,7 @@ public final class LbcItems {
         consuming.tick();
         traveller.tick();
         ordinaryAccessories.tick();
+        classicMelee.tick();
         inventoryHazards.tick();
         enderWiki.tick();
         prism.tick();
@@ -1826,6 +1830,7 @@ public final class LbcItems {
         blaze.stop();
         traveller.stop();
         ordinaryAccessories.stop();
+        classicMelee.stop();
         inventoryHazards.stop();
         psycho.stop();
         syringe.stop();

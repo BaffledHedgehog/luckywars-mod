@@ -215,3 +215,17 @@ non-reparse, hash, size and mtime checks. Cumulative cleanup339JARs,
 worlds and caches remain. Installer11424 adopted the new immutable qualification
 and waits for normal shutdown; main JAR stayed1a8a3825. No forced restart.
 Receipt: `build/verification/inventory-hazards/build-cleanup-receipt.json`.
+
+
+## Passive consumables qualified27 October2026
+
+Build95d0ec18 passed90 results in two actual mode1 matches (177.56s), with
+8preparation and2setup/cleanup results. Keep passive-consumables95d0ec18, previous
+inventory-hazardsb8cb2647 and exact installed signed-effects1a8a3825 rollback.
+Removed only obsolete ordinary-accessories726e2521,39970389bytes,
+after exact literal parent/non-reparse/hash/size/mtime checks. Cumulative cleanup
+340JARs /12183557006bytes. Current build inputs, source/native
+evidence, auxiliary audit JAR, worlds and caches remain. Installer11424 adopted
+the new immutable qualification and waits for normal shutdown; main remains
+1a8a3825. No forced restart. Receipt:
+build/verification/passive-consumables/build-cleanup-receipt.json.

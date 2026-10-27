@@ -1,3 +1,48 @@
+## Passive consumables - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
+
+[Port contract](PASSIVE_CONSUMABLE_PORT_2026_10_27.md), [Canned source](CANNED_FOOD_SOURCE_2026_10_27.md),
+[native timing](CANNED_FOOD_TIMING_2026_10_27.md), [actual acquisition](CANNED_FOOD_ACQUISITION_2026_10_27.md),
+[Hylian source](REMAINING_SMALL_PASSIVES_2026_10_27.md), [independent review](PASSIVE_CONSUMABLE_REVIEW_2026_10_27.md).
+Canned Food's full11-outcome consumer now retains independent inventory/hand
+probes, native one-tick Saturation/Health, exact full-clear1 and shared counter,
+seven ordered NORMAL particle packets and ranged MASTER burp. It runs before
+both Liquid Abyss probes on the actual shared40-tick phase. Native effects and
+their layers persist after consumption. The foodlvl DUMMY ledger is unchanged;
+live physical hunger is deliberately checked per probe.
+
+Canned Food normal LuckyWars acquisition remains unfinished. Only its exact
+operator/staging leaf is packaged; mode2 and unresolved whole Lucky Block pools
+are not enabled. Hylian Sword retains its live original normal sword-reforge
+route and exact netherite presentation. Its5-tick mainhand StrengthIII passive
+uses the newly packaged original44-entry monster tag, including allied Bee
+witnesses, spherical7 and source magic-beacon suppression. Both passives continue
+under input stun/ice and pause for Time Stop; old accepted-hit melee is unchanged.
+
+Build95d0ec18 passed90 suite results,8 preparation and2 setup/cleanup
+results in two actual mode1 matches (177.56s). Exact476sources /
+1348classes /3171resources match the tested JAR. Native
+EffectCommands/FOOD criterion controls, actual normal Hylian reforge, scheduled
+5/40-tick boundaries/expiry and Canned-before-Liquid20->16 absorption pass.
+All shared inventory/accessory, weapon/grimoire, Time Stop, signed-effect/FOV
+and firearm regressions pass. Four rejected fixture assumptions retain causes
+and logs; production bodies stayed unchanged. All children stopped/restored
+normally. No physical client pixels/audio, latency or peakTPS claim. No RP update.
+TPS compensation remains feasibility-only and is not implemented.
+
+Installer11424 adopted95d0ec18 and waits for normal main shutdown/world unlock
+(24566, RCON off). Main disk remains1a8a3825; no forced stop/restart. Ready:
+build/verification/skywars2-passive-consumables-95d0ec18.jar. Evidence/live receipts:
+build/verification/passive-consumables/. Keep95d0ec18,b8cb2647 and installed1a8a3825;
+obsolete726e2521 retired. Cumulative340JARs /12183557006bytes.
+All175 original protected author paths and31 live grimoire overrides remain exact.
+
+The author has returned and is processing [PENDING_QUESTIONS.md](PENDING_QUESTIONS.md).
+This finishes the in-flight batch; do not infer approval for unresolved choices.
+[Death Compass/Aimbob preparation](AIMBOB_COMPASS_SOURCE_2026_10_27.md)
+is source-only, with acquisition and full-family dependencies explicit. Neither
+family is enabled here. Earlier whole-pool and inventory-perk gaps remain open.
+These notes supersede historical remaining-work lists below.
+
 ## Inventory hazards - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
 
 [Port contract](INVENTORY_HAZARDS_PORT_2026_10_27.md), [complete source](INVENTORY_HAZARDS_SOURCE_2026_10_27.md),

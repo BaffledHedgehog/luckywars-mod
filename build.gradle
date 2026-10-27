@@ -460,6 +460,8 @@ processResources {
             'data/lbc/loot_table/transformables_totem.json',
             'data/lbc/loot_table/transformables_trident.json',
             'data/lbc/loot_table/unstable_reactive.json'
+    include 'data/lbc/loot_table/ported/canned_food.json', 'data/lbc/loot_table/ported/hylian_sword.json',
+            'data/minecraft/tags/entity_type/monsters.json'
     // Legacy assets stay in the working tree; their registries/advancements must not run
     // alongside the new controller or override Minecraft 26.3's built-in dimensions.
     include 'fabric.mod.json', 'skywars2.mixins.json', 'data/skywars2/**', 'data/swrg/structure/**',
