@@ -155,6 +155,7 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             if (game != null) game.items().chargedSwords().damaged(entity, damage);
             if (game != null) game.items().karaSlabs().damaged(entity, damage);
             if (game != null) game.items().classicMelee().damaged(entity, damage);
+            if (game != null) game.items().metalPipe().damaged(entity, damage);
             if (game != null) game.items().devilSword().damaged(entity, damage);
             if (game != null) game.items().pendingCombat().damaged(entity, damage);
             if (game != null) game.items().pendingSwords().damaged(entity, damage);
@@ -187,6 +188,8 @@ public final class SkyWars2 implements DedicatedServerModInitializer {
             return allowed;
         });
         UseItemCallback.EVENT.register((player, level, hand) -> {
+            if(game!=null && player instanceof ServerPlayer owner && me.skywars2.game.LbcMetalPipe.divider(player.getItemInHand(hand)))
+                return game.items().wands().use(owner,hand)?InteractionResult.SUCCESS:InteractionResult.FAIL;
             if(player instanceof ServerPlayer owner&&!me.skywars2.game.LbcDimensionItems.allowed(owner,player.getItemInHand(hand)))return InteractionResult.FAIL;
             // Original accessory/reforge stacks keep their vanilla carrier and enter the native two-hand dispatcher.
             if(game!=null&&player instanceof ServerPlayer owner&&me.skywars2.game.LbcPendingCombat.isPiston(player.getItemInHand(hand)))

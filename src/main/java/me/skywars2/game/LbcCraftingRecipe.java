@@ -44,6 +44,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         INFBOLT("infbolt_combine","infbolt_wand"),
         CONSUMING("consuming_combine","consuming_wand"),
         DUPLICATING("duplicating_combine","duplicating_wand"),
+        METAL_DIVIDER("metal_pipe_divider","metal_pipe_divider"),
         GAYCASTER("gaycaster_combine","gaycaster"),
         ERECTO("erecto_combine","erecto_wand"),
         FARTUS("fartus_combine","fartus_wand"),
@@ -206,6 +207,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         if(LbcRerollCrafting.matches(input)) return Kind.REROLL_MACHINE;
         var terra=LbcTerra.craftingKind(input);
         if(terra!=null) return terra;
+        int pipe=0;for(var stack:input.items())if(!stack.isEmpty()&&LbcFartus.data(stack).getIntOr("metal_pipe",0)==1)pipe++;
         int air=0,exoperso=0,stone=0,wall=0,tanner=0,fire=0,kiuas=0,blaze=0,blind=0,psycho=0,vex=0,stars=0,teleport=0,bolts=0,material=0,ruby=0,consuming=0,divider=0;
         for(var stack:input.items()) if(!stack.isEmpty()) {
             var data=stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
@@ -251,6 +253,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
         if(teleport==1 && material==1) return Kind.INFBOLT;
         if(ruby==1 && consuming==1) return Kind.CONSUMING;
         if(ruby==1 && divider==1) return Kind.DUPLICATING;
+        if(pipe==1 && divider==1)return Kind.METAL_DIVIDER;
         if(stone==1 && wall==1) return Kind.BEDROCK;
         if(stone==1 && tanner==1) return Kind.STONEKIVI;
         if(fire==1 && kiuas==1) return Kind.SUN;
@@ -386,6 +389,7 @@ public final class LbcCraftingRecipe extends CustomRecipe {
             LbcOverload.sound(player,player.position(),"minecraft:entity.player.levelup",1,0,0);return;
         }
         if(kind==Kind.FARTUS){game.items().wtf().crafted(player);return;}
+        if(kind==Kind.METAL_DIVIDER){game.items().metalPipe().crafted(player.level(),player.position());return;}
         if(kind==Kind.SOULHUNTER){game.items().soulhunter().crafted(player);return;}
         if(kind==Kind.FEVGALEA){
             player.level().sendParticles(new net.minecraft.core.particles.DustParticleOptions(

@@ -1,0 +1,50 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:carrot_on_a_stick",
+          "modifier": [
+            {
+              "entity": "this",
+              "name": {
+                "translate": "divider_by_metal_pipe",
+                "italic": false
+              },
+              "type": "minecraft:set_name"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_x",
+                "minecraft:item_model": "lbc:metal_pipe_divider"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "divider_by_metal_pipe.lore.1",
+                  "italic": false,
+                  "color": "white"
+                },
+                {
+                  "translate": "divider_by_metal_pipe.lore.2",
+                  "italic": false,
+                  "color": "gold"
+                }
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "tag": "{magicwand:1,divider_by_metal_pipe:1,spellwithcooldown:1}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

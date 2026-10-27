@@ -140,6 +140,7 @@ public final class LbcItems {
         chargedSwords.damaged(victim,source);
         karaSlabs.damaged(victim,source);
         classicMelee.damaged(victim,source);
+        metalPipe.damaged(victim,source);
         devilSword.damaged(victim,source);
         pendingCombat.damaged(victim,source);
         pendingSwords.damaged(victim,source);
@@ -214,6 +215,7 @@ public final class LbcItems {
     private final LbcCannedFood cannedFood;
     private final LbcDeathCompass deathCompass;
     private final LbcMalevich malevich;
+    private final LbcMetalPipe metalPipe;
     private final LbcMoiseiBoots moiseiBoots;
     private final LbcRegenerationBelt regenerationBelt;
     private final LbcQuiver quiver;
@@ -501,6 +503,8 @@ public final class LbcItems {
         if(LbcReactiveItems.isReactive(source.getMainHandItem()) || LbcReactiveItems.isReactive(source.getOffhandItem()))
             hudCooldown(component,reactive.hudValue(source));
         hudCooldown(component,dividerHudValue(source));
+        if(LbcMetalPipe.divider(source.getMainHandItem())||LbcMetalPipe.divider(source.getOffhandItem()))
+            hudCooldown(component,hudSeconds(metalPipe.cooldownTicks(source)));
         if(LbcStand.isOraora(source.getMainHandItem()) || LbcStand.isOraora(source.getOffhandItem()))
             hudCooldown(component,hudSeconds(stand.cooldownTicks(source)));
         if(LbcStand.isHomingLightning(source.getMainHandItem()) || LbcStand.isHomingLightning(source.getOffhandItem()))
@@ -808,6 +812,7 @@ public final class LbcItems {
         this.cannedFood = new LbcCannedFood(game);
         this.deathCompass = new LbcDeathCompass(game);
         this.malevich = new LbcMalevich(game);
+        this.metalPipe = new LbcMetalPipe(game);
         this.moiseiBoots = new LbcMoiseiBoots(game);
         this.regenerationBelt = new LbcRegenerationBelt(game);
         this.quiver = new LbcQuiver(game);
@@ -1009,6 +1014,7 @@ public final class LbcItems {
     public LbcCannedFood cannedFood() { return cannedFood; }
     public LbcDeathCompass deathCompass() { return deathCompass; }
     public LbcMalevich malevich() { return malevich; }
+    public LbcMetalPipe metalPipe() { return metalPipe; }
     public LbcMoiseiBoots moiseiBoots() { return moiseiBoots; }
     public LbcRegenerationBelt regenerationBelt() { return regenerationBelt; }
     public LbcQuiver quiver() { return quiver; }
@@ -1088,6 +1094,7 @@ public final class LbcItems {
         tntDrops.loaded(entity);
         inventoryHazards.loaded(entity);
         malevich.loaded(entity);
+        metalPipe.loaded(entity);
         pendingCombat.loaded(entity);
         pendingSwords.loaded(entity);
         incomingArtifacts.loaded(entity);
@@ -1255,6 +1262,7 @@ public final class LbcItems {
         kfcRewards.entityUnloaded(entity);
         inventoryHazards.unloaded(entity);
         malevich.unloaded(entity);
+        metalPipe.unloaded(entity);
         pendingCombat.unloaded(entity);
         pendingSwords.unloaded(entity);
         incomingArtifacts.unloaded(entity);
@@ -1681,6 +1689,7 @@ public final class LbcItems {
         inventoryHazards.tick();
         deathCompass.tick();
         malevich.tick();
+        metalPipe.tick();
         enderWiki.tick();
         prism.tick();
         awakenedAcid.tick();
@@ -1846,6 +1855,7 @@ public final class LbcItems {
         kfcRewards.clear(player);
         inventoryHazards.forget(player);
         malevich.forget(player);
+        metalPipe.forget(player);
         pendingCombat.forget(player);
         pendingSwords.forget(player);
         incomingArtifacts.forget(player);
@@ -1914,6 +1924,7 @@ public final class LbcItems {
         inventoryHazards.stop();
         deathCompass.stop();
         malevich.stop();
+        metalPipe.stop();
         psycho.stop();
         syringe.stop();
         communism.stop();

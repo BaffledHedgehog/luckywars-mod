@@ -363,7 +363,7 @@ processResources {
             'data/lbc/loot_table/fragmentsword.json',
             'data/lbc/loot_table/halloween/metasola.json',
             'data/lbc/loot_table/infinite_totem.json',
-            'data/lbc/loot_table/metal_pipe.json',
+            'data/lbc/loot_table/metal_pipe.json', 'data/lbc/loot_table/ported/metal_pipe_divider.json',
             'data/lbc/loot_table/neko_set_assasin/boots.json',
             'data/lbc/loot_table/neko_set_assasin/chestplate.json',
             'data/lbc/loot_table/neko_set_assasin/helmet.json',

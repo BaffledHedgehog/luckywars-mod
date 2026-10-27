@@ -480,6 +480,7 @@ public final class LbcWands {
         if (LbcFevgaleaStar.isSword(stack)) return game.items().fevgaleaStar().use(player,hand);
         if (LbcChargedSwords.matches(stack)) return game.items().chargedSwords().use(player,hand);
         var scrollData=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
+        if(LbcMetalPipe.divider(stack))return game.items().metalPipe().use(player,hand);
         if(isDivider(stack)) return game.items().duplicating().useDivider(player,hand,stack);
         if(stack.is(DESTROYER_SPELL) || scrollData.getIntOr("trap2",0)==1)
             return game.items().consuming().useScroll(player,hand,stack,true);

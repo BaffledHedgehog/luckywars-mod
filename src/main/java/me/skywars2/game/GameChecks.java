@@ -382,6 +382,9 @@ public final class GameChecks {
                                 }
                                 case "respawn-island-prepare" -> { RespawnIslandChecks.prepare(game); return; }
                                 case "death-compass" -> { DeathCompassChecks.run(game); return; }
+                                case "metal-pipe" -> { MetalPipeChecks.run(game); return; }
+                                case "metal-pipe-stop-probe" -> { MetalPipeChecks.stopProbe(game); return; }
+                                case "metal-pipe-cleanup" -> { MetalPipeChecks.cleanup(game); return; }
                                 case "malevich" -> { MalevichChecks.run(game); return; }
                                 case "malevich-stop-probe" -> { MalevichChecks.stopProbe(game); return; }
                                 case "malevich-cleanup" -> { MalevichChecks.cleanup(game); return; }
@@ -1312,6 +1315,7 @@ public final class GameChecks {
 
         /** Called once per server tick after the controller tick. */
         public static void tick(GameController game) {
+            MetalPipeChecks.tick(game);
             MalevichChecks.tick(game);
             DeathCompassChecks.tick(game);
             RespawnIslandChecks.tick(game);

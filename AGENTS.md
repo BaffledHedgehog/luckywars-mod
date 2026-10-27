@@ -1,3 +1,20 @@
+## Metal Pipe and Metal Divider - QUALIFIED, AUTO INSTALL QUEUED (27 October2026)
+
+[Source, full craft continuation and native evidence](agent_notes/METAL_PIPE_PORT_2026_10_27.md).
+Registered Paper Pipe now uses native landing/rearm/pickup physics, raw25 damage
+and original sounds. Direct source remains the actual ItemEntity, so landing
+cannot masquerade as a held-weapon hit; creator attribution and shared protections
+remain. The existing original sword-reforge pool supplies the unchanged Pipe.
+Pipe + Divider now crafts the complete Metal Divider in grid and on the ground;
+real input replaces whole loaded-item stacks with Pipes, with source tag exemption,
+no mana cost,15second cooldown, actionbar and persisted clock rehydration.
+Builda81eb534 passed32results in2actual mode1matches (98.83s), exact516sources/
+1460classes/3221resources.175author paths/31live overrides unchanged. No RP update.
+Automatic installer waits for running main6890ae59 to stop normally; no forced
+stop/restart. Keep a81eb534 ready, installed6890ae59 and c260a27d rollback; older
+rollback cleanup follows verified installation. IMBA throwable acquisition stays
+separate/unported. Historical status lists below remain evidence of older builds.
+
 ## Malevich - QUALIFIED, INSTALLED (27 October2026)
 
 [Source contract, author ruling and native proof](agent_notes/MALEVICH_PORT_2026_10_27.md).
