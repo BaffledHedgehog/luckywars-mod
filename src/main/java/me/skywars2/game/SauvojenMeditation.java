@@ -48,13 +48,14 @@ public final class SauvojenMeditation {
     enum Kind { TERRA,TERRA_RAY,WEB,AIR,ACID_RING,ACID_BALLER,ACID_BALL,SCARE }
     static final class Hazard {
         final Kind kind; Vec3 at,direction; int age; float yaw;
-        Entity actor; UUID uuid;
+        Entity actor; UUID uuid; TrialWarningVisual warning;
         Hazard(Kind kind,Vec3 at,Vec3 direction){this.kind=kind;this.at=at;this.direction=direction;}
-        void close(){if(actor!=null)actor.discard();actor=null;}
+        void close(){if(actor!=null)actor.discard();actor=null;if(warning!=null)warning.close();}
     }
     static final class Trial {
         final ServerPlayer owner; final ItemStack stack; final ServerLevel level; final String epoch;
         final LbcIndirectKills.Owner cause; final List<Hazard> hazards=new ArrayList<>();
+        final List<TrialWarningVisual> warnings=new ArrayList<>(),webWarnings=new ArrayList<>();
         int remaining=620; int ticks;
         int webQueries,webEdges,webSamples;
         TerrainJob terrain;long terrainNanos,maxTerrainNanos;int terrainTurns;
@@ -119,6 +120,7 @@ public final class SauvojenMeditation {
             if(!valid(t.owner)||t.owner.level()!=t.level||!game.items().currentEpoch(t.epoch)) {finish(t,null);continue;}
             if(t.owner.getMainHandItem()!=t.stack||!participating(t.stack)){finish(t,"sauvojen_wand_meditate_no_wand");continue;}
             if(game.maps().busy()||game.items().timeStop().stopped(t.level)||t.owner.entityTags().contains("time_stopped"))continue;
+            t.warnings.removeIf(TrialWarningVisual::tick);
             // Legacy stopper pauses countdown; already emitted helpers retain their own local suppression.
             if(!game.items().magic().suppressed(t.owner)){
                 if(!phase(t))continue;
@@ -149,7 +151,7 @@ public final class SauvojenMeditation {
                 Vec3 point=at.add(0,1,0).add(Vec3.directionFromRotation(0,ticker*i).scale(10));
                 Hazard h=add(t,Kind.TERRA,point,t.owner.getEyePosition().subtract(point).multiply(1,0,1).normalize());
                 model(t,h,"st/terra",1.5f);sound(t,point,"minecraft:block.beacon.activate",.5f,2);
-                line(t,point,h.direction,80,.25,0xcc0000);
+                h.warning=line(t,point,h.direction,80,.25,false,40);
             }
         }
         if(n==520||n==500||n==480||n==460||n==440){
@@ -171,11 +173,12 @@ public final class SauvojenMeditation {
             model(t,h,null,0);rings(t,h.at.add(0,.5,0),7,0xff0000,false);
             rings(t,h.at.add(0,1.5,0),7,0xff0000,false);rings(t,h.at.add(0,2.5,0),7,0xff0000,false);
         }
-        if(n==300)add(t,Kind.ACID_RING,at.add(-5,0,0),Vec3.directionFromRotation(0,0));
+        if(n==300){var h=add(t,Kind.ACID_RING,at.add(-5,0,0),Vec3.directionFromRotation(0,0));
+            h.warning=TrialWarningVisual.ring(game,t.level,t.epoch,h.at.add(0,1,.25),15,130);t.warnings.add(h.warning);}
         if(n>=200&&n<=290&&r.nextBoolean()){
             Vec3 point=new Vec3(Math.floor(at.x)+r.nextInt(21)-10,at.y+9,Math.floor(at.z)+r.nextInt(21)-10);
             if(resident(t.level,point)){var h=add(t,Kind.ACID_BALLER,point,new Vec3(0,-1,0));model(t,h,"st/acid",2.5f);
-                h.actor.setXRot(90);acidWarning(t,point);}
+                h.actor.setXRot(90);acidWarning(t,h);}
         }
         if(n==160){effect(t,t.owner,MobEffects.LEVITATION,300,0);effect(t,t.owner,MobEffects.LEVITATION,20,20);}
         if(n==140)effect(t,t.owner,MobEffects.DARKNESS,300,0);
@@ -329,13 +332,15 @@ public final class SauvojenMeditation {
                     sound(t,h.at,"minecraft:entity.generic.explode",1,1.3f);return true;
                 }
             }
-            case ACID_RING->{rings(t,h.at.add(0,1,0),10,0x00ff00,true);h.at=h.at.add(Vec3.directionFromRotation(0,h.yaw).scale(.25));h.yaw+=5;return h.age>=130;}
+            case ACID_RING->{rings(t,h.at.add(0,1,0),10,0x00ff00,true);
+                h.at=h.at.add(Vec3.directionFromRotation(0,h.yaw).scale(.25));h.yaw+=5;
+                if(h.warning!=null)h.warning.moveTo(h.at.add(0,1,0));return h.age>=130;}
             case ACID_BALLER->{
                 if(h.age<40){if(t.owner.getRandom().nextFloat()<.15f){
-                    acidWarning(t,h.at);var nearest=trials.values().stream().filter(other->other.level==t.level)
+                    var nearest=trials.values().stream().filter(other->other.level==t.level)
                             .min(Comparator.comparingDouble(other->other.owner.position().distanceToSqr(h.at))).orElse(t);
                     Vec3 horizontal=nearest.owner.position().subtract(h.at).multiply(1,0,1).normalize();
-                    h.at=h.at.add(horizontal.scale(.1));if(h.actor!=null){h.actor.setPos(h.at);h.actor.setYRot(yaw(horizontal));h.actor.setXRot(90);}
+                    h.at=h.at.add(horizontal.scale(.1));acidWarning(t,h);if(h.actor!=null){h.actor.setPos(h.at);h.actor.setYRot(yaw(horizontal));h.actor.setXRot(90);}
                 }}
                 else {if(t.owner.getRandom().nextBoolean()){
                     add(t,Kind.ACID_BALL,h.at,Vec3.directionFromRotation(80+t.owner.getRandom().nextInt(101)*.1f,-180+t.owner.getRandom().nextInt(3601)*.1f));}
@@ -394,7 +399,11 @@ public final class SauvojenMeditation {
         else {if(old.is(TO_LIME))return;next=Blocks.CONCRETE_POWDER.pick(net.minecraft.world.item.DyeColor.LIME);}
         Block replacement=next;terrain(t,p,p,()->t.level.setBlockAndUpdate(p,replacement.defaultBlockState()));
     }
-    private void webDamage(Trial t){webLines(t,true);for(var h:List.copyOf(t.hazards))if(h.kind==Kind.WEB){t.hazards.remove(h);h.close();}}
+    void webDamage(Trial t){
+        t.webWarnings.forEach(TrialWarningVisual::close);t.webWarnings.clear();
+        if(t.hazards.stream().anyMatch(h->h.kind==Kind.WEB))
+            sound(t,t.owner.position(),"minecraft:entity.firework_rocket.twinkle",1,1);
+        webLines(t,true);for(var h:List.copyOf(t.hazards))if(h.kind==Kind.WEB){t.hazards.remove(h);h.close();}}
     /** Complete source graph; collision sampling is independent of the bounded visual budget. */
     int webLines(Trial t,boolean damage){
         var webs=t.hazards.stream().filter(h->h.kind==Kind.WEB).toList();if(webs.isEmpty())return 0;
@@ -428,7 +437,11 @@ public final class SauvojenMeditation {
                     boolean terminal=false;for(var node:active)if(node.at.distanceToSqr(point)<=(damage?.25:.09)){terminal=true;break;}
                     if(terminal)break;
                 }
-                if(last!=null){
+                if(last!=null&&!damage){
+                    var warning=TrialWarningVisual.beam(game,t.level,t.epoch,h.at,last,false,20);
+                    t.warnings.add(warning);t.webWarnings.add(warning);
+                }
+                if(last!=null&&damage){
                     int count=Math.min(samples,visualSamples);
                     for(int j=0;j<count;j++){
                         // All emitted coordinates are actual .2/.5 source samples, including both endpoints.
@@ -468,20 +481,24 @@ public final class SauvojenMeditation {
         if(effect==MobEffects.LEVITATION)game.items().indirectKills().displaced(e,t.cause);
     }
     private void rings(Trial t,Vec3 at,double radius,int color,boolean damage){
-        for(int i=0;i<26;i++)for(int axis=0;axis<4;axis++){double angle=Math.toRadians(i*4+axis*90);Vec3 p=at.add(Math.sin(angle)*radius,0,Math.cos(angle)*radius);
+        if(!damage)for(int i=0;i<26;i++)for(int axis=0;axis<4;axis++){double angle=Math.toRadians(i*4+axis*90);Vec3 p=at.add(Math.sin(angle)*radius,0,Math.cos(angle)*radius);
             if(resident(t.level,p))t.level.sendParticles(damage?new DustParticleOptions(color,1):
                     new net.minecraft.core.particles.DustColorTransitionOptions(0x000000,0xff0000,1),p.x,p.y,p.z,1,0,0,0,0);}
         if(damage)for(var e:targets(t,at,15)){double d=e.position().distanceToSqr(at);if(d>=100&&d<=225)hurt(t,e,8,DamageTypes.MAGIC,false);}
         sound(t,at,"minecraft:block.beacon.activate",1,.5f);
     }
-    private void acidWarning(Trial t,Vec3 at){
-        line(t,at,new Vec3(0,-1,0),40,.25,0xcc0000);
-        sound(t,at,"minecraft:block.beacon.activate",1,1);
-        t.level.sendParticles(ParticleTypes.WITCH,at.x,at.y,at.z,2,.4,.4,.4,0);
+    private void acidWarning(Trial t,Hazard h){
+        if(h.warning==null||h.warning.closed()){
+            h.warning=line(t,h.at,new Vec3(0,-1,0),40,.25,true,Math.max(1,40-h.age));
+            sound(t,h.at,"minecraft:block.beacon.activate",1,1);
+        }else h.warning.moveTo(h.at);
+        t.level.sendParticles(ParticleTypes.WITCH,h.at.x,h.at.y,h.at.z,2,.4,.4,.4,0);
     }
-    private void line(Trial t,Vec3 at,Vec3 direction,int samples,double step,int color){
-        for(int i=1;i<=samples;i++){Vec3 p=at.add(direction.scale(i*step));if(!resident(t.level,p))break;
-            t.level.sendParticles(new DustParticleOptions(color,.8f),p.x,p.y,p.z,1,0,0,0,0);}
+    private TrialWarningVisual line(Trial t,Vec3 at,Vec3 direction,int samples,double step,boolean green,int life){
+        Vec3 end=at;
+        for(int i=1;i<=samples;i++){Vec3 p=at.add(direction.scale(i*step));if(!resident(t.level,p))break;end=p;}
+        var warning=TrialWarningVisual.beam(game,t.level,t.epoch,at,end,green,life);
+        if(!t.warnings.contains(warning))t.warnings.add(warning);return warning;
     }
     private static float yaw(Vec3 direction){return (float)Math.toDegrees(Math.atan2(-direction.x,direction.z));}
     private static float pitch(Vec3 direction){return (float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));}
@@ -502,6 +519,7 @@ public final class SauvojenMeditation {
     private void finish(Trial t,String key){
         if(trials.get(t.owner)!=t)return;trials.remove(t.owner);t.remaining=0;t.terrain=null;t.stoneOrigin=null;t.stoneRow=0;counter(t);
         for(var h:t.hazards)h.close();t.hazards.clear();
+        t.warnings.forEach(TrialWarningVisual::close);t.warnings.clear();t.webWarnings.clear();
         if(key!=null)t.owner.sendSystemMessage(Component.translatable(key).withStyle(ChatFormatting.RED));
     }
     public void forget(ServerPlayer owner){var t=trials.get(owner);if(t!=null)finish(t,null);}

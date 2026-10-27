@@ -122,14 +122,15 @@ final class LbcGaycasterAcademy {
         owner.connection.send(new net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket(Component.translatable(key)));
     }
     static final class Hazard {
-        final int kind;Vec3 at;final Vec3 direction;int age;Entity display;UUID visual;
+        final int kind;Vec3 at;final Vec3 direction;int age;Entity display;UUID visual;TrialWarningVisual warning;
         Hazard(int kind,Vec3 at,Vec3 direction){this.kind=kind;this.at=at;this.direction=direction;}
-        void close(){if(display!=null)display.discard();}
+        void close(){if(display!=null)display.discard();if(warning!=null)warning.close();}
     }
     private final class Trial {
         final ServerPlayer owner;final InteractionHand hand;final ItemStack stack;final ServerLevel level;final String epoch;
         final LbcIndirectKills.Owner terrainCause;
-        final List<Hazard> hazards=new ArrayList<>();int remaining=115,ticks;float rotation;
+        final List<Hazard> hazards=new ArrayList<>();final List<TrialWarningVisual> warnings=new ArrayList<>();
+        int remaining=115,ticks;float rotation;
         Trial(ServerPlayer p,InteractionHand h,ItemStack s){
             owner=p;hand=h;stack=s;level=p.level();epoch=game.items().epoch();
             var cause=game.items().indirectKills().coldCause(p,true);
@@ -140,11 +141,14 @@ final class LbcGaycasterAcademy {
     int remaining(ServerPlayer owner){var t=trials.get(owner);return t==null?0:t.remaining*5-t.ticks%5;}
     int helperCount(ServerPlayer owner){var t=trials.get(owner);return t==null?0:t.hazards.size();}
     List<Hazard> hazardSnapshot(ServerPlayer owner){var t=trials.get(owner);return t==null?List.of():List.copyOf(t.hazards);}
+    List<TrialWarningVisual> warningSnapshot(ServerPlayer owner){var t=trials.get(owner);return t==null?List.of():List.copyOf(t.warnings);}
     void tick(){
         for(var t:List.copyOf(trials.values())){
             if(!t.owner.isAlive()||t.owner.isRemoved()||!game.items().currentEpoch(t.epoch)||!game.playing()||game.isObserver(t.owner)
                     ||t.owner.level()!=t.level){finish(t,null);continue;}
             if(game.items().timeStop().stopped(t.level))continue;
+            // One active-tick clock for all warnings; their owning hazard can close them earlier.
+            t.warnings.removeIf(TrialWarningVisual::tick);
             if(++t.ticks%5==0){
                 if(t.owner.getItemInHand(t.hand)!=t.stack||!LbcAcademy.trial(t.stack)){finish(t,"gaycaster_meditate_no_wand");continue;}
                 if(!game.items().magic().suppressed(t.owner)){
@@ -210,7 +214,8 @@ final class LbcGaycasterAcademy {
         h.age++;
         switch(h.kind){
             case 1->{
-                if(h.age==1||h.age==11||h.age==21){for(int i=0;i<=90;i++)trialParticles(t.owner,new DustParticleOptions(0xff0000,1),h.at.add(h.direction.scale(i*.3)),1,0,0,0,0);
+                if(h.age==1||h.age==11||h.age==21){
+                    warning(t,h,TrialWarningVisual.beam(game,t.level,t.epoch,h.at,h.at.add(h.direction.scale(27)),false,10));
                     LbcOverload.sound(t.owner,h.at,"minecraft:block.beacon.activate",1,2,0);}
                 if(h.age<31)return false;
                 var hit=Collections.newSetFromMap(new IdentityHashMap<LivingEntity,Boolean>());
@@ -222,7 +227,7 @@ final class LbcGaycasterAcademy {
                 trialParticles(t.owner,net.minecraft.core.particles.ColorParticleOption.create(ParticleTypes.FLASH,0xffff0000),h.at,1,0,0,0,0);return true;
             }
             case 2->{
-                if(h.age==1){for(int i=0;i<364;i++){double angle=Math.toRadians(i*4);trialParticles(t.owner,new net.minecraft.core.particles.DustColorTransitionOptions(0xdd9000,0xff0000,3),h.at.add(5*Math.cos(angle),0,5*Math.sin(angle)),1,0,0,0,0);}}
+                if(h.age==1)warning(t,h,TrialWarningVisual.sphere(game,t.level,t.epoch,h.at,5,48));
                 if(h.age!=49)return h.age>=50;
                 paint(t,h.at.add(-5,-5,-5),h.at.add(5,5,5),Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.ORANGE));
                 paint(t,h.at.add(-4,-4,-4),h.at.add(4,4,4),Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.YELLOW));
@@ -231,6 +236,7 @@ final class LbcGaycasterAcademy {
                 for(var e:living)if(e.position().distanceToSqr(h.at)<=25)hurt(t,e,10,DamageTypes.EXPLOSION);return true;
             }
             case 3->{
+                if(h.age==1)warning(t,h,TrialWarningVisual.beam(game,t.level,t.epoch,h.at.add(0,-15,0),h.at,true,30));
                 trialParticles(t.owner,ParticleTypes.SNEEZE,h.at,1,0,0,0,.1);
                 LbcOverload.sound(t.owner,h.at,"minecraft:block.fire.extinguish",.5f,1,0);
                 for(var e:living)if(e.position().distanceToSqr(h.at)<=4){e.addEffect(ItemEffectLevels.create(MobEffects.POISON,100,1),t.owner);failed(t,e);}
@@ -238,18 +244,24 @@ final class LbcGaycasterAcademy {
                 paint(t,h.at.add(-1,-2,-1),h.at.add(1,-1,1),Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.LIME));
             }
             case 4->{
+                Vec3 ahead=h.at.add(h.direction.scale(7)).add(0,.5,0);
+                if(h.age==1)warning(t,h,TrialWarningVisual.wall(game,t.level,t.epoch,ahead,h.direction,30,2,80));
+                else if(h.warning!=null)h.warning.moveTo(ahead);
                 Vec3 left=new Vec3(h.direction.z,0,-h.direction.x);
                 for(int offset=-14;offset<=14;offset+=7){Vec3 point=h.at.add(left.scale(offset));
                     trialParticles(t.owner,ParticleTypes.ELECTRIC_SPARK,point.add(0,1,0),5,0,1,0,0);
                     trialParticles(t.owner,new net.minecraft.core.particles.DustColorTransitionOptions(0x00ccff,0x269eb6,1.5f),point.add(0,1,0),5,0,1,0,0);
-                    trialParticles(t.owner,new DustParticleOptions(0xff0000,1),point.add(h.direction.scale(7)).add(0,1,0),5,0,1,0,0);
                     paint(t,point.add(0,-1,0),point.add(0,2,0),Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.LIGHT_BLUE));
                     for(var e:living)if(e.getBoundingBox().intersects(new AABB(point.add(-.99,-.49,-.99),point.add(1,1.5,1))))hurt(t,e,8,DamageTypes.ARROW);
                 }LbcOverload.sound(t.owner,h.at,"minecraft:entity.firework_rocket.twinkle",.5f,1,0);h.at=h.at.add(h.direction.scale(.5));return h.age>=80;
             }
             case 5->{
-                trialParticles(t.owner,new DustParticleOptions(0x0000ff,3),h.at,15,10,0,10,0);
-                trialParticles(t.owner,new net.minecraft.core.particles.DustColorTransitionOptions(0,0xff0000,.5f),h.at.add(0,3,0),8,10,0,10,0);
+                if(h.age==1){
+                    // Warn the complete future flooded height, including the final floor-Y damage layer.
+                    Vec3 min=new Vec3(h.at.x-12,Mth.floor(h.at.y),h.at.z-12);
+                    Vec3 max=new Vec3(h.at.x+12,Mth.floor(h.at.y+.065*119)+1,h.at.z+12);
+                    warning(t,h,TrialWarningVisual.cube(game,t.level,t.epoch,min,max,120));
+                }
                 LbcOverload.sound(t.owner,h.at,"minecraft:block.water.ambient",1,1,0);
                 for(var e:living)if(e.position().distanceToSqr(h.at)<=144&&Mth.floor(e.getY())==Mth.floor(h.at.y))hurt(t,e,4,DamageTypes.DROWN);
                 paint(t,h.at.add(-10,0,-10),h.at.add(10,0,10),Blocks.CONCRETE.pick(net.minecraft.world.item.DyeColor.BLUE));
@@ -261,6 +273,10 @@ final class LbcGaycasterAcademy {
                 h.at=h.at.add(0,1,0);if(h.display!=null&&!h.display.isRemoved())h.display.setPos(h.at);
             }
         }return false;
+    }
+    private void warning(Trial t,Hazard h,TrialWarningVisual visual){
+        if(h.warning!=null)h.warning.close();
+        h.warning=visual;t.warnings.add(visual);
     }
     private void paint(Trial t,Vec3 from,Vec3 to,Block block){
         // Continuing trial paints keep the original influence order; a later real player hit still wins.
@@ -276,7 +292,8 @@ final class LbcGaycasterAcademy {
         if(hit instanceof ServerPlayer player){var own=trials.get(player);if(own!=null)finish(own,"gaycaster_meditate_fail");}
     }
     private void finish(Trial t,String key){
-        if(trials.get(t.owner)!=t)return;trials.remove(t.owner);t.hazards.forEach(Hazard::close);t.hazards.clear();t.remaining=0;counter(t);
+        if(trials.get(t.owner)!=t)return;trials.remove(t.owner);t.hazards.forEach(Hazard::close);t.hazards.clear();
+        t.warnings.forEach(TrialWarningVisual::close);t.warnings.clear();t.remaining=0;counter(t);
         if(key!=null)t.owner.sendSystemMessage(Component.translatable(key).withStyle(net.minecraft.ChatFormatting.RED));
     }
     void forget(ServerPlayer player){var t=trials.get(player);if(t!=null)finish(t,null);}

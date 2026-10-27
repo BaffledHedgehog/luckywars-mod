@@ -1,3 +1,25 @@
+## Meditation warning displays - QUALIFIED, AUTO INSTALL QUEUED (27 October2026)
+
+[User contract, source and proof](agent_notes/MEDITATION_WARNINGS_2026_10_27.md).
+Sauvojen and Gaycaster warning dust now uses finite shared Polymer item displays:
+red/green beams, ahead red2Dwalls, green10..15annulus with one-tick interpolation
+and lead, swept blue flood cube, orange sphere expanding to unchanged radius5.
+Web discharge emits one legacy twinkle at owner per burst. Full6/120edge damage
+and original Gaycaster11chance50wall opportunities/five lanes remain unchanged.
+Warnings pause with Time Stop and close on owned lifecycle/actual stop. Shared
+manual tracking is reused, including world-reset re-pairing. No client mod.
+Build8d2f7513 passed28results in2actual mode1matches (125.13s), exact518sources/
+1467classes/3221resources.175author paths/31live overrides unchanged; child normal
+shutdown and exact snapshots restored.20new template assets plus exact manual
+three-shader merge instructions are required; author's actual RP remains read-only.
+GPU8shader variants/18alpha/24bloom/65341sphere-coverage checks passed, not an
+in-game visual claim. Scene-color bloom has mixed-background isolation limits.
+Installer supersedes ca04e049 with this cumulative build, waits for normal main
+6890ae59 shutdown; no forced stop/restart. Retain8d2f7513ready, installed6890ae59,
+c260a27drollback and separate Polymer audit tool. Superseded ca04e049ready JAR was removed
+after verified receipt adoption. Live: `build/verification/meditation-warnings/main-install.json`.
+Older lists remain historical and are superseded by this entry.
+
 ## Antigravity velocity transport - QUALIFIED, AUTO INSTALL QUEUED (27 October2026)
 
 [User contract, native cause and proof](agent_notes/ANTIGRAVITY_VELOCITY_2026_10_27.md).

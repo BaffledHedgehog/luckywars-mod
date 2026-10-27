@@ -59,13 +59,17 @@ public final class SauvojenMeditationChecks {
     private static final class Recording extends net.minecraft.network.Connection {
         final net.minecraft.server.level.ServerPlayer player;
         final List<net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket> particles=new ArrayList<>();
+        final List<net.minecraft.network.protocol.game.ClientboundSoundPacket> sounds=new ArrayList<>();
+        final List<net.minecraft.network.protocol.Packet<?>> packets=new ArrayList<>();
         Recording(net.minecraft.server.level.ServerPlayer player){super(net.minecraft.network.protocol.PacketFlow.SERVERBOUND);this.player=player;}
         @Override public boolean isMemoryConnection(){return true;}
         @Override public boolean isConnected(){return true;}
         @Override public net.minecraft.network.PacketListener getPacketListener(){return player.connection;}
         @Override public void send(net.minecraft.network.protocol.Packet<?> packet,io.netty.channel.ChannelFutureListener listener,boolean flush){
-            if(packet instanceof net.minecraft.network.protocol.game.ClientboundBundlePacket bundle)bundle.subPackets().forEach(p->send(p,null,false));
-            else if(packet instanceof net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket particle)particles.add(particle);
+            if(packet instanceof net.minecraft.network.protocol.game.ClientboundBundlePacket bundle){bundle.subPackets().forEach(p->send(p,null,false));return;}
+            packets.add(packet);
+            if(packet instanceof net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket particle)particles.add(particle);
+            else if(packet instanceof net.minecraft.network.protocol.game.ClientboundSoundPacket sound)sounds.add(sound);
         }
         @Override public void flushChannel(){}
     }
@@ -191,6 +195,8 @@ public final class SauvojenMeditationChecks {
             require(service.terraTicker()==1,"native non-stopped global angular clock advances without legacy scoreboard writer");
             var rods=service.snapshot(base.owner);
             require(rods.stream().map(h->h.at).distinct().count()==3,"three distinct terra positions");
+            for(var rod:rods)require(rod.warning!=null&&!rod.warning.closed()&&t.warnings.contains(rod.warning)
+                    &&rod.warning.lifetime()==40,"each real terra emitter owns its forty-tick warning display");
             for(int i=0;i<3;i++)require(rods.get(i).at.distanceToSqr(base.owner.position().add(0,1,0).add(Vec3.directionFromRotation(0,i+1).scale(10)))<1e-10,"source ticker multiplied by1/2/3 exact coordinates");
             var prior=rods.getFirst().at;t.remaining=599;service.tick();
             require(service.snapshot(base.owner).stream().filter(h->h.kind==SauvojenMeditation.Kind.TERRA).map(h->h.at).anyMatch(p->p.distanceToSqr(prior)>1e-4),"advancing ring has different emission coordinates");
@@ -224,15 +230,18 @@ public final class SauvojenMeditationChecks {
             var saved=new GameChecks.WandThirdPlayerState(other,base.mana);var indirect=new Attribution(game,List.of(other));boolean shift=other.isShiftKeyDown();
             int counter=base.mana.score(other,"sauvojen_wand_upgrade").get();
             try{
-                var first=admit();first.remaining=600;service.phase(first);
+                var first=admit();first.remaining=600;service.phase(first);var firstWarnings=List.copyOf(first.warnings);
                 other.setItemInHand(InteractionHand.MAIN_HAND,first.stack.copy());other.setShiftKeyDown(true);
                 require(service.start(other,InteractionHand.MAIN_HAND,other.getMainHandItem()),"second independent admission");
                 var second=service.trial(other);second.remaining=600;service.phase(second);
-                var secondActors=service.snapshot(other).stream().map(h->h.actor).toList();
+                var secondActors=service.snapshot(other).stream().map(h->h.actor).toList();var secondWarnings=List.copyOf(second.warnings);
                 require(service.count()==2&&secondActors.size()==3,"simultaneous native helper families");
                 require(secondActors.stream().noneMatch(Entity::isRemoved),"second native helper family is live before foreign cleanup: "+
                         secondActors.stream().map(e->e.getUUID()+" removed="+e.isRemoved()+" reason="+e.getRemovalReason()).toList());
                 service.forget(base.owner);
+                require(!firstWarnings.isEmpty()&&firstWarnings.stream().allMatch(TrialWarningVisual::closed)
+                        &&!secondWarnings.isEmpty()&&secondWarnings.stream().noneMatch(TrialWarningVisual::closed),
+                        "one owner cleanup closes only that owner's warning displays");
                 require(service.count()==1&&service.remaining(other)==600&&secondActors.stream().noneMatch(Entity::isRemoved),
                         "first cleanup leaves other trial counters and all native actors intact: trials="+service.count()+
                                 " remaining="+service.remaining(other)+" actors="+secondActors.stream().map(e->e.getUUID()+" removed="+e.isRemoved()+" reason="+e.getRemovalReason()).toList());
@@ -253,15 +262,19 @@ public final class SauvojenMeditationChecks {
             try(var packets=new Swap(game,base.owner)){
                 require(service.webLines(t,false)==120,"sixteen native web nodes issue120warning rays");
                 require(t.webQueries==0&&t.webEdges==120&&t.webSamples>120,"warning traces complete graph without world entity queries");
-                require(!packets.recording.particles.isEmpty()&&packets.recording.particles.size()<=2048,"bounded actual full-graph warning packet workload");
-                for(var packet:packets.recording.particles){
-                    var point=new Vec3(packet.x(),packet.y(),packet.z());boolean onRay=false;
-                    for(int i=1;i<t.hazards.size();i++)for(int j=0;j<i;j++){
-                        var from=t.hazards.get(i).at;var direction=t.hazards.get(j).at.subtract(from).normalize();
-                        var delta=point.subtract(from);double along=delta.dot(direction);
-                        if(along>=-1e-6&&delta.subtract(direction.scale(along)).lengthSqr()<1e-8&&Math.abs(along/.2-Math.rint(along/.2))<1e-5)onRay=true;
-                    }
-                    require(onRay,"bounded warning retains exact native .2-step source coordinates");
+                require(packets.recording.particles.isEmpty(),"warning graph emits no dust particles");
+                var beams=t.warnings.stream().filter(w->!w.closed()&&w.kind()==TrialWarningVisual.Kind.BEAM).toList();
+                // Earlier four-node graph may still be fading; verify the newest complete graph.
+                beams=beams.subList(beams.size()-120,beams.size());
+                int edge=0;
+                for(int i=1;i<t.hazards.size();i++)for(int j=0;j<i;j++){
+                    var from=t.hazards.get(i).at;var to=t.hazards.get(j).at;var beam=beams.get(edge++);
+                    require(beam.origin().distanceToSqr(from)<1e-10,"warning beam starts at exact source node");
+                    var direction=to.subtract(from).normalize();var actual=beam.end().subtract(from);
+                    require(actual.dot(direction)>=0&&actual.subtract(direction.scale(actual.dot(direction))).lengthSqr()<1e-8
+                            &&actual.length()<=from.distanceTo(to)+1e-5,"warning endpoint follows exact clipped source ray");
+                    require(Math.abs(actual.length()/.2-Math.rint(actual.length()/.2))<1e-4,"warning retains native .2 sample endpoint");
+                    warningGeometry(beam);
                 }
                 packets.recording.particles.clear();require(service.webLines(t,true)==120,"full damage graph retains all120 edges");
                 require(t.webQueries==1&&t.webEdges==120&&t.webSamples>120,"full damage graph uses one native spatial query for all source collision samples");
@@ -271,13 +284,84 @@ public final class SauvojenMeditationChecks {
             var coincident=cow.position().add(0,.5,0);
             for(int i=0;i<2;i++)t.hazards.add(new SauvojenMeditation.Hazard(SauvojenMeditation.Kind.WEB,coincident,Vec3.ZERO));
             try(var packets=new Swap(game,base.owner)){
-                require(service.webLines(t,false)==1&&t.webSamples==1&&packets.recording.particles.size()==1,"coincident native nodes retain their sole warning source sample");
-                var warning=packets.recording.particles.getFirst();
-                require(new Vec3(warning.x(),warning.y(),warning.z()).distanceToSqr(coincident)<1e-12,"coincident warning uses exact shared source coordinate");
+                require(service.webLines(t,false)==1&&t.webSamples==1&&packets.recording.particles.isEmpty(),"coincident nodes retain warning source sample without dust");
+                var warning=t.warnings.getLast();
+                require(warning.origin().distanceToSqr(coincident)<1e-12&&warning.end().distanceToSqr(coincident)<1e-12,
+                        "coincident warning retains exact shared coordinate");
+                require(Math.abs(warning.display().getScale().z()-.001)<1e-6,"coincident source gets visible tiny beam");
                 packets.recording.particles.clear();float before=cow.getHealth();
                 require(service.webLines(t,true)==1&&t.webSamples==1&&cow.getHealth()<before,"coincident native nodes retain initial exact collision and damage");
                 require(packets.recording.particles.size()==2&&packets.recording.particles.stream().allMatch(packet->new Vec3(packet.x(),packet.y(),packet.z()).distanceToSqr(coincident)<1e-12),"coincident damage retains both native particle types at shared coordinate");
-            }service.stop();
+            }
+            cow.setHealth(cow.getMaxHealth());cow.setInvulnerableTime(0);cow.damageCooldownTime=0;
+            var retained=List.copyOf(t.warnings);
+            try(var packets=new Swap(game,base.owner)){
+                service.webDamage(t);
+                var twinkles=packets.recording.sounds.stream().filter(sound->sound.getSound().value().location().toString()
+                        .equals("minecraft:entity.firework_rocket.twinkle")).toList();
+                require(twinkles.size()==1,"actual webDamage sends one source twinkle to owner irrespective of edge count");
+                var twinkle=twinkles.getFirst();
+                require(new Vec3(twinkle.getX(),twinkle.getY(),twinkle.getZ()).distanceTo(base.owner.position())<.22,
+                        "web discharge sound originates at source owner");
+                require(t.hazards.stream().noneMatch(h->h.kind==SauvojenMeditation.Kind.WEB),"real discharge retires exact graph nodes");
+                require(retained.stream().allMatch(TrialWarningVisual::closed),"real discharge closes all retired warning graph displays");
+            }
+            service.stop();require(t.warnings.isEmpty(),"stop releases warning ownership list");
+        }
+        void warningGeometry(TrialWarningVisual beam){
+            var display=beam.display();var scale=display.getScale();
+            require(beam.model().equals(display.getItem().get(DataComponents.ITEM_MODEL))
+                    &&beam.model().toString().equals("lbc:meditation_warning_beam_red"),"native display uses authored red warning beam model");
+            require(display.getHolder()!=null&&display.getHolder().getAttachment()!=null
+                    &&display.getHolder().getAttachment().getWorld()==base.owner.level(),"warning is attached to actual native dimension");
+            double length=beam.origin().distanceTo(beam.end());
+            require(Math.abs(scale.x()-1)<1e-6&&Math.abs(scale.y()-1)<1e-6&&Math.abs(scale.z()-Math.max(.001,length))<1e-4,
+                    "warning display scale preserves exact beam length and cross section");
+            // Authored beam bounds z=-8..8, vanilla centered item and native renderer Y-pi rotation.
+            var pose=new org.joml.Matrix4f().rotateYXZ((float)Math.toRadians(-display.getYaw()),
+                    (float)Math.toRadians(display.getPitch()),0).scale(scale).rotateY((float)Math.PI).translate(-.5f,-.5f,-.5f);
+            var start=pose.transformPosition(new org.joml.Vector3f(.5f,.5f,.5f));
+            var end=pose.transformPosition(new org.joml.Vector3f(.5f,.5f,-.5f));
+            var expected=beam.end().subtract(beam.origin());
+            require(start.length()<1e-5&&end.distance(new org.joml.Vector3f((float)expected.x,(float)expected.y,(float)expected.z))<2e-4,
+                    "native display rotations place authored beam from warning origin toward exact clipped endpoint");
+        }
+        void warningLifetime(){
+            try(var packets=new Swap(game,base.owner)){
+            var t=admit();t.remaining=299;
+            var origin=base.owner.position().add(0,3,8);
+            var beam=TrialWarningVisual.beam(game,t.level,t.epoch,origin,origin.add(3,4,5),false,6);t.warnings.add(beam);
+            warningGeometry(beam);
+            int id=beam.display().getEntityId();
+            require(packets.recording.packets.stream().anyMatch(packet->packet instanceof net.minecraft.network.protocol.game.ClientboundAddEntityPacket add
+                    &&add.getId()==id&&add.getType()==EntityTypes.ITEM_DISPLAY),"warning sends actual Polymer item display spawn");
+            require(packets.recording.particles.isEmpty(),"warning helpers spawn without dust packets");
+            base.owner.entityTags().add("time_stopped");
+            try{service.tick();require(beam.age()==0&&!beam.closed(),"owner Time Stop freezes warning age");}
+            finally{base.owner.entityTags().remove("time_stopped");}
+            game.items().timeStop().begin(t.level,40);
+            try{service.tick();require(beam.age()==0&&!beam.closed(),"dimension Time Stop freezes warning age");}
+            finally{game.items().timeStop().end(t.level);}
+            for(int age=1;age<6;age++){service.tick();require(beam.age()==age&&!beam.closed(),"one warning age step per active game tick");}
+            service.tick();require(beam.closed()&&!t.warnings.contains(beam),"sixth active tick closes and releases exact warning display");
+            require(packets.recording.packets.stream().anyMatch(packet->packet instanceof net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket remove
+                    &&remove.entityIds().contains(id)),"lifetime expiration sends actual native display removal");
+            var green=TrialWarningVisual.beam(game,t.level,t.epoch,origin,origin.add(0,-9,0),true,40);t.warnings.add(green);
+            require(green.model().toString().equals("lbc:meditation_warning_beam_green"),"acid warning uses green beam model");
+            var wall=TrialWarningVisual.wall(game,t.level,t.epoch,origin,new Vec3(1,0,0),20,2,40);t.warnings.add(wall);
+            var cube=TrialWarningVisual.cube(game,t.level,t.epoch,origin,origin.add(2,3,4),40);t.warnings.add(cube);
+            var sphere=TrialWarningVisual.sphere(game,t.level,t.epoch,origin,7,40);t.warnings.add(sphere);
+            var ring=TrialWarningVisual.ring(game,t.level,t.epoch,origin,10,40);t.warnings.add(ring);
+            require(wall.display().getScale().x()==20&&wall.display().getScale().y()==2,"terra warning wall spans full source ray");
+            require(cube.origin().distanceToSqr(origin.add(1,1.5,2))<1e-10&&cube.display().getScale().z()==4,"air warning cube matches world bounds");
+            service.tick();require(sphere.display().getScale().x()>0&&sphere.radius()==7,"air sphere expands toward source blast radius");
+            require(ring.display().getScale().x()==20&&ring.radius()==10,"acid annulus preserves outer diameter20");
+            var warnings=List.copyOf(t.warnings);service.forget(base.owner);
+            require(warnings.stream().allMatch(TrialWarningVisual::closed)&&t.warnings.isEmpty(),"owner cleanup closes every warning shape and ownership list");
+            t=admit();t.remaining=299;var failed=TrialWarningVisual.ring(game,t.level,t.epoch,origin,10,40);t.warnings.add(failed);
+            service.hurt(t,base.owner,0,net.minecraft.world.damagesource.DamageTypes.MAGIC,false);
+            require(failed.closed()&&t.warnings.isEmpty(),"trial failure closes live warning displays");
+            }
         }
         void fear(){
             var psycho=game.items().psycho();
@@ -343,7 +427,7 @@ public final class SauvojenMeditationChecks {
         }
     }
     public static void run(GameController game){
-        try(var f=new Fixture(game)){f.admission();f.ruby();f.stone();f.fire();f.hazards();f.independent();f.webGraph();f.fear();f.alliedBlast();}
-        SkyWars2.LOGGER.info("[check] PASS sauvojen-meditation (native stack/readiness,8725ruby,47x19x47 explicit stone,42510lava/20181air, complete6/120web rays+diagonal damage+bounded packets, canonical fear/decay/105 threshold/Greed, real allied WILD TNT damage/exact author, per-participant state and cleanup)");
+        try(var f=new Fixture(game)){f.admission();f.ruby();f.stone();f.fire();f.hazards();f.independent();f.webGraph();f.warningLifetime();f.fear();f.alliedBlast();}
+        SkyWars2.LOGGER.info("[check] PASS sauvojen-meditation (native stack/readiness,8725ruby,47x19x47 explicit stone,42510lava/20181air, complete6/120warning displays+diagonal damage+bounded damage packets, native warning geometry/lifetime/TimeStop/cleanup, one source twinkle, canonical fear/decay/105 threshold/Greed, real allied WILD TNT damage/exact author, per-participant state and cleanup)");
     }
 }
