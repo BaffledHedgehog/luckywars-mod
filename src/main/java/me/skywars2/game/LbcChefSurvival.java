@@ -14,6 +14,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.BucketPickup;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluids;
@@ -37,6 +39,9 @@ final class LbcChefSurvival {
     private BlockPos ownedWater;
     private BlockState ownedWaterState;
     private boolean touchedWater;
+    private Vec3 descentLanding,descentLip;
+    private int descentStarted,nextDescentSearch;
+    private boolean descentAirborne;
 
     LbcChefSurvival(LbcWtf.Chef chef){this.chef=chef;level=(ServerLevel)chef.level();lastPosition=chef.position();}
 
@@ -53,6 +58,7 @@ final class LbcChefSurvival {
                 if(landing!=null){
                     // Start taking out the bucket and looking down while still in flight.
                     // Its use still waits for native reach and the last safe landing ticks.
+                    if(descentLanding!=null)chef.steer(descentLanding,false);
                     boolean equipped=chef.equip(bucket),aimed=chef.aimAction(landing.hit.getLocation());
                     if(equipped&&aimed&&(chef.isOnFire()||landing.ticks<=3)&&placeWater(landing))return true;
                     return true;
@@ -60,6 +66,7 @@ final class LbcChefSurvival {
             }
         }
         if(recoverWater())return true;
+        if(descendToTarget())return true;
         if(ownedWater!=null&&touchedWater&&!chef.isOnFire()&&chef.position().distanceToSqr(Vec3.atCenterOf(ownedWater))<6){
             // Let the landing settle before swimming away from the source we need
             // to pick up. Native gravity and water buoyancy remain in control.
@@ -132,7 +139,7 @@ final class LbcChefSurvival {
     }
 
     /** Interrupt an action, retaining the bucket's actual placed-source ownership. */
-    void cancel(){cancelEating();lastPosition=chef.position();}
+    void cancel(){cancelEating();descentLanding=null;descentLip=null;descentAirborne=false;lastPosition=chef.position();}
 
     /** Removal/epoch cleanup: forget ownership without deleting world terrain. */
     void clear(){cancel();ownedWater=null;ownedWaterState=null;touchedWater=false;waterAge=0;settledWaterTicks=0;}
@@ -143,6 +150,125 @@ final class LbcChefSurvival {
     float exhaustion(){return exhaustion;}
     boolean eating(){return eating;}
     BlockPos ownedWater(){return ownedWater;}
+
+    /** A supported approach to a nearby lip and a resident, open shaft to a lower bank.
+     * No action search is replaced: if this conservative shortcut is unavailable the
+     * ordinary brain retains mining/bridging responsibility. */
+    private boolean descendToTarget(){
+        if(descentLanding!=null){
+            if(chef.isInWater()||descentAirborne&&chef.onGround()){
+                descentLanding=null;descentLip=null;descentAirborne=false;return false;
+            }
+            if(!chef.onGround())descentAirborne=true;
+            if(chef.tickCount-descentStarted>100||!safeDescentBody(descentLanding)
+                    ||!descentFloor(descentLanding)){
+                descentLanding=null;descentLip=null;descentAirborne=false;return false;
+            }
+            cancelEating();
+            if(!descentAirborne){
+                // Revalidate the remaining supported runway before committing to its lip.
+                Vec3 remaining=descentLip.subtract(chef.position());
+                Vec3 outward=descentLanding.subtract(descentLip).multiply(1,0,1);
+                boolean crossingLip=remaining.multiply(1,0,1).dot(outward)<=0
+                        &&remaining.horizontalDistanceSqr()<1;
+                if(!crossingLip&&!descentRunway(chef.position(),descentLip)){
+                    descentLanding=null;descentLip=null;chef.halt();return true;
+                }
+                if(!chef.equip(bucket)){chef.halt();return true;}
+            }
+            chef.setSprinting(false);
+            // Aim down before departure; steer computes world input independently of yaw.
+            chef.aimAction(descentLanding);
+            chef.steer(descentLanding,false);
+            return true;
+        }
+        if(!chef.onGround()||chef.isInWater()||chef.isOnFire()||ownedWater!=null
+                ||!bucket.is(Items.WATER_BUCKET)||waterCooldown>0||level.environmentAttributes().getValue(net.minecraft.world.attribute.EnvironmentAttributes.WATER_EVAPORATES,chef.blockPosition())
+                ||chef.getDeltaMovement().horizontalDistanceSqr()>.1296
+                ||chef.getY()-chef.target.getY()<4||chef.tickCount<nextDescentSearch)return false;
+        nextDescentSearch=chef.tickCount+20;
+        Vec3 origin=chef.position(),best=null,lip=null;
+        double score=Double.POSITIVE_INFINITY;
+        // Quarter-block runway probes find thin edges without requiring block-centred starts.
+        for(int direction=0;direction<8;direction++){
+            double angle=direction*Math.PI/4;
+            Vec3 heading=new Vec3(Math.cos(angle),0,Math.sin(angle));
+            Vec3 last=origin;
+            for(int step=1;step<=16;step++){
+                Vec3 at=origin.add(heading.scale(step*.25));
+                if(!safeDescentBody(at))break;
+                if(descentFloor(at)){last=at;continue;}
+                // The complete footprint must clear the upper ledge before falling.
+                Vec3 column=at.add(heading.scale(.65));
+                BlockHitResult floor=descentLandingHit(column);
+                if(floor==null||floor.getDirection()!=Direction.UP)break;
+                Vec3 landing=new Vec3(column.x,floor.getLocation().y,column.z);
+                double drop=origin.y-landing.y;
+                if(drop<4||drop>126||Math.abs(landing.y-chef.target.getY())>3
+                        ||!safeDescentBody(landing)||!descentFloor(landing))break;
+                // Allow a bank margin for native residual momentum and bucket aim waits.
+                boolean clear=true;
+                for(Direction side:Direction.Plane.HORIZONTAL){
+                    Vec3 margin=landing.add(side.getStepX()*.5,0,side.getStepZ()*.5);
+                    if(!safeDescentBody(margin)||!descentFloor(margin)){clear=false;break;}
+                }
+                // Validate every body-sized vertical segment, including the upper lip.
+                for(double y=landing.y;y<=origin.y+.01;y+=.5)
+                    if(!safeDescentBody(new Vec3(column.x,y,column.z))){clear=false;break;}
+                double candidate=landing.distanceToSqr(chef.target.position())+origin.distanceToSqr(last);
+                for(int sweep=1;clear&&sweep<=4;sweep++)
+                    clear=safeDescentBody(last.lerp(new Vec3(column.x,origin.y,column.z),sweep/4.0));
+                if(clear&&candidate<score&&descentRunway(origin,last)){
+                    score=candidate;best=landing;lip=last;
+                }
+                break;
+            }
+        }
+        if(best==null)return false;
+        descentLanding=best;descentLip=lip;descentStarted=chef.tickCount;descentAirborne=false;
+        return descendToTarget();
+    }
+
+    private BlockHitResult descentLandingHit(Vec3 column){
+        Vec3 from=column.add(0,.05,0);
+        // Reuse the resident bounded native ray in short segments, including cliffs
+        // much higher than one ray. Never skip an unloaded segment or first surface.
+        for(int i=0;i<4;i++){
+            Vec3 to=new Vec3(from.x,Math.max(level.getMinY()+.01,from.y-31.5),from.z);
+            if(to.y>=from.y||!residentBox(from,to))return null;
+            BlockHitResult hit=clip(from,to,ClipContext.Fluid.NONE);
+            if(hit!=null)return hit;
+            from=to;
+        }
+        return null;
+    }
+
+    private boolean descentRunway(Vec3 from,Vec3 to){
+        int samples=Math.max(1,(int)Math.ceil(from.distanceTo(to)*4));
+        for(int i=0;i<=samples;i++){
+            Vec3 p=from.lerp(to,i/(double)samples);
+            if(!safeDescentBody(p)||!descentFloor(p))return false;
+        }
+        return true;
+    }
+    private boolean descentFloor(Vec3 p){
+        BlockHitResult floor=clip(p.add(0,.05,0),p.add(0,-.16,0),ClipContext.Fluid.NONE);
+        return floor!=null&&floor.getDirection()==Direction.UP&&!descentHazard(floor.getBlockPos());
+    }
+    private boolean safeDescentBody(Vec3 p){
+        AABB box=chef.getBoundingBox().move(p.subtract(chef.position())).deflate(.005);
+        for(BlockPos b:BlockPos.betweenClosed(BlockPos.containing(box.minX,box.minY,box.minZ),
+                BlockPos.containing(box.maxX,box.maxY,box.maxZ)))
+            if(!loaded(b)||!level.getWorldBorder().isWithinBounds(b)||descentHazard(b))return false;
+        return level.noCollision(chef,box);
+    }
+    private boolean descentHazard(BlockPos p){
+        if(!loaded(p))return true;
+        BlockState s=level.getBlockState(p);
+        return level.getFluidState(p).is(FluidTags.LAVA)||s.is(Blocks.FIRE)||s.is(Blocks.SOUL_FIRE)
+                ||s.is(Blocks.MAGMA_BLOCK)||s.is(Blocks.CACTUS)||s.is(Blocks.SWEET_BERRY_BUSH)
+                ||s.is(Blocks.WITHER_ROSE)||s.is(Blocks.POWDER_SNOW)||s.is(Blocks.CAMPFIRE)||s.is(Blocks.SOUL_CAMPFIRE);
+    }
 
     private boolean fallDanger(){return !chef.onGround()&&!chef.isInWater()
             &&chef.getDeltaMovement().y<-.25&&chef.fallDistance>2.5;}
@@ -191,7 +317,8 @@ final class LbcChefSurvival {
         // Verify the real clicked support face is visible from the hand's eye ray.
         BlockHitResult visible=clip(chef.getEyePosition(),landing.hit.getLocation().add(0,-.015,0),ClipContext.Fluid.NONE);
         if(visible==null||!visible.getBlockPos().equals(landing.hit.getBlockPos())||visible.getDirection()!=Direction.UP)return false;
-        chef.halt();chef.setSprinting(false);
+        // Continue native horizontal input throughout the clutch, including equipment/aim waits.
+        if(descentLanding!=null)chef.steer(descentLanding,false);
         if(!chef.equip(bucket)||!chef.aimAction(landing.hit.getLocation()))return false;
         chef.acted(landing.hit.getLocation());
         boolean[] emptied={false};

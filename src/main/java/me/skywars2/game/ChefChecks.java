@@ -127,12 +127,12 @@ public final class ChefChecks {
         void move(ServerPlayer player,Vec3 pos){player.teleportTo(player.level(),pos.x,pos.y,pos.z,Set.of(),0,0,true);player.setDeltaMovement(Vec3.ZERO);}
         Cow cow(Vec3 pos){var c=new Cow(EntityTypes.COW,owner.level());c.setPos(pos);c.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(20);c.setHealth(20);c.setNoAi(true);c.setNoGravity(true);owner.level().addFreshEntity(c);cows.add(c);return c;}
         LbcWtf.Chef spawn(ServerPlayer author,Cow target){var c=service.spawn(author,target);require(c!=null&&!c.isRemoved(),"native Chef created");require(blocks.containsKey(c.blockPosition()),"spawn inside saved terrain");return c;}
-        void clear(){for(var c:service.snapshot())service.unloaded(c);require(service.count()==0,"all fixture Chefs retired");}
+        void clear(){for(var c:service.snapshot()){c.discard();service.unloaded(c);}require(service.count()==0,"all fixture Chefs retired");}
         void remove(Cow c){game.items().indirectKills().clear(c);c.discard();}
         long fixtureTick;
         void advance(LbcWtf.Chef chef,int ticks){for(int i=0;i<ticks&&!chef.isRemoved();i++){LbcChefBrain.beginTick(--fixtureTick);service.step(chef);
             require(chef.getOffhandItem().isEmpty(),"all Chef actions leave the offhand empty");
-            require(chef.lastActionError<=2.001,"every accepted world/combat/bucket action faces its exact point: "+chef.lastActionError);
+            require(chef.lastActionError<=2.001&&chef.lastHeadActionError<=2.001,"every accepted world/combat/bucket action faces its exact point with both camera and head: "+chef.lastActionError+" / "+chef.lastHeadActionError);
             chef.commonTick();chef.tick();require(blocks.containsKey(chef.blockPosition()),"native pursuit remains in saved resident box: "+chef.position());}}
         void nativeMaterialAndOwnership(){
             var material=game.lbc().rollTable(owner.level(),at,owner,"lbc:ported/wtf_item").getFirst();owner.setItemInHand(InteractionHand.MAIN_HAND,material.copyWithCount(2));var victim=cow(at.add(0,0,6));var foreign=cow(at.add(5,0,6));

@@ -774,6 +774,7 @@ public final class GameChecks {
                                 case "egg-presentation" -> { EggPresentationChecks.run(game); return; }
                                 case "attribute-policy" -> { AttributePolicyChecks.run(game); return; }
                                 case "tps-compensation" -> { TpsCompensationChecks.run(game); return; }
+                                case "chef-recovery" -> { ChefRecoveryChecks.run(game); return; }
                                 case "chef-navigation" -> { ChefNavigationChecks.run(game); return; }
                                 case "armor-calculation" -> { ArmorCalculationChecks.run(game); return; }
                                 case "negative-mining" -> { NegativeMiningChecks.run(game); return; }

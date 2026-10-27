@@ -56,6 +56,12 @@ public final class LbcWtf {
     }
     private static final String[] SOUNDS={"minecraft:lbcsounds.oluh_1","minecraft:lbcsounds.oluh_2",
             "minecraft:lbcsounds.oluh_3","minecraft:lbcsounds.oluh_4","minecraft:lbcsounds.oluh_5","minecraft:lbcsounds.oluh_6"};
+    private static final net.minecraft.server.level.TicketType CHEF_TICKET=new net.minecraft.server.level.TicketType(
+            net.minecraft.server.level.TicketType.NO_TIMEOUT,net.minecraft.server.level.TicketType.FLAG_LOADING
+            |net.minecraft.server.level.TicketType.FLAG_SIMULATION|net.minecraft.server.level.TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
+    // Radius three keeps this chunk and its neighbours entity-ticking across a crossing.
+    private record ChunkKey(ServerLevel level,net.minecraft.world.level.ChunkPos pos){}
+    private final java.util.Map<ChunkKey,Integer> tickets=new java.util.HashMap<>();
     private final GameController game;
     private final Set<Chef> chefs=new LinkedHashSet<>();
     private final List<Fountain> fountains=new ArrayList<>();
@@ -66,7 +72,10 @@ public final class LbcWtf {
     }
     LbcWtf(GameController game){this.game=game;}
     LbcItems gameItems(){return game.items();}
-    public static void register(){} // Vanilla MANNEQUIN type/attributes/metadata: no custom client entity.
+    public static void register(){
+        net.minecraft.core.Registry.register(net.minecraft.core.registries.BuiltInRegistries.TICKET_TYPE,
+                net.minecraft.resources.Identifier.parse("skywars2:chef"),CHEF_TICKET);
+    } // Vanilla MANNEQUIN type/attributes/metadata: no custom client entity.
     public static boolean managed(Entity entity){return entity instanceof Chef;}
     public static ServerPlayer owner(Entity entity){return entity instanceof Chef chef?chef.owner:null;}
     public static final class Chef extends Mannequin {
@@ -77,12 +86,14 @@ public final class LbcWtf {
         final LbcChefBrain brain;
         final LbcChefSurvival survival;
         int stasis,attackDelay,combatJumpWait;
+        private ChunkKey ticket;
+        private Vec3 previousTarget;
         static final int HAND_INTERVAL=6;
         private int handChanged=-HAND_INTERVAL,aimUntil=-1;
         private Vec3 actionAim;
         private int sentAimYaw=256,sentAimPitch=256,sentAimHead=256;
         Vec3 lastActionPoint;
-        double lastActionError;
+        double lastActionError,lastHeadActionError;
         int actionSerial;
         float damage;
         Chef(LbcWtf service,ServerPlayer owner,LivingEntity target){
@@ -138,6 +149,7 @@ public final class LbcWtf {
         }
         @Override protected float getFlyingSpeed(){return isSprinting()?.025999999f:.02f;}
         @Override public void tick(){
+            service.pin(this,position());
             if(timeFrozen())return;
             if(tickCount>aimUntil){sentAimYaw=256;sentAimPitch=256;sentAimHead=256;}
             setNoGravity(false);
@@ -145,7 +157,12 @@ public final class LbcWtf {
             super.tick();
         }
         @Override public void setDeltaMovement(Vec3 value){if(service==null||!timeFrozen())super.setDeltaMovement(value);}
-        @Override public void move(net.minecraft.world.entity.MoverType type,Vec3 value){if(service==null||!timeFrozen())super.move(type,value);}
+        @Override public void move(net.minecraft.world.entity.MoverType type,Vec3 value){
+            if(service!=null&&timeFrozen())return;
+            if(service!=null)service.pin(this,position().add(value));
+            super.move(type,value);
+            if(service!=null)service.pin(this,position());
+        }
         @Override public boolean isPushable(){return !paused()&&super.isPushable();}
         @Override public boolean isPushedByFluid(){return !paused()&&super.isPushedByFluid();}
         @Override public boolean hurtServer(ServerLevel level,DamageSource source,float amount){
@@ -170,14 +187,18 @@ public final class LbcWtf {
             if(!paused()&&health<getHealth())receive(getHealth()-health);
         }
         @Override public void die(DamageSource source){} // Infinite HP never runs lethal/drop callbacks.
-        @Override public void setPos(double x,double y,double z){if(service==null||!timeFrozen())super.setPos(x,y,z);}
+        @Override public void setPos(double x,double y,double z){
+            if(service!=null&&timeFrozen())return;
+            if(service!=null)service.pin(this,new Vec3(x,y,z));
+            super.setPos(x,y,z);
+        }
         @Override public void snapTo(double x,double y,double z,float yaw,float pitch){if(service==null||!timeFrozen())super.snapTo(x,y,z,yaw,pitch);}
         @Override protected void onBelowWorld(){brain.returnFromVoid();}
         @Override public InteractionResult interact(Player player,InteractionHand hand,Vec3 point){return InteractionResult.FAIL;}
         @Override public SlotAccess getSlot(int index){return new SlotAccess(){public ItemStack get(){return ItemStack.EMPTY;}public boolean set(ItemStack stack){return false;}};}
         @Override public boolean isEquippableInSlot(ItemStack stack,EquipmentSlot slot){return false;}
         void halt(){xxa=0;zza=0;yya=0;jumping=false;setSprinting(false);}
-        void rescue(Vec3 at){super.setPos(at.x,at.y,at.z);super.setDeltaMovement(Vec3.ZERO);fallDistance=0;}
+        void rescue(Vec3 at){service.pin(this,at);super.setPos(at.x,at.y,at.z);super.setDeltaMovement(Vec3.ZERO);fallDistance=0;}
         void restorePose(){
             if(stasis>0){setPose(net.minecraft.world.entity.Pose.SWIMMING);return;}
             var standing=getDefaultDimensions(net.minecraft.world.entity.Pose.STANDING).makeBoundingBox(position());
@@ -208,7 +229,7 @@ public final class LbcWtf {
         private void turnLook(Vec3 at,float yawStep,float pitchStep){
             Vec3 delta=at.subtract(getEyePosition());
             float yaw=delta.horizontalDistanceSqr()<1.0e-8?getYRot():(float)(Math.atan2(-delta.x,delta.z)*180/Math.PI);
-            float pitch=(float)(-Math.atan2(delta.y,Math.max(.01,delta.horizontalDistance()))*180/Math.PI);
+            float pitch=(float)(-Math.atan2(delta.y,delta.horizontalDistance())*180/Math.PI);
             float head=net.minecraft.util.Mth.approachDegrees(getYHeadRot(),yaw,yawStep);
             head=getYRot()+net.minecraft.util.Mth.clamp(net.minecraft.util.Mth.wrapDegrees(head-getYRot()),-75,75);
             setYHeadRot(head);setXRot(net.minecraft.util.Mth.approachDegrees(getXRot(),pitch,pitchStep));
@@ -242,11 +263,14 @@ public final class LbcWtf {
             }
             Vec3 delta=at.subtract(getEyePosition()).normalize();
             return getLookAngle().dot(delta)>=Math.cos(Math.toRadians(2))
-                    &&Math.abs(net.minecraft.util.Mth.wrapDegrees(getYHeadRot()-getYRot()))<=2;
+                    &&Vec3.directionFromRotation(getXRot(),getYHeadRot()).dot(delta)>=Math.cos(Math.toRadians(2));
         }
         void acted(Vec3 at){
             lastActionPoint=at;lastActionError=Math.toDegrees(Math.acos(net.minecraft.util.Mth.clamp(
-                    getLookAngle().dot(at.subtract(getEyePosition()).normalize()),-1,1)));actionSerial++;
+                    getLookAngle().dot(at.subtract(getEyePosition()).normalize()),-1,1)));
+            lastHeadActionError=Math.toDegrees(Math.acos(net.minecraft.util.Mth.clamp(
+                    Vec3.directionFromRotation(getXRot(),getYHeadRot()).dot(at.subtract(getEyePosition()).normalize()),-1,1)));
+            actionSerial++;
         }
         void steer(Vec3 destination,boolean jump){
             steer(destination,jump,null);
@@ -297,7 +321,7 @@ public final class LbcWtf {
         Vec3 at=target.position().subtract(target.getLookAngle().multiply(1,0,1).normalize().scale(10));
         if(!owner.level().hasChunkAt(BlockPos.containing(at)))return null;
         Chef chef=new Chef(this,owner,target);chef.setPos(at);
-        game.items().markCurrentItemEpoch(chef);chefs.add(chef);
+        game.items().markCurrentItemEpoch(chef);chefs.add(chef);pin(chef,chef.position());
         game.items().timeStop().prepareFrozen(chef);
         if(!owner.level().addFreshEntity(chef)||chef.isRemoved()){remove(chef);return null;}
         chef.brain.findSpawnSurface();
@@ -315,15 +339,23 @@ public final class LbcWtf {
         if(!chef.level().hasChunkAt(chef.blockPosition())){chef.halt();return;}
         if(chef.owner.getRandom().nextFloat()<.005f)LbcOverload.sound(chef.owner,chef.position(),SOUNDS[chef.owner.getRandom().nextInt(SOUNDS.length)],2,1,0);
         if(chef.attackDelay>0)chef.attackDelay--;
+        if(chef.brain.freeBody())return;
         if(chef.survival.tick())return;
+        boolean movingTarget=chef.previousTarget!=null&&chef.target.position().distanceToSqr(chef.previousTarget)>.0004;
+        chef.previousTarget=chef.target.position();
         if(chef.distanceToSqr(chef.target)<=6.25&&chef.hasLineOfSight(chef.target)){
-            chef.halt();
+            boolean chase=movingTarget||chef.position().subtract(chef.target.position()).horizontalDistanceSqr()>1.44;
+            if(chase){chef.setSprinting(true);chef.steer(chef.target.position(),false);}
+            else chef.halt();
             boolean ready=chef.aimAction(chef.target.getEyePosition())&&chef.equipCombat();
             boolean crit=!chef.onGround()&&chef.getDeltaMovement().y<-.05&&!chef.isInWater()&&!chef.onClimbable()&&!chef.isPassenger();
             if(chef.attackDelay==0&&ready){
                 boolean safeJump=chef.onGround()&&!chef.isInWater()&&chef.level().noCollision(chef,chef.getBoundingBox().move(0,1.25,0));
-                if(safeJump&&chef.combatJumpWait==0){chef.pillarJump();chef.combatJumpWait=12;return;}
-                if(chef.combatJumpWait>0&&!crit){chef.combatJumpWait--;if(chef.combatJumpWait>0)return;}
+                if(safeJump&&!movingTarget&&chef.combatJumpWait==0){
+                    if(chase)chef.steer(chef.target.position(),true);else chef.pillarJump();
+                    chef.combatJumpWait=12;return;
+                }
+                if(chef.combatJumpWait>0&&!crit&&!movingTarget){chef.combatJumpWait--;if(chef.combatJumpWait>0)return;}
                 chef.combatJumpWait=0;
                 // Combat equip has synchronized the held sword modifiers for this action.
                 double speed=chef.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_SPEED);
@@ -344,7 +376,7 @@ public final class LbcWtf {
             }
             return;
         }
-        chef.combatJumpWait=0;
+        if(chef.combatJumpWait>0)chef.combatJumpWait--;
         chef.brain.tick();
     }
     public void tick(){
@@ -365,12 +397,35 @@ public final class LbcWtf {
         var base=owner.blockPosition();fountains.add(new Fountain(owner.level(),new Vec3(base.getX()+.5,base.getY()+1,base.getZ()+.5),game.items().epoch()));
         LbcOverload.sound(owner,owner.position(),"minecraft:lbcsounds.icum",1,1,0);
     }
-    private void remove(Chef chef){chefs.remove(chef);chef.brain.reset();chef.survival.clear();if(!chef.isRemoved())chef.discard();}
+    private void pin(Chef chef,Vec3 at){
+        if(!chefs.contains(chef)||chef.isRemoved())return;
+        var key=new ChunkKey((ServerLevel)chef.level(),net.minecraft.world.level.ChunkPos.containing(BlockPos.containing(at)));
+        if(key.equals(chef.ticket))return;
+        // TicketStorage coalesces equal type/level tickets, so shared chunks need ownership counts.
+        if(tickets.merge(key,1,Integer::sum)==1)key.level.getChunkSource().addTicketWithRadius(CHEF_TICKET,key.pos,3);
+        ChunkKey old=chef.ticket;chef.ticket=key;unpin(old);
+    }
+    private void unpin(ChunkKey key){
+        if(key==null)return;
+        Integer count=tickets.get(key);
+        if(count==null)return;
+        if(count>1)tickets.put(key,count-1);
+        else {tickets.remove(key);key.level.getChunkSource().removeTicketWithRadius(CHEF_TICKET,key.pos,3);}
+    }
+    int pinnedChunks(){return tickets.size();}
+    private void remove(Chef chef){unpin(chef.ticket);chef.ticket=null;chefs.remove(chef);chef.brain.reset();chef.survival.clear();if(!chef.isRemoved())chef.discard();}
     public void loaded(Entity entity){
         if(entity instanceof Chef chef){if(!chef.isRemoved()&&chef.service==this&&game.items().currentEpoch(chef))chefs.add(chef);else chef.discard();}
         else if(entity.entityTags().contains("skywars2.label_chef_display"))entity.discard();
     }
-    public void unloaded(Entity entity){if(entity instanceof Chef chef)remove(chef);}
+    public void unloaded(Entity entity){
+        if(entity instanceof Chef chef){
+            // Visibility/accessibility loss is not destruction. Retire only the removed
+            // actor; a still-live pursuer retains its service state and simulation ticket.
+            if(chef.isRemoved()||chef.service!=this||!game.items().currentEpoch(chef))remove(chef);
+            else pin(chef,chef.position());
+        }
+    }
     public void forget(ServerPlayer owner){for(var chef:List.copyOf(chefs))if(chef.owner==owner||chef.target==owner)remove(chef);}
     public void stop(){for(var chef:List.copyOf(chefs))remove(chef);fountains.clear();}
     public int count(){return chefs.size();}

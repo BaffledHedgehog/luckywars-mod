@@ -42,7 +42,7 @@ final class LbcChefBrain {
     private float progress;
     private int replan,stuck,nextVoidAttempt=Integer.MIN_VALUE,nextBuild,nextJump;
     private Vec3 previous=Vec3.ZERO;
-    private boolean airborneJump,pillarLaunched;
+    private boolean airborneJump,pillarLaunched,escapingBody;
     private Step preparingJump,pillarStep;
     private Vec3 runway,flightAim;
     private boolean placementWaiting;
@@ -83,7 +83,7 @@ final class LbcChefBrain {
     String diagnostics(){return "path="+path.size()+" next="+path.peek()+" search="+(search==null?"none":
             "actions expanded="+search.expanded+" open="+search.open.size()+" best="+search.best.spot)
             +" goal="+goal+" stuck="+stuck+" replan="+replan+" takeoff="+runwayPhase+" pillar="+pillarLaunched
-            +" probes="+probes+" searches="+searches+" ground="+chef.onGround()+" velocity="+chef.getDeltaMovement()+" resets="+resets+" lastReset="+lastReset+" placement="+lastPlacement;}
+            +" mining="+mining+" dig="+progress+" pose="+chef.getPose()+" eye="+chef.getEyePosition()+" yaw="+chef.getYRot()+" pitch="+chef.getXRot()+" head="+chef.getYHeadRot()+" action="+chef.actionSerial+" probes="+probes+" searches="+searches+" ground="+chef.onGround()+" velocity="+chef.getDeltaMovement()+" resets="+resets+" lastReset="+lastReset+" placement="+lastPlacement;}
     void reset(){reset("external");}
     private void reset(String why){lastReset=why+" step="+path.peek()+" at="+chef.position();resets++;
         path.clear();search=null;progressStep=null;clearMining();replan=0;stuck=0;clearTakeoff();}
@@ -179,6 +179,49 @@ final class LbcChefBrain {
         }
         return best;
     }
+    /** Clearance of our own body precedes a graph whose nodes require free headroom. */
+    boolean freeBody(){
+        AABB standing=body(chef.position());
+        BlockPos trapped=null;
+        double nearest=Double.POSITIVE_INFINITY;
+        for(BlockPos p:BlockPos.betweenClosed(BlockPos.containing(standing.minX,standing.minY,standing.minZ),
+                BlockPos.containing(standing.maxX,standing.maxY,standing.maxZ))){
+            if(!breakable(p))continue;
+            boolean intersects=false;
+            for(AABB shape:level.getBlockState(p).getCollisionShape(level,p,CollisionContext.of(chef)).toAabbs())
+                if(shape.move(p).intersects(standing)){intersects=true;break;}
+            if(!intersects)continue;
+            double distance=Vec3.atCenterOf(p).distanceToSqr(chef.getEyePosition());
+            if(distance<nearest){nearest=distance;trapped=p.immutable();}
+        }
+        if(trapped!=null){
+            if(!escapingBody){reset("embedded body");escapingBody=true;}
+            mine(trapped);return true;
+        }
+        if(escapingBody){reset("body freed");escapingBody=false;}
+        // An unbreakable low ceiling is traversable in the actual prone pose.
+        // Probe the full swept native body; never move through or erase bedrock.
+        if(!clear(chef.position())&&chef.getBbHeight()<1.5&&floorSupported(chef.position())){
+            Vec3 best=null;double score=Double.NEGATIVE_INFINITY;
+            Vec3 toward=chef.target.position().subtract(chef.position()).multiply(1,0,1).normalize();
+            for(int i=0;i<16;i++){
+                double a=i*Math.PI/8;Vec3 direction=new Vec3(Math.cos(a),0,Math.sin(a));
+                Vec3 end=chef.position().add(direction.scale(1.25));boolean pass=true;
+                for(int n=1;n<=5;n++){
+                    Vec3 at=chef.position().lerp(end,n/5d);
+                    AABB box=chef.getBoundingBox().move(at.subtract(chef.position())).deflate(.005);
+                    for(BlockPos cell:BlockPos.betweenClosed(BlockPos.containing(box.minX,box.minY,box.minZ),
+                            BlockPos.containing(box.maxX,box.maxY,box.maxZ)))if(hazard(cell)){pass=false;break;}
+                    if(!pass||!floorSupported(at)||!level.noCollision(chef,box)){pass=false;break;}
+                }
+                if(!pass)continue;
+                double value=direction.dot(toward)+(clear(end)?2:0);
+                if(value>score){score=value;best=end;}
+            }
+            if(best!=null){chef.setSprinting(false);chef.steer(best,false);return true;}
+        }
+        return false;
+    }
     void tick(){
         beginTick(chef.owner.level().getServer().getTickCount());
         if(chef.getY()<level.getMinY()-8){returnFromVoid();return;}
@@ -193,8 +236,12 @@ final class LbcChefBrain {
         if(goal==null||(goal.distManhattan(target)>4&&(!airborneJump||chef.onGround()))){reset("target moved");goal=target;}
         if(!path.isEmpty()&&mining==null&&chef.onGround()&&chef.position().distanceToSqr(previous)<.001)stuck++;else stuck=0;
         previous=chef.position();
-        if(stuck>24){failedSteps.put(path.peek(),chef.tickCount+100);reset("stuck");goal=target;replan=3;}
+        if(stuck>(chef.horizontalCollision?6:24)){failedSteps.put(path.peek(),chef.tickCount+100);reset("stuck");goal=target;replan=3;}
         retireReached();
+        // A short uphill leap can land against the near face before reaching its
+        // waypoint. Re-arm its native jump promptly instead of waiting for the
+        // two-second progress watchdog with an already-consumed launch latch.
+        if(airborneJump&&chef.onGround()&&chef.tickCount>=nextJump-4)airborneJump=false;
         if(path.isEmpty()&&(search!=null||replan==0)){plan(target);if(search==null)replan=8;}
         if(path.isEmpty()){
             if(chef.onGround()){
@@ -642,7 +689,7 @@ final class LbcChefBrain {
             }
         }
         if(work.destination.getY()<s.y()-.7&&s.height%16==0){
-            for(int drop=1;drop<=3;drop++){
+            for(int drop=1;drop<=16;drop++){
                 Spot down=new Spot(s.x,s.z,s.height-drop*16);
                 if(support(down.cell().below())&&mineableShaft(s,down))
                     offer(work,down,n.cost+2.2+drop*.3+miningCost(new Spot(s.x,s.z,s.height-16)),n,Action.MINE_DOWN);

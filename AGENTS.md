@@ -1,3 +1,22 @@
+## Chef recovery and lifetime - QUALIFIED, AUTO INSTALL QUEUED (27 October2026)
+
+[Author requirements, causes and native proof](agent_notes/CHEF_RECOVERY_2026_10_27.md).
+Chef now mines actual obstructing body cells and crawls from low openings; keeps
+pursuing a retreating melee victim; retries blocked uphill jumps promptly; and
+uses native ledge/bucket descents plus deep floor mining. Near-vertical facing
+uses true camera AND head direction vectors with the same2degree tolerance.
+Live tracking loss no longer retires Chef. Nonpersistent native level30 tickets
+follow actors with shared-chunk ownership and actual removal/stop cleanup.
+Existing gravity, prone knock, void rescue, roles, Time Stop and attribution stay.
+Build698e428c passed42results in2actual mode1matches (118.56s), exact517sources/
+1463classes/3221resources.175author paths/31live overrides unchanged. No RP changes.
+Installer PID16804 adopted698e428c in place of queueda81eb534; running main6890ae59
+will be updated after normal stop. The superseded a81eb534ready JAR was removed
+only after adoption (40,601,170bytes). Retain698e428cready, main6890ae59 andc260a27d
+rollback while queued, plus the separate Polymer audit tool. Live receipt:
+`build/verification/chef-recovery/main-install.json`. Older status lists below
+remain historical and are superseded by this entry.
+
 ## Metal Pipe and Metal Divider - QUALIFIED, AUTO INSTALL QUEUED (27 October2026)
 
 [Source, full craft continuation and native evidence](agent_notes/METAL_PIPE_PORT_2026_10_27.md).
