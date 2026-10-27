@@ -114,6 +114,14 @@
   ],
   "levelups": [
     {
+      "id": 1,
+      "page": 8000,
+      "slot": 0,
+      "gate": "lbc:true_advancements/accesories/infinite_quiver",
+      "lockedKey": "lbc.adv.accessories.infinite_quiver.lore",
+      "modifiers": []
+    },
+    {
       "id": 3,
       "page": 8000,
       "slot": 2,

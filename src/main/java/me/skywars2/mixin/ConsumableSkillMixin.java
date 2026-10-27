@@ -14,6 +14,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 /** Вызывает навык в точке consume_item, до удаления использованного предмета из стека. */
 @Mixin(Consumable.class)
 public abstract class ConsumableSkillMixin {
+    /** A use begun elsewhere must not finish its custom payload after entering a sealed dimension. */
+    @Inject(method="onConsume",at=@At("HEAD"),cancellable=true)
+    private void skywars2$dimensionConsumption(Level level,LivingEntity user,ItemStack stack,CallbackInfoReturnable<ItemStack> cir){
+        if(user instanceof ServerPlayer player&&!me.skywars2.game.LbcDimensionItems.allowed(player,stack))cir.setReturnValue(stack);
+    }
     @Inject(method = "onConsume", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/advancements/triggers/ConsumeItemTrigger;trigger(Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/world/item/ItemStack;)V",
             shift = At.Shift.AFTER))

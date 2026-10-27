@@ -62,6 +62,21 @@ public final class LbcKiuas {
     private final Map<LivingEntity,LbcIndirectKills.Owner> cursed=new java.util.LinkedHashMap<>();
 
     public static boolean isCurse(MobEffectInstance effect){return effect.is(MobEffects.RAID_OMEN)&&effect.getAmplifier()==111;}
+    /** Ordinary Kiuas arrows reuse the ordered source tag conversion without a held-arcanum mana charge. */
+    void arrowTerrain(ServerPlayer owner,net.minecraft.world.phys.Vec3 point,boolean ground) {
+        var level=owner.level();var center=BlockPos.containing(point);int radius=ground?15:1;
+        var cause=game.items().indirectKills().coldCause(owner,true);
+        var area=new BlockAreaWork(level,LbcKiuas::kiuEligible,(pos,state)->kiuResult(level,pos,state),FLAGS,false,true);
+        area.include(new BlockAreaWork.Bounds(center.getX()-radius,center.getY()-(ground?radius:0),center.getZ()-radius,
+                center.getX()+radius,center.getY()+(ground?radius:1),center.getZ()+radius));
+        while(area.hasWork())area.step(game,owner,cause,4096,Long.MAX_VALUE);
+        if(ground)game.items().indirectKills().trapChanges(level,cause,()->{
+            for(var pos:BlockPos.betweenClosed(center.offset(-1,-1,-1),center.offset(1,1,1)))
+                if(level.hasChunkAt(pos)&&!level.isOutsideBuildHeight(pos))level.setBlock(pos,Blocks.LAVA.defaultBlockState(),3);
+        });
+        else for(var viewer:level.players())level.sendParticles(viewer,ParticleTypes.FLAME,true,false,
+                point.x,point.y,point.z,3,.2,.2,.2,0);
+    }
     /** Source transport marker becomes its existing tick counter, without a vanilla raid. */
     public boolean acceptCurse(LivingEntity target,MobEffectInstance effect,Entity source){
         if(!isCurse(effect)||!game.playing()||target.level()!=game.maps().level()||!game.items().wands().validTarget(target)

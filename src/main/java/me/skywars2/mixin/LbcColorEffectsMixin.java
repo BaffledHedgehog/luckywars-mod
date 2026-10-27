@@ -45,15 +45,19 @@ public abstract class LbcColorEffectsMixin {
             var target=(LivingEntity)(Object)this;
             if(me.skywars2.game.LbcGreed.active(target) && source!=target) { ci.setReturnValue(false); return; }
             var arrow=me.skywars2.game.LbcBabylon.effectArrow();
+            var quiverArrow=me.skywars2.game.LbcQuiver.effectArrow();
             if(me.skywars2.game.LbcChainLightningStatus.isMarker(effect)){
                 ci.setReturnValue(game.items().bolts().acceptStatus(target,effect,arrow==null?source:arrow));return;
             }
             if(arrow!=null && me.skywars2.game.LbcBabylonEffects.isEffect(effect)) {
                 ci.setReturnValue(game.items().babylonEffects().accept(target,arrow,effect)); return;
             }
+            if(quiverArrow!=null && me.skywars2.game.LbcQuiver.isEffect(effect)) {
+                ci.setReturnValue(game.items().quiver().accept(target,effect,quiverArrow));return;
+            }
             if(!game.items().indirectKills().allowProjectileEffect(target,effect,source)) { ci.setReturnValue(false); return; }
             if(me.skywars2.game.LbcKiuas.isCurse(effect)){
-                ci.setReturnValue(game.items().kiuas().acceptCurse(target,effect,source));return;
+                ci.setReturnValue(game.items().kiuas().acceptCurse(target,effect,quiverArrow==null?source:quiverArrow));return;
             }
             if(game.items().magic().colors().isTeleportMarker(effect))
                 ci.setReturnValue(game.items().magic().colors().acceptTeleport(target,effect,source));

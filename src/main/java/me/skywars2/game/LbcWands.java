@@ -439,6 +439,7 @@ public final class LbcWands {
         return applied;
     }
     private boolean cast(ServerPlayer player,InteractionHand hand) {
+        if(!LbcDimensionItems.ordinary(player))return false;
         if(game.items().actionsBlocked(player)) return false;
         var stack=player.getItemInHand(hand);
         if(LbcSpecialTools.scythe(stack)||LbcSpecialTools.hammer(stack))return game.items().specialTools().use(player,hand);
@@ -1547,7 +1548,15 @@ public final class LbcWands {
         if(LbcGreed.active(victim)) return false;
         if(LbcIncomingArtifacts.managed(source.getDirectEntity())) return game.items().incomingArtifacts().canAffect(source.getDirectEntity(),victim);
         if(SauvojenMeditation.managed(source.getDirectEntity())) return validTarget(victim);
-        if(source instanceof LbcBabylonEffects.OwnerDamageSource||LbcVexSword.wild(source.getDirectEntity())) return validTarget(victim);
+        if(source instanceof LbcBabylonEffects.OwnerDamageSource){
+            var cause=game.items().indirectKills().babylonCause(source);
+            var owner=cause==null?null:game.server().getPlayerList().getPlayer(cause.player());
+            return validTarget(victim) && (cause==null||cause.friendlyFire()||owner!=null&&(victim==owner||projectileTarget(owner,victim)));
+        }
+        if(game.items().babylonEffects().managedSecondary(source.getDirectEntity()))return game.items().babylonEffects().canAffect(source.getDirectEntity(),victim);
+        if(LbcMoiseiBoots.managed(source.getDirectEntity()))return game.items().moiseiBoots().canAffect(source.getDirectEntity(),victim);
+        if(game.items().quiver().managedSecondary(source.getDirectEntity()))return game.items().quiver().canAffect(source.getDirectEntity(),victim);
+        if(LbcVexSword.wild(source.getDirectEntity())) return validTarget(victim);
         if(LbcGodHedgehog.managed(source.getDirectEntity())
                 || (LbcHedgehog.managed(source.getDirectEntity()) || source.getDirectEntity() instanceof net.minecraft.world.entity.monster.Silverfish)
                     && LbcIndirectKills.isWildCaptured(source)) return validTarget(victim);

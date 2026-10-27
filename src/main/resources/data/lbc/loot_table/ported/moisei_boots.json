@@ -1,0 +1,71 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:leather_boots",
+          "modifier": [
+            {
+              "type": "minecraft:set_components",
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_ss",
+                "minecraft:item_model": "lbc:armors/moisei_boots",
+                "minecraft:max_damage": 600,
+                "minecraft:equippable": {
+                  "slot": "feet",
+                  "asset_id": "lbc:moisei"
+                },
+                "minecraft:attribute_modifiers": [
+                  {
+                    "type": "minecraft:armor",
+                    "slot": "feet",
+                    "id": "gehrththc55yyyyyharmor",
+                    "amount": 2,
+                    "operation": "add_value"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "minecraft:set_name",
+              "name": {
+                "translate": "moisei_boots",
+                "color": "#632F19",
+                "italic": false
+              }
+            },
+            {
+              "type": "minecraft:set_lore",
+              "mode": "replace_all",
+              "lore": [
+                [
+                  {
+                    "translate": "type",
+                    "italic": false,
+                    "color": "white"
+                  },
+                  {
+                    "translate": "boots",
+                    "italic": false,
+                    "color": "white"
+                  }
+                ],
+                {
+                  "translate": "moisei_boots.lore",
+                  "italic": false,
+                  "color": "aqua"
+                }
+              ]
+            },
+            {
+              "type": "minecraft:set_custom_data",
+              "tag": "{transformable:1,boots:1,moisei:1}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

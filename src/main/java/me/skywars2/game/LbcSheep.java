@@ -169,7 +169,7 @@ public final class LbcSheep {
     }
     static boolean potion(ItemStack stack){var d=LbcFartus.data(stack);return !stack.isEmpty()&&d.getIntOr("transformable",0)==1&&d.getIntOr("potion",0)==1&&d.getIntOr("succubus",0)==1;}
     private static boolean hasPotion(ServerPlayer p){for(int i=0;i<p.getInventory().getContainerSize();i++)if(potion(p.getInventory().getItem(i)))return true;return false;}
-    private boolean potionHolder(ServerPlayer player){return game.canUseGameplayItems(player)&&game.items().wands().validTarget(player)&&!frozen(player)&&!suppressed(player.level(),player.position());}
+    private boolean potionHolder(ServerPlayer player){return LbcDimensionItems.ordinary(player)&&game.canUseGameplayItems(player)&&game.items().wands().validTarget(player)&&!frozen(player)&&!suppressed(player.level(),player.position());}
     /** Two independently authored resources: nearby dropped potion, or nearby player's matching inventory. */
     boolean consumePotion(ServerPlayer p,InteractionHand hand,ItemStack used,Vec3 at){
         boolean dropped=!p.level().getEntitiesOfClass(ItemEntity.class,new AABB(at,at).inflate(2),e->game.items().wands().validTarget(e)&&e.position().distanceToSqr(at)<=4&&potion(e.getItem())).isEmpty();

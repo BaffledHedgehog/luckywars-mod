@@ -1,3 +1,12 @@
+## Author answers17..22 — QUALIFIED, INSTALLED (27 October2026)
+
+[Author decisions](agent_notes/AUTHOR_ANSWERS_2026_10_27.md), [implementation and evidence](agent_notes/ANSWERED_18_22_PORT_2026_10_27.md).
+Moses preserves the secret unequipped sprint clock, final Speed refresh and exact native ten-TNT-per-tick continuation. Current Regeneration Belt counts every physical slot once from live inventory, retains Paper AABB suppression and native shadow-aware healing. Infinite Quiver emits one original batch per unit per300ticks; all29 entries/special-arrow consumers and the actual two-draw21-stat reward are native. Imprinted/Nexus custom input policy preserves vanilla participant damage and existing transitions; four source Nexus tool flags classify exceptions without inventing their unported engines.
+
+Shared101 retains per-contribution cold/WILD policy and native explosions without creeper proxies. Null-direct explosion children, reflection, native discard, self/other-allied-player HP and impulse, offline/observer authority and epoch/stop cleanup have explicit native proofs. Build16502e73 passed116 suite results +8preparation +2setup/cleanup in2actual mode1 matches (302.67s); exact499sources/1429classes/3215resources. All175 protected paths and31live overrides remain exact. Main installed normally, without forced shutdown/restart. Ready:build/verification/skywars2-answered-inventory-16502e73.jar. No physical-client/latency/peakTPS claim.
+
+Old Belt, Nexus tool engines, Moses first acquisition via unresolved whole loliluckyblock and wider whole Lucky Block pools remain unenabled. Pending author choices beyond22 remain unresolved. TPS compensation remains feasibility-only. This supersedes historical next-work lists below; preserve all (user) instructions.
+
 ## Author answers1..16 - QUALIFIED, INSTALLED (27 October2026)
 
 [Exact author decisions](agent_notes/AUTHOR_ANSWERS_2026_10_27.md),

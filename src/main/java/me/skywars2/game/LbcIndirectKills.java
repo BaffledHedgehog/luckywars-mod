@@ -147,6 +147,8 @@ public final class LbcIndirectKills {
         if(controller!=null && controller.items().communism().owner(source) instanceof ServerPlayer player)return player;
         var game=me.skywars2.SkyWars2.game();
         if(game!=null && game.items().incomingArtifacts().owner(source) instanceof ServerPlayer player) return player;
+        if(game!=null && game.items().moiseiBoots().owner(source) instanceof ServerPlayer player) return player;
+        if(game!=null && game.items().quiver().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().cageDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().clouds().sourceAcidOwner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().electro().reflectedOwner(source)==null
@@ -658,6 +660,8 @@ public final class LbcIndirectKills {
         }
         var trialCause=SauvojenMeditation.cause(source.getDirectEntity());
         if(trialCause!=null)return trialCause;
+        var quiverCause=game.items().quiver().cause(source.getDirectEntity());
+        if(quiverCause!=null)return quiverCause;
         var bossCause=game.items().godHedgehog().cause(source.getDirectEntity());
         return bossCause!=null ? bossCause : game.items().babylonEffects().cause(source.getDirectEntity());
     }

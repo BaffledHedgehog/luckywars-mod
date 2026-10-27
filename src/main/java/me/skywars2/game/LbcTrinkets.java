@@ -93,6 +93,7 @@ public final class LbcTrinkets {
     }
 
     private static int count(ServerPlayer player, Item item, CompoundTag identity) {
+        if(!LbcDimensionItems.ordinary(player))return 0;
         // Как /clear ... 0: инвентарь, личная сетка крафта и предмет на курсоре, без изменения стаков.
         return player.getInventory().clearOrCountMatchingItems(stack -> {
             var data = stack.get(DataComponents.CUSTOM_DATA);
@@ -180,7 +181,7 @@ public final class LbcTrinkets {
 
     public void damaged(LivingEntity victim, DamageSource source) {
         if ((!game.playing() && !game.items().debugItemUseWindow()) || game.config().lbcTrinketLimit == 0) return;
-        if (victim instanceof ServerPlayer player && game.allowDamage(player) && player.isAlive()) {
+        if (victim instanceof ServerPlayer player && LbcDimensionItems.ordinary(player) && game.allowDamage(player) && player.isAlive()) {
             int ice = count(player, ICE_GEM, ICE_DATA);
             if (ice > 0 && player.getRandom().nextFloat() < (90 + 10 * ice) * .001f) iceTargets(player);
             int copies = count(player, GNEISS_STONE, GNEISS_DATA);
@@ -193,7 +194,7 @@ public final class LbcTrinkets {
         }
         // Source arrow_only также покрывает отдельный тип Electro bolt; остальные снаряды не исключаем.
         if (LbcDamage.isArrowDamage(source) || !(source.getEntity() instanceof ServerPlayer attacker)
-                || !game.allowDamage(attacker) && !game.canUseGameplayItems(attacker)) return;
+                || !LbcDimensionItems.ordinary(attacker) || !game.allowDamage(attacker) && !game.canUseGameplayItems(attacker)) return;
         int snow = count(attacker, SNOW_GEM, SNOW_DATA);
         if (snow > 0 && attacker.getRandom().nextFloat() < (80 + 20 * snow) * .001f) game.items().frost().hitTargets(attacker);
         int copies = count(attacker, INTERCAL, INTERCAL_DATA);

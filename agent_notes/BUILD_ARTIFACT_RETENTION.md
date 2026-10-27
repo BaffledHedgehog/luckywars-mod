@@ -233,3 +233,8 @@ build/verification/passive-consumables/build-cleanup-receipt.json.
 ## Answered swords and artifacts checkpoint -27 October2026
 
 Build736bbbc1 passed100 results in2actual matches and installed normally over95d0ec18 without restart. Keep new736bbbc1 and previous95d0ec18, which also supplies the exact installed-version rollback. Removed verified obsoleteb8cb2647 (40037602bytes) and former1a8a3825 (39326207bytes), after literal-parent/nonreparse/SHA/size/mtime checks. Both former main versions were replaced only after normal shutdown/world unlock; no old main game remains active on1a. Cumulative cleanup342JARs/12262920815bytes. Current build/libs, isolated fixture inputs and small proof manifests remain. Receipt:build/verification/answered-questions/build-cleanup-receipt.json.
+
+
+## Retention advanced after author answers17..22
+
+Build16502e73 qualified and installed normally. Retain `build/verification/skywars2-answered-inventory-16502e73.jar` and `build/verification/skywars2-answered-questions-736bbbc1.jar` (exact previous-main rollback). Retired obsolete95d0ec18 only after literal parent/non-reparse/hash/size/time checks. Current build/libs, fixture mod, small polymer audit JAR, logs and manifests remain. Cumulative343JARs /12303011338bytes removed. Receipt: `build/verification/answered-18-22/build-cleanup-receipt.json`.

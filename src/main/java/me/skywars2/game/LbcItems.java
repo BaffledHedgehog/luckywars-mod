@@ -212,6 +212,9 @@ public final class LbcItems {
     private final LbcOrdinaryAccessories ordinaryAccessories;
     private final LbcInventoryHazards inventoryHazards;
     private final LbcCannedFood cannedFood;
+    private final LbcMoiseiBoots moiseiBoots;
+    private final LbcRegenerationBelt regenerationBelt;
+    private final LbcQuiver quiver;
     private final LbcSheep sheep;
     private final LbcHedgehog hedgehog;
     private final LbcGodHedgehog godHedgehog;
@@ -440,6 +443,10 @@ public final class LbcItems {
                 .append(Component.literal("\u00a7fs)").withStyle(ChatFormatting.RED));
         hudPositive(component,"  \uE138 ",frozen,ChatFormatting.RED);
         hudPositive(component,"  \uE139 ",babylonEffects.queued(source,110),ChatFormatting.RED);
+        hudPositive(component,"  \uE144 ",quiver.queued(source,102),ChatFormatting.RED);
+        hudPositive(component,"  \uE145 ",quiver.queued(source,103),ChatFormatting.RED);
+        hudPositive(component,"  \uE147 ",quiver.queued(source,112),ChatFormatting.RED);
+        hudPositive(component,"  \uE148 ",quiver.queued(source,113),ChatFormatting.RED);
         component.append(fartus.hud(source));
         component.append(halloweenWind.hud(source));
         component.append(soulhunter.hud(source));
@@ -796,6 +803,9 @@ public final class LbcItems {
         this.ordinaryAccessories = new LbcOrdinaryAccessories(game);
         this.inventoryHazards = new LbcInventoryHazards(game);
         this.cannedFood = new LbcCannedFood(game);
+        this.moiseiBoots = new LbcMoiseiBoots(game);
+        this.regenerationBelt = new LbcRegenerationBelt(game);
+        this.quiver = new LbcQuiver(game);
         this.sheep = new LbcSheep(game,mana);
         this.hedgehog = new LbcHedgehog(game,mana);
         this.godHedgehog = new LbcGodHedgehog(game);
@@ -891,8 +901,11 @@ public final class LbcItems {
     public boolean allowDamage(LivingEntity victim,DamageSource source) {
         return LbcDamage.allowDamage(victim,source)
                 && (!(source.getEntity() instanceof ServerPlayer attacker) || !game.isObserver(attacker) || timeStop.replaying(source)
+                    || babylonEffects.currentSource(source)
                     || (LbcTntDrops.managed(source.getDirectEntity()) || LbcCreeperDrops.managed(source.getDirectEntity())
                         || LbcIncomingArtifacts.managed(source.getDirectEntity())
+                        || LbcMoiseiBoots.managed(source.getDirectEntity()) || quiver.managedSecondary(source.getDirectEntity()) || babylonEffects.managedSecondary(source.getDirectEntity())
+                        || source.getDirectEntity()!=null&&source.getDirectEntity().entityTags().contains("skywars2.quiver.fang")
                         || LbcCageDrops.managed(source.getDirectEntity()) || LbcPotionSpawnerDrops.managed(source.getDirectEntity())
                         || LbcTransformator.managed(source.getDirectEntity()) || LbcVexSword.managed(source.getDirectEntity())
                         || LbcDroneDrops.managed(source.getDirectEntity()) || LbcGodHedgehog.managed(source.getDirectEntity())
@@ -901,6 +914,7 @@ public final class LbcItems {
                 && (!(victim instanceof ServerPlayer player) || game.allowDamage(player))
                 && wands.allowDamage(victim,source) && kfcRewards.allowDamage(victim,source)
                 && inventoryHazards.allowDamage(victim,source)
+                && moiseiBoots.canAffect(source.getDirectEntity(),victim) && quiver.canAffect(source.getDirectEntity(),victim) && babylonEffects.canAffect(source.getDirectEntity(),victim)
                 && helicopterEncounter.allowDamage(victim,source) && tntDrops.allowDamage(victim,source) && creeperDrops.allowDamage(victim,source) && zombieTntDrops.canAffect(source.getDirectEntity(),victim)
                 && transformator.canAffect(source.getDirectEntity(),victim)
                 && godHedgehog.canAffect(source.getDirectEntity(),victim)
@@ -988,6 +1002,9 @@ public final class LbcItems {
     public LbcOrdinaryAccessories ordinaryAccessories() { return ordinaryAccessories; }
     public LbcInventoryHazards inventoryHazards() { return inventoryHazards; }
     public LbcCannedFood cannedFood() { return cannedFood; }
+    public LbcMoiseiBoots moiseiBoots() { return moiseiBoots; }
+    public LbcRegenerationBelt regenerationBelt() { return regenerationBelt; }
+    public LbcQuiver quiver() { return quiver; }
     public LbcSheep sheep() { return sheep; }
     public LbcHedgehog hedgehog() { return hedgehog; }
     public LbcGodHedgehog godHedgehog() { return godHedgehog; }
@@ -1066,6 +1083,8 @@ public final class LbcItems {
         pendingCombat.loaded(entity);
         pendingSwords.loaded(entity);
         incomingArtifacts.loaded(entity);
+        moiseiBoots.loaded(entity);
+        quiver.loaded(entity);
         reactiveArtifacts.loaded(entity);
         creeperDrops.loaded(entity);
         cageDrops.loaded(entity);
@@ -1230,6 +1249,8 @@ public final class LbcItems {
         pendingCombat.unloaded(entity);
         pendingSwords.unloaded(entity);
         incomingArtifacts.unloaded(entity);
+        moiseiBoots.unloaded(entity);
+        quiver.unloaded(entity);
         reactiveArtifacts.unloaded(entity);
         magic.unloaded(entity);
         frost.unloaded(entity);
@@ -1645,6 +1666,9 @@ public final class LbcItems {
         pendingSwords.tick();
         incomingArtifacts.tick();
         reactiveArtifacts.tick();
+        moiseiBoots.tick();
+        regenerationBelt.tick();
+        quiver.tick();
         inventoryHazards.tick();
         enderWiki.tick();
         prism.tick();
@@ -1750,7 +1774,7 @@ public final class LbcItems {
         return curse == null ? 0 : curse.remaining;
     }
 
-    public void clear(ServerPlayer player) { pendingCombat.clearEffects(player); reactiveArtifacts.clearEffects(player); chargedSwords.clear(player); fevgaleaStar.clear(player); specialTools.clear(player); totems.clear(player); halloweenWind.purify(player); soulhunter.purify(player); soulless.purify(player); fartus.purify(player); babylonEffects.clear(player); acidCorruption.clear(player); erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
+    public void clear(ServerPlayer player) { moiseiBoots.clear(player); quiver.clear(player); pendingCombat.clearEffects(player); reactiveArtifacts.clearEffects(player); chargedSwords.clear(player); fevgaleaStar.clear(player); specialTools.clear(player); totems.clear(player); halloweenWind.purify(player); soulhunter.purify(player); soulless.purify(player); fartus.purify(player); babylonEffects.clear(player); acidCorruption.clear(player); erecto.clearRay(player); awakenedAcid.clear(player); kiuas.clearCurse(player); hohlopitek.clear(player); vexSword.purify(player); reactive.clear(player); shooters.resetBossHelicopterCooldown(player); magnum.purify(player); turnCurses.remove(player.getUUID()); kfcFood.clear(player); frost.clear(player); shooters.clearStun(player); magic.colors().clearEffects(player); mana.clearEffects(player); electro.clearEffects(player); blaze.clearEffects(player); psycho.clearEffects(player); homing.clearEffects(player); bolts.clearEffects(player); }
     public void forget(ServerPlayer player) {
         corruptedGlyphs.forget(player);
         iceWand.forget(player);
@@ -1813,6 +1837,9 @@ public final class LbcItems {
         pendingCombat.forget(player);
         pendingSwords.forget(player);
         incomingArtifacts.forget(player);
+        moiseiBoots.forget(player);
+        regenerationBelt.forget(player);
+        quiver.forget(player);
         reactiveArtifacts.forget(player);
         indirectKills.clear(player);
         mana.forget(player);
@@ -1868,6 +1895,9 @@ public final class LbcItems {
         pendingCombat.stop();
         pendingSwords.stop();
         incomingArtifacts.stop();
+        moiseiBoots.stop();
+        regenerationBelt.stop();
+        quiver.stop();
         reactiveArtifacts.stop();
         inventoryHazards.stop();
         psycho.stop();

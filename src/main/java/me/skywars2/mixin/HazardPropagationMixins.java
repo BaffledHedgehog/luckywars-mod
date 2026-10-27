@@ -41,6 +41,9 @@ public final class HazardPropagationMixins {
             if(game!=null) {
                 var authority=game.items().creeperDrops().owner(source);
                 if(authority==null) authority=game.items().incomingArtifacts().owner(source);
+                if(authority==null) authority=game.items().moiseiBoots().owner(source);
+                if(authority==null) authority=game.items().quiver().owner(source);
+                if(authority==null) authority=game.items().babylonEffects().owner(source);
                 if(authority==null) authority=game.items().cageDrops().owner(source);
                 if(authority==null) authority=game.items().zombieTntDrops().owner(source);
                 if(authority==null) authority=game.items().droneDrops().owner(source);
@@ -51,6 +54,8 @@ public final class HazardPropagationMixins {
                 if(authority!=null) damageSource=new net.minecraft.world.damagesource.DamageSource(
                         damageSource.typeHolder(),source,authority);
                 var godCause=game.items().godHedgehog().cause(source);
+                var babylonCause=game.items().babylonEffects().cause(source);
+                if(babylonCause!=null)damageSource=game.items().indirectKills().captureDamage(damageSource,babylonCause);
                 if(godCause!=null)damageSource=game.items().indirectKills().captureDamage(damageSource,godCause);
                 var hedgehogCause=game.items().hedgehog().cause(source);
                 if(hedgehogCause!=null)damageSource=game.items().indirectKills().captureDamage(damageSource,hedgehogCause);
@@ -94,6 +99,12 @@ public final class HazardPropagationMixins {
                 entities.removeIf(entity->!game.items().creeperDrops().explosionTarget(source,entity));
                 entities.removeIf(entity->!game.items().inventoryHazards().explosionTarget(source,entity));
                 entities.removeIf(entity->!game.items().incomingArtifacts().explosionTarget(source,entity));
+                entities.removeIf(entity->!game.items().moiseiBoots().explosionTarget(source,entity));
+                entities.removeIf(entity->!game.items().quiver().canAffect(source,entity));
+                entities.removeIf(entity->!game.items().babylonEffects().canAffect(source,entity));
+                var savedDamage=((ServerExplosion)(Object)this).getDamageSource();
+                if(savedDamage!=null && game.items().indirectKills().babylonCause(savedDamage)!=null)
+                    entities.removeIf(entity->!game.items().wands().allowDamage(entity,savedDamage));
                 entities.removeIf(me.skywars2.game.LbcGreed::active);
                 entities.removeIf(entity->!game.items().cageDrops().canAffect(source,entity));
                 entities.removeIf(entity->!game.items().zombieTntDrops().canAffect(source,entity));
@@ -139,6 +150,14 @@ public final class HazardPropagationMixins {
             if(transformatorOwner!=null) return transformatorOwner;
             var incomingOwner=game.items().incomingArtifacts().owner(blast.getDirectSourceEntity());
             if(incomingOwner!=null)return incomingOwner;
+            var moiseiOwner=game.items().moiseiBoots().owner(blast.getDirectSourceEntity());
+            if(moiseiOwner!=null)return moiseiOwner;
+            var quiverOwner=game.items().quiver().owner(blast.getDirectSourceEntity());
+            if(quiverOwner!=null)return quiverOwner;
+            var babylonOwner=game.items().babylonEffects().owner(blast.getDirectSourceEntity());
+            if(babylonOwner!=null)return babylonOwner;
+            var explicitOwner=game.items().babylonEffects().explicitOwner(blast.getDamageSource());
+            if(explicitOwner!=null)return explicitOwner;
             var creeperOwner=game.items().creeperDrops().owner(blast.getDirectSourceEntity());
             if(creeperOwner!=null) return creeperOwner;
             var zombieOwner=game.items().zombieTntDrops().owner(blast.getDirectSourceEntity());
@@ -164,6 +183,7 @@ public final class HazardPropagationMixins {
                     blast.getDirectSourceEntity(),blast.level(),blast.center(),blast.radius())) return 0;
             if(game==null) return original.call();
             var babylonCause=game.items().babylonEffects().cause(blast.getDirectSourceEntity());
+            if(babylonCause==null)babylonCause=game.items().quiver().cause(blast.getDirectSourceEntity());
             var godCause=game.items().godHedgehog().cause(blast.getDirectSourceEntity());
             var savedCause=babylonCause!=null?babylonCause:godCause!=null?godCause
                     :blast.getDamageSource()==null?null:game.items().indirectKills().babylonCause(blast.getDamageSource());
@@ -196,6 +216,10 @@ public final class HazardPropagationMixins {
                 game.items().tntDrops().inheritChain(source,spawned);
                 game.items().inventoryHazards().inheritChild(source,spawned);
                 game.items().incomingArtifacts().inheritChild(source,spawned);
+                game.items().moiseiBoots().inheritChild(source,spawned);
+                game.items().quiver().inheritChild(source,spawned);
+                game.items().babylonEffects().inheritChild(source,spawned);
+                if(source==null&&explosion instanceof ServerExplosion blast)game.items().babylonEffects().inheritExplosionChild(blast.getDamageSource(),spawned);
                 game.items().creeperDrops().inheritChild(source,spawned);
                 game.items().cageDrops().inheritChild(source,spawned);
                 game.items().zombieTntDrops().inheritChild(source,spawned);

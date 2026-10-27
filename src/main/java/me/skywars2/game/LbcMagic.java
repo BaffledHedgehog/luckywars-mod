@@ -464,6 +464,19 @@ public final class LbcMagic {
         return nearest;
     }
     public boolean beaconSuppressed(Vec3 position) { return beaconSuppressed(position,false); }
+    /** Paper getNearbyEntities radius: axis-aligned box, not the ordinary source sphere. */
+    public boolean beaconSuppressedAabb(ServerLevel level, Vec3 position, double radius) {
+        if(level!=game.maps().level()) return false;
+        for(var beacon:loadedBeacons) if(!beacon.mechanism && withinBox(beacon.center,position,radius)) return true;
+        var box=new AABB(position.x-radius,position.y-radius,position.z-radius,
+                position.x+radius,position.y+radius,position.z+radius);
+        for(var marker:legacyMarkers) if(!marker.isRemoved() && marker.level()==level
+                && marker.entityTags().contains("stopper_magic") && marker.getBoundingBox().intersects(box)) return true;
+        return false;
+    }
+    private static boolean withinBox(Vec3 a,Vec3 b,double radius) {
+        return Math.abs(a.x-b.x)<radius && Math.abs(a.y-b.y)<radius && Math.abs(a.z-b.z)<radius;
+    }
     private boolean beaconSuppressed(Vec3 position, boolean mechanism) {
         var nearby = regions.get(ChunkPos.pack(((int)Math.floor(position.x))>>4, ((int)Math.floor(position.z))>>4));
         if (nearby != null) for (var state : nearby)
@@ -881,6 +894,8 @@ public final class LbcMagic {
         }
     }
     private void clearDebuffs(ServerPlayer player) {
+        game.items().quiver().clear(player);
+        game.items().babylonEffects().clear(player);
         game.items().kiuas().clearCurse(player);
         game.items().kfcFood().clear(player);
         game.items().electro().clearEffects(player);

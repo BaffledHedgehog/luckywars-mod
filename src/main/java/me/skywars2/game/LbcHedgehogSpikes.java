@@ -43,7 +43,7 @@ public final class LbcHedgehogSpikes {
     private boolean frozen(Entity e){return !game.server().tickRateManager().runsNormally()||game.items().timeStop().frozen(e)||e.entityTags().contains("time_stopped")
             ||game.items().wands().timeStopped()||e instanceof LivingEntity l&&game.items().frost().isFrozen(l);}
     private boolean allowed(ServerPlayer p){return p!=null&&game.playing()&&game.stage()!=GameController.Stage.ENDING&&p.isAlive()&&!p.isRemoved()
-            &&game.canUseGameplayItems(p)&&!game.isObserver(p)&&!frozen(p)&&!game.items().actionsBlocked(p)
+            &&LbcDimensionItems.ordinary(p)&&game.canUseGameplayItems(p)&&!game.isObserver(p)&&!frozen(p)&&!game.items().actionsBlocked(p)
             &&!game.items().magic().suppressed(p)&&!game.items().magic().suppressedAt(p.level(),p.getEyePosition());}
     private boolean valid(SpikeArrow a){return !a.isRemoved()&&game.playing()&&game.items().currentEpoch(a)
             &&a.getOwner() instanceof ServerPlayer p&&p.level()==a.level()&&resident((ServerLevel)a.level(),a.position());}

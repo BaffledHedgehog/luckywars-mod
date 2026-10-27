@@ -81,6 +81,7 @@ public final class ElectroNativeMixins {
             if(game!=null && bolt.getCause()!=null && target instanceof LivingEntity living)
                 {
                     var inherited=game.items().babylonEffects().cause(bolt);
+                    if(inherited==null)inherited=game.items().quiver().cause(bolt);
                     if(inherited!=null) game.items().indirectKills().inheritedIgnited(living,inherited);
                     else game.items().indirectKills().projectileIgnited(living,bolt.getCause(),true);
                 }

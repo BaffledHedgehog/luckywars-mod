@@ -154,7 +154,7 @@ public final class LbcMana {
     public void add(ServerPlayer p,int amount) { set(p,get(p)+amount); }
 
     public boolean visible(ServerPlayer p) {
-        return game.canUseGameplayItems(p) && p.isAlive() && !p.isRemoved() && p.level()==game.maps().level()
+        return LbcDimensionItems.ordinary(p) && game.canUseGameplayItems(p) && p.isAlive() && !p.isRemoved() && p.level()==game.maps().level()
                 && game.stage()!=GameController.Stage.ENDING;
     }
     private boolean active(ServerPlayer p) {

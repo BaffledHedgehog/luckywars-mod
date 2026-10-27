@@ -1,882 +1,874 @@
+{
+  "pools": [
     {
-    "pools": [
+      "rolls": {
+        "type": "minecraft:score",
+        "score": "lbc.math",
+        "target": {
+          "type": "minecraft:fixed",
+          "name": "arrowgens"
+        },
+        "scale": 1
+      },
+      "entries": [
         {
-            "rolls": {
-                "type": "minecraft:score",
-                "score": "lbc.math",
-                "target": {
-                    "type": "minecraft:fixed",
-                    "name": "arrowgens"
-                },
-                "scale": 1
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "count": {
+                "min": 1,
+                "max": 8,
+                "type": "minecraft:uniform"
+              },
+              "type": "minecraft:set_count"
             },
-            "entries": [
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:potion_contents": {
-                                    "potion": "minecraft:slowness"
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:potion_contents": {
-                                    "potion": "minecraft:long_slowness"
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:potion_contents": {
-                                    "potion": "minecraft:weakness"
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:potion_contents": {
-                                    "potion": "minecraft:long_weakness"
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:potion_contents": {
-                                    "potion": "minecraft:harming"
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:potion_contents": {
-                                    "potion": "minecraft:strong_harming"
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:potion_contents": {
-                                    "potion": "minecraft:poison"
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:potion_contents": {
-                                    "potion": "minecraft:strong_poison"
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:potion_contents": {
-                                    "potion": "minecraft:long_poison"
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:spectral_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style":"lbc:tier_a",
-                                "minecraft:potion_contents": {
-                                    "custom_color": 6710881
-                                }
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "strong_arrow",
-                                    "italic": false
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style":"lbc:tier_f",
-                                "minecraft:potion_contents": {
-                                    "custom_color": 6710882
-                                }
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "weak_arrow",
-                                    "italic": false
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:spectral_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style": "lbc:tier_d",
-                                "minecraft:potion_contents": {
-                                    "custom_color": 2883328,
-                                    "custom_effects": [
-                                        {
-                                            "id": "minecraft:poison",
-                                            "amplifier": 2,
-                                            "duration": 160,
-                                            "show_particles": false
-                                        },
-                                        {
-                                            "id": "minecraft:wither",
-                                            "amplifier": 2,
-                                            "duration": 40,
-                                            "show_particles": false
-                                        }
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "poison_arrow",
-                                    "italic": false
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style":"lbc:tier_d",
-                                "minecraft:potion_contents": {
-                                    "custom_color": 6710883
-                                }
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "reactive_arrow",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "lore": [
-                                {
-                                    "translate": "reactive_arrow.lore",
-                                    "color": "white",
-                                    "italic": false
-                                }
-                            ],
-                            "mode": "replace_all"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style":"lbc:tier_b",
-                                "minecraft:potion_contents": {
-                                    "custom_color": 16746496,
-                                    "custom_effects": [
-                                        {
-                                            "id": "minecraft:raid_omen",
-                                            "amplifier": 101,
-                                            "duration": 20,
-                                            "show_particles": false
-                                        }
-                                    ]
-                                },
-                                "minecraft:tooltip_display": {
-                                    "hidden_components": [
-                                        "minecraft:potion_contents"
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "explosive_arrow",
-                                    "italic": false
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style":"lbc:tier_b",
-                                "minecraft:potion_contents": {
-                                    "custom_color": 6184020,
-                                    "custom_effects": [
-                                        {
-                                            "id": "minecraft:raid_omen",
-                                            "amplifier": 102,
-                                            "duration": 20,
-                                            "show_particles": false
-                                        }
-                                    ]
-                                },
-                                "minecraft:tooltip_display": {
-                                    "hidden_components": [
-                                        "minecraft:potion_contents"
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "evoker_arrow",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "lore": [
-                                {
-                                    "translate": "evoker_arrow.lore.1",
-                                    "color": "white",
-                                    "italic": false
-                                },
-                                {
-                                    "translate": "evoker_arrow.lore.2",
-                                    "color": "white",
-                                    "italic": false
-                                }
-                            ],
-                            "mode": "replace_all"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style": "lbc:tier_d",
-                                "minecraft:potion_contents": {
-                                    "custom_color": 65493,
-                                    "custom_effects": [
-                                        {
-                                            "id": "minecraft:slowness",
-                                            "amplifier": 127,
-                                            "duration": 40,
-                                            "show_particles": false
-                                        },
-                                        {
-                                            "id": "minecraft:mining_fatigue",
-                                            "amplifier": 127,
-                                            "duration": 40,
-                                            "show_particles": false
-                                        }
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "paralyzing_arrow",
-                                    "italic": false
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style":"lbc:tier_b",
-                                "minecraft:potion_contents": {
-                                    "custom_color": 52479,
-                                    "custom_effects": [
-                                        {
-                                            "id": "minecraft:raid_omen",
-                                            "amplifier": 103,
-                                            "duration": 20,
-                                            "show_particles": false
-                                        }
-                                    ]
-                                },
-                                "minecraft:tooltip_display": {
-                                    "hidden_components": [
-                                        "minecraft:potion_contents"
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "electric_arrow",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "lore": [
-                                {
-                                    "translate": "electric_arrow.lore",
-                                    "color": "white",
-                                    "italic": false
-                                }
-                            ],
-                            "mode": "replace_all"
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style":"lbc:tier_a",
-                                "minecraft:potion_contents": {
-                                    "custom_color": 16777215,
-                                    "custom_effects": [
-                                        {
-                                            "id": "minecraft:raid_omen",
-                                            "amplifier": 112,
-                                            "duration": 400
-                                        }
-                                    ]
-                                },
-                                "minecraft:tooltip_display": {
-                                    "hidden_components": [
-                                        "minecraft:potion_contents"
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "lightshoot_arrow",
-                                    "italic": false
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 3,
-                                "type": "minecraft:uniform"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style":"lbc:tier_a",
-                                "minecraft:potion_contents": {
-                                    "custom_color": 16763161,
-                                    "custom_effects": [
-                                        {
-                                            "id": "minecraft:raid_omen",
-                                            "amplifier": 111,
-                                            "duration": 300,
-                                            "show_particles": true
-                                        }
-                                    ]
-                                },
-                                "minecraft:tooltip_display": {
-                                    "hidden_components": [
-                                        "minecraft:potion_contents"
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "kiuaskivi_arrow",
-                                    "italic": false
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 4,
-                                "type": "minecraft:uniform"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style":"lbc:tier_b",
-                                "minecraft:potion_contents": {
-                                    "custom_color": 2236962,
-                                    "custom_effects": [
-                                        {
-                                            "id": "minecraft:raid_omen",
-                                            "amplifier": 113,
-                                            "duration": 300
-                                        }
-                                    ]
-                                },
-                                "minecraft:tooltip_display": {
-                                    "hidden_components": [
-                                        "minecraft:potion_contents"
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "trapping_arrow",
-                                    "italic": false
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:loot_table",
-                    "weight": 1,
-                    "value": "lbc:stand_arrow"
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:potion_contents": {
-                                    "potion": "minecraft:oozing"
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:potion_contents": {
-                                    "potion": "minecraft:infested"
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:potion_contents": {
-                                    "potion": "minecraft:wind_charged"
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "minecraft:item",
-                    "weight": 10,
-                    "name": "minecraft:tipped_arrow",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": {
-                                "min": 1,
-                                "max": 8,
-                                "type": "minecraft:uniform"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:potion_contents": {
-                                    "potion": "minecraft:weaving"
-                                }
-                            }
-                        }
-                    ]
+            {
+              "components": {
+                "minecraft:potion_contents": {
+                  "potion": "minecraft:slowness"
                 }
-            ]
+              },
+              "type": "minecraft:set_components"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "count": {
+                "min": 1,
+                "max": 8,
+                "type": "minecraft:uniform"
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:potion_contents": {
+                  "potion": "minecraft:long_slowness"
+                }
+              },
+              "type": "minecraft:set_components"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "count": {
+                "min": 1,
+                "max": 8,
+                "type": "minecraft:uniform"
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:potion_contents": {
+                  "potion": "minecraft:weakness"
+                }
+              },
+              "type": "minecraft:set_components"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "count": {
+                "min": 1,
+                "max": 8,
+                "type": "minecraft:uniform"
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:potion_contents": {
+                  "potion": "minecraft:long_weakness"
+                }
+              },
+              "type": "minecraft:set_components"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "count": {
+                "min": 1,
+                "max": 8,
+                "type": "minecraft:uniform"
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:potion_contents": {
+                  "potion": "minecraft:harming"
+                }
+              },
+              "type": "minecraft:set_components"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "count": {
+                "min": 1,
+                "max": 8,
+                "type": "minecraft:uniform"
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:potion_contents": {
+                  "potion": "minecraft:strong_harming"
+                }
+              },
+              "type": "minecraft:set_components"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "count": {
+                "min": 1,
+                "max": 8,
+                "type": "minecraft:uniform"
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:potion_contents": {
+                  "potion": "minecraft:poison"
+                }
+              },
+              "type": "minecraft:set_components"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "count": {
+                "min": 1,
+                "max": 8,
+                "type": "minecraft:uniform"
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:potion_contents": {
+                  "potion": "minecraft:strong_poison"
+                }
+              },
+              "type": "minecraft:set_components"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "count": {
+                "min": 1,
+                "max": 8,
+                "type": "minecraft:uniform"
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:potion_contents": {
+                  "potion": "minecraft:long_poison"
+                }
+              },
+              "type": "minecraft:set_components"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:arrow",
+          "modifier": {
+            "count": {
+              "min": 1,
+              "max": 8,
+              "type": "minecraft:uniform"
+            },
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:spectral_arrow",
+          "modifier": {
+            "count": {
+              "min": 1,
+              "max": 8,
+              "type": "minecraft:uniform"
+            },
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:arrow",
+          "modifier": {
+            "count": {
+              "min": 1,
+              "max": 8,
+              "type": "minecraft:uniform"
+            },
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "count": {
+                "min": 1,
+                "max": 8,
+                "type": "minecraft:uniform"
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:potion_contents": {
+                  "custom_color": 6710881
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "strong_arrow",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "count": {
+                "min": 1,
+                "max": 8,
+                "type": "minecraft:uniform"
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_f",
+                "minecraft:potion_contents": {
+                  "custom_color": 6710882
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "weak_arrow",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:spectral_arrow",
+          "modifier": {
+            "count": {
+              "min": 1,
+              "max": 8,
+              "type": "minecraft:uniform"
+            },
+            "type": "minecraft:set_count"
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "count": {
+                "min": 1,
+                "max": 8,
+                "type": "minecraft:uniform"
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_d",
+                "minecraft:potion_contents": {
+                  "custom_color": 2883328,
+                  "custom_effects": [
+                    {
+                      "id": "minecraft:poison",
+                      "amplifier": 2,
+                      "duration": 160,
+                      "show_particles": false
+                    },
+                    {
+                      "id": "minecraft:wither",
+                      "amplifier": 2,
+                      "duration": 40,
+                      "show_particles": false
+                    }
+                  ]
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "poison_arrow",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "count": {
+                "min": 1,
+                "max": 8,
+                "type": "minecraft:uniform"
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_d",
+                "minecraft:potion_contents": {
+                  "custom_color": 6710883
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "reactive_arrow",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "lore": [
+                {
+                  "translate": "reactive_arrow.lore",
+                  "color": "white",
+                  "italic": false
+                }
+              ],
+              "mode": "replace_all",
+              "type": "minecraft:set_lore"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "count": {
+                "min": 1,
+                "max": 8,
+                "type": "minecraft:uniform"
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:potion_contents": {
+                  "custom_color": 16746496,
+                  "custom_effects": [
+                    {
+                      "id": "minecraft:raid_omen",
+                      "amplifier": 101,
+                      "duration": 20,
+                      "show_particles": false
+                    }
+                  ]
+                },
+                "minecraft:tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:potion_contents"
+                  ]
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "explosive_arrow",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "count": {
+                "min": 1,
+                "max": 8,
+                "type": "minecraft:uniform"
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:potion_contents": {
+                  "custom_color": 6184020,
+                  "custom_effects": [
+                    {
+                      "id": "minecraft:raid_omen",
+                      "amplifier": 102,
+                      "duration": 20,
+                      "show_particles": false
+                    }
+                  ]
+                },
+                "minecraft:tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:potion_contents"
+                  ]
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "evoker_arrow",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "lore": [
+                {
+                  "translate": "evoker_arrow.lore.1",
+                  "color": "white",
+                  "italic": false
+                },
+                {
+                  "translate": "evoker_arrow.lore.2",
+                  "color": "white",
+                  "italic": false
+                }
+              ],
+              "mode": "replace_all",
+              "type": "minecraft:set_lore"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "count": {
+                "min": 1,
+                "max": 8,
+                "type": "minecraft:uniform"
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_d",
+                "minecraft:potion_contents": {
+                  "custom_color": 65493,
+                  "custom_effects": [
+                    {
+                      "id": "minecraft:slowness",
+                      "amplifier": 127,
+                      "duration": 40,
+                      "show_particles": false
+                    },
+                    {
+                      "id": "minecraft:mining_fatigue",
+                      "amplifier": 127,
+                      "duration": 40,
+                      "show_particles": false
+                    }
+                  ]
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "paralyzing_arrow",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "count": {
+                "min": 1,
+                "max": 8,
+                "type": "minecraft:uniform"
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:potion_contents": {
+                  "custom_color": 52479,
+                  "custom_effects": [
+                    {
+                      "id": "minecraft:raid_omen",
+                      "amplifier": 103,
+                      "duration": 20,
+                      "show_particles": false
+                    }
+                  ]
+                },
+                "minecraft:tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:potion_contents"
+                  ]
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "electric_arrow",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "lore": [
+                {
+                  "translate": "electric_arrow.lore",
+                  "color": "white",
+                  "italic": false
+                }
+              ],
+              "mode": "replace_all",
+              "type": "minecraft:set_lore"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:potion_contents": {
+                  "custom_color": 16777215,
+                  "custom_effects": [
+                    {
+                      "id": "minecraft:raid_omen",
+                      "amplifier": 112,
+                      "duration": 400
+                    }
+                  ]
+                },
+                "minecraft:tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:potion_contents"
+                  ]
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "lightshoot_arrow",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "count": {
+                "min": 1,
+                "max": 3,
+                "type": "minecraft:uniform"
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_a",
+                "minecraft:potion_contents": {
+                  "custom_color": 16763161,
+                  "custom_effects": [
+                    {
+                      "id": "minecraft:raid_omen",
+                      "amplifier": 111,
+                      "duration": 300,
+                      "show_particles": true
+                    }
+                  ]
+                },
+                "minecraft:tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:potion_contents"
+                  ]
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "kiuaskivi_arrow",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "count": {
+                "min": 1,
+                "max": 4,
+                "type": "minecraft:uniform"
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_b",
+                "minecraft:potion_contents": {
+                  "custom_color": 2236962,
+                  "custom_effects": [
+                    {
+                      "id": "minecraft:raid_omen",
+                      "amplifier": 113,
+                      "duration": 300
+                    }
+                  ]
+                },
+                "minecraft:tooltip_display": {
+                  "hidden_components": [
+                    "minecraft:potion_contents"
+                  ]
+                }
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
+                {
+                  "translate": "trapping_arrow",
+                  "italic": false
+                }
+              ],
+              "type": "minecraft:set_name"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:loot_table",
+          "weight": 1,
+          "value": "lbc:stand_arrow"
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "count": {
+                "min": 1,
+                "max": 8,
+                "type": "minecraft:uniform"
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:potion_contents": {
+                  "potion": "minecraft:oozing"
+                }
+              },
+              "type": "minecraft:set_components"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "count": {
+                "min": 1,
+                "max": 8,
+                "type": "minecraft:uniform"
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:potion_contents": {
+                  "potion": "minecraft:infested"
+                }
+              },
+              "type": "minecraft:set_components"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "count": {
+                "min": 1,
+                "max": 8,
+                "type": "minecraft:uniform"
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:potion_contents": {
+                  "potion": "minecraft:wind_charged"
+                }
+              },
+              "type": "minecraft:set_components"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "weight": 10,
+          "name": "minecraft:tipped_arrow",
+          "modifier": [
+            {
+              "count": {
+                "min": 1,
+                "max": 8,
+                "type": "minecraft:uniform"
+              },
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:potion_contents": {
+                  "potion": "minecraft:weaving"
+                }
+              },
+              "type": "minecraft:set_components"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

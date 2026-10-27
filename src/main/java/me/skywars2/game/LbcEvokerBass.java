@@ -79,6 +79,14 @@ public final class LbcEvokerBass {
         if(owner.level().addFreshEntity(fang)){fangs.add(fang);return fang;}
         return null;
     }
+    /** Quiver's original producer is beacon-only and admits its caster as a victim. */
+    EvokerFangs spawnQuiverOwned(ServerPlayer owner,Vec3 position) {
+        if(!owner.level().hasChunkAt(BlockPos.containing(position)) || game.items().magic().beaconSuppressed(position))return null;
+        var fang=new EvokerFangs(owner.level(),position.x,position.y,position.z,0,0,owner);
+        fang.entityTags().add(FANG);fang.entityTags().add("skywars2.quiver.fang");fang.entityTags().add("magic");
+        game.items().markCurrentItemEpoch(fang);
+        if(owner.level().addFreshEntity(fang)){fangs.add(fang);return fang;}return null;
+    }
     void evoker(ServerPlayer owner,InteractionHand hand,ItemStack stack,int mode) {
         if(mode==1)for(var mob:mobs(owner,17)) {
             if(mob.position().distanceToSqr(owner.position())<2.25)continue;
@@ -105,6 +113,15 @@ public final class LbcEvokerBass {
     }
     /** Called only at the native attack tick; replaces its owner-allies shortcut for friendly mobs. */
     public void fangHit(EvokerFangs fang,LivingEntity victim) {
+        if(fang.entityTags().contains("skywars2.quiver.fang")){
+            if(!(fang.getOwner() instanceof ServerPlayer owner)||!game.items().currentEpoch(fang)
+                    ||!game.items().wands().validTarget(victim)||victim.isInvulnerable()
+                    ||victim!=owner&&!game.items().wands().projectileTarget(owner,victim)
+                    ||game.items().magic().beaconSuppressed(fang.position()))return;
+            var source=owner.damageSources().indirectMagic(fang,owner);
+            if(victim.hurtServer(owner.level(),source,6))net.minecraft.world.item.enchantment.EnchantmentHelper.doPostAttackEffects(owner.level(),victim,source);
+            return;
+        }
         if(!(fang.getOwner() instanceof ServerPlayer owner)||!game.items().currentEpoch(fang)
                 ||!game.items().wands().projectileTarget(owner,victim)||victim.isInvulnerable()
                 ||game.items().magic().suppressedAt(owner.level(),fang.position())

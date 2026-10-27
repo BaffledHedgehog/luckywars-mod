@@ -783,6 +783,11 @@ public final class GameChecks {
                                 case "pending-combat" -> { PendingCombatChecks.run(game); return; }
                                 case "pending-swords" -> { PendingSwordChecks.run(game); return; }
                                 case "incoming-artifacts" -> { IncomingArtifactChecks.run(game); return; }
+                                case "moisei-boots" -> { MoiseiBootsChecks.run(game); return; }
+                                case "regeneration-belt" -> { RegenerationBeltChecks.run(game); return; }
+                                case "quiver" -> { QuiverChecks.run(game); return; }
+                                case "dimension-items" -> { DimensionItemChecks.run(game); return; }
+                                case "shared-arrow-explosions" -> { SharedArrowExplosionChecks.run(game); return; }
                                 case "reactive-artifacts" -> { ReactiveArtifactChecks.run(game); return; }
                                 case "fragment-knowledge" -> { FragmentKnowledgeChecks.run(game); return; }
                                 case "late-swords" -> { LateSwordChecks.run(game); return; }
@@ -1298,6 +1303,11 @@ public final class GameChecks {
             PendingCombatChecks.tick(game);
             PendingSwordChecks.tick(game);
             IncomingArtifactChecks.tick(game);
+            MoiseiBootsChecks.tick(game);
+            RegenerationBeltChecks.tick(game);
+            QuiverChecks.tick(game);
+            DimensionItemChecks.tick(game);
+            SharedArrowExplosionChecks.tick(game);
             ReactiveArtifactChecks.tick(game);
             FragmentKnowledgeChecks.tick(game);
             MapLightingChecks.tick(game);
