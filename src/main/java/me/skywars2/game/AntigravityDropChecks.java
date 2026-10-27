@@ -22,6 +22,9 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.ticks.LevelChunkTicks;
+import net.minecraft.world.ticks.ScheduledTick;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -64,6 +67,9 @@ public final class AntigravityDropChecks {
         final BlockPos center;
         final Map<BlockPos, MapManager.BlockSnapshot> blocks = new LinkedHashMap<>();
         final Set<Long> forced = new HashSet<>();
+        final BoundingBox bounds;
+        final List<ScheduledTick<net.minecraft.world.level.block.Block>> blockTicks=new ArrayList<>();
+        final List<ScheduledTick<net.minecraft.world.level.material.Fluid>> fluidTicks=new ArrayList<>();
         final Set<Entity> existing = Collections.newSetFromMap(new IdentityHashMap<>());
         final List<ItemEntity> tokens = new ArrayList<>();
         final List<Cow> cows = new ArrayList<>();
@@ -84,6 +90,8 @@ public final class AntigravityDropChecks {
             origin = new Vec3(Math.floor(alpha.getX()/16)*16+8.37,
                     Math.min(270.7, level.getMaxY()-40.3), Math.floor(alpha.getZ()/16)*16+8.81);
             center = BlockPos.containing(origin);
+            bounds=new BoundingBox(center.getX()-18,level.getMinY(),center.getZ()-18,
+                    center.getX()+18,level.getMaxY()-1,center.getZ()+18);
             alphaKills = kills(alpha); betaKills = kills(beta);
             level.getAllEntities().forEach(existing::add);
         }
@@ -99,8 +107,13 @@ public final class AntigravityDropChecks {
                     if (!level.getForceLoadedChunks().contains(key)) {
                         forced.add(key); level.setChunkForced(x,z,true);
                     }
-                    level.getChunkAt(new BlockPos(x*16,center.getY(),z*16));
+                    var chunk=level.getChunkAt(new BlockPos(x*16,center.getY(),z*16));
+                    ((LevelChunkTicks<net.minecraft.world.level.block.Block>)chunk.getBlockTicks()).getAll()
+                            .filter(t->bounds.isInside(t.pos())).forEach(blockTicks::add);
+                    ((LevelChunkTicks<net.minecraft.world.level.material.Fluid>)chunk.getFluidTicks()).getAll()
+                            .filter(t->bounds.isInside(t.pos())).forEach(fluidTicks::add);
                 }
+            level.getBlockTicks().clearArea(bounds); level.getFluidTicks().clearArea(bounds);
             // Isolate every resident column that the corrected terrain search can reach.
             // Snapshot only nonair cells in nonempty sections; keep the original low island intact on close.
             for(int x=center.getX()-18;x<=center.getX()+18;x++) for(int z=center.getZ()-18;z<=center.getZ()+18;z++) {
@@ -144,7 +157,9 @@ public final class AntigravityDropChecks {
             tokens.forEach(Entity::discard);
             for (var c:cows) { game.items().indirectKills().clear(c); c.discard(); }
             cows.clear();
+            level.getBlockTicks().clearArea(bounds); level.getFluidTicks().clearArea(bounds);
             for (var p:blocks.keySet()) set(p,Blocks.AIR.defaultBlockState());
+            level.getBlockTicks().clearArea(bounds); level.getFluidTicks().clearArea(bounds);
             for (var p:List.of(alpha,beta)) {
                 p.removeAllEffects(); p.setHealth(1000); p.setInvulnerableTime(0); p.damageCooldownTime=0;
                 game.items().indirectKills().clear(p);
@@ -328,7 +343,7 @@ public final class AntigravityDropChecks {
             require(rider.getDeltaMovement().equals(departure),"native jump is not overwritten by support servo");
             rider.setPos(display.position().add(.5,1,.5));rider.setDeltaMovement(0,-.7,0);
             ticks(1);
-            require(rider.getDeltaMovement().y==-.7,"departed rider cannot be recaptured even after returning to contact");
+            require(rider.getDeltaMovement().y>0&&rider.fallDistance==0,"returning falling rider is recaptured by actual surface crossing");
             // Vanilla collision must stop a rider at a real ceiling; the visual may continue as in source.
             reset();set(center,Blocks.STONE.defaultBlockState());
             for(var pos:BlockPos.betweenClosed(center.offset(-1,3,-1),center.offset(1,3,1)))
@@ -353,11 +368,41 @@ public final class AntigravityDropChecks {
                     && beta.getDeltaMovement().equals(new Vec3(-.2,2,.1))
                     && floating.getDeltaMovement().equals(Vec3.ZERO) && !floating.hasEffect(MobEffects.SLOW_FALLING),
                     "empty pulse never lifts unsupported caster, ally or floating mob");
-            ticks(589); require(game.items().antigravity().stormCount()==1,"30-second storm retained through active tick599");
-            ticks(1); require(game.items().antigravity().stormCount()==0,"exact60 pulses end at active tick600");
-            ticks(20);
-            require(floating.getDeltaMovement().equals(Vec3.ZERO) && !floating.hasEffect(MobEffects.SLOW_FALLING),
-                    "no perpetual gravity or extra pulses");
+            require(game.items().antigravity().stormCount()==0,"confirmed empty source retires center on first pulse");
+            set(center,Blocks.STONE.defaultBlockState()); ticks(20);
+            require(level.getBlockState(center).is(Blocks.STONE) && game.items().antigravity().displayCount()==0,
+                    "retired center never regenerates when future terrain appears");
+            // A live sparse index must be refreshed after all its original columns become stale.
+            reset();
+            var left=center.offset(-10,-7,-10); var right=center.offset(10,-7,10);
+            set(left,Blocks.STONE.defaultBlockState()); set(right,Blocks.STONE.defaultBlockState()); activate();
+            require(game.items().antigravity().displayCount()==1,"sparse off-height index launches one real cell");
+            set(left,Blocks.AIR.defaultBlockState()); set(right,Blocks.AIR.defaultBlockState());
+            var fresh=center.offset(5,-7,5); set(fresh,Blocks.OAK_LOG.defaultBlockState());
+            ticks(10);
+            require(level.getBlockState(fresh).isAir() && game.items().antigravity().stormCount()==1
+                    && game.items().antigravity().snapshot().stream().anyMatch(d->d.getBlockState().is(Blocks.OAK_LOG)),
+                    "newly populated column is found before stale index can declare exhaustion");
+            var flying=game.items().antigravity().snapshot().stream().filter(d->d.getBlockState().is(Blocks.OAK_LOG)).findFirst().orElseThrow();
+            var before=flying.position();
+            // A solid just outside the 32x32 source cannot keep its center alive via the lift halo.
+            var outside=center.offset(-17,-7,-17); set(outside,Blocks.STONE.defaultBlockState()); ticks(10);
+            require(game.items().antigravity().stormCount()==0 && !flying.isRemoved() && flying.getY()>before.y
+                    && level.getBlockState(outside).is(Blocks.STONE),
+                    "exhausted source retires center while existing flying platform and outside halo remain");
+            // Replenish only one cell per pulse so exhaustion does not hide the duration boundary.
+            reset(); set(center,Blocks.STONE.defaultBlockState()); activate();
+            require(LbcAntigravity.DURATION_TICKS==1200,"sixty-second active duration");
+            for(int age=1;age<=1199;age++) {
+                if(age%10==0)set(center,Blocks.STONE.defaultBlockState());
+                ticks(1);
+            }
+            require(game.items().antigravity().stormCount()==1,"sixty-second storm retained through active tick1199");
+            set(center,Blocks.STONE.defaultBlockState()); ticks(1);
+            require(game.items().antigravity().stormCount()==0 && level.getBlockState(center).isAir(),
+                    "exact120th pulse ends at active tick1200");
+            set(center,Blocks.STONE.defaultBlockState()); ticks(20);
+            require(level.getBlockState(center).is(Blocks.STONE),"duration-ended center never produces later pulses");
         }
         void staleAndLifecycle() {
             reset(); set(center,Blocks.STONE.defaultBlockState()); activate();
@@ -416,7 +461,7 @@ public final class AntigravityDropChecks {
                     require(stack.isRemoved() && game.items().antigravity().stormCount()==2,"actual next tick final unit debit");
                     frozen=new IdentityHashMap<>(); for(var d:game.items().antigravity().snapshot())frozen.put(d,d.position());
                     game.items().timeStop().begin(level,200); paused=drop(2); wait=0;
-                    ticks(650);
+                    ticks(1250);
                     require(game.items().antigravity().stormCount()==2,"dimension pause freezes storm age past nominal duration"); phase++;
                 }
                 case 3 -> {
@@ -441,10 +486,13 @@ public final class AntigravityDropChecks {
             tokens.forEach(Entity::discard);
             debris.forEach(Entity::discard);
             for(var c:cows) {game.items().indirectKills().clear(c);c.discard();}
+            level.getBlockTicks().clearArea(bounds); level.getFluidTicks().clearArea(bounds);
             for(var e:blocks.entrySet()) {
                 if(level.getBlockEntity(e.getKey()) instanceof net.minecraft.world.Container c)c.clearContent();
                 game.maps().restoreSnapshot(level,e.getKey(),e.getValue());
             }
+            level.getBlockTicks().clearArea(bounds); level.getFluidTicks().clearArea(bounds);
+            blockTicks.forEach(level.getBlockTicks()::schedule); fluidTicks.forEach(level.getFluidTicks()::schedule);
             game.items().indirectKills().clear(alpha); game.items().indirectKills().clear(beta);
             alphaState.restore(game); betaState.restore(game);
             alpha.getStats().setValue(alpha,net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.MOB_KILLS),alphaKills);

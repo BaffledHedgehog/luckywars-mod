@@ -1,3 +1,23 @@
+## Antigravity velocity transport - QUALIFIED, AUTO INSTALL QUEUED (27 October2026)
+
+[User contract, native cause and proof](agent_notes/ANTIGRAVITY_VELOCITY_2026_10_27.md).
+Carry now uses native self motion packets only: no position packets, XYZ/look
+rewrite, teleport ACK gate, or fake player collision walls. Bounded gravity/drag/
+RTT feedback and small horizontal drag compensation retain free input. Swept
+falling contact catches already moving pieces, deep fast reports and same-packet
+transfers between pieces. Existing shared protections and attribution stay.
+Storm lasts1200active ticks (60seconds), retires after confirmed resident source
+exhaustion, and leaves flying pieces alive. No terrain force-load or RP changes.
+Buildca04e049 passed32results in2actual mode1matches (74.05s), exact517sources/
+1465classes/3221resources.175author paths/31live overrides unchanged. Persistent
+100tick native listener/wire models at0/200ms constant RTT passed; no physical
+client or arbitrary network/TPS claim. Installer PID16804 adopted this cumulative
+build instead of0a6a5f3f; running main6890ae59 updates after normal shutdown.
+Superseded0a6a5f3fready JAR removed after adoption. Retainca04e049ready, installed
+6890ae59 andc260a27drollback plus separate Polymer audit tool. Live receipt:
+`build/verification/antigravity-velocity/main-install.json`. Earlier transport and
+artifact lists below remain historical and are superseded by this entry.
+
 ## Void Arcanum eye chase and fluids - QUALIFIED, AUTO INSTALL QUEUED (27 October2026)
 
 [Author requirement, native cause and proof](agent_notes/VOID_ARCANUM_AIM_FLUIDS_2026_10_27.md).

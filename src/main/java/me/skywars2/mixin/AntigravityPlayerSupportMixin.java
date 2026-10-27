@@ -21,7 +21,7 @@ public abstract class AntigravityPlayerSupportMixin implements me.skywars2.game.
     @ModifyVariable(method="handleMovePlayer",argsOnly=true,at=@At(value="INVOKE",target=
             "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V",
             shift=At.Shift.AFTER))
-    private ServerboundMovePlayerPacket skywars2$supportedInput(ServerboundMovePlayerPacket packet) {
+    private ServerboundMovePlayerPacket skywars2$observeLanding(ServerboundMovePlayerPacket packet) {
         var game=SkyWars2.game();return game==null?packet:game.items().antigravity().supportInput(player,packet);
     }
 

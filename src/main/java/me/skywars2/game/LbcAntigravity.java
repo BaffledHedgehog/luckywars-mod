@@ -8,8 +8,8 @@ import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
-import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -22,9 +22,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MoverType;
-import net.minecraft.world.entity.PositionMoveRotation;
-import net.minecraft.world.entity.Relative;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
@@ -41,9 +38,7 @@ import java.util.Map;
 /** The finite Paper storm, driven by one shared update rather than one scheduled task per block. */
 public final class LbcAntigravity {
     public static final String ACTOR="skywars2.antigravity_block";
-    public static final int DURATION_TICKS=600;
-    /** Native teleport IDs are nonnegative; this transport never arms the server ACK gate. */
-    public static final int SUPPORT_POSITION_ID=Integer.MIN_VALUE;
+    public static final int DURATION_TICKS=1200;
     public interface PlayerTransport { boolean skywars2$hasPendingTeleport(); }
     private final GameController game;
     private final List<Storm> storms=new ArrayList<>();
@@ -51,7 +46,7 @@ public final class LbcAntigravity {
     private final List<Platform> platforms=new ArrayList<>();
     private final Map<LivingEntity,Passenger> riders=new java.util.IdentityHashMap<>();
     private record Storm(ServerLevel level,Vec3 origin,ServerPlayer author,String epoch,int[] age,
-                         List<BlockPos> columns,boolean[] indexed) { }
+                         List<BlockPos> columns) { }
     private static final class Lifted {
         final Platform platform;
         final Vec3 origin;
@@ -69,8 +64,9 @@ public final class LbcAntigravity {
     private static final class Passenger {
         final LivingEntity entity;
         final Platform platform;
-        boolean controlled,detached;
-        double appliedSpeed,localTop;
+        boolean controlled,detached,impulseApplied;
+        double appliedSpeed,localTop,landingDebt;
+        Vec3 lastImpulse;
         Passenger(LivingEntity entity,Platform platform,double top) {this.entity=entity;this.platform=platform;localTop=top-platform.offset;}
     }
     public LbcAntigravity(GameController game) { this.game=game; }
@@ -98,7 +94,7 @@ public final class LbcAntigravity {
         game.items().markCurrentItemEpoch(token);
         var origin=Vec3.atLowerCornerOf(token.blockPosition());
         var author=LbcIndirectKills.playerSource(game.items().specialDrops().owner(token));
-        var storm=new Storm(level,origin,author,game.items().epoch(),new int[1],new ArrayList<>(),new boolean[1]);
+        var storm=new Storm(level,origin,author,game.items().epoch(),new int[1],new ArrayList<>());
         storms.add(storm);
         var initial=terrain(storm,token.blockPosition());
         if(initial!=null) launch(storm,initial);
@@ -131,27 +127,34 @@ public final class LbcAntigravity {
         }
         return best;
     }
-    private static BlockPos nearbySurface(ServerLevel level,BlockPos center) {
-        if(!resident(level,center)) return null;
-        BlockPos best=null; long distance=Long.MAX_VALUE;
-        for(int x=center.getX()-1;x<=center.getX()+1;x++) for(int z=center.getZ()-1;z<=center.getZ()+1;z++) {
-            var pos=surface(level,x,z,center.getY());
-            if(pos!=null && Math.abs((long)pos.getY()-center.getY())<distance) {
-                best=center.atY(pos.getY()); distance=Math.abs((long)pos.getY()-center.getY());
-            }
-        }
-        return best;
+    private static boolean sourceColumn(Storm storm,BlockPos pos) {
+        var origin=BlockPos.containing(storm.origin);
+        return pos.getX()>=origin.getX()-16 && pos.getX()<origin.getX()+16
+                && pos.getZ()>=origin.getZ()-16 && pos.getZ()<origin.getZ()+16;
     }
     private static BlockPos terrain(Storm storm,BlockPos sampled) {
         if(resident(storm.level,sampled)) {
             for(var pos:BlockPos.betweenClosed(sampled.offset(-1,-1,-1),sampled.offset(1,1,1)))
-                if(!storm.level.isOutsideBuildHeight(pos) && storm.level.getBlockState(pos).isSolid()) return sampled;
-            var nearby=nearbySurface(storm.level,sampled);
-            if(nearby!=null) return nearby;
+                if(sourceColumn(storm,pos) && !storm.level.isOutsideBuildHeight(pos)
+                        && storm.level.getBlockState(pos).isSolid()) return sampled;
+            var pos=surface(storm.level,sampled.getX(),sampled.getZ(),sampled.getY());
+            if(pos!=null) return sampled.atY(pos.getY());
         }
-        // Build the sparse fallback only on a miss; revalidate selected columns against live terrain.
-        if(!storm.indexed[0]) {
-            storm.indexed[0]=true;
+        // Revalidate the sparse index first. A drained/stale index needs one fresh resident-column
+        // sweep: blocks may have appeared in columns which were empty when it was built.
+        boolean refreshed=false;
+        while(true) {
+            while(!storm.columns.isEmpty()) {
+                int index=storm.level.getRandom().nextInt(storm.columns.size());
+                var center=storm.columns.get(index);
+                if(resident(storm.level,center)) {
+                    var pos=surface(storm.level,center.getX(),center.getZ(),center.getY());
+                    if(pos!=null) return center.atY(pos.getY());
+                }
+                storm.columns.remove(index);
+            }
+            if(refreshed) return null; // Confirmed empty now, rather than one failed random sample.
+            refreshed=true;
             var origin=BlockPos.containing(storm.origin);
             for(int x=-16;x<16;x++) for(int z=-16;z<16;z++) {
                 var center=origin.offset(x,0,z);
@@ -159,16 +162,6 @@ public final class LbcAntigravity {
                     storm.columns.add(center);
             }
         }
-        while(!storm.columns.isEmpty()) {
-            int index=storm.level.getRandom().nextInt(storm.columns.size());
-            var center=storm.columns.get(index);
-            if(resident(storm.level,center)) {
-                var pos=surface(storm.level,center.getX(),center.getZ(),center.getY());
-                if(pos!=null) return center.atY(pos.getY());
-            }
-            storm.columns.remove(index);
-        }
-        return null;
     }
     private void launch(Storm storm,BlockPos center) {
         if(!resident(storm.level,center)) return;
@@ -225,32 +218,37 @@ public final class LbcAntigravity {
             }
             if(game.items().timeStop().stopped(storm.level))continue;
             if(platform.speed<3)platform.speed+=.04;
-            for(var passenger:platform.passengers) {
+            catchFalling(platform);
+            for(var passenger:List.copyOf(platform.passengers)) {
                 var living=passenger.entity;
                 if(passenger.detached||carried.contains(living))continue;
                 if(living.level()!=storm.level||!eligible(living)||game.items().frost().isFrozen(living)
                         ||jumping(living)||living.isPassenger()
                         ||living instanceof ServerPlayer player&&(!player.connection.hasClientLoaded()
                             ||((PlayerTransport)player.connection).skywars2$hasPendingTeleport())
-                        ||passenger.controlled&&(living.getDeltaMovement().y>passenger.appliedSpeed+.125
+                        ||passenger.impulseApplied&&(living.getDeltaMovement().y>passenger.appliedSpeed+.125
                         ||living.verticalCollision&&!living.onGround())) {
                     detach(passenger);continue;
                 }
                 double top=living instanceof ServerPlayer?playerTop(passenger,living.getBoundingBox())
                         :supportTop(living,platform,platform.offset,living.getBoundingBox());
                 double gap=living.getBoundingBox().minY-top;
-                double below=passenger.controlled?platform.speed+(living instanceof ServerPlayer?2:.5):.0625;
-                if(!Double.isFinite(top)||gap>.0625||gap< -below
+                if(passenger.landingDebt>0&&Double.isFinite(top))
+                    passenger.landingDebt=Math.min(passenger.landingDebt,Math.max(0,top-living.getBoundingBox().minY)+.25);
+                double below=passenger.controlled?belowAllowance(living,platform)+passenger.landingDebt:.0625;
+                double above=living instanceof ServerPlayer?1.5:.625;
+                if(!Double.isFinite(top)||gap>above||gap< -below
                         ||!passenger.controlled&&living.getDeltaMovement().y>platform.speed+.125) {
                     detach(passenger);continue;
                 }
                 double speed=Math.max(0,top+platform.speed-living.getBoundingBox().minY);
                 passenger.controlled=true;passenger.localTop=top-platform.offset;riders.put(living,passenger);
-                if(living instanceof ServerPlayer player)carryPlayer(player,top+platform.speed,passenger);
-                else {lift(living,speed,storm.author);passenger.appliedSpeed=speed;}
+                if(living instanceof ServerPlayer player)carryPlayer(player,top,passenger);
+                else {lift(living,speed,storm.author);passenger.appliedSpeed=speed;passenger.impulseApplied=true;}
                 carried.add(living);
                 living.addEffect(ItemEffectLevels.create(MobEffects.SLOW_FALLING,30,0,true,false,false),storm.author);
             }
+            platform.passengers.removeIf(passenger->passenger.detached);
             platform.offset+=platform.speed;
             for(var display:List.copyOf(platform.cells)) {
                 var lifted=displays.get(display);if(lifted==null)continue;
@@ -266,7 +264,7 @@ public final class LbcAntigravity {
             if(!active(storm.level,storm.epoch)){storms.remove(storm);continue;}
             if(game.items().timeStop().stopped(storm.level))continue;
             int age=++storm.age[0];
-            if(age%10==0)pulse(storm);
+            if(age%10==0 && !pulse(storm)){storms.remove(storm);continue;}
             if(age>=DURATION_TICKS)storms.remove(storm);
         }
     }
@@ -277,31 +275,89 @@ public final class LbcAntigravity {
         passenger.detached=true;
         if(riders.get(passenger.entity)==passenger)riders.remove(passenger.entity);
     }
-    private void carryPlayer(ServerPlayer player,double top,Passenger passenger) {
-        double oldY=player.getY();var motion=player.getDeltaMovement();
-        player.move(MoverType.SHULKER,new Vec3(0,top-player.getBoundingBox().minY,0));
-        if(Math.abs(player.getBoundingBox().minY-top)>1e-5){detach(passenger);return;}
-        player.setDeltaMovement(motion.x,0,motion.z);passenger.appliedSpeed=0;
-        player.setOnGround(true);player.fallDistance=0;
-        // Apply Y immediately rather than queueing full-pose entity interpolation.
-        // Do not call connection.teleport: X/Z input must never await an ACK.
-        // Relative axes retain newer local input rather than the server's old snapshot.
-        player.connection.send(new ClientboundPlayerPositionPacket(SUPPORT_POSITION_ID,
-                new PositionMoveRotation(new Vec3(0,player.getY(),0),Vec3.ZERO,0,0),
-                java.util.Set.of(Relative.X,Relative.Z,Relative.Y_ROT,Relative.X_ROT,Relative.DELTA_X,Relative.DELTA_Z)));
-        player.connection.resetPosition();player.level().getChunkSource().move(player);
-        if(passenger.platform.storm.author!=null&&player.getY()!=oldY)
-            game.items().indirectKills().displaced(player,passenger.platform.storm.author,true);
+    private static double latencyTicks(ServerPlayer player){
+        return Math.max(0,Math.min(5,player.connection.latency()/100d));
     }
-    private void pulse(Storm storm) {
+    private static double belowAllowance(LivingEntity living,Platform platform){
+        return living instanceof ServerPlayer player
+                ?Math.max(1.25,platform.speed*(latencyTicks(player)+2)+Math.abs(player.getKnownMovement().y)*latencyTicks(player)+.5)
+                :platform.speed+.625;
+    }
+    private void carryPlayer(ServerPlayer player,double top,Passenger passenger) {
+        var platform=passenger.platform;var motion=player.getDeltaMovement();var known=player.getKnownMovement();
+        double modifier=player.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.AIR_DRAG_MODIFIER);
+        double verticalDrag=net.minecraft.util.Mth.clamp(1-(1-.98)*modifier,.05,1);
+        double horizontalDrag=net.minecraft.util.Mth.clamp(1-(1-.91)*modifier,0,1);
+        // Position reports are a one-way trip old. Predict the client's current height
+        // instead of chasing that obsolete Y with a teleport or ever-larger impulse.
+        double gap=player.getBoundingBox().minY+known.y*latencyTicks(player)-top;
+        double gain=.3/(1+latencyTicks(player)*.35);
+        double catchup=Math.max(.75,Math.min(2,passenger.landingDebt*.5));
+        double feedback=net.minecraft.util.Mth.clamp((.15-gap)*gain,-.25,catchup);
+        double rise=Math.max(.01,platform.speed+feedback);
+        double compensation=net.minecraft.util.Mth.clamp(rise/verticalDrag-rise+player.getGravity(),0,.2);
+        double y=rise+compensation;
+        // Known movement is displacement before air drag. Restore a small part of
+        // that drag without accumulating our own previous impulse as fresh input.
+        double horizontal=Math.min(1,horizontalDrag*1.04);
+        Vec3 xz=new Vec3(known.x*horizontal,0,known.z*horizontal);
+        boolean external=passenger.lastImpulse==null||Math.abs(motion.x-passenger.lastImpulse.x)>1e-6
+                ||Math.abs(motion.z-passenger.lastImpulse.z)>1e-6;
+        if(external&&motion.horizontalDistanceSqr()>xz.horizontalDistanceSqr())
+            xz=new Vec3(motion.x*1.04,0,motion.z*1.04);
+        Vec3 impulse=new Vec3(xz.x,y,xz.z);
+        player.setDeltaMovement(impulse);passenger.appliedSpeed=y;passenger.lastImpulse=impulse;passenger.impulseApplied=true;
+        player.setOnGround(false);player.resetFallDistance();
+        // This is an ordinary native velocity packet. No position, rotation, ACK
+        // state or requested client coordinate is changed by moving-platform carry.
+        player.connection.send(new ClientboundSetEntityMotionPacket(player.getId(),impulse));
+        if(platform.storm.author!=null)game.items().indirectKills().displaced(player,platform.storm.author,true);
+    }
+    /** A falling body can land after launch; contact is a swept relative crossing. */
+    private void catchFalling(Platform platform){
+        AABB area=null;
+        for(var display:platform.cells){var cell=displays.get(display);if(cell==null)continue;
+            for(var shape:cell.surfaces){var box=shape.move(cell.origin.add(0,platform.offset,0));area=area==null?box:area.minmax(box);}}
+        if(area==null)return;
+        for(var living:platform.storm.level.getEntitiesOfClass(LivingEntity.class,area.inflate(.5,12,.5),this::eligible)){
+            if(riders.containsKey(living)||!admissible(living)
+                    ||platform.passengers.stream().anyMatch(p->p.entity==living&&!p.detached))continue;
+            var movement=living instanceof ServerPlayer player?player.getKnownMovement():living.getDeltaMovement();
+            if(movement.y>=-.001)continue;
+            var before=living.getBoundingBox();
+            var after=before.move(movement.x,Math.max(-12,movement.y),movement.z);
+            admitCrossing(living,platform,before,after,platform.offset,platform.offset+platform.speed);
+        }
+    }
+    private boolean admissible(LivingEntity living){
+        return eligible(living)&&!game.items().frost().isFrozen(living)&&!jumping(living)&&!living.isPassenger()
+                &&(!(living instanceof ServerPlayer player)||player.connection.hasClientLoaded()
+                    &&!((PlayerTransport)player.connection).skywars2$hasPendingTeleport());
+    }
+    private void admitCrossing(LivingEntity living,Platform platform,AABB before,AABB after,double oldOffset,double newOffset){
+        if(riders.containsKey(living)||!admissible(living))return;
+        double top=supportTop(platform,newOffset,after,Double.POSITIVE_INFINITY);
+        double oldTop=top-(newOffset-oldOffset);
+        if(!Double.isFinite(top)||before.minY<oldTop-.0625||after.minY>top+.0625
+                ||after.minY-before.minY>=newOffset-oldOffset)return;
+        double liveTop=top+platform.offset-newOffset;
+        var passenger=new Passenger(living,platform,liveTop);passenger.controlled=true;
+        // A fast fall can cross a whole block between two accepted position reports.
+        // Retain that measured contact debt until velocity naturally recovers the surface.
+        passenger.landingDebt=Math.min(16,Math.max(0,liveTop-after.minY)+.25);
+        platform.passengers.add(passenger);riders.put(living,passenger);
+        living.resetFallDistance();
+    }
+    private boolean pulse(Storm storm) {
         var random=storm.level.getRandom();
         var at=storm.origin.add(random.nextDouble()*32-16,0,random.nextDouble()*32-16);
         var center=terrain(storm,BlockPos.containing(at));
-        if(center==null) return; // An empty loaded footprint cannot produce a platform or entity-only pulse.
+        if(center==null) return false; // Retire the center; already flying platforms keep their own lifecycle.
         launch(storm,center);
         at=new Vec3(center.getX()+at.x-Math.floor(at.x),center.getY(),center.getZ()+at.z-Math.floor(at.z));
         storm.level.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE,at.x+.5,at.y+1,at.z+.5,25,1,1,1,0);
         sound(storm.level,at,SoundEvents.PARROT_FLY); sound(storm.level,at,SoundEvents.STONE_BREAK);
+        return true;
     }
     private double supportTop(LivingEntity living,Platform platform,double offset,AABB feet) {
         return supportTop(platform,offset,feet,living.getBoundingBox().minY+Math.max(.0625,living.maxUpStep())+1e-6);
@@ -331,15 +387,18 @@ public final class LbcAntigravity {
         var rider=riders.get(living);
         if(rider==null||rider.detached||!rider.controlled||!platforms.contains(rider.platform)
                 ||living.level()!=rider.platform.storm.level||!eligible(living)||jumping(living)
-                ||living.isPassenger()||!active(rider.platform.storm.level,rider.platform.storm.epoch))return false;
+                ||living.isPassenger()||game.items().frost().isFrozen(living)||!active(rider.platform.storm.level,rider.platform.storm.epoch))return false;
         double top=living instanceof ServerPlayer?playerTop(rider,living.getBoundingBox())
                 :supportTop(living,rider.platform,rider.platform.offset,living.getBoundingBox());
-        return Double.isFinite(top)&&Math.abs(living.getBoundingBox().minY-top)
-                <=(living instanceof ServerPlayer?rider.platform.speed+2:.625);
+        double gap=living.getBoundingBox().minY-top;
+        return Double.isFinite(top)&&gap<=(living instanceof ServerPlayer?1.5:.625)
+                &&gap>=-belowAllowance(living,rider.platform)-rider.landingDebt;
     }
     /** Add real server collision surfaces only for admitted riders, preserving native terrain. */
     public List<VoxelShape> collisions(Entity entity,AABB area,List<VoxelShape> original) {
-        if(!supported(entity))return original;
+        // Displays have no client collision. Server-only walls would reject free X/Z
+        // movement from delayed player reports; their support is exclusively velocity.
+        if(entity instanceof ServerPlayer||!supported(entity))return original;
         var platform=riders.get((LivingEntity)entity).platform;List<VoxelShape> out=null;
         for(var display:platform.cells) {
             var cell=displays.get(display);if(cell==null||display.isRemoved())continue;
@@ -350,19 +409,27 @@ public final class LbcAntigravity {
         }
         return out==null?original:out;
     }
-    /** Delayed client Y must not trigger a vanilla correction back through an externally rising floor. */
+    /** Observe falling contact without rewriting any coordinate or rotation in the packet. */
     public ServerboundMovePlayerPacket supportInput(ServerPlayer player,ServerboundMovePlayerPacket packet) {
-        var rider=riders.get(player);
-        if(rider==null||!supported(player)||!packet.hasPosition())return packet;
-        double x=packet.getX(player.getX()),z=packet.getZ(player.getZ()),y=packet.getY(player.getY());
+        if(!packet.hasPosition()||!admissible(player))return packet;
+        double x=packet.getX(player.getX()),y=packet.getY(player.getY()),z=packet.getZ(player.getZ());
         if(!Double.isFinite(x)||!Double.isFinite(y)||!Double.isFinite(z))return packet;
-        var feet=player.getBoundingBox().move(x-player.getX(),0,z-player.getZ());
-        double top=playerTop(rider,feet);
-        if(!Double.isFinite(top)){detach(rider);return packet;}
-        if(y>top+.0625)return packet;
-        rider.localTop=top-rider.platform.offset;
-        return new ServerboundMovePlayerPacket.PosRot(x,top,z,packet.getYRot(player.getYRot()),
-                packet.getXRot(player.getXRot()),true,packet.horizontalCollision());
+        var rider=riders.get(player);
+        var before=player.getBoundingBox();var after=before.move(x-player.getX(),y-player.getY(),z-player.getZ());
+        if(rider!=null){
+            if(supported(player)&&Double.isFinite(playerTop(rider,after)))return packet;
+            detach(rider); // The same descending report may land on another moving piece.
+        }
+        if(y>=player.getY()-.001)return packet;
+        double lag=latencyTicks(player);
+        for(var platform:platforms){
+            if(platform.storm.level!=player.level()||!active(platform.storm.level,platform.storm.epoch)
+                    ||game.items().timeStop().stopped(platform.storm.level))continue;
+            double current=platform.offset-platform.speed*lag;
+            admitCrossing(player,platform,before,after,current-platform.speed,current);
+            if(riders.containsKey(player))break;
+        }
+        return packet;
     }
     private void lift(LivingEntity living,double speed,ServerPlayer author) {
         if(game.items().frost().isFrozen(living)) return;
