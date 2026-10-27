@@ -91,6 +91,7 @@ public final class HazardPropagationMixins {
                 entities.removeIf(entity->!game.items().transformator().canAffect(source,entity));
                 entities.removeIf(entity->!game.items().tntDrops().explosionTarget(source,entity));
                 entities.removeIf(entity->!game.items().creeperDrops().explosionTarget(source,entity));
+                entities.removeIf(entity->!game.items().inventoryHazards().explosionTarget(source,entity));
                 entities.removeIf(me.skywars2.game.LbcGreed::active);
                 entities.removeIf(entity->!game.items().cageDrops().canAffect(source,entity));
                 entities.removeIf(entity->!game.items().zombieTntDrops().canAffect(source,entity));
@@ -189,6 +190,7 @@ public final class HazardPropagationMixins {
             var source=explosion.getDirectSourceEntity(); var game=SkyWars2.game();
             if(game!=null) {
                 game.items().tntDrops().inheritChain(source,spawned);
+                game.items().inventoryHazards().inheritChild(source,spawned);
                 game.items().creeperDrops().inheritChild(source,spawned);
                 game.items().cageDrops().inheritChild(source,spawned);
                 game.items().zombieTntDrops().inheritChild(source,spawned);

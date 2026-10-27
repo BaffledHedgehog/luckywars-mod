@@ -1,3 +1,49 @@
+## Inventory hazards - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
+
+[Port contract](INVENTORY_HAZARDS_PORT_2026_10_27.md), [complete source](INVENTORY_HAZARDS_SOURCE_2026_10_27.md),
+[damage tags](LIQUID_ABYSS_DAMAGE_2026_10_27.md), [real acquisition](LIQUID_ABYSS_ACQUISITION_2026_10_27.md),
+[independent production review](INVENTORY_HAZARDS_REVIEW_2026_10_27.md).
+Liquid Abyss now runs its exact40-tick inventory passive with two independent
+container/hand probes, full native clear0 count, saturating scale4, original
+outside-border type, shared void resistance and skill2/current/legacy guards.
+Actual Academy-marked ordinary Consuming trial emits28 native Void Men; a real
+accepted native death supplies the original Liquid Abyss item and presentation.
+
+All six carried bomb variants now include native pickup from existing tracked
+producers, optional actual creator/epoch metadata, source1..6 ordering and broad
+clear1 removal. Feedback retains the captured original function position through
+horse teleport. Native zero-motion fuse2 TNT, WILD holy lightning, bounded
+multicast and native chains preserve current authority, default other-allies,
+self-source admission, Greed, role/Time Stop and epoch/stop cleanup. Ordinary
+enemy Cultus contact remains qualified. Serialized orphan chain actors discard.
+The wider Armored Inventory perk remains unexposed. Its source audit corrects
+an earlier Electroblocker omission: that common branch stays active under skill2.
+
+Buildb8cb2647 passed88 suite results,8 preparation and2 setup/cleanup
+results in two actual mode1 matches (171.23s). Exact474sources /
+1339classes /3168resources match the tested JAR. Native scheduled40tick
+and fuse2 boundaries, actual source pickup/death/drop and reflected TNT against
+an independent owned-TNT same-team control pass. Shared ordinary accessories,
+melee, grimoires, signed effects, Time Stop, FOV and firearm regressions pass.
+Three rejected fixture assumptions retain their logs/cause evidence; production
+stayed unchanged. All children stopped/restored normally. This does not claim
+full trial meditation terrain again, physical client pixels/audio, latency or
+peakTPS. No RP update. TPS compensation remains feasibility-only.
+
+Installer11424 adoptedb8cb2647 and waits for normal main shutdown/world unlock
+(24566, RCON off). Main disk remains1a8a3825; no forced stop/restart. Ready:
+build/verification/skywars2-inventory-hazards-b8cb2647.jar. Evidence/live receipts:
+build/verification/inventory-hazards/. Keepb8cb2647,726e2521 and installed1a8a3825;
+obsolete1e980f2c retired. Cumulative339JARs /12143586617bytes. All175 protected
+author paths and31 live grimoire overrides remain byte-exact.
+
+Next finite item: [Canned Food complete11-way source](CANNED_FOOD_SOURCE_2026_10_27.md),
+preparation only. Verify actual live acquisition and native instantaneous food
+clock/probe behavior before enabling its full consumer. Whole unresolved pools,
+Infinity/Nexus/Eternal Wealth and Touhou remain unfinished. Author choices stay
+in [PENDING_QUESTIONS.md](PENDING_QUESTIONS.md), with no questions sent in chat.
+These notes supersede historical remaining-work lists below.
+
 ## Ordinary accessories - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
 
 [Port contract](ORDINARY_ACCESSORY_PORT_2026_10_27.md), [source closure](ACCESSORY_REMAINING_SOURCE_2026_10_27.md),

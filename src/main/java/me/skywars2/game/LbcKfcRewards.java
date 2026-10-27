@@ -236,7 +236,19 @@ public final class LbcKfcRewards {
             // Native item pickup requires room. Restrict inspection to the contacting player's inventory.
             boolean room=target.getInventory().getFreeSlot()>=0 || target.getInventory().contains(stack->
                     ItemStack.isSameItemSameComponents(stack,getItem()) && stack.getCount()<stack.getMaxStackSize());
-            if(room) activate(this,target);
+            if(!room)return;
+            boolean armored=game.config().lbcSkills&&game.players().get(target.getUUID()).lbcSkill==2;
+            if(!armored&&activate(this,target))return;
+            // The source player route is native pickup followed by inventory dispatch. Keep successful contact intact.
+            if(!game.canUseGameplayItems(target)||target.level()!=game.maps().level()
+                    ||!game.items().wands().validRoleTarget(target,false)||target.entityTags().contains("no_penis")
+                    ||game.items().wands().inputTimeStopped(target)||game.items().timeStop().stopped(target.level()))return;
+            var state=bombs.get(this);if(state==null||!game.items().currentEpoch(state.epoch))return;
+            var stack=getItem();var original=stack.get(DataComponents.CUSTOM_DATA);int before=stack.getCount();
+            LbcInventoryHazards.recordProducer(stack,state.owner,state.epoch);
+            super.playerTouch(player);
+            // Failed native insertion must not rewrite an untouched tracked item's presentation.
+            if(!isRemoved()&&stack.getCount()==before){if(original==null)stack.remove(DataComponents.CUSTOM_DATA);else stack.set(DataComponents.CUSTOM_DATA,original);}
         }
     }
     public ServerPlayer owner(Entity entity) {
@@ -260,30 +272,19 @@ public final class LbcKfcRewards {
     }
     private void effect(LivingEntity owner,LivingEntity victim,int variant) {
         var level=(ServerLevel)victim.level(); var at=victim.position();
-        String[] keys={"normal","dirty","nigger","holy","horse","multi"};
-        ChatFormatting[] colors={ChatFormatting.LIGHT_PURPLE,ChatFormatting.DARK_RED,ChatFormatting.DARK_GRAY,
-                ChatFormatting.WHITE,ChatFormatting.LIGHT_PURPLE,ChatFormatting.GRAY};
-        if(victim instanceof ServerPlayer) {
-            var text=Component.literal("").append(victim.getDisplayName()).append(Component.translatable("love_"+keys[variant-1]+"_penis"));
-            if(variant==1) text.withStyle(style->style.withColor(0xE921FF));
-            else if(variant==2) text.withStyle(style->style.withColor(0x5C2A0E)); else text.withStyle(colors[variant-1]);
-            game.announce(text);
-        }
+        announcement(victim,variant,false);
         switch(variant) {
-            case 1 -> { damage(owner,victim,6); level.sendParticles(ParticleTypes.CLOUD,at.x,at.y+1,at.z,10,2,2,2,.1); }
+            case 1 -> { damage(owner,victim,6); bombParticles(level,at,1); }
             case 2 -> {
-                victim.addEffect(ItemEffectLevels.create(MobEffects.SLOWNESS,160,5,false,false),owner);
-                victim.addEffect(ItemEffectLevels.create(MobEffects.WEAKNESS,80,5,false,false),owner);
-                victim.addEffect(ItemEffectLevels.create(MobEffects.NAUSEA,120,5,false,false),owner);
+                bombEffects(owner,victim,variant);
                 damage(owner,victim,4);
-                level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.DIRT.defaultBlockState()),at.x,at.y+1,at.z,100,.2,.2,.2,1);
+                bombParticles(level,at,2);
             }
             case 3 -> {
                 game.items().exasperato().protectedBlast(owner,level,at,4,null);
             }
             case 4 -> {
-                victim.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,160,1,false,false),owner);
-                victim.addEffect(ItemEffectLevels.create(MobEffects.LEVITATION,20,15,false,false),owner);
+                bombEffects(owner,victim,variant);
                 LightningBolt bolt;
                 if(owner instanceof ServerPlayer player) bolt=game.items().electro().lightning(player,at);
                 else {
@@ -296,21 +297,52 @@ public final class LbcKfcRewards {
                     bolt.entityTags().remove(LbcElectro.SHOCK_BOLT);
                     game.items().markCurrentItemEpoch(bolt); if(owner instanceof ServerPlayer) owned.put(bolt,owner.getUUID());
                 }
-                level.sendParticles(ColorParticleOption.create(ParticleTypes.FLASH,0xFFFFFFCC),at.x,at.y+1,at.z,100,2,2,2,1);
+                bombParticles(level,at,4);
             }
             case 5 -> {
                 String effectEpoch=game.items().epoch();
-                victim.addEffect(ItemEffectLevels.create(MobEffects.SLOWNESS,20,127,false,false),owner); damage(owner,victim,10);
+                bombEffects(owner,victim,variant); damage(owner,victim,10);
                 if(!victim.isAlive() || !game.items().currentEpoch(effectEpoch) || game.stage()==GameController.Stage.ENDING) return;
                 var destination=at.add(victim.getLookAngle().scale(-5)).add(0,5,0);
                 if(owner instanceof ServerPlayer player) game.items().indirectKills().displaced(victim,player);
                 victim.teleportTo(destination.x,destination.y,destination.z);
                 at=victim.position();
-                level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.REDSTONE_BLOCK.defaultBlockState()),at.x,at.y+1,at.z,100,2,2,2,1);
+                bombParticles(level,at,5);
             }
-            case 6 -> { multicast(owner,victim); level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.WOOL.pick(net.minecraft.world.item.DyeColor.WHITE).defaultBlockState()),at.x,at.y+1,at.z,100,2,2,2,1); }
+            case 6 -> { multicast(owner,victim); bombParticles(level,at,6); }
             default -> throw new IllegalArgumentException("Unknown cultus variant "+variant);
         }
+        bombSound(owner,level,at,variant);
+    }
+    /** Common visuals only: the inventory dispatcher keeps its own source admission and command ordering. */
+    void announcement(LivingEntity victim,int variant,boolean inventory) {
+        String[] keys={"normal","dirty","nigger","holy","horse","multi"};
+        ChatFormatting[] colors={ChatFormatting.LIGHT_PURPLE,ChatFormatting.DARK_RED,ChatFormatting.DARK_GRAY,
+                ChatFormatting.WHITE,ChatFormatting.LIGHT_PURPLE,ChatFormatting.GRAY};
+        if(victim instanceof ServerPlayer) {
+            var suffix=Component.translatable("love_"+keys[variant-1]+"_penis");
+            if(inventory){if(variant==1)suffix.withStyle(style->style.withColor(0xE921FF));else if(variant==2)suffix.withStyle(style->style.withColor(0x5C2A0E));else suffix.withStyle(colors[variant-1]);}
+            var text=Component.literal("").append(victim.getDisplayName()).append(suffix);
+            if(!inventory){if(variant==1)text.withStyle(style->style.withColor(0xE921FF));else if(variant==2)text.withStyle(style->style.withColor(0x5C2A0E));else text.withStyle(colors[variant-1]);}
+            game.announce(text);
+        }
+    }
+    static void bombEffects(LivingEntity owner,LivingEntity victim,int variant) {
+        switch(variant) {
+            case 2 -> {victim.addEffect(ItemEffectLevels.create(MobEffects.SLOWNESS,160,5,false,false),owner);victim.addEffect(ItemEffectLevels.create(MobEffects.WEAKNESS,80,5,false,false),owner);victim.addEffect(ItemEffectLevels.create(MobEffects.NAUSEA,120,5,false,false),owner);}
+            case 4 -> {victim.addEffect(ItemEffectLevels.create(MobEffects.BLINDNESS,160,1,false,false),owner);victim.addEffect(ItemEffectLevels.create(MobEffects.LEVITATION,20,15,false,false),owner);}
+            case 5 -> victim.addEffect(ItemEffectLevels.create(MobEffects.SLOWNESS,20,127,false,false),owner);
+        }
+    }
+    static void bombParticles(ServerLevel level,Vec3 at,int variant) {
+        switch(variant) {
+            case 1 -> level.sendParticles(ParticleTypes.CLOUD,at.x,at.y+1,at.z,10,2,2,2,.1);
+            case 2 -> level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,Blocks.DIRT.defaultBlockState()),at.x,at.y+1,at.z,100,.2,.2,.2,1);
+            case 4 -> level.sendParticles(ColorParticleOption.create(ParticleTypes.FLASH,0xFFFFFFCC),at.x,at.y+1,at.z,100,2,2,2,1);
+            case 5,6 -> level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,(variant==5?Blocks.REDSTONE_BLOCK:Blocks.WOOL.pick(net.minecraft.world.item.DyeColor.WHITE)).defaultBlockState()),at.x,at.y+1,at.z,100,2,2,2,1);
+        }
+    }
+    static void bombSound(LivingEntity owner,ServerLevel level,Vec3 at,int variant) {
         String[] sounds={"suction","dick_1","spank","woo","shityeah","weewee"};
         if(owner instanceof ServerPlayer player) LbcOverload.sound(player,at,"minecraft:lbcsounds."+sounds[variant-1],1,1,0);
         else {

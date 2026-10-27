@@ -74,6 +74,10 @@ public final class ElectroNativeMixins {
             source=new DamageSource(type,bolt,cause==null ? bolt.getCause() : cause);
             boolean applied=original.call(target,level,source,amount);
             var game=SkyWars2.game();
+            if(game!=null && target instanceof LivingEntity living) {
+                var carried=game.items().inventoryHazards().cause(bolt);
+                if(carried!=null) game.items().indirectKills().inheritedIgnited(living,carried);
+            }
             if(game!=null && bolt.getCause()!=null && target instanceof LivingEntity living)
                 {
                     var inherited=game.items().babylonEffects().cause(bolt);
@@ -115,7 +119,8 @@ public final class ElectroNativeMixins {
             if(game==null || source.getDirectEntity()==null) return source;
             LivingEntity owner=game.items().electro().reflectedOwner(source.getDirectEntity());
             if(owner==null) owner=game.items().cageDrops().owner(source.getDirectEntity());
-            return owner==null || source.getEntity()==owner ? source : new DamageSource(source.typeHolder(),source.getDirectEntity(),owner);
+            if(owner!=null) return source.getEntity()==owner ? source : new DamageSource(source.typeHolder(),source.getDirectEntity(),owner);
+            return game.items().inventoryHazards().inheritSource(source);
         }
     }
 }

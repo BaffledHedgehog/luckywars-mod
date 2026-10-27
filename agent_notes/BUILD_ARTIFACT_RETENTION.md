@@ -202,3 +202,16 @@ Exact qualification, live installer and cleanup receipt:
 rejected-focus/source evidence and native audit tools remain. All175 protected
 author paths and31 live grimoire overrides are byte-exact. No main restart was
 forced. The auxiliary Polymer audit JAR is not a retained mod version.
+
+
+## Inventory hazards qualified27 October2026
+
+Buildb8cb2647 passed88 results in two actual mode1 matches (171.23s), with
+8preparation and2setup/cleanup results. Keep inventory-hazardsb8cb2647, previous
+ordinary-accessories726e2521 and exact installed signed-effects1a8a3825 rollback.
+Removed only obsolete Pop-It1e980f2c,39,910,996bytes, after exact literal parent,
+non-reparse, hash, size and mtime checks. Cumulative cleanup339JARs,
+12,143,586,617bytes. Current build inputs, auxiliary network audit JAR, evidence,
+worlds and caches remain. Installer11424 adopted the new immutable qualification
+and waits for normal shutdown; main JAR stayed1a8a3825. No forced restart.
+Receipt: `build/verification/inventory-hazards/build-cleanup-receipt.json`.

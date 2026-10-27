@@ -202,6 +202,7 @@ public final class LbcItems {
     private final LbcTraveller traveller;
     private final LbcPopit popit;
     private final LbcOrdinaryAccessories ordinaryAccessories;
+    private final LbcInventoryHazards inventoryHazards;
     private final LbcSheep sheep;
     private final LbcHedgehog hedgehog;
     private final LbcGodHedgehog godHedgehog;
@@ -779,6 +780,7 @@ public final class LbcItems {
         this.traveller = new LbcTraveller(game);
         this.popit = new LbcPopit(game);
         this.ordinaryAccessories = new LbcOrdinaryAccessories(game);
+        this.inventoryHazards = new LbcInventoryHazards(game);
         this.sheep = new LbcSheep(game,mana);
         this.hedgehog = new LbcHedgehog(game,mana);
         this.godHedgehog = new LbcGodHedgehog(game);
@@ -882,6 +884,7 @@ public final class LbcItems {
                         && currentEpoch(source.getDirectEntity()))
                 && (!(victim instanceof ServerPlayer player) || game.allowDamage(player))
                 && wands.allowDamage(victim,source) && kfcRewards.allowDamage(victim,source)
+                && inventoryHazards.allowDamage(victim,source)
                 && helicopterEncounter.allowDamage(victim,source) && tntDrops.allowDamage(victim,source) && creeperDrops.allowDamage(victim,source) && zombieTntDrops.canAffect(source.getDirectEntity(),victim)
                 && transformator.canAffect(source.getDirectEntity(),victim)
                 && godHedgehog.canAffect(source.getDirectEntity(),victim)
@@ -963,6 +966,7 @@ public final class LbcItems {
     public LbcTraveller traveller() { return traveller; }
     public LbcPopit popit() { return popit; }
     public LbcOrdinaryAccessories ordinaryAccessories() { return ordinaryAccessories; }
+    public LbcInventoryHazards inventoryHazards() { return inventoryHazards; }
     public LbcSheep sheep() { return sheep; }
     public LbcHedgehog hedgehog() { return hedgehog; }
     public LbcGodHedgehog godHedgehog() { return godHedgehog; }
@@ -1037,6 +1041,7 @@ public final class LbcItems {
         droneDrops.loaded(entity);
         antDrops.loaded(entity);
         tntDrops.loaded(entity);
+        inventoryHazards.loaded(entity);
         creeperDrops.loaded(entity);
         cageDrops.loaded(entity);
         zombieTntDrops.loaded(entity);
@@ -1196,6 +1201,7 @@ public final class LbcItems {
         transformator.unloaded(entity);
         stalin.unloaded(entity);
         kfcRewards.entityUnloaded(entity);
+        inventoryHazards.unloaded(entity);
         magic.unloaded(entity);
         frost.unloaded(entity);
         clouds.unloaded(entity);
@@ -1605,6 +1611,7 @@ public final class LbcItems {
         consuming.tick();
         traveller.tick();
         ordinaryAccessories.tick();
+        inventoryHazards.tick();
         enderWiki.tick();
         prism.tick();
         awakenedAcid.tick();
@@ -1768,6 +1775,7 @@ public final class LbcItems {
         blaze.forget(player);
         kfcFood.forget(player);
         kfcRewards.clear(player);
+        inventoryHazards.forget(player);
         indirectKills.clear(player);
         mana.forget(player);
         magic.clear(player);
@@ -1818,6 +1826,7 @@ public final class LbcItems {
         blaze.stop();
         traveller.stop();
         ordinaryAccessories.stop();
+        inventoryHazards.stop();
         psycho.stop();
         syringe.stop();
         communism.stop();

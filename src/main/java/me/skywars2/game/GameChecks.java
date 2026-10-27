@@ -778,6 +778,7 @@ public final class GameChecks {
                                 case "traveller" -> { TravellerChecks.run(game); return; }
                                 case "popit" -> { PopitChecks.run(game); return; }
                                 case "ordinary-accessories" -> { OrdinaryAccessoryChecks.run(game); return; }
+                                case "inventory-hazards" -> { InventoryHazardChecks.run(game); return; }
                                 case "late-swords" -> { LateSwordChecks.run(game); return; }
                                 case "late-swords-stop-probe" -> { LateSwordChecks.stopProbe(game); return; }
                                 case "late-swords-cleanup" -> { LateSwordChecks.cleanup(game); return; }
@@ -1286,6 +1287,7 @@ public final class GameChecks {
             TravellerChecks.tick(game);
             PopitChecks.tick(game);
             OrdinaryAccessoryChecks.tick(game);
+            InventoryHazardChecks.tick(game);
             MapLightingChecks.tick(game);
             EffectTerrainChecks.tick(game);
             DanmakuChecks.tick(game);
@@ -9477,7 +9479,8 @@ public final class GameChecks {
                 var saved=new WandThirdPlayerState(owner,game.items().mana()); var targetSaved=new WandThirdPlayerState(target,game.items().mana()); var rewards=game.items().kfcRewards();
                 var oldEntities=new java.util.HashSet<>(kfcEntities(game)); var cows=new java.util.ArrayList<net.minecraft.world.entity.animal.cow.Cow>();
                 int oldTargetSkill=game.players().get(target.getUUID()).lbcSkill;
-                Runnable cleanup=()-> { game.players().get(target.getUUID()).lbcSkill=oldTargetSkill; target.entityTags().remove("strict_map_object"); target.entityTags().remove("spectator");
+                boolean oldSkillsEnabled=game.config().lbcSkills;
+                Runnable cleanup=()-> { game.config().lbcSkills=oldSkillsEnabled; game.players().get(target.getUUID()).lbcSkill=oldTargetSkill; target.entityTags().remove("strict_map_object"); target.entityTags().remove("spectator");
                         rewards.stop(); game.items().indirectKills().clear(target); for(var cow:cows) game.items().indirectKills().clear(cow);
                         for(var entity:kfcEntities(game)) if(!oldEntities.contains(entity)) entity.discard(); saved.restore(game); targetSaved.restore(game); };
                 boolean pending=false;
@@ -9498,7 +9501,10 @@ public final class GameChecks {
                         try {
                                 board.addPlayerToTeam(owner.getScoreboardName(),team); board.addPlayerToTeam(target.getScoreboardName(),team);
                                 var alliedBomb=rewards.spawnBomb(owner,target.position(),1); alliedBomb.setPickUpDelay(0); alliedBomb.playerTouch(target);
-                                require(!alliedBomb.isRemoved() && target.getHealth()==1000,"Native Cultus contact does not activate on teammates");
+                                require(alliedBomb.isRemoved() && target.getHealth()==1000
+                                                && target.getInventory().contains(stack->LbcFartus.data(stack).getIntOr("penis_num",0)==1),
+                                        "Native Cultus teammate contact performs normal pickup without activating the hostile payload");
+                                target.getInventory().clearContent();
                         } finally {
                                 board.removePlayerFromTeam(owner.getScoreboardName()); board.removePlayerFromTeam(target.getScoreboardName());
                                 if(ownerTeam!=null) board.addPlayerToTeam(owner.getScoreboardName(),ownerTeam);
@@ -9506,6 +9512,9 @@ public final class GameChecks {
                                 board.removePlayerTeam(team); rewards.clear(owner);
                         }
                         game.players().get(target.getUUID()).lbcSkill=2;
+                        // InventoryHazardChecks separately proves the source skill2 safe-pickup path.
+                        // With skills disabled, the existing enemy contact payload remains unchanged.
+                        game.config().lbcSkills=false;
                         var first=rewards.spawnBomb(owner,target.position(),1); first.setPickUpDelay(0); float hp=target.getHealth(); first.playerTouch(target);
                         require(first.isRemoved() && target.getHealth()==hp-6 && target.getKillCredit()==owner,"Native playerTouch activates variant1, deals6 owned arrow damage and removes item: hp="+hp+" -> "+target.getHealth()+", armor="+target.getArmorValue()+", removed="+first.isRemoved()+", credit="+target.getKillCredit());
                         for(int variant=2;variant<=5;variant++) {

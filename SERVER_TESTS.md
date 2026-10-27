@@ -5986,3 +5986,25 @@ warning recurred; no final suite failed. No actual client pixels, disk restart/
 unload/disconnect, full natural trajectory or peak-capacity benchmark claim.
 Installed main while stopped; rollback20210f2b retained; main not started.
 Three user-owned source files preserved and excluded from commit.
+
+
+## Inventory hazards - qualified27 October2026
+
+Run `python tools/smoke_inventory_hazards.py --server-dir build/verification/key-reuse-server`.
+Buildb8cb2647:88 recorded suite results +8preparation +2setup/cleanup, two actual
+mode1 matches,171.23s. Exact474sources /1339classes /3168resources match.
+Real Academy trial28 ->native accepted Void Man death ->actual Liquid Abyss
+loot, full40tick passive/scopes/guards, all6carried bomb payloads, actual native
+pickup/provenance and Greed, zero-motion fuse2/native chains/reflected-author
+control/holy WILD/multicast cleanup pass. Existing contact Cultus and shared
+ordinary accessories/melee/grimoires/signed effects/Time Stop/FOV/firearms pass.
+Only newly queued meditation terrain Work is cancelled in this acquisition
+boundary; no repeat full meditation-terrain or physical client/TPS claim.
+
+Three rejected fixture assumptions and exact native policy controls remain in
+build/verification/inventory-hazards/attempt1..3; no production changes were
+needed for those fixes. Focus passed before full same-candidate qualification.
+All children stopped normally and restored exact snapshots. Immutable evidence:
+`build/verification/inventory-hazards/qualification-b8cb2647.json`.
+Installer11424 adopted the artifact, waits for normal shutdown; main1a8a3825
+unchanged. No RP update;175author paths and31live overrides byte-exact.

@@ -148,6 +148,8 @@ public final class LbcIndirectKills {
         var game=me.skywars2.SkyWars2.game();
         if(game!=null && game.items().cageDrops().owner(source) instanceof ServerPlayer player) return player;
         if(game!=null && game.items().clouds().sourceAcidOwner(source) instanceof ServerPlayer player) return player;
+        if(game!=null && game.items().electro().reflectedOwner(source)==null
+                && game.items().inventoryHazards().owner(source) instanceof ServerPlayer player) return player;
         if(source instanceof Projectile projectile) source=projectile.getOwner();
         if(source instanceof AreaEffectCloud cloud) source=cloud.getOwner();
         if(source instanceof PrimedTnt tnt) source=tnt.getOwner();
@@ -601,6 +603,10 @@ public final class LbcIndirectKills {
     public Owner babylonCause(DamageSource source) {
         if (source instanceof CapturedDamage captured) return captured.cause;
         if (source instanceof LbcBabylonEffects.OwnerDamageSource owned) return owned.cause;
+        if(source.getEntity()==null && game.items().electro().reflectedOwner(source.getDirectEntity())==null) {
+            var carried=game.items().inventoryHazards().cause(source.getDirectEntity());
+            if(carried!=null) return carried;
+        }
         var trialCause=SauvojenMeditation.cause(source.getDirectEntity());
         if(trialCause!=null)return trialCause;
         var bossCause=game.items().godHedgehog().cause(source.getDirectEntity());
