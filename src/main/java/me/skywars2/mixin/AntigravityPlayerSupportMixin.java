@@ -13,8 +13,10 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ServerGamePacketListenerImpl.class)
-public abstract class AntigravityPlayerSupportMixin {
+public abstract class AntigravityPlayerSupportMixin implements me.skywars2.game.LbcAntigravity.PlayerTransport {
     @Shadow public ServerPlayer player;
+    @Shadow private net.minecraft.world.phys.Vec3 awaitingPositionFromClient;
+    @Override public boolean skywars2$hasPendingTeleport() { return awaitingPositionFromClient!=null; }
 
     @ModifyVariable(method="handleMovePlayer",argsOnly=true,at=@At(value="INVOKE",target=
             "Lnet/minecraft/network/protocol/PacketUtils;ensureRunningOnSameThread(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketListener;Lnet/minecraft/server/level/ServerLevel;)V",

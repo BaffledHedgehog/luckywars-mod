@@ -1,3 +1,23 @@
+## Antigravity input and floor repair - QUALIFIED, AUTO INSTALL QUEUED (27 October2026)
+
+[Cause, transport, native proof and limits](ANTIGRAVITY_INPUT_FIX_2026_10_27.md).
+Self entity teleports interpolated full poses, causing floor lag and camera/input
+interference. Lift now sends immediate relative-axis player-position packets
+without arming native ACK gating, and anchors admitted players to the captured
+top instead of a delayed lower layer. Genuine pending teleports detach safely.
+Native client stopDestroyBlock/onTeleport is unavoidable for this packet: mining
+on the moving piece may interrupt. Earlier no-mining-reset claims are superseded.
+
+Build7a747d86 passed32 results in2actual mode1 matches (60.42s), including100
+persistent native listener/client ticks per support fixture, staleY/XZ/look,
+out-of-order ACKs, full-block stacked-floor repair, genuine teleport isolation,
+full30second storm and actual-stop/shared regressions. Exact506sources/1444classes/
+3215resources; all175protected author paths and31live overrides unchanged. No RP.
+Automatic installation supersedes map-only8624ee1c and waits for running main
+735d9905 to stop normally; no forced stop/restart. Keep current ready, previous
+map build and installed rollback; obsolete16502e73/25d7466b/0c952772 cleanup follows
+verified install. No physical-client frames or peakTPS claim.
+
 ## Map capacity and unused template references - QUALIFIED, AUTO INSTALL QUEUED (27 October2026)
 
 [Author clarification, behavior and evidence](MAP_CAPACITY_FIX_2026_10_27.md).

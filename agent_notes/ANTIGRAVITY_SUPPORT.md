@@ -1,3 +1,5 @@
+> Superseded: see [27 October input/floor repair and native mining limitation](ANTIGRAVITY_INPUT_FIX_2026_10_27.md). The historical self-entity-transport claim below did not account for client pose interpolation.
+
 # Moving antigravity support and30-second storm - 27 October2026
 
 User: rising terrain must carry a standing player, preserve horizontal input,

@@ -8,7 +8,7 @@ import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
-import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -42,6 +42,9 @@ import java.util.Map;
 public final class LbcAntigravity {
     public static final String ACTOR="skywars2.antigravity_block";
     public static final int DURATION_TICKS=600;
+    /** Native teleport IDs are nonnegative; this transport never arms the server ACK gate. */
+    public static final int SUPPORT_POSITION_ID=Integer.MIN_VALUE;
+    public interface PlayerTransport { boolean skywars2$hasPendingTeleport(); }
     private final GameController game;
     private final List<Storm> storms=new ArrayList<>();
     private final Map<Display.BlockDisplay,Lifted> displays=new LinkedHashMap<>();
@@ -67,8 +70,8 @@ public final class LbcAntigravity {
         final LivingEntity entity;
         final Platform platform;
         boolean controlled,detached;
-        double appliedSpeed;
-        Passenger(LivingEntity entity,Platform platform) {this.entity=entity;this.platform=platform;}
+        double appliedSpeed,localTop;
+        Passenger(LivingEntity entity,Platform platform,double top) {this.entity=entity;this.platform=platform;localTop=top-platform.offset;}
     }
     public LbcAntigravity(GameController game) { this.game=game; }
     private boolean active(ServerLevel level,String epoch) {
@@ -203,8 +206,11 @@ public final class LbcAntigravity {
         else changes.run();
         if(!platform.cells.isEmpty()) {
             platforms.add(platform);
-            for(var living:candidates)if(Math.abs(living.getBoundingBox().minY-supportTop(living,platform,0,living.getBoundingBox()))<=.0625)
-                platform.passengers.add(new Passenger(living,platform));
+            for(var living:candidates) {
+                double top=supportTop(living,platform,0,living.getBoundingBox());
+                if(Math.abs(living.getBoundingBox().minY-top)<=.0625)
+                    platform.passengers.add(new Passenger(living,platform,top));
+            }
         }
     }
     public void tick() {
@@ -224,19 +230,22 @@ public final class LbcAntigravity {
                 if(passenger.detached||carried.contains(living))continue;
                 if(living.level()!=storm.level||!eligible(living)||game.items().frost().isFrozen(living)
                         ||jumping(living)||living.isPassenger()
+                        ||living instanceof ServerPlayer player&&(!player.connection.hasClientLoaded()
+                            ||((PlayerTransport)player.connection).skywars2$hasPendingTeleport())
                         ||passenger.controlled&&(living.getDeltaMovement().y>passenger.appliedSpeed+.125
                         ||living.verticalCollision&&!living.onGround())) {
                     detach(passenger);continue;
                 }
-                double top=supportTop(living,platform,platform.offset,living.getBoundingBox());
+                double top=living instanceof ServerPlayer?playerTop(passenger,living.getBoundingBox())
+                        :supportTop(living,platform,platform.offset,living.getBoundingBox());
                 double gap=living.getBoundingBox().minY-top;
-                double below=passenger.controlled?platform.speed+.5:.0625;
+                double below=passenger.controlled?platform.speed+(living instanceof ServerPlayer?2:.5):.0625;
                 if(!Double.isFinite(top)||gap>.0625||gap< -below
                         ||!passenger.controlled&&living.getDeltaMovement().y>platform.speed+.125) {
                     detach(passenger);continue;
                 }
                 double speed=Math.max(0,top+platform.speed-living.getBoundingBox().minY);
-                passenger.controlled=true;riders.put(living,passenger);
+                passenger.controlled=true;passenger.localTop=top-platform.offset;riders.put(living,passenger);
                 if(living instanceof ServerPlayer player)carryPlayer(player,top+platform.speed,passenger);
                 else {lift(living,speed,storm.author);passenger.appliedSpeed=speed;}
                 carried.add(living);
@@ -274,12 +283,12 @@ public final class LbcAntigravity {
         if(Math.abs(player.getBoundingBox().minY-top)>1e-5){detach(passenger);return;}
         player.setDeltaMovement(motion.x,0,motion.z);passenger.appliedSpeed=0;
         player.setOnGround(true);player.fallDistance=0;
-        // Only the vertical axis is authoritative. Relative zero X/Z, momentum and angles
-        // preserve the client's current walk/strafe/look, including input newer than the server.
-        // Entity transport has no teleport ACK lock and does not reset block breaking.
-        player.connection.send(new ClientboundTeleportEntityPacket(player.getId(),
+        // Apply Y immediately rather than queueing full-pose entity interpolation.
+        // Do not call connection.teleport: X/Z input must never await an ACK.
+        // Relative axes retain newer local input rather than the server's old snapshot.
+        player.connection.send(new ClientboundPlayerPositionPacket(SUPPORT_POSITION_ID,
                 new PositionMoveRotation(new Vec3(0,player.getY(),0),Vec3.ZERO,0,0),
-                java.util.Set.of(Relative.X,Relative.Z,Relative.Y_ROT,Relative.X_ROT,Relative.DELTA_X,Relative.DELTA_Z),true));
+                java.util.Set.of(Relative.X,Relative.Z,Relative.Y_ROT,Relative.X_ROT,Relative.DELTA_X,Relative.DELTA_Z)));
         player.connection.resetPosition();player.level().getChunkSource().move(player);
         if(passenger.platform.storm.author!=null&&player.getY()!=oldY)
             game.items().indirectKills().displaced(player,passenger.platform.storm.author,true);
@@ -295,12 +304,21 @@ public final class LbcAntigravity {
         sound(storm.level,at,SoundEvents.PARROT_FLY); sound(storm.level,at,SoundEvents.STONE_BREAK);
     }
     private double supportTop(LivingEntity living,Platform platform,double offset,AABB feet) {
+        return supportTop(platform,offset,feet,living.getBoundingBox().minY+Math.max(.0625,living.maxUpStep())+1e-6);
+    }
+    /** Follow the admitted player's surface even if a delayed position is inside a lower layer. */
+    private double playerTop(Passenger passenger,AABB feet) {
+        var platform=passenger.platform;
+        return supportTop(platform,platform.offset,feet,
+                platform.offset+passenger.localTop+Math.max(.0625,passenger.entity.maxUpStep())+1e-6);
+    }
+    private double supportTop(Platform platform,double offset,AABB feet,double maximumTop) {
         double best=Double.NEGATIVE_INFINITY;
         for(var display:platform.cells) {
             var cell=displays.get(display);if(cell==null||display.isRemoved())continue;
             for(var shape:cell.surfaces) {
                 double top=cell.origin.y+offset+shape.maxY;
-                if(top>living.getBoundingBox().minY+Math.max(.0625,living.maxUpStep())+1e-6)continue;
+                if(top>maximumTop)continue;
                 if(feet.maxX>cell.origin.x+shape.minX+1e-6&&feet.minX<cell.origin.x+shape.maxX-1e-6
                         &&feet.maxZ>cell.origin.z+shape.minZ+1e-6&&feet.minZ<cell.origin.z+shape.maxZ-1e-6)
                     best=Math.max(best,top);
@@ -314,8 +332,10 @@ public final class LbcAntigravity {
         if(rider==null||rider.detached||!rider.controlled||!platforms.contains(rider.platform)
                 ||living.level()!=rider.platform.storm.level||!eligible(living)||jumping(living)
                 ||living.isPassenger()||!active(rider.platform.storm.level,rider.platform.storm.epoch))return false;
-        double top=supportTop(living,rider.platform,rider.platform.offset,living.getBoundingBox());
-        return Double.isFinite(top)&&Math.abs(living.getBoundingBox().minY-top)<=.625;
+        double top=living instanceof ServerPlayer?playerTop(rider,living.getBoundingBox())
+                :supportTop(living,rider.platform,rider.platform.offset,living.getBoundingBox());
+        return Double.isFinite(top)&&Math.abs(living.getBoundingBox().minY-top)
+                <=(living instanceof ServerPlayer?rider.platform.speed+2:.625);
     }
     /** Add real server collision surfaces only for admitted riders, preserving native terrain. */
     public List<VoxelShape> collisions(Entity entity,AABB area,List<VoxelShape> original) {
@@ -337,9 +357,10 @@ public final class LbcAntigravity {
         double x=packet.getX(player.getX()),z=packet.getZ(player.getZ()),y=packet.getY(player.getY());
         if(!Double.isFinite(x)||!Double.isFinite(y)||!Double.isFinite(z))return packet;
         var feet=player.getBoundingBox().move(x-player.getX(),0,z-player.getZ());
-        double top=supportTop(player,rider.platform,rider.platform.offset,feet);
+        double top=playerTop(rider,feet);
         if(!Double.isFinite(top)){detach(rider);return packet;}
         if(y>top+.0625)return packet;
+        rider.localTop=top-rider.platform.offset;
         return new ServerboundMovePlayerPacket.PosRot(x,top,z,packet.getYRot(player.getYRot()),
                 packet.getXRot(player.getXRot()),true,packet.horizontalCollision());
     }
