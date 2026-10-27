@@ -523,6 +523,7 @@ public final class LbcItems {
         hudPositive(component,"  \uE121 ",electro.shocks(source),ChatFormatting.RED);
         hudPositive(component,"  \uE122 ",homing.curseSeconds(source),ChatFormatting.RED);
         hudPositive(component," \uE123 ",psycho.hudValue(source,"twitching"),ChatFormatting.RED);
+        hudPositive(component,"  \uE126 ",mana.hudValue(source,"void_resistance"),ChatFormatting.GREEN);
         hudPositive(component,"  \uE129 ",curseTicks(source),ChatFormatting.RED);
         hudPositive(component,"  \uE162 ",pendingCombat.curseSeconds(source),ChatFormatting.RED);
         // Overheaven is authored as matches remaining, not an elapsed-time estimate.

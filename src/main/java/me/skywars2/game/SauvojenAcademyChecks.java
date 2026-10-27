@@ -697,16 +697,90 @@ public final class SauvojenAcademyChecks {
                     if(originForced)level.setChunkForced(originChunk.x(),originChunk.z(),false);
                 }
             }
-            var drone=launch(LbcSauvojen.Kind.AIR);Vec3 origin=drone.position;var target=cow(origin.add(0,0,6));
-            drone.nextMode=12;drone.lifetime=10;base.recording.packets.clear();service.tick();
-            Vec3 lowered=origin.add(0,-1,0),away=lowered.subtract(owner.getEyePosition()).multiply(1,0,1).normalize().scale(.1);
-            require(service.count()==1&&drone.nextMode==0&&drone.lifetime==11,"source direct NUKETICK consumes final mode once and wraps to zero");
-            near(drone.position,lowered.add(away).add(0,.04,0),"source NUKETICK descends original drone1 before normal horizontal motion/rise");
-            var particles=base.recording.packets.stream().filter(ClientboundLevelParticlesPacket.class::isInstance).map(ClientboundLevelParticlesPacket.class::cast)
-                    .filter(p->p.particle() instanceof net.minecraft.core.particles.DustColorTransitionOptions).toList();
-            require(particles.size()==5,"direct NUKETICK emits five source downward samples");
-            for(int i=0;i<5;i++)near(new Vec3(particles.get(i).x(),particles.get(i).y(),particles.get(i).z()),origin.add(0,-i*.25,0),"NUKETICK exact source sample "+i);
-            require(game.items().exasperato().snapshot().isEmpty(),"direct NUKETICK never creates donor distant500tick missile");clear();removeCows();
+        }
+        void nuclearQueue() {
+            var owner=base.owner;var level=owner.level();var exasperato=game.items().exasperato();
+            boolean tnt=level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES);
+            var drone=launch(LbcSauvojen.Kind.AIR);var target=cow(drone.position.add(0,0,6));
+            // Disable terrain damage, then exercise the real thirteen-mode producer and native consumer.
+            // Only the final ray is drained: earlier payloads have independent checks and are retired here.
+            level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES,false,game.server());
+            BlockPos surface=null;Runnable restoreSurface=()->{};
+            try {
+                for(int mode=0;mode<12;mode++) {
+                    require(drone.nextMode==mode,"actual Air queue reaches source mode "+mode);
+                    int expected=mode+1;
+                    for(int tick=0;tick<11&&drone.nextMode==mode;tick++)service.tick();
+                    require(service.count()==1&&drone.nextMode==expected,"actual Air queue advances one mode on its native cadence "+mode);
+                    clearPayloads();
+                }
+                surface=BlockPos.containing(drone.position.add(0,-4,0));
+                require(!level.isOutsideBuildHeight(surface)&&level.hasChunkAt(surface),"resident nuclear target surface");
+                var saved=game.maps().snapshot(level,surface);var surfaceCell=surface;
+                restoreSurface=()->game.maps().restoreSnapshot(level,surfaceCell,saved);
+                level.setBlock(surface,Blocks.STONE.defaultBlockState(),Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE|Block.UPDATE_SKIP_ON_PLACE);
+                Vec3 origin=new Vec3(surface.getX()+.5,surface.getY()+4.5,surface.getZ()+.5);
+                drone.position=origin;drone.carrier.setPos(origin);
+                target.setPos(origin.add(0,-7,0));
+                drone.lifetime=130;target.entityTags().add("strict_map_object");
+                service.tick();
+                require(drone.nextMode==12&&exasperato.pendingSearches()==0,"protected-role target cannot admit final nuclear queue cast");
+                target.entityTags().remove("strict_map_object");drone.lifetime=130;
+                drone.position=origin;drone.carrier.setPos(origin);
+                game.items().timeStop().begin(level,40);
+                try{service.tick();require(drone.nextMode==12&&exasperato.pendingSearches()==0,"global stop prevents final nuclear queue dispatch");}
+                finally{game.items().timeStop().end(level);}
+                owner.entityTags().add("time_stopped");
+                try{service.tick();require(drone.nextMode==12&&exasperato.pendingSearches()==0,"personal stop prevents final nuclear queue dispatch");}
+                finally{owner.entityTags().remove("time_stopped");}
+                service.tick();
+                require(drone.nextMode==0&&service.count()==1&&exasperato.pendingSearches()==1,"actual Air mode12 wraps once and queues the native nuclear targeting ray");
+                Vec3 away=origin.subtract(owner.getEyePosition()).multiply(1,0,1).normalize().scale(.1);
+                near(drone.position,origin.add(away).add(0,.04,0),"nuclear cast retains ordinary drone movement without moving its carrier down the rocket path");
+                drainRays();
+                require(exasperato.snapshot().size()==1,"actual Air mode12 spawns one real nuclear projectile");
+                var bomb=exasperato.snapshot().getFirst();Vec3 impact=new Vec3(surface.getX()+.5,surface.getY()+1,surface.getZ()+.5);
+                require(bomb.mode==4&&bomb.getOwner()==owner&&game.items().currentEpoch(bomb)&&bomb.isNoGravity()&&bomb.lifetime==0,"real bomb inherits native nuclear mode, owner, epoch and geometry lifetime");
+                near(bomb.position(),impact.add(0,500,0),"real bomb spawns exactly500 above ray surface");
+                near(bomb.getDeltaMovement(),new Vec3(0,-1,0),"real bomb falls at native speed1");
+                game.items().timeStop().begin(level,40);
+                try{exasperato.tick();near(bomb.position(),impact.add(0,500,0),"global stop freezes real falling bomb");}
+                finally{game.items().timeStop().end(level);}
+                owner.entityTags().add("time_stopped");
+                try{exasperato.tick();near(bomb.position(),impact.add(0,500,0),"personal stop freezes real falling bomb");}
+                finally{owner.entityTags().remove("time_stopped");}
+                exasperato.tick();near(bomb.position(),impact.add(0,499,0),"native bomb consumer moves on first active tick");
+                for(int tick=0;tick<501&&!bomb.isRemoved();tick++)exasperato.tick();
+                require(bomb.isRemoved()&&exasperato.mushroomCount()==1&&exasperato.pendingBlasts()>0&&exasperato.pendingBlasts()<=32,"real bomb impacts surface and queues bounded source nuclear payload");
+                var burst=((Deque<?>)state(exasperato,"blasts")).getFirst();
+                require(((Vec3[])state(burst,"offsets")).length==32,"impact uses all32 original native blast offsets");
+                // A native clip starting exactly on the top face reports an inside hit .001 down.
+                var physicalImpact=(Vec3)state(burst,"origin");
+                require(Math.abs(physicalImpact.x-impact.x)<1e-9&&Math.abs(physicalImpact.z-impact.z)<1e-9
+                        &&physicalImpact.y<=impact.y&&physicalImpact.y>=impact.y-.001001
+                        &&BlockPos.containing(physicalImpact).equals(surface),"native payload impacts the actual target surface, including inside-start clip epsilon");
+                clearPayloads();
+                // The ordinary nuclear spell shares the producer, not an Academy-only substitute.
+                Vec3 prior=owner.position();float yaw=owner.getYRot(),pitch=owner.getXRot();
+                try {
+                    owner.teleportTo(level,origin.x,origin.y-owner.getEyeHeight(),origin.z,Set.of(),0,90,true);
+                    exasperato.cast(owner,4);drainRays();
+                    require(exasperato.snapshot().size()==1&&exasperato.snapshot().getFirst().mode==4,"ordinary Exasperato nuclear cast remains a real bomb control");
+                    var control=exasperato.snapshot().getFirst();near(control.position(),impact.add(0,500,0),"ordinary and Academy nuclear producers share surface and spawn height");
+                    control.entityTags().remove(game.items().epoch());exasperato.tick();
+                    require(control.isRemoved()&&exasperato.pendingBlasts()==0,"stale-epoch real bomb cannot impact");
+                } finally {owner.teleportTo(level,prior.x,prior.y,prior.z,Set.of(),yaw,pitch,true);}
+                clearPayloads();
+                drone.nextMode=12;drone.lifetime=130;
+                base.field=new Marker(EntityTypes.MARKER,level);base.field.setPos(drone.position);base.field.entityTags().add("stopper_magic");
+                require(level.addFreshEntity(base.field),"native nuclear queue antimagic marker");game.items().magic().loaded(base.field);
+                try {service.tick();require(service.count()==0&&exasperato.pendingSearches()==0&&exasperato.snapshot().isEmpty(),"antimagic retires final-mode drone before ray or bomb spawn");}
+                finally{base.removeField();}
+            } finally {
+                clear();removeCows();
+                restoreSurface.run();
+                level.getGameRules().set(net.minecraft.world.level.gamerules.GameRules.TNT_EXPLODES,tnt,game.server());
+            }
         }
         void scheduling() {
             for(var kind:LbcSauvojen.Kind.values()) {
@@ -817,6 +891,7 @@ public final class SauvojenAcademyChecks {
                 new Step("detachedBlazeModes",Fixture::detachedBlazeModes),
                 new Step("curseAndCultist",Fixture::curseAndCultist),
                 new Step("chaosAndNuke",Fixture::chaosAndNuke),
+                new Step("nuclearQueue",Fixture::nuclearQueue),
                 new Step("scheduling",Fixture::scheduling),
                 new Step("lifecycle",Fixture::lifecycle),
                 new Step("payment",Fixture::payment))){
@@ -831,6 +906,10 @@ public final class SauvojenAcademyChecks {
         }
         require(failures.isEmpty(),"independent native groups: "+failures);
         SkyWars2.LOGGER.info("[check] PASS sauvojen-academy (80 source payload rows, native origins/owners, source cadences/target gate/model lottery,400tick lifetime, guards and paid hands)");
+    }
+    public static void nuclearQueue(GameController game) {
+        try(var f=new Fixture(game)){f.nuclearQueue();}
+        SkyWars2.LOGGER.info("[check] PASS sauvojen-academy-nuclear-queue (all13 actual queue modes, real native bomb500 descent/impact,32 source offsets, ordinary control and guards)");
     }
     public static void stopProbe(GameController game) {
         require(retained==null,"exclusive Academy stop probe");

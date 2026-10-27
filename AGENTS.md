@@ -1,3 +1,22 @@
+## Sauvojen shared consumers and broader audit - QUALIFIED, AUTO INSTALL QUEUED (27 October2026)
+
+[Behavior, audit and native evidence](agent_notes/SAUVOJEN_SHARED_FIXES_2026_10_27.md).
+Meditation fear now uses canonical Psycho state/decay/HUD; terra has a native
+angular clock. Complete WEB graphs retain collision work with one entity query
+and bounded particles. Academy Air now uses the real shared Exasperato nuclear
+producer. Existing void resistance is visible in the shared actionbar.
+The wider recorded status/projectile audit found no additional confirmed bypass;
+intentional damage/attribution policy differences were preserved.
+
+Build0c952772 passed50 suite results in two actual mode1 matches (98.64s).
+Exact505sources/1441classes/3215resources; all175 protected author paths and31live
+overrides are exact. No RP changes. Automatic installation supersedes Chef-only
+25d7466b and waits for running main735d9905 to stop normally; no forced stop or
+restart. Current ready, preceding qualified Chef and installed-version rollback
+remain; obsolete16502e73 cleanup follows verified install. No physical-client or
+peakTPS claim. Historical next-work/status lists below are superseded; other
+unresolved author choices remain pending.
+
 ## Chef navigation and edge recovery - QUALIFIED, AUTO INSTALL QUEUED (27 October2026)
 
 [Behavior, physics and evidence](agent_notes/CHEF_NAVIGATION_2026_10_27.md).

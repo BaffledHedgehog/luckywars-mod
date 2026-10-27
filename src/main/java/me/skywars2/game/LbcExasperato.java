@@ -197,26 +197,11 @@ public final class LbcExasperato {
             case 1 -> {for(int lifetime:new int[]{200,100,50})spawnChargeAt(owner,1,lifetime,0,origin,owner.getLookAngle(),owner.getYRot(),owner.getXRot());}
             case 2 -> spawnChargeAt(owner,2,200,0,origin,aim,yaw,pitch);
             case 3 -> chaosAt(owner,origin,aim);
-            case 4 -> emitNukeTickAt(owner,origin);
+            case 4 -> castNukeAt(owner,origin,aim);
             default -> throw new IllegalArgumentException("Detached exasperato mode "+mode);
         }
         if(mode<=2)for(int soundPitch=0;soundPitch<=2;soundPitch++)
             LbcOverload.sound(owner,origin,"minecraft:entity.generic.explode",1,soundPitch,0);
-    }
-
-    /** Five source downward samples. Null consumes the drone; otherwise teleport its carrier to the result. */
-    Vec3 emitNukeTickAt(ServerPlayer owner,Vec3 origin){
-        var level=owner.level();
-        for(int sample=0;sample<5;sample++){
-            Vec3 at=origin.add(0,-sample*.25,0);
-            var block=BlockPos.containing(at);
-            if(!level.hasChunkAt(block)||game.items().magic().suppressedAt(level,at))return origin;
-            level.sendParticles(NUKE_PARTICLE,true,false,at.x,at.y,at.z,3,0,0,0,.2);
-            if(block.getY()>=0&&block.getY()<=319&&!level.getBlockState(block).is(AIRS)){
-                nuclearBurst(owner,at);return null;
-            }
-        }
-        return origin.add(0,-1,0);
     }
 
     private void launchSound(ServerPlayer owner) {
@@ -248,8 +233,13 @@ public final class LbcExasperato {
     }
 
     private void castNuke(ServerPlayer owner) {
+        castNukeAt(owner,owner.getEyePosition(),owner.getLookAngle());
+    }
+
+    /** The Academy queue casts the nuclear spell; the falling-rocket tick is its consumer. */
+    private void castNukeAt(ServerPlayer owner,Vec3 origin,Vec3 direction) {
         String epoch=game.items().epoch();
-        searchLoadedRay(owner,owner.getEyePosition(),owner.getLookAngle(),true,null)
+        searchLoadedRay(owner,origin,direction,true,null)
                 .thenAccept(hit->{ if(hit!=null) spawnNuke(owner,hit.getLocation(),epoch); });
     }
 

@@ -56,6 +56,7 @@ public final class SauvojenMeditation {
         final ServerPlayer owner; final ItemStack stack; final ServerLevel level; final String epoch;
         final LbcIndirectKills.Owner cause; final List<Hazard> hazards=new ArrayList<>();
         int remaining=620; int ticks;
+        int webQueries,webEdges,webSamples;
         TerrainJob terrain;long terrainNanos,maxTerrainNanos;int terrainTurns;
         BlockPos stoneOrigin;int stoneRow;long stoneSeed;
         Trial(ServerPlayer p,ItemStack stack,String epoch,LbcIndirectKills.Owner cause){
@@ -87,6 +88,8 @@ public final class SauvojenMeditation {
     }
     public static boolean managed(Entity source){return source instanceof TrialTnt;}
     public static LbcIndirectKills.Owner cause(Entity source){return source instanceof TrialTnt t?t.cause:null;}
+    private int terraTicker;
+    int terraTicker(){return terraTicker;}
     private final GameController game;
     private final Map<ServerPlayer,Trial> trials=new IdentityHashMap<>();
     public SauvojenMeditation(GameController game){this.game=game;}
@@ -111,6 +114,7 @@ public final class SauvojenMeditation {
     Trial trial(ServerPlayer owner){return trials.get(owner);}
     private void counter(Trial t){game.items().mana().score(t.owner,"sauvojen_wand_upgrade").set(t.remaining);}
     public void tick(){
+        if(!game.maps().busy()&&!game.items().timeStop().stopped(game.maps().level()))terraTicker++;
         for(var t:List.copyOf(trials.values())){
             if(!valid(t.owner)||t.owner.level()!=t.level||!game.items().currentEpoch(t.epoch)) {finish(t,null);continue;}
             if(t.owner.getMainHandItem()!=t.stack||!participating(t.stack)){finish(t,"sauvojen_wand_meditate_no_wand");continue;}
@@ -140,7 +144,7 @@ public final class SauvojenMeditation {
         int stage=switch(n){case 620->1;case 560->2;case 520->3;case 420->4;case 310->5;case 300->6;case 160->7;case 140->8;case 30->9;default->0;};
         if(stage>0)title(t.owner,"sauvojen_wand_meditate_"+stage,stage==9);
         if(n>=550&&n<=600){
-            int ticker=game.items().mana().score(net.minecraft.world.scores.ScoreHolder.forNameOnly("ticker"),"lbc.math").get();
+            int ticker=terraTicker; // Native equivalent of tick_not_timestopped: ticker += 1.
             for(int i=1;i<=3;i++){
                 Vec3 point=at.add(0,1,0).add(Vec3.directionFromRotation(0,ticker*i).scale(10));
                 Hazard h=add(t,Kind.TERRA,point,t.owner.getEyePosition().subtract(point).multiply(1,0,1).normalize());
@@ -213,7 +217,7 @@ public final class SauvojenMeditation {
             sound(t,t.owner.position(),"minecraft:lbcsounds.scream",1,0);
         }
         if(!terrainWork(t,20))return false;
-        game.items().mana().score(t.owner,"scared").set(0);
+        game.items().psycho().clearStatus(t.owner,"scared");
         t.level.sendParticles(ParticleTypes.FLAME,t.owner.getX(),t.owner.getY(),t.owner.getZ(),100,2,2,2,0);return true;
     }
     /** Entire authored volumes, resumed only at small native-write boundaries under the shared52ms deadline. */
@@ -265,11 +269,11 @@ public final class SauvojenMeditation {
         actor.entityTags().add(TAG);actor.entityTags().add("magic");game.items().markCurrentItemEpoch(actor);
         h.actor=actor;h.uuid=actor.getUUID();if(!t.level.addFreshEntity(actor)){t.hazards.remove(h);actor.discard();}
     }
-    private void blind(Trial t){
-        if(looking(t)){
-            // The source score deliberately survives admission/failure; only the fire stage resets it.
-            int scared=game.items().mana().score(t.owner,"scared").get()+10;
-            game.items().mana().score(t.owner,"scared").set(scared);
+    void blind(Trial t){
+        if(looking(t)&&!game.items().magic().rejectCustomEffect(t.owner)){
+            // The canonical Psycho counter also supplies the source five-tick decay, debuff and HUD.
+            game.items().psycho().afflict(t.owner,t.owner,10,0,0,0);
+            int scared=game.items().psycho().effectValue(t.owner,"scared");
             float[] volumes={.01f,.05f,.1f,.2f,.3f,.4f,.5f,.6f,.7f,.8f,.9f,2,.5f,.6f,.7f,.8f,.9f,2,.9f,.9f,2};
             float[] pitches={2,1.9f,1.8f,1.7f,1.6f,1.5f,1.4f,1.3f,1.2f,1.1f,1,.9f,1.4f,1.3f,1.2f,1.1f,1,.9f,1,1,.9f};
             if(scared<=105){int index=Math.clamp((scared-1)/5,0,20);sound(t,t.owner.position(),"minecraft:entity.enderman.scream",volumes[index],pitches[index]);}
@@ -391,36 +395,64 @@ public final class SauvojenMeditation {
         Block replacement=next;terrain(t,p,p,()->t.level.setBlockAndUpdate(p,replacement.defaultBlockState()));
     }
     private void webDamage(Trial t){webLines(t,true);for(var h:List.copyOf(t.hazards))if(h.kind==Kind.WEB){t.hazards.remove(h);h.close();}}
-    /** Source facing entity selector forks to every previously active node, giving n(n-1)/2 rays. */
+    /** Complete source graph; collision sampling is independent of the bounded visual budget. */
     int webLines(Trial t,boolean damage){
         var webs=t.hazards.stream().filter(h->h.kind==Kind.WEB).toList();if(webs.isEmpty())return 0;
-        int edges=0;
+        int edgeCount=webs.size()*(webs.size()-1)/2,edges=0;
+        t.webQueries=damage?1:0;t.webEdges=0;t.webSamples=0;
+        // One native spatial query per graph, rather than one for every half-block sample.
+        var bounds=new AABB(webs.getFirst().at,webs.getFirst().at);
+        for(var h:webs)bounds=bounds.minmax(new AABB(h.at,h.at));
+        var candidates=damage?t.level.getEntitiesOfClass(LivingEntity.class,bounds.inflate(5),
+                e->e.isAlive()&&game.items().wands().validTarget(e)&&!LbcGreed.active(e)
+                        &&!e.entityTags().contains("time_stopped")):List.<LivingEntity>of();
+        int visualSamples=Math.max(2,(damage?800:2048)/Math.max(1,edgeCount));
         var active=new ArrayList<Hazard>();active.add(webs.getFirst());
         for(int i=1;i<webs.size();i++){
             var h=webs.get(i);
             for(var target:active){edges++;
-            Vec3 aim=target.at.subtract(h.at);double distance=aim.length();Vec3 direction=aim.normalize();
-            double step=damage?.5:.2;int limit=damage?201:1000;
-            for(int j=0;j<limit&&j*step<=distance;j++){
-                Vec3 p=h.at.add(direction.scale(j*step));if(!resident(t.level,p)||game.items().magic().suppressedAt(t.level,p))break;
-                if(LbcGreed.firstHit(t.level,p,p.add(direction.scale(step)),.15)!=null)break;
-                if(damage){t.level.sendParticles(ParticleTypes.ELECTRIC_SPARK,p.x,p.y,p.z,4,.1,.1,.1,1);
-                    t.level.sendParticles(new net.minecraft.core.particles.DustColorTransitionOptions(0x00ccff,0x003333,.8f),p.x,p.y,p.z,1,.1,.1,.1,0);}
-                else t.level.sendParticles(new DustParticleOptions(0xcc0000,1),p.x,p.y,p.z,1,0,0,0,0);
-                if(damage&&contact(t,p,false))break; // source return run damaged terminates this fork's ray.
-                boolean terminal=false;for(var node:active)if(node.at.distanceToSqr(p)<=(damage?.25:.09)){terminal=true;break;}
-                if(terminal)break;
-            }}active.add(h);
-        }return edges;
+                Vec3 aim=target.at.subtract(h.at);double distance=aim.length();Vec3 direction=aim.normalize();
+                double step=damage?.5:.2;int limit=damage?201:1000;
+                // Compute continuous interception once, then retain the exact source sample boundary.
+                double fraction=game.items().magic().suppressionFraction(t.level,h.at,target.at);
+                // No interception is +infinity; avoid infinity * zero for coincident spread cells.
+                double suppression=Double.isFinite(fraction)?fraction*distance:Double.POSITIVE_INFINITY;
+                var greed=LbcGreed.firstHit(t.level,h.at,target.at.add(direction.scale(step)),.15);
+                double greedDistance=greed==null?Double.POSITIVE_INFINITY:h.at.distanceTo(greed.getLocation());
+                Vec3 last=null;int samples=0;
+                for(int j=0;j<limit&&j*step<=distance;j++){
+                    double travel=j*step;Vec3 point=h.at.add(direction.scale(travel));
+                    if(!resident(t.level,point)||travel>=suppression||travel+step>=greedDistance)break;
+                    last=point;samples++;t.webSamples++;
+                    if(damage&&contact(t,point,false,candidates))break;
+                    boolean terminal=false;for(var node:active)if(node.at.distanceToSqr(point)<=(damage?.25:.09)){terminal=true;break;}
+                    if(terminal)break;
+                }
+                if(last!=null){
+                    int count=Math.min(samples,visualSamples);
+                    for(int j=0;j<count;j++){
+                        // All emitted coordinates are actual .2/.5 source samples, including both endpoints.
+                        int sample=count==1?0:(int)Math.round((samples-1)*(double)j/(count-1));
+                        Vec3 point=h.at.add(direction.scale(sample*step));
+                        if(damage){t.level.sendParticles(ParticleTypes.ELECTRIC_SPARK,point.x,point.y,point.z,4,.1,.1,.1,1);
+                            t.level.sendParticles(new net.minecraft.core.particles.DustColorTransitionOptions(0x00ccff,0x003333,.8f),point.x,point.y,point.z,1,.1,.1,.1,0);}
+                        else t.level.sendParticles(new DustParticleOptions(0xcc0000,1),point.x,point.y,point.z,1,0,0,0,0);
+                    }
+                }
+            }active.add(h);
+        }t.webEdges=edges;return edges;
     }
     private List<LivingEntity> targets(Trial t,Vec3 at,double radius){return t.level.getEntitiesOfClass(LivingEntity.class,
             new AABB(at,at).inflate(radius),e->e.isAlive()&&game.items().wands().validTarget(e)&&!LbcGreed.active(e)
                     &&!e.entityTags().contains("time_stopped"));}
     private boolean contact(Trial t,Vec3 point,boolean acid){
+        return contact(t,point,acid,targets(t,point,5));
+    }
+    private boolean contact(Trial t,Vec3 point,boolean acid,List<LivingEntity> candidates){
         // Legacy two dx=dy=dz=0 selectors intersect a .99-wide native bounding-box sampling cube.
         var first=new AABB(point,point.add(1,1,1));
         var second=new AABB(point.add(-.99,-.99,-.99),point.add(.01,.01,.01));
-        for(var e:targets(t,point,5))if(e.getBoundingBox().intersects(first)&&e.getBoundingBox().intersects(second)){
+        for(var e:candidates)if(e.isAlive()&&e.getBoundingBox().intersects(first)&&e.getBoundingBox().intersects(second)){
             hurt(t,e,acid?4:8,acid?DamageTypes.IN_FIRE:DamageTypes.MAGIC,acid);return true;
         }return false;
     }
@@ -492,5 +524,5 @@ public final class SauvojenMeditation {
             t.hazards.remove(h);h.close();
         }
     }
-    public void stop(){for(var t:List.copyOf(trials.values()))finish(t,null);}
+    public void stop(){for(var t:List.copyOf(trials.values()))finish(t,null);terraTicker=0;}
 }

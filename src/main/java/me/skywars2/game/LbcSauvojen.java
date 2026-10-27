@@ -150,11 +150,7 @@ public final class LbcSauvojen {
             if(drone.academy){
                 if(nearest!=null&&(drone.kind==Kind.TERRA||drone.lifetime%drone.kind.academyCadence()==1)){
                     int mode=drone.nextMode;drone.nextMode=(mode+1)%drone.kind.modes();
-                    if(drone.kind==Kind.AIR&&mode==12){
-                        var next=game.items().exasperato().emitNukeTickAt(owner,drone.position);
-                        if(next==null){remove(drone,false);continue;}
-                        drone.position=next;drone.carrier.setPos(next);
-                    }else emitAcademy(owner,drone.hand,drone.usedStack,drone.kind,mode,drone.position,drone.direction);
+                    emitAcademy(owner,drone.hand,drone.usedStack,drone.kind,mode,drone.position,drone.direction);
                 }
                 var models=drone.kind.models();
                 var model=new ItemStack(Items.CARROT_ON_A_STICK);

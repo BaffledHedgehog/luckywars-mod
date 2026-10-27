@@ -801,6 +801,8 @@ public final class GameChecks {
                                 case "fevgalea-star-cleanup" -> { FevgaleaStarChecks.cleanup(game); return; }
                                 case "sauvojen-academy" -> { SauvojenAcademyChecks.run(game); return; }
                                 case "sauvojen-meditation" -> { SauvojenMeditationChecks.run(game); return; }
+                                case "sauvojen-academy-nuclear-queue" -> { SauvojenAcademyChecks.nuclearQueue(game); return; }
+                                case "shared-status-hud" -> { SharedStatusHudChecks.run(game); return; }
                                 case "sauvojen-stars" -> { SauvojenStarChecks.run(game); return; }
                                 case "sauvojen-academy-stop-probe" -> { SauvojenAcademyChecks.stopProbe(game); return; }
                                 case "sauvojen-academy-cleanup" -> { SauvojenAcademyChecks.cleanup(game); require(game.items().sauvojen().meditation().count()==0 && game.items().sauvojen().stars().count()==0,"combined Sauvojen meditation and star helpers clear after actual stop"); return; }

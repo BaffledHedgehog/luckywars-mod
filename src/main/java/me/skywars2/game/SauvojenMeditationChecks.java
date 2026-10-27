@@ -56,6 +56,26 @@ public final class SauvojenMeditationChecks {
             }catch(ReflectiveOperationException error){throw new IllegalStateException("Meditation attribution restore",error);}
         }
     }
+    private static final class Recording extends net.minecraft.network.Connection {
+        final net.minecraft.server.level.ServerPlayer player;
+        final List<net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket> particles=new ArrayList<>();
+        Recording(net.minecraft.server.level.ServerPlayer player){super(net.minecraft.network.protocol.PacketFlow.SERVERBOUND);this.player=player;}
+        @Override public boolean isMemoryConnection(){return true;}
+        @Override public boolean isConnected(){return true;}
+        @Override public net.minecraft.network.PacketListener getPacketListener(){return player.connection;}
+        @Override public void send(net.minecraft.network.protocol.Packet<?> packet,io.netty.channel.ChannelFutureListener listener,boolean flush){
+            if(packet instanceof net.minecraft.network.protocol.game.ClientboundBundlePacket bundle)bundle.subPackets().forEach(p->send(p,null,false));
+            else if(packet instanceof net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket particle)particles.add(particle);
+        }
+        @Override public void flushChannel(){}
+    }
+    private static final class Swap implements AutoCloseable {
+        final net.minecraft.server.level.ServerPlayer player;final net.minecraft.server.network.ServerGamePacketListenerImpl previous;final Recording recording;
+        Swap(GameController game,net.minecraft.server.level.ServerPlayer player){this.player=player;previous=player.connection;recording=new Recording(player);
+            player.connection=new net.minecraft.server.network.ServerGamePacketListenerImpl(game.server(),recording,player,
+                    new net.minecraft.server.network.CommonListenerCookie(player.getGameProfile(),0,player.clientInformation(),false));}
+        public void close(){player.connection=previous;previous.resetPosition();}
+    }
     private static final class Fixture implements AutoCloseable {
         final GameController game;final ElementalGrimoireChecks.Fixture base;final SauvojenMeditation service;
         final Map<BlockPos,MapManager.BlockSnapshot> terrain=new LinkedHashMap<>();
@@ -167,9 +187,16 @@ public final class SauvojenMeditationChecks {
             }finally{service.stop();restore();}
         }
         void hazards(){
-            var t=admit();t.remaining=600;require(service.phase(t),"terra phase");
+            var t=admit();t.remaining=601;service.tick();t.remaining=600;require(service.phase(t),"terra phase");
+            require(service.terraTicker()==1,"native non-stopped global angular clock advances without legacy scoreboard writer");
+            var rods=service.snapshot(base.owner);
+            require(rods.stream().map(h->h.at).distinct().count()==3,"three distinct terra positions");
+            for(int i=0;i<3;i++)require(rods.get(i).at.distanceToSqr(base.owner.position().add(0,1,0).add(Vec3.directionFromRotation(0,i+1).scale(10)))<1e-10,"source ticker multiplied by1/2/3 exact coordinates");
+            var prior=rods.getFirst().at;t.remaining=599;service.tick();
+            require(service.snapshot(base.owner).stream().filter(h->h.kind==SauvojenMeditation.Kind.TERRA).map(h->h.at).anyMatch(p->p.distanceToSqr(prior)>1e-4),"advancing ring has different emission coordinates");
+            for(var h:List.copyOf(t.hazards))if(!rods.contains(h)){t.hazards.remove(h);if(h.actor!=null)h.actor.discard();}
             require(service.snapshot(base.owner).size()==3,"three terra emitters");
-            for(var h:service.snapshot(base.owner))require(Math.abs(h.at.subtract(base.owner.position()).horizontalDistance()-10)<1e-9,
+            for(var h:service.snapshot(base.owner))require(Math.abs(h.at.subtract(base.owner.position()).horizontalDistance()-10)<1e-5,
                     "native radius10 source geometry");
             var actors=service.snapshot(base.owner).stream().map(h->h.actor).toList();service.forget(base.owner);
             require(actors.stream().allMatch(Entity::isRemoved),"scoped actual helper cleanup");
@@ -223,7 +250,62 @@ public final class SauvojenMeditationChecks {
             t.hazards.clear();
             for(int i=0;i<16;i++)t.hazards.add(new SauvojenMeditation.Hazard(SauvojenMeditation.Kind.WEB,
                     center.add(Math.cos(i*Math.PI/8)*8,0,Math.sin(i*Math.PI/8)*8),Vec3.ZERO));
-            require(service.webLines(t,false)==120,"sixteen native web nodes issue120warning rays");service.stop();
+            try(var packets=new Swap(game,base.owner)){
+                require(service.webLines(t,false)==120,"sixteen native web nodes issue120warning rays");
+                require(t.webQueries==0&&t.webEdges==120&&t.webSamples>120,"warning traces complete graph without world entity queries");
+                require(!packets.recording.particles.isEmpty()&&packets.recording.particles.size()<=2048,"bounded actual full-graph warning packet workload");
+                for(var packet:packets.recording.particles){
+                    var point=new Vec3(packet.x(),packet.y(),packet.z());boolean onRay=false;
+                    for(int i=1;i<t.hazards.size();i++)for(int j=0;j<i;j++){
+                        var from=t.hazards.get(i).at;var direction=t.hazards.get(j).at.subtract(from).normalize();
+                        var delta=point.subtract(from);double along=delta.dot(direction);
+                        if(along>=-1e-6&&delta.subtract(direction.scale(along)).lengthSqr()<1e-8&&Math.abs(along/.2-Math.rint(along/.2))<1e-5)onRay=true;
+                    }
+                    require(onRay,"bounded warning retains exact native .2-step source coordinates");
+                }
+                packets.recording.particles.clear();require(service.webLines(t,true)==120,"full damage graph retains all120 edges");
+                require(t.webQueries==1&&t.webEdges==120&&t.webSamples>120,"full damage graph uses one native spatial query for all source collision samples");
+                require(packets.recording.particles.size()<=1600&&packets.recording.particles.stream().mapToInt(p->p.count()).sum()<=4000,"bounded actual full-graph damage packets and client particle instances");
+            }
+            t.hazards.clear();cow.setHealth(cow.getMaxHealth());cow.setInvulnerableTime(0);cow.damageCooldownTime=0;
+            var coincident=cow.position().add(0,.5,0);
+            for(int i=0;i<2;i++)t.hazards.add(new SauvojenMeditation.Hazard(SauvojenMeditation.Kind.WEB,coincident,Vec3.ZERO));
+            try(var packets=new Swap(game,base.owner)){
+                require(service.webLines(t,false)==1&&t.webSamples==1&&packets.recording.particles.size()==1,"coincident native nodes retain their sole warning source sample");
+                var warning=packets.recording.particles.getFirst();
+                require(new Vec3(warning.x(),warning.y(),warning.z()).distanceToSqr(coincident)<1e-12,"coincident warning uses exact shared source coordinate");
+                packets.recording.particles.clear();float before=cow.getHealth();
+                require(service.webLines(t,true)==1&&t.webSamples==1&&cow.getHealth()<before,"coincident native nodes retain initial exact collision and damage");
+                require(packets.recording.particles.size()==2&&packets.recording.particles.stream().allMatch(packet->new Vec3(packet.x(),packet.y(),packet.z()).distanceToSqr(coincident)<1e-12),"coincident damage retains both native particle types at shared coordinate");
+            }service.stop();
+        }
+        void fear(){
+            var psycho=game.items().psycho();
+            require(psycho.effectValue(base.owner,"scared")==0,"fixture starts with clean canonical fear");
+            var t=admit();t.remaining=160;float health=base.owner.getHealth();require(service.phase(t),"initial levitation phase");
+            require(base.owner.getHealth()==health&&service.count()==1&&psycho.effectValue(base.owner,"scared")==0,"initial levitation neither damages nor afflicts fear");
+            var picture=new net.minecraft.world.entity.Interaction(EntityTypes.INTERACTION,base.owner.level());
+            picture.setWidth(4);picture.setHeight(4);picture.entityTags().add("scare_picture");
+            picture.setPos(base.owner.getEyePosition().add(base.owner.getLookAngle().scale(5)).add(0,-2,0));
+            require(base.owner.level().addFreshEntity(picture),"actual looked-at scare interaction");spawned.add(picture);
+            try{
+                require(service.looking(t),"actual native scare sight ray");
+                base.mana.score(base.owner,"scared").set(10000);
+                service.blind(t);require(psycho.effectValue(base.owner,"scared")==10&&base.owner.getHealth()==health&&service.count()==1,"first sight uses canonical fear10 despite obsolete raw score");
+                for(int i=0;i<5;i++)psycho.tick();
+                require(psycho.effectValue(base.owner,"scared")==5,"real Psycho five-tick decay applies to meditation fear");
+                // Scared movement is native and random: restore only this fixture's actual sight geometry.
+                picture.setPos(base.owner.getEyePosition().add(base.owner.getLookAngle().scale(5)).add(0,-2,0));
+                psycho.afflict(base.owner,base.owner,90,7,0,0);
+                service.blind(t);require(psycho.effectValue(base.owner,"scared")==105&&base.owner.getHealth()==health&&service.count()==1,"inclusive105 boundary remains harmless");
+                base.owner.entityTags().add("sin_greed_active");
+                try{service.blind(t);require(psycho.effectValue(base.owner,"scared")==105&&base.owner.getHealth()==health&&service.count()==1,"Greed rejects fear and threshold damage");}
+                finally{base.owner.entityTags().remove("sin_greed_active");}
+                boolean invulnerable=base.owner.getAbilities().invulnerable;base.owner.getAbilities().invulnerable=true;
+                try{service.blind(t);require(psycho.effectValue(base.owner,"scared")==115&&service.count()==0,"only above105 source damage fails trial even when native hit is rejected");}
+                finally{base.owner.getAbilities().invulnerable=invulnerable;}
+                require(psycho.effectValue(base.owner,"lookback")==7,"fear lifecycle preserves unrelated custom status");
+            }finally{picture.discard();psycho.clearStatus(base.owner,"scared");psycho.clearStatus(base.owner,"lookback");service.stop();}
         }
         void alliedBlast(){
             var other=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));require(other!=null,"actual allied native blast participant");
@@ -261,7 +343,7 @@ public final class SauvojenMeditationChecks {
         }
     }
     public static void run(GameController game){
-        try(var f=new Fixture(game)){f.admission();f.ruby();f.stone();f.fire();f.hazards();f.independent();f.webGraph();f.alliedBlast();}
-        SkyWars2.LOGGER.info("[check] PASS sauvojen-meditation (native stack/readiness,8725ruby,47x19x47 explicit stone,42510lava/20181air, complete6/120web rays+diagonal damage, real allied WILD TNT damage/exact author, per-participant state and cleanup)");
+        try(var f=new Fixture(game)){f.admission();f.ruby();f.stone();f.fire();f.hazards();f.independent();f.webGraph();f.fear();f.alliedBlast();}
+        SkyWars2.LOGGER.info("[check] PASS sauvojen-meditation (native stack/readiness,8725ruby,47x19x47 explicit stone,42510lava/20181air, complete6/120web rays+diagonal damage+bounded packets, canonical fear/decay/105 threshold/Greed, real allied WILD TNT damage/exact author, per-participant state and cleanup)");
     }
 }
