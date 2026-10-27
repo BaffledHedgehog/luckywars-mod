@@ -53,6 +53,7 @@ final class LbcTesla {
             if(!game.items().currentEpoch(epoch)||!owner.isAlive()||owner.isRemoved()||owner.level()!=level||!game.canUseGameplayItems(owner))return true;
             Vec3 from=point,last=point,conductor=null;boolean terminal=false,emitted=false;
             for(int i=0;i<8;i++){
+                if(game.items().magic().mechanismSuppressedAt(level,point)){terminal=true;break;}
                 var pos=BlockPos.containing(point);if(!level.hasChunkAt(pos)){terminal=true;break;}
                 emitted=true;last=point;level.sendParticles(WHITE,true,false,point.x,point.y,point.z,1,0,0,0,2);
                 level.sendParticles(PURPLE,true,false,point.x,point.y,point.z,1,0,0,0,1);
@@ -65,7 +66,9 @@ final class LbcTesla {
                 if(++sample>400){terminal=true;break;}
                 boolean bend=owner.getRandom().nextFloat()<.05f;
                 if(bend){currentYaw+=owner.getRandom().nextInt(7)-3;currentPitch+=owner.getRandom().nextInt(7)-3;LbcOverload.sound(owner,point,"minecraft:entity.firework_rocket.twinkle",.1f,2,0);}
-                point=point.add(Vec3.directionFromRotation(currentPitch,currentYaw).scale(.25));
+                Vec3 next=point.add(Vec3.directionFromRotation(currentPitch,currentYaw).scale(.25));
+                if(Double.isFinite(game.items().magic().mechanismSuppressionFraction(level,point,next))){terminal=true;break;}
+                point=next;
                 if(bend)break;
             }
             // Groups have disjoint sample endpoints, so splitting work cannot duplicate bypass-cooldown hits.

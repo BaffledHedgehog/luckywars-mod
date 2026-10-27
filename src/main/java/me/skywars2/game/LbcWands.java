@@ -316,7 +316,7 @@ public final class LbcWands {
         final String epoch;
         final int lifetime;
         final boolean meditation;
-        boolean mechanism,teslaChain,statusWild;
+        boolean mechanism=true,teslaChain,statusWild;
         LbcIndirectKills.Owner cause;
         LbcErecto.Path erecto;
         ServerPlayer trialOwner;
@@ -886,8 +886,11 @@ public final class LbcWands {
     private void concentratedFireAt(ServerPlayer player,Vec3 from,Vec3 direction) {
         Vec3 to=from.add(direction.scale(100));
         var level=player.level();
+        double boundary=game.items().magic().suppressionFraction(level,from,to);
+        if(Double.isFinite(boundary))to=from.lerp(to,boundary);
         var hit=firstHit(player,from,to);
-        boolean terminal=hit!=null && (!(hit instanceof net.minecraft.world.phys.BlockHitResult wall) || level.hasChunkAt(wall.getBlockPos()));
+        boolean terminal=hit!=null && (!Double.isFinite(boundary)||from.distanceToSqr(hit.getLocation())<from.distanceToSqr(to)-1e-9)
+                && (!(hit instanceof net.minecraft.world.phys.BlockHitResult wall) || level.hasChunkAt(wall.getBlockPos()));
         if(hit!=null) to=hit.getLocation();
         double distance=from.distanceTo(to);
         for(double step=0;step<=distance;step+=.5) {
@@ -907,8 +910,9 @@ public final class LbcWands {
     private void rubyRay(ServerPlayer player) {
         var level=player.level();
         Vec3 origin=player.getEyePosition(),step=player.getLookAngle().scale(.35);
+        double boundary=game.items().magic().suppressionFraction(level,origin,origin.add(step.scale(100)))*100;
         BlockPos previous=null;
-        for(int i=0;i<=100;i++) {
+        for(int i=0;i<=100 && i<boundary;i++) {
             Vec3 point=origin.add(step.scale(i));
             var pos=BlockPos.containing(point);
             if(!level.hasChunkAt(pos)) break;
@@ -949,8 +953,10 @@ public final class LbcWands {
         var level=player.level();
         Vec3 origin=player.getEyePosition(),step=player.getLookAngle().scale(.35);
         Vec3 end=origin;
+        double boundary=game.items().magic().suppressionFraction(level,origin,origin.add(step.scale(100)))*100;
         BlockPos wall=null;
         for(int i=0;i<=100;i++) {
+            if(i>=boundary){end=origin.add(step.scale(boundary));break;}
             Vec3 point=origin.add(step.scale(i));
             var pos=BlockPos.containing(point);
             if(!level.hasChunkAt(pos)) break;
@@ -970,7 +976,8 @@ public final class LbcWands {
         var hits=ProjectileUtil.getManyEntityHitResult(level,player,origin,end,new AABB(origin,end).inflate(1),
                 entity->projectileTarget(player,entity),0,ClipContext.Block.COLLIDER,true,false);
         var damage=new DamageSource(player.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DamageTypes.CACTUS),player);
-        for(var hit:hits) if(projectileTarget(player,hit.getEntity())) {
+        for(var hit:hits) if(projectileTarget(player,hit.getEntity())
+                &&(!Double.isFinite(boundary)||origin.distanceToSqr(hit.getLocation())<step.lengthSqr()*boundary*boundary-1e-9)) {
             // Каждая цель встречается один раз; нативную защиту от повторного урона не сбрасываем.
             hit.getEntity().hurtServer(level,damage,5);
         }
@@ -994,7 +1001,9 @@ public final class LbcWands {
         Vec3 from=owner.getEyePosition(),direction=owner.getLookAngle(),end=from;
         boolean wall=false;
         Vec3 wallNormal=null;
+        double boundary=game.items().magic().mechanismSuppressionFraction(level,from,from.add(direction.scale(35)))*35;
         for(int i=0;i<=100;i++) {
+            if(i*.35>=boundary){end=from.add(direction.scale(boundary));break;}
             Vec3 point=from.add(direction.scale(i*.35));
             var pos=BlockPos.containing(point);
             if(!level.hasChunkAt(pos)) break;
@@ -1018,7 +1027,7 @@ public final class LbcWands {
             Vec3 point=from.add(direction.scale(i*.35));
             level.sendParticles(ParticleTypes.ELECTRIC_SPARK,true,false,point.x,point.y,point.z,1,0,0,0,0);
         }
-        if(hit!=null || wall) {
+        if((hit!=null || wall)&&(!Double.isFinite(boundary)||from.distanceToSqr(end)<boundary*boundary-1e-9)) {
             boolean blockContact=hit==null && wall;
             Vec3 start=blockContact ? end.add(wallNormal) : end.subtract(direction);
             if(level.hasChunkAt(BlockPos.containing(start))) {
@@ -1138,7 +1147,7 @@ public final class LbcWands {
     void magnumElectro(ServerPlayer owner,Vec3 origin,Vec3 target) {
         shortElectro(owner,origin,target,true);
     }
-    /** The same source four short arcs also belong to a magic staff, without mechanism suppression. */
+    /** Released electricity is nonmagical; all producers share mechanism-beacon interception. */
     void shortElectro(ServerPlayer owner,Vec3 origin,Vec3 target,boolean mechanism) {
         Vec3 direction=target.subtract(origin);
         float yaw=direction.horizontalDistanceSqr()<1e-12 ? owner.getYRot()
@@ -1147,7 +1156,7 @@ public final class LbcWands {
                 : (float)-Math.toDegrees(Math.atan2(direction.y,direction.horizontalDistance()));
         for(int i=0;i<4;i++) {
             var trace=new ElectroTrace(owner,origin,game.items().epoch(),5+i*2);
-            trace.yaw=yaw; trace.pitch=pitch; trace.mechanism=mechanism;
+            trace.yaw=yaw; trace.pitch=pitch; trace.mechanism=true;
             electroTraces.add(trace);
         }
         LbcOverload.sound(owner,origin,"minecraft:entity.firework_rocket.twinkle",1,1,0);
@@ -1172,6 +1181,8 @@ public final class LbcWands {
     private void electroRayAt(ServerPlayer owner,Vec3 from,Vec3 direction) {
         var level=owner.level();
         Vec3 end=from.add(direction.scale(100));
+        double boundary=game.items().magic().mechanismSuppressionFraction(level,from,end);
+        if(Double.isFinite(boundary))end=from.lerp(end,Math.max(0,Math.nextDown(boundary)));
         var wall=LbcTerra.wallHit(level,from,end);
         if(wall!=null) end=wall.getLocation();
         var shield=shieldHit(owner,from,end);
@@ -1250,6 +1261,7 @@ public final class LbcWands {
                     electroTraces.remove(trace); continue;
                 }
                 if(timeStopped || owner!=null && owner.entityTags().contains("time_stopped")) continue;
+                if(game.items().magic().mechanismSuppressedAt(trace.level,trace.position)){electroTraces.remove(trace);continue;}
                 // (user) Мана/антимагия проверяются при использовании жезла; выпущенная дуга немагическая.
                 if(!trace.level.hasChunkAt(BlockPos.containing(trace.position))
                         || (trace.erecto!=null ? !game.items().erecto().step(trace) : trace.teslaChain&&trace.age%5!=0 ? false : !electroStep(trace)) || ++trace.age>=trace.lifetime) electroTraces.remove(trace);
@@ -1259,17 +1271,19 @@ public final class LbcWands {
     private boolean electroStep(ElectroTrace trace) {
         var level=trace.level;
         Vec3 from=trace.position,direction=Vec3.directionFromRotation(trace.pitch,trace.yaw);
-        var greed=LbcGreed.firstHit(level,from,from.add(direction.scale(trace.teslaChain?4:trace.meditation||trace.npcSource!=null?3.6:2)),.15);
-        if(greed!=null && greed.getEntity() instanceof ServerPlayer reflector && reflector!=trace.owner) {
+        int samples=trace.teslaChain?20:trace.meditation || trace.npcSource!=null ? 18 : 10;
+        double mechanismFraction=game.items().magic().mechanismSuppressionFraction(
+                level,from,from.add(direction.scale(samples*.2)));
+        double mechanismDistance=mechanismFraction*samples*.2;
+        var greed=LbcGreed.firstHit(level,from,from.add(direction.scale(samples*.2)),.15);
+        // TECH contact wins a tie and prevents reflection from a victim beyond the destroyed arc.
+        if(greed!=null && from.distanceToSqr(greed.getLocation())<mechanismDistance*mechanismDistance-1e-9
+                && greed.getEntity() instanceof ServerPlayer reflector && reflector!=trace.owner) {
             trace.owner=reflector; trace.yaw+=180; trace.pitch=-trace.pitch;
             return true;
         }
-        int samples=trace.teslaChain?20:trace.meditation || trace.npcSource!=null ? 18 : 10;
         var shield=shieldHit(trace.source(),from,from.add(direction.scale(samples*.2)),trace.meditation||trace.statusWild);
         double shieldDistance=shield==null ? Double.POSITIVE_INFINITY : from.distanceTo(shield.getLocation());
-        double mechanismFraction=trace.mechanism ? game.items().magic().mechanismSuppressionFraction(
-                level,from,from.add(direction.scale(samples*.2))) : Double.POSITIVE_INFINITY;
-        double mechanismDistance=mechanismFraction*samples*.2;
         double stopDistance=Math.min(shieldDistance,mechanismDistance);
         Vec3 end=from,conductor=null;
         boolean clear=true;
@@ -1391,7 +1405,10 @@ public final class LbcWands {
     }
     private void ray(ServerPlayer player,Spell spell) {
         Vec3 origin=player.getEyePosition(), step=player.getLookAngle().scale(.35);
-        var candidates=player.level().getEntities((Entity)null,rayBounds(origin,step),e->projectileTarget(player,e));
+        // (user) Tiny acid is already released physical acid; only its paid cast is magical.
+        double boundary=spell==Spell.ACID?Double.POSITIVE_INFINITY:game.items().magic().suppressionFraction(player.level(),origin,origin.add(step.scale(100)))*100;
+        var candidates=player.level().getEntities((Entity)null,rayBounds(origin,step),e->projectileTarget(player,e)
+                &&(spell==Spell.ACID||!game.items().magic().suppressedAt(player.level(),e.position())));
         ParticleOptions particle=switch(spell) {
             case BLIND -> ParticleTypes.SQUID_INK;
             case AIR -> ParticleTypes.FIREWORK;
@@ -1400,7 +1417,7 @@ public final class LbcWands {
             case ACID -> ParticleTypes.SNEEZE;
             default -> throw new IllegalArgumentException("Not a ray spell: "+spell);
         };
-        for(int i=0;i<=100;i++) {
+        for(int i=0;i<=100 && i<boundary;i++) {
             Vec3 point=origin.add(step.scale(i));
             if(spell!=Spell.BLIND || player.getRandom().nextFloat()<.3f)
                 player.level().sendParticles(particle,true,false,point.x,point.y,point.z,1,0,0,0,0);

@@ -64,7 +64,8 @@ public final class LbcBloodConfuse {
     }
     private List<LivingEntity> nearby(ServerPlayer owner,Vec3 center,double radius){
         return owner.level().getEntitiesOfClass(LivingEntity.class,new AABB(center,center).inflate(radius),
-                e->e.position().distanceToSqr(center)<=radius*radius&&game.items().wands().target(owner,e));
+                e->e.position().distanceToSqr(center)<=radius*radius&&game.items().wands().target(owner,e)
+                        &&!game.items().magic().suppressedAt(owner.level(),e.position()));
     }
     private void effect(LivingEntity target,ServerPlayer owner,Holder<MobEffect> type,int ticks,int amplifier,boolean visible){
         target.addEffect(ItemEffectLevels.create(type,ticks,amplifier,false,visible),owner);

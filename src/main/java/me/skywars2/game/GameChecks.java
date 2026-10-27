@@ -795,6 +795,12 @@ public final class GameChecks {
                                 case "ordinary-accessories" -> { OrdinaryAccessoryChecks.run(game); return; }
                                 case "entity-merging" -> { CoreEntityMergeChecks.run(game); return; }
                                 case "armor-sets" -> { ArmorSetChecks.run(game); return; }
+                                case "armor-suppression" -> { ArmorSuppressionChecks.run(game); return; }
+                                case "suppression-summons" -> { SuppressionSummonChecks.run(game); return; }
+                                case "weapon-suppression" -> { WeaponSuppressionChecks.run(game); return; }
+                                case "jammer-spells" -> { JammerSpellChecks.run(game); return; }
+                                case "armor-suppression-stop-probe" -> { ArmorSuppressionChecks.stopProbe(game); return; }
+                                case "armor-suppression-cleanup" -> { ArmorSuppressionChecks.cleanup(game); return; }
                                 case "shulker-armor" -> { ShulkerArmorChecks.run(game); return; }
                                 case "shulker-armor-stop-probe" -> { ShulkerArmorChecks.stopProbe(game); return; }
                                 case "shulker-armor-cleanup" -> { ShulkerArmorChecks.cleanup(game); return; }
@@ -1333,6 +1339,10 @@ public final class GameChecks {
             CoreEntityMergeChecks.tick(game);
             ArmorSetChecks.tick(game);
             ShulkerArmorChecks.tick(game);
+            ArmorSuppressionChecks.tick(game);
+            SuppressionSummonChecks.tick(game);
+            WeaponSuppressionChecks.tick(game);
+            JammerSpellChecks.tick(game);
             InventoryHazardChecks.tick(game);
             PassiveConsumableChecks.tick(game);
             PendingCombatChecks.tick(game);
@@ -3554,19 +3564,24 @@ public final class GameChecks {
                 stopper.entityTags().add("stopper_magic");
                 level.addFreshEntity(stopper);
                 try {
-                        int paused = game.items().curseTicks(player);
+                        int previous = game.items().curseTicks(player);
                         player.setYRot(220);
                         game.items().tick();
-                        require(game.items().curseTicks(player) == paused && player.getHealth() == 20,
-                                        "Magic stopper at exactly twenty blocks pauses timer and rotation");
+                        require(game.items().curseTicks(player) == previous - 1 && player.getHealth() == 19,
+                                        "Author: psychic turn disorder ignores Magic stopper");
                         stopper.entityTags().clear();
                         stopper.entityTags().add("stopper");
+                        readyForItemDamage(player);
+                        player.setYRot(245);
                         game.items().tick();
-                        require(game.items().curseTicks(player) == paused, "Ordinary stopper also pauses curse");
+                        require(game.items().curseTicks(player) == previous - 2 && player.getHealth() == 19,
+                                        "Author: psychic turn disorder ignores mechanism stopper");
                         stopper.setPos(20.01, 200, 0);
+                        readyForItemDamage(player);
+                        player.setYRot(270);
                         game.items().tick();
-                        require(game.items().curseTicks(player) == paused - 1 && player.getHealth() == 19,
-                                        "Outside stopper radius resumes from old rotation");
+                        require(game.items().curseTicks(player) == previous - 3 && player.getHealth() == 19,
+                                        "Moving outside stopper leaves ordinary curse cadence");
                 } finally {
                         stopper.discard();
                 }

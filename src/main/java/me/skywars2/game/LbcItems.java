@@ -1094,6 +1094,7 @@ public final class LbcItems {
         opAnvilDrops.loaded(entity);
         slabDrops.loaded(entity);
         creatureDrops.loaded(entity);
+        armorSets.loaded(entity);
         potionSpawnerDrops.loaded(entity);
         droneDrops.loaded(entity);
         antDrops.loaded(entity);
@@ -1758,9 +1759,7 @@ public final class LbcItems {
             if (turnCurses.get(id) != curse) continue;
             if (!active(owner) || !owner.isAlive() || owner.isRemoved()) { clear(owner); continue; }
             if (magic.rejectCustomEffect(owner)) { clearEffects(owner); continue; }
-            if (magic.beaconSuppressed(owner.position()) || !owner.level().getEntitiesOfClass(Marker.class, owner.getBoundingBox().inflate(20), marker ->
-                    owner.distanceToSqr(marker) <= 400
-                            && (marker.entityTags().contains("stopper_magic") || marker.entityTags().contains("stopper"))).isEmpty()) continue;
+            // Author: this psychic disorder is unaffected by either jammer.
             Rotation current = new Rotation(Mth.floor(owner.getYRot()), Mth.floor(owner.getXRot()));
             Rotation previous = rotations.getOrDefault(id, ZERO_ROTATION);
             int yaw = current.yaw - previous.yaw, pitch = current.pitch - previous.pitch;
@@ -1868,6 +1867,7 @@ public final class LbcItems {
         pendingSwords.forget(player);
         incomingArtifacts.forget(player);
         shulkerArmor.forget(player);
+        armorSets.forget(player);
         moiseiBoots.forget(player);
         regenerationBelt.forget(player);
         quiver.forget(player);

@@ -106,9 +106,13 @@ public final class LbcAk47 {
         var originBlock=BlockPos.containing(origin);
         if(level.getChunkSource().getChunkNow(originBlock.getX()>>4,originBlock.getZ()>>4)==null) return;
         Vec3 end=origin.add(direction.scale(range));
+        double suppression=game.items().magic().mechanismSuppressionFraction(level,origin,end);
+        if(Double.isFinite(suppression))end=origin.lerp(end,suppression);
         var hit=owner instanceof ServerPlayer player && collision==null
                 ?game.items().wands().firstHit(player,origin,end)
                 :game.items().wands().firstHit(owner,origin,end,collision);
+        // The field boundary wins a simultaneous native entity/block contact.
+        if(hit!=null&&Double.isFinite(suppression)&&origin.distanceToSqr(hit.getLocation())>=origin.distanceToSqr(end)-1e-9)hit=null;
         if(hit!=null) end=hit.getLocation();
         trail(owner,origin,end);
         if(hit instanceof EntityHitResult entityHit) {

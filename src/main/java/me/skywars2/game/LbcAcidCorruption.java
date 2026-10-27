@@ -121,11 +121,11 @@ final class LbcAcidCorruption {
         HitResult hit=entity!=null?entity:wall;Vec3 end=hit==null?to:hit.getLocation();
         double spacing=mode==1?.75:.5;int samples=(int)Math.floor(from.distanceTo(end)/spacing);
         for(int i=0;i<=samples;i++){
-            var at=from.add(direction.scale(i*spacing));if(!level.hasChunkAt(BlockPos.containing(at))||game.items().magic().suppressedAt(level,at))return;
+            var at=from.add(direction.scale(i*spacing));if(!level.hasChunkAt(BlockPos.containing(at))||mode!=1&&game.items().magic().suppressedAt(level,at))return;
             if(mode==1)level.sendParticles(ParticleTypes.SNEEZE,true,false,at.x,at.y,at.z,1,.1,.1,.1,0);
             else level.sendParticles(new DustParticleOptions(mode==3?0:0x1ce9f8,.8f),true,false,at.x,at.y,at.z,1,.1,.1,.1,0);
         }
-        if(hit==null||!level.hasChunkAt(BlockPos.containing(end))||game.items().magic().suppressedAt(level,end))return;
+        if(hit==null||!level.hasChunkAt(BlockPos.containing(end))||mode!=1&&game.items().magic().suppressedAt(level,end))return;
         if(mode==1)spawn(owner,end,true);
         else if(mode==3){if(entity!=null&&entity.getEntity() instanceof LivingEntity target)applyDeath(owner,target,120);}
         else for(var target:level.getEntitiesOfClass(ServerPlayer.class,new AABB(end,end).inflate(10),p->wild(p)&&p.position().distanceToSqr(end)<=100))
@@ -134,7 +134,7 @@ final class LbcAcidCorruption {
     private boolean wild(Entity e){return game.items().wands().validTarget(e)&&!game.items().magic().suppressedAt((ServerLevel)e.level(),e.position());}
     Charge spawn(ServerPlayer owner,Vec3 at,boolean ball){
         var c=new Charge(TYPE,owner.level());c.setOwner(owner);c.ball=ball;c.setPos(at);c.setDeltaMovement(ball?Vec3.ZERO:new Vec3(0,-.5,0));
-        c.entityTags().addAll(List.of(ball?"hard_acid_ball":"hard_acid","slowraycast","magic",game.items().epoch()));
+        c.entityTags().addAll(List.of(ball?"hard_acid_ball":"hard_acid","slowraycast",game.items().epoch()));
         game.items().timeStop().prepareFrozen(c);if(!owner.level().addFreshEntity(c))c.discard();return c;
     }
     void sacrifice(ServerPlayer owner){
@@ -147,7 +147,7 @@ final class LbcAcidCorruption {
     void flight(Charge c){
         if(c.isRemoved())return;var level=(ServerLevel)c.level();
         if(!(c.getOwner() instanceof ServerPlayer owner)||!owner.isAlive()||owner.isRemoved()||!game.canUseGameplayItems(owner)
-                ||!game.items().currentEpoch(c)||!level.hasChunkAt(c.blockPosition())||game.items().magic().suppressedAt(level,c.position())){c.discard();return;}
+                ||!game.items().currentEpoch(c)||!level.hasChunkAt(c.blockPosition())){c.discard();return;}
         if(game.items().timeStop().stopped(level)||game.items().timeStop().frozen(c))return;
         if(c.age++>=(c.ball?400:300)){c.discard();return;}
         var at=c.position();level.sendParticles(c.ball?BALL:DROP,at.x,at.y+(c.ball?0:.3),at.z,c.ball?10:1,c.ball?3:0,c.ball?3:0,c.ball?3:0,0);
@@ -180,7 +180,7 @@ final class LbcAcidCorruption {
         level.setBlock(p,net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),Block.UPDATE_CLIENTS|Block.UPDATE_KNOWN_SHAPE
                 |Block.UPDATE_SUPPRESS_DROPS|Block.UPDATE_SKIP_BLOCK_ENTITY_SIDEEFFECTS|Block.UPDATE_SKIP_ON_PLACE);
     }
-    private boolean target(ServerPlayer owner,Entity e){return game.items().wands().projectileTarget(owner,e)&&!game.items().magic().suppressedAt((ServerLevel)e.level(),e.position());}
+    private boolean target(ServerPlayer owner,Entity e){return game.items().wands().projectileTarget(owner,e);}
     void debuff(ServerPlayer owner,LivingEntity target,int index){target.addEffect(ItemEffectLevels.create(DEBUFFS.get(index),DURATIONS[index],AMPLIFIERS[index]),owner);}
     int deathRemaining(LivingEntity target){return Math.max(0,game.items().mana().hudValue(target,"delayed_death"));}
     void applyDeath(ServerPlayer owner,LivingEntity target,int seconds){
@@ -205,7 +205,7 @@ final class LbcAcidCorruption {
         }
     }
     void clear(LivingEntity target){deaths.remove(target);game.items().mana().score(target,"delayed_death").set(0);}
-    void loaded(Entity e){if(e instanceof Charge c){if(game.playing()&&game.items().currentEpoch(c))charges.add(c);else c.discard();}}
+    void loaded(Entity e){if(e instanceof Charge c){c.entityTags().remove("magic");c.entityTags().remove("mecha");if(game.playing()&&game.items().currentEpoch(c))charges.add(c);else c.discard();}}
     void unloaded(Entity e){if(e instanceof Charge c)charges.remove(c);}
     void forget(ServerPlayer owner){clear(owner);for(var c:List.copyOf(charges))if(c.getOwner()==owner)c.discard();}
     void stop(){for(var target:List.copyOf(deaths.keySet()))clear(target);for(var c:List.copyOf(charges))c.discard();charges.clear();}

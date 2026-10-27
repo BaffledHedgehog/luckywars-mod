@@ -1,3 +1,28 @@
+## Jammer audit and author decisions - QUALIFIED, INSTALLED (27 October 2026)
+
+[Author rulings and next questions](agent_notes/JAMMER_QUESTIONS.md),
+[implementation, fixture corrections and native evidence](agent_notes/JAMMER_ARMOR_2026_10_27.md).
+(user) Missing legacy jammer checks may be author omissions: ask before assigning
+an exemption or a new gate; inspect previously ported mechanics too. No universal
+policy for already-granted effects. Paladin/Traveller stop refreshing under MAG
+but existing buffs finish; biological smell is never suppressed. Erosion parks
+exact Protection under MAG and restores it after leaving/removal/lifecycle.
+Answered5-11 add first MAG/TECH ray interception, TECH-only released electricity,
+physical released acid from ALL sources, Blood/Confuse victim MAG protection,
+SLR TECH admission, restored source summon purge, jammer-immune psychic disorder.
+Other jammers are not suppressed by inference; unresolved candidates stay unchanged.
+Shared engines and central purge are reused. No RP changes. Broad audit notes
+refer to preceding source e93b059/installed154cc3a7, not post-patch observations.
+Build746e62aa passed40results in2actual mode1matches (155.66s), exact530sources/
+1507classes/3226resources;195author paths/31live overrides unchanged. Initial
+obsolete Traveller expectation, removed-charge count and native equipment cache
+fixture leaks were diagnosed and corrected; failed evidence is preserved.
+Normal child shutdown/exact snapshots restored. Installer24408 installed over
+154cc3a7 without forcing stop or restarting; main hash verified. Receipt:
+build/verification/jammer-audit-armor/main-install.json. Retain746e62aa,
+154cc3a7rollback, a4683fe2fallback and separate network-audit tool; obsolete
+46034d3cready JAR hash/path verified and removed. Earlier statuses stay historical.
+
 ## Complete Shulker armor - QUALIFIED, INSTALLED (27 October 2026)
 
 [Port, author correction and native proof](agent_notes/SHULKER_ARMOR_PORT_2026_10_27.md),

@@ -142,8 +142,12 @@ final class LbcErecto {
         Vec3 from=trace.position,direction=Vec3.directionFromRotation(trace.pitch,trace.yaw),end=from;boolean clear=true;
         var shield=p.kind==PHANTOM?game.items().wands().shieldHit(trace.owner,from,from.add(direction.scale(samples*spacing))):null;
         double shieldDistance=shield==null?Double.POSITIVE_INFINITY:from.distanceTo(shield.getLocation());boolean emitted=false;
+        double mechanismDistance=game.items().magic().mechanismSuppressionFraction(trace.level,from,from.add(direction.scale(samples*spacing)))*samples*spacing;
+        boolean jammed=false;
         for(int i=0;i<=samples;i++){
-            Vec3 point=from.add(direction.scale(i*spacing));if(i*spacing>=shieldDistance){end=shield.getLocation();clear=false;break;}
+            Vec3 point=from.add(direction.scale(i*spacing));if(i*spacing>=Math.min(mechanismDistance,shieldDistance)){
+                jammed=mechanismDistance<=shieldDistance;end=jammed?from.add(direction.scale(mechanismDistance)):shield.getLocation();clear=false;break;
+            }
             var pos=BlockPos.containing(point);if(!trace.level.hasChunkAt(pos)){clear=false;break;}
             emitted=true;end=point;
             if(p.kind!=PHANTOM||trace.level.getRandom().nextFloat()<.2f)particles(trace,point,p.kind==CENTRAL?.03f:.01f,false);
@@ -151,7 +155,7 @@ final class LbcErecto {
         }
         if(emitted)hurt(trace,from,end,spacing,p.kind==PHANTOM?.5f:1,2);
         trace.position=end;
-        if(!clear){if(shield==null||from.distanceTo(end)<shieldDistance-1e-6)impact(trace,end);return false;}
+        if(!clear){if(!jammed&&(shield==null||from.distanceTo(end)<shieldDistance-1e-6))impact(trace,end);return false;}
         if(p.kind==SIDE&&p.side!=0){
             if(trace.age+1>p.focusSteps/7){
                 if(p.focus!=null)aim(trace,p.focus.subtract(end));p.side=0;
@@ -188,7 +192,9 @@ final class LbcErecto {
     }
     private boolean sniper(LbcWands.ElectroTrace trace){
         Vec3 from=trace.position,direction=Vec3.directionFromRotation(trace.pitch,trace.yaw),end=from;boolean alive=true,emitted=false;
+        double mechanismDistance=game.items().magic().mechanismSuppressionFraction(trace.level,from,from.add(direction.scale(18)))*18;
         for(int i=0;i<=60;i++){
+            if(i*.3>=mechanismDistance){end=from.add(direction.scale(mechanismDistance));alive=false;break;}
             Vec3 point=from.add(direction.scale(i*.3));var pos=BlockPos.containing(point);if(!trace.level.hasChunkAt(pos)){alive=false;break;}
             emitted=true;end=point;particles(trace,point,trace.level.getRandom().nextBoolean()?.1f:0,true);
             if((i+1)%12==0){
@@ -236,7 +242,10 @@ final class LbcErecto {
     private boolean active(ServerPlayer owner,String epoch){return owner.isAlive()&&!owner.isRemoved()&&game.items().currentEpoch(epoch)&&game.canUseGameplayItems(owner);}
     private void ray(ServerPlayer owner){rayAt(owner,owner.getEyePosition(),owner.getLookAngle());}
     private void rayAt(ServerPlayer owner,Vec3 from,Vec3 direction){
-        Vec3 end=from.add(direction.scale(50));var wall=LbcTerra.wallHit(owner.level(),from,end);if(wall!=null)end=wall.getLocation();
+        Vec3 end=from.add(direction.scale(50));double boundary=game.items().magic().mechanismSuppressionFraction(owner.level(),from,end);
+        if(Double.isFinite(boundary))end=from.lerp(end,Math.max(0,Math.nextDown(boundary)));
+        var wall=LbcTerra.wallHit(owner.level(),from,end);if(wall!=null)end=wall.getLocation();
+        if(from.distanceToSqr(end)<1e-12)return;
         for(int i=0;i<=100&&i*.5<=from.distanceTo(end)+1e-7;i++)if(owner.getRandom().nextFloat()<.35f){var point=from.add(direction.scale(i*.5));owner.level().sendParticles(DUST,true,false,point.x,point.y,point.z,1,.1,.1,.1,0);owner.level().sendParticles(ParticleTypes.ELECTRIC_SPARK,point.x,point.y,point.z,1,.1,.1,.1,1);LbcOverload.sound(owner,point,"minecraft:entity.firework_rocket.twinkle",.03f,2,0);}
         var damage=new DamageSource(owner.level().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LbcDamage.ELECTRO_BOLT),owner);
         var affected=Collections.newSetFromMap(new IdentityHashMap<Entity,Boolean>());

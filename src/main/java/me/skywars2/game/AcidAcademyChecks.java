@@ -154,7 +154,7 @@ public final class AcidAcademyChecks {
         }
         void aimed(LbcClouds.AcidProjectile shot,int mode){
             require(shot.getType()==LbcClouds.ACID_PROJECTILE&&shot.getOwner()==owner&&shot.position().distanceToSqr(owner.getEyePosition())<1e-10,"one existing native acid from actual eye/owner");
-            require(shot.entityTags().containsAll(List.of("skywars2.wand.acid.regular","raycastacidbig","shield_blockable2","magic",epoch))&&shot.entityTags().contains("on_fire")== (mode==2),"ordinary big acid source flags and selected ignition");
+            require(shot.entityTags().containsAll(List.of("skywars2.wand.acid.regular","raycastacidbig","shield_blockable2",epoch))&&!shot.entityTags().contains("magic")&&!shot.entityTags().contains("mecha")&&shot.entityTags().contains("on_fire")== (mode==2),"ordinary big acid source flags and selected ignition");
             var expected=owner.getLookAngle().normalize().scale(.2f);
             float nativeYaw=(float)(Mth.atan2(expected.x,expected.z)*(double)(180F/(float)Math.PI));
             float nativePitch=(float)(Mth.atan2(expected.y,expected.horizontalDistance())*(double)(180F/(float)Math.PI));

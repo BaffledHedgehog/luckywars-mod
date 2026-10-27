@@ -3,9 +3,11 @@ package me.skywars2.game;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -14,19 +16,20 @@ import net.minecraft.world.item.enchantment.Enchantments;
 public final class LbcArmorSets {
     private static final EquipmentSlot[] SLOTS={EquipmentSlot.FEET,EquipmentSlot.LEGS,EquipmentSlot.CHEST,EquipmentSlot.HEAD};
     private final GameController game;
+    private final LbcErosionSuppression erosionSuppression;
     private int phase;
     private String epoch;
 
-    public LbcArmorSets(GameController game){this.game=game;}
+    public LbcArmorSets(GameController game){this.game=game;this.erosionSuppression=new LbcErosionSuppression(game,this::eligible);}
 
-    private boolean admitted(ServerPlayer player){
+    private boolean eligible(ServerPlayer player){
         return player.isAlive()&&!player.isRemoved()&&player.level()==game.maps().level()
                 &&game.stage()!=GameController.Stage.ENDING&&game.canUseGameplayItems(player)
                 &&!game.isObserver(player)&&game.items().wands().validRoleTarget(player,false)
-                &&!game.items().wands().inputTimeStopped(player)&&!game.items().wands().timeStopped()
-                &&!game.items().timeStop().stopped(player.level())
                 &&LbcDimensionItems.ordinary(player);
     }
+    private boolean admitted(ServerPlayer player){return eligible(player)&&!game.items().wands().inputTimeStopped(player)
+            &&!game.items().wands().timeStopped()&&!game.items().timeStop().stopped(player.level());}
 
     private static boolean tagged(ItemStack stack,String key){
         return !stack.isEmpty()&&LbcFartus.data(stack).getIntOr(key,0)==1;
@@ -45,6 +48,7 @@ public final class LbcArmorSets {
 
     public void tick(){
         if(!game.items().currentEpoch(epoch)){phase=0;epoch=game.items().epoch();}
+        for(var player:game.server().getPlayerList().getPlayers())erosionSuppression.tick(player);
         if(game.maps().level()==null||game.stage()==GameController.Stage.ENDING||game.items().wands().timeStopped())return;
         phase=(phase+1)%20;
         if(phase%5!=0)return;
@@ -58,7 +62,9 @@ public final class LbcArmorSets {
     void pulse20(ServerPlayer player){if(admitted(player))pulse20(player,worn(player));}
 
     private void pulse20(ServerPlayer player,ItemStack[] stacks){
-        if(count(stacks,"paladin")==4)player.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,60,3),player);
+        if(count(stacks,"paladin")==4&&!game.items().magic().beaconSuppressed(player.position()))
+            player.addEffect(ItemEffectLevels.create(MobEffects.RESISTANCE,60,3),player);
+        // Author: the biological smell is never suppressed by either jammer.
         int amount=count(stacks,"gownoleggings");
         if(game.config().lbcSkills&&game.players().get(player.getUUID()).lbcSkill==9)amount*=2;
         if(amount==0)return;
@@ -90,6 +96,7 @@ public final class LbcArmorSets {
     }
 
     private static boolean decreaseProtection(ServerPlayer player,ItemStack stack){
+        if(LbcErosionSuppression.parked(stack))return false;
         var protection=player.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(Enchantments.PROTECTION);
         int level=EnchantmentHelper.getItemEnchantmentLevel(protection,stack);
         if(level<=0)return false;
@@ -97,6 +104,9 @@ public final class LbcArmorSets {
         return true;
     }
 
-    public void stop(){phase=0;epoch=null;}
-    public void forget(ServerPlayer player){ }
+    public void inventoryChanged(ServerPlayer player){erosionSuppression.inventoryChanged(player);}
+    public void loaded(Entity entity){erosionSuppression.loaded(entity);}
+    public boolean recover(ItemStack stack,ServerLevel level){return erosionSuppression.recover(stack,level);}
+    public void stop(){erosionSuppression.stop();phase=0;epoch=null;}
+    public void forget(ServerPlayer player){erosionSuppression.forget(player);}
 }

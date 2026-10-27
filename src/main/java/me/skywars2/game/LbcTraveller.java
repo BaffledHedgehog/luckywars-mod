@@ -44,8 +44,8 @@ public final class LbcTraveller {
             if(!owner.onGround()&&piece(owner,EquipmentSlot.CHEST)&&game.items().mana().score(owner,"falltimer").get()>=20
                     &&!game.items().magic().beaconSuppressed(owner.position()))
                 owner.addEffect(ItemEffectLevels.create(MobEffects.SLOW_FALLING,20,0),owner);
-            // The full-set source branch intentionally has no local beacon or nomagic aura guard.
-            if(tenSeconds&&fullSet(owner)){
+            // Author classifies the full-set cleanse and buff as magic, like the individual passives.
+            if(tenSeconds&&fullSet(owner)&&!game.items().magic().beaconSuppressed(owner.position())){
                 for(int draw=0;draw<6;draw++)cleanse(game,owner,owner.getRandom().nextInt(20)+1);
                 buff(owner,owner.getRandom().nextInt(11)+1);
             }

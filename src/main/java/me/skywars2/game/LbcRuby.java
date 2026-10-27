@@ -184,6 +184,8 @@ public final class LbcRuby {
     private void holeRay(ServerPlayer owner,Vec3 from,Vec3 direction) {
         var level=owner.level();
         Vec3 limit=from.add(direction.scale(HOLE_RANGE));
+        double boundary=game.items().magic().suppressionFraction(level,from,limit);
+        if(Double.isFinite(boundary))limit=from.lerp(limit,boundary);
         HitResult hit=game.items().wands().firstHit(owner,from,limit);
         LbcOverload.sound(owner,from,"minecraft:block.amethyst_cluster.break",1,.1f,0);
         Vec3 end=hit==null?limit:hit.getLocation();
@@ -193,7 +195,8 @@ public final class LbcRuby {
             if(!level.hasChunkAt(BlockPos.containing(point))) return;
             level.sendParticles(HOLE_PARTICLE,true,false,point.x,point.y,point.z,1,0,0,0,0);
         }
-        if(hit==null || (hit instanceof BlockHitResult wall && !level.hasChunkAt(wall.getBlockPos()))) return;
+        if(hit==null || Double.isFinite(boundary)&&from.distanceToSqr(hit.getLocation())>=from.distanceToSqr(limit)-1e-9
+                || (hit instanceof BlockHitResult wall && !level.hasChunkAt(wall.getBlockPos()))) return;
         // На положительной грани floor(hit) указывает уже на соседний воздух; центр нужен внутри встретившегося блока.
         createHole(owner,hit instanceof BlockHitResult ? end.add(direction.scale(1e-5)) : end);
     }
@@ -227,8 +230,9 @@ public final class LbcRuby {
         var level=owner.level();
         LbcOverload.sound(owner,origin,"minecraft:block.amethyst_cluster.break",1,.1f,0);
         var visited=new LongOpenHashSet(256);
+        double boundary=game.items().magic().suppressionFraction(level,origin,origin.add(direction.scale(RAY_RANGE)))*RAY_RANGE;
         try {
-            for(double step=0;step<=RAY_RANGE+1e-7;step+=RAY_SAMPLE) {
+            for(double step=0;step<=RAY_RANGE+1e-7&&step<boundary;step+=RAY_SAMPLE) {
                 Vec3 point=origin.add(direction.scale(step));
                 if(!level.hasChunkAt(BlockPos.containing(point))) break;
                 level.sendParticles(RAY_PARTICLE,true,false,point.x,point.y,point.z,1,0,0,0,0);

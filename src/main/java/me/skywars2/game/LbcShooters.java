@@ -590,7 +590,7 @@ public final class LbcShooters {
     }
     void resetCooldown(ServerPlayer player) { setCooldown(player,0); }
     private boolean useSlr(ServerPlayer player,InteractionHand hand) {
-        if(hand!=InteractionHand.MAIN_HAND || !canFire(player)) return false;
+        if(hand!=InteractionHand.MAIN_HAND || !canFire(player,true)) return false;
         var stack=player.getItemInHand(hand);
         if(player.isShiftKeyDown()) {
             var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
@@ -778,9 +778,12 @@ public final class LbcShooters {
                 && player.level() == game.maps().level() && game.stage() != GameController.Stage.ENDING;
     }
     private boolean canFire(ServerPlayer player) {
+        return canFire(player,false);
+    }
+    private boolean canFire(ServerPlayer player,boolean mechanism) {
         return active(player) && !stunned(player) && !game.items().frost().isFrozen(player)
                 && !game.items().wands().inputTimeStopped(player)
-                && !game.items().magic().suppressed(player);
+                && !(mechanism?game.items().magic().mechanismSuppressed(player):game.items().magic().suppressed(player));
     }
     private int hands(ServerPlayer player) {
         return (isPine(player.getMainHandItem()) ? 1 : 0)

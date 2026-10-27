@@ -140,6 +140,9 @@ public final class LbcStone {
     void ray(ServerPlayer owner,boolean spike) {rayAt(owner,owner.getEyePosition(),owner.getLookAngle(),spike);}
     private void rayAt(ServerPlayer owner,Vec3 from,Vec3 direction,boolean spike) {
         Vec3 end=from.add(direction.scale(150));
+        double boundary=game.items().magic().suppressionFraction(owner.level(),from,end);
+        if(Double.isFinite(boundary))end=from.lerp(end,boundary);
+        Vec3 limit=end;
         var hit=game.items().wands().firstHit(owner,from,end);
         if(hit!=null) end=hit.getLocation();
         double distance=from.distanceTo(end);
@@ -148,7 +151,8 @@ public final class LbcStone {
             owner.level().sendParticles(spike ? SPIKE_PARTICLES : STONE_PARTICLES,true,false,point.x,point.y,point.z,1,.05,.05,.05,0);
             LbcOverload.sound(owner,point,"minecraft:block.amethyst_cluster.break",1,.1f,0);
         }
-        if(hit!=null && (!(hit instanceof BlockHitResult wall) || owner.level().hasChunkAt(wall.getBlockPos()))) impact(owner,end,spike);
+        if(hit!=null && (!Double.isFinite(boundary)||from.distanceToSqr(hit.getLocation())<from.distanceToSqr(limit)-1e-9)
+                && (!(hit instanceof BlockHitResult wall) || owner.level().hasChunkAt(wall.getBlockPos()))) impact(owner,end,spike);
     }
     /** Проверка по всему отрезку за тик; частота частиц не задаёт геометрию попадания. */
     void tick() {

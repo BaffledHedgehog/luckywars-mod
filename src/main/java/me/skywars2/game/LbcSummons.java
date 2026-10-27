@@ -279,6 +279,8 @@ public final class LbcSummons {
             default->new CultSkeleton(owner.level());
         };
         mob.load(TagValueInput.create(ProblemReporter.DISCARDING,owner.registryAccess(),presets.get(kind).copy()));
+        // Source assignment adds this after the preset: the shared magic beacon must erase released summons too.
+        mob.entityTags().add("summactivated");
         mob.setPos(position); game.items().markCurrentItemEpoch(mob);
         mobs.put(mob,new Summon(owner.getUUID(),game.items().epoch(),kind));orders.attach(mob);
         if(owner.getTeam()!=null) owner.level().getScoreboard().addPlayerToTeam(mob.getStringUUID(),owner.getTeam());

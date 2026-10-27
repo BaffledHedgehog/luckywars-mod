@@ -220,6 +220,8 @@ public final class LbcClouds {
             return true;
         }
         if (entity instanceof AcidProjectile projectile) {
+            // (user) Released acid is physical, including actors restored from older saves.
+            projectile.entityTags().remove("magic"); projectile.entityTags().remove("mecha");
             if (sourceAcidManaged(projectile) ? !sourceAcidActive(projectile) : !mayRun(entity, projectile.getOwner())) entity.discard();
             else {
                 if (projectile.entityTags().contains(ACID_STUCK)) stick(projectile, projectile.position());
@@ -350,7 +352,7 @@ public final class LbcClouds {
         projectile.setXRot((Mth.floor(cloud.getXRot() * 100) + level.getRandom().nextInt(4001) - 2000) * .01f);
         var direction = projectile.getLookAngle();
         projectile.shoot(direction.x, direction.y, direction.z, .5f, 0);
-        projectile.entityTags().addAll(List.of(ACID, "raycastacid", "player", "slowraycast", "shield_blockable2", "magic", "actived"));
+        projectile.entityTags().addAll(List.of(ACID, "raycastacid", "player", "slowraycast", "shield_blockable2", "actived"));
         level.addFreshEntity(projectile);
         sound(level, cloud.position().add(0, 1, 0), SoundEvents.ZOMBIE_VILLAGER_CURE, 1, 2, Double.POSITIVE_INFINITY, 0);
         return projectile;
@@ -367,7 +369,7 @@ public final class LbcClouds {
             projectile.setXRot(level.getRandom().nextInt(31)-90);
             var direction=projectile.getLookAngle();
             projectile.shoot(direction.x,direction.y,direction.z,.5f,0);
-            projectile.entityTags().addAll(List.of(ACID,WAND_ACID,"raycastacid","player","slowraycast","shield_blockable2","magic","actived"));
+            projectile.entityTags().addAll(List.of(ACID,WAND_ACID,"raycastacid","player","slowraycast","shield_blockable2","actived"));
             projectile.entityTags().add(game.items().epoch());
             level.addFreshEntity(projectile);
         }
@@ -426,7 +428,7 @@ public final class LbcClouds {
         float pitch=(float)-Math.toDegrees(Math.atan2(aim.y,aim.horizontalDistance()));
         var shot=new AcidProjectile(ACID_PROJECTILE,owner.level());shot.setOwner(owner);shot.setPos(origin);
         shot.setYRot(yaw);shot.setXRot(pitch);shot.setDeltaMovement(aim.scale(variant==2?3:.2));shot.setNoGravity(true);
-        shot.entityTags().addAll(List.of(ACID,WAND_ACID,"magic","slowraycast",game.items().epoch()));
+        shot.entityTags().addAll(List.of(ACID,WAND_ACID,"slowraycast",game.items().epoch()));
         if(variant==0)shot.entityTags().addAll(List.of(GREAT_ACID,ACID_500,"great_acid"));
         else shot.entityTags().add(variant==1?CAUST_ACID:BURST_ACID);
         if(variant==1)shot.entityTags().add(ACID_500);
@@ -458,7 +460,7 @@ public final class LbcClouds {
         projectile.shoot(direction.x,direction.y,direction.z,big?.2f:.5f,0);
         // Entity tags persist with owner, age and stuck state, including after reflection/reload.
         projectile.entityTags().addAll(List.of(ACID,WAND_ACID,big?"raycastacidbig":"raycastacid",
-                "player","slowraycast","shield_blockable2","magic","actived",game.items().epoch()));
+                "player","slowraycast","shield_blockable2","actived",game.items().epoch()));
         if(big) projectile.entityTags().add(ORDINARY_WAND_ACID);
         if(flyingDirection!=null) {
             projectile.entityTags().remove("shield_blockable2");
@@ -493,7 +495,7 @@ public final class LbcClouds {
         var projectile=new AcidProjectile(ACID_PROJECTILE,level);
         projectile.setPos(origin);projectile.setYRot(yaw);projectile.setXRot(pitch);
         var direction=projectile.getLookAngle();projectile.shoot(direction.x,direction.y,direction.z,.5f,0);
-        projectile.entityTags().addAll(List.of(ACID,SOURCE_ACID,"raycastacid","player","slowraycast","magic","actived",game.items().epoch()));
+        projectile.entityTags().addAll(List.of(ACID,SOURCE_ACID,"raycastacid","player","slowraycast","actived",game.items().epoch()));
         if(shield)projectile.entityTags().add("shield_blockable2");
         if(lifetime==500)projectile.entityTags().add(ACID_500);
         projectile.setAttached(ACID_AGE,0);
