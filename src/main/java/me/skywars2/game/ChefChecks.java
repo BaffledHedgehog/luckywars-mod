@@ -86,7 +86,7 @@ public final class ChefChecks {
             player.getStats().setValue(player,Stats.ENTITY_KILLED.get(EntityTypes.COW),cowKills);game.items().magic().inventoryChanged(player);
         }
     }
-    private static final class Fixture implements AutoCloseable {
+    static final class Fixture implements AutoCloseable {
         final GameController game;final LbcWtf service;final LbcMana mana;final ServerPlayer owner,other;
         final Saved saved,otherSaved;final Map<Field,Object> config;final Vec3 at;final BlockPos center;
         final Set<Entity> before=Collections.newSetFromMap(new IdentityHashMap<>());final List<Cow> cows=new ArrayList<>();

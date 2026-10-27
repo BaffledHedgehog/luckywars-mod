@@ -249,10 +249,15 @@ public final class LbcWtf {
                     getLookAngle().dot(at.subtract(getEyePosition()).normalize()),-1,1)));actionSerial++;
         }
         void steer(Vec3 destination,boolean jump){
+            steer(destination,jump,null);
+        }
+        /** Backpedal/air-place in world space without turning away from the action or landing. */
+        void steer(Vec3 destination,boolean jump,Vec3 facing){
             Vec3 delta=destination.subtract(position());
             double distance=delta.horizontalDistance();
             if(distance<.035){xxa=0;zza=0;jumping=jump;return;}
-            float desiredYaw=(float)(Math.atan2(-delta.x,delta.z)*180/Math.PI);
+            Vec3 look=facing==null?delta:facing.subtract(position());
+            float desiredYaw=(float)(Math.atan2(-look.x,look.z)*180/Math.PI);
             if(actionAim==null||tickCount>aimUntil)setYRot(net.minecraft.util.Mth.approachDegrees(getYRot(),desiredYaw,20));
             if(actionAim==null||tickCount>aimUntil)setYBodyRot(net.minecraft.util.Mth.approachDegrees(yBodyRot,getYRot(),15));
             // Direction is independent of bounded body rotation: corners cannot make a circling actor.
@@ -261,7 +266,7 @@ public final class LbcWtf {
             xxa=(float)(dx*Math.cos(yaw)+dz*Math.sin(yaw))*throttle;
             zza=(float)(-dx*Math.sin(yaw)+dz*Math.cos(yaw))*throttle;
             setSpeed((float)getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED));
-            jumping=jump;lookAt(target.getEyePosition());
+            jumping=jump;lookAt(facing==null?target.getEyePosition():facing);
         }
 
     }

@@ -1,3 +1,22 @@
+## Chef navigation and edge recovery - QUALIFIED, AUTO INSTALL QUEUED (27 October2026)
+
+[Behavior, physics and evidence](agent_notes/CHEF_NAVIGATION_2026_10_27.md).
+Stable routes retain their frontier/collision proposals; safe shortcuts consume
+obsolete waypoints. Real downward mining, partial-block fast paths, one bounded
+backstep with independent facing, native sprint-jump momentum, single-launch
+landing and real airborne far-bank extension are implemented. Centre-over-air
+edge/corner starts recover through the full footprint and native steering.
+
+Build25d7466b passed40 suite results in two actual mode1 matches (109.11s),
+including nine new navigation fixtures,24previousChef groups and naturally
+scheduled knock/wake/pursuit. Exact504sources/1438classes/3215resources. All175
+protected paths and31live overrides are exact; no RP changes. Main735d9905 is
+running; safe automatic installation waits for normal stop/world unlock. Current
+ready artifact and rollback are preserved; obsolete16502e73 cleanup follows only
+after verified installation. No forced shutdown/restart. No physical-client,
+arbitrary-map/global-fastest-route or peakTPS claim. Other author questions
+remain pending; historical next-work/status lists below are superseded.
+
 ## TPS compensation - IMPLEMENTED, QUALIFIED, INSTALLED (27 October2026)
 
 [Behavior, native sources and evidence](agent_notes/TPS_COMPENSATION_2026_10_27.md).
