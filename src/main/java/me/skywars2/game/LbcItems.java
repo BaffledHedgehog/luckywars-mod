@@ -139,6 +139,7 @@ public final class LbcItems {
         fevgaleaStar.damaged(victim,source);
         chargedSwords.damaged(victim,source);
         karaSlabs.damaged(victim,source);
+        classicMelee.damaged(victim,source);
         if (!game.playing() && !debugItemUseWindow() || !inArena(victim) || LbcDamage.isArrowDamage(source)
                 || !(source.getEntity() instanceof ServerPlayer owner) || !active(owner)
                 || !owner.isAlive() || !inArena(owner)) return;
@@ -194,6 +195,7 @@ public final class LbcItems {
     private final LbcFevgaleaStar fevgaleaStar;
     private final LbcChargedSwords chargedSwords;
     private final LbcKaraSlabs karaSlabs;
+    private final LbcClassicMelee classicMelee;
     private final LbcSheep sheep;
     private final LbcHedgehog hedgehog;
     private final LbcGodHedgehog godHedgehog;
@@ -765,6 +767,7 @@ public final class LbcItems {
         this.fevgaleaStar = new LbcFevgaleaStar(game);
         this.chargedSwords = new LbcChargedSwords(game);
         this.karaSlabs = new LbcKaraSlabs(game);
+        this.classicMelee = new LbcClassicMelee(game);
         this.sheep = new LbcSheep(game,mana);
         this.hedgehog = new LbcHedgehog(game,mana);
         this.godHedgehog = new LbcGodHedgehog(game);
@@ -943,6 +946,7 @@ public final class LbcItems {
     public LbcFevgaleaStar fevgaleaStar() { return fevgaleaStar; }
     public LbcChargedSwords chargedSwords() { return chargedSwords; }
     public LbcKaraSlabs karaSlabs() { return karaSlabs; }
+    public LbcClassicMelee classicMelee() { return classicMelee; }
     public LbcSheep sheep() { return sheep; }
     public LbcHedgehog hedgehog() { return hedgehog; }
     public LbcGodHedgehog godHedgehog() { return godHedgehog; }

@@ -770,6 +770,9 @@ public final class GameChecks {
                                 case "sauvojen" -> { SauvojenChecks.run(game); return; }
                                 case "late-swords-prepare" -> { LateSwordChecks.prepare(game); return; }
                                 case "late-swords-preparation-cleanup" -> { LateSwordChecks.releasePreparation(game); return; }
+                                case "classic-melee-menu" -> { ClassicMeleeChecks.setup(game); return; }
+                                case "classic-melee-lobby-cleanup" -> { ClassicMeleeChecks.cleanupLobby(game); return; }
+                                case "classic-melee" -> { ClassicMeleeChecks.run(game); return; }
                                 case "late-swords" -> { LateSwordChecks.run(game); return; }
                                 case "late-swords-stop-probe" -> { LateSwordChecks.stopProbe(game); return; }
                                 case "late-swords-cleanup" -> { LateSwordChecks.cleanup(game); return; }
@@ -27137,7 +27140,7 @@ public final class GameChecks {
                 SkyWars2.LOGGER.info("[check] Created TestAlpha/TestBeta as vanilla ServerPlayer instances");
         }
 
-        private static ServerPlayer createBot(GameController game, String name) {
+        static ServerPlayer createBot(GameController game, String name) {
                 UUID uuid = offlineUuid(name);
                 ServerPlayer existing = game.server().getPlayerList().getPlayer(uuid);
                 if (existing != null)

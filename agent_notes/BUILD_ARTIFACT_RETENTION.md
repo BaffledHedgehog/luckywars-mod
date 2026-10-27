@@ -124,3 +124,15 @@ qualified request and waits for normal main shutdown; main disk remains1a8a3825.
 Cumulative removal:332JARs /11,865,118,822bytes. Exact qualification, installer
 and cleanup receipt: `build/verification/late-swords/`. Current build/libs,
 native fixture inputs, small evidence logs and protected author files remain.
+
+## Classic melee ready checkpoint (27 October2026)
+
+Buildd039db36 passed74 suite results,8 preparation results and2 scoped setup/
+cleanup results in two actual matches. Verified obsolete Fevgalea archive
+b8140165 was removed (39,639,008bytes). Keep new Classic Meleed039db36,
+preceding Late Swords8a94c831 and exact installed signed-effects1a8a3825 fallback.
+Installer11424 adopted the new qualified request and waits for normal main
+shutdown; main disk remains1a8a3825. Cumulative removal:333JARs /
+11,904,757,830bytes. Exact qualification, installer and cleanup receipt:
+`build/verification/classic-melee/`. Current build/libs and protected author
+files remain; no running main JAR was replaced and no restart was forced.

@@ -1,3 +1,42 @@
+## Feeding, Vampire and Sea Guardian - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
+
+[Port contract](CLASSIC_MELEE_PORT_2026_10_27.md), [exact source](CLASSIC_MELEE_SOURCE_2026_10_27.md).
+Three accepted-hit passives now operate on their original vanilla sword stacks,
+including native attributed non-arrow/fatal hits. Feeding retains one native
+instant Saturation tick, food_count and exact eat/burp feedback; Vampire retains
+20ticks of RegenerationV. Guardian preserves the actual swimming branch without
+RNG, dry25-percent chance, source radius/effect authors and targeted elder-guardian
+feedback. Existing role/ally/Greed/antimagic and shared lifecycle rules remain.
+Five current/legacy leaves preserve source components; the existing ordinary
+reforge pool is unchanged. All three actual imported advancement criteria pass.
+
+Buildd039db36 passed74 suite results,8 preparation results and2 scoped participant
+setup/cleanup results in two actual mode1 matches (76.08s). Exact462sources /
+1285classes /3155resources match the tested JAR. Native attacks, accepted external
+non-arrow/fatal/self cases, effects/food/hidden expiry, exact RNG and audience
+checks pass alongside Late Swords/Fevgalea/Sauvojen, grimoires, player/projectile,
+Time Stop, signed effects/layers/FOV and firearms. The rejected first run retains
+its evidence; only the fixture self-damage cause was corrected to existing WILD
+admission. Both runs shut down normally and restored saved fixture files.
+Physical pixels/audio, latency and peakTPS remain unobserved.
+
+Installer11424 adoptedd039db36 over pending8a94c831 and waits for normal main
+shutdown/world unlock (24566, RCON off). Main disk remains1a8a3825; no forced
+stop/restart. Ready:build/verification/skywars2-classic-melee-d039db36.jar.
+Evidence/live receipt:build/verification/classic-melee/. Keepd039db36,8a94c831
+and installed1a8a3825; obsoleteb8140165 retired. Cumulative cleanup333JARs /
+11904757830bytes. All175 protected author paths and31 live grimoire overrides
+are byte-exact. No RP/template update required. TPS compensation remains a
+feasibility question and is not implemented.
+
+Next: [Ender/Devil source preparation](ENDER_DEVIL_MELEE_SOURCE_2026_10_27.md).
+Neither family is implemented yet. Check native spreadplayers distribution,
+repeated selectors and instant self-damage attribution before enabling them.
+[Epic/Fragment audit](EPIC_FRAGMENT_SOURCE_2026_10_27.md) is complete but
+fang overlap/extreme feedback await the choices in
+[PENDING_QUESTIONS.md](PENDING_QUESTIONS.md), alongside Piston/Chaos and
+Gravity's leaked modifier. These notes supersede historical remaining-work lists.
+
 ## Triple Golden, Blazefire and Kara slabs - QUALIFIED, AUTOMATIC INSTALL QUEUED (27 October2026)
 
 [Port contract](LATE_SWORDS_PORT.md), [exact sword source](SWORDS_PISTON_TRIPLE_BLAZE_SOURCE.md),
