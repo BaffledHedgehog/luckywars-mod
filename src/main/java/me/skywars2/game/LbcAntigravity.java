@@ -15,8 +15,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -246,7 +244,8 @@ public final class LbcAntigravity {
                 if(living instanceof ServerPlayer player)carryPlayer(player,top,passenger);
                 else {lift(living,speed,storm.author);passenger.appliedSpeed=speed;passenger.impulseApplied=true;}
                 carried.add(living);
-                living.addEffect(ItemEffectLevels.create(MobEffects.SLOW_FALLING,30,0,true,false,false),storm.author);
+                // The moving floor clears falling debt only while carrying; no lingering potion.
+                living.resetFallDistance();
             }
             platform.passengers.removeIf(passenger->passenger.detached);
             platform.offset+=platform.speed;

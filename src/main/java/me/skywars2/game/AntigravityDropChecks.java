@@ -305,9 +305,8 @@ public final class AntigravityDropChecks {
             require(floating.getDeltaMovement().equals(Vec3.ZERO) && adjacent.getDeltaMovement().equals(Vec3.ZERO)
                     && !floating.hasEffect(MobEffects.SLOW_FALLING) && !adjacent.hasEffect(MobEffects.SLOW_FALLING),
                     "hovering and adjacent actors receive neither lift nor slowfall");
-            var effect=victim.getEffect(MobEffects.SLOW_FALLING);
-            require(effect!=null && effect.getDuration()==30 && effect.getAmplifier()==0 && effect.isAmbient()
-                    && !effect.isVisible() && !effect.showIcon(),"supported lift retains source hidden30 slowfall");
+            require(!victim.hasEffect(MobEffects.SLOW_FALLING)&&victim.fallDistance==0,
+                    "supported lift clears fall debt without a lingering slowfall potion");
             victim.setPos(start.add(.5,4,.5)); victim.setDeltaMovement(.1,-.3,.2);
             ticks(2);
             require(victim.getDeltaMovement().equals(new Vec3(.1,-.3,.2))
@@ -332,6 +331,14 @@ public final class AntigravityDropChecks {
                                 +" feet="+rider.getY()+" top="+(display.getY()+1)+" velocity="+rider.getDeltaMovement());
             }
             require(rider.getY()>center.getY()+30,"forty actual native movement steps rise with accelerating terrain");
+            rider.setPos(rider.position().add(5,0,0));rider.setDeltaMovement(Vec3.ZERO);rider.setOnGround(false);
+            double releasedY=rider.getY();ticks(1);
+            require(!game.items().antigravity().supported(rider)&&!rider.hasEffect(MobEffects.SLOW_FALLING),
+                    "fully departed native rider has no support or slowfall");
+            rider.tick();require(Math.abs(rider.getDeltaMovement().y-(-.08*.98))<1e-7,
+                    "native departure immediately uses ordinary gravity and air drag");
+            rider.tick();require(Math.abs(rider.getY()-(releasedY-.08*.98))<1e-7,
+                    "second native movement tick falls normally without potion tail");
             // A real native jump is a departure, not a reason to recapture an airborne former rider.
             reset();set(center,Blocks.STONE.defaultBlockState());
             rider=cow(Vec3.atLowerCornerOf(center).add(.5,1,.5));

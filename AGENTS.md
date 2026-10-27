@@ -1,3 +1,20 @@
+## Antigravity departure gravity - QUALIFIED, AUTO INSTALL QUEUED (27 October 2026)
+
+[Cause, exact fix and native evidence](agent_notes/ANTIGRAVITY_DEPARTURE_2026_10_27.md).
+Removed the hidden30tick Slow Falling refresh on carried actors: that potion
+caused up to1.5seconds of slow fall after leaving. Carrier now resets fall debt
+directly while supported, including NPCs, and leaves external effects intact.
+Native momentum/gravity, capture/input/latency/Time Stop logic remain unchanged;
+rare missed capture is a separate unverified report, not claimed fixed here.
+Build46034d3c passed32results in2actual mode1matches (65.35s), exact523sources/
+1482classes/3224resources;195author paths/31live overrides unchanged. Native
+40step rider departure resumes ordinary gravity/drag, wire departure adds no
+potion, external200tick Slow Falling survives, and shared regressions pass.
+Normal child stop and exact snapshots restored. No RP change for this patch.
+Installer PID15932 adopts this cumulative build instead of queued23c9e577,
+waiting for main23a25d43 normal stop without restart. Prior status stays historical.
+Live: build/verification/antigravity-departure/main-install.json.
+
 ## Gaycaster warning countdown and dense walls - QUALIFIED, AUTO INSTALL QUEUED (27 October 2026)
 
 [User changes, exact shader contract and proof](agent_notes/GAYCASTER_WARNING_TIMING_2026_10_27.md).

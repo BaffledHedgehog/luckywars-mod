@@ -98,6 +98,7 @@ public final class AntigravitySupportChecks {
             near(p.position().distanceToSqr(before),0,"service tick changes no player server coordinates");
             near(p.getYRot(),yaw,"carry preserves yaw");near(p.getXRot(),pitch,"carry preserves pitch");
             require(p.fallDistance==0&&service.supported(p),"supported player has no falling debt");
+            require(!p.hasEffect(net.minecraft.world.effect.MobEffects.SLOW_FALLING),"normal rider acquires no hidden slowfall");
             require(!p.onGround(),"velocity ascent retains native airborne state");
             noCorrection();return wire();
         }
@@ -245,6 +246,13 @@ public final class AntigravitySupportChecks {
             var jump=p.position();f.base.recording.packets.clear();service.tick();
             near(p.position().distanceToSqr(jump),0,"jumping player coordinates remain native");
             require(!service.supported(p),"jump detaches support");noCorrection();
+            stage(0);step();
+            var external=ItemEffectLevels.create(net.minecraft.world.effect.MobEffects.SLOW_FALLING,200,0);
+            p.addEffect(external);service.tick();
+            nativeMove(center.getX()+3,p.getY(),p.getZ(),73,-21,false);service.tick();
+            var retained=p.getEffect(net.minecraft.world.effect.MobEffects.SLOW_FALLING);
+            require(!service.supported(p)&&retained!=null&&retained.getDuration()==200,
+                    "departure preserves genuine external slowfall rather than stripping shared effects");
             stage(0);step();double stopped=p.getY(),display=top();
             f.base.game.items().timeStop().begin(f.level,40);f.base.recording.packets.clear();
             try{service.tick();near(p.getY(),stopped,"Time Stop pauses carrier");near(top(),display,"Time Stop pauses platform");
