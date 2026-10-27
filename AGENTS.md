@@ -1,3 +1,16 @@
+## Warning bloom terrain regression - RP FIX READY (27 October 2026)
+
+[Cause, exact correction and GPU evidence](agent_notes/WARNING_BLOOM_FIX_2026_10_27.md).
+Removed approximate warning-color matching from the composited scene: it made
+ordinary orange terracotta, red sandstone and other terrain glow. The template
+bloom_sample.fsh preserves the author's previous exact palette/red branch.
+All 1,300 vanilla block textures / 96,430 brightness samples: 5,413 false glow
+samples before, zero after; all 15 legacy palette outputs and eight item shader
+variants pass on GPU. Actual RP remains read-only; copy the one shader and F3+T.
+Warning fullbright/opacity/fade stay, but translucent warning bloom can weaken;
+material-only bloom needs a separate mask. No JAR/build/install change required.
+This supersedes only the historical scene-color bloom instructions below.
+
 ## Three complete armor sets - QUALIFIED, INSTALLED (27 October2026)
 
 [Source, complete abilities and native evidence](agent_notes/ARMOR_SETS_PORT_2026_10_27.md).

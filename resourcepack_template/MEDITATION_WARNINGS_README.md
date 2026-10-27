@@ -3,7 +3,9 @@
 Copy ONLY the six new `assets/lbc/items/meditation_warning_*`, corresponding
 `models/item/`, `textures/item/` files and
 `assets/lbc/shaders/include/meditation_warning.glsl` into the pack. Apply the
-three small shader edits below to the CURRENT pack files, then F3+T. Do not
+two core-shader edits below to the CURRENT pack files, then F3+T. For the bloom
+regression fix, copy `assets/minecraft/shaders/post/bloom_sample.fsh` from this
+template over the current pack file. Do not
 replace existing core shaders or `entity_outline.json`: their zone, black-hole,
 nuclear, signed-effect, zoom and bloom pipelines must stay intact.
 
@@ -121,28 +123,37 @@ unchanged. Do not modify `entity.fsh`: item displays use `item.vsh`/`item.fsh`.
 
 ## Merge: existing bloom sampler
 
-In `assets/minecraft/shaders/post/bloom_sample.fsh`, add the include next to
-existing includes, and add the call immediately BEFORE `fragColor = outColor;`:
+The original instructions added approximate color matching to the already
+composited scene. This also matched ordinary orange terracotta, red sandstone
+and other terrain colors. **Do not add that match.** If it was already applied,
+remove these two lines from `assets/minecraft/shaders/post/bloom_sample.fsh`:
 
 ```glsl
 #include <lbc:meditation_warning.glsl>
-// ... inside main, immediately before fragColor assignment:
 outColor = max(outColor, lbc_meditation_warning_bloom(checkColor));
 ```
 
-Retain the existing 15-color list, tolerant red branch, blur/composite shaders
-and post-chain order. This extends existing palette bloom continuously to faded
-intensities; it does not allocate another full-screen pass. Since existing bloom
-samples the ALREADY blended scene, arbitrary backgrounds can reduce its ability
-to isolate translucent warning colors; palette-colored world pixels can glow too.
-Perfect material-only glow would require a separate material mask/render target.
-Geometry opacity remains correct independently of that limitation.
+Alternatively copy the supplied `bloom_sample.fsh`: it is the current author's
+file with only those two lines removed. Retain the existing 15-color list,
+tolerant red branch, blur/composite shaders and post-chain order.
+
+Keep the `meditation_warning.glsl` include in **item.fsh**: its exact texture
+RGBA marker recognition is still required for fullbright warnings and their
+transparency/fade. The unused bloom helper in that include can remain; nothing
+calls it after this fix. No model, texture, server JAR or post-chain change is
+needed. Existing warning geometry, color, opacity and fade remain; translucent
+warnings can have weaker/missing bloom after blending into the background.
+Independent material-only bloom needs a separate mask and is not implemented by
+this correction. Do not restore it by matching approximate scene colors.
 
 ## Verification
 
 Native 26.3 source was checked for model tint schema and arbitrary Euler rotations.
 The merged shaders were compiled/linked on the available standalone OpenGL context
 for ordinary, cutout, alpha-only, OIT accumulation and glint variants. GPU samples
-checked each helper base alpha, grayscale half/zero fade, exclusion of legacy
-alpha254/130 from warning recognition, and faded palette bloom. This is shader/asset validation, not an in-game image
-review; the user must apply the pack edits before the new displays can render.
+checked each helper base alpha, grayscale half/zero fade and exclusion of legacy
+alpha254/130 from warning recognition. The former faded-palette bloom tests did
+not cover terrain and missed the regression. The correction additionally tests
+actual vanilla block texture pixels at multiple brightnesses and the unchanged
+legacy glow palette on the GPU. This is shader/asset validation, not an in-game
+image review; the user applies the pack edits.
