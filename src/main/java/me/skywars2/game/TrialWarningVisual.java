@@ -29,7 +29,7 @@ final class TrialWarningVisual implements AutoCloseable {
     private final double radius;
     private Vec3 origin,end;
     private int age,opacity=255,progress;
-    private boolean closed;
+    private boolean closed,arenaBound=true;
 
     private TrialWarningVisual(GameController game,ServerLevel level,String epoch,Kind kind,String suffix,
                                Vec3 origin,Vec3 end,int lifetime,double radius) {
@@ -45,7 +45,15 @@ final class TrialWarningVisual implements AutoCloseable {
     }
     private void spawn(){refreshViewers();holder.tick();}
     static TrialWarningVisual beam(GameController game,ServerLevel level,String epoch,Vec3 from,Vec3 to,boolean green,int life){
+        return beam(game,level,epoch,from,to,green,life,true);
+    }
+    /** Encounter warnings belong to their real dimension, including worlds outside the arena. */
+    static TrialWarningVisual worldBeam(GameController game,ServerLevel level,String epoch,Vec3 from,Vec3 to,boolean green,int life){
+        return beam(game,level,epoch,from,to,green,life,false);
+    }
+    private static TrialWarningVisual beam(GameController game,ServerLevel level,String epoch,Vec3 from,Vec3 to,boolean green,int life,boolean arenaBound){
         var v=new TrialWarningVisual(game,level,epoch,Kind.BEAM,green?"beam_green":"beam_red",from,to,life,0);
+        v.arenaBound=arenaBound;
         Vec3 delta=to.subtract(from);double length=delta.length();
         v.display.setYaw((float)Math.toDegrees(Math.atan2(-delta.x,delta.z)));
         v.display.setPitch((float)-Math.toDegrees(Math.atan2(delta.y,delta.horizontalDistance())));
@@ -81,7 +89,7 @@ final class TrialWarningVisual implements AutoCloseable {
         stack.set(DataComponents.CUSTOM_MODEL_DATA,new CustomModelData(List.of(),List.of(),List.of(),List.of(rgb)));}
     boolean tick(){
         if(closed)return true;
-        if(!game.items().currentEpoch(epoch)||level!=game.maps().level()){close();return true;}
+        if(!game.items().currentEpoch(epoch)||arenaBound&&level!=game.maps().level()){close();return true;}
         refreshViewers();if(game.items().timeStop().stopped(level))return false;
         if(++age>=lifetime){close();return true;}
         if(kind==Kind.SPHERE)display.setScale(new Vector3f((float)(2*radius*age/Math.max(1,lifetime-1))));

@@ -2,7 +2,6 @@ package me.skywars2.game;
 
 import com.mojang.math.Transformation;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.TagParser;
@@ -70,6 +69,7 @@ public final class LbcGodHedgehog {
     }
     private static final class Actor {
         final Encounter encounter;final Display.ItemDisplay display;final int kind;Marker marker;Vec3 point,direction;int age;
+        TrialWarningVisual warning;
         Actor(Encounter e,Display.ItemDisplay d,int kind,Vec3 point,Vec3 direction){encounter=e;display=d;this.kind=kind;this.point=point;this.direction=direction;}
         Entity body(){return display!=null?display:marker;}
     }
@@ -136,7 +136,8 @@ public final class LbcGodHedgehog {
         if(author==null||!game.playing()||!resident(level,at))return null;
         for(var old:encounters)if(old.level==level&&valid(old)&&old.boss.isAlive()&&!old.boss.isRemoved())return old.boss;
         game.items().hedgehog().eraseForBoss(level,null);
-        var boss=new Boss(level);boss.setPos(at);boss.setPersistenceRequired();boss.setCustomNameVisible(true);
+        var spawnAt=at.add(0,20,0);
+        var boss=new Boss(level);boss.setPos(spawnAt);boss.setPersistenceRequired();boss.setCustomNameVisible(true);
         var name=Component.empty();String[] glyphs={"𝕬","𝕽","𝕮","𝕳","𝕺","𝕹","𝕱","𝕷","𝕰","𝕯","𝕲","𝕺","𝕯","𝕲","𝕰","𝕳","𝕺","𝕲"};
         int[] colors={0xff0000,0xff1800,0xff2f00,0xff4700,0xff5e00,0xff7600,0xff8e00,0xffa500,0xffb200,0xffbb00,0xffc400,0xffce00,0xffd700,0xffe100,0xffea00,0xeaef08,0xc6f215,0xa3f422};
         for(int i=0;i<glyphs.length;i++){final int color=colors[i];name.append(Component.literal(glyphs[i]).withStyle(s->s.withColor(TextColor.fromRgb(color))));}
@@ -147,7 +148,7 @@ public final class LbcGodHedgehog {
         var e=new Encounter(level,author,game.items().indirectKills().wildCause(author),game.items().epoch(),boss);boss.encounter=e;encounters.add(e);
         game.items().timeStop().prepareFrozen(boss);
         if(!level.addFreshEntity(boss)||boss.isRemoved()){retire(e);return null;}
-        for(float pitch:new float[]{1,1.05f,1.1f,.95f})sound(level,at,"minecraft:lbcsounds.flowey_laugh",1,pitch,1);
+        for(float pitch:new float[]{1,1.05f,1.1f,.95f})sound(level,spawnAt,"minecraft:lbcsounds.flowey_laugh",1,pitch,1);
         for(var player:level.players()){
             player.connection.send(new ClientboundSetTitleTextPacket(Component.translatable("godfled_spawn").withStyle(net.minecraft.ChatFormatting.DARK_RED)));
             player.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal("Ж".repeat(40)).withStyle(net.minecraft.ChatFormatting.DARK_RED,net.minecraft.ChatFormatting.OBFUSCATED)));
@@ -203,10 +204,9 @@ public final class LbcGodHedgehog {
         var at=player.position().add(0,.4,0).add(direction(yaw,pitch).scale(10));var aim=player.getEyePosition().subtract(at).normalize();
         double facingYaw=Math.toDegrees(Math.atan2(-aim.x,aim.z));double facingPitch=-Math.toDegrees(Math.asin(aim.y));
         at=at.add(direction(facingYaw-90,0).scale(left));aim=direction(facingYaw+turn,facingPitch);
-        var visual=display(e,at,aim,false);if(visual==null)return;
-        actors.add(new Actor(e,visual,1,at,aim));sound(e.level,at,"minecraft:block.beacon.activate",.5f,2,0);
+        if(white(e,at,aim,0)==null)return;
+        sound(e.level,at,"minecraft:block.beacon.activate",.5f,2,0);
         e.level.sendParticles(ParticleTypes.WITCH,at.x,at.y,at.z,5,.4,.4,.4,2);
-        for(int n=1;n<=40;n++){var p=at.add(0,.2,0).add(aim.scale(n*.25));e.level.sendParticles(new DustParticleOptions(0xffffff,1.5f),p.x,p.y,p.z,1,0,0,0,0);}
     }
     private LivingEntity nearest(ServerLevel level,Vec3 from,double radius){
         LivingEntity found=null;double best=radius*radius;
@@ -216,6 +216,13 @@ public final class LbcGodHedgehog {
     }
     private static Vec3 direction(double yaw,double pitch){double y=Math.toRadians(yaw),p=Math.toRadians(pitch);return new Vec3(-Math.sin(y)*Math.cos(p),-Math.sin(p),Math.cos(y)*Math.cos(p));}
     private void seed(Encounter e,Vec3 at,Vec3 dir){var d=display(e,at,dir,true);if(d!=null)actors.add(new Actor(e,d,0,at,dir));}
+    private Actor white(Encounter e,Vec3 at,Vec3 direction,int age){
+        var display=display(e,at,direction,false);if(display==null)return null;
+        var actor=new Actor(e,display,1,at,direction);actor.age=age;
+        var from=at.add(0,.2,0);
+        actor.warning=TrialWarningVisual.worldBeam(game,e.level,e.epoch,from,from.add(direction.scale(10)),false,Math.max(1,40-age));
+        actors.add(actor);return actor;
+    }
     private Display.ItemDisplay display(Encounter e,Vec3 at,Vec3 dir,boolean eater){
         if(!resident(e.level,at))return null;var d=new Visual(e.level);
         String model=eater?"hedgegod_eater":"whitearrow";String scale=eater?"[.01f,.01f,.01f]":"[1.5f,1.5f,1.5f]";
@@ -259,6 +266,7 @@ public final class LbcGodHedgehog {
             if(entity instanceof LivingEntity living)kills.withCause(living,e.cause,()->living.hurtServer(e.level,source,10));
     }
     private void whiteTick(Actor a){
+        if(a.warning!=null)a.warning.tick();
         if(++a.age!=40)return;var level=a.encounter.level;var p=a.point;
         sound(level,p,"minecraft:block.beacon.power_select",2,2,0);level.sendParticles(ParticleTypes.END_ROD,p.x,p.y,p.z,10,.2,.2,.2,.05);
         var ray=new Actor(a.encounter,null,2,p,a.direction);ray.marker=new RayBody(level);ray.marker.setPos(p);
@@ -298,7 +306,7 @@ public final class LbcGodHedgehog {
         }
     }
     private static void sound(ServerLevel level,Vec3 at,String id,float volume,float pitch,float minimum){LbcOverload.sound(level,at,id,volume,pitch,0,minimum);}
-    private void remove(Actor actor){actors.remove(actor);if(actor.body()!=null&&!actor.body().isRemoved())actor.body().discard();}
+    private void remove(Actor actor){actors.remove(actor);if(actor.warning!=null)actor.warning.close();if(actor.body()!=null&&!actor.body().isRemoved())actor.body().discard();}
     private void retire(Encounter e){e.retired=true;for(var a:List.copyOf(actors))if(a.encounter==e)remove(a);lasers.removeIf(l->l.encounter==e);for(var child:List.copyOf(blastChildren))if(find(child)==e){blastChildren.remove(child);child.discard();}if(!e.boss.isRemoved())e.boss.discard();encounters.remove(e);}
     public void loaded(Entity entity){if(managed(entity)&&!spawning.contains(entity)){var e=find(entity);if(e==null||!valid(e))entity.discard();}}
     public void unloaded(Entity entity){var e=find(entity);if(e!=null&&entity==e.boss)retire(e);else for(var a:List.copyOf(actors))if(a.body()==entity)remove(a);}
@@ -308,14 +316,14 @@ public final class LbcGodHedgehog {
     public List<Entity> snapshot(){var list=new ArrayList<Entity>();for(var e:encounters)if(!e.boss.isRemoved())list.add(e.boss);for(var a:actors)if(a.body()!=null)list.add(a.body());return List.copyOf(list);}
     int pendingBlasts(){return lasers.stream().mapToInt(l->101-l.cursor).sum();}
     int actorCount(){return actors.size();}
+    List<TrialWarningVisual> warningSnapshot(){return actors.stream().filter(a->a.warning!=null).map(a->a.warning).toList();}
     void phaseForCheck(int phase){activeTicker=phase;}
     /** Explicit source-age boundaries for native fixtures; these do not advance elapsed server time. */
     Entity eaterBoundary(Entity boss,Vec3 at,Vec3 direction,int age){
         var e=find(boss);if(e==null)return null;int previous=actors.size();seed(e,at,direction);if(actors.size()==previous)return null;var a=actors.getLast();a.age=age;return a.body();
     }
     Entity whiteBoundary(Entity boss,Vec3 at,Vec3 direction,int age){
-        var e=find(boss);if(e==null)return null;var d=display(e,at,direction,false);if(d==null)return null;
-        var a=new Actor(e,d,1,at,direction);a.age=age;actors.add(a);return d;
+        var e=find(boss);if(e==null)return null;var a=white(e,at,direction,age);return a==null?null:a.body();
     }
     void laserBoundary(Entity boss,Vec3 at,Vec3 direction){var e=find(boss);if(e!=null)lasers.add(new Laser(e,at,direction));}
 }

@@ -72,7 +72,7 @@ public final class HedgehogChecks {
         final Set<Entity> before=Collections.newSetFromMap(new IdentityHashMap<>()),owned=Collections.newSetFromMap(new IdentityHashMap<>());
         final Map<BlockPos,MapManager.BlockSnapshot> blocks=new LinkedHashMap<>();final Set<Long> forced=new HashSet<>(),previousForced;
         final net.minecraft.world.scores.PlayerTeam oldOwnerTeam,oldOtherTeam,team;final Vec3 at;final String epoch;final int cost;
-        long last=Long.MIN_VALUE;int phase;boolean closed;
+        long last=Long.MIN_VALUE;int phase,sneezeWarmTicks;boolean closed;
         Fixture(GameController game){this.game=game;service=game.items().hedgehog();epoch=game.items().epoch();
             owner=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestAlpha"));other=game.server().getPlayerList().getPlayer(GameChecks.offlineUuid("TestBeta"));
             require(game.playing()&&owner!=null&&other!=null&&owner.level()==other.level()&&game.canUseGameplayItems(owner)&&game.canUseGameplayItems(other),"two actual active participants");
@@ -175,6 +175,17 @@ public final class HedgehogChecks {
             held(new ItemStack(LbcHedgehogItems.WAND),InteractionHand.MAIN_HAND);game.items().mana().set(owner,2500);
             require(input(InteractionHand.MAIN_HAND)&&service.views().size()==40&&owner.getAdvancements().getOrStartProgress(advancement).isDone(),"actual40-helper source achievement is independent of wall trial");clear();
         }
+        boolean prepareSneeze(){
+            var level=owner.level();var center=new BlockPos(BlockPos.containing(at).getX()+96,level.getMaxY()-2,BlockPos.containing(at).getZ());
+            require(++sneezeWarmTicks<=200,"native isolated blast entity chunks become ready");
+            boolean ready=true;
+            for(int x=(center.getX()-48)>>4;x<=(center.getX()+48)>>4;x++)for(int z=(center.getZ()-48)>>4;z<=(center.getZ()+48)>>4;z++){
+                long key=net.minecraft.world.level.ChunkPos.pack(x,z);
+                if(sneezeWarmTicks==1){if(!previousForced.contains(key)&&forced.add(key))level.setChunkForced(x,z,true);level.getChunk(x,z);}
+                ready&=level.areEntitiesLoaded(key);
+            }
+            return ready;
+        }
         void sneeze(){
             require(game.items().nuclearVisuals().count()==0&&service.pendingBlasts()==0,"exclusive empty nuclear and native-blast queues");
             var level=owner.level();var center=new BlockPos(BlockPos.containing(at).getX()+96,level.getMaxY()-2,BlockPos.containing(at).getZ());var origin=Vec3.atCenterOf(center);
@@ -223,6 +234,7 @@ public final class HedgehogChecks {
             f=helper(LbcHedgehog.Kind.TANK,at.add(0,1,0));service.forget(owner);require(f.isRemoved()&&service.trackedCount()==0,"owner departure closes actor");
         }
         boolean step(){if(owner.level().getGameTime()==last)return false;last=owner.level().getGameTime();require(game.playing()&&game.items().currentEpoch(epoch),"match epoch retained");
+            if(phase==6&&!prepareSneeze())return false;
             switch(phase++){case 0->guards();case 1->modes();case 2->timerAndArrow();case 3->beams();case 4->advancement();case 5->wallTrial();case 6->sneeze();case 7->{lifecycle();return true;}default->throw new IllegalStateException();}return false;}
         @Override public void close(){if(closed)return;closed=true;try{game.items().timeStop().end(owner.level());clear();
             for(var p:List.of(owner,other))game.items().indirectKills().clear(p);for(var entry:blocks.entrySet())game.maps().restoreSnapshot(owner.level(),entry.getKey(),entry.getValue());

@@ -75,7 +75,9 @@ public final class HedgehogSpikeChecks {
             var resetTarget=target;require(game.items().mana().score(target,"dmg_dealt").get()==1&&List.of("food_count","lolidefecation","sleep_time","greed_prestige").stream().allMatch(k->game.items().mana().score(resetTarget,k).get()==0)&&target.entityTags().contains("have_mom")&&!target.entityTags().contains("greed_cursed"),"POISON exact witch-gens reset scores/tags");clear();
             target=cow(at.add(0,0,4));hit(SpikeKind.WITHER,target);var water=target.getEffect(net.minecraft.world.effect.MobEffects.WATER_BREATHING);
             require(target.getHealth()==198&&water!=null&&water.getAmplifier()==1&&water.getDuration()==600,"WITHER full600tick enhancedwater1 native payload");game.items().magic().colors().tickWater();service.tick();
-            require(target.hasEffect(net.minecraft.world.effect.MobEffects.WITHER)&&target.getEffect(net.minecraft.world.effect.MobEffects.WITHER).getAmplifier()==3,"enhancedwater creates source Wither3 while in AIR");
+            require(!target.hasEffect(net.minecraft.world.effect.MobEffects.WITHER),"enhanced water waits for native air exhaustion before debuff");
+            target.setAirSupply(0);game.items().magic().colors().tickWater();service.tick();
+            require(target.hasEffect(net.minecraft.world.effect.MobEffects.WITHER)&&target.getEffect(net.minecraft.world.effect.MobEffects.WITHER).getAmplifier()==3,"air-exhausted enhancedwater creates source Wither3 while in AIR");
             target.setHealth(1);target.setInvulnerableTime(0);target.damageCooldownTime=0;target.hurtServer(owner.level(),target.damageSources().wither(),100);require(target.isDeadOrDying()&&target.getKillCredit()==owner,"actual derived Wither lethal damage inherits spike thrower");clear();
         }
         void protectAndReflect(){
@@ -111,7 +113,9 @@ public final class HedgehogSpikeChecks {
                 require(service.pendingCount()==1&&other.level()==originalLevel,"accepted physical CONFUSE queues the actual player");service.tick();
                 require(other.level()!=originalLevel&&game.canUseGameplayItems(other),"actual accepted-arrow CONFUSE transfers the same player to a source dimension");other.hasChangedDimension();
                 var stack=new ItemStack(SpikeKind.STANDARD.item(),2);other.setItemInHand(InteractionHand.MAIN_HAND,stack);
-                require(other.gameMode.useItem(other,other.level(),stack,InteractionHand.MAIN_HAND).consumesAction()&&stack.getCount()==1,"actual spike item remains usable after real crossworld transfer");
+                boolean ordinary=LbcDimensionItems.ordinary(other);
+                boolean used=other.gameMode.useItem(other,other.level(),stack,InteractionHand.MAIN_HAND).consumesAction();
+                require(used==ordinary&&stack.getCount()==(ordinary?1:2),"actual crossworld spike use respects source-world custom-item policy: "+other.level().dimension());
                 if(!other.level().dimension().equals(LbcHedgehogDimensions.NEXUS)){
                     int roll=other.level().dimension().equals(LbcHedgehogDimensions.IMPRINTED)?4:1;
                     require(game.items().hedgehogDimensions().teleport(other,owner,roll)&&other.level()==originalLevel,"supported source-world branch returns actual player to arena overworld alias");other.hasChangedDimension();

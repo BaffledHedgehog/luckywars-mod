@@ -1,3 +1,24 @@
+## God Hedgehog warning lines and elevated spawn - QUALIFIED, INSTALLED (27 October 2026)
+
+[Behavior, fixture corrections and native evidence](agent_notes/GOD_HEDGEHOG_WARNINGS_2026_10_27.md).
+Boss initial spawn is exactly20blocks higher; duplicate summon does not lift again.
+White-arrow particle telegraphs use one shared red gradient/fade line per actor,
+retaining10block span/40active ticks and original attack payload. Owned warnings
+pause and retire with actors. A world-aware factory keeps real outside-arena
+encounters visible; existing meditation arena restriction remains unchanged.
+No new RP files; previously prepared red warning model/shader is reused. Native
+physics/later scripted boss movements unchanged, not a general collision fix.
+Builda4683fe2 passed28results in2actual mode1matches (149.37s), exact523sources/
+1482classes/3224resources;195author paths/31live overrides unchanged. Native
+Imprinted world, all201white actors, Time Stop and normal stop cleanup pass.
+Initial broad-family failures are archived; fixtures now follow agreed air/
+dimension policy and warm native entity chunks before distant explosion checks.
+Installer24208 installed over46034d3c without restart; main hash verified. Prior
+installer15932 completed23a25d43-to46034d3c during this task. Current receipt:
+build/verification/god-hedgehog-warnings/main-install.json. Retain a4683fe2,
+46034d3c rollback and23a25d43 fallback; obsolete8d2f7513/6890ae59 JARs removed.
+All earlier status/artifact lists below remain historical.
+
 ## Antigravity departure gravity - QUALIFIED, AUTO INSTALL QUEUED (27 October 2026)
 
 [Cause, exact fix and native evidence](agent_notes/ANTIGRAVITY_DEPARTURE_2026_10_27.md).
