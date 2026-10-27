@@ -132,11 +132,15 @@ public final class LbcCreatureDrops {
     void adoptEggSkeleton(net.minecraft.world.entity.monster.skeleton.Skeleton actor,ServerPlayer author){
         prepare(actor,author);
     }
+    /** Compass Wardens share native hostile ownership, target protection, Time Stop and epoch cleanup. */
+    void adoptDeathWarden(net.minecraft.world.entity.monster.warden.Warden actor,ServerPlayer author){
+        prepare(actor,author);
+    }
     private void prepare(Entity actor,ServerPlayer author){
         actor.entityTags().add(ACTOR);if(author!=null){authors.put(author.getUUID(),author);actor.entityTags().add(OWNER+author.getUUID());}
         game.items().markCurrentItemEpoch(actor);tracked.add(actor);game.items().timeStop().prepareFrozen(actor);
     }
-    public static boolean managed(Entity actor){return actor!=null && (actor instanceof Vex || actor instanceof AbstractSkeleton || actor instanceof Zombie || actor instanceof ShulkerBullet) && actor.entityTags().contains(ACTOR);}
+    public static boolean managed(Entity actor){return actor!=null && (actor instanceof Vex || actor instanceof AbstractSkeleton || actor instanceof Zombie || actor instanceof ShulkerBullet || actor instanceof net.minecraft.world.entity.monster.warden.Warden) && actor.entityTags().contains(ACTOR);}
     public LivingEntity owner(Entity actor){
         if(actor instanceof ItemEntity token && LbcCreatureDropItem.matches(token.getItem()))return game.items().specialDrops().owner(token);
         if(!managed(actor))return null;

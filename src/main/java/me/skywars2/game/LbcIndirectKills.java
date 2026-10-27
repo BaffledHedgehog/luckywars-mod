@@ -205,6 +205,9 @@ public final class LbcIndirectKills {
         return allowProjectileEffect(target,effect.getEffect(),source);
     }
     public boolean allowProjectileEffect(LivingEntity target,Holder<MobEffect> effect,Entity source) {
+        if(source instanceof net.minecraft.world.entity.monster.warden.Warden && LbcCreatureDrops.managed(source)
+                && effect.value().getCategory()==net.minecraft.world.effect.MobEffectCategory.HARMFUL)
+            return game.items().creatureDrops().canAffect(source,target);
         if(LbcPotionSpawnerDrops.managed(source)) return game.items().potionSpawnerDrops().canAffect(source,target);
         if(LbcClouds.sourceAcidManaged(source)) return game.items().clouds().sourceAcidCanAffect(source,target);
         if(effect.value().getCategory()!=net.minecraft.world.effect.MobEffectCategory.HARMFUL

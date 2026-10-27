@@ -1,3 +1,18 @@
+## Death Compass - QUALIFIED, INSTALLED (27 October2026)
+
+[Author fallback, native Warden and proof](agent_notes/DEATH_COMPASS_PORT_2026_10_27.md).
+Original carried compass checks the death column every20active ticks. Without
+own history it borrows another online player's death; runtime tracker and new
+RP model use that exact target without rewriting saved history. Only its own
+Warden is moved, outside player footprints. Shared creature ownership/roles,
+Time Stop/lifecycle and existing Death Scythe engine are reused.
+Buildc260a27d passed28results in2actual mode1matches (67.78s), exact512sources/
+1452classes/3217resources.175author paths/31live overrides unchanged. Mainc260a27d
+installed normally without restart. New RP model requires manual application.
+Exact operator/staging leaf is available; genuine Lucky Block acquisition remains
+unported, not replaced by invented reforge flags or whole-pool enablement.
+Retainc260a27d and903de258 rollback; obsoletefe61bfdb retired (352files total).
+
 ## Respawn island and chest recovery - QUALIFIED, INSTALLED (27 October2026)
 
 [Author correction, source parity and native proof](agent_notes/RESPAWN_ISLAND_2026_10_27.md).

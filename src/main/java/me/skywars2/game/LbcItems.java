@@ -212,6 +212,7 @@ public final class LbcItems {
     private final LbcOrdinaryAccessories ordinaryAccessories;
     private final LbcInventoryHazards inventoryHazards;
     private final LbcCannedFood cannedFood;
+    private final LbcDeathCompass deathCompass;
     private final LbcMoiseiBoots moiseiBoots;
     private final LbcRegenerationBelt regenerationBelt;
     private final LbcQuiver quiver;
@@ -804,6 +805,7 @@ public final class LbcItems {
         this.ordinaryAccessories = new LbcOrdinaryAccessories(game);
         this.inventoryHazards = new LbcInventoryHazards(game);
         this.cannedFood = new LbcCannedFood(game);
+        this.deathCompass = new LbcDeathCompass(game);
         this.moiseiBoots = new LbcMoiseiBoots(game);
         this.regenerationBelt = new LbcRegenerationBelt(game);
         this.quiver = new LbcQuiver(game);
@@ -1003,6 +1005,7 @@ public final class LbcItems {
     public LbcOrdinaryAccessories ordinaryAccessories() { return ordinaryAccessories; }
     public LbcInventoryHazards inventoryHazards() { return inventoryHazards; }
     public LbcCannedFood cannedFood() { return cannedFood; }
+    public LbcDeathCompass deathCompass() { return deathCompass; }
     public LbcMoiseiBoots moiseiBoots() { return moiseiBoots; }
     public LbcRegenerationBelt regenerationBelt() { return regenerationBelt; }
     public LbcQuiver quiver() { return quiver; }
@@ -1671,6 +1674,7 @@ public final class LbcItems {
         regenerationBelt.tick();
         quiver.tick();
         inventoryHazards.tick();
+        deathCompass.tick();
         enderWiki.tick();
         prism.tick();
         awakenedAcid.tick();
@@ -1901,6 +1905,7 @@ public final class LbcItems {
         quiver.stop();
         reactiveArtifacts.stop();
         inventoryHazards.stop();
+        deathCompass.stop();
         psycho.stop();
         syringe.stop();
         communism.stop();
