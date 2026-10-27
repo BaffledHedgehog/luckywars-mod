@@ -16,8 +16,12 @@ public final class NegativeMining {
         private final BlockState state;
         private final String epoch;
         private double progress;
+        private final TpsCompensation.Clock clock = new TpsCompensation.Clock();
+        private int ticks;
+        private double elapsed;
         private Session(ServerLevel level,BlockPos source,BlockState state,String epoch) {
             this.level=level;this.source=source.immutable();this.state=state;this.epoch=epoch;
+            clock.reset(0);
         }
         public BlockPos source() {return source;}
     }
@@ -54,7 +58,10 @@ public final class NegativeMining {
         if(!(rate<0))return false;
         // Native progress includes hardness, tool/efficiency, effects, water and airborne penalties.
         // Saturating credit handles even float overflow without a burst loop or an unbounded backlog.
-        session.progress=Math.min(1,session.progress+Math.min(1,-(double)rate));
+        double elapsed=session.clock.elapsed(player,++session.ticks);
+        double delta=Math.max(0,elapsed-session.elapsed);
+        session.elapsed=elapsed;
+        session.progress=Math.min(1,session.progress+Math.min(1,-(double)rate*delta));
         if(session.progress<1)return true;
         session.progress=0;
         var direction=Direction.getApproximateNearest(player.getEyePosition().subtract(Vec3.atCenterOf(session.source)));

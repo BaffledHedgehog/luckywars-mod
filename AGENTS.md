@@ -1,3 +1,21 @@
+## TPS compensation - IMPLEMENTED, QUALIFIED, INSTALLED (27 October2026)
+
+[Behavior, native sources and evidence](agent_notes/TPS_COMPENSATION_2026_10_27.md).
+Server-side wall-time credit now covers native player attack/swap/minimum-charge,
+mining START/STOP/delayed completion and signed negative mining. Attributes and
+client prediction are unchanged; catch-up ticks do not double-count lag. Separate
+active/delayed clocks and always-running Time Stop/freeze/level pause epochs
+prevent stale action credit. Intentional tick-rate changes opt out; each sampled
+wall interval is capped at250ms. Packet arrival times lost during a stall cannot
+be reconstructed.
+
+Build735d9905 passed72 suite results +8preparation +2setup/cleanup in two actual
+mode1 matches (70.45s). Exact503sources/1436classes/3215resources. All175 protected
+paths and31 live overrides are exact. Main installed normally without restart;
+current ready JAR and16502e73 rollback retained. No RP change. Historical
+feasibility-only TPS notes below are superseded; omit that obsolete footnote
+from future unrelated reports. Other unresolved author choices remain pending.
+
 ## Author answers17..22 — QUALIFIED, INSTALLED (27 October2026)
 
 [Author decisions](agent_notes/AUTHOR_ANSWERS_2026_10_27.md), [implementation and evidence](agent_notes/ANSWERED_18_22_PORT_2026_10_27.md).
