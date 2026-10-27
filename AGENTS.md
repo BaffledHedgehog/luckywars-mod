@@ -1,3 +1,16 @@
+## Respawn island and chest recovery - QUALIFIED, INSTALLED (27 October2026)
+
+[Author correction, source parity and native proof](agent_notes/RESPAWN_ISLAND_2026_10_27.md).
+Remaining-life respawns always restore/refill marked chests within18. Missing
+landing additionally restores the original masked21x31x21 island with full NBT,
+without startup cages or generated loot. Surviving geometry is preserved; final
+life spectator/lobby paths do not restore. Shared category loot/count logic is reused.
+Build903de258 passed28results in2actual mode1matches (60.96s), six real native
+death/respawn cases. Exact509sources/1448classes/3216resources;175author paths/
+31live overrides unchanged. Normal child shutdown/restoration passed. No RP.
+Main903de258 installed normally without restart; fe61bfdb rollback retained.
+Two obsolete verified JARs retired (cumulative351files/12626780887bytes).
+
 ## Metasola strict terrain and player input - QUALIFIED, AUTO INSTALL QUEUED (27 October2026)
 
 [Cause, source parity, native proof and limits](agent_notes/METASOLA_REPAIR_2026_10_27.md).

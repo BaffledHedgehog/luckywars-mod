@@ -537,7 +537,7 @@ public final class GameController {
         // После открытия клеток переключаем участников в выживание и выдаём ванильные и LBC-наборы.
         if (alivePlayers().size() < 2) { restoreLobby(); return; }
         luckyModifiers.startMatch();
-        maps.cages(false); maps.fillChests(false);
+        maps.cages(false); maps.captureRespawnIslands(); maps.fillChests(false);
         transition(Stage.PLAYING); gameTicks = 0;
         events.start();
         for (ServerPlayer player : alivePlayers()) {
@@ -603,6 +603,7 @@ public final class GameController {
         if (playing() && p != null && !p.disconnected && p.lives > 0) {
             // Полная нормализация относится к границам матча; новую жизнь готовим по прежним правилам.
             p.awaitingRespawn = false; resetPlayer(player, config.health, false);
+            maps.restoreRespawnIsland(p.spawn);
             player.setGameMode(GameType.SURVIVAL); teleport(player, p.spawn.position(), p.spawn.yaw(), p.spawn.pitch());
             if (config.vanillaKits) events.giveKit(player);
             if (config.vanillaSkills) events.giveSkill(player);

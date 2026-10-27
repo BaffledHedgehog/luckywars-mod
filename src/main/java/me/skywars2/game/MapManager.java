@@ -143,6 +143,8 @@ public final class MapManager {
     private int workTicks;
     private int completedSlices;
     private List<Spawn> spawns = List.of();
+    // Pristine, cage-free terrain. Match loot must never become the restoration baseline.
+    private final Map<BlockPos,Map<BlockPos,BlockSnapshot>> respawnIslands = new HashMap<>();
     private Vec3 look = Vec3.ZERO;
     private Consumer<Result> completion;
     private String pendingMap;
@@ -514,6 +516,10 @@ public final class MapManager {
 
     /** Assigns ordinary SkyWars loot, or the center pool for the later upgrade phase. */
     public void fillChests(boolean upgrade) {
+        fillChests(upgrade,null,0);
+    }
+
+    private void fillChests(boolean upgrade,Vec3 center,double radius) {
         if (level == null) return;
         int generatedChests = 0;
         int encodedCounts = 0;
@@ -521,6 +527,7 @@ public final class MapManager {
         for (Entity marker : allArenaEntities()) {
             // Метки swrg.center/swrg.chest есть и у вагонеток АирДропа: они не являются точками блоков карты.
             if (!(marker instanceof Marker)) continue;
+            if (center != null && marker.position().distanceToSqr(center) > radius*radius) continue;
             String table = null;
             if (marker.entityTags().contains("swrg.center")) table = "center";
             else if (marker.entityTags().contains("swrg.midle")) table = "midle";
@@ -563,6 +570,71 @@ public final class MapManager {
         }
         LOGGER.info("SWRG refill upgrade={} generatedChests={} syntheticCounts={} countsAboveOne={}",
                 upgrade, generatedChests, encodedCounts, multiCounts);
+    }
+
+    /** Legacy white-world reference, bounded to the only regions respawn can restore. */
+    void captureRespawnIslands() {
+        respawnIslands.clear();
+        if(level==null)return;
+        for(var spawn:spawns){
+            var center=BlockPos.containing(spawn.position());
+            var cells=new HashMap<BlockPos,BlockSnapshot>();
+            int low=Math.max(level.getMinY(),center.getY()-20),high=Math.min(level.getMaxY()-1,center.getY()+10);
+            for(int x=(center.getX()-10)>>4;x<=(center.getX()+10)>>4;x++)
+                for(int z=(center.getZ()-10)>>4;z<=(center.getZ()+10)>>4;z++)level.getChunk(x,z);
+            for(var pos:BlockPos.betweenClosed(new BlockPos(center.getX()-10,low,center.getZ()-10),
+                    new BlockPos(center.getX()+10,high,center.getZ()+10))){
+                if(!level.getBlockState(pos).isAir())cells.put(pos.immutable(),snapshot(pos));
+            }
+            respawnIslands.put(center,Map.copyOf(cells));
+        }
+    }
+
+    /** Test the landing column below the spawn, rather than treating a roof as a floor. */
+    boolean hasRespawnLanding(Spawn spawn) {
+        if(level==null)return false;
+        var feet=BlockPos.containing(spawn.position().add(0,-.0001,0));
+        int top=Math.min(feet.getY(),level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING,
+                feet.getX(),feet.getZ())-1);
+        var solid=net.minecraft.tags.TagKey.create(Registries.BLOCK,Identifier.withDefaultNamespace("solid"));
+        var pos=new BlockPos.MutableBlockPos(feet.getX(),top,feet.getZ());
+        for(int y=top;y>=level.getMinY();y--){
+            pos.setY(y);var state=level.getBlockState(pos);
+            if(!net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING.isOpaque().test(state))continue;
+            var shape=state.getCollisionShape(level,pos);
+            return state.is(solid)&&!shape.isEmpty()
+                    &&y+shape.max(net.minecraft.core.Direction.Axis.Y)<=spawn.position().y+.0001;
+        }
+        return false;
+    }
+
+    /** Masked legacy clone: original air never deletes a player's newly built blocks. */
+    boolean restoreRespawnIsland(Spawn spawn) {
+        if(level==null)return false;
+        var center=BlockPos.containing(spawn.position());var cells=respawnIslands.get(center);
+        boolean restore=!hasRespawnLanding(spawn)&&cells!=null&&!cells.isEmpty();
+        if(restore){
+            for(int x=(center.getX()-10)>>4;x<=(center.getX()+10)>>4;x++)
+                for(int z=(center.getZ()-10)>>4;z<=(center.getZ()+10)>>4;z++)level.getChunk(x,z);
+            var positions=new ArrayList<>(cells.keySet());
+            // Clone places supporting solids, block entities, then attachments. Arbitrary
+            // hash-map order can break torches/plants before their support is restored.
+            positions.sort(Comparator.<BlockPos>comparingInt(pos->{var cell=cells.get(pos);
+                return cell.entity()!=null?1:!cell.state().isSolidRender()
+                        &&!cell.state().isCollisionShapeFullBlock(level,pos)?2:0;
+            }).thenComparingInt(BlockPos::getZ).thenComparingInt(BlockPos::getY).thenComparingInt(BlockPos::getX));
+            var before=new HashMap<BlockPos,BlockState>();
+            for(int i=positions.size()-1;i>=0;i--){var pos=positions.get(i);before.put(pos,level.getBlockState(pos));
+                restoreSnapshot(level,pos,new BlockSnapshot(Blocks.BARRIER.defaultBlockState(),null),
+                        Block.UPDATE_CLIENTS|Block.UPDATE_SKIP_ALL_SIDEEFFECTS);
+            }
+            for(var pos:positions)restoreSnapshot(level,pos,cells.get(pos),Block.UPDATE_CLIENTS);
+            for(int i=positions.size()-1;i>=0;i--){var pos=positions.get(i);level.updateNeighboursOnBlockSet(pos,before.get(pos));}
+        }
+        // (user) Chests are restored/refilled on every remaining-life respawn,
+        // including when the island's landing surface survived.
+        fillChests(false,spawn.position(),18);
+        return restore;
     }
 
     /** Общая нормализация старого количества и для блоков, и для вагонеток с сундуком. */
@@ -1414,6 +1486,7 @@ public final class MapManager {
             if (!(entity instanceof Player)) entity.discard();
         }
         spawns = List.of();
+        respawnIslands.clear();
         look = Vec3.ZERO;
     }
 

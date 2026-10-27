@@ -380,6 +380,9 @@ public final class GameChecks {
                                                         sendRespawnPacket(bot);
                                         }
                                 }
+                                case "respawn-island-prepare" -> { RespawnIslandChecks.prepare(game); return; }
+                                case "respawn-island" -> { RespawnIslandChecks.run(game); return; }
+                                case "respawn-island-cleanup" -> { RespawnIslandChecks.cleanup(game); return; }
                                 case "lives" -> startLivesTest(game);
                                 case "skills" -> {
                                         checkSkills(game);
@@ -1303,6 +1306,7 @@ public final class GameChecks {
 
         /** Called once per server tick after the controller tick. */
         public static void tick(GameController game) {
+            RespawnIslandChecks.tick(game);
             DevilSwordChecks.tick(game);
             JumpArtifactChecks.tick(game);
             TravellerChecks.tick(game);
