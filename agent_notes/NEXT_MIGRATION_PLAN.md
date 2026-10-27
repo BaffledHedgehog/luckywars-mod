@@ -1,3 +1,19 @@
+## Malevich - QUALIFIED, INSTALLED (27 October2026)
+
+[Source contract, author ruling and native proof](MALEVICH_PORT_2026_10_27.md).
+Complete Paper family now includes deferred41-slot inventory filling, ground
+whole-stack conversion and >100-entity native TNT overflow. Native inventory
+notifications coalesce scans; cold/full inventories are not polled. Before fill,
+current possession, Magic Stopper, Armored Inventory, roles and epoch are checked.
+Shared provenance preserves the original creator, including offline UUIDs; the
+existing TNT service owns physics, reflection, Time Stop and cleanup.
+Build6890ae59 passed30results in2actual mode1matches (76.67s), exact514sources/
+1456classes/3219resources.175author paths/31live overrides unchanged. Main6890ae59
+installed normally without restart. No RP changes. Operator original/staged loot
+is available; genuine Lucky Block acquisition remains unported. Retain6890ae59
+andc260a27d rollback; obsolete903de258 retired (353files total). Historical status
+and rollback lists below are superseded by this entry.
+
 ## Death Compass - QUALIFIED, INSTALLED (27 October2026)
 
 [Author fallback, native Warden and proof](DEATH_COMPASS_PORT_2026_10_27.md).

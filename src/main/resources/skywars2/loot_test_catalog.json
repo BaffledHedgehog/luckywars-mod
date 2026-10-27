@@ -7,6 +7,7 @@
     "lbc:ported/"
   ],
   "tables": [
+    "lbc:malevich_rnd",
     "lbc:transformables_arcanum",
     "lbc:transformables_arcanum_all",
     "lbc:corrupted_dust",

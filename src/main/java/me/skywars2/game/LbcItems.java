@@ -213,6 +213,7 @@ public final class LbcItems {
     private final LbcInventoryHazards inventoryHazards;
     private final LbcCannedFood cannedFood;
     private final LbcDeathCompass deathCompass;
+    private final LbcMalevich malevich;
     private final LbcMoiseiBoots moiseiBoots;
     private final LbcRegenerationBelt regenerationBelt;
     private final LbcQuiver quiver;
@@ -806,6 +807,7 @@ public final class LbcItems {
         this.inventoryHazards = new LbcInventoryHazards(game);
         this.cannedFood = new LbcCannedFood(game);
         this.deathCompass = new LbcDeathCompass(game);
+        this.malevich = new LbcMalevich(game);
         this.moiseiBoots = new LbcMoiseiBoots(game);
         this.regenerationBelt = new LbcRegenerationBelt(game);
         this.quiver = new LbcQuiver(game);
@@ -1006,6 +1008,7 @@ public final class LbcItems {
     public LbcInventoryHazards inventoryHazards() { return inventoryHazards; }
     public LbcCannedFood cannedFood() { return cannedFood; }
     public LbcDeathCompass deathCompass() { return deathCompass; }
+    public LbcMalevich malevich() { return malevich; }
     public LbcMoiseiBoots moiseiBoots() { return moiseiBoots; }
     public LbcRegenerationBelt regenerationBelt() { return regenerationBelt; }
     public LbcQuiver quiver() { return quiver; }
@@ -1084,6 +1087,7 @@ public final class LbcItems {
         antDrops.loaded(entity);
         tntDrops.loaded(entity);
         inventoryHazards.loaded(entity);
+        malevich.loaded(entity);
         pendingCombat.loaded(entity);
         pendingSwords.loaded(entity);
         incomingArtifacts.loaded(entity);
@@ -1250,6 +1254,7 @@ public final class LbcItems {
         stalin.unloaded(entity);
         kfcRewards.entityUnloaded(entity);
         inventoryHazards.unloaded(entity);
+        malevich.unloaded(entity);
         pendingCombat.unloaded(entity);
         pendingSwords.unloaded(entity);
         incomingArtifacts.unloaded(entity);
@@ -1338,7 +1343,7 @@ public final class LbcItems {
 
     private static String newEntityEpochTag() { return "skywars2.items." + UUID.randomUUID(); }
 
-    private boolean hasStaleItemEpoch(Entity entity) {
+    boolean hasStaleItemEpoch(Entity entity) {
         for (String tag : entity.entityTags()) {
             if (tag.startsWith("skywars2.items.") && !tag.equals(entityEpochTag)) return true;
         }
@@ -1675,6 +1680,7 @@ public final class LbcItems {
         quiver.tick();
         inventoryHazards.tick();
         deathCompass.tick();
+        malevich.tick();
         enderWiki.tick();
         prism.tick();
         awakenedAcid.tick();
@@ -1839,6 +1845,7 @@ public final class LbcItems {
         kfcFood.forget(player);
         kfcRewards.clear(player);
         inventoryHazards.forget(player);
+        malevich.forget(player);
         pendingCombat.forget(player);
         pendingSwords.forget(player);
         incomingArtifacts.forget(player);
@@ -1906,6 +1913,7 @@ public final class LbcItems {
         reactiveArtifacts.stop();
         inventoryHazards.stop();
         deathCompass.stop();
+        malevich.stop();
         psycho.stop();
         syringe.stop();
         communism.stop();

@@ -1,0 +1,35 @@
+# Malevich - complete native engine, 27 October 2026
+
+## Author decision (user)
+
+> бля надо бы по нормальному сделать его просто и все, чтоб не нагружало сервак. Ну да его глушит глушилк магии и навык защищенный инвентарь
+
+The author answered the next-tick revalidation question with a request for efficient native behavior, including Magic Stopper and Armored Inventory protection. This port coalesces native inventory-change events, polls only affected holders with room, and validates possession/authority/suppression again immediately before writing. It does not reproduce the commented datapack fill engine.
+
+## Source and behavior
+
+Authoritative source: legacy Paper `plugins/luckywars/src/main/java/me/luckywars/item/Malevich.java`, registered in SigmaWarsMain124-125. Plugin name LuckyWars makes its key namespace `luckywars`. Accepted identities are exactly nested PublicBukkitValues pairs `luckywars:item/luckywars:type`, `lws:item/lws:type`, `lucky_wars:item/lucky_wars:type`, inner value malevich. Name/model/raw malevich1 alone are not Paper identity. The advertised postConsumeCooldown set was never written; it creates no native cooldown. Two redundant old selected-slot resends after eating are unnecessary with native slot synchronization and are not duplicated.
+
+Storage0..35, four armor slots and offhand activate; cursor/crafting/new body slots alone do not. On the five-tick admission phase, dirty inventories are scanned once. Cold inventories without a matching change stay out of the scan. Full holders leave the candidate set entirely; a later real slot-change event re-enrolls them. Suppressed holders with room remain cheap candidates, so removing a beacon/skill resumes behavior without an inventory edit. One coalesced fill commits on the next active tick with current possession/role/epoch/suppression checks. No captured inventory array is restored. Every empty storage slot, then head/chest/legs/feet, then offhand gets its own native loot roll's first nonempty item; occupied slots/cursor remain intact. Original Paper skill2 check is profile-based even with skills configuration disabled; no selectable partial skill is introduced.
+
+Ground processing runs every20active ticks from a load/unload registry of real ItemEntities, reading their live stacks. No whole-world entity scan or per-tick traversal of ground items is introduced. Each unblocked Malevich replaces every non-Malevich item in its own bounding box inflated3, consuming each entire original stack and producing all nonempty results of one native loot roll. Native ItemEntity constructor motion and pickupDelay10 preserve Paper dropItem behavior at the exact old position. A square that converts nothing while the gathered Malevich entity count exceeds100 triggers all gathered unblocked squares: each is removed and emits1-2 native TNT, fuse0..10, X/Z[-.1,.1), Y[0,.2). Stack units do not count as separate entities; blocked squares still count but do not explode.
+
+Geometry and spawn motion were verified using actual local Paper1.21.11 bytecode: CraftEntity.getNearbyEntities calls getBoundingBox.inflate; CraftWorld.dropItem constructs ItemEntity and only sets pickupDelay10; its native constructor uses random X/Z and Y.2. This corrected initial point-box/zero-XZ assumptions before native qualification.
+
+The existing native TNT service now exposes shared emission: the original thirteen-TNT producer delegates with unchanged count/order/velocity/fuse. Time Stop, epochs, native chain/reflection, exposure/impulse, allied-player/Greed policy, ownership and stop cleanup remain in that shared service. No second TNT simulation or explosion proxy is added. Shared carried-item provenance is inherited before the current thrower. Valid creator UUIDs survive an offline/unloaded creator without being reassigned to the holder; offline TNT keeps its native serialized owner UUID. This does not claim awarding online player statistics while their creator is offline.
+
+## Original loot and acquisition
+
+Original `lbc:malevich_rnd` is self-contained: one repeating command block, tier_ff, model lbc:malevich, yellow name/lore, original signature line and random hidden mainhand spawn-reinforcements1..100 modifier, raw flags plus nested Paper identity. Standard26.3 loot schema conversion preserves these details. The exact loliluckyblock nested entry (weight10/quality8 and both original conditions) is staged as `lbc:ported/malevich`; no whole unresolved Lucky Block pool or invented reforge route is enabled. `/loot give @s loot lbc:malevich_rnd` directly tests the original table. Both operator IDs are suggested. Normal acquisition through loliluckyblock remains unported.
+
+Existing RP name/lore/model are reused. No original RP edits or template assets are needed. Common participant/observer/map/ending/Time Stop rules apply. Source magic suppression uses Paper AABB20; ordinary input stun and nomagic_active do not suppress the passive. The native inventory cache uses the existing InventoryChangeTrigger bridge and clears player work on forget/stop.
+
+## Qualification
+
+Qualified artifact `skywars2-malevich-6890ae59.jar`, SHA256 `6890ae59c1931aca0f3f0a382e34a1d9b9a1054c833f46c2f506eb41ad3cfac0`.
+
+`gradlew build --offline` passed. The unchanged final artifact passed30 recorded suite results in two actual mode1 matches in76.67s: native inventory/ground/overflow cases, original13-TNT regression, role/Greed damage, Time Stop/contacts, signed effect layers, rifle accuracy and FOV transitions. Each match additionally proved actual-stop removal of101-202 retained native TNT and epoch invalidation. Exact514source files,1456classes and3219processed resources match the tested JAR; fabric metadata and the expected nested SGUI jar were checked. All175 protected author paths and31 live grimoire override files are unchanged. No physical Minecraft frames/audio or peakTPS claim.
+
+During qualification the source loot wrapper required the already established26.3 `int_value_check` conversion. An inventory fixture initially failed because zero mana created a normal Overload Crux, which was picked up10ticks later. A scoped `obtained_crux` fixture tag now prevents that unrelated producer and is restored with the existing player snapshot; real suppression was already correct. The native marker remains a positive suppression control. Rejected logs are retained under `build/verification/malevich/rejected-*`. The preexisting Polymer chunk-packet context diagnostic during memory-bot login also appears in both previous qualified logs; this change neither introduces nor suppresses it.
+
+Main `mods/skywars2.jar` now matches6890ae59, installed only after the world lock and port were free. No forced stop or restart. Evidence: `build/verification/malevich/qualification.json`, `main-install.json`, and `build-cleanup-receipt.json`. Retained ready6890ae59 and previousc260a27d rollback. Obsolete verified903de258 was removed after install (cumulative353 retired files /12707779786bytes); the independent Polymer network audit tool remains.

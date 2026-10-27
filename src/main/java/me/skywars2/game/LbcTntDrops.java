@@ -43,18 +43,39 @@ public final class LbcTntDrops {
         // getOwner is ItemEntity's thrower, independently of its pickup-target UUID.
         var owner = game.items().specialDrops().owner(token);
         for (var velocity : VELOCITIES) {
-            // Keep the exact native class so the shared TNT block-discovery cache applies.
-            var tnt = new PrimedTnt(level, at.x, at.y, at.z, owner);
-            tnt.setFuse(70);
-            tnt.setDeltaMovement(velocity[0], 1, velocity[1]);
-            tnt.entityTags().add(TNT);
-            game.items().markCurrentItemEpoch(tnt);
-            causes.put(tnt, owner);
-            tracked.add(tnt);
-            game.items().timeStop().prepareFrozen(tnt);
-            if (!level.addFreshEntity(tnt)) tracked.remove(tnt);
+            spawnActor(level,at,owner,new net.minecraft.world.phys.Vec3(velocity[0],1,velocity[1]),70);
         }
         return true;
+    }
+
+    /** Native TNT emission shared by drop formations and Malevich overflow; one lifecycle and explosion policy. */
+    PrimedTnt spawnActor(ServerLevel level,net.minecraft.world.phys.Vec3 at,LivingEntity owner,
+            net.minecraft.world.phys.Vec3 velocity,int fuse){
+        return emit(level,at,owner,null,velocity,fuse);
+    }
+    /** Keep an offline creator's native UUID, rather than transferring ownership to the current holder. */
+    PrimedTnt spawnRecordedActor(ServerLevel level,net.minecraft.world.phys.Vec3 at,java.util.UUID creator,
+            net.minecraft.world.phys.Vec3 velocity,int fuse){
+        LivingEntity owner=creator==null?null:game.server().getPlayerList().getPlayer(creator);
+        if(owner==null&&creator!=null&&level.getEntity(creator) instanceof LivingEntity living)owner=living;
+        return emit(level,at,owner,creator,velocity,fuse);
+    }
+    private PrimedTnt emit(ServerLevel level,net.minecraft.world.phys.Vec3 at,LivingEntity owner,java.util.UUID creator,
+            net.minecraft.world.phys.Vec3 velocity,int fuse){
+        if(!game.playing()||game.stage()==GameController.Stage.ENDING||level!=game.maps().level()
+                ||level.getChunkSource().getChunkNow(net.minecraft.util.Mth.floor(at.x)>>4,net.minecraft.util.Mth.floor(at.z)>>4)==null)return null;
+        // Exact native class keeps the existing TNT discovery cache, reflection and chain propagation.
+        var tnt=new PrimedTnt(level,at.x,at.y,at.z,owner);tnt.setFuse(fuse);tnt.setDeltaMovement(velocity);
+        if(owner==null&&creator!=null){
+            var output=net.minecraft.world.level.storage.TagValueOutput.createWithContext(net.minecraft.util.ProblemReporter.DISCARDING,level.registryAccess());
+            tnt.saveWithoutId(output);var data=output.buildResult();
+            data.put("owner",net.minecraft.core.UUIDUtil.CODEC.encodeStart(net.minecraft.nbt.NbtOps.INSTANCE,creator).getOrThrow());
+            tnt.load(net.minecraft.world.level.storage.TagValueInput.create(net.minecraft.util.ProblemReporter.DISCARDING,level.registryAccess(),data));
+        }
+        tnt.entityTags().add(TNT);game.items().markCurrentItemEpoch(tnt);causes.put(tnt,owner);tracked.add(tnt);
+        game.items().timeStop().prepareFrozen(tnt);
+        if(level.addFreshEntity(tnt))return tnt;
+        tracked.remove(tnt);causes.remove(tnt);tnt.discard();return null;
     }
 
     public static boolean managed(Entity entity) {

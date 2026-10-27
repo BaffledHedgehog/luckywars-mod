@@ -1,88 +1,88 @@
 {
-    "type":"minecraft:empty",
-    "pools": [
+  "type": "minecraft:empty",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
         {
-            "rolls": 1,
-            "entries": [
+          "type": "minecraft:item",
+          "name": "minecraft:repeating_command_block",
+          "modifier": [
+            {
+              "count": 1,
+              "type": "minecraft:set_count"
+            },
+            {
+              "components": {
+                "minecraft:tooltip_style": "lbc:tier_ff",
+                "minecraft:item_model": "lbc:malevich"
+              },
+              "type": "minecraft:set_components"
+            },
+            {
+              "name": [
                 {
-                    "type": "minecraft:item",
-                    "name": "minecraft:repeating_command_block",
-                    "functions": [
-                        {
-                            "function": "minecraft:set_count",
-                            "count": 1
-                        },
-                        {
-                            "function": "minecraft:set_components",
-                            "components": {
-                                "minecraft:tooltip_style":"lbc:tier_ff",
-                                "minecraft:item_model": "lbc:malevich"
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_name",
-                            "name": [
-                                {
-                                    "translate": "malevich",
-                                    "color": "yellow",
-                                    "italic": false
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_lore",
-                            "mode": "replace_all",
-                            "lore": [
-                                {
-                                    "translate": "malevich.lore",
-                                    "color": "yellow",
-                                    "italic": false
-                                },
-                                [
-                                    {
-                                        "text": "Nightmare_23",
-                                        "color": "green",
-                                        "italic": false,
-                                        "type": "text"
-                                    },
-                                    {
-                                        "text": " Chess Winner",
-                                        "color": "dark_gray",
-                                        "italic": false,
-                                        "type": "text"
-                                    }
-                                ]
-                            ]
-                        },
-                        {
-                            "function": "minecraft:set_attributes",
-                            "modifiers": [
-                                {
-                                    "attribute": "minecraft:spawn_reinforcements",
-                                    "id": "minecraft:dv89seuf8jeswfdiskhgs",
-                                    "amount": {
-                                        "min": 1,
-                                        "max": 100,
-                                        "type": "minecraft:uniform"
-                                    },
-                                    "operation": "add_value",
-                                    "slot": "mainhand"
-                                }
-                            ]
-                        },
-                        {
-                            "function": "minecraft:toggle_tooltips",
-                            "toggles": {
-                                "attribute_modifiers": false
-                            }
-                        },
-                        {
-                            "function": "minecraft:set_custom_data",
-                            "tag": "{instantitem:1,malevich:1,PublicBukkitValues:{\"lws:item\":{\"lws:type\":\"malevich\"}}}"
-                        }
-                    ]
+                  "translate": "malevich",
+                  "color": "yellow",
+                  "italic": false
                 }
-            ]
+              ],
+              "type": "minecraft:set_name"
+            },
+            {
+              "mode": "replace_all",
+              "lore": [
+                {
+                  "translate": "malevich.lore",
+                  "color": "yellow",
+                  "italic": false
+                },
+                [
+                  {
+                    "text": "Nightmare_23",
+                    "color": "green",
+                    "italic": false,
+                    "type": "text"
+                  },
+                  {
+                    "text": " Chess Winner",
+                    "color": "dark_gray",
+                    "italic": false,
+                    "type": "text"
+                  }
+                ]
+              ],
+              "type": "minecraft:set_lore"
+            },
+            {
+              "modifiers": [
+                {
+                  "attribute": "minecraft:spawn_reinforcements",
+                  "id": "minecraft:dv89seuf8jeswfdiskhgs",
+                  "amount": {
+                    "min": 1,
+                    "max": 100,
+                    "type": "minecraft:uniform"
+                  },
+                  "operation": "add_value",
+                  "slot": "mainhand"
+                }
+              ],
+              "type": "minecraft:set_attributes"
+            },
+            {
+              "toggles": {
+                "attribute_modifiers": false
+              },
+              "type": "minecraft:toggle_tooltips"
+            },
+            {
+              "tag": "{instantitem:1,malevich:1,PublicBukkitValues:{\"lws:item\":{\"lws:type\":\"malevich\"}}}",
+              "type": "minecraft:set_custom_data"
+            }
+          ]
         }
-    ]
+      ]
+    }
+  ]
 }

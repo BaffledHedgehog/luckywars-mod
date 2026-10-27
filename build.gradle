@@ -463,6 +463,7 @@ processResources {
             'data/lbc/loot_table/transformables_trident.json',
             'data/lbc/loot_table/unstable_reactive.json'
     include 'data/lbc/loot_table/ported/death_compass.json'
+    include 'data/lbc/loot_table/malevich_rnd.json', 'data/lbc/loot_table/ported/malevich.json'
     include 'data/lbc/loot_table/ported/canned_food.json', 'data/lbc/loot_table/ported/hylian_sword.json',
             'data/minecraft/tags/entity_type/monsters.json'
     // Legacy assets stay in the working tree; their registries/advancements must not run

@@ -1,0 +1,45 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:loot_table",
+          "weight": 10,
+          "quality": 8,
+          "value": "lbc:malevich_rnd",
+          "condition": {
+            "type": "minecraft:all_of",
+            "terms": [
+              {
+                "term": {
+                  "value": {
+                    "type": "minecraft:score",
+                    "target": {
+                      "type": "minecraft:fixed",
+                      "name": "final_luck_modifier"
+                    },
+                    "score": "lbc.math"
+                  },
+                  "type": "minecraft:int_value_check",
+                  "test": 7
+                },
+                "type": "minecraft:inverted"
+              },
+              {
+                "term": {
+                  "entity": "this",
+                  "predicate": {
+                    "nbt": "{Inventory:[{components:{\"minecraft:custom_data\":{zaika:1}}}]}"
+                  },
+                  "type": "minecraft:entity_properties"
+                },
+                "type": "minecraft:inverted"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -47,6 +47,9 @@ public final class LbcInventoryHazards {
     static void recordProducer(ItemStack stack,UUID producer,String epoch){var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();var origin=new CompoundTag();origin.putString("producer",producer.toString());origin.putString("epoch",epoch);data.put(ORIGIN,origin);stack.set(DataComponents.CUSTOM_DATA,CustomData.of(data));}
     private Origin origin(ItemStack stack){var data=stack.get(DataComponents.CUSTOM_DATA);if(data==null)return null;var value=data.copyTag().getCompound(ORIGIN).orElse(null);if(value==null)return null;try{var origin=new Origin(UUID.fromString(value.getStringOr("producer","")),value.getStringOr("epoch",""));return game.items().currentEpoch(origin.epoch)?origin:null;}catch(IllegalArgumentException ignored){return null;}}
     private LivingEntity producer(Origin origin){if(origin==null||!game.items().currentEpoch(origin.epoch))return null;var player=game.server().getPlayerList().getPlayer(origin.producer);if(player!=null)return player;var level=game.maps().level();var entity=level==null?null:level.getEntity(origin.producer);return entity instanceof LivingEntity living?living:null;}
+    /** Shared carried-item provenance survives native pickup, splitting and later throws. */
+    LivingEntity producerOf(ItemStack stack){return producer(origin(stack));}
+    UUID producerIdOf(ItemStack stack){var value=origin(stack);return value==null?null:value.producer;}
     private LbcIndirectKills.Owner cause(Origin origin,boolean wild){return producer(origin) instanceof ServerPlayer player?(wild?game.items().indirectKills().wildCause(player):game.items().indirectKills().coldCause(player,false)):null;}
     /** Reflection and native TNT chains can transfer authority after the carried payload was emitted. */
     private Actor authority(Entity actor){

@@ -18,6 +18,7 @@ public abstract class LbcInventoryTriggerMixin {
         var game = SkyWars2.game();
         if (game != null) {
             game.items().magic().inventoryChanged(player);
+            game.items().malevich().inventoryChanged(player,changed);
             game.items().refreshMinigunMovement(player);
         }
     }
